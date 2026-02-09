@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -46,14 +47,32 @@ class EntityDefinitionTagCompilerPass implements CompilerPassInterface
 
                 if ($alreadyHasTagAttribute) {
                     if ($entityName !== null && $alreadyDefinedTagAttribute !== $entityName) {
-                        throw DependencyInjectionException::entityTagMismatch($serviceId, $tagName, $alreadyDefinedTagAttribute, $entityName);
+                        /** @deprecated tag:v6.8.0 - remove else branch, keep only the throw */
+                        if (Feature::isActive('v6.8.0.0')) {
+                            throw DependencyInjectionException::entityTagMismatch($serviceId, $tagName, $alreadyDefinedTagAttribute, $entityName);
+                        }
+
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Service "' . $serviceId . '" has tag "' . $tagName . '" with entity="' . $alreadyDefinedTagAttribute . '", but getEntityName() returns "' . $entityName . '". They must match. This will throw an exception in v6.8.0.'
+                        );
                     }
 
                     continue;
                 }
 
                 if ($entityName === null) {
-                    throw DependencyInjectionException::entityTagUnresolvable($serviceId, $tagName, $class);
+                    /** @deprecated tag:v6.8.0 - remove else branch, keep only the throw */
+                    if (Feature::isActive('v6.8.0.0')) {
+                        throw DependencyInjectionException::entityTagUnresolvable($serviceId, $tagName, $class);
+                    }
+
+                    Feature::triggerDeprecationOrThrow(
+                        'v6.8.0.0',
+                        'Service "' . $serviceId . '" is tagged as "' . $tagName . '" but has no "entity" attribute and the entity name could not be resolved from class "' . $class . '". Add the "entity" attribute to the service tag. This will throw an exception in v6.8.0.'
+                    );
+
+                    continue;
                 }
 
                 // Write entity name to tag while preserving existing attributes

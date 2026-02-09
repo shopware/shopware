@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityDefinitionTagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -44,6 +45,25 @@ class EntityDefinitionTagCompilerPassTest extends TestCase
 
         $pass = new EntityDefinitionTagCompilerPass();
         $pass->process($container);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, testThrowsOnEntityTagMismatch covers the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testThrowsOnEntityTagMismatchDeprecated(): void
+    {
+        $container = new ContainerBuilder();
+        $container
+            ->register(ProductDefinition::class, ProductDefinition::class)
+            ->addTag('shopware.entity.definition', ['entity' => 'wrong_name']);
+
+        $pass = new EntityDefinitionTagCompilerPass();
+        $pass->process($container);
+
+        // Deprecation path: tag is kept as-is, no exception thrown
+        $tags = $container->getDefinition(ProductDefinition::class)->getTag('shopware.entity.definition');
+        static::assertSame('wrong_name', $tags[0]['entity']);
     }
 
     public function testSkipsDefinitionWithNullClass(): void
@@ -167,6 +187,25 @@ class EntityDefinitionTagCompilerPassTest extends TestCase
         $pass->process($container);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, testThrowsUnresolvableForDefinitionWithConstructorParametersAndNoTag covers the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testThrowsUnresolvableForDefinitionWithConstructorParametersAndNoTagDeprecated(): void
+    {
+        $container = new ContainerBuilder();
+        $container
+            ->register(ConstructorParamDefinition::class, ConstructorParamDefinition::class)
+            ->addTag('shopware.entity.definition');
+
+        $pass = new EntityDefinitionTagCompilerPass();
+        $pass->process($container);
+
+        // Deprecation path: service is skipped, tag stays without entity attribute
+        $tags = $container->getDefinition(ConstructorParamDefinition::class)->getTag('shopware.entity.definition');
+        static::assertSame([], $tags[0]);
+    }
+
     public function testSkipsValidationForDefinitionWithPrivateConstructor(): void
     {
         $container = new ContainerBuilder();
@@ -193,6 +232,25 @@ class EntityDefinitionTagCompilerPassTest extends TestCase
 
         $pass = new EntityDefinitionTagCompilerPass();
         $pass->process($container);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, testThrowsUnresolvableForDefinitionWithPrivateConstructor covers the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testThrowsUnresolvableForDefinitionWithPrivateConstructorDeprecated(): void
+    {
+        $container = new ContainerBuilder();
+        $container
+            ->register(PrivateConstructorDefinition::class, PrivateConstructorDefinition::class)
+            ->addTag('shopware.entity.definition');
+
+        $pass = new EntityDefinitionTagCompilerPass();
+        $pass->process($container);
+
+        // Deprecation path: service is skipped, tag stays without entity attribute
+        $tags = $container->getDefinition(PrivateConstructorDefinition::class)->getTag('shopware.entity.definition');
+        static::assertSame([], $tags[0]);
     }
 }
 

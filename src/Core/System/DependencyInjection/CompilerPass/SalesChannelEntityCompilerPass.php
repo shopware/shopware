@@ -3,12 +3,14 @@
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -117,7 +119,26 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
         foreach ($container->findTaggedServiceIds($tagName) as $serviceId => $tags) {
             if (!isset($tags[0]['entity']) || $tags[0]['entity'] === '') {
-                throw DependencyInjectionException::missingEntityTagAttribute($serviceId, $tagName);
+                /** @deprecated tag:v6.8.0 - remove else branch, keep only the throw */
+                if (Feature::isActive('v6.8.0.0')) {
+                    throw DependencyInjectionException::missingEntityTagAttribute($serviceId, $tagName);
+                }
+
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    'Service "' . $serviceId . '" is tagged as "' . $tagName . '" but is missing the required "entity" attribute. Add the "entity" attribute to the service tag. This will throw an exception in v6.8.0.'
+                );
+
+                $service = $container->getDefinition($serviceId);
+
+                /** @var class-string<EntityDefinition> $class */
+                $class = $service->getClass();
+
+                /** @var EntityDefinition $instance */
+                $instance = new $class();
+                $result[$serviceId]['entityName'] = $instance->getEntityName();
+
+                continue;
             }
 
             $result[$serviceId]['entityName'] = $tags[0]['entity'];

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -70,7 +71,17 @@ class EntityCompilerPass implements CompilerPassInterface
             // Entity name is on the tag (written by EntityDefinitionTagCompilerPass)
             $entity = $tags[0]['entity'] ?? null;
             if ($entity === null || $entity === '') {
-                throw DependencyInjectionException::missingEntityTagAttribute($serviceId, 'shopware.entity.definition');
+                /** @deprecated tag:v6.8.0 - remove else branch, keep only the throw */
+                if (Feature::isActive('v6.8.0.0')) {
+                    throw DependencyInjectionException::missingEntityTagAttribute($serviceId, 'shopware.entity.definition');
+                }
+
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    'Service "' . $serviceId . '" is tagged as "shopware.entity.definition" but is missing the required "entity" attribute. Add the "entity" attribute to the service tag. This will throw an exception in v6.8.0.'
+                );
+
+                $entity = (new $class())->getEntityName();
             }
 
             $entityNameMap[$entity] = $serviceId;

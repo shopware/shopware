@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -97,6 +98,33 @@ class EntityCompilerPassTest extends TestCase
 
         $entityCompilerPass = new EntityCompilerPass();
         $entityCompilerPass->process($container);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, testThrowsOnMissingEntityTagAttribute covers the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testThrowsOnMissingEntityTagAttributeDeprecated(): void
+    {
+        $container = new ContainerBuilder();
+        $container
+            ->register(ProductDefinition::class, ProductDefinition::class)
+            ->addTag('shopware.entity.definition');
+
+        $container
+            ->register(DefinitionInstanceRegistry::class, DefinitionInstanceRegistry::class)
+            ->addArgument(new Reference('service_container'))
+            ->addArgument([])
+            ->addArgument([]);
+
+        // Deprecation path: falls back to instantiation, resolves entity name
+        $entityCompilerPass = new EntityCompilerPass();
+        $entityCompilerPass->process($container);
+
+        $definitionRegistry = $container->getDefinition(DefinitionInstanceRegistry::class);
+        $entityNameMap = $definitionRegistry->getArgument(1);
+        static::assertArrayHasKey('product', $entityNameMap);
+        static::assertSame(ProductDefinition::class, $entityNameMap['product']);
     }
 
     public function testSkipsAttributeEntityDefinitions(): void

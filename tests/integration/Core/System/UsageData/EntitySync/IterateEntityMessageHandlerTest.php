@@ -23,6 +23,7 @@ use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\Service\ConsentDateResolver;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder;
@@ -83,7 +84,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentService::class),
+            static::getContainer()->get(ConsentDateResolver::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -135,7 +136,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentService::class),
+            static::getContainer()->get(ConsentDateResolver::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -188,7 +189,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentService::class),
+            static::getContainer()->get(ConsentDateResolver::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -241,7 +242,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $messageHandler = new IterateEntityMessageHandler(
             new CollectingMessageBus(),
             static::getContainer()->get(IterateEntitiesQueryBuilder::class),
-            $consentService,
+            new ConsentDateResolver($consentService),
             $entityDefinitionService,
             $logger,
         );
@@ -331,6 +332,8 @@ class IterateEntityMessageHandlerTest extends TestCase
             ],
             ['id' => ParameterType::BINARY]
         );
+
+        static::getContainer()->get(ConsentService::class)->reset();
     }
 
     private function insertProductDeletion(string $id, \DateTimeImmutable $deletedAt): void

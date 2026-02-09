@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Shopware\Core\System\Consent\Service;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 
 /**
  * @internal
  */
+#[Package('data-services')]
 final class ConsentDateResolver
 {
     public function __construct(private readonly ConsentService $consentService)

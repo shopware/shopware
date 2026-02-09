@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
@@ -471,6 +472,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ],
             ['id' => ParameterType::BINARY]
         );
+
+        static::getContainer()->get(ConsentService::class)->reset();
     }
 
     private function getMockHttpClient(): MockHttpClient

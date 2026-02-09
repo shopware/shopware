@@ -17,6 +17,17 @@ use Shopware\Core\System\UsageData\Subscriber\ConsentStateChangedSubscriber;
 #[CoversClass(ConsentStateChangedSubscriber::class)]
 class ConsentStateChangedSubscriberTest extends TestCase
 {
+    public function testGetSubscribedEvents(): void
+    {
+        static::assertSame(
+            [
+                ConsentAcceptedEvent::class => 'handleConsentAcceptedEvent',
+                ConsentRevokedEvent::class => 'handleConsentRevokedEvent',
+            ],
+            ConsentStateChangedSubscriber::getSubscribedEvents()
+        );
+    }
+
     public function testAcceptConsentHandlesOnlyBackendData(): void
     {
         $consentService = $this->createMock(ConsentService::class);

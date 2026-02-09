@@ -589,7 +589,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $consentService->expects($this->once())
             ->method('getConsentState')
             ->willReturn($this->createConsentState(
-                ConsentStatus::REVOKED,
+                ConsentStatus::ACCEPTED,
                 $createdAndUpdatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ));
 

@@ -373,7 +373,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             $exceptions[0]->getViolations()->get(0)->getCode()
         );
         static::assertSame('/0/', $exceptions[0]->getPath());
-        static::assertStringContainsString($ids->get('langOther'), $exceptions[0]->getViolations()->get(0)->getMessage());
+        static::assertStringContainsString($ids->get('langOther'), (string) $exceptions[0]->getViolations()->get(0)->getMessage());
     }
 
     public function testValidateAddsViolationWhenSalesChannelNotInCollection(): void

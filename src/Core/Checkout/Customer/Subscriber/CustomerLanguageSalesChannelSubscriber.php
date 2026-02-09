@@ -138,17 +138,17 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
      *
      * @return array<string>
      */
-    private function loadCustomersSalesChannels(array $customerPks, Context $context): array
+    private function loadCustomersSalesChannels(array $customersPks, Context $context): array
     {
-        $customerIds = array_values(array_filter(array_map(
+        $customersIds = array_values(array_filter(array_map(
             fn (array $pk) => isset($pk['id']) ? Uuid::fromBytesToHex($pk['id']) : null,
-            $customerPks
+            $customersPks
         )));
-        if ($customerIds === []) {
+        if ($customersIds === []) {
             return [];
         }
 
-        $criteria = new Criteria($customerIds);
+        $criteria = new Criteria($customersIds);
         /** @var CustomerCollection $customers */
         $customers = $this->customerRepository->search($criteria, $context)->getEntities();
 

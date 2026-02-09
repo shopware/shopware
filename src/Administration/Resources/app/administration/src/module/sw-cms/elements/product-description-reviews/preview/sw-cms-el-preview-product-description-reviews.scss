@@ -3,6 +3,7 @@
 .sw-cms-el-preview-product-description-reviews {
     background: $color-white;
     color: $color-darkgray-200;
+    overflow: hidden;
 
     &__tabs {
         display: flex;

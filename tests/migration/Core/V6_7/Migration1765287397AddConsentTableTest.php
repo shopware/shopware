@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1765287397AddConsentTable;
 
 /**
@@ -38,10 +39,9 @@ class Migration1765287397AddConsentTableTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $sm = $this->connection->createSchemaManager();
-        static::assertTrue($sm->tablesExist(['consent_state']));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'consent_state'));
 
-        $consentStateCols = $sm->listTableColumns('consent_state');
-        static::assertCount(6, $consentStateCols);
+        $consentStateColumns = TableHelper::getTable($this->connection, 'consent_state')->columns;
+        static::assertCount(6, $consentStateColumns);
     }
 }

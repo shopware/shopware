@@ -42,22 +42,19 @@ class EntityDefinitionTagCompilerPass implements CompilerPassInterface
 
                 $isEntityDefinitionInstantiatable = $this->isEntityDefinitionInstantiatableDuringCompilation($class);
 
+                $entityName = $isEntityDefinitionInstantiatable ? (new $class())->getEntityName() : null;
+
                 if ($alreadyHasTagAttribute) {
-                    if ($isEntityDefinitionInstantiatable) {
-                        $entityName = (new $class())->getEntityName();
-                        if ($alreadyDefinedTagAttribute !== $entityName) {
-                            throw DependencyInjectionException::entityTagMismatch($serviceId, $tagName, $alreadyDefinedTagAttribute, $entityName);
-                        }
+                    if ($entityName !== null && $alreadyDefinedTagAttribute !== $entityName) {
+                        throw DependencyInjectionException::entityTagMismatch($serviceId, $tagName, $alreadyDefinedTagAttribute, $entityName);
                     }
 
                     continue;
                 }
 
-                if (!$isEntityDefinitionInstantiatable) {
+                if ($entityName === null) {
                     throw DependencyInjectionException::entityTagUnresolvable($serviceId, $tagName, $class);
                 }
-
-                $entityName = (new $class())->getEntityName();
 
                 // Write entity name to tag while preserving existing attributes
                 $existingTags = $serviceDefinition->getTag($tagName);

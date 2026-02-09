@@ -40,9 +40,7 @@ export default {
             if (value === 'int') {
                 if (this.currentCustomField.config.step != null) {
                     const roundedStep = Math.round(this.currentCustomField.config.step);
-                    this.currentCustomField.config.step = roundedStep >= 1
-                        ? roundedStep
-                        : 1;
+                    this.currentCustomField.config.step = roundedStep >= 1 ? roundedStep : 1;
                 }
                 if (this.currentCustomField.config.min != null) {
                     this.currentCustomField.config.min = Math.round(this.currentCustomField.config.min);

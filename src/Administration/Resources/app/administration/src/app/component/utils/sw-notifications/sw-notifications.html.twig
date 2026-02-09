@@ -16,7 +16,7 @@
                 v-for="(notification, index) in notifications"
                 :key="notification.uuid"
                 :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
-                :title="$te(notification.title) ? $t(notification.title) : notification.title"
+                :title="$t(notification.title)"
                 :variant="getNotificationVariant(notification)"
                 :notification-index="notification.uuid"
                 :closable="true"

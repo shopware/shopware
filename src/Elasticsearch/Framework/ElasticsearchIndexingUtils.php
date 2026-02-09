@@ -125,9 +125,7 @@ WHERE custom_field_set_relation.entity_name = :entity
                         field_value VARCHAR(255) PATH '$.field'
                     )
                 ) AS jt
-                WHERE active = 1
-                    AND locked = 0
-                    AND jt.field_value LIKE :fields
+                WHERE jt.field_value LIKE :fields
                 SQL,
             ['fields' => 'customFields.%']
         );

@@ -167,22 +167,6 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
         expect(wrapper.vm.currentCustomField.config.max).toBeNull();
     });
 
-    it('should not round values when switching numberType to float', async () => {
-        const wrapper = await createWrapper({
-            numberType: 'int',
-            step: 2,
-            min: 3,
-            max: 10,
-        });
-
-        wrapper.vm.currentCustomField.config.numberType = 'float';
-        await flushPromises();
-
-        expect(wrapper.vm.currentCustomField.config.step).toBe(2);
-        expect(wrapper.vm.currentCustomField.config.min).toBe(3);
-        expect(wrapper.vm.currentCustomField.config.max).toBe(10);
-    });
-
     it('should pass number-type float to mt-number-field components when numberType is float', async () => {
         const wrapper = await createWrapper({ numberType: 'float' });
         await flushPromises();

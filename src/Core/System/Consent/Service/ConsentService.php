@@ -83,13 +83,25 @@ class ConsentService implements ResetInterface
 
     public function getConsentState(string $name, Context $context): ConsentState
     {
-        $state = $this->list($context)[$name] ?? null;
+        $consent = $this->getConsentDefinition($name);
+        $scope = $this->getScope($consent);
+        $identifier = $scope->resolveIdentifier($context);
 
-        if ($state === null) {
-            throw ConsentException::notFound($name);
+        $key = $consent->getName() . ':' . $consent->getScopeName() . ':' . $identifier;
+
+        $states = $this->fetchStates($context);
+        if (isset($states[$key])) {
+            return $states[$key];
         }
 
-        return $state;
+        return new ConsentState(
+            name: $consent->getName(),
+            scopeName: $consent->getScopeName(),
+            identifier: $identifier,
+            status: ConsentStatus::UNSET,
+            actor: null,
+            updatedAt: null,
+        );
     }
 
     public function acceptConsent(string $name, Context $context): ConsentState

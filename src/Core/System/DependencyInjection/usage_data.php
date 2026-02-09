@@ -1,5 +1,9 @@
 <?php declare(strict_types=1);
 
+/**
+ * @codeCoverageIgnore - DI wiring only
+ */
+
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider as FrameworkShopIdProvider;

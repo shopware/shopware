@@ -6,7 +6,6 @@ import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
-import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-variants', { sync: true }), {

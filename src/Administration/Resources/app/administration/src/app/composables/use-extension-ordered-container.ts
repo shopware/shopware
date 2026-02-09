@@ -40,8 +40,8 @@ export const useExtensionOrderedArray = <T>() => {
         const extensionId = useCurrentExtensionId();
         const id = extensionId.value ?? null;
         const { nextInsertIndex, orderItem } = getOrderItem(id);
-        orderItem.count++;
         internalArray.value.splice(nextInsertIndex, 0, value);
+        orderItem.count++;
     };
 
     /**
@@ -81,6 +81,10 @@ export const useExtensionOrderedArray = <T>() => {
 
     Shopware.Utils.EventBus.on('sw-extension-loaded', flushEventListener);
 
+    const dispose = () => {
+        Shopware.Utils.EventBus.off('sw-extension-loaded', flushEventListener);
+    };
+
     const clear = () => {
         internalArray.value = [];
         order.value = [];
@@ -91,6 +95,7 @@ export const useExtensionOrderedArray = <T>() => {
         push,
         removeFirstWhere,
         clear,
+        dispose,
     };
 };
 
@@ -108,6 +113,9 @@ export const useExtensionOrdereredArrayMap = <T>() => {
     };
 
     const clear = () => {
+        for (const entry of internalMap.value.values()) {
+            entry.dispose();
+        }
         internalMap.value.clear();
         triggerRef(internalMap);
     };
@@ -116,13 +124,18 @@ export const useExtensionOrdereredArrayMap = <T>() => {
         Object.freeze(
             Object.fromEntries(
                 Array.from(internalMap.value.entries()).map(([key, value]) => [key, value.items]),
-            ) as Readonly<Record<string, ReturnType<typeof useExtensionOrderedArray<T>>['items']>>,
+            ),
         ),
     );
+
+    const dispose = () => {
+        clear();
+    };
 
     return {
         items,
         clear,
         get,
+        dispose
     };
 };

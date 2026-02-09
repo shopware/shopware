@@ -116,7 +116,7 @@ class CustomerCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return array<array<string>>
      */
     public function getListVatIds(): array
     {

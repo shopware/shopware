@@ -62,7 +62,7 @@ class AccountEditOrderPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountEditOrderPage
     {
-        if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
+        if (!$salesChannelContext->getCustomer() && !$request->query->getBoolean('deepLinkCode')) {
             throw CartException::customerNotLoggedIn();
         }
 
@@ -87,7 +87,7 @@ class AccountEditOrderPageLoader
         $page->setOrder($order);
         $page->setPaymentChangeable($this->isPaymentChangeable($orderRouteResponse, $page));
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext, $request, $order));
-        $page->setDeepLinkCode($request->get('deepLinkCode'));
+        $page->setDeepLinkCode($request->query->get('deepLinkCode'));
 
         $this->eventDispatcher->dispatch(
             new AccountEditOrderPageLoadedEvent($page, $salesChannelContext, $request)
@@ -112,7 +112,7 @@ class AccountEditOrderPageLoader
     {
         $criteria = $this->createCriteria($request, $context);
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('checkPromotion', 'true');
+        $apiRequest->query->set('checkPromotion', true);
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
@@ -123,11 +123,16 @@ class AccountEditOrderPageLoader
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        if ($request->get('orderId')) {
-            $criteria = new Criteria([$request->get('orderId')]);
+        $orderId = $request->attributes->getString('orderId');
+        if ($orderId) {
+            $criteria = new Criteria([$orderId]);
         } else {
+            if (Feature::isActive('v6.8.0.0')) {
+                throw OrderException::invalidUuid($orderId);
+            }
             $criteria = new Criteria();
         }
+
         $criteria
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
@@ -155,8 +160,8 @@ class AccountEditOrderPageLoader
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
-        } elseif ($request->get('deepLinkCode')) {
-            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
+        } elseif ($request->query->get('deepLinkCode')) {
+            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->query->get('deepLinkCode')));
         } else {
             throw CartException::customerNotLoggedIn();
         }

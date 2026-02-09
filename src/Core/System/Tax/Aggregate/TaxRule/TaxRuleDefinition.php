@@ -48,18 +48,18 @@ class TaxRuleDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('tax_rule_type_id', 'taxRuleTypeId', TaxRuleTypeDefinition::class))->addFlags(new Required()),
-            (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
-            (new FloatField('tax_rate', 'taxRate'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new JsonField('data', 'data', [
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of tax rule.'),
+            (new FkField('tax_rule_type_id', 'taxRuleTypeId', TaxRuleTypeDefinition::class))->addFlags(new Required())->setDescription('Unique identity of tax rule type.'),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required())->setDescription('Unique identity of country.'),
+            (new FloatField('tax_rate', 'taxRate'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Rate of tax defined for a tax rule.'),
+            (new JsonField('data', 'data', [
                 new ListField('states', 'states'),
                 new StringField('zipCode', 'zipCode'),
                 new StringField('fromZipCode', 'fromZipCode'),
                 new StringField('toZipCode', 'toZipCode'),
-            ]),
-            (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Required()),
-            new DateTimeField('active_from', 'activeFrom'),
+            ]))->setDescription('Parameter that designates to which zip code the tax rule is applicable.'),
+            (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Required())->setDescription('Unique identity of tax.'),
+            (new DateTimeField('active_from', 'activeFrom'))->setDescription('Date and time when the tax rule is enabled.'),
             new ManyToOneAssociationField('type', 'tax_rule_type_id', TaxRuleTypeDefinition::class, 'id'),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id'),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id'),

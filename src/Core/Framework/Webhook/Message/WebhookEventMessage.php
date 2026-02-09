@@ -15,6 +15,7 @@ class WebhookEventMessage implements AsyncMessageInterface
      * @internal
      *
      * @param array<string, mixed> $payload
+     * @param array<string, string> $webhookHeaders
      **/
     public function __construct(
         private readonly string $webhookEventId,
@@ -25,7 +26,8 @@ class WebhookEventMessage implements AsyncMessageInterface
         private readonly string $url,
         private readonly ?string $secret,
         private readonly string $languageId,
-        private readonly string $userLocale
+        private readonly string $userLocale,
+        private readonly array $webhookHeaders = [],
     ) {
     }
 
@@ -75,5 +77,13 @@ class WebhookEventMessage implements AsyncMessageInterface
     public function getUserLocale(): ?string
     {
         return $this->userLocale;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getWebhookHeaders(): array
+    {
+        return $this->webhookHeaders;
     }
 }

@@ -292,6 +292,11 @@
             <argument type="service" id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Cms\VideoCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\Cms\YoutubeVideoCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
@@ -381,6 +386,7 @@
 
         <service id="Shopware\Core\Content\Media\SalesChannel\MediaRoute" public="true">
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaTask">

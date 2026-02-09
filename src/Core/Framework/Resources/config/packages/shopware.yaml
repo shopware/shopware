@@ -378,15 +378,13 @@ shopware:
         expire_days: 120
         storage:
             # supported types: mysql, redis
+            # for redis also the shopware.cart.storage.config.connection is required to point to a valid redis connection
             type: "mysql"
-            # config:
-                # dsn: 'redis://localhost'
 
     number_range:
         # supported types: mysql, redis
+        # for redis also the shopware.number_range.config.connection is required to point to a valid redis connection
         increment_storage: "mysql"
-        # config:
-            # dsn: 'redis://localhost'
 
     sales_channel_context:
         expire_days: 120
@@ -556,6 +554,7 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        disable_stampede_protection: false
         twig:
             string_template_renderer_cache_dir: '%kernel.cache_dir%/twig/string-template-renderer'
         invalidation:
@@ -563,6 +562,7 @@ shopware:
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']
+            tag_invalidation_log_enabled: false
 
     twig:
         allowed_php_functions: []
@@ -615,3 +615,7 @@ shopware:
 
     product_stream:
         indexing: true
+    product:
+        allowed_types:
+          - physical
+          - digital

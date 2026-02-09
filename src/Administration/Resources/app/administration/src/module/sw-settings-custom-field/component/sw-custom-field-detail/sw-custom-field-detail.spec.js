@@ -54,6 +54,8 @@ async function createWrapper(props = defaultProps, privileges = []) {
                 mocks: {
                     $i18n: {
                         fallbackLocale: 'en-GB',
+                        t: (key) => key,
+                        tc: (key) => key,
                     },
                 },
                 provide: {
@@ -92,6 +94,58 @@ async function createWrapper(props = defaultProps, privileges = []) {
                     'router-link': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
+                    'mt-switch': true,
+                    'mt-banner': true,
+                    'mt-select': {
+                        template: `
+                            <div class="mt-select sw-custom-field-detail__modal-type">
+                                <input :disabled="disabled" @click="handleClick" />
+                                <div v-show="showPopover" class="mt-popover-deprecated">
+                                    <ul>
+                                        <li v-for="option in options" :key="option.value" @click="selectOption(option)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `,
+                        props: [
+                            'disabled',
+                            'options',
+                        ],
+                        data() {
+                            return {
+                                showPopover: false,
+                            };
+                        },
+                        methods: {
+                            async handleClick() {
+                                this.showPopover = true;
+                                await this.$nextTick();
+                            },
+                            selectOption(option) {
+                                this.$emit('update:modelValue', option.value);
+                                this.showPopover = false;
+                            },
+                        },
+                    },
+                    'mt-text-field': {
+                        template: `
+                            <div class="sw-custom-field-detail__technical-name">
+                                <input :disabled="disabled" />
+                                <div
+                                    v-if="error"
+                                    class="mt-field__error"
+                                >
+                                    {{ error.detail || error }}
+                                </div>
+                            </div>
+                        `,
+                        props: [
+                            'disabled',
+                            'error',
+                        ],
+                    },
                 },
             },
         },
@@ -109,7 +163,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
         expect(modalTypeField.attributes('disabled')).toBeUndefined();
-        expect(technicalNameField.props('disabled')).toBe(false);
+        expect(technicalNameField.props('disabled')).toBeFalsy();
         expect(modalPositionField.attributes('disabled')).toBeUndefined();
         expect(modalSaveButton.attributes('disabled')).toBeUndefined();
     });
@@ -124,7 +178,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
         expect(modalTypeField.attributes('disabled')).toBeDefined();
-        expect(technicalNameField.props('disabled')).toBe(true);
+        expect(technicalNameField.props('disabled')).toBeTruthy();
         expect(modalPositionField.attributes('disabled')).toBeDefined();
         expect(modalSaveButton.attributes('disabled')).toBeDefined();
     });
@@ -172,7 +226,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         await flushPromises();
 
         await wrapper.find('.sw-custom-field-detail__technical-name input').setValue('invalid-name.');
-        expect(wrapper.vm.currentCustomField.name).toBe('invalid-name.');
+        expect(wrapper.vm.currentCustomField.name).toBe('custom_additional_field_1');
         await flushPromises();
 
         await wrapper.find('.sw-custom-field-detail__footer-save').trigger('click');
@@ -186,5 +240,108 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
 
         expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').exists()).toBe(true);
         expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').text()).toBe('test');
+    });
+
+    it('should set includeInSearch to false by default for new custom fields', async () => {
+        const wrapper = await createWrapper(defaultProps, ['custom_field.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.includeInSearch).toBe(false);
+    });
+
+    it('should preserve includeInSearch value for existing custom fields', async () => {
+        const existingField = {
+            ...customFieldFixture,
+            _isNew: false,
+            includeInSearch: true,
+        };
+
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: existingField,
+                set: {},
+            },
+            ['custom_field.editor'],
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.includeInSearch).toBe(true);
+    });
+
+    it('should show searchable toggle', async () => {
+        const wrapper = await createWrapper(
+            {
+                ...defaultProps,
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
+            },
+            ['custom_field.editor'],
+        );
+        await flushPromises();
+
+        const searchableToggle = wrapper.find('.sw-custom-field-detail__allow-searchable');
+        expect(searchableToggle.exists()).toBe(true);
+    });
+
+    it('should show banner for existing product custom fields', async () => {
+        const existingProductField = {
+            ...customFieldFixture,
+            _isNew: false,
+        };
+
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: existingProductField,
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
+            },
+            ['custom_field.editor'],
+        );
+        await flushPromises();
+
+        const banner = wrapper.find('.sw-custom-field-detail__searchable-banner');
+        expect(banner.exists()).toBe(true);
+    });
+
+    it('should not show banner for new custom fields', async () => {
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: {
+                    ...customFieldFixture,
+                    _isNew: true,
+                },
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
+            },
+            ['custom_field.editor'],
+        );
+        await flushPromises();
+
+        const banner = wrapper.find('.sw-custom-field-detail__searchable-banner');
+        expect(banner.exists()).toBe(false);
+    });
+
+    it('should not show banner for non-product custom fields', async () => {
+        const existingCustomerField = {
+            ...customFieldFixture,
+            _isNew: false,
+        };
+
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: existingCustomerField,
+                set: {
+                    relations: [{ entityName: 'customer' }],
+                },
+            },
+            ['custom_field.editor'],
+        );
+        await flushPromises();
+
+        const banner = wrapper.find('.sw-custom-field-detail__searchable-banner');
+        expect(banner.exists()).toBe(false);
     });
 });

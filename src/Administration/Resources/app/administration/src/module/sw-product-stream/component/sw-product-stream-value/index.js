@@ -16,6 +16,7 @@ export default {
         'repositoryFactory',
         'conditionDataProviderService',
         'productCustomFields',
+        'productTypes',
         'acl',
         'feature',
     ],
@@ -160,17 +161,39 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, product.states will be replaced by productType
+         */
         productStateOptions() {
             return [
                 {
-                    label: this.$tc('sw-product-stream.filter.values.productStates.physical'),
+                    label: this.$t('sw-product-stream.filter.values.productStates.physical'),
                     value: 'is-physical',
                 },
                 {
-                    label: this.$tc('sw-product-stream.filter.values.productStates.digital'),
+                    label: this.$t('sw-product-stream.filter.values.productStates.digital'),
                     value: 'is-download',
                 },
             ];
+        },
+
+        productTypeOptions() {
+            const providedTypes = this.productTypes?.value ?? this.productTypes;
+            const defaultTypes = [
+                'digital',
+                'physical',
+            ];
+            const types = Array.isArray(providedTypes) && providedTypes.length > 0 ? providedTypes : defaultTypes;
+
+            return types.map((type) => {
+                const snippetKey = `sw-product.type.${type}`;
+                const label = this.$te(snippetKey) ? this.$t(snippetKey) : type;
+
+                return {
+                    label,
+                    value: type,
+                };
+            });
         },
 
         fieldType() {
@@ -178,8 +201,16 @@ export default {
                 return null;
             }
 
-            if (this.fieldDefinition.type === 'json_list' && this.fieldName === 'states') {
+            if (
+                !Shopware.Feature.isActive('v6.8.0.0') &&
+                this.fieldDefinition.type === 'json_list' &&
+                this.fieldName === 'states'
+            ) {
                 return 'product_state_list';
+            }
+
+            if (this.fieldName === 'type' && this.fieldDefinition.type === 'string') {
+                return 'product_type';
             }
 
             if (this.definition.isJsonField(this.fieldDefinition)) {

@@ -1,21 +1,30 @@
-import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
+import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import AddPaymentInfoEvent from 'src/plugin/google-analytics/events/add-payment-info.event';
+import AddShippingInfoEvent from 'src/plugin/google-analytics/events/add-shipping-info.event';
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 import AddToCartByNumberEvent from 'src/plugin/google-analytics/events/add-to-cart-by-number.event';
+import AddToWishlistEvent from 'src/plugin/google-analytics/events/add-to-wishlist.event';
 import BeginCheckoutEvent from 'src/plugin/google-analytics/events/begin-checkout.event';
 import BeginCheckoutOnCartEvent from 'src/plugin/google-analytics/events/begin-checkout-on-cart.event';
-import CheckoutProgressEvent from 'src/plugin/google-analytics/events/checkout-progress.event';
 import LoginEvent from 'src/plugin/google-analytics/events/login.event';
 import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 import RemoveFromCartEvent from 'src/plugin/google-analytics/events/remove-from-cart.event';
+import RemoveFromWishlistEvent from 'src/plugin/google-analytics/events/remove-from-wishlist.event';
 import SearchAjaxEvent from 'src/plugin/google-analytics/events/search-ajax.event';
 import SignUpEvent from 'src/plugin/google-analytics/events/sign-up.event';
+import ViewCartEvent from 'src/plugin/google-analytics/events/view-cart.event';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
 import ViewItemListEvent from 'src/plugin/google-analytics/events/view-item-list.event';
 import ViewSearchResultsEvent from 'src/plugin/google-analytics/events/view-search-results';
-import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
 
 describe('plugin/google-analytics/google-analytics.plugin', () => {
+    let originalCookieDescriptor;
+
     beforeEach(() => {
+        originalCookieDescriptor = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
+            Object.getOwnPropertyDescriptor(HTMLDocument.prototype, 'cookie');
+
         window.useDefaultCookieConsent = true;
         window.gtag = jest.fn();
         window.gtagTrackingId = 'GA-12345-6';
@@ -30,8 +39,10 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
     });
 
     afterEach(() => {
-        // Reset all cookies after each test
-        document.cookie = '';
+        if (originalCookieDescriptor) {
+            Object.defineProperty(document, 'cookie', originalCookieDescriptor);
+        }
+
         document.head.innerHTML = '';
 
         jest.clearAllMocks();
@@ -83,22 +94,33 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
 
         const googleAnalyticsPlugin = new GoogleAnalyticsPlugin(document);
 
-        // Verify all default events are registered
-        expect(googleAnalyticsPlugin.events).toEqual([
-            new AddToCartEvent(),
-            new AddToCartByNumberEvent(),
-            new BeginCheckoutEvent(),
-            new BeginCheckoutOnCartEvent(),
-            new CheckoutProgressEvent(),
-            new LoginEvent(),
-            new PurchaseEvent(),
-            new RemoveFromCartEvent(),
-            new SearchAjaxEvent(),
-            new SignUpEvent(),
-            new ViewItemEvent(),
-            new ViewItemListEvent(),
-            new ViewSearchResultsEvent(),
-        ]);
+        // Verify all default events are registered by checking instance types
+        // We use instanceof checks because some events have internal state that changes after execution
+        const expectedEventTypes = [
+            AddPaymentInfoEvent,
+            AddShippingInfoEvent,
+            AddToCartEvent,
+            AddToCartByNumberEvent,
+            BeginCheckoutEvent,
+            BeginCheckoutOnCartEvent,
+            LoginEvent,
+            PurchaseEvent,
+            RemoveFromCartEvent,
+            SearchAjaxEvent,
+            SignUpEvent,
+            ViewItemEvent,
+            ViewItemListEvent,
+            ViewSearchResultsEvent,
+            AddToWishlistEvent,
+            RemoveFromWishlistEvent,
+            ViewCartEvent,
+        ];
+
+        expect(googleAnalyticsPlugin.events).toHaveLength(expectedEventTypes.length);
+
+        expectedEventTypes.forEach((EventType, index) => {
+            expect(googleAnalyticsPlugin.events[index]).toBeInstanceOf(EventType);
+        });
     });
 
     test('sets the correct google consent when cookie update event is fired', () => {

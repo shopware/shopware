@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +21,7 @@ class Migration1678801126AddScheduledTaskDefaultRunIntervalColumn extends Migrat
 
     public function update(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'scheduled_task', 'default_run_interval')) {
+        if (TableHelper::columnExists($connection, 'scheduled_task', 'default_run_interval')) {
             return;
         }
 

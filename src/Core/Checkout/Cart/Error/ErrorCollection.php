@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Util\Hasher;
 
 /**
- * @extends Collection<Error>
+ * @extends Collection<Error, string>
  */
 #[Package('checkout')]
 class ErrorCollection extends Collection
@@ -43,7 +43,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error>
+     * @return array<string, Error>
      */
     public function getErrors(): array
     {
@@ -51,7 +51,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error>
+     * @return array<string, Error>
      */
     public function getWarnings(): array
     {
@@ -59,7 +59,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error>
+     * @return array<string, Error>
      */
     public function getNotices(): array
     {
@@ -72,7 +72,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error>
+     * @return array<string, Error>
      */
     public function filterByErrorLevel(int $errorLevel): array
     {

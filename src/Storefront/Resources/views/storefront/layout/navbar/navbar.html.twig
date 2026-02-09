@@ -1,5 +1,6 @@
 {% block layout_navbar %}
     <div class="container">
+        {# @deprecated tag:v6.8.0 - pathIdList will be removed. Use window.activeNavigationPathIdList instead. #}
         {% set navbarOptions = {
             pathIdList: shopware.navigation.pathIdList
         } %}

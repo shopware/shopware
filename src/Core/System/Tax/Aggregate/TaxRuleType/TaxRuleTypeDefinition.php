@@ -47,9 +47,9 @@ class TaxRuleTypeDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('technical_name', 'technicalName'))->addFlags(new Required(), new WriteProtected()),
-            (new IntField('position', 'position'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of tax rule type.'),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new Required(), new WriteProtected())->setDescription('Unique name of tax rule type.'),
+            (new IntField('position', 'position'))->addFlags(new Required())->setDescription('The order of the tabs of your defined tax rules to be displayed in the storefront by entering numerical values like 1,2,3, etc.'),
             (new TranslatedField('typeName'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new OneToManyAssociationField('rules', TaxRuleDefinition::class, 'tax_rule_type_id'))->addFlags(new RestrictDelete()),
             (new TranslationsAssociationField(TaxRuleTypeTranslationDefinition::class, 'tax_rule_type_id'))->addFlags(new Required()),

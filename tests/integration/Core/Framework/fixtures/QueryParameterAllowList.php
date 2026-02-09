@@ -72,6 +72,7 @@ class QueryParameterAllowList
                 '/store-api/country' => ['@criteria'],
                 '/store-api/currency' => ['@criteria'],
                 '/store-api/language' => ['@criteria'],
+                '/store-api/landing-page/{landingPageId}' => ['@criteria', '@product-listing'],
                 '/store-api/media' => ['ids[]'],
                 '/store-api/navigation/{activeId}/{rootId}' => ['@criteria', 'depth', 'buildTree'],
                 '/store-api/payment-method' => ['@criteria'],

@@ -100,6 +100,11 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
                         },
                     },
                 },
+
+                productTypes: [
+                    'physical',
+                    'digital',
+                ],
             },
             stubs,
         },

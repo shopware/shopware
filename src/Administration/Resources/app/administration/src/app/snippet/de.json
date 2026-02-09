@@ -465,7 +465,7 @@
       "buttonSwitchToUrlUpload": "Datei von URL hochladen",
       "buttonOpenMedia": "Medien öffnen",
       "snackbar": {
-        "message": "Datei wird hochgeladen | Dateien werden hochgeladen",
+        "message": "Datei wird hochgeladen | Dateien werden hochgeladen ({processed}/{total})",
         "errorMessage": "Die Datei konnte nicht hochgeladen werden. | Manche Dateien konnten nicht hochgeladen werden."
       },
       "notification": {
@@ -490,6 +490,12 @@
         },
         "requestCanceled": {
           "message": "Das Hochladen wurde abgebrochen."
+        },
+        "payloadTooLarge": {
+          "message": "Die Datei ist zu groß. Bitte reduziere die Dateigröße oder überprüfe die Server-Konfiguration."
+        },
+        "transportError": {
+          "message": "Upload fehlgeschlagen aufgrund eines Verbindungsproblems oder eines Server-Timeouts. Bitte Verbindung oder Server-Limits prüfen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"
@@ -824,6 +830,7 @@
         "lineItemActualStockRule": "Position mit Lagerbestand",
         "lineItemStockRule": "Position mit verfügbarem Bestand",
         "lineItemProductStates": "Position mit Produktzustand",
+        "lineItemProductType": "Position mit Produkttyp",
         "numberOfReviews": "Anzahl freigegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
@@ -909,6 +916,14 @@
           "options": {
             "is-download": "Digital",
             "is-physical": "Physisch"
+          }
+        }
+      },
+      "cartLineItemProductType": {
+        "productType": {
+          "options": {
+            "digital": "Digital",
+            "physical": "Physisch"
           }
         }
       },
@@ -1083,6 +1098,7 @@
       "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
       "customer_recovery_request": "Kunde fordert neues Passwort an",
+      "customer_password_changed": "Kunden-Passwort wurde geändert",
       "mail_after_create_message": "E-Mail wurde erzeugt",
       "mail_before_send": "E-Mail wird gesendet",
       "mail_sent": "E-Mail wurde gesendet",

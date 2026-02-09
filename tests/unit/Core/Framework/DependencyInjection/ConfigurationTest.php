@@ -197,4 +197,22 @@ class ConfigurationTest extends TestCase
         static::assertArrayHasKey('batch_size', $nodes);
         static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['batch_size']);
     }
+
+    public function testProductAllowedTypesNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('product', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $searchNode = $nodes['product']);
+
+        $nodes = $searchNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('allowed_types', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['allowed_types']);
+    }
 }

@@ -51,14 +51,14 @@ class NumberRangeDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of number range.'),
 
-            (new FkField('type_id', 'typeId', NumberRangeTypeDefinition::class))->addFlags(new Required()),
-            (new BoolField('global', 'global'))->addFlags(new Required()),
+            (new FkField('type_id', 'typeId', NumberRangeTypeDefinition::class))->addFlags(new Required())->setDescription('Unique identity of type.'),
+            (new BoolField('global', 'global'))->addFlags(new Required())->setDescription('When set to `true`, the defined number range is used across all sales channels.'),
             new TranslatedField('name'),
             new TranslatedField('description'),
-            (new StringField('pattern', 'pattern'))->addFlags(new Required()),
-            (new IntField('start', 'start'))->addFlags(new Required()),
+            (new StringField('pattern', 'pattern'))->addFlags(new Required())->setDescription('Custom formatting in order to include for example, the date in the number range.'),
+            (new IntField('start', 'start'))->addFlags(new Required())->setDescription('If the start number were 12345, the following patterns would give the following numbers: Order{n}-{date}: Order12345-2019-05-23, Order{n}-{date_d.m.Y}: Order12345-23.05.2019'),
             new TranslatedField('customFields'),
 
             new ManyToOneAssociationField('type', 'type_id', NumberRangeTypeDefinition::class),

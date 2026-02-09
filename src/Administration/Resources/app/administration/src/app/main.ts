@@ -22,6 +22,7 @@ import ValidationService from 'src/core/service/validation.service';
 import TimezoneService from 'src/core/service/timezone.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
+import ProductTypeApiService from 'src/app/service/product-type.api.service';
 import StateStyleService from 'src/app/service/state-style.service';
 import CustomFieldService from 'src/app/service/custom-field.service';
 import ExtensionHelperService from 'src/app/service/extension-helper.service';
@@ -153,6 +154,11 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('productStreamConditionService', () => {
         return new ProductStreamConditionService();
+    })
+    .addServiceProvider('productTypeService', () => {
+        const initContainer = Shopware.Application.getContainer('init');
+
+        return new ProductTypeApiService(initContainer.httpClient, Shopware.Service('loginService'));
     })
     .addServiceProvider('customFieldDataProviderService', () => {
         return new CustomFieldService();

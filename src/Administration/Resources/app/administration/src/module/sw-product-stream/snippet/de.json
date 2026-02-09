@@ -120,6 +120,7 @@
         "product_visibility": "Produkt in Verkaufskanal",
         "percentage": "Prozentuales Verhältnis Preis/Streichpreis",
         "states": "Produktzustand",
+        "type": "Produktart",
         "productStates": {
           "physical": "Physisch",
           "digital": "Digital"
@@ -143,7 +144,9 @@
         "title": "Indexierung dynamischer Produktgruppen ist deaktiviert",
         "message": "Einige Funktionen funktionieren möglicherweise nicht wie erwartet: <ul><li>Kategorieseiten werden erst aktualisiert, wenn der HTTP-Cache abläuft oder manuell geleert wird.</li><li>Die Regelbedingung \"Position in dynamischer Produktgruppe\" wird nie zutreffen.</li></ul>",
         "action": "Mehr dazu in unserer Dokumentation"
-      }
+      },
+      "buttonOpenPreview": "Vorschau",
+      "productStatesFilterWarning": "Diese dynamische Produktgruppe verwendet noch den veralteten Produktzustandsfilter. Er wird mit v6.8 entfernt – bitte nutze stattdessen den Produkttyp-Filter."
     },
     "previewModal": {
       "title": "Vorschau",

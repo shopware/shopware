@@ -34,6 +34,7 @@ class CustomFieldSetGateway
                 SELECT LOWER(HEX(set_id)) as set_id, LOWER(HEX(id)) AS id, name, type
                 FROM custom_field
                 WHERE set_id IN (:setIds)
+                    AND include_in_search = 1
             SQL,
             ['setIds' => Uuid::fromHexToBytesList($setIds)],
             ['setIds' => ArrayParameterType::STRING]

@@ -126,7 +126,7 @@
                     :inherited-value="parentProduct.markAsTopseller"
                     :help-text="highlightHelpText"
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
-                    :disabled="props.isInherited || !allowEdit"
+                    :disabled="!allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
                     @inheritance-restore="props.restoreInheritance"

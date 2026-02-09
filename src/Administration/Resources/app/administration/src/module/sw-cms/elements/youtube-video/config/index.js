@@ -81,12 +81,12 @@ export default {
     },
 
     methods: {
-        setTimeValue(value, type) {
-            this.element.config[type].value = this.convertTimeToUrlFormat(value).string;
-        },
-
         createdComponent() {
             this.initElementConfig('youtube-video');
+        },
+
+        setTimeValue(value, type) {
+            this.element.config[type].value = this.convertTimeToUrlFormat(value).string;
         },
 
         convertTimeToInputFormat(time) {
@@ -119,11 +119,11 @@ export default {
             return returnValues;
         },
 
+        /**
+         * Converting the time to a url format so the YouTube iFrame-API can read the time.
+         * e.g. 0:42 -> 42 (seconds)
+         */
         convertTimeToUrlFormat(time) {
-            /* converting the time to an url format so the YouTube iFrame-API can read the time.
-             * e.g. 0:42 -> 42 (seconds)
-             */
-
             const returnValues = {};
             let incomingTime = time;
 
@@ -142,13 +142,13 @@ export default {
             return returnValues;
         },
 
+        /**
+         * `shareLink` is the link you get when you click the share button under a YouTube video.
+         * e.g. https://youtu.be/bG57TZPYsyw
+         *
+         * urlLink is the link of the YouTube video from the searchbar. e.g. https://www.youtube.com/watch?v=bG57TZPYsyw
+         */
         shortenLink(link) {
-            /* shareLink is the link you get when you click the share button under a YouTube video.
-             *  e.g. https://youtu.be/bG57TZPYsyw
-             *
-             * urlLink is the link of the YouTube video from the searchbar. e.g. https://www.youtube.com/watch?v=bG57TZPYsyw
-             */
-
             try {
                 const url = new URL(link);
 

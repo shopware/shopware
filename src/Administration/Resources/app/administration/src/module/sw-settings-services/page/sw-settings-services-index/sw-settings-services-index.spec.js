@@ -108,6 +108,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                     'mt-modal-action': MtModalAction,
                     'mt-modal-trigger': MtModalTrigger,
                     'mt-modal-root': MtModalRoot,
+                    'sw-extension-component-section': true,
                 },
                 plugins: [pinia],
             },

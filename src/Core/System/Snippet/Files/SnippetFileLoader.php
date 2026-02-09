@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -37,7 +37,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         private readonly AppSnippetFileLoader $appSnippetFileLoader,
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly TranslationConfig $config,
-        private readonly TranslationLoader $translationLoader,
+        private readonly AbstractTranslationLoader $translationLoader,
         private readonly Filesystem $translationReader,
     ) {
     }

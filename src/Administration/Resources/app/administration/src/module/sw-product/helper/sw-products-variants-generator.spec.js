@@ -217,11 +217,13 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 options: ['d6e90b99fe4842d487b53b59e50491a4'],
                 productNumber: 'SW10000.1',
                 productStates: '["is-physical"]',
+                productType: '["physical"]',
             },
             a6ebe32c706b4a16a69041b31df5d7fb: {
                 options: ['e10fed21a07149958427cb5339ee4c31'],
                 productNumber: 'SW10000.2',
                 productStates: '["is-download"]',
+                productType: '["digital"]',
             },
         };
 

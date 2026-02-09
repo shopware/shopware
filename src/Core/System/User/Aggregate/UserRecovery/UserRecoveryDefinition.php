@@ -47,9 +47,9 @@ class UserRecoveryDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('hash', 'hash'))->addFlags(new Required()),
-            (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of user recovery.'),
+            (new StringField('hash', 'hash'))->addFlags(new Required())->setDescription('Password hash for user recovery.'),
+            (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required())->setDescription('Unique identity of user.'),
             (new CreatedAtField())->addFlags(new Required()),
 
             new OneToOneAssociationField('user', 'user_id', 'id', UserDefinition::class, false),

@@ -249,6 +249,13 @@ async function createWrapper() {
                     router,
                 ],
                 provide: {
+                    productTypeService: {
+                        fetchProductTypes: () =>
+                            Promise.resolve([
+                                'physical',
+                                'digital',
+                            ]),
+                    },
                     numberRangeService: {},
                     repositoryFactory: {
                         create: (name) => {
@@ -665,7 +672,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         wrapper.vm.$router.push = jest.fn();
         await wrapper.setData({
             selection: {
-                foo: { states: ['is-download'] },
+                foo: { type: 'digital' },
             },
         });
 
@@ -714,5 +721,16 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         expect(products).toHaveLength(1);
         expect(products[0].productNumber).toBe('SW10001');
+    });
+
+    it('should consider criteria filters via updateCriteria', async () => {
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        const filter = Criteria.equals('foo', 'bar');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toContainEqual(filter);
     });
 });

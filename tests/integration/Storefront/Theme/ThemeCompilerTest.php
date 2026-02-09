@@ -685,7 +685,8 @@ PHP_EOL;
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(LoggerInterface::class)
         );
     }
 
@@ -699,7 +700,8 @@ PHP_EOL;
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(LoggerInterface::class)
         );
     }
 

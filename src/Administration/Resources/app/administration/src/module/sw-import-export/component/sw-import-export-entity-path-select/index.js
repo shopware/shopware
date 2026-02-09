@@ -454,9 +454,15 @@ export default {
                 return false;
             }
 
-            const writeProtectedLength = property?.flags?.write_protected?.length || 0;
+            /**
+             * Allow read-only properties to be selectable.
+             * These properties are safe for export profiles.
+             */
+            return true;
 
-            return writeProtectedLength === 0;
+            // const writeProtectedLength = property?.flags?.write_protected?.length || 0;
+
+            // return writeProtectedLength === 0;
         },
 
         isSelected(item) {

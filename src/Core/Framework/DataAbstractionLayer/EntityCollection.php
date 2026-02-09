@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @template TElement of Entity
  *
- * @extends Collection<TElement>
+ * @extends Collection<TElement, string>
  */
 #[Package('framework')]
 class EntityCollection extends Collection

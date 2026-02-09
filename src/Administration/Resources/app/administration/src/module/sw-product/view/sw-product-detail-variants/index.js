@@ -71,8 +71,16 @@ export default {
                 : this.product.properties;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `currentProductType` instead.
+         * @returns {string[]}
+         */
         currentProductStates() {
             return this.activeTab.split(',');
+        },
+
+        currentProductType() {
+            return this.activeTab.split(',')[0] ?? 'all';
         },
 
         assetFilter() {

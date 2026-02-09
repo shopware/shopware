@@ -51,11 +51,11 @@ class PromotionSetGroupDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('promotion_id', 'promotionId', PromotionDefinition::class, 'id'))->addFlags(new Required()),
-            (new StringField('packager_key', 'packagerKey'))->addFlags(new Required()),
-            (new StringField('sorter_key', 'sorterKey', 32))->addFlags(new Required()),
-            (new FloatField('value', 'value'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of promotion set group.'),
+            (new FkField('promotion_id', 'promotionId', PromotionDefinition::class, 'id'))->addFlags(new Required())->setDescription('Unique identity of promotion.'),
+            (new StringField('packager_key', 'packagerKey'))->addFlags(new Required())->setDescription('Internal field.'),
+            (new StringField('sorter_key', 'sorterKey', 32))->addFlags(new Required())->setDescription('Internal field.'),
+            (new FloatField('value', 'value'))->addFlags(new Required())->setDescription('To filter by PromotionSetgroup value.'),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             (new ManyToManyAssociationField('setGroupRules', RuleDefinition::class, PromotionSetGroupRuleDefinition::class, 'setgroup_id', 'rule_id'))->addFlags(new CascadeDelete()),
         ]);

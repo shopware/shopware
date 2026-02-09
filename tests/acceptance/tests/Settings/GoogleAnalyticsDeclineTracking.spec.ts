@@ -20,7 +20,7 @@ test('As a shop customer, I want to accept only the technically required cookies
         await ShopCustomer.expects(StorefrontHome.consentDialogTechnicallyRequiredCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontHome.consentDialogStatisticsCheckbox).not.toBeChecked();
         await ShopCustomer.expects(StorefrontHome.consentDialogMarketingdCheckbox).not.toBeChecked();
-        await ShopCustomer.expects(StorefrontHome.consentDialog.getByRole('checkbox')).toHaveCount(4);
+        await ShopCustomer.expects(StorefrontHome.consentDialog.getByRole('switch')).toHaveCount(4);
         await ShopCustomer.presses(StorefrontHome.consentDialogSaveButton);
 
         // Wait for banner to disappear after saving

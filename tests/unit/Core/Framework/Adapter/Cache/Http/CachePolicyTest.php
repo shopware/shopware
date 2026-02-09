@@ -66,15 +66,15 @@ class CachePolicyTest extends TestCase
         static::assertSame($cacheControl, $newPolicy->cacheControl);
     }
 
-    public function testNoCache(): void
+    public function testNoStore(): void
     {
-        $policy = CachePolicy::noCache();
+        $policy = CachePolicy::noStore();
         static::assertTrue($policy->cacheControl->noStore);
         static::assertTrue($policy->cacheControl->noCache);
         static::assertTrue($policy->cacheControl->mustRevalidate);
         static::assertSame(0, $policy->cacheControl->maxAge);
-        static::assertSame(0, $policy->cacheControl->sMaxAge);
         static::assertNull($policy->cacheControl->public);
         static::assertNull($policy->cacheControl->private);
+        static::assertNull($policy->cacheControl->sMaxAge); // in other case symfony will set response as public
     }
 }

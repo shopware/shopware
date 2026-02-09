@@ -112,9 +112,11 @@ class FlowExecutorTest extends TestCase
             ],
         ], $this->salesChannelContext->getContext());
 
-        $this->productRepository->update([
-            (new ProductBuilder($ids, 'product'))->price(50)->build(),
-        ], $this->salesChannelContext->getContext());
+        $product = (new ProductBuilder($ids, 'product'))->price(50)->build();
+
+        unset($product['type']);
+
+        $this->productRepository->update([$product], $this->salesChannelContext->getContext());
 
         $this->changeTransactionStateToPaid($ids->get('order'));
 

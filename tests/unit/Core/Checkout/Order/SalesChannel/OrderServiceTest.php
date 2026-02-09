@@ -11,17 +11,20 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validation;
 
@@ -45,10 +48,11 @@ class OrderServiceTest extends TestCase
         $this->cartService = $this->createMock(CartService::class);
         $this->paymentMethodRepository = $this->createMock(EntityRepository::class);
         $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $this->orderService = new OrderService(
             new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            new OrderValidationFactory(),
+            new OrderValidationFactory($systemConfigService),
             $eventDispatcher,
             $this->cartService,
             $this->paymentMethodRepository,
@@ -63,8 +67,13 @@ class OrderServiceTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         $cart = new Cart('test');
-        $cart->add((new LineItem('a', 'test'))->setStates([State::IS_PHYSICAL]));
+        $lineItem = (new LineItem('a', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
 
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
         $this->cartService->method('getCart')->willReturn($cart);
         $this->cartService->expects($this->exactly(2))->method('order');
 
@@ -73,7 +82,12 @@ class OrderServiceTest extends TestCase
 
         $this->orderService->createOrder($dataBag, $context);
 
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_DOWNLOAD]));
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_DOWNLOAD]);
+        }
+        $cart->add($lineItem);
 
         try {
             $this->orderService->createOrder($dataBag, $context);

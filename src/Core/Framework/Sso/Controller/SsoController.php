@@ -43,7 +43,12 @@ class SsoController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.config', defaults: ['auth_required' => false], methods: ['GET'])]
+    #[Route(
+        path: '/api/oauth/sso/config',
+        name: 'api.oauth.sso.config',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_GET]
+    )]
     public function loadSsoLoginConfig(Request $request): JsonResponse
     {
         $random = $this->stateValidator->createRandom($request);
@@ -52,7 +57,12 @@ class SsoController extends AbstractController
         return new JsonResponse($templateData);
     }
 
-    #[Route(path: '/api/oauth/sso/code', name: 'api.oauth.sso.code', defaults: ['auth_required' => false], methods: ['GET'])]
+    #[Route(
+        path: '/api/oauth/sso/code',
+        name: 'api.oauth.sso.code',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_GET]
+    )]
     public function callbackWithCode(Request $request): Response
     {
         $this->stateValidator->validateRequest($request);
@@ -70,7 +80,12 @@ class SsoController extends AbstractController
         return $this->loginResponseService->create($response);
     }
 
-    #[Route(path: '/api/oauth/sso/auth', name: 'oauth.sso.auth', defaults: ['auth_required' => false], methods: ['GET'])]
+    #[Route(
+        path: '/api/oauth/sso/auth',
+        name: 'oauth.sso.auth',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_GET]
+    )]
     public function ssoAuth(Request $request): RedirectResponse
     {
         $random = $request->getSession()->get(StateValidator::SESSION_KEY);
@@ -88,13 +103,23 @@ class SsoController extends AbstractController
         return $this->redirect($url);
     }
 
-    #[Route(path: '/api/_info/is-sso', name: 'api.info.is-sso', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_info/is-sso',
+        name: 'api.info.is-sso',
+        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']],
+        methods: [Request::METHOD_GET]
+    )]
     public function isSso(): JsonResponse
     {
         return new JsonResponse(['isSso' => $this->ssoService->isSso()]);
     }
 
-    #[Route(path: '/api/_action/sso/invite-user', name: 'api.action.sso.invite-user', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/sso/invite-user',
+        name: 'api.action.sso.invite-user',
+        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']],
+        methods: [Request::METHOD_POST]
+    )]
     public function inviteUser(RequestDataBag $requestDataBag, Context $context): JsonResponse
     {
         $email = $requestDataBag->get('email');

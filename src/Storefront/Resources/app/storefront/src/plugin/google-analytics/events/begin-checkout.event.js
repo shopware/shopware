@@ -11,11 +11,13 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
      * @returns {boolean}
      */
     supports(controllerName, actionName, activeRoute) {
-        return !!document.querySelector('.begin-checkout-btn');
+        return true;
     }
     /* eslint-enable no-unused-vars */
 
     getEvents() {
+        this._boundOnBeginCheckout = this._onBeginCheckout.bind(this);
+
         return {
             'offCanvasOpened': this._offCanvasOpened.bind(this),
         };
@@ -26,7 +28,13 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
     }
 
     _offCanvasOpened() {
-        document.querySelector('.begin-checkout-btn').addEventListener('click', this._onBeginCheckout.bind(this));
+        const beginCheckoutBtn = document.querySelector('.begin-checkout-btn');
+        if (!beginCheckoutBtn) {
+            return;
+        }
+
+        beginCheckoutBtn.removeEventListener('click', this._boundOnBeginCheckout);
+        beginCheckoutBtn.addEventListener('click', this._boundOnBeginCheckout);
     }
 
     _onBeginCheckout() {
@@ -34,7 +42,11 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
             return;
         }
 
+        const additionalProperties = LineItemHelper.getAdditionalProperties();
+
         gtag('event', 'begin_checkout', {
+            'currency': additionalProperties.currency,
+            'value': additionalProperties.value,
             'items': LineItemHelper.getLineItems(),
         });
     }

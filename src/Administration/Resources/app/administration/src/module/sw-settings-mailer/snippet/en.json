@@ -29,7 +29,7 @@
       "port": "Port",
       "port-placeholder": "Enter a port number...",
       "username": "Username",
-      "username-placeholder": "Enter a your username...",
+      "username-placeholder": "Enter your username...",
       "password": "Password",
       "password-placeholder": "Enter a password...",
       "oauth-url": "OAuth URL",

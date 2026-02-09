@@ -1,8 +1,6 @@
-@import "~scss/variables";
-
 .sw-notification-center__context-button {
-    width: 40px;
-    height: 40px;
+    width: var(--scale-size-40);
+    height: var(--scale-size-40);
     border-radius: var(--border-radius-button);
     display: flex;
     justify-content: center;
@@ -23,44 +21,44 @@
 .sw-notification-center__context-button--new-available::after {
     content: "";
     display: block;
-    width: 8px;
-    height: 8px;
+    width: var(--scale-size-6);
+    height: var(--scale-size-6);
     border-radius: 50%;
-    background-color: $color-crimson-500;
+    background-color: var(--color-icon-critical-default);
     position: absolute;
-    top: 6px;
-    right: 6px;
+    top: 8px;
+    right: 8px;
 }
 
 .sw-notification-center__context-container {
     .sw-context-menu__content {
-        cursor: default;
-        padding: 0;
+        padding: 0 !important;
     }
 
     .sw-notification-center__content {
         .sw-notification-center__header {
-            border-bottom: 1px solid var(--color-border-primary-default);
-            padding: var(--scale-size-20) var(--scale-size-24) var(--scale-size-16);
             display: flex;
             justify-content: space-between;
+            border-bottom: 1px solid var(--color-border-primary-default);
+            padding: var(--scale-size-18) var(--scale-size-24);
         }
 
         .sw-notification-center__title {
             margin: 0;
-            font-size: var(--font-size-m);
-            line-height: var(--font-line-height-m);
+            font-size: var(--font-size-s);
+            line-height: var(--font-line-height-s);
+            font-weight: var(--font-weight-semibold);
             color: var(--color-text-primary-default);
         }
 
         .sw-notification-center__notification-container {
             overflow-y: auto;
-            max-height: 600px;
+            max-height: 37.5rem;
         }
 
         .sw-notification-center__empty-text {
-            padding: 24px;
-            font-size: $font-size-xs;
+            padding: var(--scale-size-18) var(--scale-size-24);
+            font-size: var(--font-size-xs);
         }
     }
 }

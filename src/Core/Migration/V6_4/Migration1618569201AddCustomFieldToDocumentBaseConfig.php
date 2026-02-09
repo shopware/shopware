@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1618569201AddCustomFieldToDocumentBaseConfig extends MigrationStep
@@ -21,22 +20,12 @@ class Migration1618569201AddCustomFieldToDocumentBaseConfig extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $featureColumn = $connection->fetchOne(
-            'SHOW COLUMNS FROM `document_base_config` WHERE `Field` LIKE :column;',
-            ['column' => 'custom_fields']
-        );
-
-        if ($featureColumn === false) {
+        if (!TableHelper::columnExists($connection, 'document_base_config', 'custom_fields')) {
             $connection->executeStatement(
                 'ALTER TABLE `document_base_config`
                 ADD COLUMN `custom_fields` JSON NULL AFTER `config`,
                 ADD CONSTRAINT `json.document_base_config.custom_fields` CHECK (JSON_VALID(`custom_fields`));'
             );
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

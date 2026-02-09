@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -94,6 +95,7 @@ class CategoryBreadcrumbBuilder
         $criteria->setTitle('breadcrumb-builder');
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addFilter(new EqualsFilter('visible', true));
 
         if (!empty($categoryIds)) {
             $criteria->setIds($categoryIds);
@@ -103,13 +105,9 @@ class CategoryBreadcrumbBuilder
         }
 
         $criteria->addFilter($this->getSalesChannelFilter($context->getSalesChannel()));
+        $criteria->addSorting(new FieldSorting('level', FieldSorting::DESCENDING));
 
-        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
-        if ($categories->count() > 0) {
-            return $categories->first();
-        }
-
-        return null;
+        return $this->categoryRepository->search($criteria, $context->getContext())->first();
     }
 
     public function getCategoryBreadcrumbUrls(CategoryEntity $category, Context $context, SalesChannelEntity $salesChannel): BreadcrumbCollection

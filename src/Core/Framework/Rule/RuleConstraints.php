@@ -93,7 +93,7 @@ class RuleConstraints
      */
     public static function choice(array $choices): array
     {
-        return [new NotBlank(), new Choice($choices)];
+        return [new NotBlank(), new Choice(choices: $choices)];
     }
 
     /**
@@ -116,7 +116,7 @@ class RuleConstraints
 
         return [
             new NotBlank(),
-            new Choice($operators),
+            new Choice(choices: $operators),
         ];
     }
 
@@ -136,7 +136,7 @@ class RuleConstraints
 
         return [
             new NotBlank(),
-            new Choice($operators),
+            new Choice(choices: $operators),
         ];
     }
 
@@ -156,7 +156,7 @@ class RuleConstraints
 
         return [
             new NotBlank(),
-            new Choice($operators),
+            new Choice(choices: $operators),
         ];
     }
 
@@ -180,7 +180,7 @@ class RuleConstraints
 
         return [
             new NotBlank(),
-            new Choice($operators),
+            new Choice(choices: $operators),
         ];
     }
 

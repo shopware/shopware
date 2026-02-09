@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1664512574AddConfigShowHideSectionBlock extends MigrationStep
@@ -25,13 +24,12 @@ class Migration1664512574AddConfigShowHideSectionBlock extends MigrationStep
         $this->updateSchema($connection, 'cms_block');
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
+    /**
+     * @param non-empty-string $tableName
+     */
     private function updateSchema(Connection $connection, string $tableName): void
     {
-        if (!$this->columnExists($connection, $tableName, 'visibility')) {
+        if (!TableHelper::columnExists($connection, $tableName, 'visibility')) {
             $connection->executeStatement(\sprintf('ALTER TABLE `%s` ADD COLUMN `visibility` JSON NULL AFTER `background_media_mode`', $tableName));
         }
     }

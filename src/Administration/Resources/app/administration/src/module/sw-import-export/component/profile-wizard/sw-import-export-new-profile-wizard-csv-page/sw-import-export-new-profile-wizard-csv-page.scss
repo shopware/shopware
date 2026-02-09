@@ -1,8 +1,7 @@
-@import "~scss/variables";
-
 .sw-import-export-new-profile-wizard-csv-page {
     &__text {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-s);
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-medium);
     }
 }

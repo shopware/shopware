@@ -13,6 +13,8 @@
     },
     "list": {
       "textMailTemplateOverview": "Email templates",
+      "tabMailTemplates": "Templates",
+      "tabHeaderFooter": "Headers and Footers",
       "titleMailTemplateList": "Templates",
       "titleMailFooterList": "Footer",
       "buttonAddMailTemplate": "Add email template",

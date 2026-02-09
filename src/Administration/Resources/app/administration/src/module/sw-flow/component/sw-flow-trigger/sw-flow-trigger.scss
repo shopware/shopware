@@ -1,63 +1,35 @@
-@import "~scss/variables";
-@import "~scss/mixins";
-
-$sw-flow-trigger-transition-results: all ease-in-out 0.2s;
-
 .sw-flow-trigger {
     &__event-selection {
         min-width: 100%;
         max-width: 150%;
     }
 
-    .sw-tree {
-        border: unset;
-        max-width: 150%;
-
-        &:focus-within {
-            box-shadow: none;
-        }
-    }
-
-    .sw-tree-item {
-        &.is--no-children {
-            .sw-tree-item__element {
-                cursor: pointer;
-            }
-        }
-    }
-
-    .sw-tree-item__children .sw-tree-item__element .sw-tree-item__icon {
-        width: auto;
-    }
-
     &.overlay {
         position: relative;
-
-        .sw-flow-trigger__select-toolbar {
-            margin-bottom: 3px;
-        }
     }
 
     &.overlay .sw-flow-trigger__event-selection {
+        z-index: 700;
         position: absolute;
-        z-index: $z-index-flyout;
-        border-radius: $border-radius-default;
-        background-color: $color-white;
+        background: var(--color-elevation-surface-overlay);
         background-clip: padding-box;
-        box-shadow: 0 1px 6px 0 lighten($color-darkgray-200, 30%);
+        border-radius: var(--border-radius-xs);
+        box-shadow: 0 1px 6px 0 var(--color-elevation-shadow-default);
     }
 
     .sw-flow-trigger__search-field {
         margin-bottom: 0;
 
         .sw-field__label label {
-            font-size: $font-size-s;
-            font-weight: $font-weight-semi-bold;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text-primary-default);
         }
 
         .sw-block-field__block input {
             text-overflow: ellipsis;
-            padding-right: 28px;
+            padding-right: var(--scale-size-32);
+            background: var(--color-background-primary-default);
 
             &::placeholder {
                 text-transform: none;
@@ -66,8 +38,8 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
     }
 
     &__search-results {
-        padding: 12px;
-        max-height: 600px;
+        padding: var(--scale-size-12);
+        max-height: 38rem;
         overflow: auto;
 
         li.sw-flow-trigger__search-result {
@@ -75,34 +47,37 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
             cursor: pointer;
             list-style: none;
             display: flex;
-            padding: 0 12px 10px;
-            border-radius: $border-radius-default;
+            align-items: center;
+            padding: var(--scale-size-12) var(--scale-size-4);
+            border-radius: var(--border-radius-xs);
 
             &:hover,
             &.is--focus {
-                background-color: lighten($color-shopware-brand-500, 40);
+                background-color: var(--color-background-brand-default);
             }
         }
 
         li .sw-flow-trigger__search-result-icon {
-            margin-right: 12px;
+            margin-inline: var(--scale-size-12);
         }
 
         li .sw-flow-trigger__search-result-name {
-            font-size: $font-size-xs;
-            padding-top: 3px;
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            color: var(--color-text-primary-default);
+            padding-top: var(--scale-size-4);
         }
     }
 
     &__empty {
-        padding: 12px;
+        padding: var(--scale-size-12);
     }
 
     &__loader.sw-loader {
-        @include size(16px);
-
         position: static;
-        margin-right: 10px;
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
+        margin-right: var(--scale-size-10);
 
         .sw-loader__container {
             transform: none;
@@ -117,14 +92,13 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
         top: 44px;
         right: 16px;
         text-align: center;
-        color: #52667a;
+        color: var(--color-icon-primary-default);
         pointer-events: none;
     }
 
-    // Vue.js transitions
     .sw-flow-trigger__fade-down-enter-active,
     .sw-flow-trigger__fade-down-leave-active {
-        transition: $sw-flow-trigger-transition-results;
+        transition: all ease-in-out 0.2s;
         transform: translateY(0);
     }
 
@@ -134,23 +108,23 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
         opacity: 0;
     }
 
-    @media screen and (max-height: $content-width) {
+    @media screen and (max-height: 60rem) {
         &__search-results {
-            max-height: 400px;
+            max-height: 25rem;
         }
 
         .sw-tree .sw-tree__content {
-            max-height: 400px;
+            max-height: 25rem;
         }
     }
 
-    @media screen and (max-height: 1024px) {
+    @media screen and (max-height: 64rem) {
         &__search-results {
-            max-height: 480px;
+            max-height: 30rem;
         }
 
         .sw-tree .sw-tree__content {
-            max-height: 480px;
+            max-height: 30rem;
         }
     }
 }

@@ -53,18 +53,18 @@ class RuleConditionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
-            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
-            new FkField('script_id', 'scriptId', AppScriptConditionDefinition::class),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of rule condition.'),
+            (new StringField('type', 'type'))->addFlags(new Required())->setDescription('Different rule types.'),
+            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required())->setDescription('Unique identity of rule.'),
+            (new FkField('script_id', 'scriptId', AppScriptConditionDefinition::class))->setDescription('Unique identity of script.'),
             new ParentFkField(self::class),
-            new JsonField('value', 'value'),
-            new IntField('position', 'position'),
+            (new JsonField('value', 'value'))->setDescription('Value of the RuleCondition.'),
+            (new IntField('position', 'position'))->setDescription('The order of the tabs of your defined rule setting configurations in the Administration by entering numerical values like 1,2,3, etc.'),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id'),
             new ManyToOneAssociationField('appScriptCondition', 'script_id', AppScriptConditionDefinition::class, 'id'),
-            new ParentAssociationField(self::class, 'id'),
+            (new ParentAssociationField(self::class, 'id'))->setDescription('Unique identity of rule condition.'),
             new ChildrenAssociationField(self::class),
-            new CustomFields(),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }
 }

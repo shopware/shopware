@@ -12,8 +12,11 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -23,10 +26,12 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
@@ -60,6 +65,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedPrices' => new PriceCollection(),
                 'calculatedMaxPurchase' => 1,
                 'productNumber' => 'A',
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'stock' => 1,
             ]),
             // normal
@@ -69,6 +75,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedPrices' => new PriceCollection(),
                 'calculatedMaxPurchase' => 1,
                 'productNumber' => 'B',
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'stock' => 1,
             ]),
             // out of stock
@@ -79,6 +86,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedMaxPurchase' => 1,
                 'productNumber' => 'C',
                 'stock' => 1,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'minPurchase' => 2,
             ]),
             // min purchase
@@ -89,6 +97,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedMaxPurchase' => 4,
                 'productNumber' => 'D',
                 'stock' => 4,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'minPurchase' => 2,
             ]),
             // purchase step
@@ -100,6 +109,7 @@ class ProductCartProcessorTest extends TestCase
                 'productNumber' => 'E',
                 'stock' => 4,
                 'minPurchase' => 2,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'purchaseSteps' => 2,
             ]),
             // no reference id
@@ -110,6 +120,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedMaxPurchase' => 2,
                 'productNumber' => 'F',
                 'stock' => 2,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'maxPurchase' => 2,
             ]),
         ];
@@ -187,6 +198,7 @@ class ProductCartProcessorTest extends TestCase
             'productNumber' => 'A',
             'stock' => 1,
             'categoryTree' => ['a', 'b'],
+            'type' => ProductDefinition::TYPE_PHYSICAL,
         ]);
 
         $calculator = $this->createMock(ProductPriceCalculator::class);
@@ -234,6 +246,7 @@ class ProductCartProcessorTest extends TestCase
             'customFields' => [
                 'foo' => 'bar',
             ],
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'translated' => [
                 'customFields' => [
                     'foo' => 'baz',
@@ -293,11 +306,15 @@ class ProductCartProcessorTest extends TestCase
 
         $originalCart = new Cart('test');
         $originalCart->add((new LineItem('A', 'product', 'A', 2))->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))); // 2 items of product A
-        $originalCart->add(
-            (new LineItem('B', 'product', 'B', 3))
+        $lineItem = (new LineItem('B', 'product', 'B', 3))
             ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))
-            ->setStates([State::IS_DOWNLOAD])
-        );
+            ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_DOWNLOAD]);
+        }
+
+        $originalCart->add($lineItem);
         $toCalculateCart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -330,6 +347,7 @@ class ProductCartProcessorTest extends TestCase
             'calculatedMaxPurchase' => 1,
             'productNumber' => 'A',
             'stock' => 1,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
         ]);
 
         $processor = new ProductCartProcessor(
@@ -353,5 +371,69 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $cart->getLineItems()->get('A');
         static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertNull($lineItem->getCover());
+    }
+
+    public function testRegulationPriceIsTransferredToLineItemPriceDefinition(): void
+    {
+        $cart = new Cart('test');
+        $lineItem = new LineItem('A', 'product', 'A');
+
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $regulationPrice = new RegulationPrice(15.0);
+        $listPrice = ListPrice::createFromUnitPrice(10.0, 12.0);
+        $referencePrice = new ReferencePrice(20.0, 0.5, 1.0, 'kg');
+
+        $calculatedPrice = new EmptyPrice(
+            unitPrice: 10.0,
+            totalPrice: 10.0,
+            regulationPrice: $regulationPrice,
+            listPrice: $listPrice,
+            referencePrice: $referencePrice
+        );
+
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => 'A',
+            'calculatedPrice' => $calculatedPrice,
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'stock' => 1,
+        ]);
+
+        $processor = new ProductCartProcessor(
+            $this->createMock(ProductGateway::class),
+            $this->createMock(QuantityPriceCalculator::class),
+            $this->createMock(ProductFeatureBuilder::class),
+            $this->createMock(ProductPriceCalculator::class),
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(Connection::class)
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $data = new CartDataCollection();
+        $data->set('product-A', $product);
+
+        $processor->collect($data, $cart, $context, new CartBehavior());
+
+        $lineItem = $cart->getLineItems()->get('A');
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        $priceDefinition = $lineItem->getPriceDefinition();
+        static::assertInstanceOf(QuantityPriceDefinition::class, $priceDefinition);
+
+        // Verify regulation price is transferred
+        static::assertSame(15.0, $priceDefinition->getRegulationPrice());
+
+        // Verify list price is transferred
+        static::assertSame(12.0, $priceDefinition->getListPrice());
+
+        // Verify reference price is transferred
+        $refPriceDef = $priceDefinition->getReferencePriceDefinition();
+        static::assertNotNull($refPriceDef);
+        static::assertSame(0.5, $refPriceDef->getPurchaseUnit());
+        static::assertSame(1.0, $refPriceDef->getReferenceUnit());
+        static::assertSame('kg', $refPriceDef->getUnitName());
     }
 }

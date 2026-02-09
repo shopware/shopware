@@ -5,8 +5,8 @@ namespace Shopware\Core\System\UsageData\Services;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Consent\Service\ConsentDateResolver;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
@@ -28,7 +28,7 @@ class EntityDispatchService
         private readonly EntityDefinitionService $entityDefinitionService,
         private readonly AbstractKeyValueStorage $appConfig,
         private readonly MessageBusInterface $messageBus,
-        private readonly ConsentService $consentService,
+        private readonly ConsentDateResolver $consentDateResolver,
         private readonly GatewayStatusService $gatewayStatusService,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly SystemConfigService $systemConfigService,
@@ -52,7 +52,7 @@ class EntityDispatchService
 
     public function dispatchIterateEntityMessages(CollectEntityDataMessage $message): void
     {
-        $lastConsentAcceptedDate = $this->consentService->getLastConsentIsAcceptedDate();
+        $lastConsentAcceptedDate = $this->consentDateResolver->getLastConsentAcceptedDate();
         if (!$lastConsentAcceptedDate) {
             return;
         }

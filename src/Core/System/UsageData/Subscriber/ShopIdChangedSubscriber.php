@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\System\UsageData\Subscriber;
 
-use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\BannerService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -20,7 +20,8 @@ class ShopIdChangedSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly BannerService $bannerService,
         private readonly SystemConfigService $systemConfigService,
-        private readonly EntityDispatchService $entityDispatchService
+        private readonly EntityDispatchService $entityDispatchService,
+        private readonly Connection $connection
     ) {
     }
 
@@ -28,7 +29,6 @@ class ShopIdChangedSubscriber implements EventSubscriberInterface
     {
         return [
             ShopIdDeletedEvent::class => 'handleShopIdDeleted',
-            ShopIdChangedEvent::class => 'handleShopIdChanged',
         ];
     }
 
@@ -41,27 +41,17 @@ class ShopIdChangedSubscriber implements EventSubscriberInterface
         $this->resetConsent();
     }
 
-    /**
-     * This event is thrown if the shopId or the appUrl of a shop has changed
-     * In this case we revoke the consent and reset it afterwards, to request a new one
-     */
-    public function handleShopIdChanged(ShopIdChangedEvent $event): void
-    {
-        if ($event->oldShopId === null) {
-            return;
-        }
-
-        if ($event->newShopId->id === $event->oldShopId->id) {
-            return;
-        }
-
-        $this->resetConsent();
-    }
-
     private function resetConsent(): void
     {
         // remove entry from system config, so it can be asked again
-        $this->systemConfigService->delete(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE);
+        $this->systemConfigService->delete('core.usageData.consentState');
+        $this->connection->executeStatement(
+            'DELETE FROM consent_state WHERE name = :name AND identifier = :identifier',
+            [
+                'name' => BackendData::NAME,
+                'identifier' => 'system',
+            ]
+        );
         $this->bannerService->resetIsBannerHiddenForAllUsers();
         $this->entityDispatchService->resetLastRunDateForAllEntities();
     }

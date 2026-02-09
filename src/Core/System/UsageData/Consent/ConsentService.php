@@ -2,13 +2,7 @@
 
 namespace Shopware\Core\System\UsageData\Consent;
 
-use Psr\Clock\ClockInterface;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\UsageDataException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -21,14 +15,9 @@ class ConsentService
 {
     public const SYSTEM_CONFIG_KEY_CONSENT_STATE = 'core.usageData.consentState';
 
-    /**
-     * @param EntityRepository<SystemConfigCollection> $systemConfigRepository
-     */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
-        private readonly EntityRepository $systemConfigRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -72,27 +61,6 @@ class ConsentService
     public function isConsentRevoked(): bool
     {
         return $this->getConsentState() === ConsentState::REVOKED;
-    }
-
-    /**
-     * Returns the last date when we still had the consent.
-     * If we never had the consent before, null is returned.
-     */
-    public function getLastConsentIsAcceptedDate(): ?\DateTimeImmutable
-    {
-        if ($this->isConsentAccepted()) {
-            return \DateTimeImmutable::createFromInterface($this->clock->now());
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('configurationKey', self::SYSTEM_CONFIG_KEY_CONSENT_STATE));
-        $criteria->setLimit(1);
-        $entitySearchResult = $this->systemConfigRepository->search($criteria, Context::createDefaultContext())->getEntities();
-        $config = $entitySearchResult->first();
-
-        $updatedAt = $config?->getUpdatedAt();
-
-        return $updatedAt ? \DateTimeImmutable::createFromInterface($updatedAt) : null;
     }
 
     public function getConsentState(): ?ConsentState

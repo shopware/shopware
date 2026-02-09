@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\Service\ConsentDateResolver;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
@@ -34,7 +34,7 @@ final readonly class DispatchEntityMessageHandler
         private UsageDataAllowListService $usageDataAllowListService,
         private Connection $connection,
         private EntityDispatcher $entityDispatcher,
-        private ConsentService $consentService,
+        private ConsentDateResolver $consentDateResolver,
         private ShopIdProvider $shopIdProvider
     ) {
     }
@@ -52,7 +52,7 @@ final readonly class DispatchEntityMessageHandler
             self::throwUnrecoverableMessageHandlingException($message, 'Message dispatched for old shopId');
         }
 
-        $lastApprovalDate = $this->consentService->getLastConsentIsAcceptedDate();
+        $lastApprovalDate = $this->consentDateResolver->getLastConsentAcceptedDate();
         if ($lastApprovalDate === null) {
             self::throwUnrecoverableMessageHandlingException($message, 'No approval date found');
         }

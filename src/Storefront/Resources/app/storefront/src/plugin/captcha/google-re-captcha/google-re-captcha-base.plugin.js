@@ -2,6 +2,26 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 export default class GoogleReCaptchaBasePlugin extends Plugin {
     init() {
+        const recaptchaScript = document.getElementById('recaptcha-script');
+        if (!recaptchaScript) {
+            return;
+        }
+
+        if (!recaptchaScript.hasAttribute('src')) {
+            const dataSrc = recaptchaScript.getAttribute('data-src');
+            if (dataSrc && this._isValidUrl(dataSrc)) {
+                recaptchaScript.setAttribute('src', encodeURI(dataSrc));
+            }
+        }
+
+        // The shim script in main.js ensures window.grecaptcha and window.grecaptcha.ready exist.
+        // The callback .bind(this) ensures 'this' context is correct in _executeGoogleReCaptchaInitialization.
+        if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
+            window.grecaptcha.ready(this._executeGoogleReCaptchaInitialization.bind(this));
+        }
+    }
+
+    _executeGoogleReCaptchaInitialization() {
         this._getForm();
 
         if (!this._form) {

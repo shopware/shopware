@@ -1,4 +1,4 @@
-import { computed, Ref, ref, shallowRef } from 'vue';
+import { computed, Ref, ref, shallowRef, triggerRef } from 'vue';
 import { useCurrentExtensionId } from '../store/extension-context.store';
 
 interface OrderItem {
@@ -95,31 +95,27 @@ export const useExtensionOrderedArray = <T>() => {
 };
 
 export const useExtensionOrdereredArrayMap = <T>() => {
-    const internalMap: Ref<Record<string, ReturnType<typeof useExtensionOrderedArray<T>>>> = shallowRef({});
+    const internalMap: Ref<Map<string, ReturnType<typeof useExtensionOrderedArray<T>>>> = shallowRef(new Map());
 
     const get = (key: string) => {
-        if (!internalMap.value[key]) {
-            internalMap.value = { ...internalMap.value, [key]: useExtensionOrderedArray<T>() };
+        let entry = internalMap.value.get(key);
+        if (!entry) {
+            entry = useExtensionOrderedArray<T>();
+            internalMap.value.set(key, entry);
+            triggerRef(internalMap);
         }
-        return internalMap.value[key];
+        return entry;
     };
 
     const clear = () => {
-        internalMap.value = {};
+        internalMap.value.clear();
+        triggerRef(internalMap);
     };
 
     const items = computed(() =>
         Object.freeze(
             Object.fromEntries(
-                Object.entries(internalMap.value).map(
-                    ([
-                        key,
-                        value,
-                    ]) => [
-                        key,
-                        value.items,
-                    ],
-                ),
+                Array.from(internalMap.value.entries()).map(([key, value]) => [key, value.items]),
             ) as Readonly<Record<string, ReturnType<typeof useExtensionOrderedArray<T>>['items']>>,
         ),
     );

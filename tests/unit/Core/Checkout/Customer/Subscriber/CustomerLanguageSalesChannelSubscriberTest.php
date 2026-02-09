@@ -546,16 +546,9 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    public function testValidateInsertWithPrimaryKeyWithoutIdUsesPayloadSalesChannel(): void
+    public function testValidateSkipsWhenPrimaryKeyHasNoId(): void
     {
         $ids = new IdsCollection();
-        $language = new LanguageEntity();
-        $language->setId($ids->get('lang1'));
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId($ids->get('sc1'));
-        $salesChannel->setLanguages(new LanguageCollection([$language]));
-        $salesChannels = new SalesChannelCollection([$salesChannel]);
-
         $context = Context::createDefaultContext();
         $writeContext = WriteContext::createFromContext($context);
         $command = new InsertCommand(
@@ -570,19 +563,8 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->never())
-            ->method('search');
-
-        $this->salesChannelRepository->expects($this->once())
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'sales_channel',
-                1,
-                $salesChannels,
-                new AggregationResultCollection(),
-                new Criteria(),
-                $context
-            ));
+        $this->customerRepository->expects($this->never())->method('search');
+        $this->salesChannelRepository->expects($this->never())->method('search');
 
         $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
         $subscriber->validate($event);

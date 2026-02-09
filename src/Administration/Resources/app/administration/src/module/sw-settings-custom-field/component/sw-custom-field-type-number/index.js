@@ -27,9 +27,27 @@ export default {
         };
     },
 
+    computed: {
+        isIntField() {
+            return this.currentCustomField.config.numberType === 'int';
+        },
+    },
+
     watch: {
         'currentCustomField.config.numberType'(value) {
             this.currentCustomField.type = value;
+
+            if (value === 'int') {
+                if (this.currentCustomField.config.step != null) {
+                    this.currentCustomField.config.step = Math.round(this.currentCustomField.config.step);
+                }
+                if (this.currentCustomField.config.min != null) {
+                    this.currentCustomField.config.min = Math.round(this.currentCustomField.config.min);
+                }
+                if (this.currentCustomField.config.max != null) {
+                    this.currentCustomField.config.max = Math.round(this.currentCustomField.config.max);
+                }
+            }
         },
     },
 

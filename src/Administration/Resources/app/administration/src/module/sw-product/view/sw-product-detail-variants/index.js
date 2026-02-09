@@ -150,7 +150,12 @@ export default {
                 return;
             }
 
-            const groupMap = new Map(this.groups.map((g) => [g.id, g]));
+            const groupMap = new Map(
+                this.groups.map((g) => [
+                    g.id,
+                    g,
+                ]),
+            );
             this.configSettingGroups = groupIds.map((id) => groupMap.get(id)).filter(Boolean);
         },
 

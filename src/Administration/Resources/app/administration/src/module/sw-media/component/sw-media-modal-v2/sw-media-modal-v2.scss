@@ -82,4 +82,11 @@ $sw-media-modal-v2-non-grid-margin: 0 24px;
     .sw-media-modal-v2__library-content {
         display: contents;
     }
+
+    .sw-media-modal-v2__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        width: 100%;
+    }
 }

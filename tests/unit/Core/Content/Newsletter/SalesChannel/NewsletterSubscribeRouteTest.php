@@ -103,7 +103,6 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-
         $response = $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
 
         static::assertInstanceOf(NewsletterSubscribeRouteResponse::class, $response);

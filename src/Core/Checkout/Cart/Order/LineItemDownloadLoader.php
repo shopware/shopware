@@ -46,7 +46,7 @@ class LineItemDownloadLoader
             }
 
             $downloads = $lineItem['downloads'] ?? null;
-            if (!$productId || !$isLineItemDownloadable || !$downloads) {
+            if (!$productId || !$isLineItemDownloadable || $downloads) {
                 continue;
             }
 

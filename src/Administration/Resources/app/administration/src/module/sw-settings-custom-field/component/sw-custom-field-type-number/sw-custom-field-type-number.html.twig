@@ -18,7 +18,7 @@
     <mt-number-field
         v-model="currentCustomField.config.step"
         :label="$tc('sw-settings-custom-field.customField.detail.labelStep')"
-        :number-type="isIntField ? 'int' : 'float'"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 
@@ -26,7 +26,7 @@
     <mt-number-field
         v-model="currentCustomField.config.min"
         :label="$tc('sw-settings-custom-field.customField.detail.labelMin')"
-        :number-type="isIntField ? 'int' : 'float'"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 
@@ -34,7 +34,7 @@
     <mt-number-field
         v-model="currentCustomField.config.max"
         :label="$tc('sw-settings-custom-field.customField.detail.labelMax')"
-        :number-type="isIntField ? 'int' : 'float'"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 </sw-container>

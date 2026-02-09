@@ -195,9 +195,9 @@ class Migration1657173907DownloadMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Your downloads from {{ salesChannel.name }} are ready',
+                    'subject' => 'Your downloads from {{ salesChannel.translated.name }} are ready',
                     'description' => 'Shopware Default Template',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => '',
                     'content_plain' => '',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -211,9 +211,9 @@ class Migration1657173907DownloadMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Your downloads from {{ salesChannel.name }} are ready',
+                    'subject' => 'Your downloads from {{ salesChannel.translated.name }} are ready',
                     'description' => 'Shopware Default Template',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => '',
                     'content_plain' => '',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -227,9 +227,9 @@ class Migration1657173907DownloadMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Ihre Dateien von {{ salesChannel.name }} stehen bereit',
+                    'subject' => 'Ihre Dateien von {{ salesChannel.translated.name }} stehen bereit',
                     'description' => 'Shopware Default Template',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => '',
                     'content_plain' => '',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

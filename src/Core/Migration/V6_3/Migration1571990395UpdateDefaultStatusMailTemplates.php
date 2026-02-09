@@ -32,12 +32,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is partially delivered',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is partially delivered',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} wurde teilweise ausgeliefert'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} wurde teilweise ausgeliefert'
         );
 
         // update DELIVERY_STATE_RETURNED_PARTIALLY
@@ -46,12 +46,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is partially returned',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is partially returned',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} wurde teilweise retourniert'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} wurde teilweise retourniert'
         );
 
         // update DELIVERY_STATE_RETURNED
@@ -60,12 +60,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is returned',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is returned',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} wurde retourniert'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} wurde retourniert'
         );
 
         // update DELIVERY_STATE_CANCELLED
@@ -74,12 +74,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_CANCELLED,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is cancelled',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is cancelled',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Stornierung der Bestellung bei {{ salesChannel.name }}'
+            '{{ salesChannel.translated.name }}',
+            'Stornierung der Bestellung bei {{ salesChannel.translated.name }}'
         );
 
         // update DELIVERY_STATE_SHIPPED
@@ -88,12 +88,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is delivered',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is delivered',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} wurde ausgeliefert'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} wurde ausgeliefert'
         );
 
         // update ORDER_STATE_OPEN
@@ -102,12 +102,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is open',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is open',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} ist offen'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} ist offen'
         );
 
         // update ORDER_STATE_IN_PROGRESS
@@ -116,12 +116,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is in process',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is in process',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} ist in Bearbeitung'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} ist in Bearbeitung'
         );
 
         // update ORDER_STATE_COMPLETED
@@ -130,12 +130,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is completed',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is completed',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} ist komplett abgeschlossen'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} ist komplett abgeschlossen'
         );
 
         // update ORDER_STATE_CANCELLED
@@ -144,12 +144,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_CANCELLED,
             $this->getOrderStatusUpdateHtmlTemplateEn(),
             $this->getOrderStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is cancelled',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is cancelled',
             $this->getOrderStatusUpdateHtmlTemplateDe(),
             $this->getOrderStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Stornierung der Bestellung bei {{ salesChannel.name }}'
+            '{{ salesChannel.translated.name }}',
+            'Stornierung der Bestellung bei {{ salesChannel.translated.name }}'
         );
 
         // update TRANSACTION_STATE_REFUNDED_PARTIALLY
@@ -158,12 +158,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY,
             $this->getOrderTransactionStatusUpdateHtmlTemplateEn(),
             $this->getOrderTransactionStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is partially refunded',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is partially refunded',
             $this->getOrderTransactionStatusUpdateHtmlTemplateDe(),
             $this->getOrderTransactionStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} wurde teilweise erstattet'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} wurde teilweise erstattet'
         );
 
         // update TRANSACTION_STATE_REMINDED
@@ -172,12 +172,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED,
             $this->getOrderTransactionStatusUpdateHtmlTemplateEn(),
             $this->getOrderTransactionStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Reminder for your order with {{ salesChannel.name }}',
+            '{{ salesChannel.translated.name }}',
+            'Reminder for your order with {{ salesChannel.translated.name }}',
             $this->getOrderTransactionStatusUpdateHtmlTemplateDe(),
             $this->getOrderTransactionStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Zahlungserinnerung für die Bestellung bei {{ salesChannel.name }}'
+            '{{ salesChannel.translated.name }}',
+            'Zahlungserinnerung für die Bestellung bei {{ salesChannel.translated.name }}'
         );
 
         // update TRANSACTION_STATE_OPEN
@@ -186,12 +186,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_OPEN,
             $this->getOrderTransactionStatusUpdateHtmlTemplateEn(),
             $this->getOrderTransactionStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }}',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }}',
             $this->getOrderTransactionStatusUpdateHtmlTemplateDe(),
             $this->getOrderTransactionStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Deine Bestellung bei {{ salesChannel.name }}'
+            '{{ salesChannel.translated.name }}',
+            'Deine Bestellung bei {{ salesChannel.translated.name }}'
         );
 
         // update TRANSACTION_STATE_PAID
@@ -200,12 +200,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID,
             $this->getOrderTransactionStatusUpdateHtmlTemplateEn(),
             $this->getOrderTransactionStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is completly paid',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is completly paid',
             $this->getOrderTransactionStatusUpdateHtmlTemplateDe(),
             $this->getOrderTransactionStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Deine Bestellung bei {{ salesChannel.name }} wurde komplett bezahlt'
+            '{{ salesChannel.translated.name }}',
+            'Deine Bestellung bei {{ salesChannel.translated.name }} wurde komplett bezahlt'
         );
 
         // update TRANSACTION_STATE_CANCELLED
@@ -214,12 +214,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED,
             $this->getOrderTransactionStatusUpdateHtmlTemplateEn(),
             $this->getOrderTransactionStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'The payment for your order with {{ salesChannel.name }} is cancelled',
+            '{{ salesChannel.translated.name }}',
+            'The payment for your order with {{ salesChannel.translated.name }} is cancelled',
             $this->getOrderTransactionStatusUpdateHtmlTemplateDe(),
             $this->getOrderTransactionStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Die Zahlung für ihre Bestellung bei {{ salesChannel.name }} wurde storniert'
+            '{{ salesChannel.translated.name }}',
+            'Die Zahlung für ihre Bestellung bei {{ salesChannel.translated.name }} wurde storniert'
         );
 
         // update TRANSACTION_STATE_REFUNDED
@@ -228,12 +228,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED,
             $this->getOrderTransactionStatusUpdateHtmlTemplateEn(),
             $this->getOrderTransactionStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is refunded',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is refunded',
             $this->getOrderTransactionStatusUpdateHtmlTemplateDe(),
             $this->getOrderTransactionStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Bestellung bei {{ salesChannel.name }} wurde erstattet'
+            '{{ salesChannel.translated.name }}',
+            'Bestellung bei {{ salesChannel.translated.name }} wurde erstattet'
         );
 
         // update TRANSACTION_STATE_PAID_PARTIALLY
@@ -242,12 +242,12 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY,
             $this->getOrderTransactionStatusUpdateHtmlTemplateEn(),
             $this->getOrderTransactionStatusUpdatePlainTemplateEn(),
-            '{{ salesChannel.name }}',
-            'Your order with {{ salesChannel.name }} is partially paid',
+            '{{ salesChannel.translated.name }}',
+            'Your order with {{ salesChannel.translated.name }} is partially paid',
             $this->getOrderTransactionStatusUpdateHtmlTemplateDe(),
             $this->getOrderTransactionStatusUpdatePlainTemplateDe(),
-            '{{ salesChannel.name }}',
-            'Deine Bestellung bei {{ salesChannel.name }} wurde teilweise bezahlt'
+            '{{ salesChannel.translated.name }}',
+            'Deine Bestellung bei {{ salesChannel.translated.name }} wurde teilweise bezahlt'
         );
     }
 
@@ -367,7 +367,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
                         'language_id' => $this->defaultLangId,
                         'subject' => $subjectEn,
                         'description' => $descriptionEn,
-                        'sender_name' => '{{ salesChannel.name }}',
+                        'sender_name' => '{{ salesChannel.translated.name }}',
                         'content_html' => $contentHtmlEn,
                         'content_plain' => $contentPlainEn,
                         'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -418,7 +418,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
                         'mail_template_id' => $newTemplateId ?: $templateId,
                         'language_id' => $this->deLangId,
                         'subject' => $subjectDe,
-                        'sender_name' => '{{ salesChannel.name }}',
+                        'sender_name' => '{{ salesChannel.translated.name }}',
                         'description' => $descriptionDe,
                         'content_html' => $contentHtmlDe,
                         'content_plain' => $contentPlainDe,

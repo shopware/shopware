@@ -75,14 +75,14 @@ class Migration1672931011ReviewFormMailTemplate extends MigrationStep
         $translations = new Translations(
             [
                 'mail_template_id' => $templateId,
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'subject' => 'Neue Produktbewertung',
                 'content_html' => $this->getMailTemplateContent(self::LOCALE_DE_DE, true),
                 'content_plain' => $this->getMailTemplateContent(self::LOCALE_DE_DE, false),
             ],
             [
                 'mail_template_id' => $templateId,
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'subject' => 'New product review',
                 'content_html' => $this->getMailTemplateContent(self::LOCALE_EN_GB, true),
                 'content_plain' => $this->getMailTemplateContent(self::LOCALE_EN_GB, false),

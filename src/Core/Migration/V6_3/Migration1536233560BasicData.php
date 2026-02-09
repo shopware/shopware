@@ -2085,7 +2085,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'subject' => 'Order confirmation',
                 'description' => '',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getHtmlTemplateEn(),
                 'content_plain' => $this->getPlainTemplateEn(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2099,7 +2099,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
                 'subject' => 'Bestellbestätigung',
                 'description' => '',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getHtmlTemplateDe(),
                 'content_plain' => $this->getPlainTemplateDe(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2136,9 +2136,9 @@ class Migration1536233560BasicData extends MigrationStep
             [
                 'mail_template_id' => $customerRegistrationTemplateId,
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-                'subject' => 'Your Registration at {{ salesChannel.name }}',
+                'subject' => 'Your Registration at {{ salesChannel.translated.name }}',
                 'description' => 'Registration confirmation',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getRegistrationHtmlTemplateEn(),
                 'content_plain' => $this->getRegistrationPlainTemplateEn(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2150,9 +2150,9 @@ class Migration1536233560BasicData extends MigrationStep
             [
                 'mail_template_id' => $customerRegistrationTemplateId,
                 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
-                'subject' => 'Deine Registrierung bei {{ salesChannel.name }}',
+                'subject' => 'Deine Registrierung bei {{ salesChannel.translated.name }}',
                 'description' => 'Registrierungsbestätigung',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getRegistrationHtmlTemplateDe(),
                 'content_plain' => $this->getRegistrationPlainTemplateDe(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2174,9 +2174,9 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert(
             'mail_template_translation',
             [
-                'subject' => 'Password reset - {{ salesChannel.name }}',
+                'subject' => 'Password reset - {{ salesChannel.translated.name }}',
                 'description' => 'Password reset request',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getPasswordChangeHtmlTemplateEn(),
                 'content_plain' => $this->getPasswordChangePlainTemplateEn(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2188,9 +2188,9 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert(
             'mail_template_translation',
             [
-                'subject' => 'Password zurücksetzen - {{ salesChannel.name }}',
+                'subject' => 'Password zurücksetzen - {{ salesChannel.translated.name }}',
                 'description' => 'Passwort zurücksetzen Anfrage',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getPasswordChangeHtmlTemplateDe(),
                 'content_plain' => $this->getPasswordChangePlainTemplateDe(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2214,9 +2214,9 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert(
             'mail_template_translation',
             [
-                'subject' => 'Your merchant account has been unlocked - {{ salesChannel.name }}',
+                'subject' => 'Your merchant account has been unlocked - {{ salesChannel.translated.name }}',
                 'description' => 'Customer Group Change accepted',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getCustomerGroupChangeAcceptedHtmlTemplateEn(),
                 'content_plain' => $this->getCustomerGroupChangeAcceptedPlainTemplateEn(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2228,9 +2228,9 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert(
             'mail_template_translation',
             [
-                'subject' => 'Ihr Händleraccount wurde freigeschaltet - {{ salesChannel.name }}',
+                'subject' => 'Ihr Händleraccount wurde freigeschaltet - {{ salesChannel.translated.name }}',
                 'description' => 'Kundengruppenwechsel freigeschaltet',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getCustomerGroupChangeAcceptedHtmlTemplateDe(),
                 'content_plain' => $this->getCustomerGroupChangeAcceptedPlainTemplateDe(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2254,9 +2254,9 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert(
             'mail_template_translation',
             [
-                'subject' => 'Your trader account has not been accepted - {{ salesChannel.name }}',
+                'subject' => 'Your trader account has not been accepted - {{ salesChannel.translated.name }}',
                 'description' => 'Customer Group Change rejected',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getCustomerGroupChangeRejectedHtmlTemplateEn(),
                 'content_plain' => $this->getCustomerGroupChangeRejectedPlainTemplateEn(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2268,9 +2268,9 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert(
             'mail_template_translation',
             [
-                'subject' => 'Ihr Händleraccountantrag wurde abgelehnt - {{ salesChannel.name }}',
+                'subject' => 'Ihr Händleraccountantrag wurde abgelehnt - {{ salesChannel.translated.name }}',
                 'description' => 'Kundengruppenwechsel abgelehnt',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getCustomerGroupChangeRejectedHtmlTemplateDe(),
                 'content_plain' => $this->getCustomerGroupChangeRejectedPlainTemplateDe(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

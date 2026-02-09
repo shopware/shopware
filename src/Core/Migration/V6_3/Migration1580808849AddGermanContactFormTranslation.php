@@ -50,8 +50,8 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
             [
                 'mail_template_id' => $contactTemplateId,
                 'language_id' => $deLangId,
-                'sender_name' => '{{ salesChannel.name }}',
-                'subject' => 'Kontaktanfrage erhalten - {{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
+                'subject' => 'Kontaktanfrage erhalten - {{ salesChannel.translated.name }}',
                 'description' => 'Kontaktanfrage erhalten',
                 'content_html' => $this->getContactFormHtmlTemplateDe(),
                 'content_plain' => $this->getContactFormPlainTemplateDe(),

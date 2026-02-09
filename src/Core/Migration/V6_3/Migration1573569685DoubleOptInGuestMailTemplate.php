@@ -128,9 +128,9 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Please confirm your email address at {{ salesChannel.name }}',
+                    'subject' => 'Please confirm your email address at {{ salesChannel.translated.name }}',
                     'description' => 'Email confirmation at guest orders',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => $this->getHtmlTemplateEn(),
                     'content_plain' => $this->getPlainTemplateEn(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -144,9 +144,9 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Please confirm your email address at {{ salesChannel.name }}',
+                    'subject' => 'Please confirm your email address at {{ salesChannel.translated.name }}',
                     'description' => 'Email confirmation at guest orders',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => $this->getHtmlTemplateEn(),
                     'content_plain' => $this->getPlainTemplateEn(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -160,9 +160,9 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Bitte bestätigen Sie Ihre E-Mail-Adresse bei {{ salesChannel.name }}',
+                    'subject' => 'Bitte bestätigen Sie Ihre E-Mail-Adresse bei {{ salesChannel.translated.name }}',
                     'description' => 'Anmeldebestätigung bei Gastbestellungen',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => $this->getHtmlTemplateDe(),
                     'content_plain' => $this->getPlainTemplateDe(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

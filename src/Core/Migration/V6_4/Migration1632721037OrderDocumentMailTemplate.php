@@ -100,14 +100,14 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
             $translations = new Translations(
                 [
                     'mail_template_id' => $values['templateId'],
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'subject' => 'Neues Dokument für Ihre Bestellung',
                     'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, true),
                     'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, false),
                 ],
                 [
                     'mail_template_id' => $values['templateId'],
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'subject' => 'New document for your order',
                     'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, true),
                     'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, false),

@@ -62,9 +62,9 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
         $connection->insert(
             'mail_template_translation',
             [
-                'subject' => 'Contact form received - {{ salesChannel.name }}',
+                'subject' => 'Contact form received - {{ salesChannel.translated.name }}',
                 'description' => 'Contact form received',
-                'sender_name' => '{{ salesChannel.name }}',
+                'sender_name' => '{{ salesChannel.translated.name }}',
                 'content_html' => $this->getRegistrationHtmlTemplateEn(),
                 'content_plain' => $this->getRegistrationPlainTemplateEn(),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

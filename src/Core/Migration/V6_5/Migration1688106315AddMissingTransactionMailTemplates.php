@@ -57,12 +57,12 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                 'translations' => [
                     'en' => [
                         'name' => 'Enter payment state: Authorized',
-                        'subject' => 'The order at {{ salesChannel.name }} was authorized',
+                        'subject' => 'The order at {{ salesChannel.translated.name }} was authorized',
                         'description' => 'Shopware Basis Template',
                     ],
                     'de' => [
                         'name' => 'Eintritt Zahlungsstatus: Autorisiert',
-                        'subject' => 'Die Bestellung bei {{ salesChannel.name }} wurde autorisiert',
+                        'subject' => 'Die Bestellung bei {{ salesChannel.translated.name }} wurde autorisiert',
                         'description' => 'Shopware Basis Template',
                     ],
                 ],
@@ -81,12 +81,12 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                 'translations' => [
                     'en' => [
                         'name' => 'Enter payment state: Chargeback',
-                        'subject' => 'Chargeback for your order with {{ salesChannel.name }}',
+                        'subject' => 'Chargeback for your order with {{ salesChannel.translated.name }}',
                         'description' => 'Shopware Basis Template',
                     ],
                     'de' => [
                         'name' => 'Eintritt Zahlungsstatus: Rückbuchung',
-                        'subject' => 'Rückbuchung für Ihre Bestellung bei {{ salesChannel.name }}',
+                        'subject' => 'Rückbuchung für Ihre Bestellung bei {{ salesChannel.translated.name }}',
                         'description' => 'Shopware Basis Template',
                     ],
                 ],
@@ -105,11 +105,11 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                 'translations' => [
                     'en' => [
                         'name' => 'Enter payment state: Unconfirmed',
-                        'subject' => 'Your order with {{ salesChannel.name }} is unconfirmed',
+                        'subject' => 'Your order with {{ salesChannel.translated.name }} is unconfirmed',
                         'description' => 'Shopware Basis Template',
                     ],
                     'de' => [
-                        'name' => 'Ihre Bestellung bei {{ salesChannel.name }} ist unbestätigt',
+                        'name' => 'Ihre Bestellung bei {{ salesChannel.translated.name }} ist unbestätigt',
                         'subject' => '',
                         'description' => 'Shopware Basis Template',
                     ],
@@ -241,7 +241,7 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                 [
                     'subject' => $mail['translations']['en']['subject'],
                     'description' => $mail['translations']['en']['description'],
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => '',
                     'content_plain' => '',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -257,7 +257,7 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                 [
                     'subject' => $mail['translations']['en']['subject'],
                     'description' => $mail['translations']['en']['description'],
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => '',
                     'content_plain' => '',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -273,7 +273,7 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                 [
                     'subject' => $mail['translations']['de']['subject'],
                     'description' => $mail['translations']['de']['description'],
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => '',
                     'content_plain' => '',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

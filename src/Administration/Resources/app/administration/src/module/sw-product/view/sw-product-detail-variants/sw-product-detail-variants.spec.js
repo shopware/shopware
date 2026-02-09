@@ -255,36 +255,26 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         ]);
     });
 
-    it('should be able to load configuration setting with group ids', async () => {
+    it('should derive configSettingGroups from groups by configurator group ids', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            groups: [
-                {
-                    id: 'group-1',
-                },
+        wrapper.vm.groups = [
+            { id: 'id-1', name: 'group-1' },
+            { id: 'id-2', name: 'group-2' },
+            { id: 'other', name: 'other' },
+        ];
+        wrapper.vm.productEntity = {
+            configuratorSettings: [
+                { option: { groupId: 'id-1' } },
+                { option: { groupId: 'id-2' } },
             ],
-            productEntity: {
-                configuratorSettings: [
-                    { option: { groupId: 'id-1' } },
-                    { option: { groupId: 'id-2' } },
-                ],
-            },
-        });
-        await flushPromises();
-        const criteria = new Criteria(1, 500);
-        criteria.addFields('name').addFilter(
-            Criteria.equalsAny('id', [
-                'id-1',
-                'id-2',
-            ]),
-        );
+        };
 
-        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledWith(criteria);
+        wrapper.vm.loadConfigSettingGroups();
+
+        // configSettingGroups is derived from this.groups (no second API call), in configurator order.
         expect(wrapper.vm.configSettingGroups).toEqual([
-            {
-                id: '1',
-                name: 'group-1',
-            },
+            { id: 'id-1', name: 'group-1' },
+            { id: 'id-2', name: 'group-2' },
         ]);
     });
 

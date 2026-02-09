@@ -7,7 +7,6 @@ import './sw-product-detail-variants.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 const { uniqBy } = Shopware.Utils.array;
-const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -136,27 +135,23 @@ export default {
         loadData() {
             if (!this.isStoreLoading && this.product?.id) {
                 this.loadOptions()
-                    .then(() => {
-                        return this.loadGroups();
-                    })
-                    .then(() => {
-                        return this.loadConfigSettingGroups();
-                    });
+                    .then(() => this.loadGroups())
+                    .then(() => this.loadConfigSettingGroups());
             }
         },
 
-        async loadConfigSettingGroups() {
+        loadConfigSettingGroups() {
             const groupIds = uniqBy(this.productEntity.configuratorSettings, 'option.groupId').map(
                 (group) => group.option.groupId,
             );
 
-            const criteria = cloneDeep(this.groupCriteria);
-
-            if (groupIds.length) {
-                criteria.addFilter(Criteria.equalsAny('id', groupIds));
+            if (groupIds.length === 0) {
+                this.configSettingGroups = [];
+                return;
             }
 
-            this.configSettingGroups = await this.loadAllPropertyGroups(criteria);
+            const groupMap = new Map(this.groups.map((g) => [g.id, g]));
+            this.configSettingGroups = groupIds.map((id) => groupMap.get(id)).filter(Boolean);
         },
 
         loadOptions() {
@@ -266,15 +261,15 @@ export default {
 
         async loadAllPropertyGroups(criteria) {
             const initialResult = await this.groupRepository.search(criteria);
-            const totalGroups = initialResult.total;
-            const limit = initialResult.length;
+            const totalGroups = initialResult.total ?? initialResult.length ?? 0;
+            const limit = initialResult.length || criteria.limit || 25;
 
             const totalPages = Math.ceil(totalGroups / limit);
 
             const promises = [];
             // eslint-disable-next-line no-plusplus
             for (let page = 2; page <= totalPages; page++) {
-                const nextCriteria = new Criteria(page, limit);
+                const nextCriteria = Criteria.fromCriteria(criteria).setPage(page).setLimit(limit);
                 promises.push(this.groupRepository.search(nextCriteria));
             }
 

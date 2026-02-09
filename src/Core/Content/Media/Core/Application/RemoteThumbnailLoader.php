@@ -210,7 +210,7 @@ class RemoteThumbnailLoader implements ResetInterface
                     $mediaPath = $mediaEntity->get('path');
                     \assert(\is_string($mediaPath));
                     $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
-                    \assert($mediaUpdatedAt instanceof \DateTimeInterface);
+                    \assert($mediaUpdatedAt instanceof \DateTimeInterface || $mediaUpdatedAt === null);
                 }
 
                 $replacements = [

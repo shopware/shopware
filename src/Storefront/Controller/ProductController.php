@@ -201,24 +201,15 @@ class ProductController extends StorefrontController
     )]
     public function loadReviews(string $productId, Request $request, SalesChannelContext $context): Response
     {
+        $parentId = RequestParamHelper::get($request, 'parentId');
         if (!Feature::isActive('v6.8.0.0')) {
             try {
-                $reviews = $this->productReviewLoader->load(
-                    $request,
-                    $context,
-                    $productId,
-                    RequestParamHelper::get($request, 'parentId')
-                );
+                $reviews = $this->productReviewLoader->load($request, $context, $productId, $parentId);
             } catch (ReviewNotActiveExeption) {
                 throw StorefrontException::reviewNotActive();
             }
         } else {
-            $reviews = $this->productReviewLoader->load(
-                $request,
-                $context,
-                $productId,
-                RequestParamHelper::get($request, 'parentId')
-            );
+            $reviews = $this->productReviewLoader->load($request, $context, $productId, $parentId);
         }
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));

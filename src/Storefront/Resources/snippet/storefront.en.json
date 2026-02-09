@@ -837,6 +837,10 @@
       }
     },
     "cms": {
+      "video": {
+        "notSupported": "Your browser does not support the HTML5 video tag.",
+        "ariaLabelPlay": "Play video"
+      },
       "vimeo": {
         "privacyNoticeText": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
         "acceptButtonLabel": "Accept",

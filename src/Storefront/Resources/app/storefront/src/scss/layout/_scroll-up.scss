@@ -7,17 +7,20 @@ Shows a scroll up button at the bottom right of the page.
 .scroll-up-button {
     bottom: $spacer-lg;
     cursor: pointer;
-    opacity: 0;
+    // Using a "visible" opacity instead of "0" to fix iOS scroll behaviour.
+    // When completely transparent/hidden/none initially, the scroll-up button can prevent other clicks after scrolling over an image slider.
+    // When the button is "always visible" this does not happen.
+    opacity: 0.1;
     position: fixed;
     right: $spacer-lg;
     transform: scale(0);
-    transition: 0.45s cubic-bezier(0.3, 0, 0.15, 1);
-    visibility: hidden;
+    transition: 0.3s cubic-bezier(0.3, 0, 0.15, 1);
     z-index: $scroll-up-zindex;
+    pointer-events: none;
 
     &.is-visible {
         opacity: 1;
         transform: scale(1);
-        visibility: visible;
+        pointer-events: auto;
     }
 }

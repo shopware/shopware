@@ -119,7 +119,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             // run price calculator in batch
-            $this->recalculate(array_column($lineItems, 'item'), $data, $context, $behavior);
+            $this->recalculate($items, $data, $context, $behavior);
 
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
@@ -446,6 +446,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                     $price->getReferencePrice()->getUnitName()
                 )
             );
+        }
+
+        if ($price->getRegulationPrice() !== null) {
+            $definition->setRegulationPrice($price->getRegulationPrice()->getPrice());
         }
 
         return $definition;

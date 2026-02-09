@@ -47,6 +47,7 @@ export default Mixin.register(
                 return this.cmsService.getCmsElementRegistry();
             },
         },
+
         methods: {
             initElementConfig() {
                 this.initBaseConfig();

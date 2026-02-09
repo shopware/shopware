@@ -143,6 +143,18 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
         expect(wrapper.vm.currentCustomField.config.max).toBe(10);
     });
 
+    it('should clamp rounded step to a minimum of 1 when switching numberType to int', async () => {
+        const wrapper = await createWrapper({
+            numberType: 'float',
+            step: 0.1,
+        });
+
+        wrapper.vm.currentCustomField.config.numberType = 'int';
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.config.step).toBe(1);
+    });
+
     it('should update type property when switching numberType', async () => {
         const wrapper = await createWrapper({ numberType: 'int' });
 

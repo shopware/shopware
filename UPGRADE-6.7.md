@@ -1,11 +1,3 @@
-# 6.7.8.0
-
-## Entity definition tag `entity` attribute is now validated
-
-If a `shopware.entity.definition` or `shopware.sales_channel.entity.definition` service tag has an `entity` attribute that does not match the value returned by `getEntityName()`, container compilation now fails with a `DependencyInjectionException`.
-Previously, both values were silently registered as aliases.
-Either fix the `entity` attribute to match `getEntityName()`, or remove it entirely to let the compiler pass resolve the name automatically.
-
 # 6.7.6.0
 
 ## Deprecation of video blocks

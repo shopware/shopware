@@ -31,6 +31,11 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 
 <details>
 
+## Implicit entity name resolution in compiler passes was removed
+
+Services tagged with `shopware.entity.definition` or `shopware.sales_channel.entity.definition` must have a valid `entity` attribute on the tag. A missing attribute or one that does not match `getEntityName()` now throws a `DependencyInjectionException`.
+Definitions with a public parameterless constructor are resolved automatically. Definitions with constructor dependencies must declare the `entity` attribute explicitly.
+
 ## Multiple payment finalize calls allowed
 Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.
 If the token has already been consumed, the user is redirected to the finish page without triggering a PaymentException.

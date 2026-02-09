@@ -3,8 +3,10 @@
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
  * This route is used to subscribe to the newsletter
@@ -17,5 +19,19 @@ abstract class AbstractNewsletterSubscribeRoute
 {
     abstract public function getDecorated(): AbstractNewsletterSubscribeRoute;
 
-    abstract public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): NewsletterSubscribeRouteResponse;
+    /**
+     * @deprecated tag:v6.8.0 - Return type will change to NewsletterSubscribeRouteResponse. Use subscribeWithResponse() instead.
+     *
+     * @return StoreApiResponse<covariant Struct>
+     */
+    abstract public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse;
+
+    /**
+     * Returns the subscription status after subscribing to the newsletter.
+     * This method should be used instead of subscribe() to get the typed response.
+     */
+    public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): NewsletterSubscribeRouteResponse
+    {
+        return $this->getDecorated()->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
+    }
 }

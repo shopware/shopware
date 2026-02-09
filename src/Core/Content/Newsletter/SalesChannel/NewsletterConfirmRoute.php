@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
@@ -46,8 +47,16 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will change to SuccessResponse. Use confirmWithResponse() instead.
+     */
     #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]
-    public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
+    public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
+    {
+        return $this->confirmWithResponse($dataBag, $context);
+    }
+
+    public function confirmWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $recipient = $this->getNewsletterRecipient('hash', $dataBag->get('hash', ''), $context->getContext());
 

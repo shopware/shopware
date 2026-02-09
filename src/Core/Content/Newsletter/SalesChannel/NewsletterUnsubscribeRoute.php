@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
@@ -44,8 +45,16 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will change to SuccessResponse. Use unsubscribeWithResponse() instead.
+     */
     #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
-    public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
+    public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
+    {
+        return $this->unsubscribeWithResponse($dataBag, $context);
+    }
+
+    public function unsubscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $data = $dataBag->only('email');
 

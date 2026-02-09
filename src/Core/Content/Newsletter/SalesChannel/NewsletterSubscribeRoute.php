@@ -31,6 +31,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
@@ -97,8 +98,16 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will change to NewsletterSubscribeRouteResponse. Use subscribeWithResponse() instead.
+     */
     #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
-    public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
+    public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): StoreApiResponse
+    {
+        return $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
+    }
+
+    public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
     {
         $doubleOptInDomain = $this->systemConfigService->getString(
             'core.newsletter.doubleOptInDomain',

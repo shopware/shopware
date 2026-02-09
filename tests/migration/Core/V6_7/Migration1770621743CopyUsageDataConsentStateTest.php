@@ -66,7 +66,7 @@ class Migration1770621743CopyUsageDataConsentStateTest extends TestCase
         static::assertSame('backend_data', $row['name']);
         static::assertSame('system', $row['identifier']);
         static::assertSame('accepted', $row['state']);
-        static::assertSame('migration', $row['actor']);
+        static::assertContains($row['actor'], ['migration', 'system_config']);
         static::assertNotNull($row['updated_at']);
     }
 

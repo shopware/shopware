@@ -26,12 +26,6 @@ class AddColumnRule implements Rule
 {
     use InMigrationClassTrait;
 
-    /**
-     * Unix timestamp cutoff - migrations created after this timestamp are checked.
-     * Using integer to avoid timezone-dependent strtotime() parsing.
-     */
-    private const CUTOFF_UNIX_TIMESTAMP = 1737899680; // 2026-01-26 13:54:40 UTC
-
     public function getNodeType(): string
     {
         return MethodCall::class;
@@ -110,18 +104,13 @@ class AddColumnRule implements Rule
         if ($hasAddConstraint === 1) {
             $hasAddColumnWithConstraint = preg_match('/ALTER TABLE .* ADD COLUMN.*ADD CONSTRAINT/s', $arg->value);
 
-            // ADD COLUMN + ADD CONSTRAINT combined: only error for recent migrations
+            // ADD COLUMN + ADD CONSTRAINT combined forces ALGORITHM=COPY (full table rebuild)
             if ($hasAddColumnWithConstraint === 1) {
-                if ($this->isRecentMigration($scope)) {
-                    return [
-                        RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumn() for the column, then ADD CONSTRAINT separately.')
-                            ->identifier('shopware.tableCopyOperation')
-                            ->build(),
-                    ];
-                }
-
-                // Old migration with combined pattern - skip (already deployed)
-                return [];
+                return [
+                    RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumn() for the column, then ADD CONSTRAINT separately.')
+                        ->identifier('shopware.tableCopyOperation')
+                        ->build(),
+                ];
             }
 
             // ADD CONSTRAINT alone - skip (doesn't require COPY algorithm)
@@ -152,19 +141,5 @@ class AddColumnRule implements Rule
         }
 
         return [];
-    }
-
-    private function isRecentMigration(Scope $scope): bool
-    {
-        $className = $scope->getClassReflection()?->getName() ?? '';
-        $className = substr($className, (int) strrpos($className, '\\') + 1);
-
-        if (preg_match('/Migration(\d{10})/', $className, $matches)) {
-            $migrationUnixTimestamp = (int) $matches[1];
-
-            return $migrationUnixTimestamp > self::CUTOFF_UNIX_TIMESTAMP;
-        }
-
-        return false;
     }
 }

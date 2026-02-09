@@ -91,6 +91,25 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 * Display the selling and packaging information with the product that has advanced pricing.
 * Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
+### Make static alerts announced in the screenreader
+
+Static alert boxes that are rendered in the DOM on page load were previously not read out by screenreaders.
+The `role="alert"` did not have an effect. Only `role="alerts"` added to the DOM by JavaScript were read out.
+
+To solve the screenreader issue with static alerts, we introduced a new parameter `announceOnLoad`.
+When `announceOnLoad` is set to true, the alert box content will be announced in the screenreader right after the page is loaded.
+The alert box will apply an additional JavaScript plugin that attempts to trigger the screenreader.
+This is done by changing the DOM within the `aria-live` region after a short delay, which tells the screenreader to read it.
+
+```
+{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+    type: "primary",
+    content: "An important message on initial page load",
+    announceOnLoad: true
+    ariaLive: 'assertive' {# Define the priority of the alert #}
+} %}
+```
+
 ## App System
 
 ### Fixed custom headers for app flow action webhooks in async mode

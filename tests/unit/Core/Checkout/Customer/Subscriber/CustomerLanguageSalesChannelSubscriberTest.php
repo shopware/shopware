@@ -10,15 +10,15 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubsc
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -68,7 +68,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $writeContext = WriteContext::createFromContext($context);
         $event = new PreWriteValidationEvent($writeContext, []);
 
-        $this->salesChannelRepository->expects(static::never())->method('search');
+        $this->salesChannelRepository->expects($this->never())->method('search');
 
         $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
@@ -88,7 +88,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->salesChannelRepository->expects(static::once())
+        $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::callback(static fn (Criteria $c) => $c->getAssociation('languages') !== null))
             ->willReturn(new EntitySearchResult(
@@ -120,11 +120,57 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->salesChannelRepository->expects(static::once())->method('search')
+        $this->salesChannelRepository->expects($this->once())->method('search')
             ->willReturn(new EntitySearchResult(
                 'sales_channel',
                 0,
                 new SalesChannelCollection(),
+                new AggregationResultCollection(),
+                new Criteria(),
+                $context
+            ));
+
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
+        $subscriber->validate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    public function testValidateConvertsSalesChannelIdFromBytesToHex(): void
+    {
+        $ids = new IdsCollection();
+        $languageId = $ids->get('lang1');
+        $salesChannelId = $ids->get('sc1');
+
+        $language = new LanguageEntity();
+        $language->setId($languageId);
+        $languages = new LanguageCollection([$language]);
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
+        $salesChannel->setLanguages($languages);
+        $salesChannels = new SalesChannelCollection([$salesChannel]);
+
+        $context = Context::createDefaultContext();
+        $writeContext = WriteContext::createFromContext($context);
+        $command = new InsertCommand(
+            $this->definitionRegistry->get(CustomerDefinition::class),
+            [
+                'language_id' => $ids->getBytes('lang1'),
+                'sales_channel_id' => $ids->getBytes('sc1'),
+            ],
+            ['id' => $ids->getBytes('customer1')],
+            $this->createMock(EntityExistence::class),
+            '/0/'
+        );
+        $event = new PreWriteValidationEvent($writeContext, [$command]);
+
+        $this->salesChannelRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'sales_channel',
+                1,
+                $salesChannels,
                 new AggregationResultCollection(),
                 new Criteria(),
                 $context
@@ -165,7 +211,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->salesChannelRepository->expects(static::once())
+        $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'sales_channel',
@@ -210,7 +256,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->salesChannelRepository->expects(static::once())
+        $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'sales_channel',
@@ -250,7 +296,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->salesChannelRepository->expects(static::once())
+        $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'sales_channel',

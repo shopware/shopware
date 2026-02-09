@@ -54,37 +54,21 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     {
         $context = $event->getContext();
 
-        // Skip validation for Sales Channel API requests, as this is already handled by the storefront and avoids unnecessary performance overhead.
+        // Skip validation for SalesChannel API requests to avoids unnecessary performance overhead
         if ($context->getSource() instanceof SalesChannelApiSource) {
             return;
         }
 
-        $candidates = [];
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== CustomerDefinition::ENTITY_NAME) {
-                continue;
-            }
-
-            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
-                continue;
-            }
-
-            $extractedPayloads = $this->extractPayloads($command);
-            if ($extractedPayloads) {
-                $candidates[] = $extractedPayloads;
-            }
-        }
-
+        $candidates = $this->collectCandidatesCommands($event);
         if ($candidates === []) {
             return;
         }
 
-        $customerPks = $event->getPrimaryKeys(CustomerDefinition::ENTITY_NAME);
-        $customersSalesChannels = $this->getCustomersSalesChannelsIds($customerPks, $context);
-        $salesChannels = $this->loadSalesChannels($customersSalesChannels, $candidates, $context);
+        $customerSalesChannelMap = $this->getCustomersSalesChannelsIds($candidates, $context);
+        $salesChannels = $this->loadSalesChannels($customerSalesChannelMap, $candidates, $context);
 
         foreach ($candidates as $candidate) {
-            $salesChannelId = $candidate['salesChannelId'] ?? ($customersSalesChannels[$candidate['customerId']] ?? null);
+            $salesChannelId = $this->resolveSalesChannelId($candidate, $customerSalesChannelMap);
             if ($salesChannelId === null) {
                 continue;
             }
@@ -94,51 +78,90 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             }
 
             $event->getExceptions()->add(
-                $this->createLanguageNotInSalesChannelViolation($candidate['languageId'], $candidate['path'])
+                $this->createLanguageNotInSalesChannelViolation($candidate['languageId'], $candidate['customerId'])
             );
         }
     }
 
     /**
-     * @return array{customerId: string, languageId: string, salesChannelId: string|null, path: string}|null
+     * @return list<array{customerId: string|null, languageId: string, salesChannelId: string|null}>
      */
-    private function extractPayloads(InsertCommand|UpdateCommand $command): ?array
+    private function collectCandidatesCommands(PreWriteValidationEvent $event): array
+    {
+        $candidates = [];
+
+        foreach ($event->getCommands() as $command) {
+            if ($command->getEntityName() !== CustomerDefinition::ENTITY_NAME) {
+                continue;
+            }
+
+            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
+                continue;
+            }
+
+            $candidate = $this->extractCandidatePayloads($command);
+            if ($candidate !== null) {
+                $candidates[] = $candidate;
+            }
+        }
+
+        return $candidates;
+    }
+
+    /**
+     * @param array{customerId: string|null, languageId: string, salesChannelId: string|null} $candidate
+     * @param array<string, string> $customerSalesChannelMap
+     */
+    private function resolveSalesChannelId(array $candidate, array $customerSalesChannelMap): ?string
+    {
+        if ($candidate['salesChannelId'] !== null) {
+            return $candidate['salesChannelId'];
+        }
+
+        $customerId = $candidate['customerId'];
+        if ($customerId === null) {
+            return null;
+        }
+
+        return $customerSalesChannelMap[$customerId] ?? null;
+    }
+
+    /**
+     * @return array{customerId: string|null, languageId: string, salesChannelId: string|null}|null
+     */
+    private function extractCandidatePayloads(InsertCommand|UpdateCommand $command): ?array
     {
         $payload = $command->getPayload();
-
         if (!isset($payload['language_id'])) {
             return null;
         }
 
         $pk = $command->getPrimaryKey();
-        if (!isset($pk['id'])) {
-            return null;
-        }
 
         return [
-            'customerId' => Uuid::fromBytesToHex($pk['id']),
+            'customerId' => $command instanceof UpdateCommand && isset($pk['id']) ? Uuid::fromBytesToHex($pk['id']) : null,
             'languageId' => Uuid::fromBytesToHex($payload['language_id']),
             'salesChannelId' => isset($payload['sales_channel_id']) ? Uuid::fromBytesToHex($payload['sales_channel_id']) : null,
-            'path' => $command->getPath(),
         ];
     }
 
     /**
-     * @param list<array<string, string>> $customersPks
+     * @param list<array{customerId: string|null, languageId: string, salesChannelId: string|null}> $candidates
      *
      * @return array<string, string>
      */
-    private function getCustomersSalesChannelsIds(array $customersPks, Context $context): array
+    private function getCustomersSalesChannelsIds(array $candidates, Context $context): array
     {
-        $customersIds = array_values(array_filter(array_map(
-            static fn (array $pk) => isset($pk['id']) ? Uuid::fromBytesToHex($pk['id']) : null,
-            $customersPks
+        $customerIds = \array_values(\array_filter(\array_map(
+            static fn (array $candidate) => $candidate['customerId'],
+            $candidates
         )));
-        if ($customersIds === []) {
+
+        if ($customerIds === []) {
             return [];
         }
 
-        $criteria = new Criteria($customersIds);
+        $criteria = new Criteria($customerIds);
         /** @var CustomerCollection $customers */
         $customers = $this->customerRepository->search($criteria, $context)->getEntities();
 
@@ -146,36 +169,38 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, string> $customersSalesChannels
-     * @param list<array{customerId: string, languageId: string, salesChannelId: string|null, path: string}> $candidateCommands
+     * @param array<string, string> $customerSalesChannelMap
+     * @param list<array{customerId: string|null, languageId: string, salesChannelId: string|null}> $candidates
      *
      * @return EntityCollection<SalesChannelEntity>
      */
-    private function loadSalesChannels(array $customersSalesChannels, array $candidateCommands, Context $context): EntityCollection
+    private function loadSalesChannels(array $customerSalesChannelMap, array $candidates, Context $context): EntityCollection
     {
-        $customersSalesChannelsIds = array_values($customersSalesChannels);
-        $salesChannelIds = array_map(
-            static fn (array $candidate) => $candidate['salesChannelId'],
-            $candidateCommands
-        );
-        $languageIds = array_map(
-            static fn (array $candidate) => $candidate['languageId'],
-            $candidateCommands
-        );
+        $customerSalesChannelIds = \array_values($customerSalesChannelMap);
 
-        $ids = array_values(array_unique(array_filter([
-            ...$customersSalesChannelsIds,
-            ...$salesChannelIds,
+        $explicitSalesChannelIds = \array_values(\array_filter(\array_map(
+            static fn (array $candidate) => $candidate['salesChannelId'],
+            $candidates
+        )));
+
+        $languageIds = \array_values(\array_unique(\array_map(
+            static fn (array $candidate) => $candidate['languageId'],
+            $candidates
+        )));
+
+        $salesChannelIds = \array_values(\array_unique(\array_filter([
+            ...$customerSalesChannelIds,
+            ...$explicitSalesChannelIds,
         ])));
-        if ($ids === []) {
+
+        if ($salesChannelIds === []) {
             return new EntityCollection();
         }
 
-        $criteria = new Criteria($ids);
+        $criteria = new Criteria($salesChannelIds);
         $criteria->addFields(['id', 'languages.id']);
-
-        $association = $criteria->getAssociation('languages');
-        $association->addFilter(new EqualsAnyFilter('id', $languageIds));
+        $criteria->getAssociation('languages')
+            ->addFilter(new EqualsAnyFilter('id', $languageIds));
 
         return $this->salesChannelRepository->search($criteria, $context)->getEntities();
     }
@@ -193,7 +218,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
         return $languages?->has($languageId) ?? false;
     }
 
-    private function createLanguageNotInSalesChannelViolation(string $languageId, string $path): WriteConstraintViolationException
+    private function createLanguageNotInSalesChannelViolation(string $languageId, ?string $customerId): WriteConstraintViolationException
     {
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation(
@@ -201,12 +226,12 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             'The language "{{ languageId }}" is not assigned to the sales channel.',
             ['{{ languageId }}' => $languageId],
             null,
-            '/languageId',
+            null,
             $languageId,
             null,
             self::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL
         ));
 
-        return new WriteConstraintViolationException($violations, $path);
+        return new WriteConstraintViolationException($violations, $customerId ?? $languageId);
     }
 }

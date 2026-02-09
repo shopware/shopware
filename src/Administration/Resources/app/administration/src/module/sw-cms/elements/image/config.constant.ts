@@ -1,4 +1,4 @@
-const IMAGE_DEFAULT_CONFIG = {
+const COMMON_MEDIA_CONFIG = {
     media: {
         source: 'static',
         value: null,
@@ -10,18 +10,6 @@ const IMAGE_DEFAULT_CONFIG = {
     displayMode: {
         source: 'static',
         value: 'standard',
-    },
-    url: {
-        source: 'static',
-        value: null,
-    },
-    ariaLabel: {
-        source: 'static',
-        value: null,
-    },
-    newTab: {
-        source: 'static',
-        value: false,
     },
     minHeight: {
         source: 'static',
@@ -35,11 +23,55 @@ const IMAGE_DEFAULT_CONFIG = {
         source: 'static',
         value: 'center',
     },
-    isDecorative: {
+    ariaLabel: {
+        source: 'static',
+        value: null,
+    },
+};
+
+const IMAGE_DEFAULT_CONFIG = {
+    ...COMMON_MEDIA_CONFIG,
+    url: {
+        source: 'static',
+        value: null,
+    },
+    newTab: {
         source: 'static',
         value: false,
     },
     fetchPriorityHigh: {
+        source: 'static',
+        value: false,
+    },
+    isDecorative: {
+        source: 'static',
+        value: false,
+    },
+};
+
+const VIDEO_DEFAULT_CONFIG = {
+    ...COMMON_MEDIA_CONFIG,
+    autoPlay: {
+        source: 'static',
+        value: false,
+    },
+    muted: {
+        source: 'static',
+        value: true,
+    },
+    loop: {
+        source: 'static',
+        value: false,
+    },
+    playsInline: {
+        source: 'static',
+        value: false,
+    },
+    showControls: {
+        source: 'static',
+        value: true,
+    },
+    showCover: {
         source: 'static',
         value: false,
     },
@@ -49,4 +81,4 @@ const IMAGE_DEFAULT_CONFIG = {
  * @private
  * @sw-package discovery
  */
-export default IMAGE_DEFAULT_CONFIG;
+export { COMMON_MEDIA_CONFIG, IMAGE_DEFAULT_CONFIG, VIDEO_DEFAULT_CONFIG };

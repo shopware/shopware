@@ -292,6 +292,11 @@
             <argument type="service" id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Cms\VideoCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\Cms\YoutubeVideoCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>

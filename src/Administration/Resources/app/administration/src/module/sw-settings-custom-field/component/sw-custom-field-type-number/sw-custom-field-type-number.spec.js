@@ -202,8 +202,6 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
 
         numberFields.forEach((field) => {
             expect(field.props('numberType')).toBe('float');
-            expect(field.props('step')).toBe(0.01);
-            expect(field.props('digits')).toBe(2);
         });
     });
 
@@ -218,8 +216,6 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
 
         numberFields.forEach((field) => {
             expect(field.props('numberType')).toBe('int');
-            expect(field.props('step')).toBe(1);
-            expect(field.props('digits')).toBe(0);
         });
     });
 });

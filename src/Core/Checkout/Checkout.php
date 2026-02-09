@@ -29,6 +29,7 @@ class Checkout extends Bundle
         $loader->load('cart.xml');
         $loader->load('customer.xml');
         $loader->load('document.xml');
+        $loader->load('documentV2.xml');
         $loader->load('order.xml');
         $loader->load('payment.xml');
         $loader->load('rule.xml');

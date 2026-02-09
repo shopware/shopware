@@ -167,6 +167,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute" public="true">
@@ -218,6 +219,7 @@
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="customer_recovery.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeLanguageRoute" public="true">
@@ -267,12 +269,13 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute" public="true">
-            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="sales_channel.customer_address.repository"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute" public="true">
             <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="sales_channel.customer_address.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
@@ -293,6 +296,10 @@
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute" public="true">
             <argument type="service" id="customer_group.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerAddressDefinition">
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer">
@@ -419,6 +426,10 @@
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerAddressSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

@@ -40,6 +40,12 @@ import { CreateInvoice } from '@tasks/ShopAdmin/Orders/CreateInvoiceViaAPI';
  * Rules
  */
 import { CreateRule } from '@tasks/ShopAdmin/RuleBuilder/CreateRule';
+import { CreateRuleBillingCountry } from '@tasks/ShopAdmin/RuleBuilder/CreateRuleBillingCountry';
+
+/**
+ * Flows
+ */
+import { CreateFlowForValidation } from '@tasks/ShopAdmin/FlowBuilder/CreateFlowForValidation';
 
 export const test = mergeTests(
     GenerateVariants,
@@ -51,4 +57,6 @@ export const test = mergeTests(
     AddCreditItem,
     CreateInvoice,
     CreateRule,
+    CreateRuleBillingCountry,
+    CreateFlowForValidation,
 );

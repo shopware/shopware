@@ -62,12 +62,18 @@ All response types contain `layoutId`, `layoutName`, `layoutVersion`. Format-spe
 
 ## HTTP Cache
 
-All endpoints decorated with `_httpCache: true`. Response cached based on sales channel, URL, customer group. Invalidation happens when:
-- Content layouts modified
-- Assigned entities modified
-- Entity assignments modified
+All endpoints decorated with `_httpCache: true`. Response cached based on sales channel, URL, customer group.
 
-Cache tags propagated from entity queries during hydration.
+Each route creates a `RenderingCacheContext` that accumulates cache tags during hydration. After hydration, `CacheFinalizer` applies the final state:
+- If cache disabled (uncacheable data loaded), sets `ATTRIBUTE_HTTP_CACHE` to false
+- Otherwise, adds accumulated tags to response via `CacheTagCollector`
+
+Invalidation happens when:
+- Content layouts modified (`content-layout-{id}` tag)
+- Assigned entities modified (entity-specific tags)
+- Entity assignments modified (looks up entity and invalidates its tag)
+
+See Cache/ directory for `CacheInvalidationSubscriber` implementation.
 
 ## Error Handling
 
@@ -77,3 +83,10 @@ Returns 404 if:
 - Layout assignment not found for entity
 
 ContentSystemException thrown with specific error codes.
+
+## Subdirectories
+
+Header and footer content have dedicated endpoints in subdirectories. These routes are singletons (no `{path}` parameter) and use domain-aware resolution instead of entity-based resolution.
+
+- **Header/** - Header content endpoints (`/store-api/content-header*`)
+- **Footer/** - Footer content endpoints (`/store-api/content-footer*`)

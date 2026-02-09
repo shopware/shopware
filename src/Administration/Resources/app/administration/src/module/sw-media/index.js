@@ -3,6 +3,7 @@
  */
 import './mixin/media-grid-listener.mixin';
 import './mixin/media-sidebar-modal.mixin';
+import './mixin/video-cover.mixin';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 

@@ -400,6 +400,65 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
     }
 
+    public function testUninstallPluginWithComposerCommandExecutionDisabledAfterUpdateWithoutCli(): void
+    {
+        $pluginLifecycleService = $this->getMockBuilder(PluginLifecycleService::class)
+            ->setConstructorArgs([
+                $this->pluginRepoMock,
+                $this->eventDispatcher,
+                $this->kernelPluginCollectionMock,
+                $this->container,
+                $this->migrationLoaderMock,
+                $this->createMock(AssetService::class),
+                $this->commandExecutor,
+                $this->requirementsValidatorMock,
+                $this->cacheItemPoolInterfaceMock,
+                Kernel::SHOPWARE_FALLBACK_VERSION,
+                $this->createMock(SystemConfigService::class),
+                $this->createMock(CustomEntityPersister::class),
+                $this->createMock(CustomEntitySchemaUpdater::class),
+                $this->pluginServiceMock,
+                $this->createMock(VersionSanitizer::class),
+                $this->createMock(DefinitionInstanceRegistry::class),
+                $this->requestStackMock,
+            ])
+            ->onlyMethods(['isCLI'])
+            ->getMock();
+
+        $pluginLifecycleService->expects($this->once())->method('isCLI')->willReturn(false);
+
+        $plugin = $this->getPluginEntityMock();
+        $plugin->setInstalledAt(new \DateTime());
+        $plugin->setActive(true);
+        $plugin->setUpgradeVersion('1.0.1');
+        $plugin->setManagedByComposer(true);
+        $plugin->setComposerName('swag/mock-plugin');
+        $plugin->setPath('custom/plugins/mock-plugin');
+
+        $this->pluginMock->method('rebuildContainer')->willReturn(true);
+        $this->pluginMock->method('executeComposerCommands')->willReturn(true);
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->method('getContainer')->willReturn($this->container);
+        $this->container->set('kernel', $kernel);
+        $this->container->setParameter('kernel.plugin_dir', 'custom/plugins');
+        $this->container->set(KernelPluginLoader::class, $this->createMock(KernelPluginLoader::class));
+
+        // mock replaced event dispatcher like it is during plugin deactivation & kernel reboot
+        $replacedEventDispatcher = new CollectingEventDispatcher();
+        $this->container->set('event_dispatcher', $replacedEventDispatcher);
+
+        $this->commandExecutor->expects($this->never())->method('remove');
+
+        $pluginLifecycleService->uninstallPlugin($plugin, Context::createDefaultContext());
+
+        static::assertEmpty($replacedEventDispatcher->getListeners());
+        static::assertCount(1, $this->eventDispatcher->getListeners());
+
+        // need to reset the static properties to avoid side effects in other test cases
+        $reflection = new \ReflectionClass(PluginLifecycleService::class);
+        $reflection->setStaticPropertyValue('pluginToBeDeleted', null);
+    }
+
     public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdateButInstalledViaComposerDirectly(): void
     {
         $plugin = $this->getPluginEntityMock();

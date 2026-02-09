@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @codeCoverageIgnore
- *
  * @template-extends StoreCollection<VariantStruct>
  */
 #[Package('checkout')]

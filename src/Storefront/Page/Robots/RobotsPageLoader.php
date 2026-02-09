@@ -10,9 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleCollection;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
+use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,7 +30,8 @@ class RobotsPageLoader
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $salesChannelDomainRepository,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly RobotsDirectiveParser $parser
     ) {
     }
 
@@ -40,9 +44,13 @@ class RobotsPageLoader
         if (\is_string($hostname) && $hostname !== '') {
             $domains = $this->getDomains($hostname, $context);
 
-            $page->setDomainRules($this->getDomainRules($hostname, $domains));
-            $page->setSitemaps($this->getSitemaps($domains));
+            [$globalBlocks, $domainRules] = $this->collectRules($hostname, $domains, $context);
+
+            $page->setGlobalUserAgentBlocks($globalBlocks);
+            $page->setDomainRules($domainRules);
+            $page->setSitemaps($this->getSitemaps($domains, $hostname));
         } else {
+            $page->setGlobalUserAgentBlocks([]);
             $page->setDomainRules(new DomainRuleCollection());
             $page->setSitemaps([]);
         }
@@ -69,42 +77,111 @@ class RobotsPageLoader
     }
 
     /**
+     * Collects and separates global User-agent blocks from domain-specific path rules.
+     *
      * @param non-empty-string $hostname
+     *
+     * @return array{0: list<RobotsUserAgentBlock>, 1: DomainRuleCollection}
      */
-    private function getDomainRules(string $hostname, SalesChannelDomainCollection $domains): DomainRuleCollection
+    private function collectRules(string $hostname, SalesChannelDomainCollection $domains, Context $context): array
     {
         $domainRuleCollection = new DomainRuleCollection();
+        $globalBlocks = [];
+        $globalBlocksByHash = [];
 
-        $seenDomainHostnames = [];
-        foreach ($domains as $domain) {
-            $domainPath = explode($hostname, $domain->getUrl(), 2);
-            $domainHostname = trim($domainPath[1] ?? '');
+        $selectedDomains = $this->selectDomainsByHostname($domains, $hostname);
 
-            // Skip hostnames which are available with http and https
-            if (isset($seenDomainHostnames[$domainHostname])) {
+        foreach ($selectedDomains as $domainHostname => $domain) {
+            $domainRules = trim($this->systemConfigService->getString('core.basicInformation.robotsRules', $domain->getSalesChannelId()));
+
+            if ($domainRules === '') {
                 continue;
             }
 
-            $seenDomainHostnames[$domainHostname] = true;
-            $domainRules = trim($this->systemConfigService->getString('core.basicInformation.robotsRules', $domain->getSalesChannelId()));
+            // Parse the configuration
+            $parsed = $this->parser->parse($domainRules, $context, $domain->getSalesChannelId());
 
-            $domainRuleCollection->add(new DomainRuleStruct($domainRules, $domainHostname));
+            // Collect global User-agent blocks (deduplicate by hash)
+            foreach ($parsed->userAgentBlocks as $block) {
+                $hash = $block->getHash();
+                if (!isset($globalBlocksByHash[$hash])) {
+                    $globalBlocksByHash[$hash] = [
+                        'block' => $block,
+                        'pathDirectives' => [],
+                    ];
+                }
+
+                // Collect path directives from this block for this domain
+                foreach ($block->getPathDirectives() as $directive) {
+                    $directiveWithPath = $directive->withBasePath($domainHostname);
+                    $globalBlocksByHash[$hash]['pathDirectives'][] = $directiveWithPath;
+                }
+            }
+
+            // Create domain rule struct with parsed data
+            $domainRuleCollection->add(new DomainRuleStruct($parsed, $domainHostname));
         }
 
-        return $domainRuleCollection;
+        // Build final global blocks with merged path directives
+        foreach ($globalBlocksByHash as $data) {
+            $block = $data['block'];
+            $pathDirectives = $data['pathDirectives'];
+
+            // Merge non-path directives with collected path directives
+            $allDirectives = array_merge($block->getNonPathDirectives(), $pathDirectives);
+
+            $globalBlocks[] = new RobotsUserAgentBlock($block->userAgent, $allDirectives);
+        }
+
+        return [$globalBlocks, $domainRuleCollection];
     }
 
     /**
+     * @param non-empty-string $hostname
+     *
      * @return list<string>
      */
-    private function getSitemaps(SalesChannelDomainCollection $domains): array
+    private function getSitemaps(SalesChannelDomainCollection $domains, string $hostname): array
     {
         $sitemaps = [];
+        $selectedDomains = $this->selectDomainsByHostname($domains, $hostname);
 
-        foreach ($domains as $domain) {
+        // Generate sitemaps from the selected domains
+        foreach ($selectedDomains as $domain) {
             $sitemaps[] = $domain->getUrl() . '/sitemap.xml';
         }
 
         return $sitemaps;
+    }
+
+    /**
+     * Selects domains by hostname, preferring HTTPS over HTTP for the same hostname.
+     *
+     * @param non-empty-string $hostname
+     *
+     * @return array<string, SalesChannelDomainEntity> Array keyed by domain hostname with selected domain entities
+     */
+    private function selectDomainsByHostname(SalesChannelDomainCollection $domains, string $hostname): array
+    {
+        $selectedDomains = [];
+        \assert($hostname !== '');
+
+        foreach ($domains as $domain) {
+            $domainUrl = $domain->getUrl();
+
+            $domainPath = explode($hostname, $domainUrl, 2);
+            $domainHostname = trim($domainPath[1] ?? '');
+
+            $existingDomain = $selectedDomains[$domainHostname] ?? null;
+            $isHttps = str_starts_with($domainUrl, 'https://');
+
+            if ($existingDomain === null) {
+                $selectedDomains[$domainHostname] = $domain;
+            } elseif ($isHttps && !str_starts_with($existingDomain->getUrl(), 'https://')) {
+                $selectedDomains[$domainHostname] = $domain;
+            }
+        }
+
+        return $selectedDomains;
     }
 }

@@ -272,6 +272,9 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $imitatingUserId = Uuid::randomHex();
         $request->getSession()->set(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID, $imitatingUserId);
 
+        $requestStack = static::getContainer()->get('request_stack');
+        $requestStack->push($request);
+
         $resolver->resolve($request);
 
         static::assertSame($imitatingUserId, $request->getSession()->get(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID));
@@ -295,6 +298,9 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $request->setSession(new Session(new MockArraySessionStorage()));
         $request->getSession()->set(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID, Uuid::randomHex());
+
+        $requestStack = static::getContainer()->get('request_stack');
+        $requestStack->push($request);
 
         $resolver->resolve($request);
 

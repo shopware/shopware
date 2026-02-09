@@ -8,7 +8,9 @@ use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
+use OpenSearchDSL\Query\TermLevel\PrefixQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
+use OpenSearchDSL\Query\TermLevel\TermsQuery;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -32,7 +34,7 @@ use Shopware\Elasticsearch\Product\SearchFieldConfig;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('inventory')]
 class TokenQueryBuilder
 {
     /**
@@ -41,7 +43,9 @@ class TokenQueryBuilder
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly CustomFieldService $customFieldService,
-        private readonly AbstractKeyValueStorage $storage
+        private readonly AbstractKeyValueStorage $storage,
+        private readonly int $minGram = 4,
+        private readonly bool $useLanguageAnalyzer = true
     ) {
     }
 
@@ -50,6 +54,7 @@ class TokenQueryBuilder
      */
     public function build(string $entity, string $token, array $configs, Context $context): ?BuilderInterface
     {
+        $token = mb_strtolower(trim($token));
         $languageIdChain = $context->getLanguageIdChain();
         $explainMode = $context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
@@ -113,27 +118,64 @@ class TokenQueryBuilder
             $searchField = $config->getField() . '.search';
             $operator = $config->isAndLogic() ? 'and' : 'or';
 
-            $tokenCount = \count(\explode(' ', $token));
+            $tokens = preg_split('/\s+/u', $token, -1, \PREG_SPLIT_NO_EMPTY) ?: [$token];
+            $tokenCount = \count($tokens);
 
-            $queries[] = new MatchQuery($searchField, $token, [
-                'boost' => $config->getRanking(),
-                'fuzziness' => $config->getFuzziness($token),
-                'operator' => $operator,
-            ]);
-
-            if ($config->usePrefixMatch()) {
-                // Prefix match
-                $queries[] = new MatchPhrasePrefixQuery($searchField, $token, [
-                    'boost' => 0.6 * $config->getRanking(),
-                    'slop' => 3,
-                    'max_expansions' => 10,
-                ]);
+            if ($tokenCount > 1) {
+                $token = implode(' ', $tokens);
             }
 
-            if ($config->tokenize() && $tokenCount === 1) {
-                // ngram search
+            // apply exact match
+            $queries[] = $tokenCount === 1
+                ? new TermQuery($config->getField(), $token, ['boost' => 1])
+                : new TermsQuery($config->getField(), $tokens, ['boost' => 1]);
+
+            $lastWord = array_last($tokens);
+            $maxExpansions = $this->getMaxExpansions($lastWord);
+
+            // apply fuzzy search
+            $matchQueryParams = [
+                'boost' => 0.8,
+                'fuzziness' => $config->getFuzziness($token),
+                'operator' => $operator,
+                'fuzzy_transpositions' => true, // treats "ab" and "ba" as a single edit
+                'max_expansions' => $maxExpansions, // limit the number of variations
+                'prefix_length' => 1, // reduce noise
+            ];
+
+            if (!$this->useLanguageAnalyzer) {
+                $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
+            }
+
+            $queries[] = new MatchQuery($searchField, $token, $matchQueryParams);
+
+            // apply match phrase prefix for compound tokens
+            if ($config->usePrefixMatch()) {
+                // apply prefix search on a single token or match phrase prefix on multiple tokens
+                if ($tokenCount > 1) {
+                    $matchPhrasePrefixParams = [
+                        'boost' => 0.6,
+                        'slop' => 3,
+                        'max_expansions' => $maxExpansions,
+                    ];
+
+                    if (!$this->useLanguageAnalyzer) {
+                        $matchPhrasePrefixParams['analyzer'] = 'sw_whitespace_analyzer';
+                    }
+
+                    $queries[] = new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
+                } else {
+                    $queries[] = new PrefixQuery($config->getField(), $token, [
+                        'boost' => 0.4,
+                    ]);
+                }
+            }
+
+            $tokenLength = mb_strlen($token);
+
+            if ($config->tokenize() && $tokenCount === 1 && $tokenLength >= $this->minGram) {
                 $queries[] = new MatchQuery($config->getField() . '.ngram', $token, [
-                    'boost' => 0.4 * $config->getRanking(),
+                    'boost' => 0.4,
                 ]);
             }
 
@@ -142,6 +184,8 @@ class TokenQueryBuilder
             foreach ($queries as $query) {
                 $dismax->addQuery($query);
             }
+
+            $dismax->addParameter('boost', $config->getRanking());
 
             return $dismax;
         }
@@ -179,7 +223,7 @@ class TokenQueryBuilder
 
             $languageQuery = $this->matchQuery($field, $token, $languageConfig);
 
-            $ranking = $config->getRanking() * 0.8; // for each language we go "deeper" in the translation, we reduce the ranking by 20%
+            $ranking *= 0.8; // for each language we go "deeper" in the translation, we reduce the ranking by 20%
 
             if (!$languageQuery) {
                 continue;
@@ -244,5 +288,23 @@ class TokenQueryBuilder
     private function isSortableTranslatedField(TranslatedField $field): bool
     {
         return $field->useForSorting() && (Feature::isActive('v6.8.0.0') || $this->storage->has(ElasticsearchOptimizeSwitch::FLAG));
+    }
+
+    /**
+     * @see https://docs.opensearch.org/1.1/opensearch/query-dsl/full-text#options for max_expansions
+     */
+    private function getMaxExpansions(string $lastWord): int
+    {
+        $len = mb_strlen($lastWord);
+
+        if ($len <= 3) {
+            return 5;
+        }
+
+        if ($len <= 6) {
+            return 10;
+        }
+
+        return 20;
     }
 }

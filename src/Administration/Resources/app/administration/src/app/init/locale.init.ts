@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default async function initializeLocaleService() {
+export default function initializeLocaleService() {
     const factoryContainer = Shopware.Application.getContainer('factory');
     const localeFactory = factoryContainer.locale;
     const snippetService = Shopware.Service('snippetService');
@@ -14,13 +14,19 @@ export default async function initializeLocaleService() {
         return localeFactory;
     }
 
-    const locales = await snippetService.getLocales();
+    // Load locales and snippets parallel to speed up the boot process
+    void snippetService
+        .getLocales()
+        .then((locales) => {
+            Object.values(locales).forEach((locale) => {
+                localeFactory.register(locale, {});
+            });
 
-    Object.values(locales).forEach((locale) => {
-        localeFactory.register(locale, {});
-    });
-
-    await snippetService.getSnippets(localeFactory);
+            return snippetService.getSnippets(localeFactory);
+        })
+        .catch((error) => {
+            console.error('Error loading locales or snippets:', error);
+        });
 
     return localeFactory;
 }

@@ -103,8 +103,8 @@ class PaymentMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2099-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2099-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],
@@ -125,8 +125,8 @@ class PaymentMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2099-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2099-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],
@@ -147,8 +147,8 @@ class PaymentMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2000-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2000-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],

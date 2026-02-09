@@ -28,6 +28,11 @@
         @modal-close="closeModal"
     />
     <sw-settings-services-grant-permissions-modal />
+    <sw-settings-usage-data-consent-modal
+        v-if="feature.isActive('PRODUCT_ANALYTICS')"
+        :initial-store-data-consent="{ value: false}"
+        :initial-user-data-consent="{ value: false}"
+    />
     {% endblock %}
 
     <sw-sidebar-renderer />

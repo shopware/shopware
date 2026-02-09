@@ -1,4 +1,4 @@
-const ApiService = Shopware.Classes.ApiService;
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "language-plugins"

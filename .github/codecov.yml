@@ -5,8 +5,6 @@ flag_management:
     - name: phpunit-unit
       paths:
         - src/**
-      ignore:
-        - src/Core/Framework/Test # ignore fixtures consumed by tests
     - name: jest-admin
       paths:
         - src/Administration/Resources/app/administration/src

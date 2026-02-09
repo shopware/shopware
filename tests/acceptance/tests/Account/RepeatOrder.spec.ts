@@ -19,8 +19,8 @@ test('As a customer, I want to repeat a previous order via the storefront accoun
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
-    await orderItemLocators.orderActionsButton.click();
-    await orderItemLocators.orderRepeatButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderRepeatButton);
 
     await ShopCustomer.expects(StorefrontOffCanvasCart.itemCount).toBeVisible();
     await ShopCustomer.expects(StorefrontOffCanvasCart.itemCount).toContainText('1 item');

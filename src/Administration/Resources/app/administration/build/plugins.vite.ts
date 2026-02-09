@@ -24,6 +24,7 @@ import TwigPlugin from './vite-plugins/twigjs-plugin';
 import AssetPlugin from './vite-plugins/asset-plugin';
 import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
+import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
@@ -68,6 +69,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             TwigPlugin(),
             AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
             AssetPathPlugin(extension.technicalFolderName),
+            AssetCssPostprocessPlugin(`/bundles/${extension.technicalFolderName}/administration/assets/`),
             svgLoader(),
             OverrideComponentRegisterPlugin({
                 root: extension.path,

@@ -1,5 +1,5 @@
-import { MtTabs } from '@shopware-ag/meteor-component-library';
-import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/components/navigation/mt-tabs/mt-tabs';
+import MtTabs from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './mt-tabs.html.twig';
 import type { TabItemEntry } from '../../../store/tabs.store';
 

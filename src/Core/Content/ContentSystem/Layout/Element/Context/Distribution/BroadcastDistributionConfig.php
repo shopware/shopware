@@ -16,9 +16,19 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('discovery')]
 final readonly class BroadcastDistributionConfig implements DistributionConfig
 {
-    public function __construct(
+    private function __construct(
         public ?string $consumerAlias = null
     ) {
+    }
+
+    public static function simple(): self
+    {
+        return new self(null);
+    }
+
+    public static function aliased(string $alias): self
+    {
+        return new self($alias);
     }
 
     /**

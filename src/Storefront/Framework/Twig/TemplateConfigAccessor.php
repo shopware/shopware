@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Framework\Twig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\Asset\Packages;
 
 #[Package('framework')]
@@ -54,7 +54,7 @@ class TemplateConfigAccessor
     {
         $scripts = [];
 
-        foreach($this->themeScripts->getThemeScripts() as $script) {
+        foreach ($this->themeScripts->getThemeScripts() as $script) {
             if (!str_starts_with($script, 'js/components/')) {
                 $scripts[] = $script;
             }
@@ -71,11 +71,11 @@ class TemplateConfigAccessor
         $componentImportMap = [];
         $themeScripts = $this->themeScripts->getThemeScripts();
 
-        foreach($this->twigComponentHelper->getComponents() as $component) {
+        foreach ($this->twigComponentHelper->getComponents() as $component) {
             $relativeNamespacePath = $component->getRelativeNamespacePath();
-            $scriptPath = 'js/components/'.$relativeNamespacePath.'.js';
+            $scriptPath = 'js/components/' . $relativeNamespacePath . '.js';
 
-            if (!in_array($scriptPath, $themeScripts, true)) {
+            if (!\in_array($scriptPath, $themeScripts, true)) {
                 continue;
             }
 
@@ -85,13 +85,16 @@ class TemplateConfigAccessor
         return $componentImportMap;
     }
 
+    /**
+     * @return string[]
+     */
     public function componentStyles(): array
     {
         $styles = [];
 
-        foreach($this->twigComponentHelper->getComponents() as $component) {
+        foreach ($this->twigComponentHelper->getComponents() as $component) {
             $relativeNamespacePath = $component->getRelativeNamespacePath();
-            $stylePath = 'css/components/'.$relativeNamespacePath.'.css';
+            $stylePath = 'css/components/' . $relativeNamespacePath . '.css';
 
             if ($component->getStylePath() === null) {
                 continue;

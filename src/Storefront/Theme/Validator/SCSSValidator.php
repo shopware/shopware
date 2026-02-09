@@ -37,7 +37,7 @@ class SCSSValidator
          * and the media field is just using the media url as a string.
          */
         return match ($data['type'] ?? 'text') {
-            'checkbox', 'switch' => self::validateTypeCheckbox($data['value']),
+            'checkbox', 'switch', 'boolean', 'bool' => self::validateTypeCheckbox($data['value']),
             'color' => self::validateTypeColor($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
             'fontFamily' => self::validateFontFamily($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
             'text' => self::validateTypeText($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),

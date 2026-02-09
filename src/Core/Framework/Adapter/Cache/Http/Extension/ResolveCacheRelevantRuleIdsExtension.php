@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @extends Extension<array<string>>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final class ResolveCacheRelevantRuleIdsExtension extends Extension

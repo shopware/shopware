@@ -54,7 +54,7 @@
                 variant="primary"
                 :disabled="!acl.can('product.creator')"
                 size="default"
-                @click="$router.push({ name: 'sw.product.create', query: { creationStates: ['is-physical'] } })"
+                @click="$router.push({ name: 'sw.product.create', query: { creationType: 'physical' } })"
             >
                 {{ $tc('sw-product.list.buttonAddProduct') }}
             </mt-button>
@@ -85,7 +85,7 @@
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
-                    :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-download'] } }"
+                    :router-link="{ name: 'sw.product.create', query: { creationType: 'digital' } }"
                     :disabled="!acl.can('product.creator')"
                 >
                     {{ $tc('sw-product.list.buttonAddDownloadableProduct') }}
@@ -110,7 +110,7 @@
             {% block sw_product_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
-                class="mt-empty-state--center"
+                :centered="true"
                 :icon="$route.meta.$module.icon"
                 :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-product.list.messageEmpty')"
                 :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
@@ -124,7 +124,7 @@
                 v-else-if="entitySearchable"
                 ref="swProductGrid"
                 class="sw-product-list-grid"
-                :items="products"
+                :data-source="products"
                 :columns="productColumns"
                 :repository="productRepository"
                 detail-route="sw.product.detail"

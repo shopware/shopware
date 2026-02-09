@@ -12,7 +12,7 @@ test('Registered shop customer should be able to buy a digital product.', { tag:
     ProceedFromProductToCheckout,
     ConfirmTermsAndConditions,
     ConfirmImmediateAccessToDigitalProduct,
-    SelectInvoicePaymentOption,
+    SelectPaymentMethod,
     SubmitOrder,
     DownloadDigitalProductFromOrderAndExpectContentToBe,
 }) => {
@@ -28,7 +28,7 @@ test('Registered shop customer should be able to buy a digital product.', { tag:
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
     await ShopCustomer.attemptsTo(ConfirmImmediateAccessToDigitalProduct());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
+    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
 
     await ShopCustomer.attemptsTo(SubmitOrder());
 

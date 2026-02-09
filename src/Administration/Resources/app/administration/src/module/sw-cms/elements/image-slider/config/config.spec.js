@@ -21,6 +21,11 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     repositoryFactory: {
                         create: () => {
                             return {
+                                get: (id) =>
+                                    Promise.resolve({
+                                        id,
+                                        url: `http://shopware.com/${id}.jpg`,
+                                    }),
                                 search: () =>
                                     Promise.resolve({
                                         get: (mediaId) => {
@@ -306,6 +311,23 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(validItems).toHaveLength(4);
     });
 
+    it('should resolve media upload payloads via repository', async () => {
+        const wrapper = await createWrapper('content');
+        await flushPromises();
+
+        await wrapper.vm.onImageUpload({ targetId: 'uploaded-id' });
+
+        expect(wrapper.vm.element.config.sliderItems.value).toEqual([
+            {
+                ariaLabel: null,
+                mediaId: 'uploaded-id',
+                mediaUrl: 'http://shopware.com/uploaded-id.jpg',
+                newTab: false,
+                url: null,
+            },
+        ]);
+    });
+
     it('should remove previous mediaItem if it already exists after upload', async () => {
         const wrapper = await createWrapper('content');
         await flushPromises();
@@ -314,7 +336,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(0);
 
         // Simulate the upload of the first media item
-        wrapper.vm.onImageUpload({
+        await wrapper.vm.onImageUpload({
             id: '1',
             url: 'http://shopware.com/image1.jpg',
         });
@@ -322,7 +344,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1.jpg');
 
         // Simulate the upload of the same media item with different URL and same ID (replacement)
-        wrapper.vm.onImageUpload({
+        await wrapper.vm.onImageUpload({
             id: '1',
             url: 'http://shopware.com/image1-updated.jpg',
         });

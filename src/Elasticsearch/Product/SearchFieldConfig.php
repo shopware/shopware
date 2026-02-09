@@ -53,12 +53,17 @@ class SearchFieldConfig
 
     public function getFuzziness(string $token): string|int
     {
-        $fuzziness = $this->tokenize ? 'auto' : 1;
-
+        // Disable fuzziness for numeric tokens or a serial of at least 3 digits
         if (is_numeric($token) || preg_match('/\d{3,}/', $token)) {
-            $fuzziness = 0; // Disable fuzziness for numeric tokens or a serial of at least 3 digits
+            return 0;
         }
 
-        return $fuzziness;
+        // (SKU-ish strings, e.g. "SD345-XYZ") - require exact match
+        if (preg_match('/[A-Za-z].*\d|\d.*[A-Za-z]/', $token)) {
+            return 0;
+        }
+
+        // Let AUTO:3,8 handle length thresholds (0 for ≤3, 1 for 4–8, 2 for ≥9)
+        return 'AUTO:3,8';
     }
 }

@@ -676,6 +676,9 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         const passwordConfirmModal = wrapper.find('sw-verify-user-modal-stub');
 
+        expect(saveButton.attributes().disabled).toBeUndefined();
+        expect(wrapper.find('.sw-skeleton').exists()).toBe(false);
+
         expect(passwordConfirmModal.exists()).toBeTruthy();
         expect(saveFunction).not.toHaveBeenCalled();
     });

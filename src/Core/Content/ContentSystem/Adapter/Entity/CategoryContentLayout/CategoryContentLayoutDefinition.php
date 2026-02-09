@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout;
 
+use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
 use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
@@ -87,6 +88,11 @@ class CategoryContentLayoutDefinition extends EntityDefinition implements Conten
                 new EntityLoaderConfig('category', 'categoryId', ['media', 'translations'])
             ),
         ];
+    }
+
+    public function getCacheTags(string $entityId): array
+    {
+        return [CategoryRoute::buildName($entityId)];
     }
 
     protected function defineFields(): FieldCollection

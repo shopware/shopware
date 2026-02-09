@@ -48,4 +48,14 @@ class TestBootstrapperTest extends TestCase
 
         static::assertSame('test', $testBootstrapper->getDatabaseUrl());
     }
+
+    public function testAddCallingPlugin(): void
+    {
+        $testBootstrapper = new TestBootstrapper();
+        $testBootstrapper->addCallingPlugin(__DIR__ . '/Framework/Plugin/Util/_fixture/LocallyInstalledPlugins/SwagTest/composer.json');
+
+        $activePlugins = (new \ReflectionProperty($testBootstrapper, 'activePlugins'))->getValue($testBootstrapper);
+
+        static::assertSame(['Test'], $activePlugins);
+    }
 }

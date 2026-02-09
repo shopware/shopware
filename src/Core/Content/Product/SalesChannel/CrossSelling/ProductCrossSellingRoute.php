@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -68,13 +70,11 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     #[Route(
         path: '/store-api/product/{productId}/cross-selling',
         name: 'store-api.product.cross-selling',
-        defaults: ['_entity' => 'product'],
-        methods: ['POST']
+        methods: [Request::METHOD_POST, Request::METHOD_GET],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
-        $this->cacheTagCollector->addTag(self::buildName($productId));
-
         $crossSellings = $this->loadCrossSellings($productId, $context);
 
         $elements = new CrossSellingElementCollection();
@@ -92,7 +92,39 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $this->eventDispatcher->dispatch(new ProductCrossSellingsLoadedEvent($elements, $context));
 
+        $tags = [self::buildName($productId)];
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $tags = array_merge($tags, $this->getCrossSellingTags($elements));
+        }
+
+        $this->cacheTagCollector->addTag(...$tags);
+
         return new ProductCrossSellingRouteResponse($elements);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getCrossSellingTags(CrossSellingElementCollection $elements): array
+    {
+        $tags = [];
+
+        foreach ($elements as $element) {
+            if ($element->getStreamId() !== null) {
+                $tags[] = EntityCacheKeyGenerator::buildStreamTag($element->getStreamId());
+            }
+
+            foreach ($element->getProducts() as $product) {
+                $tags[] = EntityCacheKeyGenerator::buildProductTag($product->getId());
+
+                if ($product->getParentId() !== null) {
+                    $tags[] = EntityCacheKeyGenerator::buildProductTag($product->getParentId());
+                }
+            }
+        }
+
+        return array_values(array_unique(array_filter($tags)));
     }
 
     private function loadCrossSellings(string $productId, SalesChannelContext $context): ProductCrossSellingCollection

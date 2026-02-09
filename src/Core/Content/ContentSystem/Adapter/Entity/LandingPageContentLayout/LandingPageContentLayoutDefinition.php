@@ -8,6 +8,7 @@ use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
+use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -83,6 +84,11 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
         return [
             new DataRequirement('landing_page', 'entity', new EntityLoaderConfig('landing_page', 'landingPageId', [])),
         ];
+    }
+
+    public function getCacheTags(string $entityId): array
+    {
+        return [LandingPageRoute::buildName($entityId)];
     }
 
     protected function defineFields(): FieldCollection

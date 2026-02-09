@@ -33,6 +33,7 @@ class AclValidPermissionsHelper
         'api_send_email',
         'promotion.editor',
         'order_refund.editor',
+        'media.editor',
         'user_change_me',
         'notification:create',
     ];

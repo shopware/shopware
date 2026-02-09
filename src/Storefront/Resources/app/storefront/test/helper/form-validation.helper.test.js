@@ -108,7 +108,15 @@ describe('form-validation', () => {
         expect(emailField.classList).toContain(formValidation.config.invalidClass);
         expect(emailFeedback.innerHTML).toBe('<div class="invalid-feedback">Invalid email address.</div>');
 
-        // Valid email field
+        // Valid IDN email field
+        emailField.value = 'valid@ëxämplé.com';
+
+        invalidFields = formValidation.validateForm(form);
+        expect(invalidFields.length).toBe(2);
+        expect(emailField.classList).not.toContain(formValidation.config.invalidClass);
+        expect(emailFeedback.innerHTML).toBe('');
+
+        // Valid ASCII email field
         emailField.value = 'test@test.com';
 
         invalidFields = formValidation.validateForm(form);

@@ -93,7 +93,7 @@ class MailAttachmentsBuilder
      *
      * @return array<string>
      */
-    private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
+    public function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
     {
         $documents = $this->connection->fetchAllAssociative(
             'SELECT

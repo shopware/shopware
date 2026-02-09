@@ -26,7 +26,7 @@ class DeliveryCollection extends Collection
                 return -1;
             }
 
-            return $a->getDeliveryDate()->getEarliest() > $b->getDeliveryDate()->getEarliest();
+            return (int) ($a->getDeliveryDate()->getEarliest() > $b->getDeliveryDate()->getEarliest());
         });
 
         return $this;

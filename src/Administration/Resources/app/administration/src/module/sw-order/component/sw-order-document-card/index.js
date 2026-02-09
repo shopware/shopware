@@ -6,6 +6,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
+import EntityCollection from '../../../../core/data/entity-collection.data';
 
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -53,7 +54,7 @@ export default {
         return {
             documentsLoading: false,
             cardLoading: false,
-            documents: [],
+            documents: new EntityCollection(null, null, null, new Criteria(1, 25), [], 0),
             documentTypes: null,
             showModal: false,
             currentDocumentType: null,
@@ -174,6 +175,7 @@ export default {
                     dataIndex: 'fileTypes',
                     label: 'sw-order.documentCard.labelAvailableFormats',
                     allowResize: false,
+                    sortable: false,
                 });
             }
 

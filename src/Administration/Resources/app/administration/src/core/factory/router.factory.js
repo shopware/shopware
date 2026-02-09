@@ -391,8 +391,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         }
 
         favRef.href = favicon
-            ? `${assetsPath}static/img/favicon/modules/${favicon}`
-            : `${assetsPath}static/img/favicon/favicon-32x32.png`;
+            ? `${assetsPath}administration/static/img/favicon/modules/${favicon}`
+            : `${assetsPath}administration/static/img/favicon/favicon-32x32.png`;
 
         return true;
     }

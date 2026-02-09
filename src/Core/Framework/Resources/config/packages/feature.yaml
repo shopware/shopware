@@ -33,19 +33,24 @@ shopware:
         description: "Experimental! Enable OpenTelemetry metrics"
       - name: FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
         default: false
-        major: false
+        major: true
         toggleable: true
-        description: "Experimental! Execute flows after the main unit of work has concluded"
+        description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
       - name: PERFORMANCE_TWEAKS
         default: false
-        major: false
+        major: true
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
       - name: CACHE_CONTEXT_HASH_RULES_OPTIMIZATION
         default: false
         major: false
         toggleable: true
-        description: "Only include rule ids which are relevant for different content in the HTTP cache context key."
+        description: "Deprecated! Not used anymore, use the `CACHE_REWORK` feature flag instead."
+      - name: CACHE_REWORK
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Enable new caching, includes following breaking changes: Only include rule ids which are relevant for different content in the HTTP cache context key; Remove cache states and cache pages for logged in customers or when the cart is filled by default; Enable caching for Store-API."
       - name: DEFERRED_CART_ERRORS
         default: false
         major: false
@@ -66,3 +71,9 @@ shopware:
         major: true
         toggleable: true
         description: "This allows repeated calls to the /payment/finalize-transaction endpoint with the same token without throwing a 'token expired' exception."
+
+      - name: METEOR_TEXT_EDITOR
+        default: false
+        major: false
+        toggleable: true
+        description: "Enables the Meteor text editor in the administration."

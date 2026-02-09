@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Twig\Components;
 
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Filesystem\Path;
 use Symfony\UX\TwigComponent\ComponentMetadata;
 
@@ -11,10 +11,14 @@ use Symfony\UX\TwigComponent\ComponentMetadata;
 class TwigComponent extends Struct
 {
     private const MAIN_NAMESPACE = 'Storefront';
+
     protected string $name;
-    protected string $path; 
+
+    protected string $path;
+
     protected string $namespace;
-    protected ComponentMetadata | null $metadata = null;
+
+    protected ?ComponentMetadata $metadata = null;
 
     public function __construct(
         string $name,
@@ -40,20 +44,26 @@ class TwigComponent extends Struct
     {
         $nameParts = explode(':', $this->name);
 
-        if (count($nameParts) <= 1) {
+        if (\count($nameParts) <= 1) {
             return $this->name;
         }
 
-        return $nameParts[count($nameParts) - 1];
+        return $nameParts[\count($nameParts) - 1];
     }
 
     public function getTag(): string
     {
-        if ($this->namespace !== self::MAIN_NAMESPACE) {
-            return $this->namespace . ':' . $this->name;
+        $name = $this->name;
+
+        if ($this->isIndexComponent()) {
+            $name = str_replace(':index', '', $name);
         }
 
-        return $this->name;
+        if ($this->namespace !== self::MAIN_NAMESPACE) {
+            return $this->namespace . ':' . $name;
+        }
+
+        return $name;
     }
 
     public function getPath(): string
@@ -63,13 +73,25 @@ class TwigComponent extends Struct
 
     public function getRelativeNamespacePath(): string
     {
-        return str_replace(':', '/', $this->getTag());
+        $relativeName = $this->getName();
+
+        if ($this->namespace !== self::MAIN_NAMESPACE) {
+            $relativeName = $this->namespace . ':' . $relativeName;
+        }
+
+        return str_replace(':', '/', $relativeName);
     }
 
     public function getRelativeNamespaceDirectory(): string
     {
-        $nameParts = explode(':', $this->getTag());
-        
+        $relativeName = $this->getName();
+
+        if ($this->namespace !== self::MAIN_NAMESPACE) {
+            $relativeName = $this->namespace . ':' . $relativeName;
+        }
+
+        $nameParts = explode(':', $relativeName);
+
         array_pop($nameParts);
 
         return implode('/', $nameParts);
@@ -95,6 +117,11 @@ class TwigComponent extends Struct
         }
 
         return $scriptPath;
+    }
+
+    public function isIndexComponent(): bool
+    {
+        return strcasecmp(basename($this->path), 'index.html.twig') === 0;
     }
 
     public function getDirectory(): string

@@ -72,7 +72,7 @@
             {% block sw_order_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
-                class="mt-empty-state--center"
+                :centered="true"
                 :icon="$route.meta.$module.icon"
                 :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-order.list.messageEmpty')"
                 :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"

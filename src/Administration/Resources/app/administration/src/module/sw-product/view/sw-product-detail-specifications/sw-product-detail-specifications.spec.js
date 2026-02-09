@@ -72,7 +72,10 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             'essential_characteristics',
             'custom_fields',
         ];
-        store.creationStates = 'is-physical';
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+        store.creationType = 'physical';
         store.advancedModeSetting = {
             value: {
                 settings: [

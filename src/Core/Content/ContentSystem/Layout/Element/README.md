@@ -85,5 +85,4 @@ Context distribution handled by DataContextResolver during hydration. See Hydrat
 - Context/: ContextProvider, ContextConsumer, ContextDefinitions
 - DataRequirement/: DataRequirement structure
 - Slot/: SlotContent container for elements within a slot
-- TreeUtil/: ElementTreeUtil for tree manipulation
-- Visitor/: ElementVisitor interface, PlaceholderCollectorVisitor
+- Visitor/: ElementVisitor interface and implementations

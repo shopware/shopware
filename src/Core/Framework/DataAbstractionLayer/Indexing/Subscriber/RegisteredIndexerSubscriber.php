@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\SynchronousPostUpdateIndexer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -33,6 +36,9 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
         return [
             UpdatePostFinishEvent::class => 'runRegisteredIndexers',
             FirstRunWizardFinishedEvent::class => 'runRegisteredIndexers',
+            PluginPostInstallEvent::class => 'runRegisteredIndexers',
+            PluginPostUpdateEvent::class => 'runRegisteredIndexers',
+            PluginPostUninstallEvent::class => 'runRegisteredIndexers',
         ];
     }
 

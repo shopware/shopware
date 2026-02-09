@@ -69,7 +69,7 @@
             {% block sw_promotion_v2_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
-                class="mt-empty-state--center"
+                :centered="true"
                 :icon="$route.meta.$module.icon"
                 :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-promotion-v2.list.titleEmpty')"
                 :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
@@ -93,7 +93,7 @@
                 ref="listing"
                 :repository="promotionRepository"
                 :columns="promotionColumns"
-                :items="promotions"
+                :data-source="promotions"
                 detail-route="sw.promotion.v2.detail"
                 :is-loading="isLoading"
                 :allow-inline-edit="acl.can('promotion.editor') || undefined"

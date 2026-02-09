@@ -56,8 +56,12 @@
                 :alt="mimeType"
             >
             <video
+                v-else
+                ref="mediaElement"
                 :controls="showControls"
                 :autoplay="autoplay"
+                :poster="hasVideoCover ? videoCoverPoster : null"
+                :preload="videoPreloadValue"
                 controlsList="nodownload"
                 class="sw-media-preview-v2__item"
             >
@@ -94,6 +98,7 @@
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
             <audio
+                ref="mediaElement"
                 :controls="showControls"
                 :autoplay="autoplay"
                 controlsList="nodownload"

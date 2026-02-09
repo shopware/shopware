@@ -1,4 +1,4 @@
-const ApiService = Shopware.Classes.ApiService;
+import ApiService from '../api.service';
 
 /**
  * @sw-package fundamentals@after-sales

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Feature;
@@ -31,12 +32,17 @@ class CmsRoute extends AbstractCmsRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/cms/{id}', name: 'store-api.cms.detail', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/store-api/cms/{id}',
+        name: 'store-api.cms.detail',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(string $id, Request $request, SalesChannelContext $context): CmsRouteResponse
     {
         $criteria = new Criteria([$id]);
 
-        $slots = $request->get('slots');
+        $slots = RequestParamHelper::get($request, 'slots');
 
         if (\is_string($slots)) {
             $slots = explode('|', $slots);

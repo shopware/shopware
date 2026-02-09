@@ -4,58 +4,23 @@ namespace Shopware\Core\Content\ContentSystem\Layout\Element\Slot;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @internal
- *
  * @final
  *
- * @implements \IteratorAggregate<int, ContentElement>
+ * @extends Collection<ContentElement>
  */
 #[Package('discovery')]
-class SlotContent extends Struct implements \IteratorAggregate, \Countable
+class SlotContent extends Collection
 {
-    /**
-     * @param array<ContentElement> $elements
-     */
-    public function __construct(
-        protected array $elements = []
-    ) {
-    }
-
-    public function first(): ?ContentElement
-    {
-        return $this->elements[0] ?? null;
-    }
-
-    public function get(int $index): ?ContentElement
-    {
-        $reindexed = array_values($this->elements);
-
-        return $reindexed[$index] ?? null;
-    }
-
-    /**
-     * @return array<ContentElement>
-     */
-    public function all(): array
-    {
-        return $this->elements;
-    }
-
-    public function getIterator(): \Traversable
-    {
-        return new \ArrayIterator($this->elements);
-    }
-
-    public function count(): int
-    {
-        return \count($this->elements);
-    }
-
     public function getApiAlias(): string
     {
         return 'content_element_slot_content';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return ContentElement::class;
     }
 }

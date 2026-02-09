@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -47,6 +48,7 @@ class DownloadResponseGeneratorTest extends TestCase
         $publicFilesystem = $this->createMock(Filesystem::class);
 
         $this->downloadResponseGenerator = new DownloadResponseGenerator(
+            $this->createMock(LoggerInterface::class),
             $publicFilesystem,
             $this->privateFilesystem,
             $this->mediaService,
@@ -66,6 +68,7 @@ class DownloadResponseGeneratorTest extends TestCase
         $media->setPath('foobar.txt');
 
         $downloadResponseGenerator = new DownloadResponseGenerator(
+            $this->createMock(LoggerInterface::class),
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
             $this->mediaService,
@@ -110,6 +113,7 @@ class DownloadResponseGeneratorTest extends TestCase
         $generator->method('generate')->willReturn([$media->getId() => 'foobar.txt']);
 
         $this->downloadResponseGenerator = new DownloadResponseGenerator(
+            $this->createMock(LoggerInterface::class),
             $privateFilesystem,
             $publicFilesystem,
             $this->mediaService,
@@ -152,6 +156,48 @@ class DownloadResponseGeneratorTest extends TestCase
             '/protected',
         ];
         yield 'public / local' => [false, 'local', new RedirectResponse('foobar.txt')];
+    }
+
+    public function testGetResponseUsingAzureBlobStorageWithUnsupportedAuth(): void
+    {
+        $fileSystem = $this->createMock(Filesystem::class);
+        $expectedException = new \Exception('UnableToGenerateSasException');
+        $fileSystem->method('temporaryUrl')->willThrowException($expectedException);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('critical')
+            ->with(
+                static::equalTo('UnableToGenerateSasException'),
+                static::equalTo(['exception' => $expectedException]),
+            );
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('foobar');
+        $media->setFileExtension('txt');
+        $media->setPrivate(true);
+        $media->setPath('foobar.txt');
+
+        $generator = $this->createMock(AbstractMediaUrlGenerator::class);
+        $generator->method('generate')->willReturn([$media->getId() => 'foobar.txt']);
+
+        $downloadResponseGenerator = new DownloadResponseGenerator(
+            $logger,
+            $fileSystem,
+            $fileSystem,
+            $this->mediaService,
+            'php',
+            $generator,
+            ''
+        );
+
+        $streamInterface = $this->createMock(StreamInterface::class);
+        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
+        $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
+
+        $response = $downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
+
+        AssertResponseHelper::assertResponseEquals(self::getExpectedStreamResponse(), $response);
     }
 
     /**

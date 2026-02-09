@@ -139,11 +139,19 @@ Module.register('sw-product', {
             component: 'sw-product-detail',
             path: 'create',
             props: {
-                default: (route) => ({
-                    creationStates: route.query.creationStates ?? [
-                        'is-physical',
-                    ],
-                }),
+                default: (route) => {
+                    const props = {
+                        creationType: route.query.creationType ?? 'physical',
+                    };
+
+                    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                        props.creationStates = route.query.creationStates ?? [
+                            'is-physical',
+                        ];
+                    }
+
+                    return props;
+                },
             },
             redirect: {
                 name: 'sw.product.create.base',

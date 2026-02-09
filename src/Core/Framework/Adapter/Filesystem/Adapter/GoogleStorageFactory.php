@@ -27,7 +27,6 @@ class GoogleStorageFactory implements AdapterFactoryInterface
             $storageConfig['keyFilePath'] = $options['keyFilePath'];
         }
 
-        // @phpstan-ignore method.deprecated
         $bucket = (new StorageClient($storageConfig))->bucket($options['bucket']);
 
         return new GoogleCloudStorageAdapter($bucket, $options['root']);

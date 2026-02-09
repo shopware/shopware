@@ -31,7 +31,7 @@ jobs:
       owner: ${{ steps.issue.outputs.owner }}
       repository: ${{ steps.issue.outputs.repository }}
     steps:
-      - uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+      - uses: shopware/octo-sts-action@main
         id: sts-shopware-backport
         if: ${{ !github.event.act }}
         with:
@@ -84,7 +84,7 @@ jobs:
       && needs.find-linked-issue.outputs.id
     needs: [ find-linked-issue ]
     steps:
-      - uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+      - uses: shopware/octo-sts-action@main
         id: sts-shopware-backport
         if: ${{ !github.event.act }}
         with:
@@ -105,12 +105,12 @@ jobs:
               repo: process.env.ISSUE_REPOSITORY,
               issue_number: parseInt(process.env.ISSUE_NUMBER),
             });
-            
+
             if (issue.data.state === 'open') {
               core.info(`Issue #${process.env.ISSUE_NUMBER} is already open, no action needed.`);
               return;
             }
-            
+
             await github.rest.issues.update({
               owner: process.env.ISSUE_OWNER,
               repo: process.env.ISSUE_REPOSITORY,
@@ -118,7 +118,7 @@ jobs:
               state: 'open',
               state_reason: 'reopened',
             });
-            
+
             if (process.env.POST_COMMENT) {
               await github.rest.issues.createComment({
                 owner: process.env.ISSUE_OWNER,
@@ -154,15 +154,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const labels = JSON.parse(process.env.LABELS);
-            
+
             const targetBranches = labels
               .filter(label => label.name.startsWith('backport-'))
               .map(label => label.name.replace('backport-', ''));
-            
+
             const filteredLabels = labels
               .filter(label => !label.name.startsWith('backport-'))
               .map(label => label.name);
-            
+
             core.setOutput('target-branches', JSON.stringify(targetBranches));
             core.setOutput('labels', JSON.stringify(filteredLabels));
 
@@ -185,7 +185,7 @@ jobs:
         target-branch: ${{ fromJSON(needs.parse-labels.outputs.target-branches) }}
       fail-fast: true
     steps:
-      - uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+      - uses: shopware/octo-sts-action@main
         id: sts-shopware-backport
         if: ${{ !github.event.act }}
         with:
@@ -204,7 +204,7 @@ jobs:
           body-prefix: | # Reference original PR, as well as the related issue, if available
             ${{ format('**Backport:** {0}', github.event.pull_request.html_url) }}
             ${{ needs.find-linked-issue.outputs.url && format('Resolves: {0}', needs.find-linked-issue.outputs.url) }}
-            
+
             ---
           assignees: >- # Inherit original assignees
             ${{ github.event.pull_request.assignees && join(github.event.pull_request.assignees.*.login, ',') || '' }}

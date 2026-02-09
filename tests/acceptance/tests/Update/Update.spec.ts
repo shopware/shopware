@@ -25,7 +25,7 @@ test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`
     await page.getByRole('link', { name: 'Continue' }).click();
     await page.waitForLoadState('domcontentloaded')
 
-    await page.getByRole('button', { name: 'Save configuration' }).click();
+    await page.getByRole('button', { name: 'Continue' }).click();
     await page.waitForLoadState('domcontentloaded');
 
     await page.getByRole('button', { name: 'Update Shopware' }).click();

@@ -29,13 +29,35 @@ Each table contains:
 
 LayoutSearchHelper queries with priority: sales channel specific → global.
 
+## Header/Footer Layout Resolution
+
+Headers and footers use domain-aware resolution with dedicated specification factories:
+
+**Database tables:**
+- `header_content_layout` - Header → layout assignments
+- `footer_content_layout` - Footer → layout assignments
+
+Each table contains:
+- Domain ID (null = any domain)
+- Sales channel ID (null = global)
+- Layout ID (content_layout)
+
+DomainAwareLayoutResolver queries with priority: domain + sales channel → sales channel → global.
+
 ## Key Classes
 
+**Entity Factories:**
 - `ProductContentLayoutContextFactory` - Creates RenderingSpecification for product paths
 - `CategoryContentLayoutContextFactory` - Creates RenderingSpecification for category paths
 - `LandingPageContentLayoutContextFactory` - Creates RenderingSpecification for landing page paths
 - `EntityLayoutResolver` (FactoryHelper/) - Shared layout resolution and placeholder processing
 - `EntityLayoutContextFactory` (FactoryHelper/) - Shared entity-to-specification transformation
+
+**Header/Footer Factories:**
+- `HeaderSpecificationFactory` - Creates RenderingSpecification for header layouts
+- `FooterSpecificationFactory` - Creates RenderingSpecification for footer layouts
+- `DomainAwareLayoutResolver` (FactoryHelper/) - Domain-aware layout resolution
+- `NavigationAliasResolver` (FactoryHelper/) - Resolves navigation aliases to category IDs
 
 ## Implementation
 
@@ -43,5 +65,5 @@ Factories extend AbstractRenderingSpecificationFactory. ContentRoute tries facto
 
 ## Subdirectories
 
-- FactoryHelper/: Shared logic for entity layout resolution and context factory processing
-- Entity/: Entity definition interfaces and implementations for content layout assignable entities
+- FactoryHelper/: Shared logic for entity layout resolution, domain-aware resolution, and navigation alias resolution
+- Entity/: Entity definition interfaces and implementations for content layout assignable entities (including header/footer assignments)

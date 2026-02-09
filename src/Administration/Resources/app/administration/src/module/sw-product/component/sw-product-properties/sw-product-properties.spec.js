@@ -106,8 +106,8 @@ async function createWrapper() {
                                 @click="onClickRemoveInheritance">
                             </div>
                             <div v-else
-                                 class="sw-inheritance-switch--is-not-inherited"
-                                 @click="onClickRestoreInheritance">
+                                class="sw-inheritance-switch--is-not-inherited"
+                                @click="onClickRestoreInheritance">
                             </div>
                         </div>`,
                     methods: {
@@ -156,14 +156,6 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-empty-state': {
-                    template: `
-                        <div class="sw-empty-state">
-                            <slot></slot>
-                            <slot name="actions"></slot>
-                        </div>
-                    `,
-                },
                 'sw-product-add-properties-modal': true,
                 'sw-loader': true,
                 'sw-simple-search-field': true,
@@ -173,6 +165,15 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => repositoryFactoryCreateResult,
+                },
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'regular-content',
+                        },
+                    },
                 },
             },
         },

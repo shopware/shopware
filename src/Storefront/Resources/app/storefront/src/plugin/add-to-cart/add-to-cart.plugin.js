@@ -14,6 +14,8 @@ export default class AddToCartPlugin extends Plugin {
         redirectSelector: '[name="redirectTo"]',
         redirectParamSelector: '[data-redirect-parameters="true"]',
         redirectTo: 'frontend.cart.offcanvas',
+        alertTemplateSelector: '.js-add-to-cart-alert-template',
+        alertDismissDelay: 3000,
     };
 
     init() {
@@ -68,7 +70,11 @@ export default class AddToCartPlugin extends Plugin {
     /**
      * On submitting the form the OffCanvas shall open, the product has to be posted
      * against the storefront api and after that the current cart template needs to
-     * be fetched and shown inside the OffCanvas
+     * be fetched and shown inside the OffCanvas.
+     *
+     * If the "Open offcanvas after add to cart" setting is disabled, the product is
+     * added silently and a success message is shown instead.
+     *
      * @param {Event} event
      * @private
      */
@@ -80,7 +86,81 @@ export default class AddToCartPlugin extends Plugin {
 
         this.$emitter.publish('beforeFormSubmit', formData);
 
-        this._openOffCanvasCarts(requestUrl, formData);
+        if (this._shouldOpenOffcanvas()) {
+            this._openOffCanvasCarts(requestUrl, formData);
+        } else {
+            this._addToCartWithoutOffcanvas(requestUrl, formData);
+        }
+    }
+
+    /**
+     * Check if offcanvas cart should open after adding to cart
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _shouldOpenOffcanvas() {
+        return window.openOffcanvasAfterAddToCart !== '0';
+    }
+
+    /**
+     * Add product to cart without opening the offcanvas
+     * Used when "Open offcanvas after add to cart" setting is disabled
+     *
+     * @param {string} requestUrl
+     * @param {FormData} formData
+     * @private
+     */
+    _addToCartWithoutOffcanvas(requestUrl, formData) {
+        fetch(requestUrl, {
+            method: 'POST',
+            body: formData,
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error('Add to cart failed');
+            }
+
+            // Update the cart widget to show the new item count
+            window.PluginManager.getPluginInstances('CartWidget')?.forEach((instance) => {
+                instance.fetch();
+            });
+
+            // Show success message
+            this._showSuccessAlert();
+
+            this.$emitter.publish('addToCartWithoutOffcanvas');
+        }).catch(() => {
+            // Fall back to offcanvas behaviour on error to show any cart errors
+            this._openOffCanvasCarts(requestUrl, formData);
+        });
+    }
+
+    /**
+     * Show a success alert message near the add-to-cart button
+     *
+     * @private
+     */
+    _showSuccessAlert() {
+        const template = document.querySelector(this.options.alertTemplateSelector);
+
+        if (!template || !this._form) {
+            return;
+        }
+
+        const existingAlert = this._form.parentElement.querySelector('.add-to-cart-alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alert = template.content.firstElementChild.cloneNode(true);
+        alert.classList.add('show', 'add-to-cart-alert');
+
+        this._form.insertAdjacentElement('afterend', alert);
+
+        setTimeout(() => {
+            alert.addEventListener('transitionend', () => alert.remove(), { once: true });
+            alert.classList.remove('show');
+        }, this.options.alertDismissDelay);
     }
 
     /**
@@ -91,7 +171,9 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCarts(requestUrl, formData) {
         const offCanvasCartInstances = window.PluginManager.getPluginInstances('OffCanvasCart');
-        offCanvasCartInstances.forEach(instance => this._openOffCanvasCart(instance, requestUrl, formData));
+        offCanvasCartInstances.forEach((instance) => {
+            this._openOffCanvasCart(instance, requestUrl, formData);
+        });
     }
 
     /**

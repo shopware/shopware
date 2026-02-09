@@ -3,16 +3,14 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1590408550AclResources extends MigrationStep
@@ -24,15 +22,13 @@ class Migration1590408550AclResources extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->tableExists($connection, 'acl_resource')) {
+        if (!TableHelper::tableExists($connection, 'acl_resource')) {
             return;
         }
 
         $connection->executeStatement('ALTER TABLE `acl_role` ADD `privileges` json NULL AFTER `name`;');
 
-        $roles = $this->getRoles($connection);
-
-        foreach ($roles as $id => $privs) {
+        foreach ($this->getRoles($connection) as $id => $privs) {
             $list = array_column($privs, 'priv');
 
             $connection->executeStatement(
@@ -68,16 +64,5 @@ class Migration1590408550AclResources extends MigrationStep
         $grouped = FetchModeHelper::group($roles);
 
         return $grouped;
-    }
-
-    private function tableExists(Connection $connection, string $table): bool
-    {
-        try {
-            $connection->fetchOne('SELECT 1 FROM ' . $table . ' LIMIT 1');
-        } catch (Exception) {
-            return false;
-        }
-
-        return true;
     }
 }

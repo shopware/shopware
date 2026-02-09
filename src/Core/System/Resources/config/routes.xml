@@ -5,6 +5,7 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../UsageData/Api/**/*Controller.php" type="attribute" />
+    <import resource="../../Consent/Api/**/*Controller.php" type="attribute" />
     <import resource="../../User/Api/**/*Controller.php" type="attribute" />
     <import resource="../../CustomEntity/Api/*Controller.php" type="attribute" />
     <import resource="../../Snippet/**/*Controller.php" type="attribute" />

@@ -73,7 +73,7 @@ final class VirtualRootWrapper
      *
      * @throws ContentSystemException If element is not a virtual root or data integrity violated
      *
-     * @return array<ContentElement>
+     * @return list<ContentElement>
      */
     public function unwrap(ContentElement $virtualRoot): array
     {
@@ -100,7 +100,7 @@ final class VirtualRootWrapper
             );
         }
 
-        $extractedRoots = $pageRootsSlot->all();
+        $extractedRoots = $pageRootsSlot->getElements();
 
         if ($extractedRoots === []) {
             throw ContentSystemException::pathIntegrityViolation(
@@ -108,7 +108,7 @@ final class VirtualRootWrapper
             );
         }
 
-        return $extractedRoots;
+        return array_values($extractedRoots);
     }
 
     /**
@@ -149,7 +149,7 @@ final class VirtualRootWrapper
         foreach ($layoutDataRequirements as $requirement) {
             $providers[$requirement->key] = new ContextProvider(
                 ContextType::Single,
-                new BroadcastDistributionConfig()
+                BroadcastDistributionConfig::simple()
             );
         }
 

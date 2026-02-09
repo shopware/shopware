@@ -18,10 +18,20 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('discovery')]
 final readonly class KeyedDistributionConfig implements DistributionConfig
 {
-    public function __construct(
+    private function __construct(
         public string $keyProperty = 'data_key',
         public ?string $consumerAlias = null
     ) {
+    }
+
+    public static function simple(): self
+    {
+        return new self('data_key', null);
+    }
+
+    public static function withKeyProperty(string $keyProperty, ?string $consumerAlias = null): self
+    {
+        return new self($keyProperty, $consumerAlias);
     }
 
     /**
@@ -77,7 +87,7 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
             $result[$index] = $data[$dataKey] ?? null;
         }
 
-        return $result;
+        return array_values($result);
     }
 
     /**

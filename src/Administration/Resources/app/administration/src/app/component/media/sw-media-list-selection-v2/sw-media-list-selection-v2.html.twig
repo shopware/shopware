@@ -2,13 +2,6 @@
 <div class="sw-media-list-selection-v2">
 
     {% block sw_media_list_selection_v2_upload %}
-    <sw-upload-listener
-        :upload-tag="uploadId"
-        @media-upload-add="onUploadsAdded"
-        @media-upload-finish="successfulUpload"
-        @media-upload-fail="onUploadFailed"
-    />
-
     <sw-media-upload-v2
         :upload-tag="uploadId"
         variant="regular"

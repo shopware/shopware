@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -17,6 +19,8 @@ class Migration1744203319MailTemplate extends MigrationStep
 {
     private const GERMAN_KEY = 'Deutsch';
     private const ENGLISH_KEY = 'English';
+
+    protected string $assetFolder = __DIR__ . '/assets/';
 
     public function getCreationTimestamp(): int
     {
@@ -107,17 +111,16 @@ class Migration1744203319MailTemplate extends MigrationStep
     {
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $translationContent = [
-            'html_en' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.html.twig'),
-            'text_en' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.txt'),
-            'html_de' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.html.twig'),
-            'text_de' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.txt'),
-        ];
-
-        foreach ($translationContent as $languageId => $content) {
-            if (!\is_string($content)) {
-                throw MigrationException::migrationError('Could not load mail template translation content for ' . $languageId);
-            }
+        $fs = new Filesystem();
+        try {
+            $translationContent = [
+                'html_en' => $fs->readFile($this->assetFolder . 'sso_user_invitation_mail.en-GB.html.twig'),
+                'text_en' => $fs->readFile($this->assetFolder . 'sso_user_invitation_mail.en-GB.txt'),
+                'html_de' => $fs->readFile($this->assetFolder . 'sso_user_invitation_mail.de-DE.html.twig'),
+                'text_de' => $fs->readFile($this->assetFolder . 'sso_user_invitation_mail.de-DE.txt'),
+            ];
+        } catch (IOException $e) {
+            throw MigrationException::migrationError('Could not access mail template asset folder: ' . $e->getMessage());
         }
 
         $translations = [];

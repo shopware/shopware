@@ -25,7 +25,8 @@ class SystemSetupStagingCommandTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SystemConfigService::class),
             true,
-            []
+            [],
+            [],
         );
 
         $tester = new CommandTester($command);
@@ -48,7 +49,8 @@ class SystemSetupStagingCommandTest extends TestCase
             $eventDispatcher,
             $configService,
             true,
-            $routeMappings
+            $routeMappings,
+            ['MyDisabledExtension'],
         );
 
         $tester = new CommandTester($command);
@@ -64,6 +66,7 @@ class SystemSetupStagingCommandTest extends TestCase
         static::assertInstanceOf(SetupStagingEvent::class, $event);
         static::assertSame($routeMappings, $event->domainMappings);
         static::assertTrue($event->disableMailDelivery);
+        static::assertSame(['MyDisabledExtension'], $event->extensionsToDisable);
     }
 
     public function testRunNoInteractionWithForce(): void
@@ -75,7 +78,8 @@ class SystemSetupStagingCommandTest extends TestCase
             $eventDispatcher,
             $configService,
             true,
-            []
+            [],
+            [],
         );
 
         $tester = new CommandTester($command);
@@ -96,7 +100,8 @@ class SystemSetupStagingCommandTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SystemConfigService::class),
             true,
-            []
+            [],
+            [],
         );
 
         $tester = new CommandTester($command);

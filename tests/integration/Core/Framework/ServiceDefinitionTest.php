@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestKernel;
+use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -60,6 +61,9 @@ class ServiceDefinitionTest extends TestCase
         }
 
         static::assertCount(0, $errors, 'Found invalid services: ' . print_r($errors, true));
+        // Cleanup and reset kernel class
+        $separateKernel->shutdown();
+        KernelFactory::$kernelClass = Kernel::class;
     }
 
     public function testServiceDefinitionNaming(): void

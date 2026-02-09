@@ -163,7 +163,7 @@ class StorybookController extends AbstractController
         foreach ($properties as $key => $value) {
             if (\in_array($key, self::ENTITY_PROPERTY_LIST, true)) {
                 $parameters .= $key . ': ' . $key . ', ';
-            } else if ($value === 'true' || $value === 'false') {
+            } elseif ($value === 'true' || $value === 'false') {
                 $parameters .= $key . ': ' . $value . ', ';
             } else {
                 $parameters .= $key . ': \'' . $value . '\', ';

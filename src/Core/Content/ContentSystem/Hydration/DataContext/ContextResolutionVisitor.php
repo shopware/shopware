@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataContext;
 
+use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * Visitor implementing direct-children-only context distribution.
@@ -61,10 +63,10 @@ class ContextResolutionVisitor implements ElementVisitor
             return;
         }
 
-        $consumerData = array_map(fn (ContentElement $element) => [
+        $consumerData = array_values(array_map(fn (ContentElement $element) => [
             'component' => $element->getComponent(),
             'properties' => $element->getProperties(),
-        ], $consumers);
+        ], $consumers));
 
         $distributed = $config->distribute($data, $consumerData);
 
@@ -88,6 +90,18 @@ class ContextResolutionVisitor implements ElementVisitor
 
             if ($consumerKey === $providerKey) {
                 $consumer->setProperty($propertyKey, $data);
+                continue;
+            }
+
+            if (!$data instanceof Struct) {
+                if ($consumerDef->required) {
+                    throw ContentSystemException::contextPathNotResolvable(
+                        $consumerKey,
+                        $consumer->getId(),
+                        'Context data is not a Struct instance'
+                    );
+                }
+                $consumer->setProperty($propertyKey, null);
                 continue;
             }
 

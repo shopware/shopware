@@ -39,6 +39,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -66,6 +68,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
@@ -80,6 +83,10 @@ class ProductDefinition extends EntityDefinition
     final public const ENTITY_NAME = 'product';
 
     final public const CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT = 'core.cms.default_product_cms_page';
+
+    final public const TYPE_PHYSICAL = 'physical';
+
+    final public const TYPE_DIGITAL = 'digital';
 
     public function getEntityName(): string
     {
@@ -102,7 +109,7 @@ class ProductDefinition extends EntityDefinition
     }
 
     /**
-     * @return array<string, bool|int|null>
+     * @return array{isCloseout: false, minPurchase: 1, purchaseSteps: 1, shippingFree: false, restockTime: null, active: true, markAsTopseller: false, type: 'physical'}
      */
     public function getDefaults(): array
     {
@@ -114,6 +121,7 @@ class ProductDefinition extends EntityDefinition
             'restockTime' => null,
             'active' => true,
             'markAsTopseller' => false,
+            'type' => self::TYPE_PHYSICAL,
         ];
     }
 
@@ -129,66 +137,65 @@ class ProductDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+        $fields = new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the product.'),
             (new VersionField())->addFlags(new ApiAware()),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new ApiAware(), new Required()),
 
-            (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->addFlags(new ApiAware(), new Inherited()),
+            (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of the manufacturer.'),
             (new ReferenceVersionField(ProductManufacturerDefinition::class))->addFlags(new ApiAware(), new Inherited(), new Required()),
-            (new FkField('unit_id', 'unitId', UnitDefinition::class))->addFlags(new ApiAware(), new Inherited()),
-            (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new ApiAware(), new Inherited(), new Required()),
-            (new FkField('product_media_id', 'coverId', ProductMediaDefinition::class))->addFlags(new ApiAware(), new Inherited(), new NoConstraint()),
+            (new FkField('unit_id', 'unitId', UnitDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of the unit.'),
+            (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new ApiAware(), new Inherited(), new Required())->setDescription('Unique identity of tax.'),
+            (new FkField('product_media_id', 'coverId', ProductMediaDefinition::class))->addFlags(new ApiAware(), new Inherited(), new NoConstraint())->setDescription('Unique identity of a ProductMedia item used as product cover.'),
             (new ReferenceVersionField(ProductMediaDefinition::class))->addFlags(new ApiAware(), new Inherited(), new Required()),
-            (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new ApiAware(), new Inherited()),
-            (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))->addFlags(new Inherited()),
-            (new FkField('canonical_product_id', 'canonicalProductId', self::class))->addFlags(new ApiAware(), new Inherited()),
+            (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of delivery time.'),
+            (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))->addFlags(new Inherited())->setDescription('Unique identity of feature set.'),
+            (new FkField('canonical_product_id', 'canonicalProductId', self::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of canonical product.'),
             (new ReferenceVersionField(self::class, 'canonical_product_version_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
-            (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited()),
+            (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of CMS page.'),
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()),
 
-            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware()),
-            (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required()),
-            (new IntField('restock_time', 'restockTime'))->addFlags(new ApiAware(), new Inherited()),
+            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware())->setDescription('Price of the product.'),
+            (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required())->setDescription('Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.'),
+            (new IntField('restock_time', 'restockTime'))->addFlags(new ApiAware(), new Inherited())->setDescription('The restock time in days indicates how long it will take until a sold out item is back in stock.'),
             new AutoIncrementField(),
-            (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited()),
-            (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
-            (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()),
+            (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited())->setDescription('When boolean value is `true`, the products are available for selection in the storefront for purchase.'),
+            (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Indicates weather the product is available or not.'),
+            (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited())->setDescription('When the value is set to true, the product is hidden when sold out.'),
+            (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Indicates the number of products still available. This value results from the stock minus the open orders.'),
+            (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required())->setDescription('Indicates the number of products available.'),
 
-            (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name'])),
-            (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new VariantListingConfigField('variant_listing_config', 'variantListingConfig'))->addFlags(new Inherited()),
-            new JsonField('variant_restrictions', 'variantRestrictions'),
-            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
-            (new StringField('ean', 'ean'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
-            (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new ApiAware(), new Inherited()),
-            (new IntField('max_purchase', 'maxPurchase'))->addFlags(new ApiAware(), new Inherited()),
-            (new IntField('min_purchase', 'minPurchase', 1))->addFlags(new ApiAware(), new Inherited()),
-            (new FloatField('purchase_unit', 'purchaseUnit'))->addFlags(new ApiAware(), new Inherited()),
-            (new FloatField('reference_unit', 'referenceUnit'))->addFlags(new ApiAware(), new Inherited()),
-            (new BoolField('shipping_free', 'shippingFree'))->addFlags(new ApiAware(), new Inherited()),
-            (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited()),
-            (new BoolField('mark_as_topseller', 'markAsTopseller'))->addFlags(new ApiAware(), new Inherited()),
-            (new FloatField('weight', 'weight'))->addFlags(new ApiAware(), new Inherited()),
-            (new FloatField('width', 'width'))->addFlags(new ApiAware(), new Inherited()),
-            (new FloatField('height', 'height'))->addFlags(new ApiAware(), new Inherited()),
-            (new FloatField('length', 'length'))->addFlags(new ApiAware(), new Inherited()),
-            (new DateTimeField('release_date', 'releaseDate'))->addFlags(new ApiAware(), new Inherited()),
-            (new FloatField('rating_average', 'ratingAverage'))->addFlags(new ApiAware(), new WriteProtected(), new Inherited()),
-            (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new ApiAware(), new Inherited(), new WriteProtected()),
-            (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new ApiAware(), new Inherited()),
-            (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new ApiAware(), new Inherited()),
-            (new ManyToManyIdField('stream_ids', 'streamIds', 'streams'))->addFlags(new ApiAware(), new Inherited()),
-            (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited(), new ApiAware()),
-            (new ManyToManyIdField('category_ids', 'categoryIds', 'categories'))->addFlags(new ApiAware(), new Inherited()),
+            (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name']))->setDescription('Internal field.'),
+            (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Runtime field, cannot be used as part of the criteria.'),
+            (new VariantListingConfigField('variant_listing_config', 'variantListingConfig'))->addFlags(new Inherited())->setDescription('Information regarding if this variant should included in listing or not.'),
+            (new JsonField('variant_restrictions', 'variantRestrictions'))->setDescription('Configuration about which variants and its combination are not available like red shirt in medium size in not available.'),
+            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false))->setDescription('Unique number that describes the manufacturer.'),
+            (new StringField('ean', 'ean'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false))->setDescription('Indicates EAN of the product.'),
+            (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new ApiAware(), new Inherited())->setDescription('Specifies the scales in which the item is to be offered. For example, a scale of 2 means that your customers can purchase 2, 4, 6 products, etc., but not 1, 3 or 5.'),
+            (new IntField('max_purchase', 'maxPurchase'))->addFlags(new ApiAware(), new Inherited())->setDescription('Maximum number of items that can be purchased.'),
+            (new IntField('min_purchase', 'minPurchase', 1))->addFlags(new ApiAware(), new Inherited())->setDescription('Minimum number of items that can be purchased.'),
+            (new FloatField('purchase_unit', 'purchaseUnit'))->addFlags(new ApiAware(), new Inherited())->setDescription('Quantity of the item purchased. For example, 500ml, 2kg, etc.'),
+            (new FloatField('reference_unit', 'referenceUnit'))->addFlags(new ApiAware(), new Inherited())->setDescription('Price of purchased item calculated as per the reference unit. Say, you bought 500ml of milk and the price is calculated in reference to 1000ml.'),
+            (new BoolField('shipping_free', 'shippingFree'))->addFlags(new ApiAware(), new Inherited())->setDescription('Indicates weather the shipping price is free or not.'),
+            (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited())->setDescription('Actual/cost price of the product.'),
+            (new BoolField('mark_as_topseller', 'markAsTopseller'))->addFlags(new ApiAware(), new Inherited())->setDescription('Indicates weather the product is top seller or not.'),
+            (new FloatField('weight', 'weight'))->addFlags(new ApiAware(), new Inherited())->setDescription('The weight of the product.'),
+            (new FloatField('width', 'width'))->addFlags(new ApiAware(), new Inherited())->setDescription('The width of the product.'),
+            (new FloatField('height', 'height'))->addFlags(new ApiAware(), new Inherited())->setDescription('The height of the product.'),
+            (new FloatField('length', 'length'))->addFlags(new ApiAware(), new Inherited())->setDescription('The length of the product.'),
+            (new DateTimeField('release_date', 'releaseDate'))->addFlags(new ApiAware(), new Inherited())->setDescription('The release date of a product or product model. This can be used to distinguish the exact variant of a product.'),
+            (new FloatField('rating_average', 'ratingAverage'))->addFlags(new ApiAware(), new WriteProtected(), new Inherited())->setDescription('Average of all the ratings.'),
+            (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new ApiAware(), new Inherited(), new WriteProtected())->setDescription('Internal field.'),
+            (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of property.'),
+            (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of options.'),
+            (new ManyToManyIdField('stream_ids', 'streamIds', 'streams'))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of stream.'),
+            (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited(), new ApiAware())->setDescription('Unique identity of tags.'),
+            (new ManyToManyIdField('category_ids', 'categoryIds', 'categories'))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of category.'),
             (new ChildCountField())->addFlags(new ApiAware()),
-            (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited()),
-            (new IntField('sales', 'sales'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new ListField('states', 'states', StringField::class))->addFlags(new ApiAware(), new WriteProtected()),
-            (new OneToManyAssociationField('downloads', ProductDownloadDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited())->setDescription('When boolean value is `true`, the customFieldSetSelection for products gets enabled.'),
+            (new IntField('sales', 'sales'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Frequency of the product sales.'),
+            (new OneToManyAssociationField('downloads', ProductDownloadDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Downloadable files associated with the product (e.g., manuals, digital content)'),
 
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('name', true))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -202,64 +209,81 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('customSearchKeywords'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
 
             // associations
-            (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware()),
-            (new ChildrenAssociationField(self::class))->addFlags(new ApiAware()),
+            (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware())->setDescription('Unique identity of the product.'),
+            (new ChildrenAssociationField(self::class))->addFlags(new ApiAware())->setDescription('Product variants that inherit from this parent product'),
 
-            (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Estimated delivery time for the product'),
 
-            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Tax configuration (rate and calculation rules)'),
 
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Product manufacturer or brand information'),
 
-            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Product unit of measure (e.g., piece, liter, kg)'),
 
-            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Main product image displayed in listings and detail pages'),
 
             (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))->addFlags(new Inherited()),
 
-            (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited())->setDescription('Custom CMS page layout for the product detail page'),
 
-            (new ManyToOneAssociationField('canonicalProduct', 'canonical_product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToOneAssociationField('canonicalProduct', 'canonical_product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Canonical product reference for variant consolidation and SEO purposes'),
 
             (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
-            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited())->setDescription('Product images and media gallery'),
 
-            (new OneToManyAssociationField('crossSellings', ProductCrossSellingDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('crossSellings', ProductCrossSellingDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited())->setDescription('Cross-selling configurations (related products, accessories, similar items)'),
 
             (new OneToManyAssociationField('crossSellingAssignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'product_id'))->addFlags(new CascadeDelete()),
 
-            (new OneToManyAssociationField('configuratorSettings', ProductConfiguratorSettingDefinition::class, 'product_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new OneToManyAssociationField('configuratorSettings', ProductConfiguratorSettingDefinition::class, 'product_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Variant configurator settings defining available options for product variants'),
 
             (new OneToManyAssociationField('visibilities', ProductVisibilityDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id'))->addFlags(new CascadeDelete(false)),
 
-            (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(false)),
+            (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(false))->setDescription('Customer reviews and ratings for the product'),
 
-            (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Primary category assignments per sales channel for SEO and navigation'),
 
-            (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware())->setDescription('SEO-friendly URLs for the product across different sales channels'),
 
             (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'product_id'))->addFlags(new SetNullOnDelete()),
 
             (new OneToManyAssociationField('wishlists', CustomerWishlistProductDefinition::class, 'product_id'))->addFlags(new CascadeDelete()),
 
-            (new ManyToManyAssociationField('options', PropertyGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new ManyToManyAssociationField('options', PropertyGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Product variant options (e.g., size, color) that define different variants'),
 
-            (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited())->setDescription('Product properties and characteristics for filtering'),
 
-            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited())->setDescription('Categories this product is assigned to'),
 
-            (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamMappingDefinition::class, 'product_id', 'product_stream_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamMappingDefinition::class, 'product_id', 'product_stream_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Dynamic product streams this product belongs to based on defined filters'),
 
-            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new ApiAware(), new CascadeDelete(false), new WriteProtected()),
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new ApiAware(), new CascadeDelete(false), new WriteProtected())->setDescription('Read-only category tree including all parent categories for optimized queries'),
 
-            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))->addFlags(new CascadeDelete(), new Inherited(), new ApiAware()),
+            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))->addFlags(new CascadeDelete(), new Inherited(), new ApiAware())->setDescription('Tags for organizing and filtering products'),
 
             (new ManyToManyAssociationField('customFieldSets', CustomFieldSetDefinition::class, ProductCustomFieldSetDefinition::class, 'product_id', 'custom_field_set_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required())->setDescription('The type of the product, e.g., physical or digital.'),
+            );
+        } else {
+            $fields->add(
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable())->setDescription('The type of the product, e.g., physical or digital.'),
+            );
+
+            $fields->add(
+                (new ListField('states', 'states', StringField::class))
+                    ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.7.6.0', 'v6.8.0.0', 'type'))->setDescription('Internal field.'),
+            );
+        }
+
+        return $fields;
     }
 }

@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\ContentSystem\Output;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
-use Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -31,9 +30,9 @@ class PartialRenderer
      * Pre-hydration pruning keeps context dependencies to ensure data flows correctly
      * during hydration. Post-hydration extraction removes these ancestors.
      *
-     * @param array<ContentElement> $elements
+     * @param list<ContentElement> $elements
      *
-     * @return array<ContentElement> Pruned elements containing target
+     * @return list<ContentElement> Pruned elements containing target
      */
     public function pruneToTarget(array $elements, string $targetElementId): array
     {

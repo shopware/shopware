@@ -1,6 +1,6 @@
 import type { Editor } from '@tiptap/vue-3';
 // eslint-disable-next-line max-len
-import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/components/form/mt-text-editor/_internal/mt-text-editor-toolbar';
+import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
 import template from './sw-text-editor-toolbar-button-link.html.twig';
 import './sw-text-editor-toolbar-button-link.scss';
 import type EntityCollectionType from '../../../../../core/data/entity-collection.data';

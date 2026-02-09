@@ -15,8 +15,8 @@ Plugins extend the ContentSystem through three mechanisms.
 | Extension Point | Purpose |
 |-----------------|---------|
 | **Rendering Specification Factories** | New URL patterns, entity types, preview modes |
-| **Data Loaders** | External APIs, calculations, aggregated data |
-| **Event Subscribers** | Modify layout structure, enrich data, transform properties |
+| **Data Loaders** | External APIs, calculations, aggregated data (with cache control) |
+| **Event Subscribers** | Modify layout structure, enrich data, transform properties, cache tags |
 
 ---
 
@@ -136,8 +136,15 @@ final class WeatherLoader extends AbstractContentDataLoader
     public static function getRequirementType(): string
     { return 'weather'; /* Must match serializer's getSource() */ }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): mixed
-    { /* Fetch from external API; return null on failure, never throw */ }
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        $weather = $this->weatherClient->fetch($config->location);
+        if ($weather === null) {
+            return ContentDataLoaderResult::notFound();
+        }
+        // External API - cannot track for invalidation
+        return ContentDataLoaderResult::uncacheable($weather);
+    }
 }
 ```
 
@@ -154,7 +161,25 @@ final class WeatherLoader extends AbstractContentDataLoader
 </service>
 ```
 
-Return `null` for missing data. The pipeline stores null in the element property and continues.
+### Cache Awareness
+
+All data loaders must return `ContentDataLoaderResult` to indicate cache behavior:
+
+| Factory Method | When to Use |
+|----------------|-------------|
+| `notFound()` | Data not found, page remains cacheable |
+| `cached($data, ...$tags)` | Data with invalidation tags (e.g., `'product-' . $id`) |
+| `cachedExternally($data)` | Data loaded via delegated route that handles its own tags |
+| `uncacheable($data)` | External APIs or data that cannot be cache-tracked |
+
+If any loader returns uncacheable data, the entire page becomes uncacheable.
+
+For entity-based data, use `EntityCacheTagResolver` to generate proper tags:
+
+```php
+$tags = $this->cacheTagResolver->resolve($entity::class, $entityId);
+return ContentDataLoaderResult::cached($entity, ...$tags);
+```
 
 Reference: `Hydration/DataLoader/EntityLoader/`
 
@@ -167,7 +192,7 @@ Subscribers modify elements before or after hydration—computing derived values
 | Event | When | Purpose |
 |-------|------|---------|
 | `PreContentHydrationEvent` | Before hydration | Modify layout tree, resolve placeholders |
-| `AfterContentHydrationEvent` | After hydration | Enrich data, transform structure |
+| `PostHydrationEvent` | After hydration | Enrich data, transform structure |
 
 Both events expose the same properties. Only `elements` is mutable:
 
@@ -176,6 +201,7 @@ Both events expose the same properties. Only `elements` is mutable:
 - `specification` — the `RenderingSpecification`
 - `mode` — `RenderingMode`
 - `salesChannelContext` — `SalesChannelContext`
+- `cacheContext` — `RenderingCacheContext`, for cache tag management
 
 ### Example: Reading Time Subscriber
 
@@ -185,11 +211,23 @@ class ReadingTimeSubscriber implements EventSubscriberInterface
     private const WORDS_PER_MINUTE = 200;
 
     public static function getSubscribedEvents(): array
-    { return [AfterContentHydrationEvent::class => ['addReadingTime', 500]]; }
+    { return [PostHydrationEvent::class => ['addReadingTime', 500]]; }
 
-    public function addReadingTime(AfterContentHydrationEvent $event): void
+    public function addReadingTime(PostHydrationEvent $event): void
     { /* Iterate elements; get 'content' property; count words; set 'readingTimeMinutes' property */ }
 }
+```
+
+### Cache Context in Subscribers
+
+Subscribers can add cache tags or disable caching via `$event->cacheContext`:
+
+```php
+// Add invalidation tags for external data
+$event->cacheContext->addTags(['my-plugin-weather-' . $location]);
+
+// Disable caching entirely (use sparingly)
+$event->cacheContext->disable();
 ```
 
 ### Priority Guidelines

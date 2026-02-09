@@ -11,6 +11,7 @@
 
     <services>
         <service id="Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand">
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <tag name="console.command"/>
         </service>
 
@@ -143,6 +144,7 @@
             <argument type="service" id="app_administration_snippet.repository"/>
             <argument type="service" id="locale.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\SnippetFinder">
@@ -151,6 +153,7 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\CachedSnippetFinder" decorates="Shopware\Administration\Snippet\SnippetFinder">
@@ -202,6 +205,10 @@
             <argument type="service" id="app_administration_snippet.repository"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener">
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent"/>
         </service>
     </services>
 </container>

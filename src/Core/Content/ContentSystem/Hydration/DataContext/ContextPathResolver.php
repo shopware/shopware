@@ -32,7 +32,7 @@ class ContextPathResolver
      *
      * @throws ContentSystemException If path cannot be resolved and $required is true
      */
-    public function resolvePath(mixed $data, array $path, bool $required, string $fullPath, string $elementId): mixed
+    public function resolvePath(?Struct $data, array $path, bool $required, string $fullPath, string $elementId): mixed
     {
         if ($path === []) {
             return $data;
@@ -50,19 +50,8 @@ class ContextPathResolver
             return null;
         }
 
-        if (!$data instanceof Struct) {
-            if ($required) {
-                throw ContentSystemException::contextPathNotResolvable(
-                    $fullPath,
-                    $elementId,
-                    'Base context data is not a Struct instance'
-                );
-            }
-
-            return null;
-        }
-
         $current = $data;
+        $pathCount = \count($path);
 
         foreach ($path as $index => $segment) {
             if (!$current instanceof Struct) {
@@ -95,7 +84,7 @@ class ContextPathResolver
 
             $current = $vars[$segment];
 
-            if ($current === null && $index < \count($path) - 1) {
+            if ($current === null && $index < $pathCount - 1) {
                 if ($required) {
                     $traversedPath = implode('.', \array_slice($path, 0, $index + 1));
                     throw ContentSystemException::contextPathNotResolvable(

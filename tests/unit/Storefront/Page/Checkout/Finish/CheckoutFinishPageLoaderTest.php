@@ -46,7 +46,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $pageLoader->method('load')
             ->willReturn($page);
 
-        $request = new Request([], [], [
+        $request = new Request([
             'orderId' => $orderId,
             'changedPayment' => false,
             'paymentFailed' => false,
@@ -71,7 +71,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $pageLoader->method('load')
             ->willReturn($page);
 
-        $request = new Request([], [], [
+        $request = new Request([
             'orderId' => $orderId,
             'changedPayment' => false,
             'paymentFailed' => false,
@@ -93,7 +93,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $pageLoader->method('load')
             ->willReturn(new Page());
 
-        $request = new Request([], [], [
+        $request = new Request([
             'orderId' => $orderId,
             'changedPayment' => false,
             'paymentFailed' => false,
@@ -114,7 +114,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $pageLoader->method('load')
             ->willReturn(new Page());
 
-        $request = new Request([], [], [
+        $request = new Request([
             'orderId' => $orderId,
             'changedPayment' => false,
             'paymentFailed' => false,
@@ -141,7 +141,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $pageLoader->method('load')
             ->willReturn(new Page());
 
-        $request = new Request([], [], [
+        $request = new Request([
             'orderId' => $orderId,
             'changedPayment' => false,
             'paymentFailed' => false,
@@ -193,7 +193,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $pageLoader->method('load')
             ->willReturn(new Page());
 
-        $request = new Request([], [], [
+        $request = new Request([
             'orderId' => 'invalid-order-id',
         ]);
 

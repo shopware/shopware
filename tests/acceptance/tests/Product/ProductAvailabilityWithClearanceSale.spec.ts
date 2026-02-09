@@ -1,4 +1,4 @@
-import { test, expect, getCurrencySymbolFromLocale, getLocale } from '@fixtures/AcceptanceTest';
+import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 
 test(
     'Product should be added to the cart if stock:1 and clearance-sale:true.',
@@ -108,7 +108,6 @@ test(
         await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
 
         await ShopCustomer.expects(StorefrontCheckoutCart.stockReachedAlert).toContainText(product.name);
-        const currencyIcon = getCurrencySymbolFromLocale(getLocale());
-        await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toContainText(`${currencyIcon}10.00`);
+        await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toContainText(formatPrice(10.0));
     }
 );

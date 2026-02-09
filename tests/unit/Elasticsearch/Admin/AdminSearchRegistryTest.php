@@ -104,9 +104,16 @@ class AdminSearchRegistryTest extends TestCase
                     'id' => ['type' => 'keyword'],
                     'textBoosted' => [
                         'type' => 'text',
-                        'analyzer' => 'sw_ngram_analyzer',
+                        'fields' => [
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
-                    'text' => ['type' => 'text'],
+                    'text' => [
+                        'type' => 'text',
+                        'fields' => [
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
+                    ],
                     'entityName' => ['type' => 'keyword'],
                     'parameters' => ['type' => 'keyword'],
                 ],

@@ -8,6 +8,7 @@ use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -93,6 +94,11 @@ class ProductContentLayoutDefinition extends EntityDefinition implements Content
                 ])
             ),
         ];
+    }
+
+    public function getCacheTags(string $entityId): array
+    {
+        return [EntityCacheKeyGenerator::buildProductTag($entityId)];
     }
 
     protected function defineFields(): FieldCollection

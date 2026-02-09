@@ -13,6 +13,7 @@
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
+      "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "Die URL {path} steht in Konflikt mit der bestehenden Route {blockedSegment} und kann nicht verwendet werden.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
@@ -304,6 +305,8 @@
       "labelContextMenuRename": "Umbenennen",
       "labelContextMenuDetail": "Informationen",
       "labelContextMenuMove": "Verschieben",
+      "labelContextMenuSetCover": "Cover-Bild festlegen",
+      "labelContextMenuRemoveCover": "Cover entfernen",
       "notification": {
         "errorBlankItemName": {
           "message": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu."
@@ -319,6 +322,18 @@
         },
         "settingsSuccess": {
           "message": "Einstellungen erfolgreich gespeichert."
+        },
+        "coverSaveSuccess": {
+          "message": "Cover-Bild erfolgreich gespeichert."
+        },
+        "coverRemoveSuccess": {
+          "message": "Cover-Bild wurde entfernt."
+        },
+        "coverSelectionInvalid": {
+          "message": "Bitte wähle ein Bild als Cover aus."
+        },
+        "coverSaveError": {
+          "message": "Cover-Bild konnte nicht gespeichert werden."
         }
       },
       "labelUploading": "Wird hochgeladen ..."
@@ -449,6 +464,10 @@
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
       "buttonSwitchToUrlUpload": "Datei von URL hochladen",
       "buttonOpenMedia": "Medien öffnen",
+      "snackbar": {
+        "message": "Datei wird hochgeladen | Dateien werden hochgeladen ({processed}/{total})",
+        "errorMessage": "Die Datei konnte nicht hochgeladen werden. | Manche Dateien konnten nicht hochgeladen werden."
+      },
       "notification": {
         "success": {
           "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
@@ -465,6 +484,18 @@
         "illegalFileUrl": {
           "title": "Ungültige URL",
           "message": "Hochladen über lokale URLs nicht erlaubt."
+        },
+        "illegalFileType": {
+          "message": "Die Datei \"{name}\" konnte nicht hochgeladen werden. Der Dateityp wird nicht unterstützt."
+        },
+        "requestCanceled": {
+          "message": "Das Hochladen wurde abgebrochen."
+        },
+        "payloadTooLarge": {
+          "message": "Die Datei ist zu groß. Bitte reduziere die Dateigröße oder überprüfe die Server-Konfiguration."
+        },
+        "transportError": {
+          "message": "Upload fehlgeschlagen aufgrund eines Verbindungsproblems oder eines Server-Timeouts. Bitte Verbindung oder Server-Limits prüfen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"
@@ -799,6 +830,7 @@
         "lineItemActualStockRule": "Position mit Lagerbestand",
         "lineItemStockRule": "Position mit verfügbarem Bestand",
         "lineItemProductStates": "Position mit Produktzustand",
+        "lineItemProductType": "Position mit Produkttyp",
         "numberOfReviews": "Anzahl freigegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
@@ -884,6 +916,14 @@
           "options": {
             "is-download": "Digital",
             "is-physical": "Physisch"
+          }
+        }
+      },
+      "cartLineItemProductType": {
+        "productType": {
+          "options": {
+            "digital": "Digital",
+            "physical": "Physisch"
           }
         }
       },
@@ -1058,6 +1098,7 @@
       "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
       "customer_recovery_request": "Kunde fordert neues Passwort an",
+      "customer_password_changed": "Kunden-Passwort wurde geändert",
       "mail_after_create_message": "E-Mail wurde erzeugt",
       "mail_before_send": "E-Mail wird gesendet",
       "mail_sent": "E-Mail wurde gesendet",

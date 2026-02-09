@@ -94,7 +94,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             (new BoolField('is_new', 'isNew'))->addFlags(new ApiAware(), new Runtime(['releaseDate']))
         );
         $fields->add(
-            (new OneToOneAssociationField('seoCategory', 'seoCategory', 'id', CategoryDefinition::class))->addFlags(new ApiAware(), new Runtime())
+            (new OneToOneAssociationField('seoCategory', 'seoCategory', 'id', CategoryDefinition::class))->addFlags(new ApiAware(), new Runtime())->setDescription('Main category used for SEO URL generation in the current sales channel')
         );
         $fields->add(
             (new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited(), new ApiCriteriaAware())

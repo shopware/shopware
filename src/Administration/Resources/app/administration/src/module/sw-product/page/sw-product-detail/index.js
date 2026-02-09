@@ -56,11 +56,19 @@ export default {
             required: false,
             default: null,
         },
-        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, please use `creationType` instead
+         */
         creationStates: {
             type: Array,
             required: false,
             default: null,
+        },
+        /* Product "type" provided by the split button for creating a new product through a router parameter */
+        creationType: {
+            type: String,
+            required: false,
+            default: 'physical',
         },
     },
 
@@ -127,8 +135,15 @@ export default {
             return Shopware.Store.get('swProductDetail').advanceModeEnabled;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, please use `productType` instead
+         */
         productStates() {
             return Shopware.Store.get('swProductDetail').productStates;
+        },
+
+        productType() {
+            return Shopware.Store.get('swProductDetail').productType;
         },
 
         ...mapPageErrors(errorConfiguration),
@@ -636,7 +651,11 @@ export default {
             ]);
 
             // set product "type"
-            Shopware.Store.get('swProductDetail').creationStates = this.creationStates;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                Shopware.Store.get('swProductDetail').creationStates = this.creationStates;
+            }
+
+            Shopware.Store.get('swProductDetail').creationType = this.creationType;
 
             // create empty product
             Shopware.Store.get('swProductDetail').product = this.productRepository.create();
@@ -649,7 +668,7 @@ export default {
             this.product.additionalText = '';
             this.product.variantListingConfig = {};
 
-            if (this.creationStates) {
+            if (this.creationType) {
                 this.adjustProductAccordingToType();
             }
 
@@ -716,9 +735,11 @@ export default {
         },
 
         adjustProductAccordingToType() {
-            if (this.creationStates.includes('is-download')) {
+            if (this.creationType === 'digital') {
                 this.product.maxPurchase = 1;
             }
+
+            this.product.type = this.creationType;
         },
 
         loadProduct() {
@@ -730,7 +751,7 @@ export default {
             return this.productRepository
                 .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
                 .then(async (product) => {
-                    if (!product.purchasePrices?.length > 0 && !product.parentId) {
+                    if (!product.purchasePrices || (!product.purchasePrices?.length > 0 && !product.parentId)) {
                         if (!this.defaultCurrency?.id) {
                             await this.loadCurrencies();
                         }
@@ -754,7 +775,7 @@ export default {
                     Shopware.Store.get('swProductDetail').product = product;
 
                     if (this.product.parentId) {
-                        this.loadParentProduct();
+                        await this.loadParentProduct();
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
@@ -994,7 +1015,7 @@ export default {
         },
 
         customValidate(errors, product) {
-            if (this.productStates.includes('is-download')) {
+            if (this.productType === 'digital') {
                 // custom download product validation
                 if (product.downloads === undefined || product.downloads.length < 1) {
                     errors.push(EntityValidationService.createRequiredError('/0/downloads'));
@@ -1145,7 +1166,32 @@ export default {
                             seoUrl.isModified = true;
                         }
 
-                        this.updateSeoPromises.push(this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId));
+                        this.updateSeoPromises.push(
+                            this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
+                                if (error.response?.data?.errors) {
+                                    error.response.data.errors.forEach((apiError) => {
+                                        const messageKey = `global.error-codes.${apiError.detail}`;
+                                        const params = apiError.meta?.parameters || {};
+                                        const translated = this.$t(messageKey, params);
+
+                                        const message =
+                                            translated !== messageKey
+                                                ? translated
+                                                : apiError.detail ||
+                                                  apiError.title ||
+                                                  this.$t('global.notification.unspecifiedSaveErrorMessage');
+
+                                        this.createNotificationError({ message });
+                                    });
+                                } else {
+                                    const message =
+                                        error.message || this.$t('global.notification.unspecifiedSaveErrorMessage');
+                                    this.createNotificationError({ message });
+                                }
+
+                                return Promise.reject(error);
+                            }),
+                        );
                     });
                 }
             }

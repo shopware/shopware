@@ -1,6 +1,6 @@
 # EventSubscriber
 
-Event-driven pipeline transformations for the content hydration lifecycle. Subscribers modify the layout structure before and after data loading via `PreContentHydrationEvent` and `AfterContentHydrationEvent`.
+Event-driven pipeline transformations for the content hydration lifecycle. Subscribers modify the layout structure before and after data loading via `PreContentHydrationEvent` and `PostHydrationEvent`.
 
 ## Architecture
 
@@ -57,15 +57,15 @@ Priorities are organized into reserved ranges for core and extension use.
 
 ## Extension Points
 
-Add custom subscribers by implementing `EventSubscriberInterface`. Subscribe to `PreContentHydrationEvent` or `AfterContentHydrationEvent` with a priority. Modify `$event->elements` in the handler.
+Add custom subscribers by implementing `EventSubscriberInterface`. Subscribe to `PreContentHydrationEvent` or `PostHydrationEvent` with a priority. Modify `$event->elements` in the handler.
 
 **Example priorities by use case (suggestions only):**
 
 - Modify raw layout before core: `PreContentHydrationEvent` at `>= 8000`
 - Add custom data requirements: `PreContentHydrationEvent` at `500-800`
-- Add computed properties: `AfterContentHydrationEvent` at `500-800`
-- Analytics/tracking injection: `AfterContentHydrationEvent` at `100-200`
-- Response transformation: `AfterContentHydrationEvent` at `< 0`
+- Add computed properties: `PostHydrationEvent` at `500-800`
+- Analytics/tracking injection: `PostHydrationEvent` at `100-200`
+- Response transformation: `PostHydrationEvent` at `< 0`
 
 ## Subdirectories
 

@@ -22,7 +22,6 @@ export default class SpatialBaseViewerPlugin extends Plugin {
     public options!: {
         modelUrl: string;
         sliderPosition: number;
-        lightIntensity: number;
     };
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -48,7 +47,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.canvas.tabIndex = 0;
 
         if (this.dive == undefined) {
-            this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas, displayFloor: true, lightIntensity: this.options.lightIntensity ? this.options.lightIntensity / 100 : 1 });
+            this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas, displayFloor: true });
         }
 
         // @ts-ignore

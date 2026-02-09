@@ -31,7 +31,7 @@
                 v-if="products.length > 0"
                 identifier="sw-sales-channel-products-assignment-single-products-list"
                 :repository="productRepository"
-                :items="products"
+                :data-source="products"
                 :columns="productColumns"
                 :plain-appearance="true"
                 :skeleton-item-amount="limit"
@@ -62,7 +62,7 @@
             <mt-empty-state
                 v-else
                 icon="solid-products"
-                :headline="$tc('sw-sales-channel.detail.products.titleEmptyState')"
+                :headline="$t('sw-sales-channel.detail.products.titleEmptyState')"
             />
             {% endblock %}
         </sw-card-section>

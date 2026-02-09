@@ -4,6 +4,9 @@
 
 ## Source Code References
 
+- `PartialRenderer` - Orchestrates partial rendering (pruning + extraction)
+- `ElementTreeUtil` - Tree manipulation utilities for partial rendering
+- `PathFinderVisitor` - Finds path from root to target element
 - `SubTreeExtractor` - Extracts element sub-tree for partial rendering
 - `RenderingSpecification` - Rendering configuration (layout ID, placeholders, target element)
 - `ContentPage` (Struct/) - Full format response (elements with embedded properties)

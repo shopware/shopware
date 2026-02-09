@@ -89,12 +89,6 @@
                     {% endblock %}
 
                     {% block sw_media_field_upload_component %}
-                    <sw-upload-listener
-                        :upload-tag="uploadTag"
-                        auto-upload
-                        @media-upload-finish="exposeNewId"
-                    />
-
                     <sw-media-upload-v2
                         v-if="showUploadField"
                         variant="regular"

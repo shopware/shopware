@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Event;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Content\ContentSystem\RenderingCacheContext;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Context;
@@ -37,17 +38,17 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PreContentHydrationEvent extends Event implements ShopwareEvent
 {
     /**
-     * @param array<ContentElement> $elements
+     * @param list<ContentElement> $elements
      */
     public function __construct(
-        /** @var array<ContentElement> */
         public array $elements,
         public readonly string $layoutId,
         public readonly string $layoutName,
         public readonly ?string $layoutVersionId,
         public readonly RenderingSpecification $specification,
         public readonly RenderingMode $mode,
-        public readonly SalesChannelContext $salesChannelContext
+        public readonly SalesChannelContext $salesChannelContext,
+        public readonly RenderingCacheContext $cacheContext,
     ) {
     }
 

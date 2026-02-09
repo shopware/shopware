@@ -261,6 +261,11 @@ class ShopwareClass implements CustomShopwareProperties {
     public Data = data;
 
     public get Snippet() {
+        // @ts-expect-error - type is currently not available
+        if (!Shopware.Application.view?.i18n) {
+            return null;
+        }
+
         return {
             // @ts-expect-error - type is currently not available
             ...Shopware.Application.view.i18n.global,

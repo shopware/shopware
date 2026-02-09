@@ -156,6 +156,12 @@
 
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="parameter_bag"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
@@ -166,6 +172,7 @@
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder"/>
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -194,6 +201,7 @@
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantCombinationLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -279,6 +287,12 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor">
             <argument type="tagged_iterator" tag="shopware.listing.processor" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompressedCriteriaListingProcessor">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder" />
+            <!-- priority needs to be higher than of all other processors to make custom filters passed in compressed criteria to work -->
+            <tag name="shopware.listing.processor" priority="1000"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler" />
@@ -372,6 +386,7 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <!-- decorated by cached route -->
@@ -398,8 +413,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -413,9 +428,15 @@
             <tag name="shopware.entity_indexer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\ProductTypeRegistry" public="true">
+            <argument>%shopware.product.allowed_types%</argument>
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+
+            <deprecated package="shopware/core" version="6.8.0">tag:v6.8.0 - The %service_id% service will be removed, as product states are deprecated.</deprecated>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">

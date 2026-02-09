@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
@@ -37,19 +38,23 @@ class HttpCacheKeyGeneratorTest extends TestCase
     #[DataProvider('differentKeyProvider')]
     public function testDifferentCacheKey(Request $requestA, Request $requestB): void
     {
-        static::assertNotSame(
-            $this->cacheKeyGenerator->generate($requestA),
-            $this->cacheKeyGenerator->generate($requestB),
-        );
+        $keyA = $this->cacheKeyGenerator->generate($requestA);
+        $keyB = $this->cacheKeyGenerator->generate($requestB);
+
+        static::assertNotSame($keyA->key, $keyB->key);
+        static::assertTrue($keyA->isCacheable);
+        static::assertTrue($keyB->isCacheable);
     }
 
     #[DataProvider('sameKeyProvider')]
     public function testSameCacheKey(Request $requestA, Request $requestB): void
     {
-        static::assertSame(
-            $this->cacheKeyGenerator->generate($requestA),
-            $this->cacheKeyGenerator->generate($requestB),
-        );
+        $keyA = $this->cacheKeyGenerator->generate($requestA);
+        $keyB = $this->cacheKeyGenerator->generate($requestB);
+
+        static::assertSame($keyA->key, $keyB->key);
+        static::assertTrue($keyA->isCacheable);
+        static::assertTrue($keyB->isCacheable);
     }
 
     public function testCookiesFromResponseOverwriteRequestCookies(): void
@@ -59,16 +64,27 @@ class HttpCacheKeyGeneratorTest extends TestCase
         $response = new Response();
         $response->headers->setCookie(new Cookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'bar'));
 
-        static::assertNotSame(
-            $this->cacheKeyGenerator->generate($request),
-            $this->cacheKeyGenerator->generate($request, $response),
-        );
+        $keyA = $this->cacheKeyGenerator->generate($request);
+        $keyB = $this->cacheKeyGenerator->generate($request, $response);
+
+        static::assertNotSame($keyA->key, $keyB->key);
+        static::assertTrue($keyA->isCacheable);
+        static::assertTrue($keyB->isCacheable);
+    }
+
+    public function testNonCacheableCacheCookieSetsNoCacheOnCacheKey(): void
+    {
+        $request = Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => HttpCacheCookieEvent::NOT_CACHEABLE]);
+
+        $key = $this->cacheKeyGenerator->generate($request);
+
+        static::assertFalse($key->isCacheable);
     }
 
     public function testCacheKeyStaysTheSameIfEventPartsAreSortedDifferently(): void
     {
         $request = Request::create('https://domain.com/method');
-        $firstHash = $this->cacheKeyGenerator->generate($request);
+        $firstKey = $this->cacheKeyGenerator->generate($request);
 
         $this->addEventListener($this->eventDispatcher, HttpCacheKeyEvent::class, static function (HttpCacheKeyEvent $event): void {
             $uri = $event->get('uri');
@@ -77,8 +93,25 @@ class HttpCacheKeyGeneratorTest extends TestCase
             $event->add('uri', $uri);
         });
 
-        $secondHash = $this->cacheKeyGenerator->generate($request);
-        static::assertSame($firstHash, $secondHash);
+        $secondKey = $this->cacheKeyGenerator->generate($request);
+        static::assertSame($firstKey->key, $secondKey->key);
+        static::assertTrue($firstKey->isCacheable);
+        static::assertTrue($secondKey->isCacheable);
+    }
+
+    public function testCacheKeyIsNotCacheableIfSetInEvent(): void
+    {
+        $request = Request::create('https://domain.com/method');
+        $firstKey = $this->cacheKeyGenerator->generate($request);
+
+        $this->addEventListener($this->eventDispatcher, HttpCacheKeyEvent::class, static function (HttpCacheKeyEvent $event): void {
+            $event->isCacheable = false;
+        });
+
+        $secondKey = $this->cacheKeyGenerator->generate($request);
+        static::assertSame($firstKey->key, $secondKey->key);
+        static::assertTrue($firstKey->isCacheable);
+        static::assertFalse($secondKey->isCacheable);
     }
 
     public static function sameKeyProvider(): \Generator

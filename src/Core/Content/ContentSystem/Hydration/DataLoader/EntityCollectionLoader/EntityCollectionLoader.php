@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader;
 
+use Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -27,7 +29,8 @@ class EntityCollectionLoader extends AbstractContentDataLoader
 {
     public function __construct(
         private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly EntityCacheTagResolver $cacheTagResolver,
     ) {
     }
 
@@ -41,30 +44,27 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         return 'entity_collection';
     }
 
-    /**
-     * @return list<covariant Entity>|null
-     */
     public function load(
         ContentElement $element,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
-    ): ?array {
+    ): ContentDataLoaderResult {
         $config = $requirement->config;
 
         if (!$config instanceof EntityLoaderConfig) {
-            return null;
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->property ?? $config->entity . 'Ids';
         $entityIds = $element->getProperty($propertyName);
 
         if ($entityIds === null) {
-            return [];
+            return ContentDataLoaderResult::cached([]);
         }
 
         if (!\is_array($entityIds)) {
-            return null;
+            return ContentDataLoaderResult::notFound();
         }
 
         $entityIds = \array_filter($entityIds, static fn ($id) => \is_string($id));
@@ -72,10 +72,25 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $entityIds = \array_values($entityIds);
 
         if ($entityIds === []) {
-            return null;
+            return ContentDataLoaderResult::cached([]);
         }
 
-        return $this->loadEntities($config->entity, $entityIds, $config->associations, $context);
+        $entities = $this->loadEntities($config->entity, $entityIds, $config->associations, $context);
+
+        $definition = $this->definitionRegistry->getByEntityName($config->entity);
+        $tags = [];
+
+        foreach ($entities as $entity) {
+            $tag = $this->cacheTagResolver->resolve($definition, $entity->getUniqueIdentifier());
+
+            if ($tag === null) {
+                return ContentDataLoaderResult::uncacheable($entities);
+            }
+
+            $tags[] = $tag;
+        }
+
+        return ContentDataLoaderResult::cached($entities, ...$tags);
     }
 
     /**

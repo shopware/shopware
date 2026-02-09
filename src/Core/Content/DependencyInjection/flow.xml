@@ -216,6 +216,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer">
             <argument type="service" id="document.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder"/>
 
             <tag name="flow.storer"/>
         </service>

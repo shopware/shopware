@@ -18,6 +18,7 @@ export default {
         'repositoryFactory',
         'numberRangeService',
         'acl',
+        'productTypeService',
         'filterFactory',
     ],
 
@@ -28,7 +29,7 @@ export default {
     ],
 
     data() {
-        return {
+        const data = {
             products: null,
             currencies: [],
             sortBy: 'createdAt',
@@ -41,6 +42,16 @@ export default {
             cloning: false,
             productEntityVariantModal: false,
             filterCriteria: [],
+            productTypeOptions: [
+                {
+                    label: this.$t('sw-product.type.physical'),
+                    value: 'physical',
+                },
+                {
+                    label: this.$t('sw-product.type.digital'),
+                    value: 'digital',
+                },
+            ],
             defaultFilters: [
                 'product-number-filter',
                 'active-filter',
@@ -54,12 +65,19 @@ export default {
                 'sales-filter',
                 'tags-filter',
                 'product-states-filter',
+                'product-type-filter',
             ],
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
             showBulkEditModal: false,
             searchConfigEntity: 'product',
         };
+
+        if (Shopware.Feature.isActive('v6.8.0.0')) {
+            data.defaultFilters = data.defaultFilters.filter((filter) => filter !== 'product-states-filter');
+        }
+
+        return data;
     },
 
     metaInfo() {
@@ -133,7 +151,7 @@ export default {
         },
 
         listFilterOptions() {
-            return {
+            const filters = {
                 'product-number-filter': {
                     property: 'productNumber',
                     type: 'string-filter',
@@ -153,7 +171,6 @@ export default {
                     label: this.$tc('sw-product.filters.stockFilter.label'),
                     numberType: 'int',
                     step: 1,
-                    min: 0,
                     fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
                     toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
                 },
@@ -218,6 +235,13 @@ export default {
                         },
                     ],
                 },
+                'product-type-filter': {
+                    property: 'type',
+                    label: this.$t('sw-product.filters.productTypeFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productTypeFilter.placeholder'),
+                    type: 'multi-select-filter',
+                    options: this.productTypeOptions,
+                },
                 'release-date-filter': {
                     property: 'releaseDate',
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
@@ -227,6 +251,12 @@ export default {
                     showTimeframe: true,
                 },
             };
+
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                delete filters['product-states-filter'];
+            }
+
+            return filters;
         },
 
         listFilters() {
@@ -260,15 +290,6 @@ export default {
         },
     },
 
-    watch: {
-        productCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
-        },
-    },
-
     beforeRouteLeave(to, from, next) {
         const goingToProductDetailPage = to.name === 'sw.product.detail.base';
 
@@ -284,6 +305,15 @@ export default {
     methods: {
         async getList() {
             this.isLoading = true;
+
+            this.productTypeService.fetchProductTypes().then((types) => {
+                this.productTypeOptions = types.map((type) => {
+                    return {
+                        label: this.$te(`sw-product.type.${type}`) ? this.$t(`sw-product.type.${type}`) : type,
+                        value: type,
+                    };
+                });
+            });
 
             let criteria = await Shopware.Service('filterService').mergeWithStoredFilters(
                 this.storeKey,
@@ -378,10 +408,12 @@ export default {
             this.getList();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {
@@ -490,7 +522,7 @@ export default {
         },
 
         productIsDigital(productEntity) {
-            return productEntity.states && productEntity.states.includes('is-download');
+            return productEntity.type && productEntity.type === 'digital';
         },
 
         openVariantModal(item) {
@@ -503,7 +535,7 @@ export default {
 
         onBulkEditItems() {
             let includesDigital = '0';
-            const digital = Object.values(this.selection).filter((product) => product.states.includes('is-download'));
+            const digital = Object.values(this.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }

@@ -28,6 +28,8 @@ use Shopware\Core\Content\ImportExport\Strategy\Import\ImportStrategyService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
+use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -322,6 +324,135 @@ class ImportExportTest extends TestCase
             new Config([], [], []),
             [
                 'id' => $orderId,
+            ],
+            0
+        );
+        $writer->expects($this->exactly(1))->method('flush');
+        $writer->expects($this->exactly(1))->method('finish');
+
+        $importExport = new ImportExport(
+            $importExportService,
+            $logEntity,
+            $this->createMock(FilesystemOperator::class),
+            $eventDispatcher,
+            $this->createMock(Connection::class),
+            $repository,
+            $pipe,
+            $reader,
+            $writer,
+            $this->createMock(FileService::class),
+            $this->createMock(ImportStrategyService::class)
+        );
+
+        $context = Context::createDefaultContext();
+        $criteria = new Criteria();
+
+        static::assertEquals(
+            (new Progress($logEntity->getId(), Progress::STATE_SUCCEEDED))->assign([
+                'offset' => 1,
+                'total' => 1,
+                'processedRecords' => 1,
+            ]),
+            $importExport->export($context, $criteria, 0)
+        );
+
+        static::assertSame(1, $enrichExportCriteriaEventCount);
+        static::assertSame(1, $importExportBeforeExportRecordEventCount);
+    }
+
+    public function testSuccessfulExportOnEntitiesWithoutCreatedAt(): void
+    {
+        $exportFileName = 'product_keyword_dictionary.csv';
+
+        $fileId = Uuid::randomHex();
+
+        $logEntity = new ImportExportLogEntity();
+        $logEntity->assign([
+            'id' => Uuid::randomHex(),
+            'state' => Progress::STATE_PROGRESS,
+            'fileId' => $fileId,
+            'file' => (new ImportExportFileEntity())->assign([
+                'id' => $fileId,
+                'path' => 'tests/unit/Core/Content/ImportExport/fixtures/' . $exportFileName,
+            ]),
+        ]);
+
+        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService->method('getProgress')
+            ->willReturnCallback(
+                static fn () => new Progress($logEntity->getId(), $logEntity->getState())
+            );
+
+        $enrichExportCriteriaEventCount = 0;
+        $importExportBeforeExportRecordEventCount = 0;
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            EnrichExportCriteriaEvent::class,
+            function () use (&$enrichExportCriteriaEventCount): void {
+                ++$enrichExportCriteriaEventCount;
+            }
+        );
+        $eventDispatcher->addListener(
+            ImportExportBeforeExportRecordEvent::class,
+            function () use (&$importExportBeforeExportRecordEventCount): void {
+                ++$importExportBeforeExportRecordEventCount;
+            }
+        );
+
+        $dictId = Uuid::randomHex();
+
+        /** @var StaticEntityRepository<OrderCollection> */
+        $repository = new StaticEntityRepository(
+            [
+                function (Criteria $criteria, Context $ctx) use ($dictId): EntitySearchResult {
+                    $sortings = $criteria->getSorting();
+
+                    static::assertNotEmpty($sortings, 'Expected export to add at least one sorting');
+                    static::assertCount(
+                        0,
+                        \array_filter($sortings, static fn ($s) => $s->getField() === 'createdAt'),
+                        'Export must not sort by createdAt for entities without that field'
+                    );
+                    static::assertCount(
+                        1,
+                        \array_filter($sortings, static fn ($s) => $s->getField() === 'id'),
+                        'Expected export to sort by primary key field id'
+                    );
+
+                    return new EntitySearchResult(
+                        ProductKeywordDictionaryEntity::class,
+                        1,
+                        new EntityCollection([(new ProductKeywordDictionaryEntity())->assign(['id' => $dictId])]),
+                        null,
+                        $criteria,
+                        $ctx
+                    );
+                },
+            ],
+            new ProductKeywordDictionaryDefinition()
+        );
+
+        $pipe = $this->createMock(AbstractPipe::class);
+        $pipe->expects($this->exactly(1))->method('in')->willReturnCallback(
+            function (Config $config, array $originalRecord): iterable {
+                $serializedRecord = [];
+
+                $serializedRecord['id'] = $originalRecord['id'];
+
+                return $serializedRecord;
+            }
+        );
+        $pipe->expects($this->never())->method('out');
+
+        $reader = $this->createMock(AbstractReader::class);
+        $reader->expects($this->never())->method('read');
+
+        $writer = $this->createMock(AbstractWriter::class);
+        $writer->expects($this->exactly(1))->method('append')->with(
+            new Config([], [], []),
+            [
+                'id' => $dictId,
             ],
             0
         );

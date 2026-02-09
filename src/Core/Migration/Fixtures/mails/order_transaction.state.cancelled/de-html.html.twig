@@ -28,7 +28,7 @@
             {% block lineItem %}
                 <tr>
                     <td>{% if nestedItem.payload.productNumber is defined %}{{ nestedItem.payload.productNumber|u.wordwrap(80) }}{% endif %}</td>
-                    <td>{% if nestedItem.cover is defined and nestedItem.cover is not null %}<img src="{{ nestedItem.cover.url }}" width="75" height="auto"/>{% endif %}</td>
+                    <td>{% if nestedItem.cover is defined and nestedItem.cover is not null %}<img src="{{ nestedItem.cover.url }}" alt="" width="75" height="auto"/>{% endif %}</td>
                     <td>
                         {% if nestingLevel > 0 %}
                             {% for i in 1..nestingLevel %}

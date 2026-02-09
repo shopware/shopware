@@ -56,25 +56,25 @@ class CmsPageDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of CMS page.'),
             (new VersionField())->addFlags(new ApiAware()),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
-            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('entity', 'entity'))->addFlags(new ApiAware()),
-            (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required())->setDescription('CMS page types can be `landingpage`, `page`, `product_list`, `product_detail`.'),
+            (new StringField('entity', 'entity'))->addFlags(new ApiAware())->setDescription('This field will be implemented in the future.'),
+            (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware())->setDescription('One or more CSS classes added and separated by spaces.'),
             (new JsonField('config', 'config', [
                 (new StringField('background_color', 'backgroundColor'))->addFlags(new ApiAware()),
-            ]))->addFlags(new ApiAware()),
-            (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            ]))->addFlags(new ApiAware())->setDescription('Background color of the CMS page.'),
+            (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of media to be previewed.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             new LockedField(),
 
-            (new OneToManyAssociationField('sections', CmsSectionDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new OneToManyAssociationField('sections', CmsSectionDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Content sections within the CMS page (layout blocks containing slots)'),
             (new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'))->addFlags(new ApiAware()),
-            (new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Preview image for the CMS page in admin panel and page selection'),
 
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new RestrictDelete()),
+            (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new RestrictDelete())->setDescription('Landing pages using this CMS layout'),
             (new OneToManyAssociationField('homeSalesChannels', SalesChannelDefinition::class, 'home_cms_page_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete()),
         ]);

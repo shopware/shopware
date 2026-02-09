@@ -22,7 +22,7 @@ class ContentLayoutEntity extends Entity
     protected string $version;
 
     /**
-     * @var array<ContentElement>
+     * @var list<ContentElement>
      */
     protected array $layout;
 
@@ -66,7 +66,7 @@ class ContentLayoutEntity extends Entity
     /**
      * @api
      *
-     * @return array<ContentElement>
+     * @return list<ContentElement>
      */
     public function getLayout(): array
     {
@@ -76,7 +76,7 @@ class ContentLayoutEntity extends Entity
     /**
      * @api
      *
-     * @param array<ContentElement> $layout
+     * @param list<ContentElement> $layout
      */
     public function setLayout(array $layout): void
     {

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\Hasher;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Extracts properties from ContentElements with deduplication.
@@ -52,7 +51,7 @@ class PropertiesExtractionVisitor implements ElementVisitor
 
         foreach ($properties as $key => $value) {
             $requirement = $requirementMap[$key] ?? null;
-            $refId = $this->extractAndRegister($value, $requirement);
+            $refId = $this->extractAndRegister($value, $requirement, $element->getId(), $key);
             $this->assignments[$element->getId()][$key] = $refId;
         }
 
@@ -83,7 +82,7 @@ class PropertiesExtractionVisitor implements ElementVisitor
         return $this->assignments;
     }
 
-    private function extractAndRegister(mixed $value, ?DataRequirement $requirement): string
+    private function extractAndRegister(mixed $value, ?DataRequirement $requirement, string $elementId, string $propertyKey): string
     {
         if (\is_object($value) && $requirement instanceof DataRequirement) {
             return $this->extractObjectWithRequirement($value, $requirement);
@@ -93,15 +92,17 @@ class PropertiesExtractionVisitor implements ElementVisitor
             return $this->extractObjectWithoutRequirement($value);
         }
 
+        $hash = Hasher::hash([$elementId, $propertyKey]);
+
         if (\is_array($value)) {
-            $refId = 'array:' . Uuid::randomHex();
+            $refId = 'array:' . $hash;
             $this->dataStore[$refId] = $value;
 
             return $refId;
         }
 
         // Handle primitives and null (not deduplicated)
-        $refId = 'scalar:' . Uuid::randomHex();
+        $refId = 'scalar:' . $hash;
         $this->dataStore[$refId] = $value;
 
         return $refId;

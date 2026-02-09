@@ -230,7 +230,11 @@ class WebhookEventMessageHandlerTest extends TestCase
         ]], Context::createDefaultContext());
 
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $customHeaders = [
+            'X-Custom-Header' => 'custom-value',
+            'X-Another-Header' => 'another-value',
+        ];
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', $customHeaders);
 
         $this->appendNewResponse(new Response(200));
 
@@ -254,6 +258,9 @@ class WebhookEventMessageHandlerTest extends TestCase
             hash_hmac('sha256', $payload, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
+        // Verify custom webhook headers are sent
+        static::assertSame('custom-value', $request->getHeaderLine('X-Custom-Header'));
+        static::assertSame('another-value', $request->getHeaderLine('X-Another-Header'));
     }
 
     public function testNonJsonErrorResponse(): void

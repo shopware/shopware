@@ -2,19 +2,17 @@ import { test as base } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
 export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
-    CreateRule: async ({ ShopAdmin, AdminApiContext }, use ) => {
-
+    CreateRule: async ({ ShopAdmin, AdminApiContext, TestDataService }, use) => {
+        let id: string;
         const task = (testConfig) => {
             return async function CreateRule() {
-
                 const testRule = {
                     id: testConfig.ruleId,
                     name: testConfig.ruleName,
                     priority: testConfig.rulePriority,
                     description: testConfig.ruleDescription,
                     moduleTypes: {
-                        types:
-                            testConfig.ruleTypes.map(type => type.toLowerCase().split(' ')[0]),
+                        types: testConfig.ruleTypes.map((type) => type.toLowerCase().split(' ')[0]),
                     },
                     tags: [
                         {
@@ -82,9 +80,7 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                         {
                                             type: 'cartLineItemTaxation',
                                             value: {
-                                                taxIds: [
-                                                    testConfig.taxId,
-                                                ],
+                                                taxIds: [testConfig.taxId],
                                                 operator: '=',
                                             },
                                         },
@@ -112,12 +108,16 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                         },
                     ],
                 };
-            const ruleResponse = await AdminApiContext.post('rule?_response=detail', {
-                data: testRule,
-            });
-            ShopAdmin.expects(ruleResponse.ok()).toBeTruthy();
+                const ruleResponse = await AdminApiContext.post('rule?_response=detail', {
+                    data: testRule,
+                });
+                ShopAdmin.expects(ruleResponse.ok()).toBeTruthy();
+                const responseData = await ruleResponse.json();
+                id = responseData.data.id;
             };
-        }
+        };
         await use(task);
+
+        await AdminApiContext.delete(`rule/${id}`);
     },
 });

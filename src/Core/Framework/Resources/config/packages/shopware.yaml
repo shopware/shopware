@@ -135,6 +135,41 @@ shopware:
             - 'klar_cpid'
             - 'klar_adid'
 
+        # Cache policies (feature flag CACHE_REWORK)
+        policies:
+            no_cache_private:
+                headers:
+                    cache_control:
+                        private: true
+                        no_cache: true
+                        max_age: 0
+                        s_maxage: 0
+
+            store_api.cacheable:
+                headers:
+                    cache_control:
+                        public: true
+                        max_age: 0
+                        s_maxage: 1800
+                        stale_while_revalidate: 86400
+                        stale_if_error: 7200
+
+            storefront.cacheable:
+                headers:
+                    cache_control:
+                        public: true
+                        max_age: 0
+                        must_revalidate: true
+                        s_maxage: 7200
+
+        default_policies:
+            storefront:
+                cacheable: storefront.cacheable
+                uncacheable: no_cache_private
+            store_api:
+                cacheable: store_api.cacheable
+                uncacheable: no_cache_private
+
     profiler:
         integrations: []
     filesystem:
@@ -155,8 +190,8 @@ shopware:
         theme:
         asset:
         sitemap:
-        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html", "vtt", "srt", "sub", "ass", "ssa"]
-        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml", "vtt", "srt", "sub", "ass", "ssa"]
+        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html", "vtt", "srt", "sub", "ass", "ssa", "step", "stp"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml", "vtt", "srt", "sub", "ass","ssa", "step", "stp"]
         private_local_download_strategy: "php"
         private_local_path_prefix: ""
         batch_write_size: 250
@@ -343,15 +378,13 @@ shopware:
         expire_days: 120
         storage:
             # supported types: mysql, redis
+            # for redis also the shopware.cart.storage.config.connection is required to point to a valid redis connection
             type: "mysql"
-            # config:
-                # dsn: 'redis://localhost'
 
     number_range:
         # supported types: mysql, redis
+        # for redis also the shopware.number_range.config.connection is required to point to a valid redis connection
         increment_storage: "mysql"
-        # config:
-            # dsn: 'redis://localhost'
 
     sales_channel_context:
         expire_days: 120
@@ -521,6 +554,7 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        disable_stampede_protection: false
         twig:
             string_template_renderer_cache_dir: '%kernel.cache_dir%/twig/string-template-renderer'
         invalidation:
@@ -528,6 +562,7 @@ shopware:
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']
+            tag_invalidation_log_enabled: false
 
     twig:
         allowed_php_functions: []
@@ -563,6 +598,8 @@ shopware:
             show_banner: true
         sales_channel:
             domain_rewrite: []
+        extensions:
+            disable: []
         elasticsearch:
             check_for_existence: true
 
@@ -578,3 +615,7 @@ shopware:
 
     product_stream:
         indexing: true
+    product:
+        allowed_types:
+          - physical
+          - digital

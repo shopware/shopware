@@ -1,0 +1,109 @@
+<mt-modal-root
+    :is-open="showConsentModal"
+    :closable="false"
+>
+    <mt-modal
+        width="s"
+        :title="$t('sw-settings-usage-data.consent-modal.title')"
+        :closable="false"
+        hide-header
+    >
+        <template #default>
+            <div class="sw-settings-usage-data-consent-modal__content">
+                <img
+                    class="sw-setting-usage-data-consent-modal__icon-union"
+                    :src="unionPath"
+                    alt=""
+                >
+
+                <h3 class="sw-setting-usage-data-consent-modal__heading">
+                    {{ $t('sw-settings-usage-data.consent-modal.title') }}
+                </h3>
+
+                <p class="sw-setting-usage-data-consent-modal__intro">
+                    {{ $t('sw-settings-usage-data.consent-modal.intro') }}
+                </p>
+
+                <sw-settings-usage-data-consent-check-list />
+
+                <sw-settings-usage-data-store-data-consent-card
+                    v-if="showStoreDataConsent"
+                    v-model:consent="storeDataConsent"
+                />
+                <sw-settings-usage-data-user-data-consent-card v-model:consent="userDataConsent" />
+
+                <div class="sw-setting-usage-data-consent-modal__legal">
+                    <p>{{ $tc('sw-settings-usage-data.consent-modal.opt-out-info') }}</p>
+
+                    <i18n-t
+                        tag="p"
+                        keypath="sw-settings-usage-data.consent-modal.external-links.label"
+                    >
+                        <template #data-use-details>
+                            <mt-link
+                                :to="$t('sw-settings-usage-data.consent-modal.external-links.data-use-details.link')"
+                                type="external"
+                                target="_blank"
+                            >
+                                {{ $t('sw-settings-usage-data.consent-modal.external-links.data-use-details.label') }}
+                            </mt-link>
+                        </template>
+                        <template #privacy-policy>
+                            <mt-link
+                                :to="$t('sw-settings-usage-data.consent-modal.external-links.privacy-policy.link')"
+                                type="external"
+                                target="_blank"
+                            >
+                                {{ $t('sw-settings-usage-data.consent-modal.external-links.privacy-policy.label') }}
+                            </mt-link>
+                        </template>
+                    </i18n-t>
+                </div>
+            </div>
+        </template>
+
+        <template #footer>
+            <div class="sw-settings-usage-data-consent-modal__footer">
+                <template v-if="showSavePreferences">
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="savePreferences"
+                    >
+                        {{ $t('sw-settings-usage-data.consent-modal.actions.save-preferences') }}
+                    </mt-modal-action>
+                </template>
+                <template v-else>
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="shareNothing"
+                    >
+                        <template #iconFront="{ size }">
+                            <mt-icon
+                                name="solid-times"
+                                :size="size"
+                            />
+                        </template>
+                        {{ $t('sw-settings-usage-data.consent-modal.actions.share-nothing') }}
+                    </mt-modal-action>
+
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="shareAll"
+                    >
+                        <template #iconFront="{ size }">
+                            <mt-icon
+                                name="solid-checkmark"
+                                :size="size"
+                            />
+                        </template>
+
+                        {{ $t('sw-settings-usage-data.consent-modal.actions.share-all-data') }}
+                    </mt-modal-action>
+                </template>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>

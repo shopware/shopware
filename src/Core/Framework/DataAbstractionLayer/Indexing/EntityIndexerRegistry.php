@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
@@ -23,6 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class EntityIndexerRegistry
 {
     final public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
+    final public const EXTENSION_INDEXER_ONLY = 'indexer-only';
 
     final public const USE_INDEXING_QUEUE = 'use-queue-indexing';
 
@@ -145,6 +147,8 @@ class EntityIndexerRegistry
 
             $message->setIndexer($indexer->getName());
             $message->isFullIndexing = false;
+
+            self::addOnlyAllowedIndexers($message, $indexer->getOptions(), $context);
             self::addSkips($message, $context);
 
             $this->sendOrHandle($message, $useQueue);
@@ -163,7 +167,29 @@ class EntityIndexerRegistry
             return;
         }
 
-        $message->addSkip(...$skip->get('skips'));
+        /** @var array<string> $skip */
+        $skip = $skip->get('skips');
+
+        $message->addSkip(...$skip);
+    }
+
+    /**
+     * @param array<string> $options
+     */
+    public static function addOnlyAllowedIndexers(EntityIndexingMessage $message, array $options, Context $context): void
+    {
+        if (!$context->hasExtension(self::EXTENSION_INDEXER_ONLY)) {
+            return;
+        }
+        $only = $context->getExtension(self::EXTENSION_INDEXER_ONLY);
+        if (!$only instanceof ArrayEntity) {
+            return;
+        }
+
+        /** @var array<string> $only */
+        $only = $only->get('onlies');
+
+        $message->setSkip(array_diff($options, $only));
     }
 
     /**
@@ -186,7 +212,7 @@ class EntityIndexerRegistry
         foreach ($indexer as $name) {
             $instance = $this->getIndexer($name);
 
-            // skip "one-time" indexer which should only be triggered after an update
+            // skip "one-time" indexers which should only be triggered after an update
             if (!$postUpdate && $instance instanceof PostUpdateIndexer) {
                 continue;
             }
@@ -252,7 +278,7 @@ class EntityIndexerRegistry
         $indexer = $this->getIndexer($name);
 
         if (!$indexer instanceof EntityIndexer) {
-            throw new \RuntimeException(\sprintf('Entity indexer with name %s not found', $name));
+            throw DataAbstractionLayerException::entityIndexerNotFound($name);
         }
 
         $message = $indexer->iterate($offset);

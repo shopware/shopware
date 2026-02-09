@@ -27,7 +27,10 @@
             {% endblock %}
 
             <sw-settings-services-dashboard-banner />
-            <sw-usage-data-consent-banner can-be-hidden />
+            <sw-usage-data-consent-banner
+                v-if="!feature.isActive('PRODUCT_ANALYTICS')"
+                can-be-hidden
+            />
 
             <sw-extension-component-section
                 position-identifier="sw-dashboard__before-content"

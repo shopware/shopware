@@ -1,4 +1,4 @@
-import { test, getLocale, getCurrencySymbolFromLocale } from '@fixtures/AcceptanceTest';
+import { test, formatPrice } from '@fixtures/AcceptanceTest';
 
 test(
     'As an admin, I want to create documents and make sure they contain certain infos.',
@@ -19,7 +19,6 @@ test(
         const product = await TestDataService.createBasicProduct();
         const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
         const orderId = order.id;
-        const currencyIcon = getCurrencySymbolFromLocale(getLocale());
         await test.step('Go to documents settings page and activate documents in customer accounts', async () => {
             await ShopAdmin.goesTo(AdminDocumentListing.url());
             await AdminDocumentListing.invoiceLink.click();
@@ -53,7 +52,7 @@ test(
             await StorefrontAccountOrder.orderExpandButton.click();
             await ShopCustomer.expects(StorefrontAccountOrder.orderDetails).toBeVisible();
             await StorefrontAccountOrder.invoiceHTML.click();
-            await ShopCustomer.expects(StorefrontAccountOrder.creditItem).toContainText(`-${currencyIcon}1.00`);
+            await ShopCustomer.expects(StorefrontAccountOrder.creditItem).toContainText(formatPrice(1.0));
         });
     }
 );

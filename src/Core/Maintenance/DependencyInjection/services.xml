@@ -145,6 +145,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%shopware.staging.mailing.disable_delivery%</argument>
             <argument>%shopware.staging.sales_channel.domain_rewrite%</argument>
+            <argument>%shopware.staging.extensions.disable%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -164,6 +165,14 @@
 
         <service id="Shopware\Core\Maintenance\Staging\Handler\StagingSalesChannelHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\Staging\Handler\StagingExtensionHandler">
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService"/>
 
             <tag name="kernel.event_listener"/>
         </service>

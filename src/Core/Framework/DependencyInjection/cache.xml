@@ -10,6 +10,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator" public="true">
+            <argument>%shopware.cache.disable_stampede_protection%</argument>
+        </service>
+
         <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getConnection"/>
             <argument>%shopware.cache.invalidation.delay_options.connection%</argument>
@@ -17,6 +21,7 @@
 
         <service id="shopware.cache.invalidator.storage.redis" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage" lazy="true">
             <argument type="service" id="shopware.cache.invalidator.storage.redis_adapter"/>
+            <argument type="service" id="logger"/>
             <tag name="shopware.cache.invalidator.storage" storage="redis"/>
         </service>
 
@@ -49,6 +54,8 @@
             <argument type="service" id="cache.http"/>
             <argument>%shopware.http_cache.soft_purge%</argument>
             <argument>%shopware.cache.invalidation.delay_enabled%</argument>
+            <argument>%shopware.cache.invalidation.tag_invalidation_log_enabled%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Util\Backtrace\BacktraceCollector"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">
@@ -153,19 +160,31 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
 
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider">
+            <factory class="Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory" method="create"/>
+            <argument>%shopware.http_cache.policies%</argument>
+            <argument>%shopware.http_cache.route_policies%</argument>
+            <argument>%shopware.http_cache.default_policies%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber">
-            <argument>%shopware.http_cache.cookies%</argument>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument>%shopware.http.cache.default_ttl%</argument>
             <argument>%shopware.http.cache.enabled%</argument>
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
-            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument>%shopware.http_cache.stale_while_revalidate%</argument>
             <argument>%shopware.http_cache.stale_if_error%</argument>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheHeadersService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheHeadersService">
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
+            <argument>%shopware.http_cache.cookies%</argument>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver">
@@ -176,6 +195,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener" autoconfigure="true" autowire="true">
             <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\Event\BeforeSendResponseEvent" />
         </service>

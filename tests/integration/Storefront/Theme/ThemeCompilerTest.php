@@ -29,6 +29,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
@@ -44,7 +45,6 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -76,6 +76,7 @@ class ThemeCompilerTest extends TestCase
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
+        /** @var TwigComponentHelper $twigComponentHelper */
         $twigComponentHelper = static::getContainer()->get(TwigComponentHelper::class);
 
         $this->themeCompiler = new ThemeCompiler(
@@ -449,6 +450,7 @@ PHP_EOL;
         $fs = new Filesystem(new MemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
 
+        /** @var TwigComponentHelper $twigComponentHelper */
         $twigComponentHelper = static::getContainer()->get(TwigComponentHelper::class);
 
         $compiler = new ThemeCompiler(
@@ -683,7 +685,8 @@ PHP_EOL;
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(LoggerInterface::class)
         );
     }
 
@@ -697,7 +700,8 @@ PHP_EOL;
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(LoggerInterface::class)
         );
     }
 

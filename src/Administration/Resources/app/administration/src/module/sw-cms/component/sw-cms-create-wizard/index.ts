@@ -87,7 +87,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const imgPath = 'administration/administration/static/img/cms';
 
-            return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${sections[0].type}.png`)})`;
+            return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${sections[0].type}.webp`)})`;
         },
 
         pagePreviewStyle() {

@@ -635,31 +635,35 @@ export default {
             }
 
             this.isLoading = true;
-            await this.updateSeoUrls();
 
-            const response = await this.systemConfigApiService.getValues('core.cms');
+            try {
+                await this.updateSeoUrls();
 
-            this.defaultCategoryId = response['core.cms.default_category_cms_page'];
+                const response = await this.systemConfigApiService.getValues('core.cms');
 
-            if (this.category.cmsPageId === this.defaultCategoryId) {
-                this.category.cmsPageId = null;
-            }
+                this.defaultCategoryId = response['core.cms.default_category_cms_page'];
 
-            return this.categoryRepository
-                .save(this.category, { ...Shopware.Context.api })
-                .then(() => {
-                    this.isSaveSuccessful = true;
-                    this.entryPointOverwriteConfirmed = false;
-                    return this.setCategory();
-                })
-                .catch(() => {
-                    this.isLoading = false;
-                    this.entryPointOverwriteConfirmed = false;
+                if (this.category.cmsPageId === this.defaultCategoryId) {
+                    this.category.cmsPageId = null;
+                }
 
+                await this.categoryRepository.save(this.category, { ...Shopware.Context.api });
+
+                this.isSaveSuccessful = true;
+                this.entryPointOverwriteConfirmed = false;
+                return this.setCategory();
+            } catch (error) {
+                this.isLoading = false;
+                this.entryPointOverwriteConfirmed = false;
+
+                if (!error.response?.data?.errors) {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                        message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                     });
-                });
+                }
+
+                return Promise.reject(error);
+            }
         },
 
         checkForEntryPointOverwrite() {
@@ -869,7 +873,32 @@ export default {
                 seoUrls.map((seoUrl) => {
                     if (seoUrl.seoPathInfo) {
                         seoUrl.isModified = true;
-                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
+                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
+                            if (error.response?.data?.errors) {
+                                error.response.data.errors.forEach((apiError) => {
+                                    const messageKey = `global.error-codes.${apiError.detail}`;
+                                    const params = apiError.meta?.parameters || {};
+                                    const translatedMessage = this.$t(messageKey, params);
+
+                                    const errorMessage =
+                                        translatedMessage !== messageKey
+                                            ? translatedMessage
+                                            : apiError.detail ||
+                                              apiError.title ||
+                                              this.$t('global.notification.unspecifiedSaveErrorMessage');
+
+                                    this.createNotificationError({
+                                        message: errorMessage,
+                                    });
+                                });
+                            } else {
+                                this.createNotificationError({
+                                    message: error.message || this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                                });
+                            }
+
+                            return Promise.reject(error);
+                        });
                     }
 
                     return Promise.resolve();

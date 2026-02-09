@@ -29,5 +29,8 @@ abstract class AbstractFileService
 
     abstract public function generateFilename(ImportExportProfileEntity $profile): string;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     abstract public function updateFile(Context $context, string $fileId, array $data): void;
 }

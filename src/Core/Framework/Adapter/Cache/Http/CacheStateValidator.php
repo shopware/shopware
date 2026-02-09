@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,6 +11,8 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use the HttpCacheCookieEvent instead
  */
 #[Package('framework')]
 class CacheStateValidator
@@ -25,6 +28,10 @@ class CacheStateValidator
 
     public function isValid(Request $request, Response $response): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
         $states = $this->getStates($request, $response);
 
         $invalidationStates = explode(',', (string) $response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
@@ -45,6 +52,11 @@ class CacheStateValidator
      */
     private function getStates(Request $request, Response $response): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         $states = $request->cookies->get(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);
 
         $cookie = Cookie::create(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);

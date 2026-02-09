@@ -6,6 +6,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -31,6 +32,7 @@ class DownloadResponseGenerator
      * @internal
      */
     public function __construct(
+        private readonly LoggerInterface $logger,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly MediaService $mediaService,
@@ -53,7 +55,10 @@ class DownloadResponseGenerator
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
 
             return new RedirectResponse($url);
-        } catch (UnableToGenerateTemporaryUrl) {
+        } catch (UnableToGenerateTemporaryUrl $exception) {
+            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+        } catch (\Exception $exception) {
+            $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
         }
 
         return $this->getDefaultResponse($media, $context, $fileSystem);

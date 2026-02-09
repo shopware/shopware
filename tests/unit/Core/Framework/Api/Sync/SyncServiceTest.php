@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -134,6 +135,7 @@ class SyncServiceTest extends TestCase
                 new AggregationParser(),
                 $this->createMock(ApiCriteriaValidator::class),
                 new CriteriaArrayConverter(new AggregationParser()),
+                new CompressedCriteriaDecoder(),
                 100
             ),
             $this->createMock(SyncFkResolver::class)

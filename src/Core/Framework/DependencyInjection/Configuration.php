@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -54,6 +55,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
                 ->append($this->createSsoLoginSection())
+                ->append($this->createProductTypesSection())
             ->end();
 
         return $treeBuilder;
@@ -414,6 +416,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
                 ->arrayNode('twig')
                     ->children()
                         ->scalarNode('string_template_renderer_cache_dir')->end()
@@ -435,8 +438,12 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                         ->arrayNode('http_cache')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as cache states will be removed.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
+                        ->end()
+                        ->booleanNode('tag_invalidation_log_enabled')
+                            ->defaultFalse()
                         ->end()
                         // @deprecated tag:v6.8.0 - remove all route specific invalidation options
                         ->arrayNode('product_listing_route')
@@ -619,6 +626,21 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(120)
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductTypesSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->arrayNode('allowed_types')
+                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_DIGITAL])
+                ->scalarPrototype()->end()
             ->end();
 
         return $rootNode;
@@ -847,6 +869,13 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('show_banner')->defaultTrue()->end()
                     ->end()
                 ->end()
+                ->arrayNode('extensions')
+                    ->children()
+                        ->arrayNode('disable')
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('sales_channel')
                     ->children()
                         ->arrayNode('domain_rewrite')
@@ -893,6 +922,65 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
                 ->scalarNode('soft_purge')->defaultValue(false)->end()
+                ->arrayNode('policies')
+                    ->useAttributeAsKey('name')
+                    ->defaultValue([])
+                    ->arrayPrototype()
+                        ->performNoDeepMerging()
+                        ->children()
+                            ->arrayNode('headers')
+                                ->children()
+                                    ->arrayNode('cache_control')
+                                        ->children()
+                                            ->booleanNode('public')->defaultNull()->end()
+                                            ->booleanNode('private')->defaultNull()->end()
+                                            ->booleanNode('no_cache')->defaultNull()->end()
+                                            ->booleanNode('no_store')->defaultNull()->end()
+                                            ->booleanNode('no_transform')->defaultNull()->end()
+                                            ->booleanNode('must_revalidate')->defaultNull()->end()
+                                            ->booleanNode('proxy_revalidate')->defaultNull()->end()
+                                            ->booleanNode('immutable')->defaultNull()->end()
+                                            ->integerNode('max_age')->min(0)->defaultNull()->end()
+                                            ->integerNode('s_maxage')->min(0)->defaultNull()->end()
+                                            ->integerNode('stale_while_revalidate')->min(0)->defaultNull()->end()
+                                            ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('default_policies')
+                    ->info('Default cache policies per area. Currently only "storefront" and "store_api" are supported.')
+                    ->useAttributeAsKey('area')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('cacheable')
+                                ->info('Policy name to use for cacheable responses')
+                                ->defaultNull()
+                            ->end()
+                            ->scalarNode('uncacheable')
+                                ->info('Policy name to use for uncacheable responses')
+                                ->defaultNull()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->validate()
+                        ->ifTrue(function ($areas) {
+                            $allowedAreas = ['storefront', 'store_api'];
+                            $providedAreas = array_keys($areas);
+
+                            return !empty(array_diff($providedAreas, $allowedAreas));
+                        })
+                        ->thenInvalid('Only "storefront" and "store_api" areas are currently supported in default_policies. Config contains unsupported area(s): %s')
+                    ->end()
+                ->end()
+                ->arrayNode('route_policies')
+                    ->useAttributeAsKey('route')
+                    ->defaultValue([])
+                    ->scalarPrototype()->end()
+                ->end()
                 ->arrayNode('cookies')
                     ->performNoDeepMerging()
                     ->scalarPrototype()->end()
@@ -931,6 +1019,33 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(function (array $config) {
+                    $policies = array_keys($config['policies'] ?? []);
+
+                    // Check default_policies references
+                    foreach ((array) ($config['default_policies'] ?? []) as $defaults) {
+                        if (!\is_array($defaults)) {
+                            continue;
+                        }
+                        foreach ($defaults as $name) {
+                            if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                                return true;
+                            }
+                        }
+                    }
+
+                    // Check route_policies references
+                    foreach ((array) ($config['route_policies'] ?? []) as $name) {
+                        if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+                ->thenInvalid('Configuration references unknown cache policies. All policy names in default_policies and route_policies must be defined under shopware.http_cache.policies.')
             ->end()
         ->end();
 

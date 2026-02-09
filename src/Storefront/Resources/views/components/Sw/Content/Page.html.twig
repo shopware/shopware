@@ -5,9 +5,7 @@
 {% for element in page.elements %}
     {% set properties = element.properties %}
     {% set slots = element.slots %}
-
     {% set properties = properties|merge({ 'data-element-id': element.id }) %}
-    {% set properties = properties|merge({ 'data-component-name': element.component }) %}
 
     {% if slots is not empty %}
         {% set properties = properties|merge({ slots: slots }) %}

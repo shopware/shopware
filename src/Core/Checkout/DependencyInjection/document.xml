@@ -148,6 +148,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
             <argument type="service" id="document.repository" />
             <argument type="service" id="Shopware\Core\Checkout\Customer\Service\GuestAuthenticator"/>
+            <argument type="tagged_iterator" tag="document_type.renderer" index-by="key"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Service\HtmlRenderer">

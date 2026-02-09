@@ -58,7 +58,6 @@ use Symfony\Component\Filesystem\Filesystem as Io;
  * @phpstan-type AppEntities list<array{id: string, path: string, name?: string, configurable?: bool, allowDisable?: bool}>
  */
 #[CoversClass(AppLifecycle::class)]
-#[CoversClass(AppLifecycleSubscriber::class)]
 class AppLifecycleTest extends TestCase
 {
     use EventDispatcherBehaviour;

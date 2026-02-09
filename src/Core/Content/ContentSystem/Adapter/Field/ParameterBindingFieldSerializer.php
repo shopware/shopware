@@ -19,6 +19,13 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @phpstan-import-type ResolutionConfigData from ResolutionConfigFieldSerializer
+ *
+ * @phpstan-type ParameterBindingData array{
+ *     placeholder?: string,
+ *     resolution?: ResolutionConfigData
+ * }
+ *
  * @internal
  */
 #[Package('discovery')]
@@ -79,7 +86,7 @@ class ParameterBindingFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ParameterBindingData
      */
     public function serializeParameterBinding(ParameterBinding $binding): array
     {
@@ -97,7 +104,7 @@ class ParameterBindingFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param ParameterBindingData $data
      */
     public function deserializeParameterBinding(array $data, ?string $parameterName = null): ParameterBinding
     {

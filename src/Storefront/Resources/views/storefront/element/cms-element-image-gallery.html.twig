@@ -175,7 +175,7 @@
                         data-magnifier="true"
                     {% endif %}
                     {% if magnifierOptions|length > 0 %}
-                        data-magnifier-options='{{ magnifierOptions|json_encode|escape('js') }}'
+                        data-magnifier-options='{{ magnifierOptions|json_encode }}'
                     {% endif %}
                     {% if imageCount > 1 %}
                         data-gallery-slider="true"
@@ -223,7 +223,6 @@
                                                                                     <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
                                                                                         {% set spatialGalleryViewerOptions = {
                                                                                             modelUrl: image.url,
-                                                                                            lightIntensity: config('core.media.defaultLightIntensity'),
                                                                                             sliderPosition: loop.index0,
                                                                                         } %}
                                                                                         <canvas
@@ -313,7 +312,15 @@
 
                                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                                     media: image,
-                                                                                    attributes: attributes
+                                                                                    attributes: attributes,
+                                                                                    sizes: {
+                                                                                        xs: '100vw',
+                                                                                        sm: '100vw',
+                                                                                        md: '100vw',
+                                                                                        lg: '60vw',
+                                                                                        xl: '50vw',
+                                                                                        xxl: '800px'
+                                                                                    }
                                                                                 } %}
                                                                             {% endblock %}
                                                                         {% endif %}
@@ -377,7 +384,6 @@
                                                                     <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
                                                                         {% set spatialGalleryViewerOptions = {
                                                                             modelUrl: image.url,
-                                                                            lightIntensity: config('core.media.defaultLightIntensity'),
                                                                             sliderPosition: loop.index0,
                                                                         } %}
                                                                         <canvas
@@ -752,7 +758,6 @@
                                                                                                         <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
                                                                                                             {% set spatialGalleryViewerOptions = {
                                                                                                                 modelUrl: image.url,
-                                                                                                                lightIntensity: config('core.media.defaultLightIntensity'),
                                                                                                                 sliderPosition: loop.index0,
                                                                                                             } %}
                                                                                                             <canvas

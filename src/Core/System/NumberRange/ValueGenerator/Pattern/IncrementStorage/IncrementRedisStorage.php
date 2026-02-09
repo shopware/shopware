@@ -22,7 +22,9 @@ class IncrementRedisStorage extends AbstractIncrementStorage
      * @param EntityRepository<NumberRangeCollection> $numberRangeRepository
      */
     public function __construct(
-        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        /**
+         * @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future)
+         */
         private $redis,
         private readonly LockFactory $lockFactory,
         private readonly EntityRepository $numberRangeRepository

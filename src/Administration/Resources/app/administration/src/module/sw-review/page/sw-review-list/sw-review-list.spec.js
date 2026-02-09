@@ -3,6 +3,12 @@
  */
 import { mount } from '@vue/test-utils';
 
+Shopware.Service().register('filterService', () => {
+    return {
+        mergeWithStoredFilters: (storeKey, criteria) => criteria,
+    };
+});
+
 async function createWrapper() {
     return mount(await await wrapTestComponent('sw-review-list', { sync: true }), {
         global: {
@@ -29,18 +35,14 @@ async function createWrapper() {
                             ]);
                         },
                         search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: '1a2b3c',
-                                    entity: 'review',
-                                    customerId: 'd4c3b2a1',
-                                    productId: 'd4c3b2a1',
-                                    salesChannelId: 'd4c3b2a1',
-                                    sourceEntitiy: 'product-review',
-                                },
-                            ]);
+                            return Promise.resolve({
+                                total: 1,
+                            });
                         },
                     }),
+                },
+                filterFactory: {
+                    create: () => [],
                 },
                 searchRankingService: {
                     isValidTerm: (term) => {
@@ -67,6 +69,7 @@ async function createWrapper() {
                 'sw-rating-stars': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
+                'sw-sidebar-filter-panel': true,
                 'sw-time-ago': true,
             },
         },
@@ -113,5 +116,25 @@ describe('module/sw-review/page/sw-review-list', () => {
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
         expect(editMenuItem.attributes()['allow-edit']).toBe('true');
+    });
+
+    it('should have default filters configured', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const defaultFilters = wrapper.vm.defaultFilters;
+        expect(defaultFilters).toEqual([
+            'sales-channel-filter',
+            'status-filter',
+            'language-filter',
+            'customer-filter',
+            'product-filter',
+            'points-filter',
+        ]);
+
+        // Verify that all default filters are present in listFilterOptions
+        defaultFilters.forEach((filterKey) => {
+            expect(wrapper.vm.listFilterOptions).toHaveProperty(filterKey);
+        });
     });
 });

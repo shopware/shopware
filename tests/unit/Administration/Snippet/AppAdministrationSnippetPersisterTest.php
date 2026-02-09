@@ -10,6 +10,7 @@ use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Administration\Snippet\CachedSnippetFinder;
+use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -21,6 +22,8 @@ use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -49,40 +52,69 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         $persister = new AppAdministrationSnippetPersister(
             $this->getAppAdministrationSnippetRepository(...$snippetData),
             $this->getLocaleRepository($localeData),
-            $cacheInvalidator
+            $cacheInvalidator,
+            new Filesystem()
         );
 
         $persister->updateSnippets($appEntity, $snippets, Context::createDefaultContext());
     }
 
+    public function testItPersistsSnippetsWithoutCoreAdministrationSnippets(): void
+    {
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('readFile')->willThrowException(new IOException('File not found'));
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator
+            ->expects($this->once())
+            ->method('invalidate')
+            ->with([CachedSnippetFinder::CACHE_TAG]);
+
+        $persister = new AppAdministrationSnippetPersister(
+            $this->getAppAdministrationSnippetRepository(),
+            $this->getLocaleRepository(),
+            $cacheInvalidator,
+            $filesystem
+        );
+
+        $persister->updateSnippets(self::getAppEntity(), [], Context::createDefaultContext());
+    }
+
+    public function testItPersistsSnippetsWithInvalidCoreAdministrationSnippets(): void
+    {
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('readFile')->willReturn('invalid json');
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $this->expectExceptionObject(new \JsonException('Syntax error', 4));
+
+        $persister = new AppAdministrationSnippetPersister(
+            $this->getAppAdministrationSnippetRepository(),
+            $this->getLocaleRepository(),
+            $cacheInvalidator,
+            $filesystem
+        );
+
+        $persister->updateSnippets(self::getAppEntity(), [], Context::createDefaultContext());
+    }
+
     /**
-     * @param array<mixed> $localeData
      * @param array<string, string> $snippets
      */
     #[DataProvider('persisterExceptionDataProvider')]
     public function testItPersistsSnippetsException(
-        array $localeData,
-        AppEntity $appEntity,
         array $snippets,
-        string $expectedExceptionMessage
+        SnippetException $expectedException
     ): void {
-        $exceptionWasThrown = false;
-
         $persister = new AppAdministrationSnippetPersister(
             $this->getAppAdministrationSnippetRepository(),
-            $this->getLocaleRepository($localeData),
-            $this->createMock(CacheInvalidator::class)
+            $this->getLocaleRepository(),
+            $this->createMock(CacheInvalidator::class),
+            new Filesystem()
         );
 
-        try {
-            $persister->updateSnippets($appEntity, $snippets, Context::createDefaultContext());
-        } catch (\Exception $exception) {
-            static::assertSame($expectedExceptionMessage, $exception->getMessage());
-
-            $exceptionWasThrown = true;
-        } finally {
-            static::assertTrue($exceptionWasThrown, 'Expected exception with the following message to be thrown: ' . $expectedExceptionMessage);
-        }
+        $this->expectExceptionObject($expectedException);
+        $persister->updateSnippets(self::getAppEntity('appId'), $snippets, Context::createDefaultContext());
     }
 
     public function testSkipsSnippetsForNonExistingLocale(): void
@@ -105,6 +137,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             $snippetRepository,
             $localeRepository,
             $this->createMock(CacheInvalidator::class),
+            new Filesystem()
         );
 
         $persister->updateSnippets(
@@ -259,26 +292,22 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<mixed>, AppEntity, array<string, string>, string}>
+     * @return iterable<string, array{array<mixed>, SnippetException}>
      */
     public static function persisterExceptionDataProvider(): iterable
     {
         yield 'Test it throws an exception when extending or overwriting the core' => [
-            [],
-            self::getAppEntity('appId'),
             [
                 'en-GB' => \json_encode(['global' => 'newTranslation'], \JSON_THROW_ON_ERROR),
             ],
-            'The following keys extend or overwrite the core snippets which is not allowed: global',
+            SnippetException::extendOrOverwriteCore(['global']),
         ];
 
         yield 'Test it throws an exception when no en-GB is defined' => [
-            [],
-            self::getAppEntity('appId'),
             [
                 'de-DE' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
             ],
-            'The following snippet file must always be provided when providing snippets: en-GB',
+            SnippetException::defaultLanguageNotGiven('en-GB'),
         ];
     }
 

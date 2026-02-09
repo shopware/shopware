@@ -70,6 +70,13 @@ class PluginLifecycleService
     private static bool $registeredListener = false;
 
     /**
+     * For `executeComposerRemoveCommand`, we need to keep the original event dispatcher, because during plugin
+     * deactivation, the kernel is rebooted and the dispatcher replaced with the new one,
+     * but the KernelEvents are triggered on the original event dispatcher.
+     */
+    private EventDispatcherInterface $originalEventDispatcher;
+
+    /**
      * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(
@@ -91,6 +98,7 @@ class PluginLifecycleService
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
     ) {
+        $this->originalEventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -496,6 +504,14 @@ class PluginLifecycleService
         $this->removePluginComposerDependency($plugin, $context);
     }
 
+    /**
+     * @internal only exists for overriding in tests
+     */
+    protected function isCLI(): bool
+    {
+        return \PHP_SAPI === 'cli';
+    }
+
     private function removePluginComposerDependency(PluginEntity $plugin, Context $context): void
     {
         if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
@@ -723,11 +739,10 @@ class PluginLifecycleService
 
     private function executeComposerRemoveCommand(PluginEntity $plugin, Context $shopwareContext): void
     {
-        if (\PHP_SAPI === 'cli') {
+        if ($this->isCLI()) {
             // only remove the plugin composer dependency directly when running in CLI
             // otherwise do it async in kernel.response
             $this->removePluginComposerDependency($plugin, $shopwareContext);
-        /* @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI */
         } else {
             self::$pluginToBeDeleted = [
                 'plugin' => $plugin,
@@ -735,10 +750,9 @@ class PluginLifecycleService
             ];
 
             if (!self::$registeredListener) {
-                $this->eventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
+                $this->originalEventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
                 self::$registeredListener = true;
             }
         }
-        /* @codeCoverageIgnoreEnd */
     }
 }

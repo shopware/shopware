@@ -37,6 +37,7 @@ class Migration1663402950SetDoubleOptinCustomerActiveTest extends TestCase
         $migration = new Migration1663402950SetDoubleOptinCustomerActive();
         $migration->update($this->connection);
         static::assertTrue($this->checkCustomerIsActive($customerId));
+        static::assertSame(1663402950, $migration->getCreationTimestamp());
     }
 
     public function testCanBeExecutedMultipleTimes(): void

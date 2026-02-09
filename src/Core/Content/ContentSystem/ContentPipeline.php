@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem;
 
-use Shopware\Core\Content\ContentSystem\Event\AfterContentHydrationEvent;
+use Shopware\Core\Content\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader;
@@ -34,8 +34,9 @@ class ContentPipeline
      */
     public function load(
         RenderingSpecification $specification,
+        RenderingCacheContext $cacheContext,
         RenderingMode $mode,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $salesChannelContext,
     ): ContentPage {
         $layoutEntity = $this->layoutLoader->load($specification->layoutId, $salesChannelContext->getContext());
 
@@ -46,7 +47,8 @@ class ContentPipeline
             $layoutEntity->getVersionId(),
             $specification,
             $mode,
-            $salesChannelContext
+            $salesChannelContext,
+            $cacheContext,
         );
         $this->eventDispatcher->dispatch($preHydrationEvent);
         $elements = $preHydrationEvent->elements;
@@ -55,19 +57,21 @@ class ContentPipeline
             $hydratedElementsGenerator = $this->hydrationService->hydrate(
                 $elements,
                 $salesChannelContext,
-                $specification->request
+                $specification->request,
+                $cacheContext,
             );
             $elements = array_values(iterator_to_array($hydratedElementsGenerator, false));
         }
 
-        $afterHydrationEvent = new AfterContentHydrationEvent(
+        $afterHydrationEvent = new PostHydrationEvent(
             $elements,
             $layoutEntity->getId(),
             $layoutEntity->getName(),
             $layoutEntity->getVersionId(),
             $specification,
             $mode,
-            $salesChannelContext
+            $salesChannelContext,
+            $cacheContext,
         );
         $this->eventDispatcher->dispatch($afterHydrationEvent);
 

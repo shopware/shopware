@@ -281,4 +281,34 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
 
         expect(wrapper.emitted('config-save')).toBeTruthy();
     });
+
+    it('should filter custom fields by includeInSearch = true in customFieldCriteria', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const criteria = wrapper.vm.customFieldCriteria;
+
+        const filters = criteria.filters || [];
+        const includeInSearchFilter = filters.find((filter) => {
+            return filter.type === 'equals' && filter.field === 'includeInSearch' && filter.value === true;
+        });
+
+        expect(includeInSearchFilter).toBeDefined();
+        expect(includeInSearchFilter.value).toBe(true);
+    });
+
+    it('should filter custom fields by includeInSearch = true in customFieldFilteredCriteria', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const criteria = wrapper.vm.customFieldFilteredCriteria;
+
+        const filters = criteria.filters || [];
+        const includeInSearchFilter = filters.find((filter) => {
+            return filter.type === 'equals' && filter.field === 'includeInSearch' && filter.value === true;
+        });
+
+        expect(includeInSearchFilter).toBeDefined();
+        expect(includeInSearchFilter.value).toBe(true);
+    });
 });

@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;

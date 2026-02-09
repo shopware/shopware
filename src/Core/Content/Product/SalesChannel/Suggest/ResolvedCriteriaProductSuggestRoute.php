@@ -10,16 +10,13 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
 class ResolvedCriteriaProductSuggestRoute extends AbstractProductSuggestRoute
 {
@@ -39,15 +36,9 @@ class ResolvedCriteriaProductSuggestRoute extends AbstractProductSuggestRoute
         return $this->decorated;
     }
 
-    #[Route(
-        path: '/store-api/search-suggest',
-        name: 'store-api.search.suggest',
-        defaults: ['_entity' => 'product'],
-        methods: ['POST']
-    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {
-        if (!$request->get('search')) {
+        if (!RequestParamHelper::get($request, 'search')) {
             throw ProductException::missingRequestParameter('search');
         }
 

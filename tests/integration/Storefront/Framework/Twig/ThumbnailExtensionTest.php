@@ -20,15 +20,16 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Shopware\Storefront\Framework\Twig\ThumbnailExtension;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
+use Symfony\Component\Asset\Packages;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -236,7 +237,9 @@ class ThumbnailExtensionTest extends TestCase
             $scopeDetector,
         );
 
-        $twigComponentRenderEventListener = $this->createMock(TwigComponentRenderEventListener::class);
+        $packages = $this->createMock(Packages::class);
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->method('getComponents')->willReturn([]);
 
         // Needed for the ConfigExtension, so the theme_config('breakpoint.sm') calls return the actual breakpoints.
         $templateConfigAccessor = new TemplateConfigAccessor(
@@ -246,7 +249,8 @@ class ThumbnailExtensionTest extends TestCase
                 $this->createMock(CacheTagCollector::class)
             ),
             $this->createMock(ThemeScripts::class),
-            $twigComponentRenderEventListener
+            $packages,
+            $twigComponentHelper
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

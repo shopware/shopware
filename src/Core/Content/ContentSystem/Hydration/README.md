@@ -17,8 +17,9 @@ Data loading happens depth-first during tree traversal. Context resolution happe
 
 For each element with `dataRequirements`:
 - DataLoaderProvider selects loader by requirement source
-- Loader fetches data (entity query, product listing, etc.)
-- Result stored in element properties by requirement key
+- Loader fetches data and returns `ContentDataLoaderResult` with cache info
+- Data stored in element properties by requirement key
+- Cache tags accumulated in `RenderingCacheContext`
 
 Elements declare what they need via DataRequirements. Hydrator satisfies requirements. Elements don't know how data is loaded.
 
@@ -30,6 +31,17 @@ After loading, DataContextResolver walks tree:
 - Elements with ContextConsumer receive context in properties
 
 Context scoped to immediate children only - provider only affects direct children. Deeper descendants require explicit re-providing. See DataContext/ for distribution algorithm.
+
+## Cache Integration
+
+`RenderingCacheContext` tracks cache state throughout hydration:
+
+- Routes create context and pass to `ContentElementHydrator::hydrate()`
+- Each data loader returns `ContentDataLoaderResult` with cache information
+- Cache-aware results add tags to context; uncacheable results disable caching
+- After hydration, `CacheFinalizer` applies final state to HTTP response
+
+If any loader returns uncacheable data, the entire page becomes uncacheable. See Cache/ directory for implementation.
 
 ## DataRequirement Structure
 

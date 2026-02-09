@@ -13,7 +13,8 @@
 {% endblock %}
 
 {% block utilities_offcanvas_content %}
-    <div class="offcanvas-cookie">
+    {% set acceptAllCookies = config('core.basicInformation.acceptAllCookies') %}
+    <div class="offcanvas-cookie" role="region" aria-labelledby="offcanvas-cookie-headline">
         <div class="offcanvas-cookie-description">
             <p>
                 {% set privacySnippetKey = 'cookie.messageTextPage' %}
@@ -24,7 +25,7 @@
                 })|raw }}
             </p>
 
-            <h2 class="offcanvas-cookie-header h5" data-id="off-canvas-headline">
+            <h2 class="offcanvas-cookie-header h5" id="offcanvas-cookie-headline">
                 {{ 'cookie.headline'|trans|sw_sanitize }}
             </h2>
         </div>
@@ -38,7 +39,7 @@
             {% endfor %}
         </div>
 
-        {% if config('core.basicInformation.acceptAllCookies') %}
+        {% if acceptAllCookies %}
             {% block layout_cookie_configuration_allow_all_button %}
                 <div class="d-grid mb-2">
                     <button

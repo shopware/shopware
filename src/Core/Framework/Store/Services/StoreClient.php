@@ -41,7 +41,9 @@ class StoreClient
     private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
 
     public function __construct(
-        /** @var array<string, string> */
+        /**
+         * @var array<string, string>
+         */
         protected readonly array $endpoints,
         private readonly StoreService $storeService,
         private readonly SystemConfigService $configService,

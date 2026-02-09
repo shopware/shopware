@@ -263,6 +263,40 @@ class PluginManagerSingleton {
     }
 
     /**
+     * Initializes all registered plugins, but only for elements within the parent element.
+     *
+     * @param {HTMLElement} parentElement 
+     * @returns {Promise<void>}
+     */
+    async initializePluginsInParentElement(parentElement) {
+        const initializationFailures = [];
+
+        await this._fetchAsyncPlugins();
+
+        for (const [pluginName] of Object.entries(this.getPluginList())) {
+            if (pluginName) {
+                const plugin = this._registry.get(pluginName);
+
+                if (plugin.has('registrations')) {
+                    for (const [, entry] of plugin.get('registrations')) {
+                        try {
+                            this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'), parentElement);
+                        } catch (failure) {
+                            initializationFailures.push(failure);
+                        }
+                    }
+                }
+            }
+        }
+
+        initializationFailures.forEach((failure) => {
+            console.error(failure);
+        });
+
+        return Promise.resolve();
+    }
+
+    /**
      * Fetches all async plugins and sets their class to the PluginRegistry.
      *
      * @return {Promise<void>}
@@ -419,17 +453,24 @@ class PluginManagerSingleton {
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      * @param {string} pluginName
+     * @param {HTMLElement} context - Optional parent element to scope the selector query to.
      */
-    _initializePlugin(pluginClass, selector, options, pluginName = false) {
+    _initializePlugin(pluginClass, selector, options, pluginName = false, context = null) {
         if (selector instanceof Node) {
+            if (context && !context.contains(selector)) {
+                return;
+            }
             return PluginManagerSingleton._initializePluginOnElement(selector, pluginClass, options, pluginName);
         }
 
         if (typeof selector === 'string') {
-            selector = PluginManagerSingleton._queryElements(selector);
+            selector = PluginManagerSingleton._queryElements(selector, context);
         }
 
         return Array.from(selector).forEach(el => {
+            if (context && !context.contains(el)) {
+                return;
+            }
             PluginManagerSingleton._initializePluginOnElement(el, pluginClass, options, pluginName);
         });
     }
@@ -455,10 +496,15 @@ class PluginManagerSingleton {
      * instead of the entire compatible characters
      *
      * @param {string} selector
+     * @param {HTMLElement} context - Optional parent element to scope the query to.
      *
      * @return {NodeList|HTMLCollection|Array}
      */
-    static _queryElements(selector) {
+    static _queryElements(selector, context = null) {
+        if (context) {
+            return context.querySelectorAll(selector);
+        }
+
         if (selector.startsWith('.')) {
             const regexEl = /^\.([\w-]+)$/.exec(selector);
             if (regexEl) {
@@ -654,6 +700,16 @@ export default class PluginManager {
      */
     static initializePlugins() {
         return PluginManagerInstance.initializePlugins();
+    }
+
+    /**
+     * Initializes all registered plugins, but only for elements within the parent element.
+     *
+     * @param {HTMLElement} parentElement
+     * @return {Promise<void>}
+     */
+    static initializePluginsInParentElement(parentElement) {
+        return PluginManagerInstance.initializePluginsInParentElement(parentElement);
     }
 
     /**

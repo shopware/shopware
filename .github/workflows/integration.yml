@@ -13,6 +13,10 @@ on:
         type: string
         default: ""
 
+permissions:
+    contents: read
+    id-token: write
+
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
@@ -22,7 +26,7 @@ jobs:
         name:
           - "Platform"
         php-version:
-          - "8.4"
+          - "8.2"
         shard:
           - '1'
           - '2'
@@ -56,9 +60,13 @@ jobs:
           workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
-          use-currents: ${{ inputs.nightly == 'true' && matrix.no-currents != 'true' || '' }}
+          use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
+          playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+          playwright-traces-domain: ${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}
+          s3-bucket: shopware-ci-playwright-traces
+          report-prefix: playwright-reports
 
   acceptance-tests-changed:
     runs-on: ubuntu-24.04
@@ -104,7 +112,7 @@ jobs:
           echo 'EOF' >> $GITHUB_OUTPUT
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
@@ -123,7 +131,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:2' || 'alpine' }}
+        image: ${{ matrix.test.path != '' &&  matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -233,7 +241,9 @@ jobs:
       fail-fast: false
       matrix:
         language: [ "javascript" ]
-
+    permissions:
+        contents: read
+        security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
@@ -286,6 +296,8 @@ jobs:
       SW_RECOVERY_NEXT_VERSION: "6.7.9999999.9999999"
       SW_RECOVERY_NEXT_BRANCH: "6.7.9999999.9999999"
       SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
+      S3_BUCKET: "shopware-ci-playwright-traces"
+      REPORT_PREFIX: "playwright-reports"
     steps:
       - name: Create shopware dirs
         run: mkdir -p old-shopware new-shopware
@@ -332,7 +344,12 @@ jobs:
 
       - name: Require shopware
         working-directory: old-shopware
-        run: composer require shopware/core:${{ matrix.update.version }}
+        run: |
+          # Note: We expect to see vulnerabilities in the older versions we're using here.
+          jq '.config.audit = { "block-insecure": false }' composer.json > composer.json.new
+          mv composer.json.new composer.json
+
+          composer require shopware/core:${{ matrix.update.version }}
 
       - name: Install
         working-directory: old-shopware
@@ -378,6 +395,71 @@ jobs:
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3
 
+      - name: Check if this run should attempt AWS operations
+        id: check-aws-allowed
+        if: ${{ github.repository_owner == 'shopware' &&
+              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        shell: bash
+        run: |
+              if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+                echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+                echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+              else
+                echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+              fi
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+           aws-region: eu-central-1
+           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+           role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+
+      - name: Upload Playwright HTML report to S3
+        working-directory: new-shopware/tests/acceptance
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        shell: bash
+        run: |
+            set -euo pipefail
+            RANDOM_STR=$(openssl rand -hex 6)
+
+            # build the destination prefix and export it for subsequent steps
+            REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+
+            if [ ! -f "playwright-report/index.html" ]; then
+            echo "No Playwright report found, skipping upload."
+            exit 0
+            fi
+
+            aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
+            echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+            echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
+
+      - name: Publish S3 Static Website URL
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        shell: bash
+        run: |
+            set -euo pipefail
+
+            if [ -z "${REPORT_DEST:-}" ]; then
+            echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+            exit 0
+            fi
+
+            if ! aws s3 ls "s3://${S3_BUCKET}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+            echo "Index file not found ... skipping publish." >&2
+            exit 0
+            fi
+
+            DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
+            URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+            echo "${URL}"
+
+            echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
+
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
     runs-on: ubuntu-24.04
@@ -392,7 +474,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:2"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -450,7 +532,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:2"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -530,7 +612,7 @@ jobs:
 
       services:
           elasticsearch:
-              image: "opensearchproject/opensearch:2"
+              image: "opensearchproject/opensearch:3"
               env:
                   discovery.type: single-node
                   plugins.security.disabled: "true"

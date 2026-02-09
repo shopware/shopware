@@ -6,6 +6,34 @@ import initializeApiServices from 'src/app/init-pre/api-services.init';
 
 describe('src/app/init/locale.init.ts', () => {
     beforeAll(() => {
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg1, msg2) => {
+                if (typeof msg2 !== 'string') {
+                    return false;
+                }
+
+                return msg2?.includes('A apiService always needs a name');
+            },
+        });
+
+        // Mock login service
+        Shopware.Service().register('loginService', () => {
+            return {
+                getToken: () => 'valid-token',
+            };
+        });
+
+        // Mock httpClient in init
+        Shopware.Application.addInitializer('httpClient', () => {
+            return {
+                get: jest.fn().mockResolvedValue({ data: {} }),
+                post: jest.fn().mockResolvedValue({ data: {} }),
+                put: jest.fn().mockResolvedValue({ data: {} }),
+                delete: jest.fn().mockResolvedValue({ data: {} }),
+            };
+        });
+
         initializeApiServices();
     });
 
@@ -35,12 +63,10 @@ describe('src/app/init/locale.init.ts', () => {
             id4: 'jp-JP',
         };
 
-        Shopware.Service().register('snippetService', () => {
-            return {
-                getLocales: () => expectedLocales,
-                getSnippets: () => {},
-            };
-        });
+        // Mock the snippetService to return expected locales
+        Shopware.Service('snippetService').getLocales = () => {
+            return Promise.resolve(expectedLocales);
+        };
 
         expect(Shopware.Service('snippetService')).toBeDefined();
 

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed, use `PaymentTokenGenerator` and `PaymentTokenLifecycle` instead
+ */
 #[Package('checkout')]
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
@@ -27,6 +30,8 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
 
     public function generateToken(TokenStruct $tokenStruct): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentTokenGenerator::class));
+
         $expires = new \DateTimeImmutable('@' . time());
 
         // @see https://github.com/php/php-src/issues/9950
@@ -68,6 +73,8 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
      */
     public function parseToken(string $token): TokenStruct
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentTokenGenerator::class));
+
         try {
             /** @var UnencryptedToken $jwtToken */
             $jwtToken = $this->configuration->parser()->parse($token);
@@ -82,7 +89,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             throw PaymentException::invalidToken($token);
         }
 
-        if (!($savedToken = $this->getSavedToken($token))) {
+        if (!$this->getSavedToken($token)) {
             throw PaymentException::tokenInvalidated($token);
         }
 
@@ -99,12 +106,13 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             $jwtToken->claims()->get('ful'),
             $expires->getTimestamp(),
             $errorUrl,
-            (bool) $savedToken['consumed']
         );
     }
 
     public function invalidateToken(string $token): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentTokenGenerator::class));
+
         if (Feature::isActive('REPEATED_PAYMENT_FINALIZE')) {
             $this->connection->update('payment_token', ['consumed' => 1], ['token' => self::normalize($token)]);
         } else {
@@ -130,13 +138,10 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         );
     }
 
-    /**
-     * @return false|array<string, mixed>
-     */
-    private function getSavedToken(string $token): bool|array
+    private function getSavedToken(string $token): bool
     {
-        return $this->connection->fetchAssociative(
-            'SELECT token, consumed FROM payment_token WHERE token = :token',
+        return (bool) $this->connection->fetchOne(
+            'SELECT 1 FROM payment_token WHERE token = :token',
             ['token' => self::normalize($token)]
         );
     }

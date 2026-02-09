@@ -9,6 +9,9 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
@@ -125,6 +128,9 @@ class RegisteredIndexerSubscriberTest extends TestCase
             [
                 UpdatePostFinishEvent::class => 'runRegisteredIndexers',
                 FirstRunWizardFinishedEvent::class => 'runRegisteredIndexers',
+                PluginPostInstallEvent::class => 'runRegisteredIndexers',
+                PluginPostUpdateEvent::class => 'runRegisteredIndexers',
+                PluginPostUninstallEvent::class => 'runRegisteredIndexers',
             ],
             RegisteredIndexerSubscriber::getSubscribedEvents()
         );

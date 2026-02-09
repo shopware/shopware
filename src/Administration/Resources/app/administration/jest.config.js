@@ -32,6 +32,10 @@ if (isCi) {
 }
 
 module.exports = {
+    roots: [
+        '<rootDir>',
+        '<rootDir>/../../../../Storefront/Resources/app/administration',
+    ],
     cacheDirectory: process.env.JEST_CACHE_DIR,
     preset: '@shopware-ag/jest-preset-sw6-admin',
     globals: {
@@ -54,6 +58,9 @@ module.exports = {
         'src/**/*.ts',
         '!src/**/*.spec.js',
         '!**/*.d.ts',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.js',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.ts',
+        '!<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
 
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
@@ -82,11 +89,15 @@ module.exports = {
     ],
 
     moduleNameMapper: {
+        '^lodash-es/debounce$': '<rootDir>/test/_mocks_/lodash-es-debounce.js',
         '^test(.*)$': '<rootDir>/test$1',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
         '^@shopware-ag/meteor-component-library$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/index.js',
+        '^@shopware-ag/meteor-component-library/dist/esm/(.*)$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/$1',
+        '^@vue/test-utils$': '<rootDir>/node_modules/@vue/test-utils',
         '^lodash-es$': 'lodash',
+        '^lodash-es/(.*)$': 'lodash/$1',
         vue$: 'vue/dist/vue.cjs.js',
     },
 
@@ -112,6 +123,7 @@ module.exports = {
     testMatch: [
         '<rootDir>/src/**/*.spec.js',
         '<rootDir>/src/**/*.spec.ts',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',

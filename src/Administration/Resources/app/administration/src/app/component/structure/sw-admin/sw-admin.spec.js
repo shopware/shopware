@@ -21,6 +21,8 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
                 'router-view': true,
                 'sw-skip-link': true,
                 'sw-media-modal-renderer': true,
+                'sw-upload-status': true,
+                'mt-snackbar': true,
             },
             mocks: {
                 $router: {

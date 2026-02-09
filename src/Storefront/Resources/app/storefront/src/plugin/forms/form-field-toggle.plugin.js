@@ -144,13 +144,17 @@ export default class FormFieldTogglePlugin extends Plugin {
      */
     _shouldShowTarget() {
         const type = this.el.type;
-        if (type === 'checkbox' || type === 'radio') {
-            const booleanValue = (this._value === 'true' || this._value);
-            return this.el.checked === booleanValue;
-        } else {
+        if ('checkbox' !== type && 'radio' !== type) {
             return this.el.value === this._value;
         }
+    
+        if (!this._value) {
+            return this.el.checked;
+        }
+
+        return this.el.checked === ('true' === this._value);
     }
+
 
     /**
      * hides the given target element

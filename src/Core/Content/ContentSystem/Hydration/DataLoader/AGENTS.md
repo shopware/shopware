@@ -8,23 +8,37 @@
 - **Config Abstract Class**: `AbstractContentDataLoaderConfig`
 - **Serializer Abstract Class**: `AbstractContentDataLoaderConfigSerializer`
 - **Serializer Provider**: `DataLoaderConfigSerializerProvider`
-- **Built-in Loaders**: `EntityLoader/EntityLoader`, `EntityCollectionLoader/EntityCollectionLoader`, `ProductListingLoader/ProductListingDataLoader`
+- **Result Class**: `ContentDataLoaderResult`
+- **Built-in Loaders**:
+  - `EntityLoader/EntityLoader`
+  - `EntityCollectionLoader/EntityCollectionLoader`
+  - `ProductListingLoader/ProductListingDataLoader`
+  - `NavigationLoader/NavigationDataLoader`
+  - `LanguageLoader/LanguageDataLoader`
+  - `CurrencyLoader/CurrencyDataLoader`
+  - `PaymentMethodLoader/PaymentMethodDataLoader`
+  - `ShippingMethodLoader/ShippingMethodDataLoader`
 - **Registry**: `DataLoaderProvider`
 
 ## Key Conventions
 
-### Return Null, Never Throw
+### Return ContentDataLoaderResult, Never Throw
 
-Loaders return `null` for missing data, never throw exceptions. Hydration continues with null value stored in element property.
+Loaders return `ContentDataLoaderResult` for all outcomes, never throw exceptions. Hydration continues with null data stored in element property for not-found cases.
 
 ```php
-// Right
-return $this->repository->search($criteria, $context)->first();  // Returns null if not found
+// Not found - page remains cacheable
+return ContentDataLoaderResult::notFound();
 
-// Wrong
-if ($entity === null) {
-    throw new NotFoundException();  // Don't do this
-}
+// Found with cache tags
+$entity = $this->repository->search($criteria, $context)->first();
+return ContentDataLoaderResult::cached($entity, 'product-' . $entityId);
+
+// Found but cannot be cached
+return ContentDataLoaderResult::uncacheable($entity);
+
+// Wrong - never throw
+throw new NotFoundException();  // Don't do this
 ```
 
 ### Source Identifier Matching
@@ -49,18 +63,20 @@ Create config class extending `AbstractContentDataLoaderConfig` with `@phpstan-t
 2. Create serializer extending `AbstractContentDataLoaderConfigSerializer`
 3. Extend `AbstractContentDataLoader`
 4. Register serializer in DI with source tag
-5. Return `null` for missing data (don't throw)
+5. Return `ContentDataLoaderResult` with appropriate cache info (don't throw)
 6. Use `$context->getContext()` for entity queries
+7. Resolve cache tags via `EntityCacheTagResolver` for entity-based data
 
 See `EntityLoader/` directory for complete example.
 
 ## Quick Reference
 
-- **Abstract Class**: `AbstractContentDataLoader::load(ContentElement, DataRequirement, SalesChannelContext, Request): mixed`
+- **Abstract Class**: `AbstractContentDataLoader::load(ContentElement, DataRequirement, SalesChannelContext, Request): ContentDataLoaderResult`
 - **Registration**: `#[AutoconfigureTag('content_system.data_loader', ['source' => 'id'])]`
-- **Built-in sources**: `entity`, `entity_collection`, `product_listing`
+- **Built-in sources**: `entity`, `entity_collection`, `product_listing`, `navigation`, `language`, `currency`, `payment_method`, `shipping_method`
 - **Config**: Separate config class + serializer
-- **Return**: Data or `null` (never throw)
+- **Return**: `ContentDataLoaderResult` (never throw)
+- **Cache results**: `notFound()`, `cached($data, ...$tags)`, `cachedExternally($data)`, `uncacheable($data)`
 - **Sales channel**: Always use `$context->getContext()` for queries
 - **Testing**: `StaticEntityRepository` for isolation
 - **Registry**: `DataLoaderProvider` throws if source not found, `DataLoaderConfigSerializerProvider` for serialization

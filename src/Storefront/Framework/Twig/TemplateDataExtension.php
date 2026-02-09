@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,7 +47,8 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
 
-        $activeNavigationId = (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        // check attribute bag for path parameter first (category routes), fallback to other request parameters (product routes)
+        $activeNavigationId = (string) ($request->attributes->get('navigationId') ?? RequestParamHelper::get($request, 'navigationId', $context->getSalesChannel()->getNavigationCategoryId()));
         $navigationPathIdList = $this->getNavigationPath($activeNavigationId, $context);
         $navigationInfo = new NavigationInfo(
             $activeNavigationId,

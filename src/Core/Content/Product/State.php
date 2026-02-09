@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, use ProductDefinition::TYPE_DIGITAL and ProductDefinition::TYPE_PHYSICAL instead
+ */
 #[Package('inventory')]
 final class State
 {

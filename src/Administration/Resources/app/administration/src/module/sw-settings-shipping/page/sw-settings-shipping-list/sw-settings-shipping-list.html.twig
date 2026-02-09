@@ -65,7 +65,7 @@
             <mt-empty-state
                 v-if="!isLoading && !total"
                 :icon="$route.meta.$module.icon"
-                class="mt-empty-state--center"
+                :centered="true"
                 :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-shipping.list.messageEmpty')"
                 :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
                 :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
@@ -76,7 +76,7 @@
             <sw-entity-listing
                 v-else-if="entitySearchable"
                 ref="swSettingsTaxGrid"
-                :items="shippingMethods"
+                :data-source="shippingMethods"
                 :columns="columns"
                 :repository="shippingRepository"
                 :sort-by="currentSortBy"

@@ -99,6 +99,7 @@ elasticsearch:
         de: sw_german_analyzer
         gsw: sw_german_analyzer
         nds: sw_german_analyzer
+    use_language_analyzer: "%env(bool:SHOPWARE_ES_USE_LANGUAGE_ANALYZER)%"
     dynamic_templates:
         - keywords:
             match_mapping_type: string
@@ -125,3 +126,4 @@ parameters:
     env(SHOPWARE_ES_EXCLUDE_SOURCE): "0"
     env(SHOPWARE_ES_NGRAM_MIN_GRAM): "4"
     env(SHOPWARE_ES_NGRAM_MAX_GRAM): "5"
+    env(SHOPWARE_ES_USE_LANGUAGE_ANALYZER): "1"

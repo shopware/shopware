@@ -5,14 +5,14 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class PluginRegionStruct extends Struct
 {
     protected PluginCategoryCollection $categories;
 
+    /**
+     * @param iterable<PluginCategoryStruct> $categories
+     */
     public function __construct(
         protected string $name,
         protected string $label,

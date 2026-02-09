@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Broken Config</title>
+        <input-field>
+            <!-- Invalid: underscores in name violate the XSD pattern [a-zA-Z][a-zA-Z0-9]* -->
+            <name>broken_field_name</name>
+            <label>Broken Field</label>
+        </input-field>
+    </card>
+</config>

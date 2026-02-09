@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -22,10 +24,12 @@ use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalcula
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -61,6 +65,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $this->createMock(AbstractMeasurementUnitConverter::class),
             new RequestStack(),
+            $this->createMock(Connection::class)
         );
 
         /** @var EntityLoadedEvent<ProductEntity|PartialEntity> $event */
@@ -88,6 +93,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $this->createMock(AbstractMeasurementUnitConverter::class),
             new RequestStack(),
+            $this->createMock(Connection::class)
         );
 
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
@@ -213,6 +219,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $this->createMock(AbstractMeasurementUnitConverter::class),
             new RequestStack(),
+            $this->createMock(Connection::class)
         );
 
         $cheapestPrice = new CheapestPriceContainer([]);
@@ -266,6 +273,7 @@ class ProductSubscriberTest extends TestCase
             $measurementBuilder,
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $product = (new ProductEntity())->assign([
@@ -333,6 +341,7 @@ class ProductSubscriberTest extends TestCase
             $measurementUnitBuilder,
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $product = (new ProductEntity())->assign([
@@ -413,6 +422,7 @@ class ProductSubscriberTest extends TestCase
             $measurementBuilder,
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $context = Context::createDefaultContext(new AdminApiSource('user-id', 'integration-id'));
@@ -541,6 +551,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $product = (new ProductEntity())->assign([
@@ -594,6 +605,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $command = $this->createMock(WriteCommand::class);
@@ -657,6 +669,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $command = $this->createMock(WriteCommand::class);
@@ -695,6 +708,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $event = $this->createMock(EntityWriteEvent::class);
@@ -744,6 +758,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $command = $this->createMock(WriteCommand::class);
@@ -832,6 +847,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMeasurementUnitBuilder::class),
             $measurementUnitConverter,
             $requestStack,
+            $this->createMock(Connection::class)
         );
 
         $command = $this->createMock(WriteCommand::class);
@@ -845,5 +861,195 @@ class ProductSubscriberTest extends TestCase
             ->method('getCommandsForEntity');
 
         $subscriber->beforeWriteProduct($event);
+    }
+
+    public function testBeforeDeleteProductWithNoDeletedProducts(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+        $connection->expects($this->never())->method('executeStatement');
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $this->createMock(AbstractMeasurementUnitConverter::class),
+            new RequestStack(),
+            $connection
+        );
+
+        $event = $this->createMock(EntityDeleteEvent::class);
+        $event->expects($this->once())
+            ->method('getIds')
+            ->with(ProductDefinition::ENTITY_NAME)
+            ->willReturn([]);
+
+        $event->expects($this->never())->method('addSuccess');
+
+        $subscriber->beforeDeleteProduct($event);
+    }
+
+    public function testBeforeDeleteProductWithDeletedProductsButNoParentIds(): void
+    {
+        $deletedId = Uuid::randomHex();
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $connection->expects($this->never())->method('executeStatement');
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $this->createMock(AbstractMeasurementUnitConverter::class),
+            new RequestStack(),
+            $connection
+        );
+
+        $event = $this->createMock(EntityDeleteEvent::class);
+        $event->expects($this->once())
+            ->method('getIds')
+            ->with(ProductDefinition::ENTITY_NAME)
+            ->willReturn([$deletedId]);
+
+        $event->expects($this->never())->method('addSuccess');
+
+        $subscriber->beforeDeleteProduct($event);
+    }
+
+    public function testBeforeDeleteProductWithDeletedProductsAndParentIds(): void
+    {
+        $deletedId = Uuid::randomHex();
+        $parentIdBytes = Uuid::randomBytes();
+        $versionBytes = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([$parentIdBytes]);
+
+        $connection->expects($this->once())
+            ->method('executeStatement')
+            ->with(
+                static::stringContains('DELETE FROM product_configurator_setting'),
+                [
+                    'parentIds' => [$parentIdBytes],
+                    'versionId' => $versionBytes,
+                ],
+                [
+                    'parentIds' => ArrayParameterType::BINARY,
+                ]
+            );
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $this->createMock(AbstractMeasurementUnitConverter::class),
+            new RequestStack(),
+            $connection
+        );
+
+        $context = Context::createDefaultContext();
+
+        $event = $this->createMock(EntityDeleteEvent::class);
+        $event->expects($this->once())
+            ->method('getIds')
+            ->with(ProductDefinition::ENTITY_NAME)
+            ->willReturn([$deletedId]);
+
+        $event->expects($this->once())
+            ->method('getContext')
+            ->willReturn($context);
+
+        $successCallback = null;
+        $event->expects($this->once())
+            ->method('addSuccess')
+            ->willReturnCallback(function ($callback) use (&$successCallback): void {
+                $successCallback = $callback;
+            });
+
+        $subscriber->beforeDeleteProduct($event);
+
+        static::assertNotNull($successCallback, 'Success callback should be registered');
+        $successCallback();
+    }
+
+    public function testBeforeDeleteProductWithMultipleDeletedProducts(): void
+    {
+        $deletedId1 = Uuid::randomHex();
+        $deletedId2 = Uuid::randomHex();
+        $parentIdBytes1 = Uuid::randomBytes();
+        $parentIdBytes2 = Uuid::randomBytes();
+        $versionBytes = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([$parentIdBytes1, $parentIdBytes2]);
+
+        $connection->expects($this->once())
+            ->method('executeStatement')
+            ->with(
+                static::stringContains('DELETE FROM product_configurator_setting'),
+                [
+                    'parentIds' => [$parentIdBytes1, $parentIdBytes2],
+                    'versionId' => $versionBytes,
+                ],
+                [
+                    'parentIds' => ArrayParameterType::BINARY,
+                ]
+            );
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $this->createMock(AbstractMeasurementUnitConverter::class),
+            new RequestStack(),
+            $connection
+        );
+
+        $context = Context::createDefaultContext();
+
+        $event = $this->createMock(EntityDeleteEvent::class);
+        $event->expects($this->once())
+            ->method('getIds')
+            ->with(ProductDefinition::ENTITY_NAME)
+            ->willReturn([$deletedId1, $deletedId2]);
+
+        $event->expects($this->once())
+            ->method('getContext')
+            ->willReturn($context);
+
+        $successCallback = null;
+        $event->expects($this->once())
+            ->method('addSuccess')
+            ->willReturnCallback(function ($callback) use (&$successCallback): void {
+                $successCallback = $callback;
+            });
+
+        $subscriber->beforeDeleteProduct($event);
+
+        static::assertNotNull($successCallback);
+        $successCallback();
     }
 }

@@ -11,6 +11,7 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Content\ContentSystem\LayoutType;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -62,6 +63,7 @@ class EntityLayoutContextFactory
         );
 
         $dataRequirements = $this->transformDataRequirements($layoutData->assignment, $context, $definition);
+        $cacheTags = $definition->getCacheTags($entityId);
 
         $params = $this->requestDataExtractor->extractData($request, null);
         $targetElementId = \array_key_exists('elementId', $params) && \is_string($params['elementId']) && $params['elementId'] !== ''
@@ -73,7 +75,9 @@ class EntityLayoutContextFactory
             dataRequirements: $dataRequirements,
             placeholderValues: $layoutData->placeholderValues,
             request: $request,
-            targetElementId: $targetElementId
+            layoutType: LayoutType::MAIN,
+            targetElementId: $targetElementId,
+            cacheTags: $cacheTags,
         );
     }
 
@@ -118,7 +122,7 @@ class EntityLayoutContextFactory
      * When bindings remap property names (productId → product_id),
      * data requirements must reference the remapped placeholder names.
      *
-     * @return DataRequirement[]
+     * @return list<DataRequirement>
      */
     private function transformDataRequirements(
         ContentLayoutAssignmentInterface $assignment,
@@ -129,7 +133,7 @@ class EntityLayoutContextFactory
         $bindings = $assignment->getParameterBindings();
 
         if ($bindings === null || $bindings === []) {
-            return $requirements;
+            return array_values($requirements);
         }
 
         $fieldToPlaceholder = [];

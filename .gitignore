@@ -116,7 +116,6 @@ app/config/parameters.yml
 *.tabnineignore.local
 
 # AI/LLM Documentation
-CLAUDE.md
 GEMINI.md
 
 /dev-ops/check_requirements.php

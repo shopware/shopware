@@ -59,5 +59,4 @@ class SwTwigFunctionResetterTest extends TestCase
         // @phpstan-ignore staticMethod.impossibleType (PHPStan doesn't track reference through callback)
         static::assertSame(2, $runtimeCallCount, 'After resetter->reset(), cache should be cleared');
     }
-
 }

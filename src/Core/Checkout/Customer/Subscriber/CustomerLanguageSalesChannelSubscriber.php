@@ -124,9 +124,9 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, string> $customersPks
+     * @param list<array<string, string>> $customersPks
      *
-     * @return array<string>
+     * @return array<string, string>
      */
     private function getCustomersSalesChannelsIds(array $customersPks, Context $context): array
     {
@@ -146,8 +146,8 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $customersSalesChannels
-     * @param list<array{customerId: string|null, languageId: string|null, salesChannelId: string|null, path: string}> $candidateCommands
+     * @param array<string, string> $customersSalesChannels
+     * @param list<array{customerId: string, languageId: string, salesChannelId: string|null, path: string}> $candidateCommands
      *
      * @return EntityCollection<SalesChannelEntity>
      */

@@ -546,6 +546,59 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
+    public function testValidateWhenGetPrimaryKeysReturnsEmptyStillValidatesFromPayloadSalesChannel(): void
+    {
+        $ids = new IdsCollection();
+        $language = new LanguageEntity();
+        $language->setId($ids->get('lang1'));
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($ids->get('sc1'));
+        $salesChannel->setLanguages(new LanguageCollection([$language]));
+        $salesChannels = new SalesChannelCollection([$salesChannel]);
+
+        $context = Context::createDefaultContext();
+        $writeContext = WriteContext::createFromContext($context);
+        $command = new InsertCommand(
+            $this->definitionRegistry->get(CustomerDefinition::class),
+            [
+                'language_id' => $ids->getBytes('lang1'),
+                'sales_channel_id' => $ids->getBytes('sc1'),
+            ],
+            ['id' => $ids->getBytes('customer1')],
+            $this->createMock(EntityExistence::class),
+            '/0/'
+        );
+
+        $event = new class($writeContext, [$command]) extends PreWriteValidationEvent {
+            public function getPrimaryKeys(string $entity): array
+            {
+                if ($entity === CustomerDefinition::ENTITY_NAME) {
+                    return [];
+                }
+
+                return parent::getPrimaryKeys($entity);
+            }
+        };
+
+        $this->customerRepository->expects($this->never())->method('search');
+
+        $this->salesChannelRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'sales_channel',
+                1,
+                $salesChannels,
+                new AggregationResultCollection(),
+                new Criteria(),
+                $context
+            ));
+
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber->validate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
     public function testValidateSkipsWhenPrimaryKeyHasNoId(): void
     {
         $ids = new IdsCollection();

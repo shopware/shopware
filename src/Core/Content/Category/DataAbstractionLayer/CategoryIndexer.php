@@ -261,15 +261,17 @@ class CategoryIndexer extends EntityIndexer
      */
     private function getSkipUpdaters(bool $runAllUpdaters, bool $parentIdChanged, bool $nameChanged): array
     {
+        if ($runAllUpdaters) {
+            return [];
+        }
+
         $skipUpdaters = [];
-        if (!$runAllUpdaters) {
-            if (!$parentIdChanged) {
-                $skipUpdaters[] = self::CHILD_COUNT_UPDATER;
-                $skipUpdaters[] = self::TREE_UPDATER;
-            }
-            if (!$nameChanged) {
-                $skipUpdaters[] = self::BREADCRUMB_UPDATER;
-            }
+        if (!$parentIdChanged) {
+            $skipUpdaters[] = self::CHILD_COUNT_UPDATER;
+            $skipUpdaters[] = self::TREE_UPDATER;
+        }
+        if (!$nameChanged) {
+            $skipUpdaters[] = self::BREADCRUMB_UPDATER;
         }
 
         return $skipUpdaters;

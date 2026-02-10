@@ -18,13 +18,13 @@
 } %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
-    <twig:Sw:StoreTemplate:HeaderWidget
+    <twig:Sw:Header:Widget
         icon="avatar"
         data-bs-toggle="dropdown"
         data-bs-auto-close="outside"
         aria-expanded="false"
     >
-    </twig:Sw:StoreTemplate:HeaderWidget>
+    </twig:Sw:Header:Widget>
 
     {% if isCustomer %}
         <ul class="sw-account-widget__dropdown dropdown-menu dropdown-menu-end">

@@ -7,10 +7,10 @@
 } %}
 
 <header {{ attributes.defaults(attributeDefaults) }}>
-    <twig:Sw:StoreTemplate:TopBar>
-        <twig:Sw:StoreTemplate:LanguageSelect :languages="header.languages" />
-        <twig:Sw:StoreTemplate:CurrencySelect :currencies="header.currencies" />
-    </twig:Sw:StoreTemplate:TopBar>
+    <twig:Sw:Header:TopBar>
+        <twig:Sw:Header:LanguageSelect :languages="header.languages" />
+        <twig:Sw:Header:CurrencySelect :currencies="header.currencies" />
+    </twig:Sw:Header:TopBar>
 
     <twig:Sw:Grid:Container
         :columnsSm="1"
@@ -24,20 +24,20 @@
         style="margin-bottom: 1.2rem;"
     >
         <twig:Sw:Grid:Column>
-            <twig:Sw:StoreTemplate:Logo />
+            <twig:Sw:Header:Logo />
         </twig:Sw:Grid:Column>
         <twig:Sw:Grid:Column>
-            <twig:Sw:StoreTemplate:Search />
+            <twig:Sw:Header:Search />
         </twig:Sw:Grid:Column>
         <twig:Sw:Grid:Column justify="end">
             <div class="sw-header__widgets d-flex justify-content-end">
-                <twig:Sw:StoreTemplate:AccountWidget />
-                <twig:Sw:StoreTemplate:CartWidget />
+                <twig:Sw:Header:AccountWidget />
+                <twig:Sw:Header:CartWidget />
             </div>
         </twig:Sw:Grid:Column>
     </twig:Sw:Grid:Container>
 
-    <twig:Sw:StoreTemplate:Navbar
+    <twig:Sw:Header:Navbar
         :navigationTree="header.navigation.tree"
     />
 </header>

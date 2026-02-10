@@ -12,11 +12,11 @@
 {% set attributeDefaults = {
     class: 'sw-cart-widget',
     icon: 'cart',
-    'data-component': 'Sw:StoreTemplate:CartWidget',
+    'data-component': 'Sw:Header:CartWidget',
     'data-component-options': jsOptions|json_encode,
     'data-off-canvas-cart': 'true',
 } %}
 
-<twig:Sw:StoreTemplate:HeaderWidget {{ ...attributes.defaults(attributeDefaults) }}>
+<twig:Sw:Header:Widget {{ ...attributes.defaults(attributeDefaults) }}>
     <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
-</twig:Sw:StoreTemplate:HeaderWidget>
+</twig:Sw:Header:Widget>

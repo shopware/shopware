@@ -22,7 +22,7 @@
     class: navbarCVA.apply({ scrollable }),
     id: 'main-navigation-menu',
     'aria-label': 'header.navigationAriaLabel'|trans|striptags,
-    'data-component': 'Sw:StoreTemplate:Navbar',
+    'data-component': 'Sw:Header:Navbar',
     'data-component-options': jsOptions|json_encode,
 } %}
 
@@ -64,7 +64,7 @@
                         </a>
 
                         {% if hasChildren %}
-                            <twig:Sw:StoreTemplate:Flyout
+                            <twig:Sw:Header:Flyout
                                 :category="treeItem.category"
                                 :navigationTree="treeItem.children"
                             />

@@ -29,7 +29,7 @@
             </a>
 
             {% if treeItem.children|length > 0 and navigationLevel < navigationMaxDepth %}
-                <twig:Sw:StoreTemplate:FlyoutCategories
+                <twig:Sw:Header:FlyoutCategories
                     :navigationTree="treeItem.children"
                     :navigationLevel="navigationLevel + 1"
                 />

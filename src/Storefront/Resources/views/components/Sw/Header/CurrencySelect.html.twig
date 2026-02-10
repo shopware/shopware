@@ -1,15 +1,20 @@
 {% props
-    currencies
+    currencies,
+    actionRoute = path('frontend.checkout.configure'),
 %}
 
-{% set attributeDefaultsForm = {
-    action: path('frontend.checkout.configure'),
-    method: 'post',
+{% set attributeDefaults = {
     class: 'sw-currency-select',
+} %}
+
+{% set attributeDefaultsForm = {
+    action: actionRoute,
+    method: 'post',
+    class: 'sw-currency-select__form',
     'data-form-add-dynamic-redirect': 'true'
 } %}
 
-<div class="sw-currency-select dropdown">
+<div {{ attributes.defaults(attributeDefaults) }}>
     <button
         type="button"
         class="btn btn-link text-body btn-sm dropdown-toggle border-0 p-0 link-underline link-underline-opacity-0 fs-5 fw-normal"
@@ -19,7 +24,7 @@
         {{ context.currency.symbol }} {{ context.currency.translated.name|sw_sanitize }}
     </button>
     <div class="dropdown-menu dropdown-menu-end">
-        <form {{ attributes.defaults(attributeDefaultsForm) }}>
+        <form {{ attributes.nested('form').defaults(attributeDefaultsForm) }}>
             {% for currency in currencies %}
                 {% set isActiveCurrency = currency.id is same as(context.currency.id) %}
                 <button

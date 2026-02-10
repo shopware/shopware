@@ -102,13 +102,25 @@ class StorefrontSubscriber implements EventSubscriberInterface
             }
         }
 
-        if ($this->shouldRenewToken($session, $salesChannelId)) {
+        // When customer binding is enabled, store tokens per sales channel to prevent
+        // bound customers from being logged out when visiting other channels
+        $bindingEnabled = $this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        $tokenKey = $bindingEnabled
+            ? PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId
+            : PlatformRequest::HEADER_CONTEXT_TOKEN;
+
+        if ($this->shouldRenewToken($session, $salesChannelId, $tokenKey)) {
             $token = Random::getAlphanumericString(32);
-            $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+            $session->set($tokenKey, $token);
             $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
         }
 
-        $contextToken = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $contextToken = $session->get($tokenKey);
+
+        // Always keep the default key in sync with the current token for backward compatibility
+        // This ensures code that relies on the default key (e.g., anonymous users) still works
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+
         $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
         $currentRequest = $this->requestStack->getCurrentRequest();
@@ -149,6 +161,17 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $session->migrate($destroyOldSession);
         $session->set('sessionId', $session->getId());
 
+        // When customer binding is enabled, store tokens per sales channel
+        $bindingEnabled = $this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        if ($bindingEnabled) {
+            $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+            if ($salesChannelId) {
+                $tokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+                $session->set($tokenKey, $token);
+            }
+        }
+
+        // Always set the default key for backward compatibility
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
         $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }
@@ -239,13 +262,26 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->updateSession($context->getToken());
     }
 
-    private function shouldRenewToken(SessionInterface $session, ?string $salesChannelId = null): bool
+    private function shouldRenewToken(SessionInterface $session, ?string $salesChannelId = null, ?string $tokenKey = null): bool
     {
-        if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN) || $salesChannelId === null) {
+        $keyToCheck = $tokenKey ?? PlatformRequest::HEADER_CONTEXT_TOKEN;
+
+        if (!$session->has($keyToCheck) || $salesChannelId === null) {
             return true;
         }
 
-        if ($this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
+        // When using per-channel tokens (binding enabled), we don't renew based on channel change
+        // because each channel has its own token. We only renew if token doesn't exist for this key.
+        if ($this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
+            // If we're checking a channel-specific key, token existence was already checked above
+            if ($tokenKey !== null && $tokenKey !== PlatformRequest::HEADER_CONTEXT_TOKEN) {
+                $expectedTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+
+                // Don't renew if the token key matches the current channel (token already exists for this channel)
+                return $tokenKey !== $expectedTokenKey;
+            }
+
+            // For backward compatibility with default key, check if channel changed
             return $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID) !== $salesChannelId;
         }
 

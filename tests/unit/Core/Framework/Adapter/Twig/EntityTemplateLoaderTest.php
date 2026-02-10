@@ -100,7 +100,7 @@ class EntityTemplateLoaderTest extends TestCase
 
         $loader = new EntityTemplateLoader($connection, 'prod');
 
-        $this->expectException(LoaderError::class);
+        $this->expectExceptionObject(new LoaderError('Template "@TestApp/storefront/page/missing.html.twig" is not defined.'));
         $loader->getSourceContext('@TestApp/storefront/page/missing.html.twig');
     }
 

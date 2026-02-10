@@ -57,7 +57,7 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 
         $ids = $event->getIds(CustomerDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

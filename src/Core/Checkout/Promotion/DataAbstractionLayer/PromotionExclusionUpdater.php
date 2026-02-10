@@ -28,7 +28,7 @@ class PromotionExclusionUpdater
     public function update(array $ids): void
     {
         // if there are no ids, we don't have to do anything
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

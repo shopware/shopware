@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
@@ -57,14 +58,13 @@ abstract class AbstractAdminIndexer
 
         $mapping = $this->mapping([])['properties'] ?? [];
         foreach ($mapping as $field => $type) {
-            if (array_key_exists('properties', $type) && !empty($type['properties'])) {
+            if (\array_key_exists('properties', $type) && !empty($type['properties'])) {
                 foreach (array_keys($type['properties']) as $property) {
                     if ($property === '_count') {
                         continue;
                     }
 
                     $supportedFields[] = $field . '.' . $property;
-
                 }
 
                 continue;

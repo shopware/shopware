@@ -87,6 +87,7 @@ class JsonApiType extends JsonFactoryBase
         $rootNode['meta'] = [
             'totalCountMode' => $searchResult->getCriteria()->getTotalCountMode(),
             'total' => $searchResult->getTotal(),
+            'states' => $searchResult->getStates(),
         ];
 
         $fields = new ResponseFields(

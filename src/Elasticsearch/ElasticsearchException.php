@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Exception\EmptyQueryException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -130,11 +131,7 @@ class ElasticsearchException extends HttpException
 
     public static function emptyQuery(): self
     {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::EMPTY_QUERY,
-            'Empty query provided'
-        );
+        return new EmptyQueryException();
     }
 
     public static function awsCredentialsNotFound(): self

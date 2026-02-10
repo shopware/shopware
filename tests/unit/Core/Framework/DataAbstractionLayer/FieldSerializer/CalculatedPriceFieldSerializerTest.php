@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\FieldSerializer;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -26,6 +28,7 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\Calcu
 /**
  * @internal
  */
+#[CoversClass(CalculatedPriceFieldSerializer::class)]
 class CalculatedPriceFieldSerializerTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -56,7 +59,7 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         );
     }
 
-    public function testEncodeRittou(): void
+    public function testEncodeStripsExtensionsFromCalculatedPriceListPriceAndRegulationPrice(): void
     {
         $listPriceWithExtensions = ListPrice::createFromUnitPrice(100, 100);
         $listPriceWithExtensions->addArrayExtension('test', ['test' => 'test']);
@@ -75,16 +78,15 @@ class CalculatedPriceFieldSerializerTest extends TestCase
             $regulationPriceWithExtensions
         );
 
-        $encoded = $this->serializer->encode(
+        $encoded = iterator_to_array($this->serializer->encode(
             $this->field,
             $this->existence,
             new KeyValuePair('calculatedPrice', $calculatedPrice, true),
             $this->parameters
-        );
+        ));
 
-        $arrayEncoded = \json_decode($encoded->current(), true);
+        $arrayEncoded = \json_decode($encoded['calculatedPrice'], true, 512, \JSON_THROW_ON_ERROR);
 
-        // check if the listPrice and regulationPrice extensions are not encoded
         static::assertArrayNotHasKey('extensions', $arrayEncoded);
         static::assertArrayHasKey('listPrice', $arrayEncoded);
         static::assertArrayNotHasKey('extensions', $arrayEncoded['listPrice']);
@@ -92,7 +94,59 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         static::assertArrayNotHasKey('extensions', $arrayEncoded['regulationPrice']);
     }
 
-    public function testDecodeRittou(): void
+    public function testEncodeWithoutListPrice(): void
+    {
+        $calculatedPrice = new CalculatedPrice(
+            50,
+            50,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection([new TaxRule(19, 100)]),
+            1,
+            null,
+            null,
+            new RegulationPrice(50)
+        );
+
+        $encoded = iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $calculatedPrice, true),
+            $this->parameters
+        ));
+
+        $arrayEncoded = \json_decode($encoded['calculatedPrice'], true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNull($arrayEncoded['listPrice'] ?? null);
+        static::assertArrayHasKey('regulationPrice', $arrayEncoded);
+    }
+
+    public function testEncodeWithoutRegulationPrice(): void
+    {
+        $calculatedPrice = new CalculatedPrice(
+            50,
+            50,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection([new TaxRule(19, 100)]),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(50, 50),
+            null
+        );
+
+        $encoded = iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $calculatedPrice, true),
+            $this->parameters
+        ));
+
+        $arrayEncoded = \json_decode($encoded['calculatedPrice'], true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('listPrice', $arrayEncoded);
+        static::assertNull($arrayEncoded['regulationPrice'] ?? null);
+    }
+
+    public function testDecodeRoundtrip(): void
     {
         $calculatedPrice = new CalculatedPrice(
             100,
@@ -113,9 +167,61 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         ));
 
         $decoded = $this->serializer->decode($this->field, $encoded['calculatedPrice']);
-        // to array to compare the values and ignore the object type, avoid phpstan errors
+
         $calculatedPriceArray = json_decode(json_encode($calculatedPrice, \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
         $decodedArray = json_decode(json_encode($decoded, \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame($calculatedPriceArray, $decodedArray);
+    }
+
+    public function testDecodeReturnsNullForNull(): void
+    {
+        static::assertNull($this->serializer->decode($this->field, null));
+    }
+
+    public function testDecodeReturnsNullForNonArray(): void
+    {
+        static::assertNull($this->serializer->decode($this->field, '123'));
+    }
+
+    public function testDecodeWithMinimalDataWithoutReferencePriceListPriceAndRegulationPrice(): void
+    {
+        $minimalJson = json_encode([
+            'unitPrice' => 10.0,
+            'totalPrice' => 10.0,
+            'quantity' => 1,
+            'taxRules' => [['taxRate' => 19.0, 'percentage' => 100.0]],
+            'calculatedTaxes' => [['tax' => 1.6, 'taxRate' => 19.0, 'price' => 10.0]],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->serializer->decode($this->field, $minimalJson);
+
+        static::assertInstanceOf(CalculatedPrice::class, $decoded);
+        static::assertSame(10.0, $decoded->getUnitPrice());
+        static::assertSame(10.0, $decoded->getTotalPrice());
+        static::assertNull($decoded->getReferencePrice());
+        static::assertNull($decoded->getListPrice());
+        static::assertNull($decoded->getRegulationPrice());
+    }
+
+    public function testDecodeWithCalculatedTaxLabel(): void
+    {
+        $jsonWithLabel = json_encode([
+            'unitPrice' => 100.0,
+            'totalPrice' => 100.0,
+            'quantity' => 1,
+            'taxRules' => [['taxRate' => 19.0, 'percentage' => 100.0]],
+            'calculatedTaxes' => [
+                ['tax' => 19.0, 'taxRate' => 19.0, 'price' => 100.0, 'label' => 'VAT 19%'],
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->serializer->decode($this->field, $jsonWithLabel);
+
+        static::assertInstanceOf(CalculatedPrice::class, $decoded);
+        $calculatedTaxes = $decoded->getCalculatedTaxes();
+        static::assertCount(1, $calculatedTaxes);
+        $first = $calculatedTaxes->first();
+        static::assertInstanceOf(CalculatedTax::class, $first);
+        static::assertSame('VAT 19%', $first->getLabel());
     }
 }

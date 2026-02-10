@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\AddColumnTrait;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,6 +20,14 @@ use Shopware\Core\Framework\Migration\AddColumnTrait;
 #[CoversClass(AddColumnTrait::class)]
 class AddColumnTraitTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        // Reset the static schema manager cache in TableHelper between tests
+        $reflection = new \ReflectionClass(TableHelper::class);
+        $property = $reflection->getProperty('schemaManager');
+        $property->setValue(null, null);
+    }
+
     public function testReturnsFalseIfColumnExists(): void
     {
         $connection = $this->createConnectionMock(columnExists: true);

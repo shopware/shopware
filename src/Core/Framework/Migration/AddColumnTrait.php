@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Util\Database\TableHelper;
+use Doctrine\DBAL\Exception as DBALException;
 
 trait AddColumnTrait
 {
@@ -31,7 +31,7 @@ trait AddColumnTrait
         bool $nullable = true,
         string $default = 'NULL'
     ): bool {
-        if (TableHelper::columnExists($connection, $table, $column)) {
+        if ($this->columnExists($connection, $table, $column)) {
             return false;
         }
 
@@ -40,7 +40,7 @@ trait AddColumnTrait
         try {
             // Try INSTANT first – fast metadata-only operation, no table rebuild.
             $connection->executeStatement($sql . ', ALGORITHM=INSTANT;');
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (DBALException) {
             // INSTANT not supported for this operation (e.g., expression defaults, fulltext tables).
             // Fall back to regular ALTER TABLE and let MySQL pick the best algorithm.
             $connection->executeStatement($sql . ';');

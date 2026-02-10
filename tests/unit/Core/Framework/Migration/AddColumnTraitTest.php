@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -22,10 +22,7 @@ class AddColumnTraitTest extends TestCase
 {
     protected function tearDown(): void
     {
-        // Reset the static schema manager cache in TableHelper between tests
-        $reflection = new \ReflectionClass(TableHelper::class);
-        $property = $reflection->getProperty('schemaManager');
-        $property->setValue(null, null);
+        TableHelper::resetSchemaManager();
     }
 
     public function testReturnsFalseIfColumnExists(): void
@@ -40,6 +37,10 @@ class AddColumnTraitTest extends TestCase
         static::assertFalse($result);
     }
 
+    /**
+     * @param non-empty-string $table
+     * @param non-empty-string $column
+     */
     #[DataProvider('columnDoesNotExistScenarios')]
     public function testUsesInstantAlgorithm(
         string $table,
@@ -56,9 +57,6 @@ class AddColumnTraitTest extends TestCase
 
         $migration = new TestAddColumnMigration();
 
-        \assert($table !== '');
-        \assert($column !== '');
-
         $result = $migration->callAddColumn($connection, $table, $column, $type, $nullable, $default);
 
         static::assertTrue($result);
@@ -71,8 +69,7 @@ class AddColumnTraitTest extends TestCase
         $instantSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT()), ALGORITHM=INSTANT;';
         $fallbackSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT());';
 
-        $driverException = $this->createMock(\Doctrine\DBAL\Driver\Exception::class);
-        $exception = new DriverException($driverException, null);
+        $exception = new class('ALGORITHM=INSTANT is not supported') extends \Exception implements DBALException {};
 
         $connection->expects($this->exactly(2))
             ->method('executeStatement')

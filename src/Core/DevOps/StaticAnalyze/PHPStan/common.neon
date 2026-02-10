@@ -22,7 +22,7 @@ parameters:
 
     # For stricter testing those should be set to true at some point
     strictRules:
-        booleansInConditions: false
+        booleansInConditions: true
         booleansInLoopConditions: false
         requireParentConstructorCall: false
         disallowedEmpty: false

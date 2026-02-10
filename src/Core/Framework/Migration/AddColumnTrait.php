@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 
 trait AddColumnTrait
 {
+    use ColumnExistsTrait;
     /**
      * Add a column, preferring ALGORITHM=INSTANT for fast, non-blocking execution.
      *

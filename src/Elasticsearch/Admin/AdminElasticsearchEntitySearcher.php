@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Exception\EmptyQueryException;
 
 #[Package('framework')]
 class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
@@ -42,7 +42,7 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
                 $context
             );
         } catch (\Throwable $e) {
-            if ($e instanceof ElasticsearchException && $e->getErrorCode() === ElasticsearchException::EMPTY_QUERY) {
+            if ($e instanceof EmptyQueryException) {
                 return new IdSearchResult(0, [], $criteria, $context);
             }
 
@@ -58,31 +58,32 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
             return false;
         }
 
-        if (!$criteria->getTerm()) {
-            return false; // debatable? less performance gains when not search by term but more traffic to opensearch server
-        }
-
         if (!empty($criteria->getIds())) {
             return false;
         }
 
-        if (!$this->helper->getEnabled()) {
+        if (!$this->helper->isEnabled()) {
             return false;
+        }
+
+        // if no filters, aggregations, queries etc, we can use es
+        if ($criteria->getTerm() && $criteria->getAllFields() === []) {
+            return true;
         }
 
         if (!$this->registry->hasIndexer($definition->getEntityName())) {
             return false;
         }
 
-        // if no filters, aggregations, queries etc, we can use es
-        if (empty($criteria->getAllFields())) {
-            return true;
-        }
-
         $indexer = $this->registry->getIndexer($definition->getEntityName());
 
+        // no field is marked for ES index, skip it
+        if ($indexer->mapping([]) === []) {
+            return false;
+        }
+
         // if criteria contains unsupported fields, we cannot use es
-        if (count(array_diff(
+        if (\count(array_diff(
             $criteria->getAllFields(),
             $indexer->getSupportedSearchFields()
         )) > 0) {

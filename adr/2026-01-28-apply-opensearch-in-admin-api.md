@@ -18,46 +18,65 @@ We therefore need an approach that allows administration modules/Admin API searc
 
 - Introduce `Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher` to decorate the DAL `EntitySearcherInterface`. Whenever the `AdminSearchRegistry` signals that an entity supports OpenSearch and the request context opts in, the decorator forwards the criteria to OpenSearch instead of querying MySQL. Unsupported entities continue to use the previous MySQL behaviour automatically.
   
+### Currently supported entities
+
+The following Admin API entities already expose admin OpenSearch indexers and therefore benefit from the new searcher when the feature flag is active:
+
+- Category (`category`)
+- Customer (`customer`)
+- Landing page (`landing_page`)
+- Manufacturer (`product_manufacturer`)
+- Media (`media`)
+- Newsletter recipient (`newsletter_recipient`)
+- Order (`order`)
+- Product (`product`)
+- Promotion (`promotion`)
+- Property group (`property_group`)
+
+They are selected because they represent the most commonly searched/filter entities in the administration and usually contain a large number of records that benefit from OpenSearch performance.
+
 ### Conditions to forward a search request to opensearch
 
 ```php
   function allowAdminEsSearch(EntityDefinition $definition, Context $context, Criteria $criteria): bool
   {
       if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
-        return false; // the feature flag is turning off
+        return false; // the feature flag is turned off
       }
 
-      if (!$this->helper->getEnabled()) {
-        return false; // admin es search is turning off
+      if (!$this->helper->isEnabled()) {
+        return false; // admin es search is turned off
       }
 
       if (!$context->getSource() instanceof AdminApiSource) {
           return false; // only Admin API requests can use admin ES
       }
 
-      if (!$criteria->getTerm()) {
-          return false; // debatable? less performance gains when not search by term but more traffic to opensearch server
-      }
-
-      if (!empty($criteria->getIds())) {
+      if (!$criteria->getIds() === []) {
           return false; // explicit ID filters stay on SQL
       }
 
-      if (!$this->registry->hasIndexer($definition->getEntityName())) {
-          return false; // entity lacks an admin indexer
-      }
+        // if no filters, aggregations, queries etc, we can use es
+        if ($criteria->getTerm() && $criteria->getAllFields() === []) {
+            return true;
+        }
 
-      if (empty($criteria->getAllFields())) {
-          return true; // no filters -> safe to use ES
-      }
+        if (!$this->registry->hasIndexer($definition->getEntityName())) {
+            return false;
+        }
+        
+        $indexer = $this->registry->getIndexer($definition->getEntityName());
 
-      $indexer = $this->registry->getIndexer($definition->getEntityName());
+        // no field is marked for ES index, skip it
+        if ($indexer->mapping([]) === []) {
+            return false;
+        }
 
       // use opensearch if all querying fields are supported
-      return empty(array_diff(
+      return array_diff(
           $criteria->getAllFields(),
           $indexer->getSupportedSearchFields()
-      ));
+      ) === [];
   }
 ```
 
@@ -114,7 +133,7 @@ The same indexer exposes the corresponding fetch logic that selects the fields f
 External extensions that require more fields should decorate the concrete indexer service (e.g. `Shopware\\Elasticsearch\\Admin\\Indexer\\ProductAdminSearchIndexer`) and append their own mapping/fetch logic:
 
 ```php
-  class CustomProductAdminSearchIndexer
+  class CustomProductAdminSearchIndexer extends AbstractAdminIndexer
   {
       public function __construct(private readonly ProductAdminSearchIndexer $inner) {}
 
@@ -141,25 +160,42 @@ External extensions that require more fields should decorate the concrete indexe
 
 The decorator is then registered via Symfony service decoration so that it wraps the core indexer without modifying Shopware code.
 
+```xml
+<service id="Foo\Your\Custom\ProductAdminSearchIndexerDecorator" decorates="Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer" on-invalid="null">
+  <argument type="service" id=".inner"/>
+</service>
+```
+
+**It's important to define the decorator with `on-invalid="ignore"` in case the Elasticsearch bundle is not registered in the project.**
+
+For a custom entity that you want to add to the list of supported entities, it's important to register the service with tag `shopware.elastic.admin-searcher-index` like following
+
+```xml
+<tag name="shopware.elastic.admin-searcher-index" key="<your_entity_name>"/>
+```
+
 ### Troubleshooting
 
-- The search result from `\Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher::search` is tagged with the state `loaded-by-opensearch`. When the Admin API returns JSON, this state is exposed inside the response `meta`, e.g.
+- The search result from `\Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher::search` is tagged with the state `loaded-by-opensearch`. When the Admin API returns JSON, this state is exposed inside the response `meta.states`, e.g.
 
   ```json
   {
       "data": [ /* entities */ ],
       "meta": {
-          "loaded-by-opensearch": true,
+          "states": [
+            "loaded-by-opensearch"
+          ],
           "total": 200
       }
   }
   ```
 
-With this metadata we can immediately see if a slow request bypassed OpenSearch (flag missing or false) and focus our diagnostics accordingly.
+With this metadata we can immediately see if a slow request bypassed OpenSearch (flag state missing) and focus our diagnostics accordingly.
 
 ## Consequences
 
 - When `ENABLE_OPENSEARCH_FOR_ADMIN_API` is on, DAL searches inside supported admin modules reuse the OpenSearch index, which reduces MySQL pressure and significantly boosts the performance of listings/filtering/searching for large catalogs.
 - Developers must ensure that any new filters or admin modules declare their requirements in `AdminSearchRegistry` and index the needed fields, otherwise they will still fall back to SQL and lose the performance improvements.
 - After enable the flag, shoppers have to reindex the admin ES indexes to make the changes applied by running: `bin/console es:admin:index`, the same applied when you modified a field's mapping or adding/removing more fields
-- Index size of the admin indexes will increase because more data is stored, so hostings need to monitor the admin ES index size.
+- Index size of the admin indexes will be increased because more data is stored, so hostings need to monitor the admin ES index size.
+- Indexing time of admin indexes will also increase due to the same reason, so we want to minimize the fields we want to index to keep the index lean and fast not for read performance but also for write performance in administration

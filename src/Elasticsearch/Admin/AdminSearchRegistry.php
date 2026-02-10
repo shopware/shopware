@@ -33,22 +33,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class AdminSearchRegistry implements EventSubscriberInterface
 {
     /**
-     * @var iterable<AbstractAdminIndexer>
-     */
-    private readonly iterable $indexer;
-
-    /**
      * @var array<string, mixed>
      */
     private readonly array $config;
 
     /**
-     * @param array<AbstractAdminIndexer>|\Traversable<AbstractAdminIndexer> $indexer
+     * @param iterable<AbstractAdminIndexer> $indexer
      * @param array<string, mixed> $config
      * @param array<string, mixed> $mapping
      */
     public function __construct(
-        $indexer,
+        private readonly iterable $indexer,
         private readonly Connection $connection,
         private readonly MessageBusInterface $queue,
         private readonly EventDispatcherInterface $dispatcher,
@@ -58,8 +53,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
         array $config,
         private readonly array $mapping
     ) {
-        $this->indexer = $indexer;
-
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
                 unset($config['settings']['index']['number_of_shards']);
@@ -91,7 +84,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function iterate(AdminIndexingBehavior $indexingBehavior): void
     {
-        if (!$this->adminEsHelper->getEnabled()) {
+        if (!$this->adminEsHelper->isEnabled()) {
             return;
         }
 
@@ -134,7 +127,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if (!$this->adminEsHelper->getEnabled() || !$this->isIndexedEntityWritten($event)) {
+        if (!$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
             return;
         }
 
@@ -179,7 +172,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     }
 
     /**
-     * @return AbstractAdminIndexer[]
+     * @return iterable<AbstractAdminIndexer>
      */
     public function getIndexers(): iterable
     {

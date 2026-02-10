@@ -127,6 +127,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         return $criteria;
     }
+
     public function mapping(array $mapping): array
     {
         $override = [
@@ -147,7 +148,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'tags' => ElasticsearchFieldBuilder::nested(),
             'manufacturer' => ElasticsearchFieldBuilder::nested(),
             'visibilities' => ElasticsearchFieldBuilder::nested([
-                'id' => null,
+                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'visibility' => AbstractElasticsearchDefinition::INT_FIELD,
             ]),
@@ -250,7 +251,7 @@ SQL;
                     return [
                         'id' => $categoryId,
                         'versionId' => Defaults::LIVE_VERSION,
-                        '_count' => 1
+                        '_count' => 1,
                     ];
                 }, ElasticsearchIndexingUtils::parseJson($row, 'categoryIds')),
                 'visibilities' => array_map(function (array $visibility) {
@@ -261,7 +262,7 @@ SQL;
                 'tags' => array_map(function (string $tagId) {
                     return [
                         'id' => $tagId,
-                        '_count' => 1
+                        '_count' => 1,
                     ];
                 }, explode(' ', $row['tagIds'] ?? '')),
                 'createdAt' => $row['createdAt'] ?? isset($row['createdAt']) ? (new \DateTime($row['createdAt']))->format('c') : null,

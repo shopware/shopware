@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Admin;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -23,8 +24,23 @@ class AdminElasticsearchHelper
     ) {
     }
 
+    public function isEnabled(): bool
+    {
+        return $this->adminEsEnabled;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - use \Shopware\Elasticsearch\Admin\AdminElasticsearchHelper::isEnabled instead
+     */
     public function getEnabled(): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(
+            __CLASS__,
+            __METHOD__,
+            'v6.8.0.0',
+            'isEnabled'
+        ));
+
         return $this->adminEsEnabled;
     }
 
@@ -56,14 +72,12 @@ class AdminElasticsearchHelper
         return $this->adminIndexPrefix . '-' . \strtolower(\str_replace(['_', ' '], '-', $name));
     }
 
-    public function logAndThrowException(\Throwable $exception): bool
+    public function logAndThrowException(\Throwable $exception): void
     {
         $this->logger->critical($exception->getMessage());
 
         if ($this->environment === 'test' || $this->throwException) {
             throw $exception;
         }
-
-        return false;
     }
 }

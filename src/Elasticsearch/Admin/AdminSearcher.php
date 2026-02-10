@@ -10,14 +10,13 @@ use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 /**
@@ -104,7 +103,6 @@ class AdminSearcher
         if ($criteria->getTerm()) {
             $term = $this->extractTerm($criteria->getTerm());
 
-
             $query = $indexer->globalCriteria($term, $this->buildSearch($term));
         }
 
@@ -124,7 +122,7 @@ class AdminSearcher
             'index' => $this->adminEsHelper->getIndex($indexer->getName()),
             'search_type' => $this->searchType,
             'track_total_hits' => $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT,
-            'body' => $query
+            'body' => $query,
         ];
 
         $result = $this->client->search($request);
@@ -136,7 +134,7 @@ class AdminSearcher
             $result
         );
 
-        $ids->addState(self::LOADED_BY_OPENSEARCH);
+        $ids->addState(ElasticsearchEntitySearcher::RESULT_STATE);
 
         return $ids;
     }
@@ -161,7 +159,7 @@ class AdminSearcher
         return $index;
     }
 
-    private function buildSearch(string $term): Search
+    private function buildSearch(string $term, int $limit): Search
     {
         $search = new Search();
         $splitTerms = explode(' ', $term);
@@ -180,6 +178,7 @@ class AdminSearcher
             'lenient' => true,
         ]);
         $search->addQuery($query, BoolQuery::SHOULD);
+        $this->paginate($search, $limit);
 
         return $search;
     }

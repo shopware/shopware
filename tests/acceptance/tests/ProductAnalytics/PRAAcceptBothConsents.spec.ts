@@ -16,7 +16,7 @@ test.describe.configure({ mode: 'serial' });
  */
 const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
 
-/** Endpoint for Entity Gateway API.
+/** Endpoint for Product Analytics Gateway API.
  */
 const ENTITY_GATEWAY_ENDPOINT = 'usage-data';
 
@@ -89,11 +89,17 @@ test('As a merchant, I want explicitly accept both consents from modal.', { tag:
 
         // Navigate to the shop data settings page and validate shop data consent is given
         await ShopAdmin.goesTo(AdminDataSharing.url());
-        // expects shop data consent is given
+        await ShopAdmin.expects(AdminDataSharing.dataSharingStoreDataCheckbox).toBeChecked();
+        await ShopAdmin.expects(AdminDataSharing.dataSharingCardTitle).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharing.dataUseDetailsLink).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharing.privacyPolicyLink).toBeVisible();
 
         // Navigate to User Profile settings page and validate user data consent is given
-        await ShopAdmin.goesTo(AdminYourProfile.url());
-        // expects user data consent is given
+        await ShopAdmin.goesTo(AdminYourProfile.url('privacy-preferences'));
+        await ShopAdmin.expects(AdminYourProfile.dataSharingMyDataCheckbox).toBeChecked();
+        await ShopAdmin.expects(AdminYourProfile.dataSharingCardTitle).toBeVisible();
+        await ShopAdmin.expects(AdminYourProfile.dataUseDetailsLink).toBeVisible();
+        await ShopAdmin.expects(AdminYourProfile.privacyPolicyLink).toBeVisible();
 
     });
 });

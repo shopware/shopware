@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 abstract class MigrationStep
 {
     use AddColumnTrait;
+    use ColumnExistsTrait;
 
     final public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 

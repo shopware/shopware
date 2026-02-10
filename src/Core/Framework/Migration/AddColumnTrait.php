@@ -3,11 +3,10 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 trait AddColumnTrait
 {
-    use ColumnExistsTrait;
-
     /**
      * Add a column, preferring ALGORITHM=INSTANT for fast, non-blocking execution.
      *
@@ -17,11 +16,6 @@ trait AddColumnTrait
      * ALTER TABLE without algorithm hint.
      *
      * No AFTER/FIRST clause is used, so the column is always appended at the end of the table.
-     *
-     * Requirements for INSTANT (already met by Shopware minimum versions):
-     * - MySQL 8.0.12+ or MariaDB 10.3.2+ (Shopware minimum: MySQL 8.0.22, MariaDB 10.11)
-     *
-     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Shopware\Core\Framework\Util\UtilException} instead of {@see \Doctrine\DBAL\Exception\TableNotFoundException}
      *
      * @param non-empty-string $table
      *
@@ -35,7 +29,7 @@ trait AddColumnTrait
         bool $nullable = true,
         string $default = 'NULL'
     ): bool {
-        if ($this->columnExists($connection, $table, $column)) {
+        if (TableHelper::columnExists($connection, $table, $column)) {
             return false;
         }
 

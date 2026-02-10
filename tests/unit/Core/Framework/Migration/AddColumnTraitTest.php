@@ -6,6 +6,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Schema\MySQLSchemaManager;
+use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -19,10 +21,10 @@ class AddColumnTraitTest extends TestCase
 {
     public function testReturnsFalseIfColumnExists(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = $this->createConnectionMock(columnExists: true);
         $connection->expects($this->never())->method('executeStatement');
 
-        $migration = new TestAddColumnMigration(columnExists: true);
+        $migration = new TestAddColumnMigration();
 
         $result = $migration->callAddColumn($connection, 'product', 'states', 'JSON');
 
@@ -38,12 +40,12 @@ class AddColumnTraitTest extends TestCase
         string $default,
         string $expectedInstantSql
     ): void {
-        $connection = $this->createMock(Connection::class);
+        $connection = $this->createConnectionMock(columnExists: false);
         $connection->expects($this->once())
             ->method('executeStatement')
             ->with($expectedInstantSql);
 
-        $migration = new TestAddColumnMigration(columnExists: false);
+        $migration = new TestAddColumnMigration();
 
         \assert($table !== '');
         \assert($column !== '');
@@ -55,7 +57,7 @@ class AddColumnTraitTest extends TestCase
 
     public function testFallsBackWhenInstantNotSupported(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = $this->createConnectionMock(columnExists: false);
 
         $instantSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT()), ALGORITHM=INSTANT;';
         $fallbackSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT());';
@@ -75,7 +77,7 @@ class AddColumnTraitTest extends TestCase
                 return 0;
             });
 
-        $migration = new TestAddColumnMigration(columnExists: false);
+        $migration = new TestAddColumnMigration();
 
         $result = $migration->callAddColumn($connection, 'app', 'source_config', 'JSON', false, '(JSON_OBJECT())');
 
@@ -114,6 +116,23 @@ class AddColumnTraitTest extends TestCase
             'ALTER TABLE `order` ADD COLUMN `priority` INT NOT NULL DEFAULT \'0\', ALGORITHM=INSTANT;',
         ];
     }
+
+    /**
+     * @return Connection&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createConnectionMock(bool $columnExists): Connection
+    {
+        $table = $this->createMock(Table::class);
+        $table->method('hasColumn')->willReturn($columnExists);
+
+        $schemaManager = $this->createMock(MySQLSchemaManager::class);
+        $schemaManager->method('introspectTableByUnquotedName')->willReturn($table);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
+
+        return $connection;
+    }
 }
 
 /**
@@ -122,11 +141,6 @@ class AddColumnTraitTest extends TestCase
 class TestAddColumnMigration
 {
     use AddColumnTrait;
-
-    public function __construct(
-        private readonly bool $columnExists = false
-    ) {
-    }
 
     /**
      * @param non-empty-string $table
@@ -141,10 +155,5 @@ class TestAddColumnMigration
         string $default = 'NULL'
     ): bool {
         return $this->addColumn($connection, $table, $column, $type, $nullable, $default);
-    }
-
-    protected function columnExists(Connection $connection, string $table, string $column): bool
-    {
-        return $this->columnExists;
     }
 }

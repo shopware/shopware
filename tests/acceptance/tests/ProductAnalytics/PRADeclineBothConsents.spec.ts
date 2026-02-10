@@ -110,6 +110,8 @@ test('As a merchant, I want to make sure no admin events are sent after login if
 test('As a merchant, I want explicitly decline both consents from modal.', { tag: '@ProductAnalytics' }, async ({
     AdminDataSharingConsentModal,
     ShopAdmin,
+    AdminDataSharing,
+    AdminYourProfile,
 }) => {
 
     await test.step('Intercept all the API calls to product analytics', async () => {
@@ -131,8 +133,6 @@ test('As a merchant, I want explicitly decline both consents from modal.', { tag
         await ShopAdmin.expects(AdminDataSharingConsentModal.dataUseDetailsLink).toBeVisible();
         await ShopAdmin.expects(AdminDataSharingConsentModal.privacyPolicyLink).toBeVisible();
 
-        // Link(s) to the legal page(s) exist and point to the expected URL(s). (assert anchors with href contain the canonical path domain or route).
-
         // Click on deline all button
         await ShopAdmin.presses(AdminDataSharingConsentModal.shareNothingButton);
 
@@ -143,14 +143,19 @@ test('As a merchant, I want explicitly decline both consents from modal.', { tag
 
     await test.step('Verify both consents are declined in the settings', async () => {
 
-        // Navigate to the shop data settings page and validate shop data consent is declined
-        // Toggles clearly show state (on/off) and have accessible labels.
-        // Link(s) to the legal page(s) exist and point to the expected URL(s). (assert anchors with href contain the canonical path domain or route).
+        // Navigate to the shop data settings page and validate shop data consent is deactivated
+        await ShopAdmin.goesTo(AdminDataSharing.url());
+        await ShopAdmin.expects(AdminDataSharing.dataSharingStoreDataCheckbox).not.toBeChecked();
+        await ShopAdmin.expects(AdminDataSharing.dataSharingCardTitle).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharing.dataUseDetailsLink).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharing.privacyPolicyLink).toBeVisible();
 
-        // Navigate to User Profile settings page and validate user data consent is declined
-        // Toggles clearly show state (on/off) and have accessible labels.
-        // Link(s) to the legal page(s) exist and point to the expected URL(s). (assert anchors with href contain the canonical path domain or route).
-
+        // Navigate to User Profile settings page and validate user data consent is deactivated
+        await ShopAdmin.goesTo(AdminYourProfile.url('privacy-preferences'));
+        await ShopAdmin.expects(AdminYourProfile.dataSharingMyDataCheckbox).not.toBeChecked();
+        await ShopAdmin.expects(AdminYourProfile.dataSharingCardTitle).toBeVisible();
+        await ShopAdmin.expects(AdminYourProfile.dataUseDetailsLink).toBeVisible();
+        await ShopAdmin.expects(AdminYourProfile.privacyPolicyLink).toBeVisible();
     });
 
     await test.step('Validate no captured requests for product analytics', async () => {

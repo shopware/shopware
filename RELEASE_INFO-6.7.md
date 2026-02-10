@@ -138,8 +138,8 @@ For the Storefront/Store API Elasticsearch:
 - `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
 
 For the Admin Elasticsearch:
-- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will be with 6.8 also empty)
-- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will be with 6.8 also empty)
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
 
 ## Critical Fixes
 

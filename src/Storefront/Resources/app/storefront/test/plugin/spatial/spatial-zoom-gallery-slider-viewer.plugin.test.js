@@ -73,7 +73,7 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
         spatialZoomGallerySliderViewerPlugin.initViewer();
 
         process.nextTick(() => {
-            expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement, displayFloor: true });
+            expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement });
             expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1);
         });
     });

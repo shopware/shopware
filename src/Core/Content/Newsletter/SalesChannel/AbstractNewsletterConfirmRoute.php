@@ -19,16 +19,15 @@ abstract class AbstractNewsletterConfirmRoute
     abstract public function getDecorated(): AbstractNewsletterConfirmRoute;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will change to SuccessResponse. Use confirmWithResponse() instead.
+     * @deprecated tag:v6.8.0
+     * Use confirmWithResponse() instead.
+     * Starting with v6.8.0, the API route response is changing.
+     * This method will be removed and the route annotation will be moved to confirmWithResponse().
      *
      * @return StoreApiResponse<covariant Struct>
      */
     abstract public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse;
 
-    /**
-     * Confirms the newsletter subscription and returns a typed response.
-     * This method should be used instead of confirm() to get the typed response.
-     */
     public function confirmWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         return $this->getDecorated()->confirmWithResponse($dataBag, $context);

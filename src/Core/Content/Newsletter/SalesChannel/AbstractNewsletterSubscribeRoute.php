@@ -20,16 +20,15 @@ abstract class AbstractNewsletterSubscribeRoute
     abstract public function getDecorated(): AbstractNewsletterSubscribeRoute;
 
     /**
-     * @deprecated tag:v6.8.0 - Return type will change to NewsletterSubscribeRouteResponse. Use subscribeWithResponse() instead.
+     * @deprecated tag:v6.8.0
+     * Use subscribeWithResponse() instead.
+     * Starting with v6.8.0, the API route response is changing.
+     * This method will be removed, and the route annotation will be moved to subscribeWithResponse().
      *
      * @return StoreApiResponse<covariant Struct>
      */
     abstract public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse;
 
-    /**
-     * Returns the subscription status after subscribing to the newsletter.
-     * This method should be used instead of subscribe() to get the typed response.
-     */
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): NewsletterSubscribeRouteResponse
     {
         return $this->getDecorated()->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);

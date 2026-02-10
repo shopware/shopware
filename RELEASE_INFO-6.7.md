@@ -4,19 +4,15 @@
 
 ## API
 
-### Newsletter subscribe route returns subscription status
+### Deprecation of newsletter route methods
 
-The Store API route `/store-api/newsletter/subscribe` now returns a `200 OK` response with a JSON body containing the subscription status, instead of a `204 No Content` response.
+The following methods are deprecated and will be removed with the next major version:
 
-**Before:**
-- Status: `204 No Content`
-- Body: empty
+- `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
+- `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
 
-**After:**
-- Status: `200 OK`
-- Body: `{"status": "notSet|optIn|optOut|direct"}`
-
-If your integration checked for a `204` status code, update it to expect `200` and optionally use the `status` field in the response.
+The new methods return typed response objects (`NewsletterSubscribeRouteResponse`, `SuccessResponse`) instead of `StoreApiResponse`.
 
 ## Core
 

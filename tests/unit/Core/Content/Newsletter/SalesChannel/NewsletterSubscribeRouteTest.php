@@ -14,7 +14,6 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRouteResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -103,9 +102,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $response = $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
 
-        static::assertInstanceOf(NewsletterSubscribeRouteResponse::class, $response);
         static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, $response->getStatus());
     }
 
@@ -159,9 +157,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $response = $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
 
-        static::assertInstanceOf(NewsletterSubscribeRouteResponse::class, $response);
         static::assertSame(NewsletterSubscribeRoute::STATUS_DIRECT, $response->getStatus());
     }
 
@@ -205,7 +202,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
     }
 
     public static function validatorDataProvider(): \Generator
@@ -282,7 +279,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
     }
 
     public function testRateLimitationWithThrowException(): void
@@ -321,7 +318,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         static::expectException(NewsletterException::class);
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
     }
 
     /**
@@ -408,7 +405,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $customerRepository,
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
 
         static::assertInstanceOf(BuildValidationEvent::class, $dispatchedEvents[0]);
 

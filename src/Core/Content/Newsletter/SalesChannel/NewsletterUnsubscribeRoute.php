@@ -9,6 +9,7 @@ use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
@@ -46,12 +48,21 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will change to SuccessResponse. Use unsubscribeWithResponse() instead.
+     * @deprecated tag:v6.8.0
+     * Use unsubscribeWithResponse() instead.
+     * Starting with v6.8.0, the API route response is changing.
+     * This method will be removed and the route annotation will be moved to unsubscribeWithResponse().
      */
     #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
-        return $this->unsubscribeWithResponse($dataBag, $context);
+        $response = $this->unsubscribeWithResponse($dataBag, $context);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new NoContentResponse();
+        }
+
+        return $response;
     }
 
     public function unsubscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse

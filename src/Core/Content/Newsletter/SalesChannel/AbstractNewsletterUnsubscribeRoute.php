@@ -19,16 +19,15 @@ abstract class AbstractNewsletterUnsubscribeRoute
     abstract public function getDecorated(): AbstractNewsletterUnsubscribeRoute;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will change to SuccessResponse. Use unsubscribeWithResponse() instead.
+     * @deprecated tag:v6.8.0
+     * Use unsubscribeWithResponse() instead.
+     * Starting with v6.8.0, the API route response is changing.
+     * This method will be removed and the route annotation will be moved to unsubscribeWithResponse().
      *
      * @return StoreApiResponse<covariant Struct>
      */
     abstract public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse;
 
-    /**
-     * Unsubscribes from the newsletter and returns a typed response.
-     * This method should be used instead of unsubscribe() to get the typed response.
-     */
     public function unsubscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         return $this->getDecorated()->unsubscribeWithResponse($dataBag, $context);

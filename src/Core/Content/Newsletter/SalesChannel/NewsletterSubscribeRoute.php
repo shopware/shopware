@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -99,12 +101,21 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will change to NewsletterSubscribeRouteResponse. Use subscribeWithResponse() instead.
+     * @deprecated tag:v6.8.0
+     * Use subscribeWithResponse() instead.
+     * Starting with v6.8.0, the API route response is changing.
+     * This method will be removed and the route annotation will be moved to subscribeWithResponse().
      */
     #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): StoreApiResponse
     {
-        return $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
+        $response = $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new NoContentResponse();
+        }
+
+        return $response;
     }
 
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse

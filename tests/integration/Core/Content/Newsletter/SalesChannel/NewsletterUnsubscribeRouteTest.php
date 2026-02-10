@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -69,7 +70,13 @@ class NewsletterUnsubscribeRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        $response = $this->browser->getResponse();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        } else {
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        }
 
         $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(0, $count);

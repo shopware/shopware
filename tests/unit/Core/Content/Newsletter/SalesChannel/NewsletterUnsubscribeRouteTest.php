@@ -67,7 +67,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             $eventDispatcher,
         );
 
-        $response = $newsletterSubscribeRoute->unsubscribe($requestData, $this->salesChannelContext);
+        $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame([
@@ -107,7 +107,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         static::expectException(NewsletterException::class);
         static::expectExceptionMessage('The email parameter is missing.');
-        $response = $newsletterSubscribeRoute->unsubscribe($requestData, $this->salesChannelContext);
+        $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
@@ -140,7 +140,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         static::expectException(NewsletterException::class);
         static::expectExceptionMessage('The NewsletterRecipient with the identifier "email" - test@example.com was not found.');
-        $response = $newsletterSubscribeRoute->unsubscribe($requestData, $this->salesChannelContext);
+        $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 }

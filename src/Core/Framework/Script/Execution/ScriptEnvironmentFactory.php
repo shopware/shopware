@@ -37,7 +37,7 @@ class ScriptEnvironmentFactory implements ResetInterface
 
     public function initEnv(Script $script): TwigEnvironment
     {
-        $scriptHash = Hasher::hash($script->getName() . $script->getScript());
+        $scriptHash = Hasher::hash($script->getName() . $script->getScript() . serialize($script->getTwigOptions()));
 
         if (isset($this->twigEnvs[$scriptHash])) {
             return $this->twigEnvs[$scriptHash];

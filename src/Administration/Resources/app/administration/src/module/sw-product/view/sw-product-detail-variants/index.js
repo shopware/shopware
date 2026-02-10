@@ -30,7 +30,6 @@ export default {
             showAddPropertiesModal: false,
             defaultTab: 'all',
             activeTab: 'all',
-            configSettingGroups: [],
             limit: 500,
         };
     },
@@ -93,6 +92,24 @@ export default {
 
             return criteria;
         },
+
+        /**
+         * @returns {Object[]}
+         */
+        configSettingGroups() {
+            const settings = this.productEntity?.configuratorSettings ?? [];
+            const groupIds = uniqBy(settings, 'option.groupId').map((item) => item.option.groupId);
+            if (groupIds.length === 0) {
+                return [];
+            }
+            const groupMap = new Map(
+                this.groups.map((group) => [
+                    group.id,
+                    group,
+                ]),
+            );
+            return groupIds.map((id) => groupMap.get(id)).filter(Boolean);
+        },
     },
 
     watch: {
@@ -134,29 +151,15 @@ export default {
 
         loadData() {
             if (!this.isStoreLoading && this.product?.id) {
-                this.loadOptions()
-                    .then(() => this.loadGroups())
-                    .then(() => this.loadConfigSettingGroups());
+                this.loadOptions().then(() => this.loadGroups());
             }
         },
 
-        loadConfigSettingGroups() {
-            const groupIds = uniqBy(this.productEntity.configuratorSettings, 'option.groupId').map(
-                (group) => group.option.groupId,
-            );
-
-            if (groupIds.length === 0) {
-                this.configSettingGroups = [];
-                return;
-            }
-
-            const groupMap = new Map(
-                this.groups.map((g) => [
-                    g.id,
-                    g,
-                ]),
-            );
-            this.configSettingGroups = groupIds.map((id) => groupMap.get(id)).filter(Boolean);
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
+        async loadConfigSettingGroups() {
+            // No-op: configSettingGroups is computed from productEntity.configuratorSettings and groups.
         },
 
         loadOptions() {

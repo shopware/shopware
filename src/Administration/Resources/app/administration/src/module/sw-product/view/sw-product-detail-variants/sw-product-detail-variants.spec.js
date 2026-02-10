@@ -254,7 +254,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         ]);
     });
 
-    it('should derive configSettingGroups from groups by configurator group ids', async () => {
+    it('should compute configSettingGroups from productEntity.configuratorSettings and groups', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.groups = [
             { id: 'id-1', name: 'group-1' },
@@ -268,13 +268,52 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             ],
         };
 
-        wrapper.vm.loadConfigSettingGroups();
-
-        // configSettingGroups is derived from this.groups (no second API call), in configurator order.
         expect(wrapper.vm.configSettingGroups).toEqual([
             { id: 'id-1', name: 'group-1' },
             { id: 'id-2', name: 'group-2' },
         ]);
+    });
+
+    it('should return empty configSettingGroups when product has no configurator settings', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.groups = [{ id: 'id-1', name: 'group-1' }];
+        wrapper.vm.productEntity = { configuratorSettings: [] };
+
+        expect(wrapper.vm.configSettingGroups).toEqual([]);
+    });
+
+    it('should filter out missing groups in configSettingGroups when id not in groups', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.groups = [{ id: 'id-1', name: 'group-1' }];
+        wrapper.vm.productEntity = {
+            configuratorSettings: [
+                { option: { groupId: 'id-1' } },
+                { option: { groupId: 'id-missing' } },
+            ],
+        };
+
+        expect(wrapper.vm.configSettingGroups).toEqual([{ id: 'id-1', name: 'group-1' }]);
+    });
+
+    it('should not call loadConfigSettingGroups in loadData (deprecated, now computed)', async () => {
+        const wrapper = await createWrapper();
+        const loadConfigSettingGroupsSpy = jest.spyOn(wrapper.vm, 'loadConfigSettingGroups');
+
+        wrapper.vm.loadData();
+        await flushPromises();
+
+        expect(loadConfigSettingGroupsSpy).not.toHaveBeenCalled();
+    });
+
+    it('should have loadConfigSettingGroups as no-op when called directly (deprecated)', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.groups = [{ id: '1', name: 'g1' }];
+        wrapper.vm.productEntity = {
+            configuratorSettings: [{ option: { groupId: '1' } }],
+        };
+
+        expect(() => wrapper.vm.loadConfigSettingGroups()).not.toThrow();
+        expect(wrapper.vm.configSettingGroups).toEqual([{ id: '1', name: 'g1' }]);
     });
 
     it('should correctly load and merge paginated results', async () => {
@@ -320,8 +359,6 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                     ].map(fn),
             });
 
-        wrapper.vm.loadConfigSettingGroups = jest.fn();
-
         await flushPromises();
 
         expect(wrapper.vm.groupRepository.search).toHaveBeenCalledTimes(3);
@@ -345,7 +382,6 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                 ].map(fn),
         });
 
-        wrapper.vm.loadConfigSettingGroups = jest.fn();
         wrapper.vm.loadGroups = jest.fn();
 
         await flushPromises();

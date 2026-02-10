@@ -521,14 +521,13 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
     }
 
-    public function testValidateInsertWithEmptyPrimaryKeyStillValidatesFromPayload(): void
+    public function testValidateAddsViolationWhenSalesChannelLanguagesIsNull(): void
     {
         $ids = new IdsCollection();
-        $language = new LanguageEntity();
-        $language->setId($ids->get('lang1'));
+        $salesChannelId = $ids->get('sc1');
+
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId($ids->get('sc1'));
-        $salesChannel->setLanguages(new LanguageCollection([$language]));
+        $salesChannel->setId($salesChannelId);
         $salesChannels = new SalesChannelCollection([$salesChannel]);
 
         $context = Context::createDefaultContext();
@@ -539,7 +538,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                 'language_id' => $ids->getBytes('lang1'),
                 'sales_channel_id' => $ids->getBytes('sc1'),
             ],
-            [],
+            ['id' => $ids->getBytes('customer1')],
             $this->createMock(EntityExistence::class),
             '/0/'
         );
@@ -561,6 +560,12 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
         $subscriber->validate($event);
 
-        static::assertCount(0, $event->getExceptions()->getExceptions());
+        $exceptions = $event->getExceptions()->getExceptions();
+        static::assertCount(1, $exceptions);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
+        static::assertSame(
+            CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL,
+            $exceptions[0]->getViolations()->get(0)->getCode()
+        );
     }
 }

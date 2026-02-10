@@ -10,8 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -95,7 +96,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
+            if ($command instanceof DeleteCommand) {
                 continue;
             }
 
@@ -129,7 +130,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     /**
      * @return array{customerId: string|null, languageId: string, salesChannelId: string|null}|null
      */
-    private function extractCandidatePayloads(InsertCommand|UpdateCommand $command): ?array
+    private function extractCandidatePayloads(WriteCommand $command): ?array
     {
         $payload = $command->getPayload();
         if (!isset($payload['language_id'])) {
@@ -152,10 +153,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
      */
     private function getCustomersSalesChannelsIds(array $candidates, Context $context): array
     {
-        $customerIds = \array_values(\array_filter(\array_map(
-            static fn (array $candidate) => $candidate['customerId'],
-            $candidates
-        )));
+        $customerIds = \array_filter(\array_column($candidates, 'customerId'));
 
         if ($customerIds === []) {
             return [];
@@ -172,45 +170,35 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
      * @param array<string, string> $customerSalesChannelMap
      * @param list<array{customerId: string|null, languageId: string, salesChannelId: string|null}> $candidates
      *
-     * @return EntityCollection<SalesChannelEntity>
+     * @return EntityCollection<SalesChannelEntity>|null
      */
-    private function loadSalesChannels(array $customerSalesChannelMap, array $candidates, Context $context): EntityCollection
+    private function loadSalesChannels(array $customerSalesChannelMap, array $candidates, Context $context): ?EntityCollection
     {
         $customerSalesChannelIds = \array_values($customerSalesChannelMap);
+        $explicitSalesChannelIds = \array_column($candidates, 'salesChannelId');
 
-        $explicitSalesChannelIds = \array_values(\array_filter(\array_map(
-            static fn (array $candidate) => $candidate['salesChannelId'],
-            $candidates
-        )));
-
-        $languageIds = \array_values(\array_unique(\array_map(
-            static fn (array $candidate) => $candidate['languageId'],
-            $candidates
-        )));
-
-        $salesChannelIds = \array_values(\array_unique(\array_filter([
+        $salesChannelIds = \array_unique(\array_filter([
             ...$customerSalesChannelIds,
             ...$explicitSalesChannelIds,
-        ])));
+        ]));
 
         if ($salesChannelIds === []) {
-            return new EntityCollection();
+            return null;
         }
 
-        $criteria = new Criteria($salesChannelIds);
-        $criteria->addFields(['id', 'languages.id']);
+        $criteria = (new Criteria($salesChannelIds))->addFields(['id', 'languages.id']);
         $criteria->getAssociation('languages')
-            ->addFilter(new EqualsAnyFilter('id', $languageIds));
+            ->addFilter(new EqualsAnyFilter('id', \array_column($candidates, 'languageId')));
 
         return $this->salesChannelRepository->search($criteria, $context)->getEntities();
     }
 
     /**
-     * @param EntityCollection<SalesChannelEntity> $salesChannels
+     * @param EntityCollection<SalesChannelEntity>|null $salesChannels
      */
-    private function isLanguageInSalesChannel(string $salesChannelId, string $languageId, EntityCollection $salesChannels): bool
+    private function isLanguageInSalesChannel(string $salesChannelId, string $languageId, ?EntityCollection $salesChannels): bool
     {
-        $salesChannel = $salesChannels->get($salesChannelId);
+        $salesChannel = $salesChannels?->get($salesChannelId);
 
         /** @var LanguageCollection|null $languages */
         $languages = $salesChannel?->get('languages');

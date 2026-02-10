@@ -16,6 +16,8 @@ use Twig\Extension\ExtensionInterface;
 #[Package('framework')]
 class ScriptEnvironmentFactory implements ResetInterface
 {
+    private const CACHE_LIMIT = 250;
+
     /**
      * @var array<string, TwigEnvironment>
      */
@@ -58,7 +60,12 @@ class ScriptEnvironmentFactory implements ResetInterface
             'version' => $this->shopwareVersion,
         ]));
 
-        return $this->twigEnvs[$scriptHash] = $twig;
+        // memoize 250 envs at max, to prevent memory leaks
+        if (count($this->twigEnvs) < self::CACHE_LIMIT) {
+            $this->twigEnvs[$scriptHash] = $twig;
+        }
+
+        return $twig;
     }
 
     public function reset(): void

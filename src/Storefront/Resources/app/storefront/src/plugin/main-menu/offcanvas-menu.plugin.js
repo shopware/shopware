@@ -53,9 +53,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
                         this._getLinkEventHandler(event, link);
                     });
                 });
+
+                window.PluginManager.initializePluginsInParentElement(offcanvas);
             });
-            // initialize the plugins again, after Off-Canvas init, otherwise you will miss the JS event listener
-            window.PluginManager.initializePlugins();
         }
         // re-open the menu if the url parameter is set
         this._openMenuViaUrlParameter();

@@ -228,9 +228,9 @@ SQL;
                         '_count' => 1,
                     ];
                 }, explode(' ', $row['tagIds'] ?? '')),
-                'createdAt' => $row['createdAt'] ?? isset($row['createdAt']) ? (new \DateTime($row['createdAt']))->format('c') : null,
-                'updatedAt' => $row['updatedAt'] ?? isset($row['updatedAt']) ? (new \DateTime($row['updatedAt']))->format('c') : null,
-                'releaseDate' => $row['releaseDate'] ?? isset($row['releaseDate']) ? (new \DateTime($row['releaseDate']))->format('c') : null,
+                'createdAt' => isset($row['createdAt']) ? (new \DateTime($row['createdAt']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+                'updatedAt' => isset($row['updatedAt']) ? (new \DateTime($row['updatedAt']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+                'releaseDate' => isset($row['releaseDate']) ? (new \DateTime($row['releaseDate']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             ];
         }
 

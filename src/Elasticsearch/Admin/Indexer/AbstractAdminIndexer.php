@@ -57,6 +57,11 @@ abstract class AbstractAdminIndexer
         $supportedFields = [];
 
         $mapping = $this->mapping([])['properties'] ?? [];
+
+        if ($mapping === []) {
+            return [];
+        }
+
         foreach ($mapping as $field => $type) {
             if (\array_key_exists('properties', $type) && !empty($type['properties'])) {
                 foreach (array_keys($type['properties']) as $property) {

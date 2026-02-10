@@ -33,7 +33,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        tabExtensions(): TabItemEntry[] {
+        tabExtensions(): readonly TabItemEntry[] {
             return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
 

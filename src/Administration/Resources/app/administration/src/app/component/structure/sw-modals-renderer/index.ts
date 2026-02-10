@@ -13,7 +13,7 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     computed: {
-        modals(): ModalItemEntry[] {
+        modals(): readonly ModalItemEntry[] {
             return Shopware.Store.get('modals').modals;
         },
     },

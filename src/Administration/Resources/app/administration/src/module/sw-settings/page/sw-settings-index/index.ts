@@ -54,20 +54,20 @@ export default Shopware.Component.wrapComponentConfig({
 
             const mapSettings =
                 (
-                    mapper: (settings: SettingsItemHere[], groupName: string) => SettingsItemHere[],
-                ): ((entry: [string, SettingsItemHere[]]) => [string, SettingsItemHere[]]) =>
+                    mapper: (settings: SettingsItemHere[], groupName: string) => readonly SettingsItemHere[],
+                ): ((entry: [string, readonly SettingsItemHere[]]) => [string, readonly SettingsItemHere[]]) =>
                 ([
                     name,
                     settings,
                 ]) => [
                     name,
-                    mapper(settings, name),
+                    mapper([...settings], name),
                 ];
 
             const filterGroup =
                 (
-                    predicate: (settings: SettingsItemHere[], groupName: string) => boolean,
-                ): ((entry: [string, SettingsItemHere[]]) => boolean) =>
+                    predicate: (settings: readonly SettingsItemHere[], groupName: string) => boolean,
+                ): ((entry: [string, readonly SettingsItemHere[]]) => boolean) =>
                 ([
                     name,
                     settings,

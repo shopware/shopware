@@ -50,7 +50,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        componentSections(): ComponentSectionEntry[] {
+        componentSections(): readonly ComponentSectionEntry[] {
             const sections = Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [];
             if (sections.length && this.deprecated) {
                 sections.forEach((section) => {

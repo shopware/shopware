@@ -8,6 +8,7 @@ import type { TelemetryEvent, EventTypes as TelemetryEventTypes } from '../../te
 /**
  * The pattern for event names = component name in kebab case followed by the event
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 interface Events extends Record<string | symbol, unknown> {
     'sw-product-detail-save-finish': undefined;
     'sw-language-switch-change-application-language': { languageId: string };

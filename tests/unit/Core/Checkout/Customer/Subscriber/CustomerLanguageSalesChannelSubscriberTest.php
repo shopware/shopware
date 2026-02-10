@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -271,7 +272,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
 
         $this->salesChannelRepository->expects($this->once())
             ->method('search')
-            ->with(static::callback(static fn (Criteria $c) => $c->hasAssociation('languages')))
             ->willReturn(new EntitySearchResult(
                 'sales_channel',
                 1,
@@ -390,63 +390,51 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         static::assertSame('/languageId', $exceptions[0]->getViolations()->get(0)->getPropertyPath());
     }
 
-    public function testValidateAddsViolationWhenSalesChannelNotInCollection(): void
+    /**
+     * @return iterable<string, array{SalesChannelCollection, Context, string}>
+     */
+    public static function provideLanguageNotInSalesChannelCases(): iterable
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
-        $writeContext = WriteContext::createFromContext($context);
-        $command = new InsertCommand(
-            $this->definitionRegistry->get(CustomerDefinition::class),
-            [
-                'language_id' => $ids->getBytes('lang1'),
-                'sales_channel_id' => $ids->getBytes('scMissing'),
-            ],
-            ['id' => $ids->getBytes('customer1')],
-            $this->createMock(EntityExistence::class),
-            '/0/'
-        );
-        $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->salesChannelRepository->expects($this->once())
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'sales_channel',
-                0,
-                new SalesChannelCollection(),
-                new AggregationResultCollection(),
-                new Criteria(),
-                $context
-            ));
+        yield 'sales channel not in collection' => [
+            new SalesChannelCollection(),
+            $context,
+            $ids->getBytes('scMissing'),
+        ];
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
-        $subscriber->validate($event);
+        $salesChannelEmptyLangs = new SalesChannelEntity();
+        $salesChannelEmptyLangs->setId($ids->get('sc1'));
+        $salesChannelEmptyLangs->setLanguages(new LanguageCollection());
+        yield 'sales channel has no languages' => [
+            new SalesChannelCollection([$salesChannelEmptyLangs]),
+            $context,
+            $ids->getBytes('sc1'),
+        ];
 
-        $exceptions = $event->getExceptions()->getExceptions();
-        static::assertCount(1, $exceptions);
-        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
-        static::assertSame(
-            CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL,
-            $exceptions[0]->getViolations()->get(0)->getCode()
-        );
+        $salesChannelNullLangs = new SalesChannelEntity();
+        $salesChannelNullLangs->setId($ids->get('sc1'));
+        yield 'sales channel languages is null' => [
+            new SalesChannelCollection([$salesChannelNullLangs]),
+            $context,
+            $ids->getBytes('sc1'),
+        ];
     }
 
-    public function testValidateAddsViolationWhenSalesChannelHasNoLanguages(): void
-    {
+    #[DataProvider('provideLanguageNotInSalesChannelCases')]
+    public function testValidateAddsViolationWhenLanguageNotAvailableInSalesChannel(
+        SalesChannelCollection $salesChannels,
+        Context $context,
+        string $salesChannelIdBytes
+    ): void {
         $ids = new IdsCollection();
-        $salesChannelId = $ids->get('sc1');
-
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId($salesChannelId);
-        $salesChannel->setLanguages(new LanguageCollection());
-        $salesChannels = new SalesChannelCollection([$salesChannel]);
-
-        $context = Context::createDefaultContext();
         $writeContext = WriteContext::createFromContext($context);
         $command = new InsertCommand(
             $this->definitionRegistry->get(CustomerDefinition::class),
             [
                 'language_id' => $ids->getBytes('lang1'),
-                'sales_channel_id' => $ids->getBytes('sc1'),
+                'sales_channel_id' => $salesChannelIdBytes,
             ],
             ['id' => $ids->getBytes('customer1')],
             $this->createMock(EntityExistence::class),
@@ -458,53 +446,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'sales_channel',
-                1,
-                $salesChannels,
-                new AggregationResultCollection(),
-                new Criteria(),
-                $context
-            ));
-
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
-        $subscriber->validate($event);
-
-        $exceptions = $event->getExceptions()->getExceptions();
-        static::assertCount(1, $exceptions);
-        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
-        static::assertSame(
-            CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL,
-            $exceptions[0]->getViolations()->get(0)->getCode()
-        );
-    }
-
-    public function testValidateAddsViolationWhenSalesChannelLanguagesIsNull(): void
-    {
-        $ids = new IdsCollection();
-        $salesChannelId = $ids->get('sc1');
-
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId($salesChannelId);
-        $salesChannels = new SalesChannelCollection([$salesChannel]);
-
-        $context = Context::createDefaultContext();
-        $writeContext = WriteContext::createFromContext($context);
-        $command = new InsertCommand(
-            $this->definitionRegistry->get(CustomerDefinition::class),
-            [
-                'language_id' => $ids->getBytes('lang1'),
-                'sales_channel_id' => $ids->getBytes('sc1'),
-            ],
-            ['id' => $ids->getBytes('customer1')],
-            $this->createMock(EntityExistence::class),
-            '/0/'
-        );
-        $event = new PreWriteValidationEvent($writeContext, [$command]);
-
-        $this->salesChannelRepository->expects($this->once())
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'sales_channel',
-                1,
+                $salesChannels->count(),
                 $salesChannels,
                 new AggregationResultCollection(),
                 new Criteria(),

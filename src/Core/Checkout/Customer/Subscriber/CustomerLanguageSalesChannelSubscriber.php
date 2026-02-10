@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
-use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -123,12 +121,8 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
         }
 
         foreach ($salesChannels as $salesChannel) {
-            /** @var CustomerCollection|null $customers */
-            $customers = $salesChannel->get('customers');
-
-            $customer = $customers?->get($customerId);
-            if ($customer) {
-                return $customer->get('salesChannelId');
+            if ($salesChannel->get('customers')?->has($customerId)) {
+                return $salesChannel->getId();
             }
         }
 
@@ -168,7 +162,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             return new EntityCollection();
         }
 
-        $criteria = (new Criteria())->addFields(['id', 'languages.id', 'customers.id'])
+        $criteria = (new Criteria())->addFields(['id', 'languages.id'])
             ->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
                 new EqualsAnyFilter('id', $salesChannelIds),
                 new EqualsAnyFilter('customers.id', $customerIds),
@@ -176,6 +170,12 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
 
         $criteria->getAssociation('languages')
             ->addFilter(new EqualsAnyFilter('id', \array_column($candidates, 'languageId')));
+
+        if ($customerIds !== []) {
+            $criteria->addFields(['customers.id']);
+            $criteria->getAssociation('customers')
+                ->addFilter(new EqualsAnyFilter('id', $customerIds));
+        }
 
         return $this->salesChannelRepository->search($criteria, $context)->getEntities();
     }
@@ -187,10 +187,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     {
         $salesChannel = $salesChannels->get($salesChannelId);
 
-        /** @var LanguageCollection|null $languages */
-        $languages = $salesChannel?->get('languages');
-
-        return $languages?->has($languageId) ?? false;
+        return $salesChannel?->get('languages')?->has($languageId) ?? false;
     }
 
     private function createLanguageNotInSalesChannelViolation(string $languageId): WriteConstraintViolationException

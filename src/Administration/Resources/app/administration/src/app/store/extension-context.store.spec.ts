@@ -100,10 +100,7 @@ describe('extension-context.store', () => {
         });
 
         it('returns the return value of the callback', () => {
-            const result = store.wrapWithExtensionContext(
-                { id: 'https://ext.example.com' },
-                () => 42,
-            );
+            const result = store.wrapWithExtensionContext({ id: 'https://ext.example.com' }, () => 42);
             expect(result).toBe(42);
         });
 

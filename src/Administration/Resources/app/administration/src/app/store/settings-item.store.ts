@@ -5,6 +5,9 @@
 
 import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
 
+/**
+ * @private
+ */
 export interface SettingsItem {
     name?: string;
     group: string | (() => string);
@@ -50,7 +53,17 @@ const settingsItems = Shopware.Store.register('settingsItems', () => {
         groupArray.push(settingsItem);
     };
 
-    const defaultGroups = ['general', 'customer', 'automation', 'localization', 'content', 'commerce', 'system', 'account', 'plugins'];
+    const defaultGroups = [
+        'general',
+        'customer',
+        'automation',
+        'localization',
+        'content',
+        'commerce',
+        'system',
+        'account',
+        'plugins',
+    ];
 
     // Initialize the default groups by accessing them via get, which creates empty entries in the map
     const initDefaults = () => defaultGroups.forEach((group) => settingsByGroup.get(group));

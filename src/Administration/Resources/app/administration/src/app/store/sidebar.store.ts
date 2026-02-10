@@ -30,8 +30,8 @@ const sidebarsStore = Shopware.Store.register('sidebar', () => {
     };
 
     const closeSidebar = (locationId: string): void => {
-        const sidebars = sidebarsOrdered.items.value;
-        const sidebar = sidebars.find((item) => item.locationId === locationId);
+        const sidebarsList = sidebarsOrdered.items.value;
+        const sidebar = sidebarsList.find((item) => item.locationId === locationId);
 
         if (!sidebar) {
             return;
@@ -44,13 +44,13 @@ const sidebarsStore = Shopware.Store.register('sidebar', () => {
     };
 
     const setActiveSidebar = (locationId: string): void => {
-        const sidebars = sidebarsOrdered.items.value;
+        const sidebarsList = sidebarsOrdered.items.value;
 
-        sidebars.forEach((sidebar) => {
+        sidebarsList.forEach((sidebar) => {
             sidebar.active = false;
         });
 
-        const sidebar = sidebars.find((item) => item.locationId === locationId);
+        const sidebar = sidebarsList.find((item) => item.locationId === locationId);
         if (!sidebar) {
             return;
         }

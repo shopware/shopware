@@ -18,6 +18,6 @@ export default {
     methods: {
         setActiveSidebar(locationId: string) {
             Shopware.Store.get('sidebar').setActiveSidebar(locationId);
-        }, 
+        },
     },
 };

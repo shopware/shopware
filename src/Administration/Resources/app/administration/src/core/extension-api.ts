@@ -29,28 +29,37 @@ export default {
             data: MessageDataType<MESSAGE_TYPE> & BaseMessageOptions,
             additionalInformation: { _event_: MessageEvent<string> },
         ): ReturnType<HandleMethod<MESSAGE_TYPE>> => {
-            const extensionContext = { id: additionalInformation._event_.source?.location?.href };
+            const source = additionalInformation._event_.source as Window | null;
+            const extensionContext = { id: source?.location?.href ?? '' };
 
             // No privileges to check early return by calling original method
             if (!data.privileges || data.privileges.length === 0) {
+                // Store.get is untyped; wrapWithExtensionContext return type is correct at runtime
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return wrapWithExtensionContext(extensionContext, () => method(data, additionalInformation));
+                return wrapWithExtensionContext(
+                    extensionContext,
+                    (): ReturnType<HandleMethod<MESSAGE_TYPE>> =>
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        method(data, additionalInformation),
+                );
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return new Promise((resolve, reject) => {
+            return new Promise<ShopwareMessageTypes[MESSAGE_TYPE]['responseType']>((resolve, reject) => {
                 // We know data.privileges is defined at this point
                 const missingPrivileges = data.privileges!.filter((p) => !Shopware.Service('acl').can(p));
                 if (missingPrivileges.length > 0) {
                     reject(new MissingPrivilegesError(type, missingPrivileges));
                 } else {
-                    const result = wrapWithExtensionContext(extensionContext, () => method(data, additionalInformation));
+                    wrapWithExtensionContext(extensionContext, () => {
+                        const result = method(data, additionalInformation);
 
-                    if (isPromise<ShopwareMessageTypes[MESSAGE_TYPE]['responseType']>(result)) {
-                        void result.then((rsp) => resolve(rsp)).catch(reject);
-                    } else {
-                        resolve(result);
-                    }
+                        if (isPromise<ShopwareMessageTypes[MESSAGE_TYPE]['responseType']>(result)) {
+                            void result.then((rsp) => resolve(rsp)).catch(reject);
+                        } else {
+                            resolve(result);
+                        }
+                    });
                 }
             }) as ReturnType<HandleMethod<MESSAGE_TYPE>>;
         };

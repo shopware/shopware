@@ -4,11 +4,7 @@
 
 import { nextTick } from 'vue';
 
-import {
-    useExtensionOrderedArray,
-    useExtensionOrdereredArrayMap,
-} from './use-extension-ordered-container';
-
+import { useExtensionOrderedArray, useExtensionOrdereredArrayMap } from './use-extension-ordered-container';
 
 async function setCurrentExtension(extensionId: string | null): Promise<void> {
     const store = Shopware.Store.get('extensionContext');
@@ -23,9 +19,7 @@ describe('use-extension-ordered-container', () => {
 
     beforeAll(() => {
         Shopware.Utils.EventBus.emit = jest.fn((event: string, payload?: unknown) => {
-            eventBusListeners
-                .filter((l) => l.event === event)
-                .forEach((l) => l.callback(payload));
+            eventBusListeners.filter((l) => l.event === event).forEach((l) => l.callback(payload));
         });
         const originalOn = Shopware.Utils.EventBus.on?.bind(Shopware.Utils.EventBus) ?? (() => {});
         (jest.spyOn(Shopware.Utils.EventBus, 'on') as jest.SpyInstance).mockImplementation(
@@ -36,13 +30,13 @@ describe('use-extension-ordered-container', () => {
         );
     });
 
-    afterAll(() => {
-        jest.restoreAllMocks();
-    });
-
     beforeEach(async () => {
         await setCurrentExtension(null);
         eventBusListeners = [];
+    });
+
+    afterAll(() => {
+        jest.restoreAllMocks();
     });
 
     describe('useExtensionOrderedArray', () => {
@@ -79,7 +73,11 @@ describe('use-extension-ordered-container', () => {
                 push('a2');
                 push('a3');
 
-                expect(items.value).toEqual(['a1', 'a2', 'a3']);
+                expect(items.value).toEqual([
+                    'a1',
+                    'a2',
+                    'a3',
+                ]);
             });
 
             it('preserves extension order: segments in first-push order, new items append to segment', async () => {
@@ -123,7 +121,10 @@ describe('use-extension-ordered-container', () => {
 
                 removeFirstWhere((x) => x === 'not-there');
 
-                expect(items.value).toEqual(['a1', 'a2']);
+                expect(items.value).toEqual([
+                    'a1',
+                    'a2',
+                ]);
             });
 
             it('removes first matching item by predicate and only the first match', async () => {
@@ -157,7 +158,11 @@ describe('use-extension-ordered-container', () => {
                 removeFirstWhere((x) => x === 'a2');
 
                 // a3 is in the same ext-a segment as a1 (append to segment), so order is a1, a3, b1
-                expect(items.value).toEqual(['a1', 'a3', 'b1']);
+                expect(items.value).toEqual([
+                    'a1',
+                    'a3',
+                    'b1',
+                ]);
             });
 
             it('push after removeFirstWhere does not corrupt order or counts', async () => {
@@ -177,7 +182,12 @@ describe('use-extension-ordered-container', () => {
                 push('b2');
 
                 // Segment order: ext-a (a1, a3) then ext-b (b1, b2)
-                expect(items.value).toEqual(['a1', 'a3', 'b1', 'b2']);
+                expect(items.value).toEqual([
+                    'a1',
+                    'a3',
+                    'b1',
+                    'b2',
+                ]);
             });
         });
 
@@ -324,7 +334,10 @@ describe('use-extension-ordered-container', () => {
 
                 expect(items.value.key1).toBeDefined();
                 expect(items.value.key2).toBeDefined();
-                expect(items.value.key1).toEqual(['a', 'b']);
+                expect(items.value.key1).toEqual([
+                    'a',
+                    'b',
+                ]);
                 expect(items.value.key2).toEqual(['c']);
             });
 
@@ -344,10 +357,12 @@ describe('use-extension-ordered-container', () => {
                 get('key1').push('a');
 
                 expect(() => {
-                    (items.value as Record<string, unknown>)['newKey'] = {};
+                    // @ts-expect-error - items.value is readonly but we exactly want to test that
+                    items.value.newKey = {};
                 }).toThrow();
                 expect(() => {
-                    delete (items.value as Record<string, unknown>)['key1'];
+                    // @ts-expect-error - items.value is readonly but we exactly want to test that
+                    delete items.value.key1;
                 }).toThrow();
 
                 const key1Array = items.value.key1 as string[];

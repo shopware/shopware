@@ -11,6 +11,8 @@ import { computed, ref } from 'vue';
 /**
  * Context for the extension that is currently handling an SDK message.
  * For now only contains the extension id; more fields may be added later.
+ *
+ * @private
  */
 export interface ExtensionContext {
     /**
@@ -26,7 +28,7 @@ const extensionContextStore = Shopware.Store.register('extensionContext', () => 
         currentExtensionContext.value = context;
     };
 
-    const wrapWithExtensionContext = (context: ExtensionContext, callback: () => void) => {
+    const wrapWithExtensionContext = <T>(context: ExtensionContext, callback: () => T): T => {
         const before = currentExtensionContext.value;
         currentExtensionContext.value = context;
         try {
@@ -48,6 +50,8 @@ const extensionContextStore = Shopware.Store.register('extensionContext', () => 
  * the helper to run a callback with a given extension context.
  * The context id is for now the extension URL (message origin).
  * Uses the extensionContext Pinia store for shared state.
+ *
+ * @private
  */
 export function useCurrentExtensionId() {
     const store = Shopware.Store.get('extensionContext');

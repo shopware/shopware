@@ -1,4 +1,9 @@
-import { computed, Ref, ref, shallowRef, triggerRef } from 'vue';
+/**
+ * @sw-package framework
+ */
+
+import type { Ref } from 'vue';
+import { computed, ref, shallowRef, triggerRef } from 'vue';
 import { useCurrentExtensionId } from '../store/extension-context.store';
 
 interface OrderItem {
@@ -13,6 +18,9 @@ interface OrderItem {
     count: number;
 }
 
+/**
+ * @private
+ */
 export const useExtensionOrderedArray = <T>() => {
     const internalArray: Ref<T[]> = ref([]);
     const order: Ref<OrderItem[]> = ref([]);
@@ -22,11 +30,15 @@ export const useExtensionOrderedArray = <T>() => {
         extensionId: string | null,
     ): { startIndex: number; nextInsertIndex: number; orderItem: OrderItem } => {
         let index = 0;
-        for (const item of order.value) {
+        const matching = order.value.find((item) => {
             if (item.extensionId === extensionId) {
-                return { startIndex: index, nextInsertIndex: index + item.count, orderItem: item };
+                return true;
             }
             index += item.count;
+            return false;
+        });
+        if (matching) {
+            return { startIndex: index, nextInsertIndex: index + matching.count, orderItem: matching };
         }
         const item = { extensionId, count: 0 };
         order.value.push(item);
@@ -41,7 +53,7 @@ export const useExtensionOrderedArray = <T>() => {
         const id = extensionId.value ?? null;
         const { nextInsertIndex, orderItem } = getOrderItem(id);
         internalArray.value.splice(nextInsertIndex, 0, value);
-        orderItem.count++;
+        orderItem.count += 1;
     };
 
     /**
@@ -63,13 +75,16 @@ export const useExtensionOrderedArray = <T>() => {
             return;
         }
         let runningIndex = 0;
-        for (const item of order.value) {
+        const segment = order.value.find((item) => {
             if (index < runningIndex + item.count) {
-                item.count--;
-                internalArray.value.splice(index, 1);
-                return;
+                return true;
             }
             runningIndex += item.count;
+            return false;
+        });
+        if (segment) {
+            segment.count -= 1;
+            internalArray.value.splice(index, 1);
         }
     };
 
@@ -99,6 +114,9 @@ export const useExtensionOrderedArray = <T>() => {
     };
 };
 
+/**
+ * @private
+ */
 export const useExtensionOrdereredArrayMap = <T>() => {
     const internalMap: Ref<Map<string, ReturnType<typeof useExtensionOrderedArray<T>>>> = shallowRef(new Map());
 
@@ -113,9 +131,7 @@ export const useExtensionOrdereredArrayMap = <T>() => {
     };
 
     const reset = () => {
-        for (const entry of internalMap.value.values()) {
-            entry.dispose();
-        }
+        Array.from(internalMap.value.values()).forEach((entry) => entry.dispose());
         internalMap.value.clear();
         triggerRef(internalMap);
     };
@@ -123,7 +139,15 @@ export const useExtensionOrdereredArrayMap = <T>() => {
     const items = computed(() =>
         Object.freeze(
             Object.fromEntries(
-                Array.from(internalMap.value.entries()).map(([key, value]) => [key, value.items.value]),
+                Array.from(internalMap.value.entries()).map(
+                    ([
+                        key,
+                        value,
+                    ]) => [
+                        key,
+                        value.items.value,
+                    ],
+                ),
             ),
         ),
     );
@@ -136,6 +160,6 @@ export const useExtensionOrdereredArrayMap = <T>() => {
         items,
         reset,
         get,
-        dispose
+        dispose,
     };
 };

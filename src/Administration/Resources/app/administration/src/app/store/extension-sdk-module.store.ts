@@ -49,9 +49,9 @@ const extensionSdkModules = Shopware.Store.register('extensionSdkModules', () =>
         };
 
         const id = Shopware.Utils.format.md5(JSON.stringify(staticElements));
-        const modules = modulesOrdered.items.value;
+        const currentModules = modulesOrdered.items.value;
 
-        if (!modules.some((module) => module.id === id)) {
+        if (!currentModules.some((module) => module.id === id)) {
             modulesOrdered.push({
                 id,
                 ...staticElements,

@@ -20,11 +20,6 @@ const extensionEntryRoutes = Shopware.Store.register({
         addItem(config: EntryRouteConfig) {
             this.routes[config.extensionName] = config;
         },
-
-        removeByExtensionName(extensionName: string) {
-            const { [extensionName]: _, ...rest } = this.routes;
-            this.routes = rest;
-        },
     },
 });
 

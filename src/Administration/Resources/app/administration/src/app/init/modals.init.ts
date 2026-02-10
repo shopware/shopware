@@ -44,7 +44,6 @@ export default function initializeModal(): void {
         } catch (error) {
             console.error(error);
         }
-        
     });
 
     Shopware.ExtensionAPI.handle('uiModalClose', ({ locationId }) => {

@@ -38,14 +38,14 @@ export default {
             this.currentCustomField.type = value;
 
             if (value === 'int') {
-                if (this.currentCustomField.config.step != null) {
+                if (this.currentCustomField.config.step !== null && this.currentCustomField.config.step !== undefined) {
                     const roundedStep = Math.round(this.currentCustomField.config.step);
                     this.currentCustomField.config.step = roundedStep >= 1 ? roundedStep : 1;
                 }
-                if (this.currentCustomField.config.min != null) {
+                if (this.currentCustomField.config.min !== null && this.currentCustomField.config.min !== undefined) {
                     this.currentCustomField.config.min = Math.round(this.currentCustomField.config.min);
                 }
-                if (this.currentCustomField.config.max != null) {
+                if (this.currentCustomField.config.max !== null && this.currentCustomField.config.max !== undefined) {
                     this.currentCustomField.config.max = Math.round(this.currentCustomField.config.max);
                 }
             }

@@ -27,9 +27,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $this->mediaPathStrategy->method('name')->willReturn('test-strategy');
     }
 
-    public function testConstructorWithDisabledFeature(): void
+    public function testCreateWithDisabledFeature(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             ['type' => 'amazon-s3', 'config' => ['bucket' => 'test', 'region' => 'eu-west-1']],
             5,
@@ -40,9 +40,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         static::assertFalse($generator->isSupported());
     }
 
-    public function testConstructorWithNonS3Filesystem(): void
+    public function testCreateWithNonS3Filesystem(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             ['type' => 'local'],
             5,
@@ -53,9 +53,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         static::assertFalse($generator->isSupported());
     }
 
-    public function testConstructorWithS3FilesystemIsSupported(): void
+    public function testCreateWithS3FilesystemIsSupported(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -72,9 +72,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         static::assertTrue($generator->isSupported());
     }
 
-    public function testConstructorWithExplicitCredentials(): void
+    public function testCreateWithExplicitCredentials(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -94,10 +94,10 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         static::assertTrue($generator->isSupported());
     }
 
-    public function testConstructorWithIAMRole(): void
+    public function testCreateWithIAMRole(): void
     {
         // No credentials provided - should use IAM role via default credential chain
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -113,9 +113,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         static::assertTrue($generator->isSupported());
     }
 
-    public function testConstructorWithEndpoint(): void
+    public function testCreateWithEndpoint(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -133,9 +133,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         static::assertTrue($generator->isSupported());
     }
 
-    public function testConstructorWithRootPrefix(): void
+    public function testCreateWithRootPrefix(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -152,12 +152,12 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         static::assertTrue($generator->isSupported());
     }
 
-    public function testConstructorWithInvalidConfig(): void
+    public function testCreateWithInvalidConfig(): void
     {
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Invalid presigned upload configuration');
 
-        new PresignedUploadUrlGenerator(
+        PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -166,12 +166,12 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         );
     }
 
-    public function testConstructorWithMissingBucket(): void
+    public function testCreateWithMissingBucket(): void
     {
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Invalid presigned upload configuration');
 
-        new PresignedUploadUrlGenerator(
+        PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -182,12 +182,12 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         );
     }
 
-    public function testConstructorWithMissingRegion(): void
+    public function testCreateWithMissingRegion(): void
     {
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Invalid presigned upload configuration');
 
-        new PresignedUploadUrlGenerator(
+        PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -198,12 +198,12 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         );
     }
 
-    public function testConstructorWithIncompleteCredentials(): void
+    public function testCreateWithIncompleteCredentials(): void
     {
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Invalid presigned upload configuration');
 
-        new PresignedUploadUrlGenerator(
+        PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -223,7 +223,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
     {
         $generator = new PresignedUploadUrlGenerator(
             $this->mediaPathStrategy,
-            ['type' => 'amazon-s3', 'config' => ['bucket' => 'test', 'region' => 'eu-west-1']],
+            null,
+            null,
+            '',
             5,
             false
         );
@@ -245,7 +247,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
     {
         $generator = new PresignedUploadUrlGenerator(
             $this->mediaPathStrategy,
-            ['type' => 'local'],
+            null,
+            null,
+            '',
             5,
             true
         );
@@ -265,7 +269,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testGenerateWithNullFileName(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -293,7 +297,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testGenerateWithNullExtension(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -327,7 +331,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             ->method('generate')
             ->willReturn([]); // Returns empty array - no path generated
 
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             [
                 'type' => 'amazon-s3',
@@ -357,7 +361,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
     {
         $generator = new PresignedUploadUrlGenerator(
             $this->mediaPathStrategy,
-            ['type' => 'local'],
+            null,
+            null,
+            '',
             5,
             true
         );
@@ -369,7 +375,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
     {
         $generator = new PresignedUploadUrlGenerator(
             $this->mediaPathStrategy,
-            ['type' => 'local'],
+            null,
+            null,
+            '',
             5,
             true
         );

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('after-sales')]
 class Migration1754295570DocumentActivateReturnAddress extends MigrationStep
 {
-    // company address is empty by default, so we can set displayReturnAddress to false by default
+    // company address is empty by default, so displayReturnAddress is false by default
     final public const DEFAULT_RETURN_ADDRESS_CONFIG = false;
 
     public function getCreationTimestamp(): int

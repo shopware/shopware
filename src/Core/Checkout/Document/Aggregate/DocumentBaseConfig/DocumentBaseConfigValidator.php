@@ -77,7 +77,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
                 );
             }
 
-            if ($config['displayCompanyAddress'] || $config['displayReturnAddress']) {
+            if (!empty($config['displayCompanyAddress']) || !empty($config['displayReturnAddress'])) {
                 foreach (self::REQUIRED_ADDRESS_FIELDS as $field) {
                     $this->validateRequiredField(
                         $violations,

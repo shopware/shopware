@@ -745,6 +745,10 @@ export default {
             this.documentConfig.config.fileTypes = fileTypes.filter((id) => id !== typeId);
         },
 
+        onChangeCompanyLogo(media) {
+            this.documentConfig.logoId = media.at(0)?.id || null;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */

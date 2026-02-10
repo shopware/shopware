@@ -296,7 +296,7 @@
                         :source="documentConfig.logoId"
                         :label="$tc('sw-settings-document.detail.labelCompanyLogo')"
                         @media-upload-remove-image="documentConfig.logoId = null"
-                        @selection-change="(v) => documentConfig.logoId = v"
+                        @selection-change="onChangeCompanyLogo"
                     />
                     {% endblock %}
                 </div>

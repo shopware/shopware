@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -17,8 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -32,7 +31,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     final public const VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL = 'customer_language_not_in_sales_channel';
 
     /**
-     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     * @param EntityRepository<EntityCollection<PartialEntity>> $salesChannelRepository
      *
      * @internal
      */
@@ -107,7 +106,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
 
     /**
      * @param array{customerId: string|null, languageId: string, salesChannelId: string|null} $candidate
-     * @param EntityCollection<SalesChannelEntity> $salesChannels
+     * @param EntityCollection<PartialEntity> $salesChannels
      */
     private function findSalesChannelIdForCustomer(array $candidate, EntityCollection $salesChannels): ?string
     {
@@ -121,7 +120,9 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
         }
 
         foreach ($salesChannels as $salesChannel) {
-            if ($salesChannel->get('customers')?->has($customerId)) {
+            /** @var EntityCollection<PartialEntity>|null $customers */
+            $customers = $salesChannel->get('customers');
+            if ($customers?->has($customerId)) {
                 return $salesChannel->getId();
             }
         }
@@ -151,7 +152,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     /**
      * @param list<array{customerId: string|null, languageId: string, salesChannelId: string|null}> $candidates
      *
-     * @return EntityCollection<SalesChannelEntity>
+     * @return EntityCollection<PartialEntity>
      */
     private function fetchSalesChannels(array $candidates, Context $context): EntityCollection
     {
@@ -181,13 +182,16 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param EntityCollection<SalesChannelEntity> $salesChannels
+     * @param EntityCollection<PartialEntity> $salesChannels
      */
     private function isLanguageInSalesChannel(string $salesChannelId, string $languageId, EntityCollection $salesChannels): bool
     {
         $salesChannel = $salesChannels->get($salesChannelId);
 
-        return $salesChannel?->get('languages')?->has($languageId) ?? false;
+        /** @var EntityCollection<PartialEntity>|null $languages */
+        $languages = $salesChannel?->get('languages');
+
+        return $languages?->has($languageId) ?? false;
     }
 
     private function createLanguageNotInSalesChannelViolation(string $languageId): WriteConstraintViolationException

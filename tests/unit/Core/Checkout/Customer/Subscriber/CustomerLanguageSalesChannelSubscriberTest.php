@@ -330,12 +330,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $exceptions = $event->getExceptions()->getExceptions();
         static::assertCount(1, $exceptions);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
-        static::assertSame(
-            CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL,
-            $exceptions[0]->getViolations()->get(0)->getCode()
-        );
-        static::assertSame('/languageId', $exceptions[0]->getViolations()->get(0)->getPropertyPath());
-        static::assertStringContainsString($ids->get('langOther'), (string) $exceptions[0]->getViolations()->get(0)->getMessage());
+        $this->assertLanguageNotInSalesChannelViolation($exceptions[0], $ids->get('langOther'));
     }
 
     public function testValidateAddsViolationOnUpdateWhenLanguageNotInResolvedSalesChannel(): void
@@ -383,11 +378,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $exceptions = $event->getExceptions()->getExceptions();
         static::assertCount(1, $exceptions);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
-        static::assertSame(
-            CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL,
-            $exceptions[0]->getViolations()->get(0)->getCode()
-        );
-        static::assertSame('/languageId', $exceptions[0]->getViolations()->get(0)->getPropertyPath());
+        $this->assertLanguageNotInSalesChannelViolation($exceptions[0], $ids->get('langOther'));
     }
 
     /**
@@ -459,9 +450,13 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $exceptions = $event->getExceptions()->getExceptions();
         static::assertCount(1, $exceptions);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
-        static::assertSame(
-            CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL,
-            $exceptions[0]->getViolations()->get(0)->getCode()
-        );
+        $this->assertLanguageNotInSalesChannelViolation($exceptions[0], $ids->get('lang1'));
+    }
+
+    private function assertLanguageNotInSalesChannelViolation(WriteConstraintViolationException $e, string $languageId): void
+    {
+        static::assertSame(CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL, $e->getViolations()->get(0)->getCode());
+        static::assertSame('/languageId', $e->getViolations()->get(0)->getPropertyPath());
+        static::assertStringContainsString($languageId, (string) $e->getViolations()->get(0)->getMessage());
     }
 }

@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('after-sales')]
 class Migration1754295570DocumentActivateReturnAddress extends MigrationStep
 {
+    // company address is empty by default, so we can set displayReturnAddress to false by default
+    final public const DEFAULT_RETURN_ADDRESS_CONFIG = false;
+
     public function getCreationTimestamp(): int
     {
         return 1754295570;
@@ -24,14 +27,14 @@ class Migration1754295570DocumentActivateReturnAddress extends MigrationStep
         $documentConfig = array_map(function ($arr): array {
             if (!\array_key_exists('config', $arr) || !\is_string($arr['config'])) {
                 $arr['config'] = [];
-                $arr['config']['displayReturnAddress'] = true;
+                $arr['config']['displayReturnAddress'] = self::DEFAULT_RETURN_ADDRESS_CONFIG;
                 $arr['config'] = json_encode($arr['config']);
 
                 return $arr;
             }
 
             $arr['config'] = json_decode($arr['config'], true, 512, \JSON_THROW_ON_ERROR);
-            $arr['config']['displayReturnAddress'] = true;
+            $arr['config']['displayReturnAddress'] = self::DEFAULT_RETURN_ADDRESS_CONFIG;
             $arr['config'] = json_encode($arr['config']);
 
             return $arr;

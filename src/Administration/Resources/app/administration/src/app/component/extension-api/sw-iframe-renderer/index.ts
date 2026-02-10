@@ -84,6 +84,21 @@ export default Shopware.Component.wrapComponentConfig({
                         [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
                     },
                 });
+
+                const filteredParams = searchParams.filter(([key]) => {
+                    return ![
+                        'location-id',
+                        'privileges',
+                        'shop-id',
+                        'shop-url',
+                        'timestamp',
+                        'sw-version',
+                        'sw-context-language',
+                        'sw-user-language',
+                        'shopware-shop-signature',
+                    ].includes(key);
+                });
+                this.registerExtensionHrefFromLocation(pathname, hash, filteredParams);
             },
         );
     },
@@ -166,9 +181,25 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         onIframeLoad() {
+            const url = this.extensionIsApp && this.signedIframeSrc ? this.signedIframeSrc : this.iFrameSrc;
+            const origin = new URL(url, window.location.origin).origin;
+            Shopware.Store.get('extensionContext').registerExtensionHref(origin, url);
+
             Shopware.Utils.EventBus.emit('sw-extension-loaded', {
                 src: this.iFrameSrc,
             });
+        },
+
+        registerExtensionHrefFromLocation(pathname: string, hash: string, searchParams: [string, string][]) {
+            const origin = new URL(this.src, window.location.origin).origin;
+            const url = new URL(pathname || '/', origin);
+            searchParams.forEach(([key, value]) => {
+                url.searchParams.append(key, value);
+            });
+            if (hash) {
+                url.hash = hash;
+            }
+            Shopware.Store.get('extensionContext').registerExtensionHref(origin, url.toString());
         },
 
         signIframeSrc() {
@@ -214,6 +245,10 @@ export default Shopware.Component.wrapComponentConfig({
                     }
 
                     this.signedIframeSrc = urlObject.toString();
+                    Shopware.Store.get('extensionContext').registerExtensionHref(
+                        urlObject.origin,
+                        urlObject.toString(),
+                    );
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                 })
                 .catch(() => {});

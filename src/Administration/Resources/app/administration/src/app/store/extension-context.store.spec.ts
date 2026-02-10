@@ -128,4 +128,23 @@ describe('extension-context.store', () => {
             expect(id.value).toBe('https://second.example');
         });
     });
+
+    describe('registerExtensionHref / getExtensionHref', () => {
+        it('returns undefined when origin was not registered', () => {
+            expect(store.getExtensionHref('https://unknown.example')).toBeUndefined();
+        });
+
+        it('returns registered href for origin', () => {
+            store.registerExtensionHref('https://ext.example.com', 'https://ext.example.com/app/#/detail/1');
+            expect(store.getExtensionHref('https://ext.example.com')).toBe(
+                'https://ext.example.com/app/#/detail/1',
+            );
+        });
+
+        it('overwrites href when same origin is registered again', () => {
+            store.registerExtensionHref('https://ext.example.com', 'https://ext.example.com/');
+            store.registerExtensionHref('https://ext.example.com', 'https://ext.example.com/app/#/new');
+            expect(store.getExtensionHref('https://ext.example.com')).toBe('https://ext.example.com/app/#/new');
+        });
+    });
 });

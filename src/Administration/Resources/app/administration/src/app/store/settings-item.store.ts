@@ -1,11 +1,7 @@
-/**
- * @sw-package framework
- * @private
- */
-
 import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
 
 /**
+ * @sw-package framework
  * @private
  */
 export interface SettingsItem {

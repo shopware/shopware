@@ -29,8 +29,10 @@ export default {
             data: MessageDataType<MESSAGE_TYPE> & BaseMessageOptions,
             additionalInformation: { _event_: MessageEvent<string> },
         ): ReturnType<HandleMethod<MESSAGE_TYPE>> => {
-            const source = additionalInformation._event_.source as Window | null;
-            const extensionContext = { id: source?.location?.href ?? '' };
+            const origin = additionalInformation._event_.origin ?? '';
+            const extensionContextStore = Shopware.Store.get('extensionContext');
+            const href = extensionContextStore.getExtensionHref(origin);
+            const extensionContext = { id: href ?? origin };
 
             // No privileges to check early return by calling original method
             if (!data.privileges || data.privileges.length === 0) {

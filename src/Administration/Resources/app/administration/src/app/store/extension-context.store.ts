@@ -16,10 +16,19 @@ import { computed, ref } from 'vue';
  */
 export interface ExtensionContext {
     /**
-     * Identifier for the extension. For now this is the extension URL (message origin).
+     * Identifier for the extension (full extension URL when known, otherwise origin).
      */
     id: string;
 }
+
+/**
+ * Registry of extension origin -> current iframe href.
+ * Populated by sw-iframe-renderer so extension-api can resolve the correct href
+ * for cross-origin iframes (where source.location.href is not accessible).
+ *
+ * @private
+ */
+const extensionHrefByOrigin = ref<Record<string, string>>({});
 
 const extensionContextStore = Shopware.Store.register('extensionContext', () => {
     const currentExtensionContext = ref<ExtensionContext | null>(null);
@@ -38,10 +47,31 @@ const extensionContextStore = Shopware.Store.register('extensionContext', () => 
         }
     };
 
+    /**
+     * Register the current iframe URL for an origin. Used by sw-iframe-renderer
+     * so that the extension context id can be the full href when handling messages.
+     *
+     * @private
+     */
+    const registerExtensionHref = (origin: string, href: string) => {
+        extensionHrefByOrigin.value = { ...extensionHrefByOrigin.value, [origin]: href };
+    };
+
+    /**
+     * Get the registered href for an origin, or undefined if not registered.
+     *
+     * @private
+     */
+    const getExtensionHref = (origin: string): string | undefined => {
+        return extensionHrefByOrigin.value[origin];
+    };
+
     return {
         currentExtensionContext,
         _setCurrentExtensionContext,
         wrapWithExtensionContext,
+        registerExtensionHref,
+        getExtensionHref,
     };
 });
 

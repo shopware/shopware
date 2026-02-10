@@ -10,7 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -34,13 +35,11 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
 
     /**
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
-     * @param EntityRepository<CustomerCollection> $customerRepository
      *
      * @internal
      */
     public function __construct(
         private readonly EntityRepository $salesChannelRepository,
-        private readonly EntityRepository $customerRepository
     ) {
     }
 
@@ -65,11 +64,10 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $customerSalesChannelMap = $this->getCustomersSalesChannelsIds($candidates, $context);
-        $salesChannels = $this->loadSalesChannels($customerSalesChannelMap, $candidates, $context);
+        $salesChannels = $this->fetchSalesChannels($candidates, $context);
 
         foreach ($candidates as $candidate) {
-            $salesChannelId = $this->resolveSalesChannelId($candidate, $customerSalesChannelMap);
+            $salesChannelId = $this->findSalesChannelIdForCustomer($candidate, $salesChannels);
             if ($salesChannelId === null) {
                 continue;
             }
@@ -79,7 +77,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             }
 
             $event->getExceptions()->add(
-                $this->createLanguageNotInSalesChannelViolation($candidate['languageId'], $candidate['customerId'])
+                $this->createLanguageNotInSalesChannelViolation($candidate['languageId'])
             );
         }
     }
@@ -96,7 +94,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if ($command instanceof DeleteCommand) {
+            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
             }
 
@@ -111,9 +109,9 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
 
     /**
      * @param array{customerId: string|null, languageId: string, salesChannelId: string|null} $candidate
-     * @param array<string, string> $customerSalesChannelMap
+     * @param EntityCollection<SalesChannelEntity> $salesChannels
      */
-    private function resolveSalesChannelId(array $candidate, array $customerSalesChannelMap): ?string
+    private function findSalesChannelIdForCustomer(array $candidate, EntityCollection $salesChannels): ?string
     {
         if ($candidate['salesChannelId'] !== null) {
             return $candidate['salesChannelId'];
@@ -124,7 +122,17 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             return null;
         }
 
-        return $customerSalesChannelMap[$customerId] ?? null;
+        foreach ($salesChannels as $salesChannel) {
+            /** @var CustomerCollection|null $customers */
+            $customers = $salesChannel->get('customers');
+
+            $customer = $customers?->get($customerId);
+            if ($customer) {
+                return $customer->get('salesChannelId');
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -149,44 +157,23 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     /**
      * @param list<array{customerId: string|null, languageId: string, salesChannelId: string|null}> $candidates
      *
-     * @return array<string, string>
+     * @return EntityCollection<SalesChannelEntity>
      */
-    private function getCustomersSalesChannelsIds(array $candidates, Context $context): array
+    private function fetchSalesChannels(array $candidates, Context $context): EntityCollection
     {
         $customerIds = \array_filter(\array_column($candidates, 'customerId'));
+        $salesChannelIds = \array_filter(\array_column($candidates, 'salesChannelId'));
 
-        if ($customerIds === []) {
-            return [];
+        if ($customerIds === [] && $salesChannelIds === []) {
+            return new EntityCollection();
         }
 
-        $criteria = new Criteria($customerIds);
-        /** @var CustomerCollection $customers */
-        $customers = $this->customerRepository->search($criteria, $context)->getEntities();
+        $criteria = (new Criteria())->addFields(['id', 'languages.id', 'customers.id'])
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsAnyFilter('id', $salesChannelIds),
+                new EqualsAnyFilter('customers.id', $customerIds),
+            ]));
 
-        return $customers->getSalesChannelIds();
-    }
-
-    /**
-     * @param array<string, string> $customerSalesChannelMap
-     * @param list<array{customerId: string|null, languageId: string, salesChannelId: string|null}> $candidates
-     *
-     * @return EntityCollection<SalesChannelEntity>|null
-     */
-    private function loadSalesChannels(array $customerSalesChannelMap, array $candidates, Context $context): ?EntityCollection
-    {
-        $customerSalesChannelIds = \array_values($customerSalesChannelMap);
-        $explicitSalesChannelIds = \array_column($candidates, 'salesChannelId');
-
-        $salesChannelIds = \array_unique(\array_filter([
-            ...$customerSalesChannelIds,
-            ...$explicitSalesChannelIds,
-        ]));
-
-        if ($salesChannelIds === []) {
-            return null;
-        }
-
-        $criteria = (new Criteria($salesChannelIds))->addFields(['id', 'languages.id']);
         $criteria->getAssociation('languages')
             ->addFilter(new EqualsAnyFilter('id', \array_column($candidates, 'languageId')));
 
@@ -194,11 +181,11 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param EntityCollection<SalesChannelEntity>|null $salesChannels
+     * @param EntityCollection<SalesChannelEntity> $salesChannels
      */
-    private function isLanguageInSalesChannel(string $salesChannelId, string $languageId, ?EntityCollection $salesChannels): bool
+    private function isLanguageInSalesChannel(string $salesChannelId, string $languageId, EntityCollection $salesChannels): bool
     {
-        $salesChannel = $salesChannels?->get($salesChannelId);
+        $salesChannel = $salesChannels->get($salesChannelId);
 
         /** @var LanguageCollection|null $languages */
         $languages = $salesChannel?->get('languages');
@@ -206,20 +193,20 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
         return $languages?->has($languageId) ?? false;
     }
 
-    private function createLanguageNotInSalesChannelViolation(string $languageId, ?string $customerId): WriteConstraintViolationException
+    private function createLanguageNotInSalesChannelViolation(string $languageId): WriteConstraintViolationException
     {
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation(
             \sprintf('The language "%s" is not assigned to the sales channel.', $languageId),
             'The language "{{ languageId }}" is not assigned to the sales channel.',
             ['{{ languageId }}' => $languageId],
-            null,
-            null,
+            '',
+            '/languageId',
             $languageId,
             null,
             self::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL
         ));
 
-        return new WriteConstraintViolationException($violations, $customerId ?? $languageId);
+        return new WriteConstraintViolationException($violations);
     }
 }

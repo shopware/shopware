@@ -48,11 +48,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
      */
     private MockObject&EntityRepository $salesChannelRepository;
 
-    /**
-     * @var MockObject&EntityRepository<CustomerCollection>
-     */
-    private MockObject&EntityRepository $customerRepository;
-
     protected function setUp(): void
     {
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
@@ -61,7 +56,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             $this->createMock(EntityWriteGatewayInterface::class)
         );
         $this->salesChannelRepository = $this->createMock(EntityRepository::class);
-        $this->customerRepository = $this->createMock(EntityRepository::class);
     }
 
     public function testGetSubscribedEvents(): void
@@ -80,7 +74,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
 
         $this->salesChannelRepository->expects($this->never())->method('search');
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
     }
 
@@ -91,9 +85,8 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $event = new PreWriteValidationEvent($writeContext, []);
 
         $this->salesChannelRepository->expects($this->never())->method('search');
-        $this->customerRepository->expects($this->never())->method('search');
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
     }
 
@@ -107,9 +100,8 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
         $this->salesChannelRepository->expects($this->never())->method('search');
-        $this->customerRepository->expects($this->never())->method('search');
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
     }
 
@@ -126,9 +118,8 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
         $this->salesChannelRepository->expects($this->never())->method('search');
-        $this->customerRepository->expects($this->never())->method('search');
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
     }
 
@@ -147,9 +138,8 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
         $this->salesChannelRepository->expects($this->never())->method('search');
-        $this->customerRepository->expects($this->never())->method('search');
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
     }
 
@@ -167,16 +157,15 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->never())->method('search');
         $this->salesChannelRepository->expects($this->never())->method('search');
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    public function testValidateSkipsWhenLanguageIdOrSalesChannelIdNull(): void
+    public function testValidateSkipsWhenUpdateHasNoSalesChannelIdAndCustomerNotInAnyChannel(): void
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
@@ -190,28 +179,24 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->once())
+        $this->salesChannelRepository->expects($this->once())
             ->method('search')
-            ->with(static::callback(static fn (Criteria $c) => $c->getIds() !== []))
             ->willReturn(new EntitySearchResult(
-                'customer',
+                'sales_channel',
                 0,
-                new CustomerCollection(),
+                new SalesChannelCollection(),
                 new AggregationResultCollection(),
                 new Criteria(),
                 $context
             ));
 
-        $this->salesChannelRepository->expects($this->never())
-            ->method('search');
-
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    public function testValidateUpdateUsesSalesChannelFromExistingCustomer(): void
+    public function testValidateUpdateResolvesSalesChannelFromLoadedSalesChannelsCustomers(): void
     {
         $ids = new IdsCollection();
         $languageId = $ids->get('lang1');
@@ -221,13 +206,12 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'id' => $ids->get('customer1'),
             'salesChannelId' => $salesChannelId,
         ]);
-        $customers = new CustomerCollection([$customer]);
-
         $language = new LanguageEntity();
         $language->setId($languageId);
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
         $salesChannel->setLanguages(new LanguageCollection([$language]));
+        $salesChannel->assign(['customers' => new CustomerCollection([$customer])]);
         $salesChannels = new SalesChannelCollection([$salesChannel]);
 
         $context = Context::createDefaultContext();
@@ -241,17 +225,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->once())
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'customer',
-                1,
-                $customers,
-                new AggregationResultCollection(),
-                new Criteria(),
-                $context
-            ));
-
         $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
@@ -263,7 +236,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                 $context
             ));
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
@@ -296,8 +269,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->never())->method('search');
-
         $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::callback(static fn (Criteria $c) => $c->hasAssociation('languages')))
@@ -310,7 +281,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                 $context
             ));
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
@@ -342,8 +313,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->never())->method('search');
-
         $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
@@ -355,7 +324,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                 $context
             ));
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();
@@ -365,11 +334,11 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL,
             $exceptions[0]->getViolations()->get(0)->getCode()
         );
-        static::assertSame($ids->get('langOther'), $exceptions[0]->getPath());
+        static::assertSame('/languageId', $exceptions[0]->getViolations()->get(0)->getPropertyPath());
         static::assertStringContainsString($ids->get('langOther'), (string) $exceptions[0]->getViolations()->get(0)->getMessage());
     }
 
-    public function testValidateAddsViolationOnUpdateUsesCustomerIdAsPath(): void
+    public function testValidateAddsViolationOnUpdateWhenLanguageNotInResolvedSalesChannel(): void
     {
         $ids = new IdsCollection();
         $salesChannelId = $ids->get('sc1');
@@ -383,6 +352,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
         $salesChannel->setLanguages(new LanguageCollection([$language]));
+        $salesChannel->assign(['customers' => new CustomerCollection([$customer])]);
         $salesChannels = new SalesChannelCollection([$salesChannel]);
 
         $context = Context::createDefaultContext();
@@ -396,16 +366,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->once())
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'customer',
-                1,
-                new CustomerCollection([$customer]),
-                new AggregationResultCollection(),
-                new Criteria(),
-                $context
-            ));
         $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
@@ -417,17 +377,17 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                 $context
             ));
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();
         static::assertCount(1, $exceptions);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
-        static::assertSame($ids->get('customer1'), $exceptions[0]->getPath());
         static::assertSame(
             CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL,
             $exceptions[0]->getViolations()->get(0)->getCode()
         );
+        static::assertSame('/languageId', $exceptions[0]->getViolations()->get(0)->getPropertyPath());
     }
 
     public function testValidateAddsViolationWhenSalesChannelNotInCollection(): void
@@ -447,8 +407,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->never())->method('search');
-
         $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
@@ -460,7 +418,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                 $context
             ));
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();
@@ -496,8 +454,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->never())->method('search');
-
         $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
@@ -509,7 +465,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                 $context
             ));
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();
@@ -544,8 +500,6 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
         $event = new PreWriteValidationEvent($writeContext, [$command]);
 
-        $this->customerRepository->expects($this->never())->method('search');
-
         $this->salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
@@ -557,7 +511,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                 $context
             ));
 
-        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository, $this->customerRepository);
+        $subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
         $subscriber->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();

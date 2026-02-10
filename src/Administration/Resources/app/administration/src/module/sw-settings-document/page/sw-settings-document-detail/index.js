@@ -18,43 +18,70 @@ export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
 /**
  * @private
  */
+export const DOCUMENT_CONFIG_DEFAULTS = {
+    pageSize: 'a4',
+    pageOrientation: 'portrait',
+    itemsPerPage: 10,
+    fileTypes: [
+        'pdf',
+        'html',
+    ],
+    displayHeader: true,
+    displayFooter: true,
+    displayPageCount: true,
+    displayLineItems: true,
+    displayLineItemPosition: false,
+    displayPrices: true,
+    displayAdditionalNoteDelivery: false,
+    displayDivergentDeliveryAddress: false,
+    displayCustomerVatId: false,
+    displayReturnAddress: false,
+    displayCompanyAddress: false,
+};
+
+/**
+ * @private
+ */
 export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
     {
-        name: 'pageOrientation',
-        type: 'radio',
+        name: 'pageSize',
+        type: 'single-select',
         config: {
-            componentName: 'sw-single-select',
-            labelProperty: 'name',
             valueProperty: 'id',
             options: [
-                { id: 'portrait', name: 'Portrait' },
-                { id: 'landscape', name: 'Landscape' },
+                { id: 'a4', label: tc('sw-settings-document.detail.pageSizeOptions.a4') },
+                { id: 'a5', label: tc('sw-settings-document.detail.pageSizeOptions.a5') },
+                { id: 'letter', label: tc('sw-settings-document.detail.pageSizeOptions.letter') },
+                { id: 'legal', label: tc('sw-settings-document.detail.pageSizeOptions.legal') },
             ],
-            label: tc('sw-settings-document.detail.labelPageOrientation'),
+            required: true,
+            label: tc('sw-settings-document.detail.labelPageSize'),
+            placeholder: tc('sw-settings-document.detail.placeholderPageSize'),
         },
     },
     {
-        name: 'pageSize',
-        type: 'radio',
+        name: 'pageOrientation',
+        type: 'single-select',
         config: {
-            componentName: 'sw-single-select',
-            labelProperty: 'name',
             valueProperty: 'id',
             options: [
-                { id: 'a4', name: 'A4' },
-                { id: 'a5', name: 'A5' },
-                { id: 'legal', name: 'Legal' },
-                { id: 'letter', name: 'Letter' },
+                { id: 'portrait', label: tc('sw-settings-document.detail.pageOrientationOptions.portrait') },
+                { id: 'landscape', label: tc('sw-settings-document.detail.pageOrientationOptions.landscape') },
             ],
-            label: tc('sw-settings-document.detail.labelPageSize'),
+            required: true,
+            label: tc('sw-settings-document.detail.labelPageOrientation'),
+            placeholder: tc('sw-settings-document.detail.placeholderPageOrientation'),
         },
     },
     {
         name: 'itemsPerPage',
         type: 'number',
         config: {
-            type: 'number',
+            numberType: 'int',
+            min: 1,
+            required: true,
             label: tc('sw-settings-document.detail.labelItemsPerPage'),
+            placeholder: tc('sw-settings-document.detail.placeholderItemsPerPage'),
         },
     },
     {
@@ -62,24 +89,31 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
         type: 'array',
         config: {
             componentName: 'sw-multi-select',
-            labelProperty: 'name',
             valueProperty: 'id',
             options: [
                 {
                     id: 'pdf',
-                    name: 'PDF',
+                    label: 'PDF',
                 },
                 {
                     id: 'html',
-                    name: 'HTML',
+                    label: 'HTML',
                 },
             ],
+            required: true,
             label: tc('sw-settings-document.detail.labelFileTypes'),
+            placeholder: tc('sw-settings-document.detail.placeholderFileTypes'),
         },
     },
+];
+
+/**
+ * @private
+ */
+export const DOCUMENT_SETTINGS_GENERAL_DISPLAY = (tc) => [
     {
         name: 'displayHeader',
-        type: 'bool',
+        type: 'checkbox',
         config: {
             type: 'checkbox',
             label: tc('sw-settings-document.detail.labelDisplayHeader'),
@@ -87,7 +121,7 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
     },
     {
         name: 'displayFooter',
-        type: 'bool',
+        type: 'checkbox',
         config: {
             type: 'checkbox',
             label: tc('sw-settings-document.detail.labelDisplayFooter'),
@@ -95,7 +129,7 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
     },
     {
         name: 'displayPageCount',
-        type: 'bool',
+        type: 'checkbox',
         config: {
             type: 'checkbox',
             label: tc('sw-settings-document.detail.labelDisplayPageCount'),
@@ -103,7 +137,7 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
     },
     {
         name: 'displayLineItems',
-        type: 'bool',
+        type: 'checkbox',
         config: {
             type: 'checkbox',
             label: tc('sw-settings-document.detail.labelDisplayLineItems'),
@@ -111,7 +145,7 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
     },
     {
         name: 'displayLineItemPosition',
-        type: 'bool',
+        type: 'checkbox',
         config: {
             type: 'checkbox',
             label: tc('sw-settings-document.detail.labelDisplayLineItemPosition'),
@@ -119,7 +153,7 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
     },
     {
         name: 'displayPrices',
-        type: 'bool',
+        type: 'checkbox',
         config: {
             type: 'checkbox',
             label: tc('sw-settings-document.detail.labelDisplayPrices'),
@@ -127,7 +161,7 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
     },
     {
         name: 'displayInCustomerAccount',
-        type: 'bool',
+        type: 'checkbox',
         config: {
             type: 'checkbox',
             label: tc('sw-settings-document.detail.labelDisplayDocumentInCustomerAccount'),
@@ -141,64 +175,13 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
  */
 export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
     {
-        name: 'displayReturnAddress',
-        type: 'bool',
-        config: {
-            type: 'checkbox',
-            label: tc('sw-settings-document.detail.labelDisplayReturnAddress'),
-            class: tc('sw-settings-document-detail__return-address-checkbox'),
-            helpText: tc('sw-settings-document.detail.helpTextDisplayReturnAddress'),
-        },
-    },
-    {
-        name: 'displayCompanyAddress',
-        type: 'bool',
-        config: {
-            type: 'checkbox',
-            label: tc('sw-settings-document.detail.labelDisplayCompanyAddress'),
-            class: tc('sw-settings-document-detail__company-address-checkbox'),
-            helpText: tc('sw-settings-document.detail.helpTextDisplayCompanyAddress'),
-        },
-    },
-    {
-        name: 'companyStreet',
-        type: 'text',
-        config: {
-            type: 'text',
-            label: tc('sw-settings-document.detail.labelCompanyStreet'),
-        },
-    },
-    {
-        name: 'companyZipcode',
-        type: 'text',
-        config: {
-            type: 'text',
-            label: tc('sw-settings-document.detail.labelCompanyZipcode'),
-        },
-    },
-    {
-        name: 'companyCity',
-        type: 'text',
-        config: {
-            type: 'text',
-            label: tc('sw-settings-document.detail.labelCompanyCity'),
-        },
-    },
-    {
-        name: 'companyCountryId',
-        type: 'sw-entity-single-select',
-        config: {
-            entity: 'country',
-            componentName: 'sw-entity-single-select',
-            label: tc('sw-settings-document.detail.labelCompanyCountry'),
-        },
-    },
-    {
         name: 'companyName',
         type: 'text',
         config: {
             type: 'text',
+            required: true,
             label: tc('sw-settings-document.detail.labelCompanyName'),
+            placeholder: tc('sw-settings-document.detail.placeholderCompanyName'),
         },
     },
     {
@@ -207,6 +190,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelCompanyEmail'),
+            placeholder: tc('sw-settings-document.detail.placeholderCompanyEmail'),
         },
     },
     {
@@ -215,6 +199,48 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelCompanyPhone'),
+            placeholder: tc('sw-settings-document.detail.placeholderCompanyPhone'),
+        },
+    },
+    {
+        name: 'companyStreet',
+        type: 'text',
+        config: {
+            type: 'text',
+            required: true,
+            label: tc('sw-settings-document.detail.labelCompanyStreet'),
+            placeholder: tc('sw-settings-document.detail.placeholderCompanyStreet'),
+        },
+    },
+    {
+        name: 'companyZipcode',
+        type: 'text',
+        config: {
+            type: 'text',
+            required: true,
+            label: tc('sw-settings-document.detail.labelCompanyZipcode'),
+            placeholder: tc('sw-settings-document.detail.placeholderCompanyZipcode'),
+        },
+    },
+    {
+        name: 'companyCity',
+        type: 'text',
+        config: {
+            type: 'text',
+            required: true,
+            label: tc('sw-settings-document.detail.labelCompanyCity'),
+            placeholder: tc('sw-settings-document.detail.placeholderCompanyCity'),
+        },
+    },
+    {
+        name: 'companyCountryId',
+        type: 'sw-entity-single-select',
+        config: {
+            entity: 'country',
+            componentName: 'sw-entity-single-select',
+            required: true,
+            label: tc('sw-settings-document.detail.labelCompanyCountry'),
+            placeholder: tc('sw-settings-document.detail.placeholderCompanyCountry'),
         },
     },
     {
@@ -223,6 +249,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelCompanyUrl'),
+            placeholder: tc('sw-settings-document.detail.placeholderCompanyUrl'),
         },
     },
     {
@@ -231,6 +258,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelTaxNumber'),
+            placeholder: tc('sw-settings-document.detail.placeholderTaxNumber'),
         },
     },
     {
@@ -239,6 +267,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelTaxOffice'),
+            placeholder: tc('sw-settings-document.detail.placeholderTaxOffice'),
         },
     },
     {
@@ -247,6 +276,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelVatId'),
+            placeholder: tc('sw-settings-document.detail.placeholderVatId'),
         },
     },
     {
@@ -255,6 +285,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelBankName'),
+            placeholder: tc('sw-settings-document.detail.placeholderBankName'),
         },
     },
     {
@@ -263,6 +294,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelBankIban'),
+            placeholder: tc('sw-settings-document.detail.placeholderBankIban'),
         },
     },
     {
@@ -271,6 +303,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelBankBic'),
+            placeholder: tc('sw-settings-document.detail.placeholderBankBic'),
         },
     },
     {
@@ -279,6 +312,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelPlaceOfJurisdiction'),
+            placeholder: tc('sw-settings-document.detail.placeholderPlaceOfJurisdiction'),
         },
     },
     {
@@ -287,6 +321,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelPlaceOfFulfillment'),
+            placeholder: tc('sw-settings-document.detail.placeholderPlaceOfFulfillment'),
         },
     },
     {
@@ -295,6 +330,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelExecutiveDirector'),
+            placeholder: tc('sw-settings-document.detail.placeholderExecutiveDirector'),
         },
     },
     {
@@ -303,6 +339,7 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
         config: {
             type: 'text',
             label: tc('sw-settings-document.detail.labelPaymentDueDate'),
+            placeholder: tc('sw-settings-document.detail.placeholderPaymentDueDate'),
             helpText: tc('sw-settings-document.detail.helpTextPaymentDueDate'),
         },
     },
@@ -366,12 +403,7 @@ export default {
             alreadyAssignedSalesChannelIdsToType: [],
             documentConfigSalesChannelOptionsCollection: [],
             documentConfig: {
-                config: {
-                    displayAdditionalNoteDelivery: false,
-                    displayDivergentDeliveryAddress: false,
-                    displayCustomerVatId: false,
-                    fileTypes: [],
-                },
+                config: { ...DOCUMENT_CONFIG_DEFAULTS },
             },
         };
     },
@@ -389,6 +421,10 @@ export default {
     computed: {
         generalFormFields() {
             return DOCUMENT_SETTINGS_GENERAL(this.$tc);
+        },
+
+        generalDisplayFields() {
+            return DOCUMENT_SETTINGS_GENERAL_DISPLAY(this.$tc);
         },
 
         companyFormFields() {
@@ -446,6 +482,10 @@ export default {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
 
+        showCompanyForm() {
+            return this.documentConfig.config.displayCompanyAddress || this.documentConfig.config.displayReturnAddress;
+        },
+
         fileTypesSelected() {
             return this.documentConfig?.config?.fileTypes || [];
         },
@@ -499,7 +539,7 @@ export default {
             } else {
                 this.documentConfig = this.documentBaseConfigRepository.create();
                 this.documentConfig.global = false;
-                this.documentConfig.config = {};
+                this.documentConfig.config = { ...DOCUMENT_CONFIG_DEFAULTS };
             }
 
             this.isLoading = false;
@@ -524,9 +564,10 @@ export default {
                 this.documentConfig = documentConfig;
             }
 
-            if (!this.documentConfig.config) {
-                this.documentConfig.config = {};
-            }
+            this.documentConfig.config = {
+                ...DOCUMENT_CONFIG_DEFAULTS,
+                ...this.documentConfig.config,
+            };
 
             await this.onChangeType(this.documentConfig.documentType);
 
@@ -579,8 +620,7 @@ export default {
             this.alreadyAssignedSalesChannelIdsToType = responseSalesChannels
                 .filter(
                     (salesChannel) =>
-                        salesChannel.salesChannelId !== null &&
-                        salesChannel.documentBaseConfigId !== this.documentConfig.id,
+                        salesChannel.salesChannelId !== null && salesChannel.documentBaseConfigId !== this.documentConfig.id,
                 )
                 .map((salesChannel) => salesChannel.salesChannelId);
 
@@ -602,7 +642,9 @@ export default {
                     return;
                 }
 
-                const option = this.documentConfigSalesChannelOptionsCollection.get(salesChannelId);
+                const option = this.documentConfigSalesChannelOptionsCollection.find(
+                    (o) => o.salesChannelId === salesChannelId,
+                );
 
                 if (option) {
                     this.documentConfig.salesChannels.push(option);
@@ -658,9 +700,7 @@ export default {
             }
 
             this.salesChannels.forEach((salesChannel) => {
-                const existingAssoc = this.documentConfig.salesChannels.find(
-                    (sc) => sc.salesChannelId === salesChannel.id,
-                );
+                const existingAssoc = this.documentConfig.salesChannels.find((sc) => sc.salesChannelId === salesChannel.id);
 
                 if (existingAssoc) {
                     this.documentConfigSalesChannelOptionsCollection.push(existingAssoc);

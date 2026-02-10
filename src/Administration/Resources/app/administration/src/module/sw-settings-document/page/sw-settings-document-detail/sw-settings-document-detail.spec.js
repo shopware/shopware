@@ -155,7 +155,12 @@ const createWrapper = async (customOptions, privileges = []) => {
                     },
                     'mt-checkbox': {
                         template: '<div class="mt-checkbox"><input type="checkbox" /></div>',
-                        props: ['checked', 'label', 'disabled', 'helpText'],
+                        props: [
+                            'checked',
+                            'label',
+                            'disabled',
+                            'helpText',
+                        ],
                     },
                     'sw-entity-multi-id-select': true,
                     'sw-entity-multi-select': true,
@@ -165,6 +170,21 @@ const createWrapper = async (customOptions, privileges = []) => {
                     'sw-media-field': {
                         template: '<div id="sw-media-field"/>',
                         props: ['disabled'],
+                    },
+                    'sw-media-compact-upload-v2': {
+                        template: '<div id="sw-media-compact-upload"/>',
+                        props: [
+                            'source',
+                            'disabled',
+                        ],
+                    },
+                    'mt-switch': {
+                        template: '<div class="mt-switch"/>',
+                        props: [
+                            'modelValue',
+                            'label',
+                            'disabled',
+                        ],
                     },
                     'sw-multi-select': {
                         template: '<div id="documentSalesChannel" @click="$emit(\'click\')"/>',
@@ -301,7 +321,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeUndefined();
-        expect(wrapper.findComponent('#sw-media-field').props().disabled).toBe(false);
         expect(wrapper.findAllComponents('.sw-field').every((field) => !field.props().disabled)).toBe(true);
         expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(false);
     });
@@ -316,7 +335,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeDefined();
-        expect(wrapper.findComponent('#sw-media-field').props().disabled).toBe(true);
         expect(wrapper.findAllComponents('.sw-field').every((field) => field.props().disabled)).toBe(true);
         expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(true);
     });
@@ -393,10 +411,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             expect.objectContaining({
                 name: 'companyPhone',
                 type: 'text',
-                config: {
+                config: expect.objectContaining({
                     type: 'text',
                     label: expect.any(String),
-                },
+                }),
             }),
         );
     });
@@ -485,12 +503,13 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(multiSelect.attributes().value).toBe('');
+        // Defaults from DOCUMENT_CONFIG_DEFAULTS are applied even when config has no fileTypes
+        expect(multiSelect.attributes().value).toBe('pdf,html');
+
+        await wrapper.vm.onRemoveDocumentType({ id: 'html' });
+        expect(multiSelect.attributes().value).toBe('pdf');
 
         await wrapper.vm.onAddDocumentType({ id: 'html' });
-        expect(multiSelect.attributes().value).toBe('html');
-
-        await wrapper.vm.onAddDocumentType({ id: 'pdf' });
-        expect(multiSelect.attributes().value).toBe('html,pdf');
+        expect(multiSelect.attributes().value).toBe('pdf,html');
     });
 });

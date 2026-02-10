@@ -61,7 +61,7 @@ class ScriptEnvironmentFactory implements ResetInterface
         ]));
 
         // memoize 250 envs at max, to prevent memory leaks
-        if (count($this->twigEnvs) < self::CACHE_LIMIT) {
+        if (\count($this->twigEnvs) < self::CACHE_LIMIT) {
             $this->twigEnvs[$scriptHash] = $twig;
         }
 

@@ -282,11 +282,12 @@
 
                                                     {% block sw_theme_manager_detail_content_fields %}
                                                         <sw-container class="sw-theme-manager-detail__content-section-field">
-                                                            <div v-for="(field, fieldName) in section.fields"
-                                                                 :key="fieldName"
-                                                                 class="sw-theme-manager-detail__content-section-field"
-                                                                 :class="{'sw-theme-manager-detail__content-section-field-full-width': field.fullWidth}">
-                                                                <template v-if="themeConfig[fieldName] && baseThemeConfig[fieldName]">
+                                                            <template v-for="(field, fieldName) in section.fields">
+                                                                <div v-if="themeConfig[fieldName] && baseThemeConfig[fieldName] && themeConfig[fieldName].editable !== false"
+                                                                    :key="fieldName"
+                                                                    class="sw-theme-manager-detail__content-section-field"
+                                                                    :class="{'sw-theme-manager-detail__content-section-field-full-width': field.fullWidth}">
+
                                                                     <template v-if="mapSwFieldTypes(field.type) === 'select'">
                                                                         <sw-inherit-wrapper
                                                                             :class="'sw-field-id-' + fieldName"
@@ -423,8 +424,8 @@
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </template>
-                                                                </template>
-                                                            </div>
+                                                                </div>
+                                                            </template>
                                                         </sw-container>
                                                     {% endblock %}
                                                 </sw-card-section>

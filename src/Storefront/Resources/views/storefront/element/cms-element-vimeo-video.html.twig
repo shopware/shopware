@@ -77,10 +77,11 @@
                 } %}
 
                 {% block element_vimeo_video_placeholder %}
-                    <div class="cms-element-vimeo-video__placeholder"
-                         data-cms-gdpr-video-element="true"
-                         data-cms-gdpr-video-element-options="{{ pluginConfiguration|json_encode }}">
-
+                    <div
+                        class="cms-element-vimeo-video__placeholder"
+                        data-cms-gdpr-video-element="true"
+                        data-cms-gdpr-video-element-options="{{ pluginConfiguration|json_encode }}"
+                    >
                         {% if elementData.media %}
                             {% sw_thumbnails 'cms-element-vimeo-video__placeholder' with {
                                 media: elementData.media

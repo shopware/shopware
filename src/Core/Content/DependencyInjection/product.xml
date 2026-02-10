@@ -158,7 +158,7 @@
 
         <service id="Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument>%elasticsearch.enabled%</argument>
+            <argument type="service" id="parameter_bag"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -6,6 +6,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         window.currencyIsoCode = 'EUR';
         window.PluginManager = {
             getPluginInstances: jest.fn(() => []),
+            initializePluginsInParentElement: jest.fn(),
         };
     });
 

@@ -28,4 +28,9 @@ class BackendData implements ConsentDefinition
     {
         return new \DateTimeImmutable('2025-12-12');
     }
+
+    public function getRequiredPermissions(): array
+    {
+        return ['system.system_config'];
+    }
 }

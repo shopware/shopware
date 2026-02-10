@@ -387,6 +387,28 @@ export default Shopware.Mixin.register(
                     }
                 });
             },
+
+            /**
+             * Update filter criteria and reset pagination to page 1.
+             * This method is called when filters are changed via sw-sidebar-filter-panel.
+             *
+             * @param {Array} criteria - The new filter criteria
+             */
+            updateCriteria(criteria: any[]) {
+                this.page = 1;
+
+                // @ts-expect-error - filterCriteria is defined in base component
+                this.filterCriteria = criteria;
+
+                if (this.disableRouteParams) {
+                    this.getList();
+                    return;
+                }
+
+                this.updateRoute({
+                    page: 1,
+                });
+            },
         },
     }),
 );

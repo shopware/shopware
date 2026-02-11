@@ -30,7 +30,6 @@ class ProductStorerTest extends TestCase
 
     private MockObject&ProductProvider $productProvider;
 
-
     protected function setUp(): void
     {
         $this->productProvider = $this->createMock(ProductProvider::class);

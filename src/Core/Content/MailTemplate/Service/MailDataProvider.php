@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 class MailDataProvider
 {
     /**
-     * @var array<string, AbstractProvider> $dataProviders
+     * @var array<string, AbstractProvider>
      */
     private array $dataProviders;
 

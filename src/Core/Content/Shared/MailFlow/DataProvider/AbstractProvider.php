@@ -51,7 +51,7 @@ abstract class AbstractProvider
     {
         $repository = $this->container->get($this->getEntityName() . '.repository');
 
-        assert($repository instanceof EntityRepository);
+        \assert($repository instanceof EntityRepository);
 
         return $repository;
     }

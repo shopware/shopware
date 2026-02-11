@@ -31,7 +31,9 @@ class MailTemplateServiceTest extends TestCase
     use OrderActionTrait;
 
     private MailTemplateService $mailTemplateService;
+
     private Context $context;
+
     private IdsCollection $ids;
 
     protected function setUp(): void
@@ -188,7 +190,7 @@ class MailTemplateServiceTest extends TestCase
 
         $mailService = $this->createMock(MailService::class);
         $mailService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('send')
             ->with(
                 static::callback(function (array $data) {
@@ -201,7 +203,7 @@ class MailTemplateServiceTest extends TestCase
                     ];
 
                     foreach ($expectedData as $key => $value) {
-                        if (!array_key_exists($key, $data)) {
+                        if (!\array_key_exists($key, $data)) {
                             return false;
                         }
 
@@ -367,7 +369,7 @@ class MailTemplateServiceTest extends TestCase
         static::assertSame('Test', $email->getSubject());
         static::assertSame('Shopware', $email->getFrom()[0]->getName());
         static::assertSame('Test', $email->getTo()[0]->getName());
-        static::assertSame('test@shopware.com',  $email->getTo()[0]->getAddress());
+        static::assertSame('test@shopware.com', $email->getTo()[0]->getAddress());
     }
 
     private function createMailTemplate(

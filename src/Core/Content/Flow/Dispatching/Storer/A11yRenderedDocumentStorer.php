@@ -6,15 +6,15 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
+use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 

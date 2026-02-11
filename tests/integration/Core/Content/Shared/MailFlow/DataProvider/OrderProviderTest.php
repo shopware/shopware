@@ -24,7 +24,7 @@ class OrderProviderTest extends TestCase
 
         $container = $this->createMock(ContainerInterface::class);
         $container
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->with(OrderDefinition::ENTITY_NAME . '.repository')
             ->willReturn($repository);
@@ -37,13 +37,13 @@ class OrderProviderTest extends TestCase
 
         // Trigger repository usage via getData()
         $repository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search');
 
         $provider->getData('some-id', $context);
     }
 
-    public function testDispatchesCriteriaEvent()
+    public function testDispatchesCriteriaEvent(): void
     {
         $repository = $this->createMock(EntityRepository::class);
 
@@ -55,7 +55,7 @@ class OrderProviderTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(
                 static::callback(function ($event) {

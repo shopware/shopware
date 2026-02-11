@@ -419,7 +419,10 @@ export default {
 
     computed: {
         generalFormFields() {
-            return DOCUMENT_SETTINGS_GENERAL(this.$tc);
+            return DOCUMENT_SETTINGS_GENERAL(this.$tc).map((formField) => ({
+                ...formField,
+                error: this.configFieldErrors[formField.name] ?? null,
+            }));
         },
 
         generalDisplayFields() {
@@ -427,7 +430,24 @@ export default {
         },
 
         companyFormFields() {
-            return DOCUMENT_SETTINGS_COMPANY(this.$tc);
+            return DOCUMENT_SETTINGS_COMPANY(this.$tc).map((formField) => ({
+                ...formField,
+                error: this.configFieldErrors[formField.name] ?? null,
+            }));
+        },
+
+        configFieldErrors() {
+            return {
+                pageSize: this.documentConfigConfigPageSizeError,
+                pageOrientation: this.documentConfigConfigPageOrientationError,
+                itemsPerPage: this.documentConfigConfigItemsPerPageError,
+                fileTypes: this.documentConfigConfigFileTypesError,
+                companyName: this.documentConfigConfigCompanyNameError,
+                companyStreet: this.documentConfigConfigCompanyStreetError,
+                companyZipcode: this.documentConfigConfigCompanyZipcodeError,
+                companyCity: this.documentConfigConfigCompanyCityError,
+                companyCountryId: this.documentConfigConfigCompanyCountryIdError,
+            };
         },
 
         documentBaseConfigRepository() {
@@ -513,6 +533,15 @@ export default {
         ...mapPropertyErrors('documentConfig', [
             'name',
             'documentTypeId',
+            'config.pageSize',
+            'config.pageOrientation',
+            'config.itemsPerPage',
+            'config.fileTypes',
+            'config.companyName',
+            'config.companyStreet',
+            'config.companyZipcode',
+            'config.companyCity',
+            'config.companyCountryId',
         ]),
     },
 

@@ -199,6 +199,7 @@
                                 v-model:value="fileTypesSelected"
                                 class="sw-settings-document-detail__multi-select"
                                 :disabled="!acl.can('document.editor') || undefined"
+                                :error="formField.error"
                                 :label="formField.config.label"
                                 :placeholder="formField.config.placeholder"
                                 :required="formField.config.required"
@@ -216,6 +217,7 @@
                                 v-model:value="documentConfig.config[formField.name]"
                                 :disabled="!acl.can('document.editor') || undefined"
                                 class="sw-settings-document-detail__form-field-renderer"
+                                :error="formField.error"
                                 v-bind="formField"
                             />
                             {% endblock %}
@@ -334,6 +336,7 @@
                             <sw-form-field-renderer
                                 v-model:value="documentConfig.config[formField.name]"
                                 :disabled="!acl.can('document.editor') || undefined"
+                                :error="formField.error"
                                 v-bind="formField"
                             />
                             {% endblock %}

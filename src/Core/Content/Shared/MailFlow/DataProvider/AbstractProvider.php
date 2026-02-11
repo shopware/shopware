@@ -47,6 +47,7 @@ abstract class AbstractProvider
         return $this->getRepository()->search($criteria, $context)->getEntities()->get($entityId);
     }
 
+    // @phpstan-ignore missingType.generics
     protected function getRepository(): EntityRepository
     {
         $repository = $this->container->get($this->getEntityName() . '.repository');

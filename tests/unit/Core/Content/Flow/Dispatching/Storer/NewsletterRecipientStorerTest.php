@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
@@ -25,7 +26,7 @@ class NewsletterRecipientStorerTest extends TestCase
 {
     private NewsletterRecipientStorer $storer;
 
-    private NewsletterRecipientProvider $newsletterRecipientProvider;
+    private NewsletterRecipientProvider&MockObject $newsletterRecipientProvider;
 
     protected function setUp(): void
     {
@@ -78,7 +79,7 @@ class NewsletterRecipientStorerTest extends TestCase
         $this->storer->restore($storable);
         $entity = new NewsletterRecipientEntity();
         $entity->setId('id');
-        $this->newsletterRecipientProvider->expects(static::once())->method('getData')->willReturn($entity);
+        $this->newsletterRecipientProvider->expects($this->once())->method('getData')->willReturn($entity);
 
         $res = $storable->getData('newsletterRecipient');
         static::assertSame($res, $entity);
@@ -88,7 +89,7 @@ class NewsletterRecipientStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['newsletterRecipientId' => 'id'], []);
         $this->storer->restore($storable);
-        $this->newsletterRecipientProvider->expects(static::once())->method('getData')->willReturn(null);
+        $this->newsletterRecipientProvider->expects($this->once())->method('getData')->willReturn(null);
 
         $res = $storable->getData('newsletterRecipient');
 

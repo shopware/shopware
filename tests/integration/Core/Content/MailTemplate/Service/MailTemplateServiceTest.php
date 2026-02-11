@@ -33,10 +33,16 @@ class MailTemplateServiceTest extends TestCase
     use OrderActionTrait;
 
     private MailTemplateService $mailTemplateService;
+
     private Connection $connection;
+
     private Context $context;
-    /** @var EntityRepository<MailTemplateCollection> */
+
+    /**
+     * @var EntityRepository<MailTemplateCollection>
+     */
     private EntityRepository $mailTemplateRepository;
+
     private IdsCollection $ids;
 
     protected function setUp(): void
@@ -266,6 +272,7 @@ class MailTemplateServiceTest extends TestCase
         );
 
         static::assertNull($email);
+        // @phpstan-ignore-next-line
         static::assertInstanceOf(AdapterException::class, $state->throwable);
         static::assertSame(
             AdapterException::STRING_TEMPLATE_RENDERING_FAILED,
@@ -302,6 +309,7 @@ class MailTemplateServiceTest extends TestCase
         );
 
         static::assertNull($email);
+        // @phpstan-ignore-next-line
         static::assertInstanceOf(AdapterException::class, $state->throwable);
         static::assertSame(
             AdapterException::STRING_TEMPLATE_RENDERING_FAILED,
@@ -342,6 +350,7 @@ class MailTemplateServiceTest extends TestCase
         $email = $this->mailTemplateService->getTemplateDataAndSend($data, $id, ['order' => $orderId], $this->context);
 
         static::assertNull($email);
+        // @phpstan-ignore-next-line
         static::assertInstanceOf(AdapterException::class, $state->throwable);
         static::assertSame(
             AdapterException::STRING_TEMPLATE_RENDERING_FAILED,

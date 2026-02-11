@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Api;
 
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -115,10 +114,14 @@ class MailActionController extends AbstractController
     )]
     public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
-        $templateId = $post->get('mailTemplateId');
-        $entities = $post->get('entities', new DataBag())->all();
+        $templateId = (string) $post->get('mailTemplateId');
+        $entities = $post->get('entities');
 
-        $renderedTemplate = $this->mailTemplateService->preview($templateId, $entities, $context);
+        if (!$entities instanceof DataBag) {
+            $entities = new DataBag();
+        }
+
+        $renderedTemplate = $this->mailTemplateService->preview($templateId, $entities->all(), $context);
 
         return new JsonResponse($renderedTemplate);
     }
@@ -136,10 +139,19 @@ class MailActionController extends AbstractController
     )]
     public function getDataAndSend(RequestDataBag $post, Context $context): JsonResponse
     {
-        $templateId = $post->get('mailTemplateId');
-        $entities = $post->get('entities', new DataBag())->all();
+        $templateId = (string) $post->get('mailTemplateId');
+        $entities = $post->get('entities');
 
-        $message = $this->mailTemplateService->getTemplateDataAndSend($post->all(), $templateId, $entities, $context);
+        if (!$entities instanceof DataBag) {
+            $entities = new DataBag();
+        }
+
+        $message = $this->mailTemplateService->getTemplateDataAndSend(
+            $post->all(),
+            $templateId,
+            $entities->all(),
+            $context
+        );
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }

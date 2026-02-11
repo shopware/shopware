@@ -129,6 +129,18 @@ Custom headers defined in app flow action configurations are now correctly sent 
 
 ## Hosting & Configuration
 
+### Configurable Elasticsearch shard and replica counts
+
+The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
+
+For the Storefront/Store API Elasticsearch:
+- `SHOPWARE_ES_NUMBER_OF_SHARDS` (default: empty, meaning Elasticsearch default)
+- `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
+
+For the Admin Elasticsearch:
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
+
 ## Critical Fixes
 
 ### Session deadlock fix for file-based sessions

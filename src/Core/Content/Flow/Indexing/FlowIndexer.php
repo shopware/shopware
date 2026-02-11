@@ -73,7 +73,7 @@ class FlowIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_unique(array_filter($ids));
+        $ids = array_values(array_unique(array_filter($ids)));
         if ($ids === []) {
             return;
         }

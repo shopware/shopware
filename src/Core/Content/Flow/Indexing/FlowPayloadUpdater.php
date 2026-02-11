@@ -25,6 +25,11 @@ class FlowPayloadUpdater
     ) {
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, array{payload: string|null, invalid: bool}>
+     */
     public function update(array $ids): array
     {
         $listFlowSequence = $this->connection->fetchAllAssociative(

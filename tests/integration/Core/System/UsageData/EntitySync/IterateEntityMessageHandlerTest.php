@@ -23,8 +23,8 @@ use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\DTO\ConsentState;
-use Shopware\Core\System\Consent\Service\ConsentDateResolver;
 use Shopware\Core\System\Consent\Service\ConsentService;
+use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
@@ -84,7 +84,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentDateResolver::class),
+            static::getContainer()->get(LastCollectionAllowedDateResolver::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -136,7 +136,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentDateResolver::class),
+            static::getContainer()->get(LastCollectionAllowedDateResolver::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -189,7 +189,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentDateResolver::class),
+            static::getContainer()->get(LastCollectionAllowedDateResolver::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -242,7 +242,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $messageHandler = new IterateEntityMessageHandler(
             new CollectingMessageBus(),
             static::getContainer()->get(IterateEntitiesQueryBuilder::class),
-            new ConsentDateResolver($consentService),
+            new LastCollectionAllowedDateResolver($consentService),
             $entityDefinitionService,
             $logger,
         );

@@ -16,8 +16,8 @@ use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\DTO\ConsentState;
-use Shopware\Core\System\Consent\Service\ConsentDateResolver;
 use Shopware\Core\System\Consent\Service\ConsentService;
+use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
@@ -79,7 +79,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             new ArrayKeyValueStorage(),
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -107,7 +107,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             new ArrayKeyValueStorage(),
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -122,7 +122,7 @@ class EntityDispatchServiceTest extends TestCase
 
     public function testItStoresTheCorrectLastRunDateForEachEntity(): void
     {
-        $now = new \DateTimeImmutable();
+        $beforeDispatch = new \DateTimeImmutable();
 
         $appConfig = new ArrayKeyValueStorage([]);
         $messageBus = new CollectingMessageBus();
@@ -136,7 +136,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             $appConfig,
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, $now, $now)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -153,21 +153,23 @@ class EntityDispatchServiceTest extends TestCase
         $productMessage = $messages[0]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $productMessage);
 
-        /* The message->getRunDate is not 100% equal to the one stored in the storage because
-         * the last 3 decimals are lost in the formatting.
-         */
-        static::assertSame(
-            $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            $appConfig->get('usageData-entitySync-lastRun-product'),
-        );
-
         $salesChannelMessage = $messages[1]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $salesChannelMessage);
 
+        $afterDispatch = new \DateTimeImmutable();
+        $productRunDate = $appConfig->get('usageData-entitySync-lastRun-product');
+        $salesChannelRunDate = $appConfig->get('usageData-entitySync-lastRun-sales_channel');
+
+        static::assertIsString($productRunDate);
+        static::assertIsString($salesChannelRunDate);
         static::assertSame(
-            $appConfig->get('usageData-entitySync-lastRun-sales_channel'),
-            $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $productRunDate,
+            $salesChannelRunDate,
         );
+
+        $runDate = new \DateTimeImmutable($productRunDate);
+        static::assertGreaterThanOrEqual($beforeDispatch->getTimestamp(), $runDate->getTimestamp());
+        static::assertLessThanOrEqual($afterDispatch->getTimestamp(), $runDate->getTimestamp());
     }
 
     #[DataProvider('lastRunDateProvider')]
@@ -187,7 +189,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             $appConfig,
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService($isConsentGiven, $lastConsentDate, $now)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService($isConsentGiven, $lastConsentDate, $now)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             $systemConfigService,
@@ -196,10 +198,22 @@ class EntityDispatchServiceTest extends TestCase
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
 
-        static::assertSame(
-            $expectedLastRunDate?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            $systemConfigService->get('core.usageData.lastEntitySyncRunDate'),
-        );
+        $storedRunDate = $systemConfigService->get('core.usageData.lastEntitySyncRunDate');
+        if (!$isConsentGiven) {
+            static::assertSame(
+                $expectedLastRunDate?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                $storedRunDate,
+            );
+
+            return;
+        }
+
+        static::assertIsString($storedRunDate);
+        $storedRunDateTime = new \DateTimeImmutable($storedRunDate);
+        $after = new \DateTimeImmutable();
+
+        static::assertGreaterThanOrEqual($now->getTimestamp(), $storedRunDateTime->getTimestamp());
+        static::assertLessThanOrEqual($after->getTimestamp(), $storedRunDateTime->getTimestamp());
     }
 
     public function testItDoesNotStartMultipleRuns(): void
@@ -219,7 +233,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             $appConfig,
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, $lastConsentDate, $now)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, $lastConsentDate, $now)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -247,9 +261,9 @@ class EntityDispatchServiceTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->method('getConsentState')->willReturnOnConsecutiveCalls(
-            $this->createConsentState(ConsentStatus::ACCEPTED, $lastConsentDate),
-            $this->createConsentState(ConsentStatus::ACCEPTED, $lastConsentDate->modify('+8 hours')), // should not start new run
-            $this->createConsentState(ConsentStatus::ACCEPTED, $lastConsentDate->modify('+1 day')), // should start new run
+            $this->createConsentState(ConsentStatus::REVOKED, $lastConsentDate),
+            $this->createConsentState(ConsentStatus::REVOKED, $lastConsentDate->modify('+8 hours')), // should not start new run
+            $this->createConsentState(ConsentStatus::REVOKED, $lastConsentDate->modify('+1 day')), // should start new run
         );
 
         $appConfig = new ArrayKeyValueStorage([]);
@@ -263,7 +277,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             $appConfig,
             $messageBus,
-            $this->createConsentDateResolver($consentService),
+            $this->createLastCollectionAllowedDateResolver($consentService),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -307,7 +321,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             new ArrayKeyValueStorage(),
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, $now, $now)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, $now, $now)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -324,14 +338,14 @@ class EntityDispatchServiceTest extends TestCase
 
         static::assertSame('product', $productMessage->entityName);
         static::assertNull($productMessage->lastRun);
-        static::assertSame($now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $productMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertGreaterThanOrEqual($now->getTimestamp(), $productMessage->runDate->getTimestamp());
 
         $salesChannelMessage = $messages[1]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $salesChannelMessage);
 
         static::assertSame('sales_channel', $salesChannelMessage->entityName);
         static::assertNull($salesChannelMessage->lastRun);
-        static::assertSame($now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $salesChannelMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame($productMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $salesChannelMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     public function testItAddsLastRunDateIfExists(): void
@@ -352,7 +366,7 @@ class EntityDispatchServiceTest extends TestCase
                 'usageData-entitySync-lastRun-sales_channel' => $lastScRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]),
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, $now, $now)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, $now, $now)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -370,14 +384,14 @@ class EntityDispatchServiceTest extends TestCase
 
         static::assertSame('product', $productMessage->entityName);
         static::assertNull($productMessage->lastRun);
-        static::assertSame($now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $productMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertGreaterThanOrEqual($now->getTimestamp(), $productMessage->runDate->getTimestamp());
 
         $salesChannelMessage = $messages[1]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $salesChannelMessage);
 
         static::assertSame('sales_channel', $salesChannelMessage->entityName);
         static::assertSame($storedScLastRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $salesChannelMessage->lastRun?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
-        static::assertSame($now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $salesChannelMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame($productMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $salesChannelMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     public function testReturnsEarlyIfGatewayDoesNotAllowPush(): void
@@ -395,7 +409,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             new ArrayKeyValueStorage(),
             $messageBusMock,
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(false),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -414,7 +428,7 @@ class EntityDispatchServiceTest extends TestCase
             new EntityDefinitionService([], new UsageDataAllowListService()),
             new ArrayKeyValueStorage(),
             $messageBusMock,
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -439,7 +453,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             new ArrayKeyValueStorage(),
             $messageBusMock,
-            $this->createConsentDateResolver($this->createConsentService(false, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(false, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -464,7 +478,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             new ArrayKeyValueStorage(),
             $messageBusMock,
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(false),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -488,7 +502,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             new ArrayKeyValueStorage(),
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -523,7 +537,7 @@ class EntityDispatchServiceTest extends TestCase
                 $ruleTagRunKey => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]),
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -562,7 +576,7 @@ class EntityDispatchServiceTest extends TestCase
                 $ruleTagRunKey => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]),
             $messageBus,
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -641,7 +655,7 @@ class EntityDispatchServiceTest extends TestCase
             ),
             $appConfig,
             new CollectingMessageBus(),
-            $this->createConsentDateResolver($this->createConsentService(true, null)),
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
@@ -676,7 +690,7 @@ class EntityDispatchServiceTest extends TestCase
                 'isConsentGiven' => false,
                 'lastConsentDate' => $lastConsentDate,
                 'now' => $now,
-                'expectedLastRunDate' => null,
+                'expectedLastRunDate' => $lastConsentDate,
             ],
             'Consent is given and was never revoked before' => [
                 'isConsentGiven' => true,
@@ -688,7 +702,7 @@ class EntityDispatchServiceTest extends TestCase
                 'isConsentGiven' => true,
                 'lastConsentDate' => $lastConsentDate,
                 'now' => $now,
-                'expectedLastRunDate' => $lastConsentDate,
+                'expectedLastRunDate' => $now,
             ],
         ];
     }
@@ -705,9 +719,9 @@ class EntityDispatchServiceTest extends TestCase
         return $consentService;
     }
 
-    private function createConsentDateResolver(ConsentService $consentService): ConsentDateResolver
+    private function createLastCollectionAllowedDateResolver(ConsentService $consentService): LastCollectionAllowedDateResolver
     {
-        return new ConsentDateResolver($consentService);
+        return new LastCollectionAllowedDateResolver($consentService);
     }
 
     private function createConsentState(ConsentStatus $status, ?\DateTimeImmutable $updatedAt): ConsentState

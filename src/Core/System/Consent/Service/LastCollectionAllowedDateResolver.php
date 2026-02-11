@@ -13,20 +13,24 @@ use Shopware\Core\System\Consent\Definition\BackendData;
  * @internal
  */
 #[Package('data-services')]
-final class ConsentDateResolver
+final class LastCollectionAllowedDateResolver
 {
     public function __construct(private readonly ConsentService $consentService)
     {
     }
 
-    public function getLastConsentAcceptedDate(): ?\DateTimeImmutable
+    public function getLastCollectionAllowedDate(): ?\DateTimeImmutable
     {
         $state = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext());
 
-        if ($state->status !== ConsentStatus::ACCEPTED || $state->updatedAt === null) {
-            return null;
+        if ($state->status === ConsentStatus::ACCEPTED) {
+            return new \DateTimeImmutable();
         }
 
-        return new \DateTimeImmutable($state->updatedAt);
+        if ($state->status === ConsentStatus::REVOKED && $state->updatedAt !== null) {
+            return new \DateTimeImmutable($state->updatedAt);
+        }
+
+        return null;
     }
 }

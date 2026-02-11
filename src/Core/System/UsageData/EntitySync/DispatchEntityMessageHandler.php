@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\Service\ConsentDateResolver;
+use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
@@ -34,7 +34,7 @@ final readonly class DispatchEntityMessageHandler
         private UsageDataAllowListService $usageDataAllowListService,
         private Connection $connection,
         private EntityDispatcher $entityDispatcher,
-        private ConsentDateResolver $consentDateResolver,
+        private LastCollectionAllowedDateResolver $lastCollectionAllowedDateResolver,
         private ShopIdProvider $shopIdProvider
     ) {
     }
@@ -52,9 +52,9 @@ final readonly class DispatchEntityMessageHandler
             self::throwUnrecoverableMessageHandlingException($message, 'Message dispatched for old shopId');
         }
 
-        $lastApprovalDate = $this->consentDateResolver->getLastConsentAcceptedDate();
-        if ($lastApprovalDate === null) {
-            self::throwUnrecoverableMessageHandlingException($message, 'No approval date found');
+        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getLastCollectionAllowedDate();
+        if ($lastCollectionAllowedDate === null) {
+            self::throwUnrecoverableMessageHandlingException($message, 'No collection allowed date found');
         }
 
         if ($message->operation === Operation::DELETE) {
@@ -63,7 +63,7 @@ final readonly class DispatchEntityMessageHandler
             return;
         }
 
-        $this->handleUpserts($message, $definition, $lastApprovalDate);
+        $this->handleUpserts($message, $definition, $lastCollectionAllowedDate);
     }
 
     /**
@@ -153,7 +153,7 @@ final readonly class DispatchEntityMessageHandler
     private function handleUpserts(
         DispatchEntityMessage $message,
         EntityDefinition $definition,
-        \DateTimeImmutable $lastApprovalDate,
+        \DateTimeImmutable $lastCollectionAllowedDate,
     ): void {
         $fields = $this->usageDataAllowListService->getFieldsToSelectFromDefinition($definition);
         $manyToManyAssociationIdFields = $this->entityDefinitionService->getManyToManyAssociationIdFields($fields);
@@ -184,7 +184,7 @@ final readonly class DispatchEntityMessageHandler
         $queryBuilder = (new DispatchEntitiesQueryBuilder($this->connection))
             ->forEntity($definition->getEntityName())
             ->withFields($fields)
-            ->withLastApprovalDateConstraint($message, $lastApprovalDate)
+            ->withLastCollectionAllowedDateConstraint($message, $lastCollectionAllowedDate)
             ->withPrimaryKeys($primaryKeys);
 
         $queryBuilder->checkLiveVersion($definition);

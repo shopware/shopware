@@ -8,8 +8,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider as FrameworkShopIdProvider;
 use Shopware\Core\Framework\Store\Services\InstanceService;
-use Shopware\Core\System\Consent\Service\ConsentDateResolver;
 use Shopware\Core\System\Consent\Service\ConsentService as SystemConsentService;
+use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Api\ConsentController;
 use Shopware\Core\System\UsageData\Client\GatewayClient;
@@ -84,7 +84,7 @@ return function (ContainerConfigurator $container): void {
         ->args([
             new Reference('messenger.default_bus'),
             new Reference(IterateEntitiesQueryBuilder::class),
-            new Reference(ConsentDateResolver::class),
+            new Reference(LastCollectionAllowedDateResolver::class),
             new Reference(EntityDefinitionService::class),
             new Reference('logger'),
         ])
@@ -97,7 +97,7 @@ return function (ContainerConfigurator $container): void {
             new Reference(UsageDataAllowListService::class),
             new Reference(Connection::class),
             new Reference(EntityDispatcher::class),
-            new Reference(ConsentDateResolver::class),
+            new Reference(LastCollectionAllowedDateResolver::class),
             new Reference(ShopIdProvider::class),
         ])
         ->tag('messenger.message_handler');
@@ -132,14 +132,14 @@ return function (ContainerConfigurator $container): void {
             new Reference(EntityDefinitionService::class),
             new Reference(AbstractKeyValueStorage::class),
             new Reference('messenger.default_bus'),
-            new Reference(ConsentDateResolver::class),
+            new Reference(LastCollectionAllowedDateResolver::class),
             new Reference(GatewayStatusService::class),
             new Reference(ShopIdProvider::class),
             new Reference(SystemConfigService::class),
             '%shopware.usage_data.collection_enabled%',
         ]);
 
-    $services->set(ConsentDateResolver::class)
+    $services->set(LastCollectionAllowedDateResolver::class)
         ->args([
             new Reference(SystemConsentService::class),
         ]);

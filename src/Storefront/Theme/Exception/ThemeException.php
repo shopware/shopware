@@ -33,7 +33,7 @@ class ThemeException extends HttpException
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             Feature::deprecatedMethodMessage(
-                __CLASS__,
+                self::class,
                 __METHOD__,
                 'v6.8.0.0',
                 RestrictDeleteViolationException::class
@@ -124,11 +124,11 @@ class ThemeException extends HttpException
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
         $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';
         $assignments = '';
-        if (\count($themeSalesChannel) > 0) {
+        if ($themeSalesChannel !== []) {
             $assignments .= self::formatSalesChannelAssignments($themeSalesChannel, $assignedSalesChannels);
         }
 
-        if (\count($childThemeSalesChannel) > 0) {
+        if ($childThemeSalesChannel !== []) {
             $assignments .= self::formatSalesChannelAssignments($childThemeSalesChannel, $assignedSalesChannels);
         }
         $parameters['assignments'] = $assignments;

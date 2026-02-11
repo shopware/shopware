@@ -28,7 +28,7 @@ class SalesChannelAnalyticsLoader
         $salesChannel = $salesChannelContext->getSalesChannel();
         $analyticsId = $salesChannel->getAnalyticsId();
 
-        if (empty($analyticsId)) {
+        if ($analyticsId === null || $analyticsId === '' || $analyticsId === '0') {
             return;
         }
 

@@ -27,7 +27,7 @@ class StorefrontMediaValidatorRegistry
             }
         }
 
-        if (empty($filtered)) {
+        if ($filtered === []) {
             throw new MediaValidatorMissingException($type);
         }
 

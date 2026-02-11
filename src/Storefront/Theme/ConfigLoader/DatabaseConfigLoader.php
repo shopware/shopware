@@ -265,7 +265,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $ids[] = $data['value'];
         }
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -305,7 +305,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         if (\is_array($baseConfig)
             && \array_key_exists('configInheritance', $baseConfig)
             && \is_array($baseConfig['configInheritance'])
-            && !empty($baseConfig['configInheritance'])
+            && (isset($baseConfig['configInheritance']) && $baseConfig['configInheritance'] !== [])
         ) {
             return $baseConfig['configInheritance'];
         }
@@ -321,7 +321,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
             if ($parentTheme instanceof ThemeEntity) {
                 $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
-                if (!empty($parentConfigInheritance)) {
+                if ($parentConfigInheritance !== []) {
                     return $parentConfigInheritance;
                 }
             }

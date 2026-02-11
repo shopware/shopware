@@ -102,7 +102,7 @@ class ThemeLifecycleService
 
         $themeData = array_merge($themeData, $updatedData);
 
-        if (!empty($configuration->getConfigInheritance())) {
+        if ($configuration->getConfigInheritance() !== []) {
             $themeData = $this->addParentTheme($configuration, $themeData, $context);
         }
 
@@ -335,7 +335,7 @@ class ThemeLifecycleService
             $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $id];
         }
 
-        if (empty($themeMediaData)) {
+        if ($themeMediaData === []) {
             return;
         }
 
@@ -412,7 +412,7 @@ class ThemeLifecycleService
                 $currentMediaIds[$key] = $field['value'];
             }
 
-            if (!empty($currentMediaIds)) {
+            if ($currentMediaIds !== null && $currentMediaIds !== []) {
                 $currentThemeMedia = $this->mediaRepository->search(new Criteria($currentMediaIds), $context)->getEntities();
             }
         }
@@ -437,7 +437,7 @@ class ThemeLifecycleService
                 if (!\array_key_exists($path, $media)) {
                     if (
                         $currentThemeMedia
-                        && !empty($currentMediaIds)
+                        && ($currentMediaIds !== null && $currentMediaIds !== [])
                         && isset($currentMediaIds[$key])
                         && $currentThemeMedia->get($currentMediaIds[$key])?->getFileNameIncludingExtension() === basename($path)) {
                         continue;
@@ -472,7 +472,7 @@ class ThemeLifecycleService
 
         $mediaIds = [];
 
-        if (!empty($media)) {
+        if ($media !== []) {
             $mediaIds = array_column($media, 'media');
 
             $this->mediaRepository->create($mediaIds, $context);
@@ -547,7 +547,7 @@ class ThemeLifecycleService
             $result[$locale] = [$property => $translation];
         }
 
-        if (!$containsSystemLanguage && \count($translations) > 0) {
+        if (!$containsSystemLanguage && $translations !== []) {
             $translation = array_shift($translations);
             if (\array_key_exists('en-GB', $translations)) {
                 $translation = $translations['en-GB'];

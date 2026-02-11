@@ -99,11 +99,11 @@ class ThemeMergedConfigBuilder
         $configFields = json_decode((string) json_encode($configFields, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($isLegacy && $translate) {
-            if (!empty($labels)) {
+            if ($labels !== []) {
                 $configFields = $this->translateLabels($configFields, $labels);
             }
 
-            if (!empty($helpTexts)) {
+            if ($helpTexts !== []) {
                 $configFields = $this->translateHelpTexts($configFields, $helpTexts);
             }
         }
@@ -291,7 +291,7 @@ class ThemeMergedConfigBuilder
         if (\is_array($baseConfig)
             && \array_key_exists('configInheritance', $baseConfig)
             && \is_array($baseConfig['configInheritance'])
-            && !empty($baseConfig['configInheritance'])
+            && (isset($baseConfig['configInheritance']) && $baseConfig['configInheritance'] !== [])
         ) {
             return $baseConfig['configInheritance'];
         }
@@ -307,7 +307,7 @@ class ThemeMergedConfigBuilder
 
             if ($parentTheme instanceof ThemeEntity) {
                 $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
-                if (!empty($parentConfigInheritance)) {
+                if ($parentConfigInheritance !== []) {
                     return $parentConfigInheritance;
                 }
             }

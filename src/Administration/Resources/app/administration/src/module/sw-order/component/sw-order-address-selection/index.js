@@ -6,6 +6,7 @@ import './sw-order-address-selection.scss';
  * @sw-package checkout
  */
 
+const { ShopwareError } = Shopware.Classes;
 const { EntityDefinition, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
@@ -74,6 +75,10 @@ export default {
 
         orderRepository() {
             return this.repositoryFactory.create('order');
+        },
+
+        orderAddressRepository() {
+            return this.repositoryFactory.create('order_address');
         },
 
         addressRepository() {
@@ -151,7 +156,10 @@ export default {
 
         onEditAddress(id) {
             if (id === this.address.id) {
-                this.currentAddress = this.address;
+                // create to prevent side effects when closing the modal
+                this.currentAddress = this.orderAddressRepository.create(Shopware.Context.api, id);
+                Object.assign(this.currentAddress, this.address);
+
                 return;
             }
 
@@ -176,8 +184,17 @@ export default {
                 return Promise.resolve();
             }
 
+            if (!this.isValidAddress(this.currentAddress)) {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.notification.requiredFields'),
+                });
+
+                return Promise.reject();
+            }
+
             // edit order address
             if (this.currentAddress.id === this.address.id) {
+                Object.assign(this.address, this.currentAddress);
                 return this.orderRepository
                     .save(this.order, this.versionContext)
                     .then(() => {
@@ -190,14 +207,6 @@ export default {
                             message: this.$tc('sw-order.detail.messageSaveError'),
                         });
                     });
-            }
-
-            if (!this.isValidAddress(this.currentAddress)) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.notification.requiredFields'),
-                });
-
-                return Promise.reject();
             }
 
             const address =
@@ -219,9 +228,26 @@ export default {
 
         isValidAddress(address) {
             const ignoreFields = ['createdAt'];
-            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
+            const entityName = address.getEntityName();
+            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields(entityName));
+            let isValid = true;
 
-            return requiredAddressFields.every((field) => ignoreFields.includes(field) || required(address[field]));
+            requiredAddressFields.forEach((field) => {
+                if (ignoreFields.includes(field) || required(address[field])) {
+                    return;
+                }
+
+                isValid = false;
+
+                Shopware.Store.get('error').addApiError({
+                    expression: `${entityName}.${this.currentAddress.id}.${field}`,
+                    error: new ShopwareError({
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    }),
+                });
+            });
+
+            return isValid;
         },
 
         onChangeDefaultAddress(data) {

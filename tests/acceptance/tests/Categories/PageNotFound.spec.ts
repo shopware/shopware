@@ -12,6 +12,6 @@ test(
             `We are sorry, the page you're looking for could not be found. It may no longer exist or may have been moved.`
         );
         await ShopCustomer.presses(StorefrontPageNotFound.backToShopButton);
-        await ShopCustomer.expects(StorefrontHeader.page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
+        await ShopCustomer.expects(StorefrontHeader.mainNavigationLink).toContainText('Home');
     }
 );

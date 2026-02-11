@@ -63,8 +63,7 @@ class ProductSortingStreamUpdater implements EventSubscriberInterface
         foreach ($event->getWriteResults() as $writeResult) {
             $payload = $writeResult->getPayload();
 
-            // still need to check if product sorting is active regardless of fields
-            if (!\array_key_exists('fields', $payload) && (!\array_key_exists('active', $payload) || $payload['active'] !== true)) {
+            if (!\array_key_exists('fields', $payload)) {
                 continue;
             }
 

@@ -840,104 +840,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $updater->onEntityWritten($containerEvent);
     }
 
-    public function testProductSortingWithActiveSetToTrueTriggersIndexing(): void
-    {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
-        $elasticsearchHelper
-            ->method('allowIndexing')
-            ->willReturn(true);
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturn(['active_field']);
-
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                ['name' => 'active_field', 'type' => 'text'],
-            ]);
-
-        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
-        $mappingHelper
-            ->expects($this->once())
-            ->method('createFieldsInIndices');
-
-        $updater = new ProductSortingStreamUpdater(
-            $elasticsearchHelper,
-            $mappingHelper,
-            $connection
-        );
-
-        // Payload without 'fields' but with 'active' = true should still trigger query
-        $writeResults = [
-            new EntityWriteResult(
-                Uuid::randomHex(),
-                [
-                    'urlKey' => 'test-sorting',
-                    'priority' => 1,
-                    'active' => true,
-                ],
-                ProductSortingDefinition::ENTITY_NAME,
-                EntityWriteResult::OPERATION_UPDATE
-            ),
-        ];
-
-        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
-
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
-    }
-
-    public function testProductSortingWithActiveSetToFalseDoesNotTriggerIndexing(): void
-    {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
-        $elasticsearchHelper
-            ->method('allowIndexing')
-            ->willReturn(true);
-
-        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
-        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
-
-        $updater = new ProductSortingStreamUpdater(
-            $elasticsearchHelper,
-            $mappingHelper,
-            $this->createMock(Connection::class)
-        );
-
-        // Payload without 'fields' and with 'active' = false should not trigger
-        $writeResults = [
-            new EntityWriteResult(
-                Uuid::randomHex(),
-                [
-                    'urlKey' => 'test-sorting',
-                    'priority' => 1,
-                    'active' => false,
-                ],
-                ProductSortingDefinition::ENTITY_NAME,
-                EntityWriteResult::OPERATION_UPDATE
-            ),
-        ];
-
-        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
-
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
-    }
-
-    public function testProductSortingWithFieldsAndActiveTriggersIndexing(): void
+    public function testProductSortingWithFieldsTriggersIndexing(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
@@ -971,14 +874,12 @@ class ProductSortingStreamUpdaterTest extends TestCase
             $connection
         );
 
-        // Payload with both 'fields' and 'active' should trigger
         $writeResults = [
             new EntityWriteResult(
                 Uuid::randomHex(),
                 [
                     'urlKey' => 'test-sorting',
                     'priority' => 1,
-                    'active' => true,
                     'fields' => [
                         ['field' => 'customFields.combined_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
                     ],

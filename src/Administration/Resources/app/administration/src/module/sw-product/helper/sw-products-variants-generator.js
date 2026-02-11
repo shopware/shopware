@@ -63,7 +63,6 @@ export default class VariantsGenerator extends EventEmitter {
                 return settingData;
             });
 
-        // If no valid settings to save after filtering, resolve immediately
         if (payload.length === 0) {
             return Promise.resolve();
         }
@@ -369,12 +368,10 @@ export default class VariantsGenerator extends EventEmitter {
     }
 
     filterRestrictions(createQueue) {
-        // Ensure variantRestrictions is an array
         if (!Array.isArray(this.product.variantRestrictions)) {
             return createQueue;
         }
 
-        // Filter out invalid/empty restrictions before processing
         const validRestrictions = this.product.variantRestrictions.filter((restriction) => {
             return (
                 restriction &&
@@ -384,7 +381,6 @@ export default class VariantsGenerator extends EventEmitter {
             );
         });
 
-        // Return the normal create queue when no valid restrictions exist
         if (validRestrictions.length === 0) {
             return createQueue;
         }

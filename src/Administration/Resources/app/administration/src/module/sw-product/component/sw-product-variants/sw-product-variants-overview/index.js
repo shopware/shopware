@@ -305,10 +305,6 @@ export default {
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
-                /**
-                 * if no product id or parent id, return early
-                 * prevents errors when the product is not loaded yet
-                 */
                 if (!this.product?.id || this.product.parentId) {
                     return;
                 }

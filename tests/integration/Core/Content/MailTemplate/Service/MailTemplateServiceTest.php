@@ -414,6 +414,9 @@ class MailTemplateServiceTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestSubscriber implements EventSubscriberInterface
 {
     private \stdClass $state;

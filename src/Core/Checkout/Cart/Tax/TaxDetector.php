@@ -56,19 +56,21 @@ class TaxDetector extends AbstractTaxDetector
             return false;
         }
 
-        $vatPattern = $shippingLocationCountry->getVatIdPattern();
-        $vatIds = array_filter($customer->getVatIds() ?? []);
+        if ($shippingLocationCountry->getIsEu()) {
+            $vatPattern = $shippingLocationCountry->getVatIdPattern();
+            $vatIds = array_filter($customer->getVatIds() ?? []);
 
-        if ($vatIds === []) {
-            return false;
-        }
+            if ($vatIds === []) {
+                return false;
+            }
 
-        if ($vatPattern !== null && $vatPattern !== '' && $shippingLocationCountry->getCheckVatIdPattern()) {
-            $regex = '/^' . $vatPattern . '$/';
+            if ($vatPattern !== null && $vatPattern !== '' && $shippingLocationCountry->getCheckVatIdPattern()) {
+                $regex = '/^' . $vatPattern . '$/';
 
-            foreach ($vatIds as $vatId) {
-                if (!preg_match($regex, $vatId)) {
-                    return false;
+                foreach ($vatIds as $vatId) {
+                    if (!preg_match($regex, $vatId)) {
+                        return false;
+                    }
                 }
             }
         }

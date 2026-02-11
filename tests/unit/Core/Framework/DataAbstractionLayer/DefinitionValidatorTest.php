@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -94,7 +95,7 @@ class DefinitionValidatorTest extends TestCase
         static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations, but got: ' . implode(', ', $primaryKeyViolations));
     }
 
-    public function testPrimaryKeyValidationHandlesTableNotFoundException(): void
+    public function testPrimaryKeyValidationSkipsNonExistentTable(): void
     {
         $definition = new DefinitionStub();
         $validator = $this->createValidatorWithNonExistentTable($definition);
@@ -108,8 +109,7 @@ class DefinitionValidatorTest extends TestCase
             static fn (string $violation): bool => str_contains($violation, 'Primary key mismatch')
         );
 
-        // When table doesn't exist, introspectTable throws an exception which is caught,
-        // and validatePrimaryKeyConsistency returns empty array (no violations)
+        // When table doesn't exist in the schema, validatePrimaryKeyConsistency skips validation
         static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations when table does not exist, but got: ' . implode(', ', $primaryKeyViolations));
     }
 
@@ -138,19 +138,11 @@ class DefinitionValidatorTest extends TestCase
      */
     private function createValidatorWithTable(EntityDefinition $definition, array $dbPrimaryKeys): DefinitionValidator
     {
-        $connection = $this->createMock(Connection::class);
-        $schemaManager = $this->createMock(AbstractSchemaManager::class);
-        $connection->method('createSchemaManager')->willReturn($schemaManager);
-
-        $table = $this->createMock(Table::class);
-        $table->method('getName')->willReturn('definition_validator_test');
-        $table->method('getColumns')->willReturn([]);
-
         $pkConstraint = null;
         if (!empty($dbPrimaryKeys)) {
             $pkColumns = array_map(
                 static function (string $col): UnqualifiedName {
-                    \assert($col !== '');
+                    static::assertNotEmpty($col);
 
                     return new UnqualifiedName(Identifier::unquoted($col));
                 },
@@ -159,24 +151,34 @@ class DefinitionValidatorTest extends TestCase
             $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
         }
 
-        // This setup is to make the other validation checks pass
         $columns = [
             new Column('id', Type::getType(Types::BINARY)),
             new Column('foo', Type::getType(Types::INTEGER)),
             new Column('created_at', Type::getType(Types::DATETIME_MUTABLE)),
             new Column('updated_at', Type::getType(Types::DATETIME_MUTABLE)),
         ];
-        $schemaManager->method('listTableColumns')->willReturn($columns);
+
+        $table = $this->createMock(Table::class);
+        $table->method('getName')->willReturn('definition_validator_test');
+        $table->method('getColumns')->willReturn($columns);
         $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);
-        $schemaManager->method('introspectTable')->willReturn($table);
-        $schemaManager->method('listTables')->willReturn([$table]);
+
+        $schema = $this->createMock(Schema::class);
+        $schema->method('hasTable')->willReturn(true);
+        $schema->method('getTable')->willReturn($table);
+        $schema->method('getTables')->willReturn([$table]);
+
+        $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $schemaManager->method('introspectSchema')->willReturn($schema);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
 
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $definition->compile($registry);
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
 
-        // Create a custom validator that doesn't skip test definitions
         // @phpstan-ignore class.extendsFinalByPhpDoc
         return new class($registry, $connection) extends DefinitionValidator {
             protected function shouldSkipDefinition(string $definitionClass): bool
@@ -188,19 +190,21 @@ class DefinitionValidatorTest extends TestCase
 
     private function createValidatorWithNonExistentTable(EntityDefinition $definition): DefinitionValidator
     {
-        $connection = $this->createMock(Connection::class);
+        $schema = $this->createMock(Schema::class);
+        $schema->method('hasTable')->willReturn(false);
+        $schema->method('getTables')->willReturn([]);
+
         $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $schemaManager->method('introspectSchema')->willReturn($schema);
+
+        $connection = $this->createMock(Connection::class);
         $connection->method('createSchemaManager')->willReturn($schemaManager);
-        $schemaManager->method('introspectTable')->willThrowException(new \Exception('Table does not exist'));
-        $schemaManager->method('listTableColumns')->willReturn([]);
-        $schemaManager->method('listTables')->willReturn([]);
 
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $definition->compile($registry);
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
 
-        // Create a custom validator that doesn't skip test definitions
         // @phpstan-ignore class.extendsFinalByPhpDoc
         return new class($registry, $connection) extends DefinitionValidator {
             protected function shouldSkipDefinition(string $definitionClass): bool

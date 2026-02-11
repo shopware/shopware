@@ -38,6 +38,12 @@ The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
 They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
 Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
 
+### Primary key validation in `dal:validate` command
+
+The `dal:validate` command now includes validation to detect mismatches between database PRIMARY KEY constraints and entity definition PrimaryKey flags.
+This validation prevents silent failures where queries return correct `total` counts but empty `data` arrays due to entity hydration failures caused by inconsistent primary key definitions.
+When a mismatch is detected, the command provides a clear error message indicating which fields differ between the database schema and the entity definition.
+
 ## Administration
 
 ### Deprecation of `items` prop in `sw-entity-listing` component
@@ -530,10 +536,6 @@ We don't synchronously fetch and generate the SEO-Urls for all child categories 
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
-### Primary key validation in `dal:validate` command
-The `dal:validate` command now includes validation to detect mismatches between database PRIMARY KEY constraints and entity definition PrimaryKey flags.
-This validation prevents silent failures where queries return correct `total` counts but empty `data` arrays due to entity hydration failures caused by inconsistent primary key definitions.
-When a mismatch is detected, the command provides a clear error message indicating which fields differ between the database schema and the entity definition.
 ### Make the find best variant on searching as non default behaviour
 
 Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best variant" feature was always the default behaviour on the search. It means that if a product has variants, the best matching variant is returned instead of what merchant has configured in the product's Storefront presentation > Product listings > "Show main product or variant" setting.

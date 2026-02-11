@@ -187,7 +187,7 @@ class DefinitionValidator
 
             $violations = array_merge_recursive($violations, $this->validateSchema($definition, $schema));
 
-            $violations = array_merge_recursive($violations, $this->validatePrimaryKeyConsistency($definition));
+            $violations = array_merge_recursive($violations, $this->validatePrimaryKeyConsistency($definition, $schema));
 
             $violations = array_merge_recursive($violations, $this->validateColumn($definition, $schema));
 
@@ -974,16 +974,13 @@ class DefinitionValidator
      *
      * @return array<class-string<EntityDefinition>, list<string>>
      */
-    private function validatePrimaryKeyConsistency(EntityDefinition $definition): array
+    private function validatePrimaryKeyConsistency(EntityDefinition $definition, Schema $schema): array
     {
-        $violations = [];
-
-        // Skip if table doesn't exist yet
-        try {
-            $table = $this->connection->createSchemaManager()->introspectTable($definition->getEntityName());
-        } catch (\Exception) {
+        if (!$schema->hasTable($definition->getEntityName())) {
             return [];
         }
+
+        $table = $schema->getTable($definition->getEntityName());
 
         // Get primary key columns from database
         $primaryKeyConstraint = $table->getPrimaryKeyConstraint();
@@ -993,10 +990,9 @@ class DefinitionValidator
         ) : [];
 
         // Get primary key fields from entity definition
-        $definitionPrimaryKeys = $definition->getPrimaryKeys();
         $definitionPkColumns = [];
 
-        foreach ($definitionPrimaryKeys as $pkField) {
+        foreach ($definition->getPrimaryKeys() as $pkField) {
             if (!$pkField instanceof StorageAware) {
                 continue;
             }
@@ -1007,17 +1003,16 @@ class DefinitionValidator
         sort($databasePrimaryKeys);
         sort($definitionPkColumns);
 
-        // Check if they match
         if ($databasePrimaryKeys !== $definitionPkColumns) {
-            $violations[] = \sprintf(
+            return [$definition->getClass() => [\sprintf(
                 'Primary key mismatch in entity "%s": Table has PRIMARY KEY (%s), but entity definition has PrimaryKey flags on (%s). This causes entity hydration to fail silently. Ensure PrimaryKey flags match the database schema exactly.',
                 $definition->getEntityName(),
                 implode(', ', $databasePrimaryKeys),
                 implode(', ', $definitionPkColumns)
-            );
+            )]];
         }
 
-        return [$definition->getClass() => $violations];
+        return [$definition->getClass() => []];
     }
 
     /**

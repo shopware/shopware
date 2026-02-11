@@ -102,6 +102,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'name' => $languageFields,
             'active' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
             'sales' => AbstractElasticsearchDefinition::INT_FIELD,
+            'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'productNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
@@ -161,6 +162,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    product.parent_id as parentId,
                    product.product_number as productNumber,
                    product.sales as sales,
+                   product.type as type,
                    product.states as states,
                    LOWER(HEX(product.manufacturer)) AS manufacturerId,
                    IFNULL(product.category_ids, parent.category_ids) AS categoryIds,
@@ -232,6 +234,7 @@ SQL;
                 'active' => (bool) $row['active'],
                 'available' => (bool) $row['available'],
                 'stock' => (int) $row['stock'],
+                'type' => $row['type'] ?? null,
                 'states' => ElasticsearchIndexingUtils::parseJson($row, 'states'),
                 'manufacturer' => [
                     'id' => $row['manufacturerId'] ?? null,

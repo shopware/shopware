@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
@@ -40,8 +41,13 @@ class MessageQueueStatsSubscriberTest extends TestCase
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
     public function testOnMessageFailed(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $envelope = new Envelope(new \stdClass());
         $event = new WorkerMessageFailedEvent($envelope, 'receiver', new \Exception());
 
@@ -57,8 +63,6 @@ class MessageQueueStatsSubscriberTest extends TestCase
         ]);
         $event = new WorkerMessageHandledEvent($envelope, 'theReceiver');
 
-        $this->handleCommonExpectations($envelope, false);
-
         $this->statsService->expects($this->once())
             ->method('registerMessage')
             ->with($envelope);
@@ -66,8 +70,28 @@ class MessageQueueStatsSubscriberTest extends TestCase
         $this->subscriber->onMessageHandled($event);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
+    public function testOnMessageHandledUpdateIncrementStats(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $envelope = new Envelope(new \stdClass());
+        $event = new WorkerMessageHandledEvent($envelope, 'theReceiver');
+
+        $this->handleCommonExpectations($envelope, false);
+
+        $this->subscriber->onMessageHandled($event);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
     public function testOnMessageSent(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $envelope = new Envelope(new \stdClass());
         $event = new SendMessageToTransportsEvent($envelope, []);
 
@@ -76,6 +100,9 @@ class MessageQueueStatsSubscriberTest extends TestCase
         $this->subscriber->onMessageSent($event);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Method will be removed along with increment-based stats
+     */
     protected function handleCommonExpectations(Envelope $envelope, bool $increment): void
     {
         $this->gatewayRegistry->expects($this->once())

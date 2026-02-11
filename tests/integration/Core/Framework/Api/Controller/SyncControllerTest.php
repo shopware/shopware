@@ -15,8 +15,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Increment\AbstractIncrementer;
-use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,13 +33,9 @@ class SyncControllerTest extends TestCase
 
     private Connection $connection;
 
-    private AbstractIncrementer $gateway;
-
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->gateway = static::getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
-        $this->gateway->reset('message_queue_stats');
     }
 
     public function testMultipleProductInsert(): void
@@ -355,7 +349,6 @@ class SyncControllerTest extends TestCase
         ];
 
         $this->connection->executeStatement('DELETE FROM messenger_messages;');
-        $this->connection->executeStatement('DELETE FROM `increment`;');
 
         $this->getBrowser()->request(
             'POST',
@@ -374,10 +367,8 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $messages = $this->gateway->list('message_queue_stats');
-
-        static::assertNotEmpty($messages);
-        static::assertSame(1, $messages[ProductIndexingMessage::class]['count']);
+        $queuedMessages = $this->getQueuedMessageCount(ProductIndexingMessage::class);
+        static::assertSame(1, $queuedMessages);
     }
 
     public function testDirectIndexing(): void
@@ -402,10 +393,8 @@ class SyncControllerTest extends TestCase
         ];
 
         $this->connection->executeStatement('DELETE FROM messenger_messages;');
-        $this->connection->executeStatement('DELETE FROM `increment`;');
 
-        $keys = $this->gateway->list('message_queue_stats');
-        static::assertEmpty($keys);
+        static::assertSame(0, $this->getQueuedMessageCount(ProductIndexingMessage::class));
 
         $this->getBrowser()->request(
             'POST',
@@ -424,8 +413,7 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $keys = $this->gateway->list('message_queue_stats');
-        static::assertEmpty($keys);
+        static::assertSame(0, $this->getQueuedMessageCount(ProductIndexingMessage::class));
     }
 
     public function testSkipIndexer(): void
@@ -624,5 +612,16 @@ class SyncControllerTest extends TestCase
             json_encode(['delete-mapping' => 'action:delete'], \JSON_THROW_ON_ERROR),
             'Invalid payload format. Expected an array of operations.',
         ];
+    }
+
+    /**
+     * @param class-string $messageClass
+     */
+    private function getQueuedMessageCount(string $messageClass): int
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM messenger_messages WHERE headers LIKE :class',
+            ['class' => '%' . $messageClass . '%']
+        );
     }
 }

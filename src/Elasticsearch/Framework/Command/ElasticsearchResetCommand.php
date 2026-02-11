@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -60,11 +61,14 @@ class ElasticsearchResetCommand extends Command
 
         $this->connection->executeStatement('TRUNCATE elasticsearch_index_task');
 
-        try {
-            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
-            $gateway->reset('message_queue_stats', ElasticsearchIndexingMessage::class);
-        } catch (IncrementGatewayNotFoundException) {
-            // In case message_queue pool is disabled
+        // @deprecated tag:v6.8.0 - This block will be removed. The increment-based message queue statistics are deprecated.
+        if (!Feature::isActive('v6.8.0.0')) {
+            try {
+                $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+                $gateway->reset('message_queue_stats', ElasticsearchIndexingMessage::class);
+            } catch (IncrementGatewayNotFoundException) {
+                // In case message_queue pool is disabled
+            }
         }
 
         $this->connection->executeStatement('DELETE FROM `messenger_messages` WHERE `headers` LIKE "%ElasticsearchIndexingMessage%"');

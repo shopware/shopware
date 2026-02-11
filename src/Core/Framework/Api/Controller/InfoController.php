@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -89,9 +90,17 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Route will be removed. Use /api/_info/message-stats.json instead.
+     */
     #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
     public function queue(): JsonResponse
     {
+        // @deprecated tag:v6.8.0 - Route will be removed entirely
+        if (Feature::isActive('v6.8.0.0')) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', '\Shopware\Core\Framework\Api\Controller\InfoController::messageStats'));
+        }
+
         try {
             $gateway = $this->incrementGatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
         } catch (IncrementGatewayNotFoundException) {

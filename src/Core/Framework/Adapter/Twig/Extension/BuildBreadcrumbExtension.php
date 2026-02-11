@@ -37,14 +37,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
     {
         /** @deprecated tag:v6.8.0 - Remove `needs_context` option, as the SalesChannelContext is required and the Twig Context is not needed anymore */
         return [
-            new TwigFunction('sw_breadcrumb_full', function (array $twigContext, ?CategoryEntity $category, Context|SalesChannelContext $context): array {
-                // no breadcrumb without a category
-                if ($category === null) {
-                    return [];
-                }
-
-                return $this->getFullBreadcrumb($twigContext, $category, $context);
-            }, ['needs_context' => true]),
+            new TwigFunction('sw_breadcrumb_full', $this->getFullBreadcrumb(...), ['needs_context' => true]),
             new TwigFunction('sw_breadcrumb_full_by_id', $this->getFullBreadcrumbById(...), ['needs_context' => true]),
         ];
     }

@@ -75,24 +75,6 @@ class BuildBreadcrumbExtensionTest extends TestCase
         static::assertArrayNotHasKey($notConsideredCategoryId, $breadCrumb);
     }
 
-    /**
-     * @see https://github.com/shopware/shopware/issues/14657
-     */
-    public function testGetFullBreadcrumbWithNullCategoryReturnsEmptyArray(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        $extension = $this->getBuildBreadcrumbExtension();
-        $twigFunction = $extension->getFunctions()[0];
-
-        $callable = $twigFunction->getCallable();
-        static::assertIsCallable($callable);
-
-        $breadCrumb = $callable([], null, $salesChannelContext);
-
-        static::assertSame([], $breadCrumb);
-    }
-
     public function testGetFullBreadcrumbByIdWithNonExistingCategoryId(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();

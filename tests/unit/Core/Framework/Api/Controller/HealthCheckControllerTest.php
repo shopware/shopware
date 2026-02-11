@@ -181,7 +181,7 @@ class HealthCheckControllerTest extends TestCase
                 $header = $request->headers->get(HealthCheckController::HEADER_AUTHORIZATION, '');
                 $jwt = \trim((string) \preg_replace('/^\s*Bearer\s/', '', $header));
 
-                if (empty($validBearer) || $jwt !== $validBearer) {
+                if ($validBearer === null || $validBearer === '' || $validBearer === '0' || $jwt !== $validBearer) {
                     throw OAuthServerException::accessDenied('Access token is invalid');
                 }
             }

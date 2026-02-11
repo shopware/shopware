@@ -135,7 +135,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertIsIterable($urls);
 
         foreach ($urls as $url) {
-            if (!empty($pathInfo)) {
+            if ($pathInfo !== '' && $pathInfo !== '0') {
                 static::assertStringEndsWith($pathInfo, $url->getSeoPathInfo());
             }
         }

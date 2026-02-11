@@ -335,7 +335,7 @@ class ProductListingTest extends TestCase
             ],
         ];
 
-        if (!empty($options)) {
+        if ($options !== []) {
             foreach ($this->combos($options) as $index => $combination) {
                 $variantKey = $key . '-' . implode('-', $this->testData->getKeyList($combination));
 

@@ -42,7 +42,7 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         ));
 
         $stateMachineId = $this->connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technicalName', ['technicalName' => OrderDeliveryStates::STATE_MACHINE]);
-        if (!\is_string($stateMachineId) || empty($stateMachineId)) {
+        if (!\is_string($stateMachineId) || ($stateMachineId === '' || $stateMachineId === '0')) {
             return;
         }
 
@@ -99,11 +99,11 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         ));
 
         $stateMachineId = $this->connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technicalName', ['technicalName' => OrderDeliveryStates::STATE_MACHINE]);
-        if (!\is_string($stateMachineId) || empty($stateMachineId)) {
+        if (!\is_string($stateMachineId) || ($stateMachineId === '' || $stateMachineId === '0')) {
             return;
         }
 
-        if (!empty($germanIds)) {
+        if ($germanIds !== []) {
             $this->connection->executeStatement('UPDATE state_machine_translation SET name = :name WHERE state_machine_id = :stateMachineId AND language_id IN (:languageIds) AND updated_at IS NULL', [
                 'name' => 'Bestellstatus',
                 'stateMachineId' => $stateMachineId,
@@ -115,7 +115,7 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
             ]);
         }
 
-        if (!empty($englishIds)) {
+        if ($englishIds !== []) {
             $this->connection->executeStatement('UPDATE state_machine_translation SET name = :name WHERE state_machine_id = :stateMachineId AND language_id IN (:languageIds) AND updated_at IS NULL', [
                 'name' => 'Order state',
                 'stateMachineId' => $stateMachineId,

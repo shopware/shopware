@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
@@ -14,6 +15,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,9 +33,10 @@ class MailTemplateServiceTest extends TestCase
     use OrderActionTrait;
 
     private MailTemplateService $mailTemplateService;
-
+    private Connection $connection;
     private Context $context;
-
+    /** @var EntityRepository<MailTemplateCollection> */
+    private EntityRepository $mailTemplateRepository;
     private IdsCollection $ids;
 
     protected function setUp(): void
@@ -218,11 +221,17 @@ class MailTemplateServiceTest extends TestCase
                 []
             );
 
+        /** @var MailDataProvider $mailDataProvider */
+        $mailDataProvider = static::getContainer()->get(MailDataProvider::class);
+
+        /** @var StringTemplateRenderer $stringTemplateRenderer */
+        $stringTemplateRenderer = static::getContainer()->get(StringTemplateRenderer::class);
+
         $mailTemplateService = new MailTemplateService(
             $mailService,
-            static::getContainer()->get(MailDataProvider::class),
+            $mailDataProvider,
             $this->mailTemplateRepository,
-            static::getContainer()->get(StringTemplateRenderer::class),
+            $stringTemplateRenderer,
         );
 
         $mailTemplateService->getTemplateDataAndSend([], $id, [], $this->context);
@@ -372,6 +381,9 @@ class MailTemplateServiceTest extends TestCase
         static::assertSame('test@shopware.com', $email->getTo()[0]->getAddress());
     }
 
+    /**
+     * @param array<string, string> $availableEntities
+     */
     private function createMailTemplate(
         array $availableEntities = [],
         string $contentHtml = 'test',

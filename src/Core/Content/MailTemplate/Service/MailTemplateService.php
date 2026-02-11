@@ -32,6 +32,9 @@ class MailTemplateService
     ) {
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     public function preview(string $templateId, array $entities, Context $context, bool $strict = false): string
     {
         $criteria = new Criteria([$templateId]);
@@ -62,6 +65,10 @@ class MailTemplateService
         return $renderedTemplate;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, string> $entities
+     */
     public function getTemplateDataAndSend(array $data, string $templateId, array $entities, Context $context): ?Email
     {
         $criteria = new Criteria([$templateId]);
@@ -90,7 +97,7 @@ class MailTemplateService
             new MailTemplateEntity(),
             $extension,
             [],
-            $mailTemplateData['order']['id'] ?? null,
+            $templateData['order']['id'] ?? null,
         );
 
         return $this->mailService->send($data, $context, $templateData);

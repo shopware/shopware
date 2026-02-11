@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Api;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -114,7 +116,7 @@ class MailActionController extends AbstractController
     public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->get('mailTemplateId');
-        $entities = $post->get('entities', [])->all();
+        $entities = $post->get('entities', new DataBag())->all();
 
         $renderedTemplate = $this->mailTemplateService->preview($templateId, $entities, $context);
 
@@ -135,7 +137,7 @@ class MailActionController extends AbstractController
     public function getDataAndSend(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->get('mailTemplateId');
-        $entities = $post->get('entities', [])->all();
+        $entities = $post->get('entities', new DataBag())->all();
 
         $message = $this->mailTemplateService->getTemplateDataAndSend($post->all(), $templateId, $entities, $context);
 

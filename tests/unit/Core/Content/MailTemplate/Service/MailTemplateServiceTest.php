@@ -12,6 +12,7 @@ use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -31,6 +32,7 @@ class MailTemplateServiceTest extends TestCase
 
         $mailService = $this->createMock(AbstractMailService::class);
         $mailDataProvider = $this->createMock(MailDataProvider::class);
+        /** @var EntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])]);
         $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
         $stringTemplateRenderer->method('render')->willReturn('html');
@@ -55,6 +57,7 @@ class MailTemplateServiceTest extends TestCase
 
         $mailService = $this->createMock(AbstractMailService::class);
         $mailDataProvider = $this->createMock(MailDataProvider::class);
+        /** @var EntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])]);
         $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
 
@@ -87,6 +90,7 @@ class MailTemplateServiceTest extends TestCase
         $mailDataProvider = $this->createMock(MailDataProvider::class);
         $mailDataProvider->method('getTemplateData')->willReturn([]);
 
+        /** @var EntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])]);
         $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
 

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Api\MailActionController;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -59,7 +60,8 @@ class MailActionControllerTest extends TestCase
 
         $mailActionController = new MailActionController(
             $this->mailService,
-            $this->stringTemplateRenderer
+            $this->stringTemplateRenderer,
+            $this->createMock(MailTemplateService::class),
         );
 
         $mailActionController->send($data, Context::createDefaultContext());
@@ -95,7 +97,8 @@ class MailActionControllerTest extends TestCase
 
         $mailActionController = new MailActionController(
             $this->mailService,
-            $this->stringTemplateRenderer
+            $this->stringTemplateRenderer,
+            $this->createMock(MailTemplateService::class),
         );
 
         $response = $mailActionController->build($data, $context);
@@ -123,7 +126,8 @@ class MailActionControllerTest extends TestCase
 
         $mailActionController = new MailActionController(
             $this->mailService,
-            $this->stringTemplateRenderer
+            $this->stringTemplateRenderer,
+            $this->createMock(MailTemplateService::class),
         );
 
         $response = $mailActionController->build($data, $context);
@@ -145,7 +149,8 @@ class MailActionControllerTest extends TestCase
 
         $mailActionController = new MailActionController(
             $this->mailService,
-            $this->stringTemplateRenderer
+            $this->stringTemplateRenderer,
+            $this->createMock(MailTemplateService::class),
         );
 
         $this->expectExceptionObject(MailTemplateException::invalidMailTemplateContent());

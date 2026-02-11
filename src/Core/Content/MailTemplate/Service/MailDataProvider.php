@@ -40,7 +40,10 @@ class MailDataProvider
      */
     public function getTemplateData(MailTemplateEntity $mailTemplate, array $entities, Context $context): array
     {
-        // TODO validate $entities keys against available entities in mail template type?
+        $availableEntities = $mailTemplate->getMailTemplateType()?->getAvailableEntities() ?? [];
+
+        // Filter entities array so only those are left which are in the mail template's available entities list
+        $entities = array_intersect_key($entities, $availableEntities);
 
         $templateData = [];
 
@@ -48,10 +51,6 @@ class MailDataProvider
             $dataProvider = $this->dataProviders[$entityName];
 
             $data = $dataProvider->getData($entityId, $context);
-
-            if ($data === null) {
-                // TODO: check how flow handles it, it just returns null for missing entities, does that error?
-            }
 
             $templateData = array_merge(
                 $templateData,

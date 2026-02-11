@@ -32,11 +32,15 @@ class MailTemplateService
     ) {
     }
 
-    public function preview(string $templateId, array $entities, Context $context): string
+    public function preview(string $templateId, array $entities, Context $context, bool $strict = false): string
     {
         $criteria = new Criteria([$templateId]);
         $criteria->addAssociation('mailTemplateType');
         $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+
+        if ($mailTemplate === null) {
+            throw MailTemplateException::templateNotFound();
+        }
 
         $template = $mailTemplate->getContentHtml();
         if (!\is_string($template)) {
@@ -45,24 +49,33 @@ class MailTemplateService
 
         $templateData = $this->mailDataProvider->getTemplateData($mailTemplate, $entities, $context);
 
-        $this->templateRenderer->enableTestMode();
+        if (!$strict) {
+            $this->templateRenderer->enableTestMode();
+        }
+
         $renderedTemplate = $this->templateRenderer->render($template, $templateData, $context);
-        $this->templateRenderer->disableTestMode();
+
+        if (!$strict) {
+            $this->templateRenderer->disableTestMode();
+        }
 
         return $renderedTemplate;
     }
 
-    public function getTemplateDataAndSend(string $templateId, array $entities, Context $context): ?Email
+    public function getTemplateDataAndSend(array $data, string $templateId, array $entities, Context $context): ?Email
     {
         $criteria = new Criteria([$templateId]);
         $criteria->addAssociation('mailTemplateType');
         $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
 
-        $data = [];
-        $data['contentHtml'] = $mailTemplate->getContentHtml();
-        $data['contentPlain'] = $mailTemplate->getContentPlain();
-        $data['subject'] = $mailTemplate->getSubject();
-        $data['senderName'] = $mailTemplate->getSenderName();
+        if ($mailTemplate === null) {
+            throw MailTemplateException::templateNotFound();
+        }
+
+        $data['contentHtml'] ??= $mailTemplate->getContentHtml();
+        $data['contentPlain'] ??= $mailTemplate->getContentPlain();
+        $data['subject'] ??= $mailTemplate->getSubject();
+        $data['senderName'] ??= $mailTemplate->getSenderName();
 
         $templateData = $this->mailDataProvider->getTemplateData($mailTemplate, $entities, $context);
 

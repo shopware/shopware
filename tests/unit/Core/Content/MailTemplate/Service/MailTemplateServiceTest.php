@@ -97,7 +97,7 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer
         );
 
-        $email = $mailTemplateService->getTemplateDataAndSend($mailTemplate->getId(), [], $context);
+        $email = $mailTemplateService->getTemplateDataAndSend([], $mailTemplate->getId(), [], $context);
 
         static::assertNull($email);
     }

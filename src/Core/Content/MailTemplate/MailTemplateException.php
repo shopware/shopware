@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class MailTemplateException extends HttpException
 {
     public const MAIL_INVALID_TEMPLATE_CONTENT = 'CONTENT__INVALID_MAIL_TEMPLATE_CONTENT';
+    public const MAIL_TEMPLATE_NOT_FOUND = 'CONTENT__MAIL_TEMPLATE_NOT_FOUND';
 
     public static function invalidMailTemplateContent(): self
     {
@@ -17,6 +18,15 @@ class MailTemplateException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MAIL_INVALID_TEMPLATE_CONTENT,
             'Invalid Mail Template content under "mailTemplate.contentHtml" parameter, please send the plain template as string.'
+        );
+    }
+
+    public static function templateNotFound(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAIL_TEMPLATE_NOT_FOUND,
+            'Mail Template not found.'
         );
     }
 }

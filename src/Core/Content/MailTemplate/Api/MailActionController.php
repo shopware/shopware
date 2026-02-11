@@ -137,7 +137,7 @@ class MailActionController extends AbstractController
         $templateId = $post->get('mailTemplateId');
         $entities = $post->get('entities', [])->all();
 
-        $message = $this->mailTemplateService->getTemplateDataAndSend($templateId, $entities, $context);
+        $message = $this->mailTemplateService->getTemplateDataAndSend($post->all(), $templateId, $entities, $context);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }

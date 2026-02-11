@@ -40,4 +40,9 @@ class TestDefinition implements ConsentDefinition
     {
         return $this->permissions;
     }
+
+    public function getLatestRevision(): ?string
+    {
+        return null;
+    }
 }

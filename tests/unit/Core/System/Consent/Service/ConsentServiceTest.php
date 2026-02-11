@@ -194,7 +194,8 @@ class ConsentServiceTest extends TestCase
                 static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::ACCEPTED,
-                'user-123'
+                'user-123',
+                null,
             )
             ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'));
 
@@ -265,7 +266,8 @@ class ConsentServiceTest extends TestCase
                 static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::REVOKED,
-                'user-456'
+                'user-456',
+                null,
             )
             ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'));
 
@@ -331,7 +333,8 @@ class ConsentServiceTest extends TestCase
                 static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::ACCEPTED,
-                'user-123'
+                'user-123',
+                null,
             )
             ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'));
 
@@ -369,7 +372,8 @@ class ConsentServiceTest extends TestCase
                 static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::REVOKED,
-                'user-456'
+                'user-456',
+                null,
             )
             ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'));
 

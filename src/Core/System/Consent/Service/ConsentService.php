@@ -76,6 +76,8 @@ class ConsentService
                 status: ConsentStatus::UNSET,
                 actor: null,
                 updatedAt: null,
+                acceptedRevision: null,
+                latestRevision: $consent->getLatestRevision(),
             );
         }, $this->consentDefinitions);
     }
@@ -91,12 +93,15 @@ class ConsentService
         return $state;
     }
 
-    public function acceptConsent(string $name, Context $context): ConsentState
+    public function acceptConsent(string $name, Context $context, ?string $revision = null): ConsentState
     {
-        $updatedState = $this->updateState($name, ConsentStatus::ACCEPTED, $context);
+        $consent = $this->getConsentDefinition($name);
+        $revision = $revision ?? $consent->getLatestRevision();
+
+        $updatedState = $this->updateState($name, ConsentStatus::ACCEPTED, $context, $revision);
 
         \assert(\is_string($updatedState->actor));
-        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor));
+        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor, $revision));
 
         $this->invalidateState();
 
@@ -173,7 +178,7 @@ class ConsentService
         return $this->consentScopes[$consent->getScopeName()];
     }
 
-    private function updateState(string $name, ConsentStatus $status, Context $context): ConsentState
+    private function updateState(string $name, ConsentStatus $status, Context $context, ?string $revision = null): ConsentState
     {
         $consent = $this->getConsentDefinition($name);
 
@@ -182,7 +187,7 @@ class ConsentService
         $key = $this->key($consent, $context);
 
         $states = $this->fetchStates($context);
-        if (isset($states[$key]) && $states[$key]->status === $status) {
+        if (isset($states[$key]) && $states[$key]->status === $status && $states[$key]->acceptedRevision === $revision) {
             return $states[$key];
         }
 
@@ -192,7 +197,8 @@ class ConsentService
             $consent,
             $scope->resolveIdentifier($context),
             $status,
-            $scope->resolveActorIdentifier($context)
+            $scope->resolveActorIdentifier($context),
+            $revision,
         );
     }
 

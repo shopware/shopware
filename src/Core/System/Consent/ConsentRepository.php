@@ -27,7 +27,7 @@ class ConsentRepository
     public function fetchAllConsentStates(): array
     {
         $result = $this->connection->fetchAllAssociative(
-            'SELECT name, identifier, state, actor, updated_at FROM consent_state'
+            'SELECT name, identifier, state, actor, updated_at, revision FROM consent_state'
         );
 
         return array_map(
@@ -36,7 +36,8 @@ class ConsentRepository
                 $row['identifier'],
                 ConsentStatus::from($row['state']),
                 $row['actor'],
-                $row['updated_at']
+                $row['updated_at'],
+                $row['revision'] ?? null,
             ),
             $result
         );
@@ -46,7 +47,8 @@ class ConsentRepository
         ConsentDefinition $consent,
         string $scopeIdentifier,
         ConsentStatus $state,
-        string $actorId
+        string $actorId,
+        ?string $revision = null,
     ): ConsentState {
         $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
@@ -59,11 +61,12 @@ class ConsentRepository
         }
 
         $this->connection->executeStatement('
-        INSERT INTO consent_state (id, name, identifier, state, actor, updated_at)
-        VALUES (:id, :consentName, :identifier, :state, :actor, :updatedAt)
+        INSERT INTO consent_state (id, name, identifier, state, actor, revision, updated_at)
+        VALUES (:id, :consentName, :identifier, :state, :actor, :revision, :updatedAt)
         ON DUPLICATE KEY UPDATE
             state = :state,
             actor = :actor,
+            revision = :revision,
             updated_at = :updatedAt
         ', [
             'id' => Uuid::randomBytes(),
@@ -71,6 +74,7 @@ class ConsentRepository
             'identifier' => $scopeIdentifier,
             'state' => $state->value,
             'actor' => $actor,
+            'revision' => $revision,
             'updatedAt' => $now,
         ], ['id' => 'binary']);
 
@@ -80,7 +84,9 @@ class ConsentRepository
             $scopeIdentifier,
             $state,
             $actor,
-            $now
+            $now,
+            $revision,
+            $consent->getLatestRevision(),
         );
     }
 }

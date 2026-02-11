@@ -12,11 +12,11 @@ use Shopware\Core\System\Consent\ConsentScope;
  * @codeCoverageIgnore
  */
 #[Package('data-services')]
-class BackendData implements ConsentDefinition
+class GMV implements ConsentDefinition
 {
     public function getName(): string
     {
-        return 'backend_data';
+        return 'gmv';
     }
 
     public function getScopeName(): string
@@ -27,15 +27,5 @@ class BackendData implements ConsentDefinition
     public function getSince(): \DateTimeImmutable
     {
         return new \DateTimeImmutable('2025-12-12');
-    }
-
-    public function getRequiredPermissions(): array
-    {
-        return ['system.system_config'];
-    }
-
-    public function getLatestRevision(): ?string
-    {
-        return null;
     }
 }

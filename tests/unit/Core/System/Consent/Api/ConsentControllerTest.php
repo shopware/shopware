@@ -69,6 +69,8 @@ class ConsentControllerTest extends TestCase
         static::assertSame('accepted', $content[0]['status']);
         static::assertSame('user-123', $content[0]['actor']);
         static::assertSame('2025-12-31 23:59:59.0', $content[0]['updatedAt']);
+        static::assertArrayHasKey('acceptedRevision', $content[0]);
+        static::assertArrayHasKey('latestRevision', $content[0]);
 
         static::assertIsArray($content[1]);
         static::assertArrayHasKey('name', $content[1]);
@@ -79,6 +81,8 @@ class ConsentControllerTest extends TestCase
         static::assertSame('unset', $content[1]['status']);
         static::assertNull($content[1]['actor']);
         static::assertNull($content[1]['updatedAt']);
+        static::assertArrayHasKey('acceptedRevision', $content[1]);
+        static::assertArrayHasKey('latestRevision', $content[1]);
     }
 
     public function testAcceptConsent(): void
@@ -90,7 +94,7 @@ class ConsentControllerTest extends TestCase
         $this->consentService
             ->expects($this->once())
             ->method('acceptConsent')
-            ->with('test-consent', $context)
+            ->with('test-consent', $context, null)
             ->willReturn(new ConsentState(
                 'test-consent',
                 ConsentScope\AdminUser::NAME,
@@ -117,6 +121,8 @@ class ConsentControllerTest extends TestCase
             'status' => 'accepted',
             'actor' => $user,
             'updatedAt' => '2026-01-20 12:00:00.0',
+            'acceptedRevision' => null,
+            'latestRevision' => null,
         ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
 
@@ -156,6 +162,8 @@ class ConsentControllerTest extends TestCase
             'status' => 'revoked',
             'actor' => $userId,
             'updatedAt' => '2026-01-20 12:00:00.0',
+            'acceptedRevision' => null,
+            'latestRevision' => null,
         ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
 }

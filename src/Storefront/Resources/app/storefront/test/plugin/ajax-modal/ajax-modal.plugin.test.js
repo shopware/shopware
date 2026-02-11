@@ -9,7 +9,7 @@ describe('AjaxModalPlugin tests', () => {
     let ajaxModalPlugin = undefined;
 
     beforeEach(() => {
-        window.PluginManager.initializePlugins = jest.fn();
+        window.PluginManager.initializePluginsInParentElement = jest.fn();
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
@@ -61,7 +61,7 @@ describe('AjaxModalPlugin tests', () => {
         expect(element.classList).toContain('foo');
         expect(element.classList).toContain('bar');
 
-        expect(window.PluginManager.initializePlugins).toBeCalled();
+        expect(window.PluginManager.initializePluginsInParentElement).toBeCalled();
 
         expect(ajaxModalPlugin.$emitter.publish).toBeCalledWith('ajaxModalOpen', { modal: element });
     });

@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -34,7 +35,7 @@ class Migration1697792159FixOrderDeliveryAddressConstraint extends MigrationStep
                 );
         ');
 
-        if ($this->keyExists($connection)) {
+        if (TableHelper::foreignKeyExists($connection, 'order_delivery', 'fk.order_delivery.shipping_order_address_id')) {
             return;
         }
 
@@ -44,15 +45,5 @@ class Migration1697792159FixOrderDeliveryAddressConstraint extends MigrationStep
             FOREIGN KEY (`shipping_order_address_id`, `shipping_order_address_version_id`)
             REFERENCES `order_address` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE;
         ');
-    }
-
-    private function keyExists(Connection $connection): bool
-    {
-        return $connection->executeQuery(
-            'SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-            WHERE TABLE_SCHEMA = DATABASE()
-            AND TABLE_NAME = "order_delivery"
-            AND CONSTRAINT_NAME = "fk.order_delivery.shipping_order_address_id"'
-        )->fetchOne() !== false;
     }
 }

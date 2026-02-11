@@ -75,7 +75,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 
@@ -88,7 +88,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $orderId = $operation->getOrderId();
                 $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
-                if (empty($invoice)) {
+                if ($invoice === []) {
                     throw DocumentException::generationError('Can not generate credit note document because no invoice document exists. OrderId: ' . $orderId);
                 }
 

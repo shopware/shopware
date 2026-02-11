@@ -23,7 +23,7 @@ class AdvancedPackagePicker
         // we start by modifying our packages
         // with the currently set picker, if available
         // this restructures our packages
-        if (!empty($pickerKey)) {
+        if ($pickerKey !== '') {
             $picker = $this->registry->getPicker($pickerKey);
 
             // get the new list of packages to consider

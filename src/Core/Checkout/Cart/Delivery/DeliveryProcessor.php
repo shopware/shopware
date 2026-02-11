@@ -70,7 +70,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                 }
             }
 
-            if (empty($ids)) {
+            if ($ids === []) {
                 return;
             }
 

@@ -39,14 +39,13 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
         $config = $this->createPluginConfig($bundle->getName(), $bundle->getPath());
         if ($bundle instanceof Plugin) {
+            $additionalBundleParameters = new AdditionalBundleParameters(
+                $this->pluginLoader->getClassLoader(),
+                $this->pluginLoader->getPluginInstances(),
+                []
+            );
             $config->setAdditionalBundles(
-                $bundle->getAdditionalBundles(
-                    new AdditionalBundleParameters(
-                        $this->pluginLoader->getClassLoader(),
-                        $this->pluginLoader->getPluginInstances(),
-                        []
-                    )
-                ) !== []
+                $bundle->getAdditionalBundles($additionalBundleParameters) !== []
             );
         }
 

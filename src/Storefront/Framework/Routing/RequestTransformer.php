@@ -350,6 +350,6 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private function containsBaseUrl(string $seoPathInfo, string $baseUrl): bool
     {
-        return $baseUrl !== '' && $baseUrl !== '0' && mb_strpos($seoPathInfo, $baseUrl) === 0;
+        return $baseUrl !== '' && str_starts_with($seoPathInfo, $baseUrl);
     }
 }

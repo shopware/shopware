@@ -87,7 +87,7 @@ class ThemePrepareIconsCommand extends Command
         foreach ($files as $file) {
             $svg = $file->getContents();
 
-            if ($svg === '' || $svg === '0') {
+            if ($svg === '') {
                 $this->io->warning('Could not read ' . $file . '.You have to handle this file by hand.');
 
                 continue;

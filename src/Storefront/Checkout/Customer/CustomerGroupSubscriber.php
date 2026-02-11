@@ -166,7 +166,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
                     $title = $this->getTranslatedTitle($group->getTranslations(), $language);
 
-                    if ($title === '' || $title === '0') {
+                    if ($title === '') {
                         continue;
                     }
 

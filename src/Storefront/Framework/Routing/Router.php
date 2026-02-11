@@ -178,7 +178,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
         $url = (string) $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
 
-        if ($url === '' || $url === '0') {
+        if ($url === '') {
             return $url;
         }
 

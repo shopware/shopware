@@ -288,12 +288,9 @@ class ThemeMergedConfigBuilder
     {
         $baseConfig = $mainTheme->getBaseConfig();
 
-        if (\is_array($baseConfig)
-            && \array_key_exists('configInheritance', $baseConfig)
-            && \is_array($baseConfig['configInheritance'])
-            && (isset($baseConfig['configInheritance']) && $baseConfig['configInheritance'] !== [])
-        ) {
-            return $baseConfig['configInheritance'];
+        $inheritanceConfig = $baseConfig['configInheritance'] ?? [];
+        if ($inheritanceConfig !== []) {
+            return $inheritanceConfig;
         }
 
         // For database copies (child themes), inherit config from parent theme.

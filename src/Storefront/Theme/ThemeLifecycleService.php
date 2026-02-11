@@ -401,8 +401,8 @@ class ThemeLifecycleService
         $installedBaseConfig = $installedConfiguration?->getThemeConfig() ?? [];
 
         $currentThemeMedia = null;
-        $currentMediaIds = null;
-        $toDeleteIds = null;
+        $currentMediaIds = [];
+        $toDeleteIds = [];
         // get existing MediaFiles
         if ($theme !== null && \array_key_exists('fields', $theme->getBaseConfig() ?? [])) {
             foreach ($theme->getBaseConfig()['fields'] as $key => $field) {
@@ -412,7 +412,7 @@ class ThemeLifecycleService
                 $currentMediaIds[$key] = $field['value'];
             }
 
-            if ($currentMediaIds !== null && $currentMediaIds !== []) {
+            if ($currentMediaIds !== []) {
                 $currentThemeMedia = $this->mediaRepository->search(new Criteria($currentMediaIds), $context)->getEntities();
             }
         }
@@ -435,9 +435,8 @@ class ThemeLifecycleService
                 $path = $field['value'];
 
                 if (!\array_key_exists($path, $media)) {
-                    if (
-                        $currentThemeMedia
-                        && ($currentMediaIds !== null && $currentMediaIds !== [])
+                    if ($currentThemeMedia !== null
+                        && ($currentMediaIds !== [])
                         && isset($currentMediaIds[$key])
                         && $currentThemeMedia->get($currentMediaIds[$key])?->getFileNameIncludingExtension() === basename($path)) {
                         continue;
@@ -502,7 +501,7 @@ class ThemeLifecycleService
 
         $themeData['media'] = $mediaIds;
 
-        if ($theme && \is_array($toDeleteIds)) {
+        if ($theme !== null) {
             $toDeleteIds = array_unique($toDeleteIds);
             foreach ($toDeleteIds as $id) {
                 if (Uuid::isValid($id)) {

@@ -222,6 +222,8 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         static::assertCount(1, $calculatedTaxes);
         $first = $calculatedTaxes->first();
         static::assertInstanceOf(CalculatedTax::class, $first);
-        static::assertSame('VAT 19%', $first->getLabel());
+        static::assertSame(19.0, $first->getTax());
+        static::assertSame(19.0, $first->getTaxRate());
+        static::assertSame(100.0, $first->getPrice());
     }
 }

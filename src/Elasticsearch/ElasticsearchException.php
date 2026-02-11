@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Exception\EmptyQueryException;
+use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]

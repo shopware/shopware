@@ -10,6 +10,7 @@ use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -49,7 +50,7 @@ class AdminSearcher
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
-        $index = [];
+        $indexes = [];
 
         $term = $this->extractTerm($term);
 
@@ -59,17 +60,17 @@ class AdminSearcher
             }
 
             try {
-                $index = array_merge($index, $this->buildSearchPayload($entityName, $term, $limit));
+                $indexes = array_merge($indexes, $this->buildSearchPayload($entityName, $term, $limit));
             } catch (ElasticsearchException) {
                 continue;
             }
         }
 
-        if (empty($index)) {
+        if ($indexes === []) {
             return [];
         }
 
-        $responses = $this->client->msearch(['body' => $index]);
+        $responses = $this->client->msearch(['body' => $indexes]);
 
         $result = $this->parseResponse($responses);
 
@@ -104,6 +105,7 @@ class AdminSearcher
             $term = $this->extractTerm($criteria->getTerm());
 
             $query = $indexer->globalCriteria($term, $this->buildSearch($term));
+            $query->getQueries()->addParameter('minimum_should_match', 1);
         }
 
         $query = $this->paginate($query, $criteria->getLimit(), $criteria->getOffset());
@@ -139,11 +141,16 @@ class AdminSearcher
         return $ids;
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     private function buildSearchPayload(string $entityName, string $term, int $limit): array
     {
         $indexer = $this->registry->getIndexer($entityName);
 
         $alias = $this->adminEsHelper->getIndex($indexer->getName());
+
+        $index = [];
 
         $index[] = [
             'index' => $alias,
@@ -151,7 +158,11 @@ class AdminSearcher
             'allow_no_indices' => true,
             'ignore_unavailable' => true,
         ];
-        $query = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
+        $query = $indexer->globalCriteria($term, $this->buildSearch($term));
+        $this->paginate($query, $limit);
+
+        $query = $query->toArray();
+
         $query['timeout'] = $this->timeout;
 
         $index[] = $query;
@@ -159,7 +170,7 @@ class AdminSearcher
         return $index;
     }
 
-    private function buildSearch(string $term, int $limit): Search
+    private function buildSearch(string $term): Search
     {
         $search = new Search();
         $splitTerms = explode(' ', $term);
@@ -178,14 +189,15 @@ class AdminSearcher
             'lenient' => true,
         ]);
         $search->addQuery($query, BoolQuery::SHOULD);
-        $this->paginate($search, $limit);
 
         return $search;
     }
 
-    private function paginate(Search $search, int $limit, ?int $offset = null): Search
+    private function paginate(Search $search, ?int $limit = null, ?int $offset = null): Search
     {
-        $search->setSize($limit);
+        if ($limit !== null) {
+            $search->setSize($limit);
+        }
 
         if ($offset !== null) {
             $search->setFrom($offset);
@@ -204,12 +216,25 @@ class AdminSearcher
         return (string) mb_eregi_replace('\s(not)\s', ' -', $term);
     }
 
+    /**
+     * @param array<mixed> $rawResponse
+     *
+     * @return array<string, array{total: int, hits: array<int, array{id: string, score: float, parameters: array<string, mixed>, entityName: string }>}>
+     */
     private function parseResponse(array $rawResponse): array
     {
+        if (!\array_key_exists('responses', $rawResponse) || !\is_array($rawResponse['responses'])) {
+            return [];
+        }
+
         $result = [];
 
         foreach ($rawResponse['responses'] as $response) {
-            if (empty($response['hits']['hits'])) {
+            if (!isset($response['hits']['hits']) || !\is_array($response['hits']['hits'])) {
+                continue;
+            }
+
+            if ($response['hits']['hits'] === []) {
                 continue;
             }
 

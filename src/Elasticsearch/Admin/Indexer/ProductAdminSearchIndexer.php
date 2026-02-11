@@ -39,6 +39,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         private readonly Connection $connection,
         private readonly IteratorFactory $factory,
         private readonly EntityRepository $repository,
+        private readonly ElasticsearchFieldBuilder $fieldBuilder,
         private readonly int $indexingBatchSize
     ) {
     }
@@ -130,9 +131,12 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
     public function mapping(array $mapping): array
     {
+        $languageFields = $this->fieldBuilder->translated(AbstractElasticsearchDefinition::KEYWORD_FIELD);
+
         $override = [
             'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'available' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
+            'name' => $languageFields,
             'active' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
             'sales' => AbstractElasticsearchDefinition::INT_FIELD,
             'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
@@ -146,7 +150,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                 'versionId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ]),
             'tags' => ElasticsearchFieldBuilder::nested(),
-            'manufacturer' => ElasticsearchFieldBuilder::nested(),
+            'manufacturer' => ElasticsearchFieldBuilder::nested([
+                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'name' => $languageFields,
+            ]),
             'visibilities' => ElasticsearchFieldBuilder::nested([
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
@@ -175,6 +182,14 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $baseSql = <<<'SQL'
             SELECT LOWER(HEX(product.id)) as id,
                    GROUP_CONCAT(DISTINCT translation.name SEPARATOR " ") as name,
+                   JSON_ARRAYAGG(DISTINCT JSON_OBJECT(
+                       'languageId', LOWER(HEX(translation.language_id)),
+                       'name', translation.name
+                   )) as translatedNames,
+                   JSON_ARRAYAGG(DISTINCT JSON_OBJECT(
+                       'languageId', LOWER(HEX(manufacturer_translation.language_id)),
+                       'name', manufacturer_translation.name
+                   )) as translatedManufacturerNames,
                    CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as customSearchKeywords,
                    GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
                    GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
@@ -198,6 +213,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
                 INNER JOIN product_translation AS translation
                     ON product.id = translation.product_id AND product.version_id = translation.product_version_id
+                LEFT JOIN product_manufacturer_translation AS manufacturer_translation
+                    ON manufacturer_translation.product_manufacturer_id = product.manufacturer
+                    AND manufacturer_translation.language_id = translation.language_id
+                    AND manufacturer_translation.product_manufacturer_version_id = product.version_id
                 LEFT JOIN product_tag
                     ON product.id = product_tag.product_id AND product.version_id = product_tag.product_version_id
                 LEFT JOIN tag
@@ -228,6 +247,8 @@ SQL;
             }
 
             $id = (string) $row['id'];
+            $translatedNames = $this->decodeTranslatedValues((string) $row['translatedNames']);
+            $translatedManufacturerNames = $this->decodeTranslatedValues((string) $row['translatedManufacturerNames']);
 
             $textRow = [
                 'tags' => $row['tags'] ?? '',
@@ -235,10 +256,12 @@ SQL;
             ];
 
             $text = \implode(' ', array_filter(array_unique(array_values($textRow))));
+
             $mapped[$id] = [
                 'id' => $id,
                 'textBoosted' => \strtolower($textBoosted),
                 'text' => \strtolower($text),
+                'name' => $translatedNames,
                 'parentId' => $row['parentId'] ?? null,
                 'productNumber' => $row['productNumber'] ?? null,
                 'manufacturerId' => $row['manufacturerId'] ?? null,
@@ -247,6 +270,10 @@ SQL;
                 'available' => (bool) $row['available'],
                 'stock' => (int) $row['stock'],
                 'states' => ElasticsearchIndexingUtils::parseJson($row, 'states'),
+                'manufacturer' => [
+                    'id' => $row['manufacturerId'] ?? null,
+                    'name' => $translatedManufacturerNames,
+                ],
                 'categories' => array_map(function (string $categoryId) {
                     return [
                         'id' => $categoryId,
@@ -259,12 +286,12 @@ SQL;
                         '_count' => 1,
                     ], $visibility);
                 }, ElasticsearchIndexingUtils::parseJson($row, 'visibilities')),
-                'tags' => array_map(function (string $tagId) {
+                'tags' => isset($row['tagIds']) ? array_map(function (string $tagId) {
                     return [
                         'id' => $tagId,
                         '_count' => 1,
                     ];
-                }, explode(' ', $row['tagIds'] ?? '')),
+                }, explode(' ', $row['tagIds'])) : [],
                 'createdAt' => isset($row['createdAt']) ? (new \DateTime($row['createdAt']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
                 'updatedAt' => isset($row['updatedAt']) ? (new \DateTime($row['updatedAt']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
                 'releaseDate' => isset($row['releaseDate']) ? (new \DateTime($row['releaseDate']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
@@ -272,5 +299,36 @@ SQL;
         }
 
         return $mapped;
+    }
+
+    /**
+     * @return list<array<string, string>>
+     */
+    private function decodeTranslatedValues(?string $encoded): array
+    {
+        if ($encoded === null || $encoded === '') {
+            return [];
+        }
+
+        /** @var list<array{languageId?: string|null, name?: string|null}|null> $decoded */
+        $decoded = json_decode($encoded, true, 512, \JSON_THROW_ON_ERROR);
+
+        $translations = [];
+        foreach ($decoded as $entry) {
+            if (!\is_array($entry)) {
+                continue;
+            }
+
+            $languageId = $entry['languageId'] ?? null;
+            $name = $entry['name'] ?? null;
+
+            if (!\is_string($languageId) || $languageId === '' || !\is_string($name) || $name === '') {
+                continue;
+            }
+
+            $translations[$languageId] = $name;
+        }
+
+        return $translations;
     }
 }

@@ -51,7 +51,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
         private readonly AdminElasticsearchHelper $adminEsHelper,
         private readonly LoggerInterface $logger,
         array $config,
-        private readonly array $mapping
+        private readonly array $mapping,
+        private readonly string $environment
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -451,12 +452,14 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'id' => ['type' => 'keyword'],
                 'textBoosted' => [
                     'type' => 'text',
+                    'analyzer' => 'sw_whitespace_analyzer',
                     'fields' => [
                         'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                     ],
                 ],
                 'text' => [
                     'type' => 'text',
+                    'analyzer' => 'sw_whitespace_analyzer',
                     'fields' => [
                         'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                     ],
@@ -465,6 +468,12 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'parameters' => ['type' => 'keyword'],
             ],
         ]);
+
+        $debug = $this->environment === 'dev' || $this->environment === 'test';
+
+        if (!$debug) {
+            $mapping['_source'] = ['includes' => ['id', 'text', 'textBoosted', 'entityName', 'parameters']];
+        }
 
         return array_merge_recursive($mapping, $this->mapping);
     }

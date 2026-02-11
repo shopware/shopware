@@ -89,7 +89,7 @@ class DownloadResponseGenerator
                 $location = $media->getPath();
 
                 // Apply the path prefix if configured
-                if ($this->privateLocalPathPrefix !== '' && $this->privateLocalPathPrefix !== '0') {
+                if ($this->privateLocalPathPrefix !== '') {
                     $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
                 }
 

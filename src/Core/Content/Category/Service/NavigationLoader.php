@@ -71,7 +71,7 @@ class NavigationLoader implements NavigationLoaderInterface
         }
 
         foreach ($parents as $parentId => $children) {
-            if ($parentId === '' || $parentId === '0') {
+            if ($parentId === '') {
                 continue;
             }
 

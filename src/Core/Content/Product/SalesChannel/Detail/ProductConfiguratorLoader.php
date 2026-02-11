@@ -227,7 +227,8 @@ class ProductConfiguratorLoader
      */
     private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
-        if (\in_array($product->getOptionIds(), [null, []], true)) {
+        $optionIds = $product->getOptionIds();
+        if ($optionIds === null || $optionIds === []) {
             return [];
         }
 
@@ -235,7 +236,7 @@ class ProductConfiguratorLoader
 
         $current = [];
 
-        foreach ($product->getOptionIds() as $optionId) {
+        foreach ($optionIds as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {
                 continue;

@@ -31,7 +31,7 @@ class FastlyMediaReverseProxy implements MediaReverseProxy
 
     public function enabled(): bool
     {
-        return $this->apiKey !== '' && $this->apiKey !== '0';
+        return $this->apiKey !== '';
     }
 
     /**

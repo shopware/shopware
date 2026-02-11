@@ -298,7 +298,7 @@ class CategoryBreadcrumbBuilder
                 $translated,
             );
 
-            if (!$categorySeoUrls || $categorySeoUrls === []) {
+            if ($categorySeoUrls === []) {
                 $categoryBreadcrumb->path = 'navigation/' . $categoryId;
                 continue;
             }
@@ -327,7 +327,7 @@ class CategoryBreadcrumbBuilder
      */
     private function filterCategorySeoUrls(array $seoUrls, string $categoryId): array
     {
-        return array_filter($seoUrls, function (array $seoUrl) use ($categoryId) {
+        return array_filter($seoUrls, static function (array $seoUrl) use ($categoryId): bool {
             return $seoUrl['categoryId'] === $categoryId;
         });
     }

@@ -107,6 +107,7 @@ class MediaFolderIndexer extends EntityIndexer
             $this->connection->prepare('UPDATE media_folder SET media_folder_configuration_id = :configId WHERE id = :id')
         );
 
+        $children = [];
         foreach ($ids as $id) {
             $folder = $this->connection->fetchAssociative(
                 'SELECT LOWER(HEX(child.id)) as id,

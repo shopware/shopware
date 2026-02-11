@@ -253,13 +253,16 @@ class SendMailAction extends FlowAction implements DelayableAction
     private function sanitizeMailTemplateData(array $templateData): array
     {
         foreach ($templateData as $key => $value) {
-            if (!$value instanceof Entity || \in_array($value->getInternalEntityName(), [null, '', '0'], true)) {
+            if (!$value instanceof Entity) {
                 continue;
             }
 
-            $definition = $this->definitionInstanceRegistry->getByEntityName(
-                $value->getInternalEntityName()
-            );
+            $internalEntityName = $value->getInternalEntityName();
+            if ($internalEntityName === null || $internalEntityName === '') {
+                continue;
+            }
+
+            $definition = $this->definitionInstanceRegistry->getByEntityName($internalEntityName);
 
             $templateData[$key] = $this->jsonEntityEncoder->encode(
                 new Criteria(),

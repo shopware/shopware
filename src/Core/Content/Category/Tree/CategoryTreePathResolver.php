@@ -18,8 +18,8 @@ class CategoryTreePathResolver
      */
     public function getAdditionalPathsToLoad(string $activeId, ?string $activePath, string $rootId, ?string $rootPath, int $depth): array
     {
-        $pathToLoad = $activePath !== null && $activePath !== '' && $activePath !== '0' ? $activePath . $activeId . '|' : '|' . $activeId . '|';
-        $rootPath = $rootPath !== null && $rootPath !== '' && $rootPath !== '0' ? $rootPath . $rootId . '|' : '|' . $rootId . '|';
+        $pathToLoad = $activePath !== null && $activePath !== '' ? $activePath . $activeId . '|' : '|' . $activeId . '|';
+        $rootPath = $rootPath !== null && $rootPath !== '' ? $rootPath . $rootId . '|' : '|' . $rootId . '|';
         $ids = array_filter(explode('|', $pathToLoad));
 
         $currentPath = '|';

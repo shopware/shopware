@@ -70,7 +70,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
 
             $categoryId = null;
             foreach ($categories as $currentIndex => $categoryName) {
-                if ($categoryName === '' || $categoryName === '0') {
+                if ($categoryName === '') {
                     continue;
                 }
 

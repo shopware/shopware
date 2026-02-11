@@ -42,7 +42,7 @@ class FileService extends AbstractFileService
     {
         $id = Uuid::randomHex();
         $path ??= $activity . '/' . ImportExportFileEntity::buildPath($id);
-        if ($sourcePath !== null && $sourcePath !== '' && $sourcePath !== '0') {
+        if ($sourcePath !== null && $sourcePath !== '') {
             if (!is_readable($sourcePath)) {
                 throw ImportExportException::fileNotReadable($sourcePath);
             }

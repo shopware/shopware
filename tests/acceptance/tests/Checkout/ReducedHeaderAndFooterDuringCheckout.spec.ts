@@ -19,7 +19,7 @@ test(
         await test.step('Validate that the full header and footer are visible on the product detail page.', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(basicProduct));
             await ShopCustomer.expects(StorefrontSearchSuggest.searchInput).toBeVisible();
-            await ShopCustomer.expects(StorefrontHeader.mainNavigationLink).toBeVisible();
+            await ShopCustomer.expects(StorefrontHeader.page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerHeadline).toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerContent).toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerHotline).toBeVisible();
@@ -30,7 +30,7 @@ test(
             await ShopCustomer.attemptsTo(AddProductToCart(basicProduct));
             await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());        
             await ShopCustomer.expects(StorefrontSearchSuggest.searchInput).not.toBeVisible();
-            await ShopCustomer.expects(StorefrontHeader.mainNavigationLink).not.toBeVisible();
+            await ShopCustomer.expects(StorefrontHeader.page.getByRole('link', { name: 'Home', exact: true })).not.toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerHeadline).not.toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerContent).not.toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerHotline).not.toBeVisible();

@@ -351,7 +351,7 @@ class ImportExportActionControllerTest extends TestCase
         }
         $fileSystem->dumpFile($file, $content);
 
-        if (!empty($forceFileName)) {
+        if ($forceFileName !== '') {
             $fileName = $forceFileName;
         }
 

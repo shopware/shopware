@@ -11,8 +11,6 @@ use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\Service\ConsentService as ConsentSystemConsentService;
 use Shopware\Core\System\UsageData\Consent\BannerService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
 use Shopware\Core\System\UsageData\UsageDataException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,7 +26,6 @@ use Symfony\Component\Routing\Attribute\Route;
 class ConsentController extends AbstractController
 {
     public function __construct(
-        private readonly ConsentService $consentService,
         private readonly ConsentSystemConsentService $consentSystemConsentService,
         private readonly BannerService $bannerService,
     ) {
@@ -38,11 +35,6 @@ class ConsentController extends AbstractController
     public function getConsent(Context $context): JsonResponse
     {
         $userId = $this->getUserIdFromContext($context);
-
-        try {
-            $this->consentService->requestConsent();
-        } catch (ConsentAlreadyRequestedException) {
-        }
 
         $consent = $this->consentSystemConsentService->getConsentState(BackendData::NAME, $context);
 

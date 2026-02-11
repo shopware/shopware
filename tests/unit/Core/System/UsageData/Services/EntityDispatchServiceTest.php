@@ -12,6 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
@@ -162,14 +163,14 @@ class EntityDispatchServiceTest extends TestCase
 
         static::assertIsString($productRunDate);
         static::assertIsString($salesChannelRunDate);
-        static::assertSame(
-            $productRunDate,
-            $salesChannelRunDate,
-        );
 
-        $runDate = new \DateTimeImmutable($productRunDate);
-        static::assertGreaterThanOrEqual($beforeDispatch->getTimestamp(), $runDate->getTimestamp());
-        static::assertLessThanOrEqual($afterDispatch->getTimestamp(), $runDate->getTimestamp());
+        $productRunDateTime = new \DateTimeImmutable($productRunDate);
+        static::assertGreaterThanOrEqual($beforeDispatch->getTimestamp(), $productRunDateTime->getTimestamp());
+        static::assertLessThanOrEqual($afterDispatch->getTimestamp(), $productRunDateTime->getTimestamp());
+
+        $salesChannelRunDateTime = new \DateTimeImmutable($salesChannelRunDate);
+        static::assertGreaterThanOrEqual($beforeDispatch->getTimestamp(), $salesChannelRunDateTime->getTimestamp());
+        static::assertLessThanOrEqual($afterDispatch->getTimestamp(), $salesChannelRunDateTime->getTimestamp());
     }
 
     #[DataProvider('lastRunDateProvider')]
@@ -721,7 +722,10 @@ class EntityDispatchServiceTest extends TestCase
 
     private function createLastCollectionAllowedDateResolver(ConsentService $consentService): LastCollectionAllowedDateResolver
     {
-        return new LastCollectionAllowedDateResolver($consentService);
+        $consentRepository = $this->createMock(ConsentRepository::class);
+        $consentRepository->method('getPreviousLoggedState')->willReturn(ConsentStatus::ACCEPTED);
+
+        return new LastCollectionAllowedDateResolver($consentService, $consentRepository);
     }
 
     private function createConsentState(ConsentStatus $status, ?\DateTimeImmutable $updatedAt): ConsentState

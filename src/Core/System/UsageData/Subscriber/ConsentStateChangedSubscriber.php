@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -17,7 +16,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ConsentStateChangedSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ConsentService $consentService,
         private readonly EntityDispatchService $entityDispatchService,
     ) {
     }
@@ -39,7 +37,6 @@ class ConsentStateChangedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->consentService->acceptConsent();
         $this->entityDispatchService->dispatchCollectEntityDataMessage();
     }
 
@@ -48,7 +45,5 @@ class ConsentStateChangedSubscriber implements EventSubscriberInterface
         if ($event->consentName !== BackendData::NAME) {
             return;
         }
-
-        $this->consentService->revokeConsent();
     }
 }

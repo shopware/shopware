@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\Service\ConsentService as ConsentSystemConsentService;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -38,11 +35,6 @@ class ConsentControllerTest extends TestCase
         static::assertIsArray($consent);
         static::assertArrayHasKey('isConsentGiven', $consent);
         static::assertFalse($consent['isConsentGiven']);
-
-        $consentState = static::getContainer()->get(SystemConfigService::class)->getString(
-            ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE
-        );
-        static::assertSame(ConsentState::REQUESTED->value, $consentState);
     }
 
     public function testConsentIsGivenIfConsentStateIsAccepted(): void
@@ -71,11 +63,6 @@ class ConsentControllerTest extends TestCase
 
         $consentState = static::getContainer()->get(Connection::class)->executeQuery('SELECT `state` FROM `consent_state` WHERE `name` = "backend_data"')->fetchOne();
         static::assertSame('accepted', $consentState);
-
-        $legacyState = static::getContainer()->get(SystemConfigService::class)->getString(
-            ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE
-        );
-        static::assertSame(ConsentState::ACCEPTED->value, $legacyState);
     }
 
     public function testConsentStateIsStoredInSystemConfigWhenRevoked(): void
@@ -85,10 +72,5 @@ class ConsentControllerTest extends TestCase
 
         $consentState = static::getContainer()->get(Connection::class)->executeQuery('SELECT `state` FROM `consent_state` WHERE `name` = "backend_data"')->fetchOne();
         static::assertSame('revoked', $consentState);
-
-        $legacyState = static::getContainer()->get(SystemConfigService::class)->getString(
-            ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE
-        );
-        static::assertSame(ConsentState::REVOKED->value, $legacyState);
     }
 }

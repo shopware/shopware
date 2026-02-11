@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\System\UsageData\Subscriber\ConsentStateChangedSubscriber;
 
@@ -30,13 +29,10 @@ class ConsentStateChangedSubscriberTest extends TestCase
 
     public function testAcceptConsentHandlesOnlyBackendData(): void
     {
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects($this->once())->method('acceptConsent');
-
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects($this->once())->method('dispatchCollectEntityDataMessage');
 
-        $subscriber = new ConsentStateChangedSubscriber($consentService, $entityDispatchService);
+        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService);
 
         $subscriber->handleConsentAcceptedEvent(new ConsentAcceptedEvent(
             BackendData::NAME,
@@ -48,13 +44,10 @@ class ConsentStateChangedSubscriberTest extends TestCase
 
     public function testAcceptConsentIgnoresOtherConsentNames(): void
     {
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects($this->never())->method('acceptConsent');
-
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects($this->never())->method('dispatchCollectEntityDataMessage');
 
-        $subscriber = new ConsentStateChangedSubscriber($consentService, $entityDispatchService);
+        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService);
 
         $subscriber->handleConsentAcceptedEvent(new ConsentAcceptedEvent(
             'other-consent',
@@ -66,13 +59,10 @@ class ConsentStateChangedSubscriberTest extends TestCase
 
     public function testRevokeConsentHandlesOnlyBackendData(): void
     {
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects($this->once())->method('revokeConsent');
-
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects($this->never())->method('dispatchCollectEntityDataMessage');
 
-        $subscriber = new ConsentStateChangedSubscriber($consentService, $entityDispatchService);
+        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService);
 
         $subscriber->handleConsentRevokedEvent(new ConsentRevokedEvent(
             BackendData::NAME,
@@ -84,13 +74,10 @@ class ConsentStateChangedSubscriberTest extends TestCase
 
     public function testRevokeConsentIgnoresOtherConsentNames(): void
     {
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects($this->never())->method('revokeConsent');
-
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects($this->never())->method('dispatchCollectEntityDataMessage');
 
-        $subscriber = new ConsentStateChangedSubscriber($consentService, $entityDispatchService);
+        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService);
 
         $subscriber->handleConsentRevokedEvent(new ConsentRevokedEvent(
             'other-consent',

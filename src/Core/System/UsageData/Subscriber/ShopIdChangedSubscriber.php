@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\Definition\BackendData;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\BannerService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -19,7 +18,6 @@ class ShopIdChangedSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly BannerService $bannerService,
-        private readonly SystemConfigService $systemConfigService,
         private readonly EntityDispatchService $entityDispatchService,
         private readonly Connection $connection
     ) {
@@ -43,8 +41,6 @@ class ShopIdChangedSubscriber implements EventSubscriberInterface
 
     private function resetConsent(): void
     {
-        // remove entry from system config, so it can be asked again
-        $this->systemConfigService->delete('core.usageData.consentState');
         $this->connection->executeStatement(
             'DELETE FROM consent_state WHERE name = :name AND identifier = :identifier',
             [

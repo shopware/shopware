@@ -9,11 +9,8 @@ use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\UsageData\Consent\BannerService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\System\UsageData\Subscriber\ShopIdChangedSubscriber;
-use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
@@ -31,10 +28,6 @@ class ShopIdChangedSubscriberTest extends TestCase
 
     public function testResetConsentWhenShopIdIsDeleted(): void
     {
-        $systemConfigService = new StaticSystemConfigService([
-            ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-        ]);
-
         $bannerService = $this->createMock(BannerService::class);
         $bannerService->expects($this->once())
             ->method('resetIsBannerHiddenForAllUsers');
@@ -53,13 +46,10 @@ class ShopIdChangedSubscriberTest extends TestCase
 
         $shopIdChangedSubscriber = new ShopIdChangedSubscriber(
             $bannerService,
-            $systemConfigService,
             $entityDispatchService,
             $connection
         );
 
         $shopIdChangedSubscriber->handleShopIdDeleted(new ShopIdDeletedEvent());
-
-        static::assertNull($systemConfigService->get(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE));
     }
 }

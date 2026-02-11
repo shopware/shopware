@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Consent\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
@@ -27,7 +28,20 @@ class LastCollectionAllowedDateResolverTest extends TestCase
             ->method('getConsentState')
             ->willReturn($this->createConsentState(ConsentStatus::REVOKED, $updatedAt));
 
-        $resolver = new LastCollectionAllowedDateResolver($consentService);
+        $consentRepository = $this->createMock(ConsentRepository::class);
+        $consentRepository->expects($this->once())
+            ->method('getPreviousLoggedState')
+            ->with(
+                BackendData::NAME,
+                ConsentScope\System::NAME,
+                static::callback(
+                    fn (\DateTimeImmutable $dateTime): bool => $dateTime->format(Defaults::STORAGE_DATE_TIME_FORMAT) === $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+                ),
+                ConsentStatus::REVOKED,
+            )
+            ->willReturn(ConsentStatus::ACCEPTED);
+
+        $resolver = new LastCollectionAllowedDateResolver($consentService, $consentRepository);
 
         $result = $resolver->getLastCollectionAllowedDate();
         static::assertInstanceOf(\DateTimeImmutable::class, $result);
@@ -44,7 +58,7 @@ class LastCollectionAllowedDateResolverTest extends TestCase
             ->method('getConsentState')
             ->willReturn($this->createConsentState(ConsentStatus::UNSET, null));
 
-        $resolver = new LastCollectionAllowedDateResolver($consentService);
+        $resolver = new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class));
 
         static::assertNull($resolver->getLastCollectionAllowedDate());
     }
@@ -56,7 +70,7 @@ class LastCollectionAllowedDateResolverTest extends TestCase
             ->method('getConsentState')
             ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
-        $resolver = new LastCollectionAllowedDateResolver($consentService);
+        $resolver = new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class));
 
         $before = new \DateTimeImmutable();
         $result = $resolver->getLastCollectionAllowedDate();
@@ -65,6 +79,33 @@ class LastCollectionAllowedDateResolverTest extends TestCase
         static::assertInstanceOf(\DateTimeImmutable::class, $result);
         static::assertGreaterThanOrEqual($before->getTimestamp(), $result->getTimestamp());
         static::assertLessThanOrEqual($after->getTimestamp(), $result->getTimestamp());
+    }
+
+    public function testReturnsNullForRevokedWithoutAcceptedHistory(): void
+    {
+        $updatedAt = new \DateTimeImmutable('2023-07-25T07:00:19.803422+0000');
+
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->expects($this->once())
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::REVOKED, $updatedAt));
+
+        $consentRepository = $this->createMock(ConsentRepository::class);
+        $consentRepository->expects($this->once())
+            ->method('getPreviousLoggedState')
+            ->with(
+                BackendData::NAME,
+                ConsentScope\System::NAME,
+                static::callback(
+                    fn (\DateTimeImmutable $dateTime): bool => $dateTime->format(Defaults::STORAGE_DATE_TIME_FORMAT) === $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+                ),
+                ConsentStatus::REVOKED,
+            )
+            ->willReturn(ConsentStatus::REVOKED);
+
+        $resolver = new LastCollectionAllowedDateResolver($consentService, $consentRepository);
+
+        static::assertNull($resolver->getLastCollectionAllowedDate());
     }
 
     private function createConsentState(ConsentStatus $status, ?\DateTimeImmutable $updatedAt): ConsentState

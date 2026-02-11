@@ -15,7 +15,6 @@ use Shopware\Core\System\Consent\DTO\ConsentState as ConsentSystemConsentState;
 use Shopware\Core\System\Consent\Service\ConsentService as ConsentSystemConsentService;
 use Shopware\Core\System\UsageData\Api\ConsentController;
 use Shopware\Core\System\UsageData\Consent\BannerService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -27,9 +26,6 @@ class ConsentControllerTest extends TestCase
 {
     public function testGetConsentReturnsStateFromService(): void
     {
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects($this->once())->method('requestConsent');
-
         $consentSystemConsentService = $this->createMock(ConsentSystemConsentService::class);
         $consentSystemConsentService->method('getConsentState')->willReturn(new ConsentSystemConsentState(
             BackendData::NAME,
@@ -44,9 +40,8 @@ class ConsentControllerTest extends TestCase
         $bannerService->method('hasUserHiddenConsentBanner')->willReturn(true);
 
         $controller = new ConsentController(
-            $consentService,
             $consentSystemConsentService,
-            $bannerService
+            $bannerService,
         );
 
         $context = Context::createDefaultContext(new AdminApiSource('018a93bbe90570eda0d89c600de7dd19'));
@@ -70,7 +65,6 @@ class ConsentControllerTest extends TestCase
             ->with(BackendData::NAME, $context);
 
         $controller = new ConsentController(
-            $this->createMock(ConsentService::class),
             $consentService,
             $this->createMock(BannerService::class),
         );
@@ -88,7 +82,6 @@ class ConsentControllerTest extends TestCase
             ->with(BackendData::NAME, $context);
 
         $controller = new ConsentController(
-            $this->createMock(ConsentService::class),
             $consentService,
             $this->createMock(BannerService::class),
         );
@@ -107,9 +100,8 @@ class ConsentControllerTest extends TestCase
             ->with($userId, $context);
 
         $controller = new ConsentController(
-            $this->createMock(ConsentService::class),
             $this->createMock(ConsentSystemConsentService::class),
-            $bannerService
+            $bannerService,
         );
         $response = $controller->hideConsentBanner($context);
 

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider as FrameworkShopIdProvider;
 use Shopware\Core\Framework\Store\Services\InstanceService;
+use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\Service\ConsentService as SystemConsentService;
 use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -15,7 +16,6 @@ use Shopware\Core\System\UsageData\Api\ConsentController;
 use Shopware\Core\System\UsageData\Client\GatewayClient;
 use Shopware\Core\System\UsageData\Consent\BannerService;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\EntityDispatcher;
@@ -44,17 +44,10 @@ return function (ContainerConfigurator $container): void {
     $services->set(ConsentController::class)
         ->public()
         ->args([
-            new Reference(ConsentService::class),
             new Reference(SystemConsentService::class),
             new Reference(BannerService::class),
         ])
         ->call('setContainer', [new Reference('service_container')]);
-
-    $services->set(ConsentService::class)
-        ->args([
-            new Reference(SystemConfigService::class),
-            new Reference('event_dispatcher'),
-        ]);
 
     $services->set(BannerService::class)
         ->args([
@@ -74,7 +67,6 @@ return function (ContainerConfigurator $container): void {
     $services->set(ShopIdChangedSubscriber::class)
         ->args([
             new Reference(BannerService::class),
-            new Reference(SystemConfigService::class),
             new Reference(EntityDispatchService::class),
             new Reference(Connection::class),
         ])
@@ -142,6 +134,7 @@ return function (ContainerConfigurator $container): void {
     $services->set(LastCollectionAllowedDateResolver::class)
         ->args([
             new Reference(SystemConsentService::class),
+            new Reference(ConsentRepository::class),
         ]);
 
     $services->set(ManyToManyAssociationService::class)
@@ -205,7 +198,6 @@ return function (ContainerConfigurator $container): void {
 
     $services->set(ConsentStateChangedSubscriber::class)
         ->args([
-            new Reference(ConsentService::class),
             new Reference(EntityDispatchService::class),
         ])
         ->tag('kernel.event_subscriber');

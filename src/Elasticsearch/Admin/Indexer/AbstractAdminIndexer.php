@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('inventory')]
 abstract class AbstractAdminIndexer
@@ -20,9 +21,9 @@ abstract class AbstractAdminIndexer
     abstract public function getEntity(): string;
 
     /**
-     * @param array<string, array<string, array<string, string>>> $mapping
+     * @param array{ properties?: array<string, array<mixed>> } $mapping
      *
-     * @return array<string, array<string, array<string, string>>>
+     * @return array{ properties?: array<string, array<mixed>> }
      */
     public function mapping(array $mapping): array
     {
@@ -52,6 +53,9 @@ abstract class AbstractAdminIndexer
         return $criteria;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSupportedSearchFields(): array
     {
         $supportedFields = [];
@@ -67,6 +71,13 @@ abstract class AbstractAdminIndexer
                 foreach (array_keys($type['properties']) as $property) {
                     if ($property === '_count') {
                         continue;
+                    }
+
+                    // adding original translated field, property in this case is the language id
+                    if (Uuid::isValid($property)) {
+                        $supportedFields[] = $field;
+
+                        break;
                     }
 
                     $supportedFields[] = $field . '.' . $property;

@@ -7,9 +7,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Exception\EmptyQueryException;
+use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 
 #[Package('framework')]
 class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
@@ -90,6 +93,23 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
             return false;
         }
 
+        if ($this->criteriaHasUnsupportedFeatures($criteria)) {
+            return false;
+        }
+
         return true;
+    }
+
+    private function criteriaHasUnsupportedFeatures(Criteria $criteria): bool
+    {
+        $filters = [...$criteria->getFilters(), ...$criteria->getPostFilters()];
+
+        foreach ($filters as $filter) {
+            if ($filter instanceof ContainsFilter || $filter instanceof PrefixFilter || $filter instanceof SuffixFilter) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -411,6 +411,7 @@
             <argument type="service" id="shopware.elasticsearch.logger"/>
             <argument>%elasticsearch.administration.index.config%</argument>
             <argument>%elasticsearch.administration.index.mapping%</argument>
+            <argument>%kernel.environment%</argument>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="messenger.message_handler"/>
@@ -492,6 +493,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="product.repository"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="product"/>
@@ -562,7 +564,7 @@
 
         <service id="Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
-                 decoration-priority="500">
+                 decoration-priority="500" public="true">
 
             <argument type="service" id=".inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>

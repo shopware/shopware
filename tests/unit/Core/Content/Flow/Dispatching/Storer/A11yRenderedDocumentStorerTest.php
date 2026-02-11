@@ -11,9 +11,9 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer;
-use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -213,8 +213,8 @@ class A11yRenderedDocumentStorerTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
-                'flow.storer.document.criteria.event'
+                static::isInstanceOf(MailFlowDataCriteriaEvent::class),
+                'mail-flow.data.document.criteria.event'
             );
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);

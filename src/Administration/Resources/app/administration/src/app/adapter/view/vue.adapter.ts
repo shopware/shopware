@@ -76,6 +76,8 @@ export default class VueAdapter extends ViewAdapter {
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
             mounted() {
+                // remove loading indicator:
+
                 // `DELAY` matches animation-delay that is used in `administration/index.html`
                 const DELAY = 2000;
                 const MIN_VISIBLE_TIME = 300;

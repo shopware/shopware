@@ -92,7 +92,7 @@ class ConsentRepository
         ?ConsentStatus $excludedStateAtTimestamp = null,
     ): ?ConsentStatus {
         $timestampCondition = $excludedStateAtTimestamp !== null
-            ? <<<SQL
+            ? <<<'SQL'
   AND (
       `timestamp` < :at
       OR (`timestamp` = :at AND JSON_UNQUOTE(JSON_EXTRACT(message, '$.action')) != :excludedStateAtTimestamp)
@@ -101,15 +101,15 @@ SQL
             :
             'AND `timestamp` <= :at';
 
-        $sql = <<<SQL
+        $sql = \sprintf(<<<'SQL'
 SELECT JSON_UNQUOTE(JSON_EXTRACT(message, '$.action')) AS action
 FROM consent_log
 WHERE consent_name = :name
   AND JSON_UNQUOTE(JSON_EXTRACT(message, '$.identifier')) = :identifier
-{$timestampCondition}
+%s
 ORDER BY `timestamp` DESC, id DESC
 LIMIT 1
-SQL;
+SQL, $timestampCondition);
 
         $parameters = [
             'name' => $name,

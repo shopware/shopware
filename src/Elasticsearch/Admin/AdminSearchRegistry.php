@@ -452,14 +452,12 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'id' => ['type' => 'keyword'],
                 'textBoosted' => [
                     'type' => 'text',
-                    'analyzer' => 'sw_whitespace_analyzer',
                     'fields' => [
                         'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                     ],
                 ],
                 'text' => [
                     'type' => 'text',
-                    'analyzer' => 'sw_whitespace_analyzer',
                     'fields' => [
                         'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                     ],

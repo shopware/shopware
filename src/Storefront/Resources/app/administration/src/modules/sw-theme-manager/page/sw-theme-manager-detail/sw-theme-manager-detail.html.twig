@@ -136,7 +136,7 @@
                         >
                             <sw-tabs-item
                                 v-if="hasMoreThanOneTab"
-                                v-for="(tab, tabName) in structuredThemeFields.tabs"
+                                v-for="(tab, tabName) in orderedTabs"
                                 :key="tabName"
                                 :title="getTabLabel(tab.labelSnippetKey, tab.label)"
                                 :name="tabName"

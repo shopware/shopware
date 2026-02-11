@@ -708,6 +708,17 @@ Changes in `sw-mail-template-index`:
 
 </details>
 
+## Document settings changes
+
+We've restructured the document settings to make them more intuitive and user-friendly.
+
+As part of this update, the following administration components have been marked as private:
+- `src/module/sw-settings-document/page/sw-settings-document-detail`
+- `src/module/sw-settings-document/page/sw-settings-document-list`
+
+We also marked the document settings module as private:
+- `src/module/sw-settings-document/index.js`
+
 # Storefront
 
 <details>

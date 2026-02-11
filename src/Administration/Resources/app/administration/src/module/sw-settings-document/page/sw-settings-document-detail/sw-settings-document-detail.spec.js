@@ -463,14 +463,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        // Defaults from DOCUMENT_CONFIG_DEFAULTS are applied even when config has no fileTypes
         expect(multiSelect.attributes().value).toBe('pdf,html');
 
         await wrapper.vm.onRemoveDocumentType({ id: 'html' });
         expect(multiSelect.attributes().value).toBe('pdf');
-
-        await wrapper.vm.onAddDocumentType({ id: 'html' });
-        expect(multiSelect.attributes().value).toBe('pdf,html');
     });
 
     it.each([

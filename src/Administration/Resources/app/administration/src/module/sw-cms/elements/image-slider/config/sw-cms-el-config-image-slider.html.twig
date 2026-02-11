@@ -133,11 +133,15 @@
                         </sw-cms-inherit-wrapper>
                         {% endblock %}
                         {% endblock %}
+                    </div>
+                    {% endblock %}
+                    {% endblock %}
 
-                        {% block sw_cms_element_image_slider_config_settings_vertical_align %}
-                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_vertical_align` instead. #}
-                        {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
+                    {% block sw_cms_element_image_slider_config_settings_vertical_align %}
+                    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_vertical_align` instead. #}
+                    {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
                         <sw-cms-inherit-wrapper
+                            v-if="!isInherited && element.config.displayMode.value !== 'cover'"
                             field="verticalAlign"
                             :element="element"
                             :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
@@ -146,14 +150,10 @@
                                 <mt-select
                                     v-model="element.config.verticalAlign.value"
                                     :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
-                                    :disabled="isInherited || element.config.displayMode.value === 'cover'"
                                     :options="verticalAlignValueOptions"
                                 />
                             </template>
                         </sw-cms-inherit-wrapper>
-                        {% endblock %}
-                        {% endblock %}
-                    </div>
                     {% endblock %}
                     {% endblock %}
 

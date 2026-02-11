@@ -85,7 +85,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
         $writeResults = $entityWrittenEvent->getWriteResults();
 
-        if (empty($writeResults)) {
+        if ($writeResults === []) {
             return;
         }
 
@@ -158,7 +158,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             $groupName = trim($groupOptions[0]);
             $options = array_filter(array_map('trim', explode(',', $groupOptions[1])));
 
-            if (empty($groupName) || empty($options)) {
+            if ($groupName === '' || $groupName === '0' || $options === []) {
                 $this->throwExceptionFailedParsingVariants($variantsString);
             }
 

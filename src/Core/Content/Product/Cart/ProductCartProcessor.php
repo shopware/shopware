@@ -91,7 +91,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // find products in original cart which requires data from gateway
             $ids = $this->getNotCompleted($data, $items, $hash);
 
-            if (!empty($ids)) {
+            if ($ids !== []) {
                 // fetch missing data over gateway
                 $products = $this->productGateway->get($ids, $context);
 
@@ -506,7 +506,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $changes[$id] = $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         }
 
-        if (empty($changes)) {
+        if ($changes === []) {
             return $ids;
         }
 
@@ -603,7 +603,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         // Check if the price has to be updated
-        if (empty($affected)) {
+        if ($affected === []) {
             return;
         }
 

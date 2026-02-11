@@ -133,7 +133,7 @@ class CreatePageCommand extends Command
 
     private function getRandomProductId(Context $context): string
     {
-        if (empty($this->products)) {
+        if (!isset($this->products) || $this->products === []) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
@@ -149,7 +149,7 @@ class CreatePageCommand extends Command
 
     private function getRandomCategoryId(Context $context): string
     {
-        if (empty($this->categories)) {
+        if (!isset($this->categories) || $this->categories === []) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
@@ -165,7 +165,7 @@ class CreatePageCommand extends Command
 
     private function getRandomMediaId(Context $context): string
     {
-        if (empty($this->media)) {
+        if (!isset($this->media) || $this->media === []) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 

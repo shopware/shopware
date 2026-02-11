@@ -129,7 +129,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
         );
 
-        if (empty($recipients)) {
+        if ($recipients === []) {
             return;
         }
 
@@ -253,7 +253,7 @@ class SendMailAction extends FlowAction implements DelayableAction
     private function sanitizeMailTemplateData(array $templateData): array
     {
         foreach ($templateData as $key => $value) {
-            if (!$value instanceof Entity || empty($value->getInternalEntityName())) {
+            if (!$value instanceof Entity || \in_array($value->getInternalEntityName(), [null, '', '0'], true)) {
                 continue;
             }
 
@@ -325,7 +325,7 @@ class SendMailAction extends FlowAction implements DelayableAction
 
                 return $emails;
             case self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL:
-                if (empty($contactFormData)) {
+                if ($contactFormData === []) {
                     return [];
                 }
 

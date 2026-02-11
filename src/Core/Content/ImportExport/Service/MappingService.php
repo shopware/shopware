@@ -113,7 +113,7 @@ class MappingService extends AbstractMappingService
         // read the first CSV line
         $record = fgetcsv($fileHandle, 0, $delimiter, $enclosure, $escape);
         fclose($fileHandle);
-        if (empty($record) || $record[0] === null) {
+        if ($record === [] || $record === false || $record[0] === null) {
             throw ImportExportException::invalidFileContent($file->getFilename());
         }
 
@@ -155,7 +155,7 @@ class MappingService extends AbstractMappingService
             $mappings = $profile->getMapping();
             if ($mappings !== null) {
                 foreach ($mappings as $mapping) {
-                    if (\is_array($mapping) && !empty($mapping['key']) && !empty($mapping['mappedKey'])) {
+                    if (\is_array($mapping) && !empty($mapping['key']) && (isset($mapping['mappedKey']) && ($mapping['mappedKey'] !== '' && $mapping['mappedKey'] !== '0'))) {
                         $keyLookupTable[(string) $mapping['mappedKey']] = (string) $mapping['key'];
                     }
                 }
@@ -238,13 +238,13 @@ class MappingService extends AbstractMappingService
 
                 // try full key first (something like 'tax_rate' which is a field of the tax entity).
                 $associationGuess = $this->guessKeyFromMappedKey($keyLookupTable, $fullKey, $associationDefinition, $depthLimit - 1);
-                if (!empty($associationGuess)) {
+                if ($associationGuess !== '' && $associationGuess !== '0') {
                     return $associationField->getPropertyName() . '.' . $associationGuess;
                 }
 
                 // try the leftover key next (something like 'rate' if the full key was 'tax_rate').
                 $associationGuess = $this->guessKeyFromMappedKey($keyLookupTable, $leftoverKey, $associationDefinition, $depthLimit - 1);
-                if (!empty($associationGuess)) {
+                if ($associationGuess !== '' && $associationGuess !== '0') {
                     return $associationField->getPropertyName() . '.' . $associationGuess;
                 }
             }

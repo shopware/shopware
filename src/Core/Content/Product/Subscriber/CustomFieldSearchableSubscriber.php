@@ -53,7 +53,7 @@ class CustomFieldSearchableSubscriber implements EventSubscriberInterface
             $customFieldIds[] = $writeResult->getPrimaryKey();
         }
 
-        if (empty($customFieldIds)) {
+        if ($customFieldIds === []) {
             return;
         }
 

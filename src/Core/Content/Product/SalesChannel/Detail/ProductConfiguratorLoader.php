@@ -227,7 +227,7 @@ class ProductConfiguratorLoader
      */
     private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
-        if (empty($product->getOptionIds())) {
+        if (\in_array($product->getOptionIds(), [null, []], true)) {
             return [];
         }
 

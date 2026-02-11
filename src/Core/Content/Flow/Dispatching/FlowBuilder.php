@@ -90,7 +90,7 @@ class FlowBuilder
             );
         }
 
-        if (empty($siblingSequences)) {
+        if ($siblingSequences === []) {
             return Sequence::createAction(
                 $currentSequence['action_name'],
                 null,
@@ -126,14 +126,14 @@ class FlowBuilder
         $falseCases = array_filter($sequenceChildren, fn (array $sequence) => (bool) $sequence['true_case'] === false);
 
         $trueCaseSequence = null;
-        if (!empty($trueCases)) {
+        if ($trueCases !== []) {
             $trueCase = array_shift($trueCases);
 
             $trueCaseSequence = $this->createNestedSequence($trueCase, $trueCases, $flagBag);
         }
 
         $falseCaseSequence = null;
-        if (!empty($falseCases)) {
+        if ($falseCases !== []) {
             $falseCase = array_shift($falseCases);
 
             $falseCaseSequence = $this->createNestedSequence($falseCase, $falseCases, $flagBag);

@@ -52,7 +52,7 @@ class MediaFolderIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -64,7 +64,7 @@ class MediaFolderIndexer extends EntityIndexer
         $updates = $event->getPrimaryKeys(MediaFolderDefinition::ENTITY_NAME);
         $mediaFolderEvent = $event->getEventByEntityName(MediaFolderDefinition::ENTITY_NAME);
 
-        if (empty($updates) || !$mediaFolderEvent) {
+        if ($updates === [] || !$mediaFolderEvent) {
             return null;
         }
 
@@ -98,7 +98,7 @@ class MediaFolderIndexer extends EntityIndexer
         }
 
         $ids = array_filter(array_unique($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -138,7 +138,7 @@ class MediaFolderIndexer extends EntityIndexer
             $this->childCountUpdater->update(MediaFolderDefinition::ENTITY_NAME, $ids, $message->getContext());
         }
 
-        if (!empty($children) && $message->allow(self::TREE_UPDATER)) {
+        if ($children !== [] && $message->allow(self::TREE_UPDATER)) {
             $this->treeUpdater->batchUpdate(
                 $children,
                 MediaFolderDefinition::ENTITY_NAME,
@@ -183,7 +183,7 @@ class MediaFolderIndexer extends EntityIndexer
 
         $childIds = array_column($childIds, 'id');
 
-        if (!empty($childIds)) {
+        if ($childIds !== []) {
             $childIds = array_merge($childIds, $this->fetchChildren($childIds));
         }
 

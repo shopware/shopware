@@ -18,7 +18,7 @@ class CustomAppStorer extends FlowStorer
      */
     public function store(FlowEventAware $event, array $stored): array
     {
-        if (!($event instanceof CustomAppAware) || isset($stored[CustomAppAware::CUSTOM_DATA]) || empty($event->getCustomAppData())) {
+        if (!($event instanceof CustomAppAware) || isset($stored[CustomAppAware::CUSTOM_DATA]) || \in_array($event->getCustomAppData(), [null, []], true)) {
             return $stored;
         }
 

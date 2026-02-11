@@ -87,7 +87,7 @@ class CategoryBreadcrumbBuilder
         $categoryIds = $product->getCategoryIds() ?? [];
         $productStreamIds = $product->getStreamIds() ?? [];
 
-        if (empty($productStreamIds) && empty($categoryIds)) {
+        if ($productStreamIds === [] && $categoryIds === []) {
             return null;
         }
 
@@ -97,7 +97,7 @@ class CategoryBreadcrumbBuilder
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addFilter(new EqualsFilter('visible', true));
 
-        if (!empty($categoryIds)) {
+        if ($categoryIds !== []) {
             $criteria->setIds($categoryIds);
         } else {
             $criteria->addFilter(new EqualsAnyFilter('productStream.id', $productStreamIds));
@@ -115,7 +115,7 @@ class CategoryBreadcrumbBuilder
         $seoBreadcrumb = $this->build($category, $salesChannel);
         $categoryIds = array_keys($seoBreadcrumb ?? []);
 
-        if (empty($categoryIds)) {
+        if ($categoryIds === []) {
             return new BreadcrumbCollection();
         }
 
@@ -298,7 +298,7 @@ class CategoryBreadcrumbBuilder
                 $translated,
             );
 
-            if (!$categorySeoUrls || \count($categorySeoUrls) === 0) {
+            if (!$categorySeoUrls || $categorySeoUrls === []) {
                 $categoryBreadcrumb->path = 'navigation/' . $categoryId;
                 continue;
             }

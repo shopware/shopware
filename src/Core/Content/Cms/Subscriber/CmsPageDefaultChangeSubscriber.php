@@ -67,7 +67,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
         $defaultPages = $this->cmsPageIsDefault($cmsPageIds);
 
         // count !== 0 indicates that there are some cms pages which would be deleted but are currently a default
-        if (\count($defaultPages) !== 0) {
+        if ($defaultPages !== []) {
             throw CmsException::deletionOfDefault($defaultPages);
         }
     }

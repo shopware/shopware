@@ -42,8 +42,8 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         ));
 
         $stateMachineId = $this->connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technicalName', ['technicalName' => OrderDeliveryStates::STATE_MACHINE]);
-        if (!\is_string($stateMachineId) || ($stateMachineId === '' || $stateMachineId === '0')) {
-            return;
+        if (!\is_string($stateMachineId) || $stateMachineId === '') {
+            static::markTestSkipped('No valid state machine found.');
         }
 
         $germanNames = $this->connection->fetchFirstColumn(
@@ -82,7 +82,7 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
     private function executeMigration(): void
     {
         $migration = new Migration1739198249FixOrderDeliveryStateMachineName();
-        static::assertSame($migration->getCreationTimestamp(), 1739198249);
+        static::assertSame(1739198249, $migration->getCreationTimestamp());
 
         $this->rollback();
 
@@ -99,8 +99,8 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         ));
 
         $stateMachineId = $this->connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technicalName', ['technicalName' => OrderDeliveryStates::STATE_MACHINE]);
-        if (!\is_string($stateMachineId) || ($stateMachineId === '' || $stateMachineId === '0')) {
-            return;
+        if (!\is_string($stateMachineId) || $stateMachineId === '') {
+            static::markTestSkipped('No valid state machine found.');
         }
 
         if ($germanIds !== []) {

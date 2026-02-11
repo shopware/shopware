@@ -27,10 +27,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
-use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
 use Shopware\Core\Defaults;
@@ -390,7 +386,7 @@ class CacheInvalidationSubscriber
 
     public function invalidatePropertyFilters(EntityWrittenContainerEvent $event): void
     {
-        $this->cacheInvalidator->invalidate([...$this->getChangedPropertyFilterTags($event), ...$this->getDeletedPropertyFilterTags($event)]);
+        $this->cacheInvalidator->invalidate($this->getDeletedPropertyFilterTags($event));
     }
 
     public function invalidateStreamsBeforeIndexing(EntityWrittenContainerEvent $event): void
@@ -435,72 +431,6 @@ class CacheInvalidationSubscriber
             array_map(ProductDetailRoute::buildName(...), array_unique($productIds)),
             array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds))
         );
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getChangedPropertyFilterTags(EntityWrittenContainerEvent $event): array
-    {
-        // invalidates the product listing route and detail rule, each time a property group changed
-        $propertyGroupIds = array_unique(array_merge(
-            $event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupDefinition::ENTITY_NAME, ['id', 'updatedAt']),
-            array_column($event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupTranslationDefinition::ENTITY_NAME, ['propertyGroupId', 'languageId', 'updatedAt']), 'propertyGroupId')
-        ));
-
-        // invalidates the product listing route and detail rule, each time a property option changed
-        $propertyOptionIds = array_unique(array_merge(
-            $event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupOptionDefinition::ENTITY_NAME, ['id', 'updatedAt']),
-            array_column($event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupOptionTranslationDefinition::ENTITY_NAME, ['propertyGroupOptionId', 'languageId', 'updatedAt']), 'propertyGroupOptionId')
-        ));
-
-        if (empty($propertyGroupIds) && empty($propertyOptionIds)) {
-            return [];
-        }
-
-        $productIds = $this->connection->fetchFirstColumn(
-            'SELECT product_property.product_id
-             FROM product_property
-                LEFT JOIN property_group_option productProperties ON productProperties.id = product_property.property_group_option_id
-             WHERE productProperties.property_group_id IN (:ids) OR productProperties.id IN (:optionIds)
-             AND product_property.product_version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($propertyGroupIds), 'optionIds' => Uuid::fromHexToBytesList($propertyOptionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::BINARY, 'optionIds' => ArrayParameterType::BINARY]
-        );
-        $productIds = array_unique([...$productIds, ...$this->connection->fetchFirstColumn(
-            'SELECT product_option.product_id
-                 FROM product_option
-                    LEFT JOIN property_group_option productOptions ON productOptions.id = product_option.property_group_option_id
-                 WHERE productOptions.property_group_id IN (:ids) OR productOptions.id IN (:optionIds)
-                 AND product_option.product_version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($propertyGroupIds), 'optionIds' => Uuid::fromHexToBytesList($propertyOptionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::BINARY, 'optionIds' => ArrayParameterType::BINARY]
-        )]);
-
-        if (empty($productIds)) {
-            return [];
-        }
-
-        $parentIds = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(COALESCE(parent_id, id)))
-            FROM product
-            WHERE id in (:productIds) AND version_id = :version',
-            ['productIds' => $productIds, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['productIds' => ArrayParameterType::BINARY]
-        );
-
-        $categoryIds = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(category_id))
-            FROM product_category_tree
-            WHERE product_id in (:productIds) AND product_version_id = :version',
-            ['productIds' => $productIds, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['productIds' => ArrayParameterType::BINARY]
-        );
-
-        return [
-            ...array_map(ProductDetailRoute::buildName(...), array_filter($parentIds)),
-            ...array_map(ProductListingRoute::buildName(...), array_filter($categoryIds)),
-        ];
     }
 
     /**

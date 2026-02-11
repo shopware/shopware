@@ -235,7 +235,8 @@ const swProductDetail = Shopware.Store.register({
         setTaxes(newTaxes: EntitySchema.tax[]) {
             this.taxes = newTaxes;
 
-            if (this.product && this.product.taxId === null && !this.parentProduct.id) {
+            // if product has no tax id and is not a child product, set the first tax id
+            if (this.product && this.product.taxId === null && !this.isChild) {
                 this.product.taxId = this.taxes[0]?.id;
             }
         },

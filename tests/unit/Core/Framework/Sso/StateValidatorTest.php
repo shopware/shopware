@@ -46,8 +46,8 @@ class StateValidatorTest extends TestCase
             return;
         }
 
-        static::assertSame('shopware_grant', $request->get('grant_type'));
-        static::assertSame($code, $request->get('code'));
+        static::assertSame('shopware_grant', $request->request->get('grant_type'));
+        static::assertSame($code, $request->request->get('code'));
     }
 
     /**

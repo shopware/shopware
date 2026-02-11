@@ -161,11 +161,11 @@ class CustomerGroupRegistrationActionController
     {
         $customerIds = $request->request->all('customerIds');
 
-        if (!empty($customerIds)) {
+        if ($customerIds !== []) {
             $customerIds = array_unique($customerIds);
         }
 
-        if (empty($customerIds)) {
+        if ($customerIds === []) {
             throw CustomerException::customerIdsParameterIsMissing();
         }
 

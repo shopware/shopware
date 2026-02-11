@@ -465,7 +465,7 @@
       "buttonSwitchToUrlUpload": "Datei von URL hochladen",
       "buttonOpenMedia": "Medien öffnen",
       "snackbar": {
-        "message": "Datei wird hochgeladen | Dateien werden hochgeladen",
+        "message": "Datei wird hochgeladen | Dateien werden hochgeladen ({processed}/{total})",
         "errorMessage": "Die Datei konnte nicht hochgeladen werden. | Manche Dateien konnten nicht hochgeladen werden."
       },
       "notification": {
@@ -490,6 +490,12 @@
         },
         "requestCanceled": {
           "message": "Das Hochladen wurde abgebrochen."
+        },
+        "payloadTooLarge": {
+          "message": "Die Datei ist zu groß. Bitte reduziere die Dateigröße oder überprüfe die Server-Konfiguration."
+        },
+        "transportError": {
+          "message": "Upload fehlgeschlagen aufgrund eines Verbindungsproblems oder eines Server-Timeouts. Bitte Verbindung oder Server-Limits prüfen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"

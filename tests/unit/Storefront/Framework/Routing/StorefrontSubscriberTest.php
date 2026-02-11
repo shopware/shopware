@@ -16,9 +16,11 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Storefront\Event\MaintenanceRedirectEvent;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Routing\StorefrontSubscriber;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -84,16 +86,82 @@ class StorefrontSubscriberTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST
         );
 
+        $eventDispatcher = new EventDispatcher();
+        $eventIsThrown = false;
+        $eventDispatcher->addListener(
+            MaintenanceRedirectEvent::class,
+            function () use (&$eventIsThrown): void {
+                $eventIsThrown = true;
+            }
+        );
+
         (new StorefrontSubscriber(
             new RequestStack(),
             $router,
             $maintenanceModeResolver,
             new StaticSystemConfigService(),
+            $eventDispatcher,
         ))->maintenanceResolver($event);
 
         $response = $event->getResponse();
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/maintenance', $response->getTargetUrl());
+        static::assertTrue($eventIsThrown);
+    }
+
+    public function testMaintenanceParametersRedirect(): void
+    {
+        $maintenanceModeResolver = $this->createMock(MaintenanceModeResolver::class);
+        $maintenanceModeResolver
+            ->method('shouldRedirect')
+            ->willReturn(true);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('generate')->willReturn('/maintenance?foo=bar');
+
+        $request = new Request(
+            query: [
+                'bar' => 'foo',
+            ],
+            attributes: [
+                '_route' => 'product_page',
+                '_route_params' => [
+                    'foo' => 'bar',
+                    'productId' => 123,
+                    PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS[0] => true,
+                    PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS[1] => true,
+                ],
+            ],
+        );
+
+        $event = new RequestEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $eventDispatcher = new EventDispatcher();
+        $eventIsThrown = false;
+        $eventDispatcher->addListener(
+            MaintenanceRedirectEvent::class,
+            function (MaintenanceRedirectEvent $event) use (&$eventIsThrown): void {
+                $parameters = $event->getParameters();
+                static::assertEquals('product_page', $parameters['redirectTo']);
+                static::assertEquals('{"bar":"foo","foo":"bar","productId":123}', $parameters['redirectParameters']);
+
+                $eventIsThrown = true;
+            }
+        );
+
+        (new StorefrontSubscriber(
+            new RequestStack(),
+            $router,
+            $maintenanceModeResolver,
+            new StaticSystemConfigService(),
+            $eventDispatcher,
+        ))->maintenanceResolver($event);
+
+        static::assertTrue($eventIsThrown);
     }
 
     public function testRedirectLoginPageWhenCustomerNotLoggedInWithRoutingException(): void
@@ -120,6 +188,7 @@ class StorefrontSubscriberTest extends TestCase
             $router,
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
@@ -139,6 +208,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertFalse($event->hasResponse());
@@ -168,6 +238,7 @@ class StorefrontSubscriberTest extends TestCase
             $router,
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
@@ -193,6 +264,7 @@ class StorefrontSubscriberTest extends TestCase
             $router,
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
     }
 
@@ -221,6 +293,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->preventPageLoadingFromXmlHttpRequest($event);
     }
 
@@ -272,6 +345,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->startSession();
 
         static::assertTrue($request->getSession()->has('sessionId'));
@@ -298,6 +372,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->startSession();
 
         $subRequestContextToken = $subRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
@@ -313,7 +388,8 @@ class StorefrontSubscriberTest extends TestCase
             $requestStack,
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($requestStack->getCurrentRequest());
@@ -327,7 +403,8 @@ class StorefrontSubscriberTest extends TestCase
             new RequestStack([$request]),
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -342,7 +419,8 @@ class StorefrontSubscriberTest extends TestCase
             $requestStack,
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -358,10 +436,223 @@ class StorefrontSubscriberTest extends TestCase
             $requestStack,
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testStartSessionWithBindingDisabledUsesDefaultTokenKey(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $request = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
+            ]
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => false,
+        ]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        // Should use default token key
+        static::assertTrue($request->getSession()->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        // Should NOT use channel-specific key
+        static::assertFalse($request->getSession()->has(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId));
+    }
+
+    public function testStartSessionWithBindingEnabledUsesChannelSpecificTokenKey(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $request = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
+            ]
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        // Should use channel-specific token key
+        $channelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertTrue($request->getSession()->has($channelTokenKey));
+
+        // Token should be set in request header
+        static::assertNotNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame(
+            $request->getSession()->get($channelTokenKey),
+            $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN)
+        );
+    }
+
+    public function testStartSessionWithBindingEnabledPreservesTokensAcrossChannels(): void
+    {
+        $salesChannelIdA = 'sales-channel-a';
+        $salesChannelIdB = 'sales-channel-b';
+
+        $session = new Session(new MockArraySessionStorage());
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        // Visit Channel A
+        $requestA = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdA,
+            ]
+        );
+        $requestA->setSession($session);
+        $requestStackA = new RequestStack([$requestA]);
+
+        (new StorefrontSubscriber(
+            $requestStackA,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        $tokenA = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA);
+        static::assertNotNull($tokenA);
+
+        // Visit Channel B
+        $requestB = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdB,
+            ]
+        );
+        $requestB->setSession($session);
+        $requestStackB = new RequestStack([$requestB]);
+
+        (new StorefrontSubscriber(
+            $requestStackB,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        $tokenB = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdB);
+        static::assertNotNull($tokenB);
+        static::assertNotSame($tokenA, $tokenB);
+
+        // Return to Channel A - token should be preserved
+        $requestA2 = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdA,
+            ]
+        );
+        $requestA2->setSession($session);
+        $requestStackA2 = new RequestStack([$requestA2]);
+
+        (new StorefrontSubscriber(
+            $requestStackA2,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        $tokenA2 = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA);
+        static::assertSame($tokenA, $tokenA2, 'Token for Channel A should be preserved');
+
+        // Both tokens should still exist
+        static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA));
+        static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdB));
+    }
+
+    public function testUpdateSessionWithBindingEnabledStoresTokenInChannelKey(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $newToken = 'new-context-token';
+
+        $request = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
+            ]
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->updateSession($newToken);
+
+        // Should store in both channel-specific and default keys
+        $channelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertSame($newToken, $request->getSession()->get($channelTokenKey));
+        static::assertSame($newToken, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($newToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testUpdateSessionWithBindingDisabledStoresTokenInDefaultKeyOnly(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $newToken = 'new-context-token';
+
+        $request = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
+            ]
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => false,
+        ]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->updateSession($newToken);
+
+        // Should only store in default key
+        static::assertSame($newToken, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        // Should NOT store in channel-specific key
+        $channelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertFalse($request->getSession()->has($channelTokenKey));
     }
 }

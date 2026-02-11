@@ -3,13 +3,14 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\FloatType;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1767611523UpdateUnitPriceOrderDeliveryPosition;
 
@@ -55,21 +56,16 @@ class Migration1767611523UpdateUnitPriceOrderDeliveryPositionTest extends TestCa
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $type = $this->connection
-            ->createSchemaManager()
-            ->introspectTable('order_delivery_position')
-            ->getColumn('unit_price')
-            ->getType();
-
-        $value = $this->connection->fetchOne(
+        $value = (float) $this->connection->fetchOne(
             'SELECT unit_price FROM order_delivery_position WHERE id = :id',
             ['id' => $this->deliveryId]
         );
 
         $this->connection->executeStatement('SET foreign_key_checks = 1');
 
-        static::assertSame(12.12, (float) $value);
-        static::assertInstanceOf(FloatType::class, $type);
+        static::assertSame(12.12, $value);
+        $type = TableHelper::getColumnOfTable($this->connection, 'order_delivery_position', 'unit_price')->type;
+        static::assertSame(Types::FLOAT, $type);
     }
 
     private function rollBack(): void

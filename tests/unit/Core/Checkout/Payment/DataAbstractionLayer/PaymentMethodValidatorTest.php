@@ -102,8 +102,7 @@ class PaymentMethodValidatorTest extends TestCase
             )
             ->willReturn('pluginId');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Plugin payment methods can not be deleted via API.');
+        $this->expectExceptionObject(PaymentException::pluginPaymentMethodDeleteRestriction());
         $subscriber = new PaymentMethodValidator($connection);
         $subscriber->validate($event);
     }

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -95,10 +94,18 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $candidate = $this->extractCandidatePayloads($command);
-            if ($candidate !== null) {
-                $candidates[] = $candidate;
+            $payload = $command->getPayload();
+            if (!isset($payload['language_id'])) {
+                continue;
             }
+
+            $pk = $command->getPrimaryKey();
+
+            $candidates[] = [
+                'customerId' => $command instanceof UpdateCommand && isset($pk['id']) ? Uuid::fromBytesToHex($pk['id']) : null,
+                'languageId' => Uuid::fromBytesToHex($payload['language_id']),
+                'salesChannelId' => isset($payload['sales_channel_id']) ? Uuid::fromBytesToHex($payload['sales_channel_id']) : null,
+            ];
         }
 
         return $candidates;
@@ -128,25 +135,6 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
         }
 
         return null;
-    }
-
-    /**
-     * @return array{customerId: string|null, languageId: string, salesChannelId: string|null}|null
-     */
-    private function extractCandidatePayloads(WriteCommand $command): ?array
-    {
-        $payload = $command->getPayload();
-        if (!isset($payload['language_id'])) {
-            return null;
-        }
-
-        $pk = $command->getPrimaryKey();
-
-        return [
-            'customerId' => $command instanceof UpdateCommand && isset($pk['id']) ? Uuid::fromBytesToHex($pk['id']) : null,
-            'languageId' => Uuid::fromBytesToHex($payload['language_id']),
-            'salesChannelId' => isset($payload['sales_channel_id']) ? Uuid::fromBytesToHex($payload['sales_channel_id']) : null,
-        ];
     }
 
     /**

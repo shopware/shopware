@@ -436,7 +436,7 @@ class ThemeLifecycleService
 
                 if (!\array_key_exists($path, $media)) {
                     if ($currentThemeMedia !== null
-                        && ($currentMediaIds !== [])
+                        && $currentMediaIds !== []
                         && isset($currentMediaIds[$key])
                         && $currentThemeMedia->get($currentMediaIds[$key])?->getFileNameIncludingExtension() === basename($path)) {
                         continue;

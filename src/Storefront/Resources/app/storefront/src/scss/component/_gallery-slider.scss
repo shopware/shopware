@@ -73,6 +73,11 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     &.tns-item {
         margin: 0 2px;
     }
+
+    &.tns-item.tns-slide-active {
+        display: flex;
+        justify-content: center;
+    }
 }
 
 .gallery-slider-item,

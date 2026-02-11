@@ -23,7 +23,7 @@ test(
             await ShopAdmin.goesTo(AdminDocumentListing.url());
             await AdminDocumentListing.invoiceLink.click();
             await ShopAdmin.expects(AdminDocumentDetail.documentTypeSelect).toContainText('Invoice');
-            await AdminDocumentDetail.showInAccountSwitch.check();
+            await AdminDocumentDetail.displayDocumentInMyAccountSwitch.check();
             await AdminDocumentDetail.saveButton.click();
             await ShopAdmin.expects(AdminDocumentDetail.saveButton).not.toBeDisabled();
             await ShopAdmin.attemptsTo(AddCreditItem(orderId));

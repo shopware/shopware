@@ -340,7 +340,6 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
             type: 'text',
             label: tc('sw-settings-document.detail.labelPaymentDueDate'),
             placeholder: tc('sw-settings-document.detail.placeholderPaymentDueDate'),
-            helpText: tc('sw-settings-document.detail.helpTextPaymentDueDate'),
         },
     },
 ];

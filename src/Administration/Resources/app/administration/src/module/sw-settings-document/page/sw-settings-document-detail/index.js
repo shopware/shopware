@@ -520,28 +520,28 @@ export default {
         async createdComponent() {
             this.isLoading = true;
 
-            const [salesChannels] = await Promise.all([
-                this.salesChannelRepository.search(new Criteria(1, 500)),
-                this.loadCustomFieldSets(),
-            ]).catch((error) => {
+            try {
+                const [salesChannels] = await Promise.all([
+                    this.salesChannelRepository.search(new Criteria(1, 500)),
+                    this.loadCustomFieldSets(),
+                ]);
+
+                this.salesChannels = salesChannels;
+
+                if (this.documentConfigId || this.$route.params?.id) {
+                    await this.loadEntityData();
+                } else {
+                    this.documentConfig = this.documentBaseConfigRepository.create();
+                    this.documentConfig.global = false;
+                    this.documentConfig.config = { ...DOCUMENT_CONFIG_DEFAULTS };
+                }
+            } catch (error) {
                 this.createNotificationError({
                     message: error.message,
                 });
-
+            } finally {
                 this.isLoading = false;
-            });
-
-            this.salesChannels = salesChannels;
-
-            if (this.documentConfigId || this.$route.params?.id) {
-                await this.loadEntityData();
-            } else {
-                this.documentConfig = this.documentBaseConfigRepository.create();
-                this.documentConfig.global = false;
-                this.documentConfig.config = { ...DOCUMENT_CONFIG_DEFAULTS };
             }
-
-            this.isLoading = false;
         },
 
         async loadEntityData() {
@@ -606,15 +606,20 @@ export default {
                 Criteria.equals('documentTypeId', documentType.id),
             );
 
-            const responseSalesChannels = await this.documentBaseConfigSalesChannelRepository
-                .search(documentSalesChannelCriteria)
-                .catch((error) => {
-                    this.createNotificationError({
-                        message: error.message,
-                    });
+            let responseSalesChannels = [];
 
-                    this.typeIsLoading = false;
+            try {
+                responseSalesChannels =
+                    await this.documentBaseConfigSalesChannelRepository.search(documentSalesChannelCriteria);
+            } catch (error) {
+                this.createNotificationError({
+                    message: error.message,
                 });
+
+                this.typeIsLoading = false;
+
+                return;
+            }
 
             this.alreadyAssignedSalesChannelIdsToType = responseSalesChannels
                 .filter(

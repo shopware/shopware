@@ -91,6 +91,36 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 * Display the selling and packaging information with the product that has advanced pricing.
 * Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
+### Default theme breakpoints now available in theme config
+
+The default layout breakpoints in the Storefront were hard-coded before and couldn't easily be overriden. Now you will find new theme config fields in the default config, which serve as the default values. The fields are hidden in the visual configuration, so they serve as a feature for theme developers for now. You can override the following config fields in your custom `theme.json` file to change the default breakpoints. The fields are mapped to the existing hard-coded configuration. The configuration is only passed in Twig and JS currently and there is no direct usage in SCSS, as they represent the Bootstrap default breakpoints. If you want to make a full override, you can simply configure the Bootstrap breakpoints in your custom SCSS and use the theme config values for that.
+
+*  `sw-breakpoint-xs`
+*  `sw-breakpoint-sm`
+*  `sw-breakpoint-md`
+*  `sw-breakpoint-lg`
+*  `sw-breakpoint-xl`
+*  `sw-breakpoint-xxl`
+
+### Make static alerts announced in the screenreader
+
+Static alert boxes that are rendered in the DOM on page load were previously not read out by screenreaders.
+The `role="alert"` did not have an effect. Only `role="alerts"` added to the DOM by JavaScript were read out.
+
+To solve the screenreader issue with static alerts, we introduced a new parameter `announceOnLoad`.
+When `announceOnLoad` is set to true, the alert box content will be announced in the screenreader right after the page is loaded.
+The alert box will apply an additional JavaScript plugin that attempts to trigger the screenreader.
+This is done by changing the DOM within the `aria-live` region after a short delay, which tells the screenreader to read it.
+
+```
+{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+    type: "primary",
+    content: "An important message on initial page load",
+    announceOnLoad: true
+    ariaLive: 'assertive' {# Define the priority of the alert #}
+} %}
+```
+
 ## App System
 
 ### Fixed custom headers for app flow action webhooks in async mode
@@ -98,6 +128,18 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
 
 ## Hosting & Configuration
+
+### Configurable Elasticsearch shard and replica counts
+
+The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
+
+For the Storefront/Store API Elasticsearch:
+- `SHOPWARE_ES_NUMBER_OF_SHARDS` (default: empty, meaning Elasticsearch default)
+- `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
+
+For the Admin Elasticsearch:
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
 
 ## Critical Fixes
 
@@ -551,6 +593,10 @@ In the settings module, there is now a search bar in the top right. It can be us
 ### The email validation supports IDN email addresses
 
 The domain part of email addresses may now contain internationalized domain names (IDN). The Storefront validation will properly check these domains. The form validation in PHP may still deny IDN emails addresses, but the default Shopware forms already allow them.
+
+### BuyBox JavaScript Plugin
+
+The options `modalTriggerSelector` and `urlAttribute` as well as the former private methods `_initModalTriggerEvent()` and `_openTaxInfoModal()` have been removed from `buy-box.plugin.js` and have no effect anymore. The Ajax modal now reinitializes event handlers via `initializePlugins()` after the request, which also resolves an issue where changing a product variant in the buy box was not possible when the cms-element was used in a shopping experience.
 
 ## App System
 

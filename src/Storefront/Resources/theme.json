@@ -172,6 +172,48 @@
         "editable": true,
         "block": "media",
         "order": 500
+      },
+      "sw-breakpoint-xs": {
+        "type": "number",
+        "value": 0,
+        "editable": false,
+        "order": 100,
+        "block": "eCommerce"
+      },
+      "sw-breakpoint-sm": {
+        "type": "number",
+        "value": 576,
+        "editable": false,
+        "order": 200,
+        "block": "eCommerce"
+      },
+      "sw-breakpoint-md": {
+        "type": "number",
+        "value": 768,
+        "editable": false,
+        "order": 300,
+        "block": "eCommerce"
+      },
+      "sw-breakpoint-lg": {
+        "type": "number",
+        "value": 992,
+        "editable": false,
+        "order": 400,
+        "block": "eCommerce"
+      },
+      "sw-breakpoint-xl": {
+        "type": "number",
+        "value": 1200,
+        "editable": false,
+        "order": 500,
+        "block": "eCommerce"
+      },
+      "sw-breakpoint-xxl": {
+        "type": "number",
+        "value": 1400,
+        "editable": false,
+        "order": 600,
+        "block": "eCommerce"
       }
     }
   }

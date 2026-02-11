@@ -34,6 +34,7 @@ import (synchronously) plugins
  */
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 import SpeculationRulesPlugin from 'src/plugin/speculation-rules/speculation-rules.plugin';
+import AlertAriaPlugin from 'src/plugin/alert-aria/alert-aria.plugin';
 
 window.Feature = Feature;
 window.eventEmitter = new NativeEventEmitter();
@@ -105,6 +106,7 @@ PluginManager.register('BasicCaptcha', () => import('src/plugin/captcha/basic-ca
 PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-selector/quantity-selector.plugin'), '[data-quantity-selector]');
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
 PluginManager.register('CmsGdprVideoElement', () => import('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin'), '[data-cms-gdpr-video-element]');
+PluginManager.register('AlertAria', AlertAriaPlugin, '[data-alert-aria]'); // Plugin not async to prevent unreliable load time for the screenreader.
 
 /**
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES

@@ -203,7 +203,7 @@ class AnnotationTagTest extends TestCase
     private function getCurrentManifestVersion(array $versions): string
     {
         $versions = array_filter($versions);
-        if (empty($versions)) {
+        if ($versions === []) {
             throw new \LogicException('no version applied');
         }
 

@@ -154,6 +154,7 @@ function provide3DMockOptions() {
             {
                 fileName: 'smth.glb',
                 fileExtension: 'glb',
+                mimeType: 'model/gltf-binary',
             },
             true,
             false,
@@ -163,6 +164,7 @@ function provide3DMockOptions() {
             {
                 fileName: 'smth.glb',
                 fileExtension: 'glb',
+                mimeType: 'model/gltf-binary',
             },
             true,
             false,
@@ -171,6 +173,7 @@ function provide3DMockOptions() {
         [
             {
                 fileName: 'smth.glb',
+                mimeType: 'model/gltf-binary',
                 url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
             },
             true,
@@ -180,6 +183,7 @@ function provide3DMockOptions() {
         [
             {
                 fileName: 'smth.glb',
+                mimeType: 'model/gltf-binary',
                 url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
             },
             true,
@@ -541,6 +545,41 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
             const banner = wrapper.find('.sw-media-quickinfo__unsupported-format-banner');
             expect(banner.exists()).toBe(shouldShowWarning);
+        },
+    );
+
+    it.each([
+        { mimeType: 'model/gltf-binary', fileExtension: 'glb', fileName: 'test.glb' },
+        { mimeType: 'model/gltf+json', fileExtension: 'gltf', fileName: 'test.gltf' },
+    ])('should show model viewer for $mimeType mime type', async ({ mimeType, fileExtension, fileName }) => {
+        const wrapper = await createWrapper({
+            mimeType,
+            hasFile: true,
+            fileExtension,
+            fileName,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('sw-model-viewer-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-media-preview-v2-stub').exists()).toBe(false);
+    });
+
+    it.each([
+        { mimeType: 'model/step', fileExtension: 'step', fileName: 'test.step' },
+        { mimeType: 'model/obj', fileExtension: 'obj', fileName: 'test.obj' },
+    ])(
+        'should not show model viewer for non-gltf model mime type $mimeType',
+        async ({ mimeType, fileExtension, fileName }) => {
+            const wrapper = await createWrapper({
+                mimeType,
+                hasFile: true,
+                fileExtension,
+                fileName,
+            });
+            await flushPromises();
+
+            expect(wrapper.find('sw-model-viewer-stub').exists()).toBe(false);
+            expect(wrapper.find('sw-media-preview-v2-stub').exists()).toBe(true);
         },
     );
 

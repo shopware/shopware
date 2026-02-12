@@ -174,12 +174,12 @@ class CategoryIndexerTest extends TestCase
             'expectedSkips' => [CategoryIndexer::CHILD_COUNT_UPDATER, CategoryIndexer::TREE_UPDATER],
         ];
 
-        // Category table updates
-        yield 'category: parentId change - tree updaters' => [
+        // Category table updates - parentId change affects tree structure AND breadcrumb path
+        yield 'category: parentId change - tree and breadcrumb updaters' => [
             'categoryPayload' => ['parentId' => 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'],
             'translationPayload' => null,
             'categoryOperation' => EntityWriteResult::OPERATION_UPDATE,
-            'expectedSkips' => [CategoryIndexer::BREADCRUMB_UPDATER],
+            'expectedSkips' => [],
         ];
 
         // INSERT always runs all updaters
@@ -187,6 +187,14 @@ class CategoryIndexerTest extends TestCase
             'categoryPayload' => ['parentId' => 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'],
             'translationPayload' => null,
             'categoryOperation' => EntityWriteResult::OPERATION_INSERT,
+            'expectedSkips' => [],
+        ];
+
+        // DELETE always runs all updaters
+        yield 'DELETE - all updaters' => [
+            'categoryPayload' => ['id' => 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'],
+            'translationPayload' => null,
+            'categoryOperation' => EntityWriteResult::OPERATION_DELETE,
             'expectedSkips' => [],
         ];
     }

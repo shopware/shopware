@@ -270,7 +270,8 @@ class CategoryIndexer extends EntityIndexer
             $skipUpdaters[] = self::CHILD_COUNT_UPDATER;
             $skipUpdaters[] = self::TREE_UPDATER;
         }
-        if (!$nameChanged) {
+        // Breadcrumb depends on both name (label) and parentId (path in tree)
+        if (!$nameChanged && !$parentIdChanged) {
             $skipUpdaters[] = self::BREADCRUMB_UPDATER;
         }
 

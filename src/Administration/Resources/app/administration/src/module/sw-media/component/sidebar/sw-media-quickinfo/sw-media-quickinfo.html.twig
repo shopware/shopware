@@ -294,9 +294,19 @@
                     >
                         <div class="sw-model-editor-modal-wrapper">
                             <sw-model-editor
+                                ref="modelEditorRef"
                                 :source="item"
+                                @save="onSaveComplete"
                             />
                         </div>
+                        <template #modal-footer>
+                            <mt-button
+                                variant="primary"
+                                @click="$refs.modelEditorRef.save()"
+                            >
+                                {{ $tc('sw-media.sw-model-editor.saveChanges') }}
+                            </mt-button>
+                        </template>
                     </sw-modal>
                     {% endblock %}
                 </template>

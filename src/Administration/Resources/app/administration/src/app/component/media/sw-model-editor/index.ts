@@ -1,12 +1,15 @@
-import { type DIVEModel, type DIVEScene } from '@shopware-ag/dive';
-import { type OrbitController } from '@shopware-ag/dive/orbitcontroller';
+import { markRaw } from 'vue';
+import Repository from 'src/core/data/repository.data';
+import type MediaService from 'src/core/service/api/media.api.service';
+import { type DIVEModel } from '@shopware-ag/dive';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import { Toolbox } from '@shopware-ag/dive/toolbox';
+import { AssetExporter } from '@shopware-ag/dive/assetexporter';
 import template from './sw-model-editor.html.twig';
 import './sw-model-editor.scss';
 
 const { EventBus } = Shopware.Utils;
-
+const { Context } = Shopware;
 /**
  * @status ready
  * @description The <u>sw-model-editor</u> component is used to edit model objects.
@@ -22,6 +25,8 @@ const { EventBus } = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    inject: ['mediaService', 'repositoryFactory'],
 
     props: {
         source: {
@@ -43,10 +48,11 @@ export default Shopware.Component.wrapComponentConfig({
             currentEditMode: 'translate' as 'translate' | 'rotate' | 'scale',
             isTranslatable: true,
             isRotatable: true,
-            isScalable: false,
+            isScalable: true,
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
+            mediaService: MediaService,
             modelEntity: EntitySchema.Entity<'media'> | null;
             quickView: QuickView | null;
             toolbox: Toolbox | null;
@@ -75,6 +81,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     mounted() {
         this.mountedComponent();
+    },
+
+    computed: {
+        mediaRepository(): Repository<"media"> {
+            return this.repositoryFactory.create('media');
+        },
     },
 
     methods: {
@@ -108,7 +120,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.isLoading = true;
 
-            this.quickView = await QuickView(this.modelEntity.url, {
+            this.quickView = markRaw(await QuickView(this.modelEntity.url, {
                 canvas: this.canvas,
                 displayAxes: true,
                 displayGrid: true,
@@ -119,11 +131,12 @@ export default Shopware.Component.wrapComponentConfig({
                 })
                 .finally(() => {
                     this.isLoading = false;
-                });
+                }));
 
-            this.toolbox = new Toolbox(this.quickView.scene as DIVEScene, this.quickView.orbitController as OrbitController);
-
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            this.toolbox = markRaw(new Toolbox(this.quickView.scene as any, this.quickView.orbitController as any));
             this.toolbox.enableTool('transform');
+            this.toolbox.getTool('transform').setGizmoMode(this.currentEditMode);
 
             const model = this.quickView.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
             this.toolbox.selectionState.select(model);
@@ -136,17 +149,46 @@ export default Shopware.Component.wrapComponentConfig({
             await this.quickView?.dispose();
         },
 
-        onMediaLibraryItemUpdated(mediaId: string): void {
+        async onMediaLibraryItemUpdated(mediaId: string): Promise<void> {
             if (!this.modelEntity?.id) return;
             if (this.modelEntity?.id !== mediaId) return;
 
-            this.initializeQuickView();
+            // Refetch media entity to get fresh URL with updated cache-busting timestamp
+            this.modelEntity = await this.mediaRepository.get(mediaId, Context.api);
         },
 
         setGizmoMode(mode: 'translate' | 'rotate' | 'scale'): void {
             this.currentEditMode = mode;
-
             this.toolbox?.getTool('transform').setGizmoMode(mode);
+        },
+
+        async save(): Promise<void> {
+            if(!this.modelEntity) return;
+            const targetId = this.modelEntity.id;
+            const fileName = this.modelEntity.fileName ?? 'model';
+            const fileExtension = this.modelEntity.fileExtension ?? 'glb';
+
+            const model = this.quickView?.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
+            if (!model) return;
+
+
+            const buffer = await new AssetExporter().export(model, 'glb');
+            const file = new File([buffer], `${fileName}`, { type: 'model/gltf-binary' });
+
+            const uploadData = {
+                src: file,
+                fileName: file.name,
+                mimeType: file.type,
+                extension: fileExtension,
+                isPrivate: false,
+                targetId: targetId,
+            };
+
+            await this.mediaService.addUpload('media', uploadData);
+            await this.mediaService.runUploads('media');
+
+            // Emit event to trigger refresh with new URL (includes updated cache-busting timestamp)
+            EventBus.emit('sw-media-library-item-updated', targetId);
         },
     },
 });

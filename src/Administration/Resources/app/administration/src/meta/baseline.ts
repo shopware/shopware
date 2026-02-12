@@ -479,7 +479,6 @@ const missingTests = [
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-base/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-checkbox/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-date/index.js',
-    'src/module/sw-settings-custom-field/component/sw-custom-field-type-number/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-text/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-text-editor/index.js',
     'src/module/sw-settings-custom-field/index.js',

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration;
+namespace Shopware\Core\Content\ContentSystem\Event\Listener\PreHydration;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;

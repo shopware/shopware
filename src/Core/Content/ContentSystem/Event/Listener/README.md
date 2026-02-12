@@ -1,10 +1,10 @@
-# EventSubscriber
+# Listener
 
-Event-driven pipeline transformations for the content hydration lifecycle. Subscribers modify the layout structure before and after data loading via `PreContentHydrationEvent` and `PostHydrationEvent`.
+Event-driven pipeline transformations for the content hydration lifecycle. Listeners modify the layout structure before and after data loading via `PreContentHydrationEvent` and `PostHydrationEvent`.
 
 ## Architecture
 
-Subscribers execute in two phases around the hydration process:
+Listeners execute in two phases around the hydration process:
 
 ```mermaid
 flowchart TB
@@ -29,7 +29,7 @@ flowchart TB
     pre --> H --> post
 ```
 
-Higher priority numbers execute first. All subscribers modify `$event->elements` (an array of ContentElement objects). This is the only mutable property on the events.
+Higher priority numbers execute first. All listeners modify `$event->elements` (an array of ContentElement objects). This is the only mutable property on the events.
 
 ## Priority Ranges
 
@@ -45,7 +45,7 @@ Priorities are organized into reserved ranges for core and extension use.
 - `>= 3000`: Transform (overrides, placeholders)
 - `>= 1000`: Pruning (filtering, partial render)
 
-## Built-in Subscribers
+## Built-in Listeners
 
 **Virtual Root** - `VirtualRootPreparationSubscriber` wraps layout roots with a temporary container to enable layout-level context distribution. `VirtualRootCleanupSubscriber` removes the wrapper after hydration.
 
@@ -57,7 +57,7 @@ Priorities are organized into reserved ranges for core and extension use.
 
 ## Extension Points
 
-Add custom subscribers by implementing `EventSubscriberInterface`. Subscribe to `PreContentHydrationEvent` or `PostHydrationEvent` with a priority. Modify `$event->elements` in the handler.
+Add custom listeners using `#[AsEventListener]` for `PreContentHydrationEvent` or `PostHydrationEvent` with a priority. Modify `$event->elements` in the handler.
 
 **Example priorities by use case (suggestions only):**
 
@@ -69,5 +69,5 @@ Add custom subscribers by implementing `EventSubscriberInterface`. Subscribe to 
 
 ## Subdirectories
 
-- `PreHydration/`: Subscribers that prepare layout structure before data loading
-- `PostHydration/`: Subscribers that finalize layout structure after data loading
+- `PreHydration/`: Listeners that prepare layout structure before data loading
+- `PostHydration/`: Listeners that finalize layout structure after data loading

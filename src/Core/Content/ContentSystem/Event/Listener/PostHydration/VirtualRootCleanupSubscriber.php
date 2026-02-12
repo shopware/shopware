@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration;
+namespace Shopware\Core\Content\ContentSystem\Event\Listener\PostHydration;
 
 use Shopware\Core\Content\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;

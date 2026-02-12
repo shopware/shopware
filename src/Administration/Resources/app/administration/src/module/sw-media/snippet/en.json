@@ -109,8 +109,8 @@
     "sw-media-save-modal": {
       "titleModal": "Save in media"
     },
-    "sw-model-viewer": {
-      "titleModal": "Model Viewer"
+    "sw-model-editor": {
+      "titleModal": "Model Editor"
     }
   },
   "sw-privileges": {

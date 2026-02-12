@@ -83,6 +83,7 @@ jobs:
 
       - name: Check downstream mergeability
         uses: actions/github-script@v6
+        if: steps.sts.outputs.token
         with:
           github-token: ${{ steps.sts.outputs.token }}
           script: |

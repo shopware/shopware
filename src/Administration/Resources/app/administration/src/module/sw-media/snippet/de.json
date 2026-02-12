@@ -110,7 +110,12 @@
       "titleModal": "In Medien speichern"
     },
     "sw-model-editor": {
-      "titleModal": "Model Editor"
+      "titleModal": "Model Editor",
+      "edit-options": {
+        "move-ooltip": "Objekt verschieben",
+        "rotate-tooltip": "Objekt drehen",
+        "scale-tooltip": "Objekt skalieren"
+      }
     }
   },
   "sw-privileges": {

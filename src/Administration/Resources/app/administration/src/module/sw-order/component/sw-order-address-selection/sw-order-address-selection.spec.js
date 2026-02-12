@@ -114,7 +114,7 @@ async function createWrapper(propsData) {
                             }),
                         create: () => ({
                             _isNew: true,
-                            getEntityName: () => 'customer_address'
+                            getEntityName: () => 'customer_address',
                         }),
                     }),
                 },

@@ -831,6 +831,7 @@
     "product_stream.createdAt",
     "product_stream.updatedAt",
     "product_stream.translated",
+    "product_stream.internal",
     "product_stream_translation.name",
     "product_stream_translation.description",
     "product_stream_translation.customFields",

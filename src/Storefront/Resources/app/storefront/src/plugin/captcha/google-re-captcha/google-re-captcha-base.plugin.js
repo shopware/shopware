@@ -3,13 +3,15 @@ import Plugin from 'src/plugin-system/plugin.class';
 export default class GoogleReCaptchaBasePlugin extends Plugin {
     init() {
         const recaptchaScript = document.getElementById('recaptcha-script');
-        if (!recaptchaScript || recaptchaScript.hasAttribute('src')) {
+        if (!recaptchaScript) {
             return;
         }
 
-        const dataSrc = recaptchaScript.getAttribute('data-src');
-        if (dataSrc && this._isValidUrl(dataSrc)) {
-            recaptchaScript.setAttribute('src', encodeURI(dataSrc));
+        if (!recaptchaScript.hasAttribute('src')) {
+            const dataSrc = recaptchaScript.getAttribute('data-src');
+            if (dataSrc && this._isValidUrl(dataSrc)) {
+                recaptchaScript.setAttribute('src', encodeURI(dataSrc));
+            }
         }
 
         // The shim script in main.js ensures window.grecaptcha and window.grecaptcha.ready exist.

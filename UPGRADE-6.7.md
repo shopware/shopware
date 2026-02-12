@@ -1,3 +1,9 @@
+# 6.7.6.0
+
+## Deprecation of video blocks
+
+The inner video blocks of `cms-block-vimeo-video.html.twig` and `cms-block-youtube-video.html.twig` called `block_image_inner` have been deprecated and will be removed in the next major version. Please use specific blocks `block_vimeo_video_inner` and `block_youtube_video_inner` instead.
+
 # 6.7.4.1
 
 The `Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` now deletes customer recovery links after a customer has changed their email address.
@@ -13,9 +19,9 @@ This makes it more consistent as otherwise the types could change when they are 
 
 ## Deprecated SystemConfig exceptions
 
-The exceptions 
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`, 
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and 
+The exceptions
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
 * `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
 are now deprecated and will be removed in v6.8.0.0.
 Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
@@ -35,16 +41,16 @@ With this change, Vimeo and YouTube videos now use separate cookie consent entri
 
 ## Cookie offcanvas links in dynamically loaded content
 
-Links to open the cookie offcanvas that are loaded dynamically (e.g., within the navigation offcanvas) now work correctly. 
+Links to open the cookie offcanvas that are loaded dynamically (e.g., within the navigation offcanvas) now work correctly.
 The `CookieConfiguration` plugin now uses event delegation instead of direct event listeners.
 
-If you have extended the `CookieConfiguration` plugin and override `_registerEvents()`, you may need to update your 
+If you have extended the `CookieConfiguration` plugin and override `_registerEvents()`, you may need to update your
 implementation to use event delegation as well.
 
 # 6.7.3.1
 ## Opensearch 3.x compatibility
 
-OpenSearch 3.x introduced a breaking change that disallows defining index mapping fields with empty array `properties`. For e.g: 
+OpenSearch 3.x introduced a breaking change that disallows defining index mapping fields with empty array `properties`. For e.g:
 
 ```json
 {
@@ -120,7 +126,7 @@ The method `media` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent
 The method `thumbnail` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` is deprecated and will be removed with the next major version. Use the newly added `thumbnailWithMimeType` method instead.
 ## Added caching to the `NavigationRoute`
 
-The navigation route now caches the default category levels for the current sales channel's main navigation. 
+The navigation route now caches the default category levels for the current sales channel's main navigation.
 This improves performance by reducing the need to repeatedly load and hydrate the same category levels on every page.
 
 When your navigation is dynamic, you need to subscribe to the `CategoryLevelLoaderCacheKeyEvent` to add the necessary information to the cache tag, so your dynamic content is displayed properly.
@@ -175,7 +181,7 @@ class CustomCookieProvider implements CookieProviderInterface
     public function getCookieGroups(): array
     {
         $cookieGroups = $this->inner->getCookieGroups();
-        
+
         $cookieGroups[] = [
             'snippet_name' => 'cookie.group.name',
             'entries' => [
@@ -184,7 +190,7 @@ class CustomCookieProvider implements CookieProviderInterface
                 ],
             ],
         ];
-        
+
         return $cookieGroups;
     }
 }
@@ -202,10 +208,10 @@ class AppCookieCollectListener
     {
         $cookieGroups = $event->cookieGroupCollection;
         $newCookieGroup = new CookieGroup('cookie.group.name');
-        
+
         $newCookieEntry = new CookieEntry('cookie-name')
         $newCookieGroup->setEntries([$entry]);
-        
+
         $cookieGroups->add($newCookieGroup);
     }
 }
@@ -277,13 +283,13 @@ The constructor of the `EntityDefinition` will be removed, therefore the call of
  class MyCustomEntity extends EntityDefinition
  {
      // snip
- 
+
      public function __construct(private readonly array $meta = [])
      {
 -        parent::__construct();
          // ...
      }
- 
+
      // snip
  }
 ```
@@ -365,8 +371,8 @@ When rendering CMS block components in the Administration, the `component` prope
 
 ## Return address in documents
 
-The option `Display company` address in the `Company settings` section of the document configuration is now split into `Display return address` and `Display company address`.  
-The former toggles the display of the return address above the customer address in the address block.  
+The option `Display company` address in the `Company settings` section of the document configuration is now split into `Display return address` and `Display company address`.
+The former toggles the display of the return address above the customer address in the address block.
 The latter toggles the display of the company address below the header on the right-hand side of the document.
 
 ## New Elasticsearch enhancement for optimized storefront searching and sorting
@@ -423,7 +429,7 @@ $seoUrls->add($url);
 After
 
 ```php
-$url = 'https://example.com/cross-selling/product-123'; 
+$url = 'https://example.com/cross-selling/product-123';
 $entities = $data->getAll($definition, $url->getForeignKey());
 
 // Now you have to loop through all entities to add the SEO URL
@@ -489,13 +495,13 @@ The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id
 ```
 ## ThemeConfiguration deprecations
 
-The `label` and `helpText` fields in the `/api/_action/theme/{themeId}/configuration` and in the 
+The `label` and `helpText` fields in the `/api/_action/theme/{themeId}/configuration` and in the
 `/api/_action/theme/{themeId}/structured-fields` API endpoints have been deprecated. For translations you should rely on
 the `labelSnippetKey` and `helpTextSnippetKey` fields instead (present only in the structured fields endpoint).
 
 The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been
 deprecated in favor of the new `ThemeConfigurationService::getPlainThemeConfiguration` and
-`ThemeConfigurationService::getThemeConfigurationFieldStructure` methods. The new methods return the same data as the old ones, 
+`ThemeConfigurationService::getThemeConfigurationFieldStructure` methods. The new methods return the same data as the old ones,
 excluding the deprecated fields.
 
 
@@ -527,7 +533,7 @@ This is useful when the user can provide measurement units in the header and get
 
 For the storefront, we added a new twig filter `sw_convert_unit` to convert measurement units in twig templates. This allows the developers to convert measurement units in the templates without writing custom logic.
 
-It allows the developers to convert measurement units of any value, any variable in the templates without writing custom logic. 
+It allows the developers to convert measurement units of any value, any variable in the templates without writing custom logic.
 
 Or they can also convert between any measurement units by passing the desired measurement unit as a parameter to the filter.
 
@@ -584,7 +590,7 @@ If you want to keep the old behaviour you need to overwrite the template blocks 
 # Notable Changes
 
 # Webpack to vite migration for the administration
-We are switching the build system for our administration from webpack to vite. 
+We are switching the build system for our administration from webpack to vite.
 This means that when your plugins depends on a custom `webpack.config.js` file, you'll need to migrate it to a `vite.config.js` file.
 **More information about how to upgrade will be available soon.**
 
@@ -633,7 +639,7 @@ Shopware.State.registerModule('example', {
             // Do some async stuff
             return Promise.resolve(() => {
                 commit('setId', id);
-                
+
                 return id;
             });
         }
@@ -677,7 +683,7 @@ If you are still using Vuex, please update your code accordingly:
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
 ## vue-i18n v10 Update
-We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`. 
+We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`.
 
 ### Key Considerations
 - While this change works for most use cases, some specific function overloads are no longer supported.
@@ -991,10 +997,10 @@ The hidden radio input will no longer be in the HTML. The current page value wil
 
 {# All information that was previously on the radio input, is now also on the anchor link. The id attribute is longer needed. The "disabled" state is now controlled via the parent `<li>` and tabindex. #}
 {% block component_pagination_first_link_element %}
-    <a href="{{ href ? '?p=1' ~ searchQuery : '#' }}" 
+    <a href="{{ href ? '?p=1' ~ searchQuery : '#' }}"
        class="page-link some-special-class"
        data-page="1"
-       aria-label="{{ 'general.first'|trans|striptags }}" 
+       aria-label="{{ 'general.first'|trans|striptags }}"
        data-focus-id="first"
        {% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
         {# Using text instead of icon and add some special CSS class #}
@@ -1068,14 +1074,14 @@ Storefront icons that are rendered via `{% sw_icon 'icon-name' %}` will apply `a
 In most scenarios icons are of decorative nature and should therefore not be read as "graphic" by the screen reader. **This change does not affect the actual rendering or appearance of the icons.**
 In many areas the icons were already set to `ariaHidden: true` manually. For things like "icon only" buttons there should always be an alternative text available that describes the action.
 
-It is still possible to disable `aria-hidden` by applying `ariaHidden: false` on the icon: 
+It is still possible to disable `aria-hidden` by applying `ariaHidden: false` on the icon:
 ```twig
 {% sw_icon 'plus' style { ariaHidden: false } %}
 ```
 
 ```twig
-{# 
-    Icon only button 
+{#
+    Icon only button
     ======================================================
 #}
 <button class="btn btn-primary my-action" aria-label="Label for icon only button">
@@ -1089,8 +1095,8 @@ It is still possible to disable `aria-hidden` by applying `ariaHidden: false` on
     </div>
 </button>
 
-{# 
-    Additional icon button 
+{#
+    Additional icon button
     ======================================================
 #}
 <button class="btn btn-primary my-action">
@@ -1106,7 +1112,7 @@ It is still possible to disable `aria-hidden` by applying `ariaHidden: false` on
     Label for the button {# Button is labelled by the actual text. #}
 </button>
 
-{# 
+{#
     Label for icon SVG
     ======================================================
 #}
@@ -1156,7 +1162,7 @@ The default payment method "Direct debit" will no longer automatically change th
 The `technicalName` property will be required for payment and shipping methods in the API.
 The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
 
-Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.  
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
 **If no technical name is specified before the migration is run, a temporary placeholder `temporary_<method-id>` will be used instead.**
 
 Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
@@ -1384,7 +1390,7 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
 </details>
 
 ## Attributes classes made final
-We have made attribute classes final. 
+We have made attribute classes final.
 <details>
   <summary>See the detailed list</summary>
 
@@ -1414,7 +1420,7 @@ We have made attribute classes final.
 The following classes have been moved from the admin bundle to the core:
 
 * `Shopware\Core\Framework\Notification\NotificationCollection`
-* `Shopware\Core\Framework\Notification\NotificationDefinition` 
+* `Shopware\Core\Framework\Notification\NotificationDefinition`
 * `Shopware\Core\Framework\Notification\NotificationEntity`
 
 The controller `Shopware\Core\Framework\Notification\Api\NotificationController` has been moved from the admin bundle to the core and made internal.
@@ -3306,11 +3312,11 @@ The general usage of `Resources/views/storefront/utilities/alert.html.twig` and 
 Before:
 ```html
 <div role="alert" class="alert alert-info d-flex align-items-center">
-    <span class="icon icon-info"><svg></svg></span>                                                    
+    <span class="icon icon-info"><svg></svg></span>
     <div class="alert-content-container">
-        <div class="alert-content">                                                    
+        <div class="alert-content">
             Your shopping cart is empty.
-        </div>                
+        </div>
     </div>
 </div>
 ```
@@ -3318,7 +3324,7 @@ Before:
 After:
 ```html
 <div role="alert" class="alert alert-info d-flex align-items-center">
-    <span class="icon icon-info"><svg></svg></span>                                                    
+    <span class="icon icon-info"><svg></svg></span>
     <div class="alert-content-container">
         Your shopping cart is empty.
     </div>
@@ -3390,8 +3396,8 @@ After:
 const paramsObj = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 ```
 
-## Added new functions and tokens to complete the Twig integration 
-New functions: `sw_block`, `sw_source`, `sw_include` and new tokens: `sw_use`, `sw_embed`, `sw_from` and `sw_import`. 
+## Added new functions and tokens to complete the Twig integration
+New functions: `sw_block`, `sw_source`, `sw_include` and new tokens: `sw_use`, `sw_embed`, `sw_from` and `sw_import`.
 
 You can find further details on the use on the documentation page [Shopware's twig functions](https://developer.shopware.com/docs/resources/references/storefront-reference/twig-function-reference.html).
 
@@ -3467,7 +3473,7 @@ $bundles = [
 ];
 ```
 
-When you use a [symfony flex setup](https://developer.shopware.com/docs/guides/installation/template.html#symfony-flex) it should pick up the change automatically and apply [that change](https://github.com/shopware/recipes/blob/main/shopware/core/6.7/manifest.json#L34) during the shopware update. 
+When you use a [symfony flex setup](https://developer.shopware.com/docs/guides/installation/template.html#symfony-flex) it should pick up the change automatically and apply [that change](https://github.com/shopware/recipes/blob/main/shopware/core/6.7/manifest.json#L34) during the shopware update.
 
 ## Search server now provides OpenSearch/Elasticsearch shards and replicas
 
@@ -3505,7 +3511,7 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 
 ## `SQL_SET_DEFAULT_SESSION_VARIABLE` has no effect anymore
 
-Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore. 
+Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore.
 The previously optional performance tweaks to MySQL are now enforced on connection buildup inside the `\Shopware\Core\Framework\Adapter\Database\MySQLFactory`.
 
 ## Removal of RSA JWT secrets

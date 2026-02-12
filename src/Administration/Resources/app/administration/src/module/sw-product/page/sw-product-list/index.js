@@ -290,15 +290,6 @@ export default {
         },
     },
 
-    watch: {
-        productCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
-        },
-    },
-
     beforeRouteLeave(to, from, next) {
         const goingToProductDetailPage = to.name === 'sw.product.detail.base';
 
@@ -417,10 +408,12 @@ export default {
             this.getList();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {

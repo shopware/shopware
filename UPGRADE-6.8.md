@@ -461,6 +461,29 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 <details>
 
+## Removal of `items` prop in `sw-entity-listing` component
+
+The `items` prop in the `sw-entity-listing` component has been removed.
+Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
+
+**Before:**
+```html
+<sw-entity-listing
+    :items="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+**After:**
+```html
+<sw-entity-listing
+    :data-source="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
 ## Axios v1 is now the default HTTP client
 
 Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2. This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
@@ -1001,6 +1024,15 @@ With this change, Cache-Control headers defined by cache policies are sent direc
 ## Dropped support for OpenSearch 1.x
 
 OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported. Please update OpenSearch to the latest supported Version.
+
+## Changed default Elasticsearch shard and replica counts for Admin ES
+
+The default values for `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` and `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` changed from `3` to empty (meaning Elasticsearch defaults are used). If you relied on the previous defaults, set these environment variables explicitly in your `.env` file:
+
+```
+SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS=3
+SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS=3
+```
 
 ## Removed configuration of Filesystem visibility in config array
 

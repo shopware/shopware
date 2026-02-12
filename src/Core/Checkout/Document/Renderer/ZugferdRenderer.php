@@ -57,7 +57,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $result = new RendererResult();
 
         $ids = \array_map(static fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 

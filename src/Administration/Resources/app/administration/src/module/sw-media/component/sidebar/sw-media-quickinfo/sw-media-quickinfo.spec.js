@@ -84,6 +84,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
             },
             stubs: {
+                'mt-button': true,
                 'sw-page': {
                     template: `
                         <div class="sw-page">
@@ -101,7 +102,9 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
                 'sw-media-quickinfo-metadata-item': true,
                 'sw-media-preview-v2': true,
+                'sw-modal': true,
                 'sw-model-viewer': true,
+                'sw-model-editor': true,
                 'sw-media-tag': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-field-error': true,
@@ -583,33 +586,33 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         },
     );
 
-    it('should have showModelViewerModal initially set to false', async () => {
+    it('should have showModelEditorModal initially set to false', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.showModelViewerModal).toBe(false);
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
     });
 
-    it('should set showModelViewerModal to true when openModelViewerModal is called', async () => {
+    it('should set showModelEditorModal to true when openModelEditorModal is called', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.showModelViewerModal).toBe(false);
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
 
-        wrapper.vm.openModelViewerModal();
+        wrapper.vm.openModelEditorModal();
 
-        expect(wrapper.vm.showModelViewerModal).toBe(true);
+        expect(wrapper.vm.showModelEditorModal).toBe(true);
     });
 
-    it('should set showModelViewerModal to false when closeModelViewerModal is called', async () => {
+    it('should set showModelEditorModal to false when closeModelEditorModal is called', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.showModelViewerModal = true;
-        expect(wrapper.vm.showModelViewerModal).toBe(true);
+        wrapper.vm.showModelEditorModal = true;
+        expect(wrapper.vm.showModelEditorModal).toBe(true);
 
-        wrapper.vm.closeModelViewerModal();
+        wrapper.vm.closeModelEditorModal();
 
-        expect(wrapper.vm.showModelViewerModal).toBe(false);
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
     });
 });

@@ -49,11 +49,11 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         $event = null;
         $this->catchEvent(AccountEditOrderPageLoadedEvent::class, $event);
 
-        $request->request->set('orderId', $orderId);
         $page = $this->getPageLoader()->load($request, $context);
 
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
@@ -66,11 +66,11 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         $event = null;
         $this->catchEvent(AccountEditOrderPageLoadedEvent::class, $event);
 
-        $request->request->set('orderId', $orderId);
         $page = $this->getPageLoader()->load($request, $context);
 
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
@@ -89,7 +89,7 @@ class EditOrderPageTest extends TestCase
             $context->getContext()
         );
 
-        $request->request->set('orderId', $orderId);
+        $request->attributes->set('orderId', $orderId);
         $page = $this->getPageLoader()->load($request, $context);
 
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
@@ -102,11 +102,12 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
+
         $this->setOrderToTransactionState($orderId, $context, StateMachineTransitionActions::ACTION_PAID);
 
         $this->expectException(OrderException::class);
 
-        $request->request->set('orderId', $orderId);
         $this->getPageLoader()->load($request, $context);
     }
 
@@ -115,6 +116,7 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         // Get digital products rule
         $ruleCriteria = new Criteria();
@@ -141,7 +143,8 @@ class EditOrderPageTest extends TestCase
     {
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-        $this->placeRandomOrder($context);
+        $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         $primaryMethod = $this->createCustomPaymentMethod($context, ['position' => 1]);
 
@@ -162,6 +165,7 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         $page = $this->getPageLoader()->load($request, $context);
 

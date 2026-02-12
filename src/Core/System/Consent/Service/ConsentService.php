@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Consent\Service;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinition;
@@ -175,6 +176,9 @@ class ConsentService
     private function updateState(string $name, ConsentStatus $status, Context $context): ConsentState
     {
         $consent = $this->getConsentDefinition($name);
+
+        $this->validatePermissions($context, $consent);
+
         $key = $this->key($consent, $context);
 
         $states = $this->fetchStates($context);
@@ -190,5 +194,27 @@ class ConsentService
             $status,
             $scope->resolveActorIdentifier($context)
         );
+    }
+
+    private function validatePermissions(Context $context, ConsentDefinition $consent): void
+    {
+        $source = $context->getSource();
+
+        \assert($source instanceof AdminApiSource);
+
+        if ($source->isAdmin()) {
+            return;
+        }
+
+        $missingPermissions = [];
+        foreach ($consent->getRequiredPermissions() as $permission) {
+            if (!$source->isAllowed($permission)) {
+                $missingPermissions[] = $permission;
+            }
+        }
+
+        if (!empty($missingPermissions)) {
+            throw ConsentException::insufficientPermissions($consent->getName(), $missingPermissions);
+        }
     }
 }

@@ -59,7 +59,7 @@ describe('OffCanvasCartPlugin tests', () => {
         document.body.innerHTML = '<div class="header-cart"><a class="header-cart-btn">€ 0,00</a></div>';
 
         window.PluginManager = {
-            initializePlugins: jest.fn(),
+            initializePluginsInParentElement: jest.fn(),
 
             getPluginInstancesFromElement: () => {
                 return new Map();

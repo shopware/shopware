@@ -13,9 +13,11 @@ use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
-final class StateValidator
+class StateValidator
 {
     final public const SESSION_KEY = 'sw_sso_session_key';
 

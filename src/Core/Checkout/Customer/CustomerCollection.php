@@ -44,6 +44,14 @@ class CustomerCollection extends EntityCollection
     /**
      * @return array<string>
      */
+    public function getLanguageIds(): array
+    {
+        return $this->fmap(fn (CustomerEntity $customer) => $customer->getLanguageId());
+    }
+
+    /**
+     * @return array<string>
+     */
     public function getLastPaymentMethodIds(): array
     {
         return $this->fmap(fn (CustomerEntity $customer) => $customer->getLastPaymentMethodId());

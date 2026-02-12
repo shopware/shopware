@@ -124,7 +124,7 @@ class CustomerAddressEntity extends Entity
 
     public function setZipcode(?string $zipcode): void
     {
-        $this->zipcode = empty($zipcode) ? null : $zipcode;
+        $this->zipcode = ($zipcode === null || $zipcode === '') ? null : $zipcode;
     }
 
     public function getCity(): string

@@ -1025,6 +1025,15 @@ With this change, Cache-Control headers defined by cache policies are sent direc
 
 OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported. Please update OpenSearch to the latest supported Version.
 
+## Changed default Elasticsearch shard and replica counts for Admin ES
+
+The default values for `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` and `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` changed from `3` to empty (meaning Elasticsearch defaults are used). If you relied on the previous defaults, set these environment variables explicitly in your `.env` file:
+
+```
+SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS=3
+SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS=3
+```
+
 ## Removed configuration of Filesystem visibility in config array
 
 The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:

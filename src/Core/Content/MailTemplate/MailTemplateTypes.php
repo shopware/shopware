@@ -93,5 +93,5 @@ class MailTemplateTypes
 
     final public const MAILTYPE_DOCUMENT_A11Y = 'a11y_mail';
 
-    final public const MAILTYPE_ORDER_PAYMENT_METHOD_CHANGED = 'order_payment_method.changed';
+    final public const MAILTYPE_ORDER_PAYMENT_METHOD_CHANGED = 'order.payment_method.changed';
 }

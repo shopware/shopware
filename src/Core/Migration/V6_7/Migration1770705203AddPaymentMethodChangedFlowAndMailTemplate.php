@@ -48,7 +48,7 @@ class Migration1770705203AddPaymentMethodChangedFlowAndMailTemplate extends Migr
         );
 
         $mailTemplate = new MailTemplateCreateStruct(
-            'order.payment_method.changed',
+            MailTemplateTypes::MAILTYPE_ORDER_PAYMENT_METHOD_CHANGED,
             'Payment method changed',
             'Zahlungsart geändert',
             'Confirmation of payment method change',

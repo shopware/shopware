@@ -31,7 +31,7 @@ abstract class AbstractNewsletterSubscribeRoute
     abstract public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse;
 
     /**
-     * @deprecated tag:v6.8.0 - Will become abstract with SuccessResponse return type in v6.8.0.
+     * @deprecated tag:v6.8.0 - Will become abstract with NewsletterSubscribeRouteResponse return type in v6.8.0.
      *
      * @return StoreApiResponse<covariant Struct>
      */

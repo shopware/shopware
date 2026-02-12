@@ -416,6 +416,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
                 ->arrayNode('twig')
                     ->children()
                         ->scalarNode('string_template_renderer_cache_dir')->end()
@@ -638,7 +639,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->arrayNode('allowed_types')
-                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_PHYSICAL])
+                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_DIGITAL])
                 ->scalarPrototype()->end()
             ->end();
 

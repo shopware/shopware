@@ -147,6 +147,31 @@ export default {
 
             await this.snippetSetRepository.save(newSnippetSet);
             await this.getList();
+
+            this.toggleInlineEdit(newSnippetSet.id);
+        },
+
+        toggleInlineEdit(id) {
+            if (!this.acl.can('snippet.editor')) {
+                return;
+            }
+
+            if (!this.$refs.snippetSetList) {
+                return;
+            }
+
+            if (!this.snippetSets.some((item) => item.id === id)) {
+                return;
+            }
+
+            this.$refs.snippetSetList.currentInlineEditId = id;
+
+            if (typeof this.$refs.snippetSetList.enableInlineEdit === 'function') {
+                this.$refs.snippetSetList.enableInlineEdit();
+                return;
+            }
+
+            this.$refs.snippetSetList.isInlineEditActive = true;
         },
 
         onInlineEditSave(item) {

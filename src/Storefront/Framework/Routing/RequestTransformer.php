@@ -110,7 +110,16 @@ class RequestTransformer implements RequestTransformerInterface
             throw StorefrontFrameworkException::salesChannelMappingException($request->getUri());
         }
 
-        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
+        /**
+         * Use getBasePath() instead of getBaseUrl() to exclude the script name (e.g. /index.php)
+         * from the absolute base url. The sales channel domain url never contains the script name,
+         * so including it would cause the str_replace below to fail, leaving $baseUrl as the full
+         * domain url instead of just the virtual path (e.g. /de).
+         *
+         * getBasePath() = /subdir           (directory only)
+         * getBaseUrl()  = /subdir/index.php (includes script name when explicitly in the url)
+         */
+        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBasePath();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
 
         $resolved = $this->resolveSeoUrl(
@@ -156,7 +165,7 @@ class RequestTransformer implements RequestTransformerInterface
          */
         $transformedServerVars = array_merge(
             $request->server->all(),
-            ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . $resolved['pathInfo']]
+            ['REQUEST_URI' => rtrim($request->getBasePath(), '/') . $resolved['pathInfo']]
         );
 
         $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);

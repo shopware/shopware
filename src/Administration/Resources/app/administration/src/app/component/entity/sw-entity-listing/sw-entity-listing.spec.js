@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
-async function createWrapper(propsData = {}) {
+async function createWrapper(propsData = {}, options = {}) {
     // mock entity functions
     const items = [
         { name: 'Apple' },
@@ -20,7 +20,10 @@ async function createWrapper(propsData = {}) {
         limit: null,
     };
 
-    return mount(await wrapTestComponent('sw-entity-listing', { sync: true }), {
+    // Suppress console warnings by default unless explicitly testing them
+    const consoleWarnSpy = options.suppressWarnings !== false ? jest.spyOn(console, 'warn').mockImplementation() : null;
+
+    const wrapper = mount(await wrapTestComponent('sw-entity-listing', { sync: true }), {
         props: {
             columns: [
                 { property: 'name', label: 'Name' },
@@ -56,6 +59,12 @@ async function createWrapper(propsData = {}) {
             },
         },
     });
+
+    if (consoleWarnSpy) {
+        consoleWarnSpy.mockRestore();
+    }
+
+    return wrapper;
 }
 
 describe('src/app/component/entity/sw-entity-listing', () => {
@@ -207,5 +216,136 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         await flushPromises();
         expect(wrapper.emitted('bulk-edit-modal-close')).toStrictEqual([[]]);
+    });
+
+    it('should work with dataSource prop instead of items', async () => {
+        const dataSource = new EntityCollection(null, null, null, new Criteria(1, 25), [
+            { id: 'id1', name: 'item1' },
+            { id: 'id2', name: 'item2' },
+        ]);
+
+        const wrapper = await createWrapper({
+            dataSource,
+            items: null,
+        });
+
+        // Check that internalDataSource returns the correct data
+        expect(wrapper.vm.internalDataSource).toHaveLength(2);
+        expect(wrapper.vm.internalDataSource[0].id).toBe('id1');
+        expect(wrapper.vm.internalDataSource[1].id).toBe('id2');
+        expect(wrapper.vm.records).toHaveLength(2);
+    });
+
+    it('should show deprecation warning when items prop is used', async () => {
+        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        await createWrapper(
+            {
+                items: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                    { id: 'id1', name: 'item1' },
+                ]),
+                dataSource: null,
+            },
+            { suppressWarnings: false },
+        );
+
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+            expect.stringContaining('[Deprecation] sw-entity-listing: The "items" prop is deprecated'),
+            expect.anything(),
+        );
+
+        consoleWarnSpy.mockRestore();
+    });
+
+    it('should prefer dataSource over items when both are provided', async () => {
+        const itemsData = new EntityCollection(null, null, null, new Criteria(1, 25), [
+            { id: 'id1', name: 'item1' },
+        ]);
+
+        const dataSourceData = new EntityCollection(null, null, null, new Criteria(1, 25), [
+            { id: 'id2', name: 'item2' },
+            { id: 'id3', name: 'item3' },
+        ]);
+
+        const wrapper = await createWrapper({
+            items: itemsData,
+            dataSource: dataSourceData,
+        });
+
+        // Check that internalDataSource prefers dataSource over items
+        // It should use dataSourceData (with ids id2 and id3) not itemsData (with id id1)
+        expect(wrapper.vm.internalDataSource).toHaveLength(2);
+        expect(wrapper.vm.internalDataSource[0].id).toBe('id2');
+        expect(wrapper.vm.internalDataSource[1].id).toBe('id3');
+        expect(wrapper.vm.records).toHaveLength(2);
+    });
+
+    it('should not show deprecation warning when dataSource is used', async () => {
+        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        await createWrapper(
+            {
+                dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                    { id: 'id1', name: 'item1' },
+                ]),
+                items: null,
+            },
+            { suppressWarnings: false },
+        );
+
+        // Check that no deprecation warning for items prop was shown
+        const deprecationCalls = consoleWarnSpy.mock.calls.filter(
+            (call) => call[0] && call[0].includes('[Deprecation] sw-entity-listing'),
+        );
+        expect(deprecationCalls).toHaveLength(0);
+
+        consoleWarnSpy.mockRestore();
+    });
+
+    it('should apply result when dataSource prop has been changed', async () => {
+        const wrapper = await createWrapper({
+            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                { id: 'id1', name: 'item1' },
+            ]),
+            items: null,
+        });
+
+        wrapper.vm.applyResult = jest.fn();
+
+        await wrapper.setProps({
+            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                { id: 'id2', name: 'item2' },
+                { id: 'id3', name: 'item3' },
+            ]),
+        });
+
+        await flushPromises();
+        expect(wrapper.vm.applyResult).toHaveBeenCalled();
+    });
+
+    it('should use internalDataSource for operations', async () => {
+        const dataSource = new EntityCollection(null, null, null, new Criteria(1, 25), [
+            { id: 'id1', name: 'item1' },
+        ]);
+        dataSource.context = { apiContext: true };
+        dataSource.criteria = new Criteria(1, 25);
+
+        const mockSearchResult = new EntityCollection(null, null, null, new Criteria(1, 25), [
+            { id: 'id1', name: 'item1' },
+        ]);
+
+        const wrapper = await createWrapper({
+            dataSource,
+            items: null,
+            repository: {
+                search: jest.fn(() => Promise.resolve(mockSearchResult)),
+                delete: jest.fn(() => Promise.resolve()),
+                save: jest.fn(() => Promise.resolve()),
+            },
+        });
+
+        // Test that doSearch uses internalDataSource
+        await wrapper.vm.doSearch();
+        expect(wrapper.vm.repository.search).toHaveBeenCalledWith(dataSource.criteria, dataSource.context);
     });
 });

@@ -121,6 +121,9 @@ abstract class EntityDefinition
         }
     }
 
+    /**
+     * @return non-empty-string
+     */
     abstract public function getEntityName(): string;
 
     final public function getFields(): CompiledFieldCollection
@@ -162,11 +165,11 @@ abstract class EntityDefinition
                 }
 
                 if (!$field instanceof FkField) {
-                    throw new \Exception('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+                    throw DataAbstractionLayerException::wrongFieldTypeForExtension();
                 }
 
                 if (!$this->hasAssociationWithStorageName($field->getStorageName(), $new)) {
-                    throw new \Exception(\sprintf('FkField %s has no configured OneToOneAssociationField or ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->getClass()));
+                    throw DataAbstractionLayerException::foreignKeyHasNoAssociationField($field->getPropertyName(), $this->getClass());
                 }
 
                 $fields->add($field);
@@ -391,7 +394,7 @@ abstract class EntityDefinition
         $field = $this->getField($property);
 
         if ($field === null) {
-            throw new \RuntimeException(\sprintf('Field %s not found', $property));
+            throw DataAbstractionLayerException::fieldNotFound($property);
         }
 
         return $field->getSerializer()->decode($field, $value);

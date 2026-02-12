@@ -93,7 +93,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
         $code = $lineItem->getReferencedId();
 
-        if (!empty($code)) {
+        if ($code !== null && $code !== '') {
             // promotion with code
             $this->checkFixedDiscountItems($cart, $lineItem);
             // remove other discounts of the promotion that should be deleted

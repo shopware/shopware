@@ -24,7 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-class ProductSortingStreamUpdaterTest extends TestCase
+class ProductCustomFieldsUsedUpdaterTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;
     use KernelTestBehaviour;

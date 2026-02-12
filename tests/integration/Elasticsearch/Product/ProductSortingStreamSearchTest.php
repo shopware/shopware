@@ -140,8 +140,6 @@ class ProductSortingStreamSearchTest extends TestCase
             ],
         ], $this->context);
 
-        // Create product sortings referencing custom fields
-        // This triggers ProductSortingStreamUpdater which dynamically adds custom field mappings
         $sortingRepository = static::getContainer()->get('product_sorting.repository');
         $sortingRepository->create([
             [
@@ -166,8 +164,6 @@ class ProductSortingStreamSearchTest extends TestCase
             ],
         ], $this->context);
 
-        // Create product streams with filters referencing custom fields
-        // This also triggers ProductSortingStreamUpdater which adds custom field mappings
         $productStreamRepository = static::getContainer()->get('product_stream.repository');
         $productStreamRepository->create([
             [

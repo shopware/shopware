@@ -120,7 +120,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
         }
 
         $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($results));
-        $uniqueSetIds = array_unique(array_values($fieldSetIds));
+        $uniqueSetIds = array_values(array_unique($fieldSetIds));
         $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings($uniqueSetIds);
         $appOwnedSetIds = $this->customFieldSetGateway->fetchAppOwnedFieldSetIds($uniqueSetIds);
 
@@ -204,7 +204,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
             return;
         }
 
-        $setIds = array_unique(array_values($fieldSetIds));
+        $setIds = array_values(array_unique($fieldSetIds));
         $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings($setIds);
 
         $customFieldsBySet = $this->customFieldSetGateway->fetchCustomFieldsForSets($setIds);

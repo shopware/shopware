@@ -9,50 +9,27 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper;
-use Shopware\Elasticsearch\Product\ProductSortingStreamUpdater;
+use Shopware\Elasticsearch\Product\ProductCustomFieldsUsedUpdater;
 
 /**
  * @internal
  */
-#[CoversClass(ProductSortingStreamUpdater::class)]
-class ProductSortingStreamUpdaterTest extends TestCase
+#[CoversClass(ProductCustomFieldsUsedUpdater::class)]
+class ProductCustomFieldsUsedUpdaterTest extends TestCase
 {
     public function testSubscribedEvents(): void
     {
         static::assertSame([
-            EntityWrittenContainerEvent::class => 'onEntityWritten',
-        ], ProductSortingStreamUpdater::getSubscribedEvents());
+            ProductSortingDefinition::ENTITY_NAME . '.written' => 'productSortingWritten',
+            ProductStreamFilterDefinition::ENTITY_NAME . '.written' => 'productStreamFilterWritten',
+        ], ProductCustomFieldsUsedUpdater::getSubscribedEvents());
     }
 
-    public function testNoActionWhenNoRelevantEvents(): void
-    {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
-        $elasticsearchHelper
-            ->expects($this->never())
-            ->method('allowIndexing');
-
-        $updater = new ProductSortingStreamUpdater(
-            $elasticsearchHelper,
-            $this->createMock(ElasticsearchCustomFieldsMappingHelper::class),
-            $this->createMock(Connection::class)
-        );
-
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection(),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
-    }
-
-    public function testNoActionWhenElasticsearchDisabled(): void
+    public function testProductSortingNoActionWhenElasticsearchDisabled(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
@@ -64,7 +41,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->expects($this->never())
             ->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $this->createMock(Connection::class)
@@ -87,13 +64,39 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
+        $updater->productSortingWritten($event);
+    }
+
+    public function testProductStreamNoActionWhenElasticsearchDisabled(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(false);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->never())
+            ->method('createFieldsInIndices');
+
+        $updater = new ProductCustomFieldsUsedUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $this->createMock(Connection::class)
         );
 
-        $updater->onEntityWritten($containerEvent);
+        $writeResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                ['name' => 'Test Stream'],
+                ProductStreamFilterDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $updater->productStreamFilterWritten($event);
     }
 
     public function testProductSortingWithCustomFieldTriggersIndexing(): void
@@ -107,7 +110,12 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn(['test_field']);
+            ->willReturn([
+                json_encode([
+                    ['field' => 'customFields.test_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ['field' => 'product.name', 'order' => 'asc', 'priority' => 0, 'naturalSorting' => false],
+                ]),
+            ]);
 
         $connection
             ->expects($this->once())
@@ -124,7 +132,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
                 return isset($fields['test_field']) && $fields['test_field']['type'] === 'long';
             }));
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -148,13 +156,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testProductSortingWithoutFieldsInPayloadDoesNotTriggerIndexing(): void
@@ -167,7 +169,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $this->createMock(Connection::class)
@@ -188,13 +190,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testProductStreamFilterWithCustomFieldTriggersIndexing(): void
@@ -204,7 +200,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $filterId = Uuid::randomHex();
+        $productStreamFilterId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
         $connection
@@ -227,7 +223,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
                 return isset($fields['stream_field']) && $fields['stream_field']['type'] === 'keyword';
             }));
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -235,12 +231,8 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $writeResults = [
             new EntityWriteResult(
-                $filterId,
-                [
-                    'field' => 'customFields.stream_field',
-                    'type' => 'equals',
-                    'value' => 'test',
-                ],
+                $productStreamFilterId,
+                ['name' => 'Test Stream Filter'],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_INSERT
             ),
@@ -248,13 +240,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productStreamFilterWritten($event);
     }
 
     public function testMultipleProductStreamFiltersAreProcessed(): void
@@ -264,8 +250,8 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $filterId1 = Uuid::randomHex();
-        $filterId2 = Uuid::randomHex();
+        $productStreamFilterId1 = Uuid::randomHex();
+        $productStreamFilterId2 = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
         $connection
@@ -286,7 +272,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->expects($this->once())
             ->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -294,14 +280,14 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $writeResults = [
             new EntityWriteResult(
-                $filterId1,
-                ['field' => 'customFields.field1', 'type' => 'equals', 'value' => 1],
+                $productStreamFilterId1,
+                ['name' => 'Stream Filter 1'],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_INSERT
             ),
             new EntityWriteResult(
-                $filterId2,
-                ['field' => 'customFields.field2', 'type' => 'contains', 'value' => 'test'],
+                $productStreamFilterId2,
+                ['name' => 'Stream Filter 2'],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_INSERT
             ),
@@ -309,13 +295,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productStreamFilterWritten($event);
     }
 
     public function testNoCustomFieldsInSortingDoesNotTriggerIndexing(): void
@@ -325,13 +305,19 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            $connection
         );
 
         $writeResults = [
@@ -352,13 +338,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testProductStreamFilterWithNoCustomFieldsDoesNotTriggerIndexing(): void
@@ -368,7 +348,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $filterId = Uuid::randomHex();
+        $productStreamFilterId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
         // Returns empty array - no custom fields found
@@ -380,7 +360,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -388,12 +368,8 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $writeResults = [
             new EntityWriteResult(
-                $filterId,
-                [
-                    'field' => 'product.name',
-                    'type' => 'equals',
-                    'value' => 'test',
-                ],
+                $productStreamFilterId,
+                ['name' => 'Test Stream Filter'],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_INSERT
             ),
@@ -401,13 +377,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productStreamFilterWritten($event);
     }
 
     public function testMultipleProductSortingsAreProcessed(): void
@@ -421,7 +391,14 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn(['field1', 'field2']);
+            ->willReturn([
+                json_encode([
+                    ['field' => 'customFields.field1', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                ]),
+                json_encode([
+                    ['field' => 'customFields.field2', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => false],
+                ]),
+            ]);
 
         $connection
             ->expects($this->once())
@@ -440,7 +417,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
                     && isset($fields['field2']) && $fields['field2']['type'] === 'boolean';
             }));
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -475,13 +452,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testProductSortingUpdateOperationTriggersIndexing(): void
@@ -495,7 +466,11 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn(['updated_field']);
+            ->willReturn([
+                json_encode([
+                    ['field' => 'customFields.updated_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                ]),
+            ]);
 
         $connection
             ->expects($this->once())
@@ -512,7 +487,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
                 return isset($fields['updated_field']) && $fields['updated_field']['type'] === 'double';
             }));
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -533,13 +508,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testCustomFieldNotFoundInDatabaseDoesNotTriggerIndexing(): void
@@ -553,7 +522,11 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn(['nonexistent_field']);
+            ->willReturn([
+                json_encode([
+                    ['field' => 'customFields.nonexistent_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                ]),
+            ]);
 
         // Returns empty - custom field not found in database
         $connection
@@ -564,7 +537,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -587,13 +560,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testProductStreamFilterUpdateWithFieldChange(): void
@@ -603,7 +570,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $filterId = Uuid::randomHex();
+        $productStreamFilterId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
         $connection
@@ -627,7 +594,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
                     && $fields['new_filter_field']['type'] === 'date';
             }));
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -635,12 +602,8 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $writeResults = [
             new EntityWriteResult(
-                $filterId,
-                [
-                    'field' => 'customFields.new_filter_field',
-                    'type' => 'range',
-                    'value' => '2024-01-01',
-                ],
+                $productStreamFilterId,
+                ['name' => 'Updated Stream Filter'],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_UPDATE
             ),
@@ -648,26 +611,19 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productStreamFilterWritten($event);
     }
 
-    public function testProductStreamFilterWithoutFieldInPayloadDoesNotQueryDatabase(): void
+    public function testProductStreamWrittenWithNoCustomFieldFilters(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $filterId = Uuid::randomHex();
+        $productStreamFilterId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        // fetchFirstColumn is still called but for filter IDs query
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
@@ -676,20 +632,16 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
         );
 
-        // Payload without 'field' - e.g., only updating value
         $writeResults = [
             new EntityWriteResult(
-                $filterId,
-                [
-                    'type' => 'equals',
-                    'value' => 'updated_value',
-                ],
+                $productStreamFilterId,
+                ['name' => 'Stream Filter without custom fields'],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_UPDATE
             ),
@@ -697,16 +649,10 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productStreamFilterWritten($event);
     }
 
-    public function testBothProductSortingAndStreamFilterInSameEvent(): void
+    public function testProductSortingAndStreamEventsProcessedIndependently(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
@@ -718,7 +664,11 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->expects($this->exactly(2))
             ->method('fetchFirstColumn')
             ->willReturnOnConsecutiveCalls(
-                ['sorting_field'],
+                [
+                    json_encode([
+                        ['field' => 'customFields.sorting_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ]),
+                ],
                 ['filter_field']
             );
 
@@ -733,12 +683,13 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->exactly(2))->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
         );
 
+        // Process product sorting event
         $sortingWriteResults = [
             new EntityWriteResult(
                 Uuid::randomHex(),
@@ -754,29 +705,20 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ),
         ];
 
-        $filterWriteResults = [
+        $sortingEvent = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $sortingWriteResults, Context::createDefaultContext());
+        $updater->productSortingWritten($sortingEvent);
+
+        $results = [
             new EntityWriteResult(
                 Uuid::randomHex(),
-                [
-                    'field' => 'customFields.filter_field',
-                    'type' => 'equals',
-                    'value' => 'test',
-                ],
+                ['name' => 'Stream Filter with custom field'],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_INSERT
             ),
         ];
 
-        $sortingEvent = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $sortingWriteResults, Context::createDefaultContext());
-        $filterEvent = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $filterWriteResults, Context::createDefaultContext());
-
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$sortingEvent, $filterEvent]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $results, Context::createDefaultContext());
+        $updater->productStreamFilterWritten($event);
     }
 
     public function testDuplicateCustomFieldsAreDeduplicatedInSorting(): void
@@ -790,7 +732,12 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn(['same_field', 'same_field']); // DB returns duplicates
+            ->willReturn([
+                json_encode([
+                    ['field' => 'customFields.same_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ['field' => 'customFields.same_field', 'order' => 'desc', 'priority' => 0, 'naturalSorting' => false],
+                ]),
+            ]);
 
         $connection
             ->expects($this->once())
@@ -807,7 +754,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
                 return \count($fields) === 1 && isset($fields['same_field']);
             }));
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -831,13 +778,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testProductSortingWithFieldsTriggersIndexing(): void
@@ -851,7 +792,11 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn(['combined_field']);
+            ->willReturn([
+                json_encode([
+                    ['field' => 'customFields.combined_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                ]),
+            ]);
 
         $connection
             ->expects($this->once())
@@ -868,7 +813,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
                 return isset($fields['combined_field']) && $fields['combined_field']['type'] === 'boolean';
             }));
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -891,13 +836,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testProductSortingDeleteOperationIsProcessed(): void
@@ -910,7 +849,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $this->createMock(Connection::class)
@@ -927,26 +866,20 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
-    public function testProductStreamFilterDeleteOperation(): void
+    public function testProductStreamDeleteOperation(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $filterId = Uuid::randomHex();
+        $productStreamFilterId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        // Still collects filter IDs, but query may return empty for deleted records
+        // Stream deleted, filter query returns empty
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
@@ -955,7 +888,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -963,7 +896,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $writeResults = [
             new EntityWriteResult(
-                $filterId,
+                $productStreamFilterId,
                 [],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_DELETE
@@ -972,13 +905,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productStreamFilterWritten($event);
     }
 
     public function testProductSortingWithEmptyWriteResults(): void
@@ -991,27 +918,18 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $this->createMock(Connection::class)
         );
 
-        // Empty write results
-        $writeResults = [];
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, [], Context::createDefaultContext());
 
-        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
-
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
-    public function testProductStreamFilterWithEmptyWriteResults(): void
+    public function testProductStreamWithEmptyWriteResults(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
@@ -1019,26 +937,17 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->willReturn(true);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
-        $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $this->createMock(Connection::class)
         );
 
-        // Empty write results
-        $writeResults = [];
+        $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, [], Context::createDefaultContext());
 
-        $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
-
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productStreamFilterWritten($event);
     }
 
     public function testProductSortingWithMixedFieldTypes(): void
@@ -1052,7 +961,15 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn(['int_field', 'float_field', 'bool_field', 'datetime_field', 'json_field']);
+            ->willReturn([
+                json_encode([
+                    ['field' => 'customFields.int_field', 'order' => 'asc', 'priority' => 5, 'naturalSorting' => false],
+                    ['field' => 'customFields.float_field', 'order' => 'asc', 'priority' => 4, 'naturalSorting' => false],
+                    ['field' => 'customFields.bool_field', 'order' => 'asc', 'priority' => 3, 'naturalSorting' => false],
+                    ['field' => 'customFields.datetime_field', 'order' => 'asc', 'priority' => 2, 'naturalSorting' => false],
+                    ['field' => 'customFields.json_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                ]),
+            ]);
 
         $connection
             ->expects($this->once())
@@ -1077,7 +994,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
                     && isset($fields['json_field']) && $fields['json_field']['type'] === 'object';
             }));
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -1104,13 +1021,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
     public function testOnlyProductSortingEventWithNoFilters(): void
@@ -1124,7 +1035,11 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn(['sorting_only_field']);
+            ->willReturn([
+                json_encode([
+                    ['field' => 'customFields.sorting_only_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                ]),
+            ]);
 
         $connection
             ->expects($this->once())
@@ -1138,7 +1053,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->expects($this->once())
             ->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -1161,24 +1076,17 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        // Only product sorting event, no stream filter event
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productSortingWritten($event);
     }
 
-    public function testOnlyProductStreamFilterEventWithNoSorting(): void
+    public function testOnlyProductStreamEventWithNoSorting(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $filterId = Uuid::randomHex();
+        $productStreamFilterId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
         $connection
@@ -1198,7 +1106,7 @@ class ProductSortingStreamUpdaterTest extends TestCase
             ->expects($this->once())
             ->method('createFieldsInIndices');
 
-        $updater = new ProductSortingStreamUpdater(
+        $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
             $connection
@@ -1206,12 +1114,8 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $writeResults = [
             new EntityWriteResult(
-                $filterId,
-                [
-                    'field' => 'customFields.filter_only_field',
-                    'type' => 'equals',
-                    'value' => 123,
-                ],
+                $productStreamFilterId,
+                ['name' => 'Filter only stream filter'],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_INSERT
             ),
@@ -1219,13 +1123,6 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        // Only stream filter event, no product sorting event
-        $containerEvent = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([$event]),
-            []
-        );
-
-        $updater->onEntityWritten($containerEvent);
+        $updater->productStreamFilterWritten($event);
     }
 }

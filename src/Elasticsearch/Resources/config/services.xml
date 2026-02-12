@@ -279,7 +279,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Product\CustomFieldSetGateway"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Product\ProductSortingStreamUpdater">
+        <service id="Shopware\Elasticsearch\Product\ProductCustomFieldsUsedUpdater">
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

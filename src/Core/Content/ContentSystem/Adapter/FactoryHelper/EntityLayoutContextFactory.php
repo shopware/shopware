@@ -2,17 +2,16 @@
 
 namespace Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper;
 
-use Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
-use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutCollection;
-use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\SpecificationData;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -46,7 +45,7 @@ class EntityLayoutContextFactory
     }
 
     /**
-     * @param EntityRepository<ProductContentLayoutCollection|CategoryContentLayoutCollection|LandingPageContentLayoutCollection> $repository
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
      */
     public function resolveLayoutId(
         string $path,
@@ -75,7 +74,7 @@ class EntityLayoutContextFactory
     }
 
     /**
-     * @param EntityRepository<ProductContentLayoutCollection|CategoryContentLayoutCollection|LandingPageContentLayoutCollection> $repository
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
      */
     public function resolveSpecificationData(
         string $path,

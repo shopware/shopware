@@ -42,12 +42,12 @@ class ProductSpecificationSource extends AbstractSpecificationSource
 
     public function resolveLayoutId(string $path, Request $request, SalesChannelContext $context): string
     {
-        return $this->contextFactory->resolveLayoutId($path, $context, $this->repository, $this->definition); // @phpstan-ignore-line argument.type
+        return $this->contextFactory->resolveLayoutId($path, $context, $this->repository, $this->definition);
     }
 
     public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
     {
-        return $this->contextFactory->resolveSpecificationData($path, $request, $context, $this->repository, $this->definition); // @phpstan-ignore-line argument.type
+        return $this->contextFactory->resolveSpecificationData($path, $request, $context, $this->repository, $this->definition);
     }
 
     public function resolveTargetElementId(string $path, Request $request, SalesChannelContext $context): ?string

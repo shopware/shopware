@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeBasedEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
@@ -149,21 +147,21 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         foreach ($taggedServiceIds as $serviceId => $tags) {
             $service = $container->getDefinition($serviceId);
 
-            /** @var string $class */
+            /** @var class-string<EntityDefinition> $class */
             $class = $service->getClass();
 
-            if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
-                if (empty($service->getArguments())) {
+            // Attribute entities store entity name in tag, avoiding metadata reconstruction
+            if (is_a($class, AttributeBasedEntityDefinition::class, true)) {
+                if (!isset($tags[0]['entity'])) {
                     continue;
                 }
 
-                $instance = new $class($service->getArguments()[0]);
+                $entityName = $tags[0]['entity'];
             } else {
                 $instance = new $class();
+                $entityName = $instance->getEntityName();
             }
 
-            /** @var EntityDefinition $instance */
-            $entityName = $instance->getEntityName();
             $result[$serviceId]['entityName'] = $entityName;
 
             if (isset($tags[0]['entity'])) {

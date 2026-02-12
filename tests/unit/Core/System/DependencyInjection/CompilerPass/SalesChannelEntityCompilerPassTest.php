@@ -7,8 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -81,13 +85,28 @@ class SalesChannelEntityCompilerPassTest extends TestCase
     {
         $container = $this->getContainerBuilder();
 
+        $meta = new EntityMetadata(
+            entityName: 'test_attribute_entity',
+            entityClass: Entity::class,
+            collectionClass: EntityCollection::class,
+            hydratorClass: EntityHydrator::class,
+            fields: [],
+        );
+
+        $metaDefinition = new Definition(EntityMetadata::class, [
+            $meta->entityName,
+            $meta->entityClass,
+            $meta->collectionClass,
+            $meta->hydratorClass,
+            $meta->fields,
+            $meta->since,
+            $meta->parent,
+        ]);
+
         $attributeDefinition = new Definition(AttributeEntityDefinition::class);
         $attributeDefinition->setPublic(true);
-        $attributeDefinition->addTag('shopware.entity.definition');
-        $attributeDefinition->addArgument([
-            'entity_name' => 'test_attribute_entity',
-            'fields' => [],
-        ]);
+        $attributeDefinition->addTag('shopware.entity.definition', ['entity' => 'test_attribute_entity']);
+        $attributeDefinition->addArgument($metaDefinition);
         $container->setDefinition('test_attribute_entity.definition', $attributeDefinition);
 
         $extension = new Definition(AttributeEntityExtension::class);

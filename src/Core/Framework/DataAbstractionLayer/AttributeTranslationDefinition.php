@@ -2,55 +2,57 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * @internal
+ *
+ * @final
+ */
 #[Package('framework')]
-class AttributeTranslationDefinition extends EntityTranslationDefinition
+class AttributeTranslationDefinition extends EntityTranslationDefinition implements AttributeBasedEntityDefinition
 {
-    /**
-     * @param array<string, mixed> $meta
-     */
-    public function __construct(private readonly array $meta = [])
+    private readonly CamelCaseToSnakeCaseNameConverter $converter;
+
+    public function __construct(private readonly EntityMetadata $meta)
     {
+        $this->converter = new CamelCaseToSnakeCaseNameConverter();
     }
 
     public function getEntityName(): string
     {
-        return $this->meta['entity_name'] . '_translation';
+        return $this->meta->entityName . '_translation';
     }
 
     protected function getParentDefinitionClass(): string
     {
-        return $this->meta['entity_name'];
+        return $this->meta->entityName;
     }
 
     protected function defineFields(): FieldCollection
     {
         $fields = [];
-        foreach ($this->meta['fields'] as $field) {
-            if (!isset($field['class'])) {
-                continue;
-            }
-            if (!$field['translated']) {
-                continue;
-            }
 
-            $instance = new $field['class'](...$field['args']);
-            if (!$instance instanceof Field) {
+        foreach ($this->meta->fields as $fieldMeta) {
+            if (!$fieldMeta->attribute->translated) {
                 continue;
             }
 
-            foreach ($field['flags'] ?? [] as $flag) {
-                $flagInstance = new $flag['class'](...$flag['args'] ?? []);
+            $column = $this->converter->normalize($fieldMeta->propertyName);
 
-                if ($flagInstance instanceof Flag) {
-                    $instance->addFlags($flagInstance);
-                }
+            $field = $fieldMeta->attribute->createField(
+                $fieldMeta->propertyName,
+                $column,
+                $fieldMeta->entityName,
+                $fieldMeta->propertyType,
+            );
+
+            foreach ($fieldMeta->flags as $flagMeta) {
+                $field->addFlags($flagMeta->createFlag());
             }
 
-            $fields[] = $instance;
+            $fields[] = $field;
         }
 
         return new FieldCollection($fields);

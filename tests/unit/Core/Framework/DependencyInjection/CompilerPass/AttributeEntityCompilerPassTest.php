@@ -53,6 +53,27 @@ class AttributeEntityCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition('customer_test_attribute_entity.definition'));
         static::assertTrue($container->getDefinition('customer_test_attribute_entity.definition')->hasTag('shopware.entity.definition'));
     }
+
+    public function testSkipsEntityWithoutAttributeEntity(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(DefinitionInstanceRegistry::class, new Definition(DefinitionInstanceRegistry::class));
+        $container->setDefinition(SalesChannelDefinitionInstanceRegistry::class, new Definition(SalesChannelDefinitionInstanceRegistry::class));
+
+        $nonAttributeEntity = new Definition(EntityStruct::class);
+        $nonAttributeEntity->setPublic(true);
+        $nonAttributeEntity->addTag('shopware.entity');
+        $container->setDefinition(EntityStruct::class, $nonAttributeEntity);
+
+        $compiler = new AttributeEntityCompiler();
+        $compilerPass = new AttributeEntityCompilerPass($compiler);
+        $compilerPass->process($container);
+
+        $definitionIds = array_keys($container->getDefinitions());
+        $entityDefinitions = array_filter($definitionIds, fn (string $id) => str_ends_with($id, '.definition'));
+
+        static::assertSame([], $entityDefinitions);
+    }
 }
 
 /**

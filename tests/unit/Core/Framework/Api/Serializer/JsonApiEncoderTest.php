@@ -9,12 +9,20 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\Api\Serializer\_fixtures\TestAttributeEntity;
@@ -72,43 +80,38 @@ class JsonApiEncoderTest extends TestCase
 
     private function getAttributeEntityDefinition(): AttributeEntityDefinition
     {
-        $meta = [
-            'entity_name' => 'test_attribute_entity',
-            'fields' => [
-                [
-                    'type' => 'uuid',
-                    'name' => 'id',
-                    'class' => IdField::class,
-                    'flags' => [],
-                    'translated' => false,
-                    'args' => ['id', 'id'],
-                ],
-                [
-                    'type' => 'fk',
-                    'name' => 'customerId',
-                    'class' => FkField::class,
-                    'flags' => [],
-                    'translated' => false,
-                    'args' => ['customer_id', 'customerId', 'customer'],
-                ],
-                [
-                    'type' => 'many-to-one',
-                    'name' => 'customer',
-                    'class' => ManyToOneAssociationField::class,
-                    'flags' => [],
-                    'translated' => false,
-                    'args' => ['customer', 'customer_id', 'customer', 'id'],
-                ],
-                [
-                    'type' => 'many-to-many',
-                    'name' => 'products',
-                    'class' => ManyToManyAssociationField::class,
-                    'flags' => [],
-                    'translated' => false,
-                    'args' => ['products', 'product', 'test_attribute_entity_product', 'test_attribute_entity_id', 'product_id'],
-                ],
+        $meta = new EntityMetadata(
+            entityName: 'test_attribute_entity',
+            entityClass: TestAttributeEntity::class,
+            collectionClass: EntityCollection::class,
+            hydratorClass: EntityHydrator::class,
+            fields: [
+                new FieldMetadata(
+                    fieldClass: IdField::class,
+                    propertyName: 'id',
+                    attribute: new Field(type: 'uuid'),
+                    entityName: 'test_attribute_entity',
+                ),
+                new FieldMetadata(
+                    fieldClass: FkField::class,
+                    propertyName: 'customerId',
+                    attribute: new ForeignKey(entity: 'customer', column: 'customer_id'),
+                    entityName: 'test_attribute_entity',
+                ),
+                new FieldMetadata(
+                    fieldClass: ManyToOneAssociationField::class,
+                    propertyName: 'customer',
+                    attribute: new ManyToOne(entity: 'customer', column: 'customer'),
+                    entityName: 'test_attribute_entity',
+                ),
+                new FieldMetadata(
+                    fieldClass: ManyToManyAssociationField::class,
+                    propertyName: 'products',
+                    attribute: new ManyToMany(entity: 'product', mapping: 'test_attribute_entity_product'),
+                    entityName: 'test_attribute_entity',
+                ),
             ],
-        ];
+        );
 
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
 

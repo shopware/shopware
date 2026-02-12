@@ -13,6 +13,7 @@ class DependencyInjectionException extends HttpException
     public const BUNDLES_METADATA_IS_NOT_AN_ARRAY = 'FRAMEWORK__BUNDLES_METADATA_IS_NOT_AN_ARRAY';
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
     public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
+    public const ATTRIBUTE_ENTITY_MISSING_ENTITY_TAG = 'FRAMEWORK__ATTRIBUTE_ENTITY_MISSING_ENTITY_TAG';
 
     public static function projectDirNotInContainer(): self
     {
@@ -47,6 +48,19 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PARAMETER_HAS_WRONG_TYPE,
             \sprintf('Parameter "%s" should be: "%s". Got: "%s"', $parameter, $expectedType, $actualType)
+        );
+    }
+
+    public static function attributeEntityDefinitionMissingEntityTag(string $serviceId, string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ATTRIBUTE_ENTITY_MISSING_ENTITY_TAG,
+            \sprintf(
+                'Service "%s" implements AttributeBasedEntityDefinition but is missing the "entity" attribute on its "shopware.entity.definition" tag. Class: %s',
+                $serviceId,
+                $class
+            )
         );
     }
 }

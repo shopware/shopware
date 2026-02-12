@@ -57,7 +57,6 @@ class NoUnserializeUsageRule implements Rule
             RuleErrorBuilder::message(\sprintf(self::ERROR_MESSAGE, $className))
                 ->identifier(self::RULE_IDENTIFIER)
                 ->tip(self::ERROR_TIP)
-                ->nonIgnorable()
                 ->build(),
         ];
     }

@@ -187,17 +187,23 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
     public function config(Context $context, Request $request): JsonResponse
     {
+        $adminWorker = [
+            'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
+            'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
+            'transports' => $this->params->get('shopware.admin_worker.transports'),
+        ];
+
+        // @deprecated tag:v6.8.0 - enableQueueStatsWorker will be removed. The increment-based message queue statistics are deprecated.
+        if (!Feature::isActive('v6.8.0.0')) {
+            $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
+        }
+
         return new JsonResponse([
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
             'appUrl' => (string) EnvironmentHelper::getVariable('APP_URL'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
-            'adminWorker' => [
-                'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
-                'enableQueueStatsWorker' => $this->params->get('shopware.admin_worker.enable_queue_stats_worker'),
-                'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
-                'transports' => $this->params->get('shopware.admin_worker.transports'),
-            ],
+            'adminWorker' => $adminWorker,
             'bundles' => $this->getBundles(),
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),

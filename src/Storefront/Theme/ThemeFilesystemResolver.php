@@ -38,7 +38,6 @@ class ThemeFilesystemResolver
     {
         $technicalName = $configuration->getTechnicalName();
 
-        // Check if it's a known bundle (exact match)
         if (\in_array($technicalName, $this->bundleNames, true)) {
             try {
                 $bundle = $this->kernel->getBundle($technicalName);
@@ -56,32 +55,6 @@ class ThemeFilesystemResolver
             return new Filesystem($bundle->getPath());
         }
 
-        // Check if it's a multi-theme variant (e.g., "StorefrontExperience" from "Storefront" bundle)
-        foreach ($this->bundleNames as $bundleName) {
-            if (str_starts_with($technicalName, $bundleName)) {
-                try {
-                    $bundle = $this->kernel->getBundle($bundleName);
-                    \assert($bundle instanceof BundleInterface);
-
-                    return new Filesystem($bundle->getPath());
-                } catch (\InvalidArgumentException) {
-                    // Try plugin loader
-                    $bundles = $this->kernel->getPluginLoader()
-                        ->getPluginInstances()
-                        ->filter(fn (Plugin $plugin) => $plugin->getName() === $bundleName)
-                        ->all();
-
-                    if (!empty($bundles)) {
-                        $bundle = array_values($bundles)[0];
-                        \assert($bundle instanceof BundleInterface);
-
-                        return new Filesystem($bundle->getPath());
-                    }
-                }
-            }
-        }
-
-        // Fallback: it's an app
         return $this->sourceResolver->filesystemForAppName($technicalName);
     }
 }

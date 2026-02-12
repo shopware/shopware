@@ -31,16 +31,8 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @return StorefrontPluginConfiguration|array<StorefrontPluginConfiguration>
-     */
-    public function createFromBundle(Bundle $bundle): StorefrontPluginConfiguration|array
+    public function createFromBundle(Bundle $bundle): StorefrontPluginConfiguration
     {
-        // Special handling for Storefront bundle to support multiple themes
-        if ($bundle->getName() === 'Storefront' && $bundle instanceof ThemeInterface) {
-            return $this->createMultipleThemeConfigs($bundle->getName(), $bundle->getPath());
-        }
-
         if ($bundle instanceof ThemeInterface) {
             return $this->createThemeConfig($bundle->getName(), $bundle->getPath());
         }
@@ -294,66 +286,4 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $config->setBaseStyleFiles($fileCollection);
     }
 
-    /**
-     * Creates multiple theme configurations for bundles that support it.
-     * Currently only used for the base Storefront bundle to support multiple default themes.
-     *
-     * @return array<StorefrontPluginConfiguration>
-     */
-    private function createMultipleThemeConfigs(string $bundleName, string $bundlePath): array
-    {
-        $configs = [];
-        $resourcesPath = $bundlePath . '/Resources';
-
-        if (!is_dir($resourcesPath)) {
-            return [$this->createThemeConfig($bundleName, $bundlePath)];
-        }
-
-        // Look for theme*.json files
-        $finder = new Finder();
-        $finder->files()->name('theme*.json')->in($resourcesPath)->depth('== 0')->sortByName();
-
-        foreach ($finder as $file) {
-            $filename = $file->getFilename();
-
-            // Extract theme name from filename
-            // theme.json -> Storefront (base theme)
-            // theme-experience.json -> StorefrontExperience
-            $technicalName = $bundleName;
-            $themeSuffix = '';
-
-            if (preg_match('/^theme-(.+)\.json$/', $filename, $matches)) {
-                $themeSuffix = str_replace(['-', '_'], '', ucwords($matches[1], '-_'));
-                $technicalName = $bundleName . $themeSuffix;
-            }
-
-            $themeJsonPath = $file->getPathname();
-
-            try {
-                $fileContent = file_get_contents($themeJsonPath);
-                if ($fileContent === false) {
-                    continue;
-                }
-
-                /** @var array<string, mixed> $data */
-                $data = json_decode($fileContent, true);
-                if (json_last_error() !== \JSON_ERROR_NONE) {
-                    continue;
-                }
-
-                $config = $this->createFromThemeJson($technicalName, $data, $bundlePath);
-                $configs[] = $config;
-            } catch (\Throwable) {
-                // Skip themes that fail to load
-                continue;
-            }
-        }
-
-        // Fallback to single theme if no themes found
-        if (empty($configs)) {
-            $configs[] = $this->createThemeConfig($bundleName, $bundlePath);
-        }
-
-        return $configs;
-    }
 }

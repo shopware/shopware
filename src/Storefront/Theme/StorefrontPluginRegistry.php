@@ -78,16 +78,8 @@ class StorefrontPluginRegistry implements ResetInterface
                 continue;
             }
 
-            $configOrConfigs = $this->pluginConfigurationFactory->createFromBundle($bundle);
-
-            // Handle both single config and array of configs (for multi-theme bundles like Storefront)
-            if (\is_array($configOrConfigs)) {
-                foreach ($configOrConfigs as $config) {
-                    $this->pluginConfigurations === null ?: $this->pluginConfigurations->add($config);
-                }
-            } else {
-                $this->pluginConfigurations === null ?: $this->pluginConfigurations->add($configOrConfigs);
-            }
+            $config = $this->pluginConfigurationFactory->createFromBundle($bundle);
+            $this->pluginConfigurations === null ?: $this->pluginConfigurations->add($config);
         }
     }
 
@@ -111,42 +103,8 @@ class StorefrontPluginRegistry implements ResetInterface
                 continue;
             }
 
-            // Direct bundle name match
             if ($bundle->getName() === $technicalName) {
-                $config = $this->pluginConfigurationFactory->createFromBundle($bundle);
-                
-                // If it's a single config, return it
-                if (!is_array($config)) {
-                    return $config;
-                }
-                
-                // If it's an array, find the one with matching technical name
-                foreach ($config as $singleConfig) {
-                    if ($singleConfig->getTechnicalName() === $technicalName) {
-                        return $singleConfig;
-                    }
-                }
-                
-                // Return first one as fallback
-                return $config[0] ?? null;
-            }
-
-            // Check if this technical name belongs to a multi-theme bundle
-            // For example: "StorefrontExperience" should match bundle "Storefront"
-            if (str_starts_with($technicalName, $bundle->getName())) {
-                $configOrConfigs = $this->pluginConfigurationFactory->createFromBundle($bundle);
-                
-                // If it's a single config, it doesn't match
-                if (!is_array($configOrConfigs)) {
-                    continue;
-                }
-                
-                // Search through all configs for matching technical name
-                foreach ($configOrConfigs as $config) {
-                    if ($config->getTechnicalName() === $technicalName) {
-                        return $config;
-                    }
-                }
+                return $this->pluginConfigurationFactory->createFromBundle($bundle);
             }
         }
 

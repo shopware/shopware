@@ -598,9 +598,7 @@ PHP_EOL;
     ): array {
         $componentStyleCopyFiles = [];
         // The variables from the core Storefront are always added, so components can access them.
-        // Determine which theme directory to use based on the theme being compiled
-        $themeDirectory = $themeConfig->getTechnicalName() === 'StorefrontExperience' ? 'scss-experience' : 'scss-default';
-        $variablesFilePath = __DIR__ . '/../Resources/app/storefront/src/' . $themeDirectory . '/variables.scss';
+        $variablesFilePath = __DIR__ . '/../Resources/app/storefront/src/scss/variables.scss';
 
         // Resolve the vendor path from the core Storefront.
         $resolveMapping = [

@@ -8,12 +8,12 @@
   "previewMedia": "app/storefront/dist/assets/defaultThemePreview.jpg",
   "style": [
     {
-      "app/storefront/src/scss-default/base.scss": {
+      "app/storefront/src/scss/base.scss": {
         "resolve": {
           "vendor": "app/storefront/vendor"
         }
       },
-      "app/storefront/src/scss-default/skin/shopware/_base.scss": {
+      "app/storefront/src/scss/skin/shopware/_base.scss": {
         "resolve": {
           "vendor": "app/storefront/vendor"
         }
@@ -24,7 +24,7 @@
   ],
   "baseStyles": [
     {
-      "app/storefront/src/scss-default/base.minimal.scss": {
+      "app/storefront/src/scss/base.minimal.scss": {
         "resolve": {
           "vendor": "app/storefront/vendor"
         }

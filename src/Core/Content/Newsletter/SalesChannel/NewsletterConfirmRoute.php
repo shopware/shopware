@@ -57,6 +57,16 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
      */
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                self::class,
+                __FUNCTION__,
+                'v6.8.0.0',
+                'confirmWithResponse()'
+            )
+        );
+
         $response = $this->confirmWithResponse($dataBag, $context);
 
         if (!Feature::isActive('v6.8.0.0')) {

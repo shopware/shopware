@@ -55,6 +55,16 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
      */
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                self::class,
+                __FUNCTION__,
+                'v6.8.0.0',
+                'unsubscribeWithResponse()'
+            )
+        );
+
         $response = $this->unsubscribeWithResponse($dataBag, $context);
 
         if (!Feature::isActive('v6.8.0.0')) {

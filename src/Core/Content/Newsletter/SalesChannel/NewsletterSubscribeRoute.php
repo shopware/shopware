@@ -108,6 +108,16 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): StoreApiResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                self::class,
+                __FUNCTION__,
+                'v6.8.0.0',
+                'subscribeWithResponse()'
+            )
+        );
+
         $response = $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
 
         if (!Feature::isActive('v6.8.0.0')) {

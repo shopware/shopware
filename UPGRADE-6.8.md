@@ -41,14 +41,6 @@ The following methods are now abstract and must be implemented by extensions. Th
 - `confirmWithResponse()` returns `SuccessResponse`
 - `unsubscribeWithResponse()` returns `SuccessResponse`
 
-The Store API newsletter routes return `200 OK` with a response body instead of `204 No Content` (changed in v6.7):
-
-| Route | Response |
-|-------|----------|
-| `/store-api/newsletter/subscribe` | `{"status": "notSet\|optIn\|optOut\|direct"}` |
-| `/store-api/newsletter/confirm` | `{"success": true}` |
-| `/store-api/newsletter/unsubscribe` | `{"success": true}` |
-
 # Core
 
 <details>

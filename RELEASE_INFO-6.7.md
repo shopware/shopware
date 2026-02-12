@@ -42,7 +42,25 @@ The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
 They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
 Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
 
+### Primary key validation in `dal:validate` command
+
+The `dal:validate` command now includes validation to detect mismatches between database PRIMARY KEY constraints and entity definition PrimaryKey flags.
+This validation prevents silent failures where queries return correct `total` counts but empty `data` arrays due to entity hydration failures caused by inconsistent primary key definitions.
+When a mismatch is detected, the command provides a clear error message indicating which fields differ between the database schema and the entity definition.
+
+### Deprecation of default value for `serializer` in `#[Serialized]` field attribute
+
+When you use `#[Serialized]` field in your attribute entity you should always pass the serializer explicitly, as the default serializer does not work as expected.
+Additionally, the `SerializerField` will become internal in the next major release, as that field should be only used for attribute entities, but never directly in classic `EntityDefinitions`.
+
 ## Administration
+
+### Product detail variants: `configSettingGroups` as computed and deprecations
+
+In `sw-product-detail-variants`, the following changes were made:
+
+* **`configSettingGroups`** (now computed): Previously a `data()` property set by `loadConfigSettingGroups()`. It is now a computed property derived from `productEntity.configuratorSettings` and `groups`.
+* **`loadConfigSettingGroups()`** (deprecated): Marked as `@deprecated tag:v6.8.0`. It will be removed in 6.8.0 without replacement.
 
 ### Deprecation of `items` prop in `sw-entity-listing` component
 
@@ -95,6 +113,17 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 * Display the selling and packaging information with the product that has advanced pricing.
 * Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
+### Default theme breakpoints now available in theme config
+
+The default layout breakpoints in the Storefront were hard-coded before and couldn't easily be overriden. Now you will find new theme config fields in the default config, which serve as the default values. The fields are hidden in the visual configuration, so they serve as a feature for theme developers for now. You can override the following config fields in your custom `theme.json` file to change the default breakpoints. The fields are mapped to the existing hard-coded configuration. The configuration is only passed in Twig and JS currently and there is no direct usage in SCSS, as they represent the Bootstrap default breakpoints. If you want to make a full override, you can simply configure the Bootstrap breakpoints in your custom SCSS and use the theme config values for that.
+
+*  `sw-breakpoint-xs`
+*  `sw-breakpoint-sm`
+*  `sw-breakpoint-md`
+*  `sw-breakpoint-lg`
+*  `sw-breakpoint-xl`
+*  `sw-breakpoint-xxl`
+
 ### Make static alerts announced in the screenreader
 
 Static alert boxes that are rendered in the DOM on page load were previously not read out by screenreaders.
@@ -121,6 +150,18 @@ This is done by changing the DOM within the `aria-live` region after a short del
 Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
 
 ## Hosting & Configuration
+
+### Configurable Elasticsearch shard and replica counts
+
+The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
+
+For the Storefront/Store API Elasticsearch:
+- `SHOPWARE_ES_NUMBER_OF_SHARDS` (default: empty, meaning Elasticsearch default)
+- `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
+
+For the Admin Elasticsearch:
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
 
 ## Critical Fixes
 

@@ -160,6 +160,24 @@ describe('sw-theme-manager-detail', () => {
         expect(wrapper.vm.isDerived).toBe(true);
     });
 
+    it('should keep default tab first without reordering other tabs', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.structuredThemeFields = {
+            tabs: {
+                layout: { labelSnippetKey: 'layout' },
+                advanced: { labelSnippetKey: 'advanced' },
+                default: { labelSnippetKey: 'default' },
+            },
+        };
+
+        expect(Object.keys(wrapper.vm.orderedTabs)).toEqual([
+            'default',
+            'layout',
+            'advanced',
+        ]);
+    });
+
     it('sanitizes CSS values', async () => {
         const wrapper = await createWrapper();
 

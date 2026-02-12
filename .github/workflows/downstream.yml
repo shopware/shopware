@@ -75,6 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: sts
+        continue-on-error: true
         uses: shopware/octo-sts-action@main
         with:
           scope: shopware

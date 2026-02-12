@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
 #[Package('inventory')]
 final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
@@ -30,6 +32,7 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
         private readonly Connection $connection,
         private readonly IteratorFactory $factory,
         private readonly EntityRepository $repository,
+        private readonly ElasticsearchFieldBuilder $fieldBuilder,
         private readonly int $indexingBatchSize
     ) {
     }
@@ -59,23 +62,48 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
      */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
-        $ids = [];
+        $categoryIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
+            'active',
+            'visible',
+            'type',
+        ]);
 
-        $translations = $event->getPrimaryKeysWithPropertyChange(CategoryTranslationDefinition::ENTITY_NAME, [
+        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
+        $multiplePrimaryKeyWrittenEvent = $event;
+        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CategoryTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 
-        $tags = $event->getPrimaryKeysWithPropertyChange(CategoryTagDefinition::ENTITY_NAME, [
+        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CategoryTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
         foreach (array_merge($translations, $tags) as $pks) {
             if (isset($pks['categoryId'])) {
-                $ids[] = $pks['categoryId'];
+                $categoryIds[] = $pks['categoryId'];
             }
         }
 
-        return \array_values(\array_unique($ids));
+        return \array_values(\array_unique($categoryIds));
+    }
+
+    public function mapping(array $mapping): array
+    {
+        $languageFields = $this->fieldBuilder->translated(AbstractElasticsearchDefinition::KEYWORD_FIELD);
+
+        $override = [
+            'active' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
+            'visible' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
+            'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'name' => $languageFields,
+            'createdAt' => ElasticsearchFieldBuilder::datetime(),
+            'tags' => ElasticsearchFieldBuilder::nested(),
+        ];
+
+        $mapping['properties'] ??= [];
+        $mapping['properties'] = array_merge($mapping['properties'], $override);
+
+        return $mapping;
     }
 
     public function globalData(array $result, Context $context): array
@@ -88,13 +116,25 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
         ];
     }
 
+    /**
+     * @return array<string, array{id:string, text:string}>
+     */
     public function fetch(array $ids): array
     {
         $data = $this->connection->fetchAllAssociative(
-            '
+            <<<'SQL'
             SELECT LOWER(HEX(category.id)) as id,
                    GROUP_CONCAT(DISTINCT category_translation.name SEPARATOR " ") as name,
-                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags
+                   JSON_ARRAYAGG(JSON_OBJECT(
+                       'languageId', LOWER(HEX(category_translation.language_id)),
+                       'name', category_translation.name
+                   )) as translatedNames,
+                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
+                   GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
+                   category.active AS active,
+                   category.visible AS visible,
+                   category.type AS type,
+                   category.created_at as createdAt
             FROM category
                 INNER JOIN category_translation
                     ON category_translation.category_id = category.id
@@ -104,7 +144,7 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
                     ON category_tag.tag_id = tag.id
             WHERE category.id IN (:ids)
             GROUP BY category.id
-            ',
+SQL,
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
@@ -116,8 +156,19 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
         $mapped = [];
         foreach ($data as $row) {
             $id = (string) $row['id'];
-            $text = \implode(' ', array_filter(array_unique(array_values($row))));
-            $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
+            $text = \implode(' ', array_filter([$row['name'] ?? '', $row['tags'] ?? '', $id]));
+            $translatedNames = $this->decodeTranslatedValues((string) $row['translatedNames']);
+
+            $mapped[$id] = [
+                'id' => $id,
+                'text' => \strtolower($text),
+                'name' => $translatedNames,
+                'active' => (bool) $row['active'],
+                'visible' => (bool) $row['visible'],
+                'type' => $row['type'] ?? null,
+                'tags' => $this->parseTagIds($row),
+                'createdAt' => $this->formatDateTime($row, 'createdAt'),
+            ];
         }
 
         return $mapped;

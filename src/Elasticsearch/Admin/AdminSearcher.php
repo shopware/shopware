@@ -28,8 +28,6 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 #[Package('inventory')]
 class AdminSearcher
 {
-    public const LOADED_BY_OPENSEARCH = 'loaded-by-opensearch';
-
     public function __construct(
         private readonly Client $client,
         private readonly AdminSearchRegistry $registry,

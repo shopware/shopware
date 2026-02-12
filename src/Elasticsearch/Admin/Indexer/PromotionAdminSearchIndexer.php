@@ -16,12 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
-/**
- * @final
- */
 #[Package('inventory')]
-class PromotionAdminSearchIndexer extends AbstractAdminIndexer
+final class PromotionAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
      * @internal
@@ -32,6 +31,7 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
         private readonly Connection $connection,
         private readonly IteratorFactory $factory,
         private readonly EntityRepository $repository,
+        private readonly ElasticsearchFieldBuilder $fieldBuilder,
         private readonly int $indexingBatchSize
     ) {
     }
@@ -56,24 +56,45 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
-    /**
-     * @param EntityWrittenContainerEvent<covariant array<string, string>> $event Translation definitions have multiple primary keys
-     */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
-        $ids = [];
+        $promotionIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
+            'active',
+            'validFrom',
+            'validUntil',
+        ]);
 
-        $translations = $event->getPrimaryKeysWithPropertyChange(PromotionTranslationDefinition::ENTITY_NAME, [
+        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
+        $multiplePrimaryKeyWrittenEvent = $event;
+        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(PromotionTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 
         foreach ($translations as $pks) {
             if (isset($pks['promotionId'])) {
-                $ids[] = $pks['promotionId'];
+                $promotionIds[] = $pks['promotionId'];
             }
         }
 
-        return \array_values(\array_unique($ids));
+        return \array_values(\array_unique($promotionIds));
+    }
+
+    public function mapping(array $mapping): array
+    {
+        $languageFields = $this->fieldBuilder->translated(AbstractElasticsearchDefinition::KEYWORD_FIELD);
+
+        $override = [
+            'active' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
+            'name' => $languageFields,
+            'validFrom' => ElasticsearchFieldBuilder::datetime(),
+            'validUntil' => ElasticsearchFieldBuilder::datetime(),
+            'createdAt' => ElasticsearchFieldBuilder::datetime(),
+        ];
+
+        $mapping['properties'] ??= [];
+        $mapping['properties'] = array_merge($mapping['properties'], $override);
+
+        return $mapping;
     }
 
     public function globalData(array $result, Context $context): array
@@ -86,18 +107,29 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
         ];
     }
 
+    /**
+     * @return array<string, array{id:string, text:string}>
+     */
     public function fetch(array $ids): array
     {
         $data = $this->connection->fetchAllAssociative(
-            '
+            <<<'SQL'
             SELECT LOWER(HEX(promotion.id)) as id,
-                   GROUP_CONCAT(DISTINCT promotion_translation.name SEPARATOR " ") as name
+                   GROUP_CONCAT(DISTINCT promotion_translation.name SEPARATOR " ") as name,
+                   JSON_ARRAYAGG(JSON_OBJECT(
+                       'languageId', LOWER(HEX(promotion_translation.language_id)),
+                       'name', promotion_translation.name
+                   )) as translatedNames,
+                   promotion.active AS active,
+                   promotion.valid_from AS validFrom,
+                   promotion.valid_until AS validUntil,
+                   promotion.created_at as createdAt
             FROM promotion
                 INNER JOIN promotion_translation
                     ON promotion.id = promotion_translation.promotion_id
             WHERE promotion.id IN (:ids)
             GROUP BY promotion.id
-        ',
+SQL,
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
@@ -109,8 +141,18 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
         $mapped = [];
         foreach ($data as $row) {
             $id = (string) $row['id'];
-            $text = \implode(' ', array_filter($row));
-            $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
+            $text = \implode(' ', array_filter([$row['name'] ?? '', $id]));
+            $translatedNames = $this->decodeTranslatedValues((string) $row['translatedNames']);
+
+            $mapped[$id] = [
+                'id' => $id,
+                'text' => \strtolower($text),
+                'name' => $translatedNames,
+                'active' => (bool) $row['active'],
+                'validFrom' => $this->formatDateTime($row, 'validFrom'),
+                'validUntil' => $this->formatDateTime($row, 'validUntil'),
+                'createdAt' => $this->formatDateTime($row, 'createdAt'),
+            ];
         }
 
         return $mapped;

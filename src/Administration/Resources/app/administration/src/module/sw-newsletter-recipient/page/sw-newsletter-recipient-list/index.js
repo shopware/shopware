@@ -3,6 +3,7 @@ import './sw-newsletter-recipient-list.scss';
 
 const {
     Mixin,
+    Context,
     Data: { Criteria },
 } = Shopware;
 
@@ -93,6 +94,10 @@ export default {
                 { value: 'optOut', label: this.$t('sw-newsletter-recipient.list.optOut') },
             ];
         },
+
+        adminEsEnable() {
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     created() {
@@ -137,7 +142,11 @@ export default {
                 criteria.addFilter(item);
             });
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
 
             if (!this.entitySearchable) {
                 this.total = 0;

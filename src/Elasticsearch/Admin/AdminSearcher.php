@@ -10,7 +10,6 @@ use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -44,7 +43,7 @@ class AdminSearcher
     /**
      * @param array<string> $entities
      *
-     * @return array<string, array{total: int, data: EntityCollection<covariant Entity>, indexer: string, index: string}>
+     * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>, indexer: string, index: string}>
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
@@ -79,7 +78,7 @@ class AdminSearcher
 
             $data = $indexer->globalData($values, $context);
             $data['indexer'] = $indexer->getName();
-            $data['index'] = (string) $index;
+            $data['index'] = $index;
 
             $mapped[$indexer->getEntity()] = $data;
         }

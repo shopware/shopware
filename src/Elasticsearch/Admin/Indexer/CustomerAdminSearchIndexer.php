@@ -65,12 +65,7 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'company',
             'customerNumber',
             'active',
-            'affiliateCode',
-            'campaignCode',
             'groupId',
-            'salutationId',
-            'boundSalesChannelId',
-            'requestedGroupId',
         ]);
 
         $addresses = $event->getPrimaryKeysWithPropertyChange(CustomerAddressDefinition::ENTITY_NAME, [
@@ -90,7 +85,6 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             $customerIds = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
         }
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CustomerTagDefinition::ENTITY_NAME, [
             'tagId',
@@ -102,7 +96,7 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($customerIds));
+        return array_values(array_unique(array_filter($customerIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

@@ -65,8 +65,6 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             'amountTotal',
             'orderDateTime',
             'stateId',
-            'affiliateCode',
-            'campaignCode',
         ]);
 
         $addresses = $event->getPrimaryKeysWithPropertyChange(OrderAddressDefinition::ENTITY_NAME, [
@@ -89,7 +87,6 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             $orderIds = array_merge($orderIds, $event->getPrimaryKeys($this->getEntity()));
         }
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(OrderTagDefinition::ENTITY_NAME, [
             'tagId',
@@ -101,7 +98,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($orderIds));
+        return array_values(array_unique(array_filter($orderIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

@@ -69,7 +69,6 @@ final class NewsletterRecipientAdminSearchIndexer extends AbstractAdminIndexer
             'languageId',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(NewsletterRecipientTagDefinition::ENTITY_NAME, [
             'tagId',
@@ -81,7 +80,7 @@ final class NewsletterRecipientAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($newsletterRecipientIds));
+        return array_values(array_unique(array_filter($newsletterRecipientIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

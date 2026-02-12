@@ -57,7 +57,7 @@ class AdminSearchRegistryTest extends TestCase
             100
         );
 
-        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, $this->createMock(\Psr\Log\LoggerInterface::class));
+        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, $this->createMock(LoggerInterface::class));
         $this->registry = new AdminSearchRegistry(
             ['promotion' => $indexer],
             $this->connection,

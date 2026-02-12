@@ -52,9 +52,6 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
-    /**
-     * @param EntityWrittenContainerEvent<covariant array<string, string>> $event Translation definitions have multiple primary keys
-     */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
         $ids = [];
@@ -69,7 +66,7 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($ids));
+        return array_values(array_unique(array_filter($ids, '\is_string')));
     }
 
     public function globalData(array $result, Context $context): array

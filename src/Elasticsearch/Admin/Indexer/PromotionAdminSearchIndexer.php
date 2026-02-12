@@ -64,7 +64,6 @@ final class PromotionAdminSearchIndexer extends AbstractAdminIndexer
             'validUntil',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(PromotionTranslationDefinition::ENTITY_NAME, [
             'name',
@@ -76,7 +75,7 @@ final class PromotionAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($promotionIds));
+        return array_values(array_unique(array_filter($promotionIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

@@ -62,7 +62,6 @@ final class PropertyGroupAdminSearchIndexer extends AbstractAdminIndexer
             'filterable',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(PropertyGroupTranslationDefinition::ENTITY_NAME, [
             'name',
@@ -74,7 +73,7 @@ final class PropertyGroupAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($propertyGroupIds));
+        return array_values(array_unique(array_filter($propertyGroupIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

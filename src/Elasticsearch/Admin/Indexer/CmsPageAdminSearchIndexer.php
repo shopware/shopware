@@ -62,7 +62,6 @@ final class CmsPageAdminSearchIndexer extends AbstractAdminIndexer
             'type',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CmsPageTranslationDefinition::ENTITY_NAME, [
             'name',
@@ -74,7 +73,7 @@ final class CmsPageAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($ids));
+        return array_values(array_unique(array_filter($ids, '\is_string')));
     }
 
     public function mapping(array $mapping): array

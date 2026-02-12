@@ -63,7 +63,6 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
             'active',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(LandingPageTranslationDefinition::ENTITY_NAME, [
             'name',
@@ -79,7 +78,7 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($landingPageIds));
+        return array_values(array_unique(array_filter($landingPageIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

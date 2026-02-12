@@ -57,9 +57,6 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
-    /**
-     * @param EntityWrittenContainerEvent<covariant array<string, string>> $event Mapping and translation definitions have multiple primary keys
-     */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
         $categoryIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
@@ -68,7 +65,6 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
             'type',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CategoryTranslationDefinition::ENTITY_NAME, [
             'name',
@@ -84,7 +80,7 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($categoryIds));
+        return array_values(array_unique(array_filter($categoryIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

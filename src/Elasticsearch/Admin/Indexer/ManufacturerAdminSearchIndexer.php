@@ -60,7 +60,6 @@ final class ManufacturerAdminSearchIndexer extends AbstractAdminIndexer
     {
         $productManufacturerIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), []);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductManufacturerTranslationDefinition::ENTITY_NAME, [
             'name',
@@ -72,7 +71,7 @@ final class ManufacturerAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($productManufacturerIds));
+        return array_values(array_unique(array_filter($productManufacturerIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

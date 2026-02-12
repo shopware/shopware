@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @template IDStructure of string|array<string, string> = string
+ */
 #[Package('inventory')]
 abstract class AbstractAdminIndexer
 {
@@ -78,7 +81,7 @@ abstract class AbstractAdminIndexer
         foreach ($mapping as $field => $type) {
             if (\array_key_exists('properties', $type) && !empty($type['properties'])) {
                 foreach (array_keys($type['properties']) as $property) {
-                    if ($property === '_count') {
+                    if (!\is_string($property) || $property === '_count') {
                         continue;
                     }
 

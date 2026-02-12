@@ -66,7 +66,6 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
             'mediaFolderId',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(MediaTagDefinition::ENTITY_NAME, [
             'tagId',
@@ -83,7 +82,7 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($mediaIds));
+        return array_values(array_unique(array_filter($mediaIds, '\is_string')));
     }
 
     public function mapping(array $mapping): array

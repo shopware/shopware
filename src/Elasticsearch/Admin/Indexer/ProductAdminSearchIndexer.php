@@ -8,8 +8,10 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -58,26 +60,39 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     {
         $productIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
             'productNumber',
+            'ean',
+            'manufacturerNumber',
+            'active',
+            'manufacturerId',
+            'stock',
+            'releaseDate',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
             'name',
             'customSearchKeywords',
         ]);
 
+        $categories = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductCategoryDefinition::ENTITY_NAME, [
+            'categoryId',
+        ]);
+
+        $visibilities = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
+            'salesChannelId',
+        ]);
+
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
-        foreach (array_merge($translations, $tags) as $pks) {
+        foreach (array_merge($translations, $tags, $visibilities, $categories) as $pks) {
             if (isset($pks['productId'])) {
                 $productIds[] = $pks['productId'];
             }
         }
 
-        return array_values(array_unique($productIds));
+        return array_values(array_unique(array_filter($productIds, '\is_string')));
     }
 
     public function getName(): string
@@ -140,23 +155,20 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'productNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'ean' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'manufacturerNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'stock' => AbstractElasticsearchDefinition::INT_FIELD,
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
             'updatedAt' => ElasticsearchFieldBuilder::datetime(),
-            'categories' => ElasticsearchFieldBuilder::nested([
-                'versionId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-            ]),
+            'categories' => ElasticsearchFieldBuilder::nested(),
             'tags' => ElasticsearchFieldBuilder::nested(),
             'manufacturer' => ElasticsearchFieldBuilder::nested([
-                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'name' => $languageFields,
             ]),
             'visibilities' => ElasticsearchFieldBuilder::nested([
-                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-                'visibility' => AbstractElasticsearchDefinition::INT_FIELD,
             ]),
         ];
 
@@ -173,7 +185,6 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     {
         $baseMapping = [
             '#visibilities#' => SqlHelper::objectArray([
-                'visibility' => 'product_visibility.visibility',
                 'salesChannelId' => 'LOWER(HEX(product_visibility.sales_channel_id))',
             ], 'visibilities'),
         ];
@@ -196,6 +207,8 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    product.available AS available,
                    LOWER(HEX(product.parent_id)) as parentId,
                    product.product_number as productNumber,
+                   product.ean as ean,
+                   product.manufacturer_number as manufacturerNumber,
                    product.sales as sales,
                    product.type as type,
                    product.states as states,
@@ -262,6 +275,8 @@ SQL;
                 'name' => $translatedNames,
                 'parentId' => $row['parentId'] ?? null,
                 'productNumber' => $row['productNumber'] ?? null,
+                'ean' => $row['ean'] ?? null,
+                'manufacturerNumber' => $row['manufacturerNumber'] ?? null,
                 'manufacturerId' => $row['manufacturerId'] ?? null,
                 'sales' => (int) $row['sales'],
                 'active' => (bool) $row['active'],

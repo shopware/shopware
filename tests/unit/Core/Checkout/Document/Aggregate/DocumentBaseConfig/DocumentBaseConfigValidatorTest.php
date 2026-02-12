@@ -133,43 +133,43 @@ class DocumentBaseConfigValidatorTest extends TestCase
         ];
 
         yield 'valid config - no violations' => [
-            $validConfig,
-            [],
+            'config' => $validConfig,
+            'expectedViolationPaths' => [],
         ];
 
         yield 'empty config - all base fields required' => [
-            [],
-            ['/config/pageSize', '/config/pageOrientation', '/config/itemsPerPage', '/config/fileTypes'],
+            'config' => [],
+            'expectedViolationPaths' => ['/config/pageSize', '/config/pageOrientation', '/config/itemsPerPage', '/config/fileTypes'],
         ];
 
         yield 'missing pageSize' => [
-            array_diff_key($validConfig, ['pageSize' => true]),
-            ['/config/pageSize'],
+            'config' => array_diff_key($validConfig, ['pageSize' => true]),
+            'expectedViolationPaths' => ['/config/pageSize'],
         ];
 
         yield 'missing pageOrientation' => [
-            array_diff_key($validConfig, ['pageOrientation' => true]),
-            ['/config/pageOrientation'],
+            'config' => array_diff_key($validConfig, ['pageOrientation' => true]),
+            'expectedViolationPaths' => ['/config/pageOrientation'],
         ];
 
         yield 'missing itemsPerPage' => [
-            array_diff_key($validConfig, ['itemsPerPage' => true]),
-            ['/config/itemsPerPage'],
+            'config' => array_diff_key($validConfig, ['itemsPerPage' => true]),
+            'expectedViolationPaths' => ['/config/itemsPerPage'],
         ];
 
         yield 'missing fileTypes' => [
-            array_diff_key($validConfig, ['fileTypes' => true]),
-            ['/config/fileTypes'],
+            'config' => array_diff_key($validConfig, ['fileTypes' => true]),
+            'expectedViolationPaths' => ['/config/fileTypes'],
         ];
 
         yield 'empty string values are invalid' => [
-            array_merge($validConfig, ['pageSize' => '', 'pageOrientation' => '']),
-            ['/config/pageSize', '/config/pageOrientation'],
+            'config' => array_merge($validConfig, ['pageSize' => '', 'pageOrientation' => '']),
+            'expectedViolationPaths' => ['/config/pageSize', '/config/pageOrientation'],
         ];
 
         yield 'empty array fileTypes is invalid' => [
-            array_merge($validConfig, ['fileTypes' => []]),
-            ['/config/fileTypes'],
+            'config' => array_merge($validConfig, ['fileTypes' => []]),
+            'expectedViolationPaths' => ['/config/fileTypes'],
         ];
     }
 
@@ -219,43 +219,43 @@ class DocumentBaseConfigValidatorTest extends TestCase
         ];
 
         yield 'displayCompanyAddress true with all address fields - no violations' => [
-            array_merge($baseConfig, $validAddress, ['displayCompanyAddress' => true, 'displayReturnAddress' => false]),
-            [],
+            'config' => array_merge($baseConfig, $validAddress, ['displayCompanyAddress' => true, 'displayReturnAddress' => false]),
+            'expectedViolationPaths' => [],
         ];
 
         yield 'displayReturnAddress true with all address fields - no violations' => [
-            array_merge($baseConfig, $validAddress, ['displayCompanyAddress' => false, 'displayReturnAddress' => true]),
-            [],
+            'config' => array_merge($baseConfig, $validAddress, ['displayCompanyAddress' => false, 'displayReturnAddress' => true]),
+            'expectedViolationPaths' => [],
         ];
 
         yield 'both display flags true with all address fields - no violations' => [
-            array_merge($baseConfig, $validAddress, ['displayCompanyAddress' => true, 'displayReturnAddress' => true]),
-            [],
+            'config' => array_merge($baseConfig, $validAddress, ['displayCompanyAddress' => true, 'displayReturnAddress' => true]),
+            'expectedViolationPaths' => [],
         ];
 
         yield 'displayCompanyAddress true without address fields - all address fields required' => [
-            array_merge($baseConfig, ['displayCompanyAddress' => true, 'displayReturnAddress' => false]),
-            ['/config/companyName', '/config/companyStreet', '/config/companyCountryId', '/config/companyZipcode', '/config/companyCity'],
+            'config' => array_merge($baseConfig, ['displayCompanyAddress' => true, 'displayReturnAddress' => false]),
+            'expectedViolationPaths' => ['/config/companyName', '/config/companyStreet', '/config/companyCountryId', '/config/companyZipcode', '/config/companyCity'],
         ];
 
         yield 'displayReturnAddress true without address fields - all address fields required' => [
-            array_merge($baseConfig, ['displayCompanyAddress' => false, 'displayReturnAddress' => true]),
-            ['/config/companyName', '/config/companyStreet', '/config/companyCountryId', '/config/companyZipcode', '/config/companyCity'],
+            'config' => array_merge($baseConfig, ['displayCompanyAddress' => false, 'displayReturnAddress' => true]),
+            'expectedViolationPaths' => ['/config/companyName', '/config/companyStreet', '/config/companyCountryId', '/config/companyZipcode', '/config/companyCity'],
         ];
 
         yield 'displayCompanyAddress true with partial address - missing fields required' => [
-            array_merge($baseConfig, ['displayCompanyAddress' => true, 'companyName' => 'Test GmbH', 'companyStreet' => 'Main Street 1']),
-            ['/config/companyCountryId', '/config/companyZipcode', '/config/companyCity'],
+            'config' => array_merge($baseConfig, ['displayCompanyAddress' => true, 'companyName' => 'Test GmbH', 'companyStreet' => 'Main Street 1']),
+            'expectedViolationPaths' => ['/config/companyCountryId', '/config/companyZipcode', '/config/companyCity'],
         ];
 
         yield 'both display flags false - no address validation' => [
-            array_merge($baseConfig, ['displayCompanyAddress' => false, 'displayReturnAddress' => false]),
-            [],
+            'config' => array_merge($baseConfig, ['displayCompanyAddress' => false, 'displayReturnAddress' => false]),
+            'expectedViolationPaths' => [],
         ];
 
         yield 'display flags not set - no address validation' => [
-            $baseConfig,
-            [],
+            'config' => $baseConfig,
+            'expectedViolationPaths' => [],
         ];
     }
 
@@ -302,38 +302,38 @@ class DocumentBaseConfigValidatorTest extends TestCase
         ];
 
         yield 'update single field - existing config fills the rest' => [
-            $fullConfig,
-            ['pageSize' => 'a5'],
-            [],
+            'existingConfig' => $fullConfig,
+            'updateConfig' => ['pageSize' => 'a5'],
+            'expectedViolationPaths' => [],
         ];
 
         yield 'update nullifies required field' => [
-            $fullConfig,
-            ['pageSize' => null],
-            ['/config/pageSize'],
+            'existingConfig' => $fullConfig,
+            'updateConfig' => ['pageSize' => null],
+            'expectedViolationPaths' => ['/config/pageSize'],
         ];
 
         yield 'update enables displayCompanyAddress without address fields' => [
-            $fullConfig,
-            ['displayCompanyAddress' => true],
-            ['/config/companyName', '/config/companyStreet', '/config/companyCountryId', '/config/companyZipcode', '/config/companyCity'],
+            'existingConfig' => $fullConfig,
+            'updateConfig' => ['displayCompanyAddress' => true],
+            'expectedViolationPaths' => ['/config/companyName', '/config/companyStreet', '/config/companyCountryId', '/config/companyZipcode', '/config/companyCity'],
         ];
 
         yield 'update enables displayCompanyAddress with address in existing config' => [
-            array_merge($fullConfig, [
+            'existingConfig' => array_merge($fullConfig, [
                 'companyName' => 'Test GmbH',
                 'companyStreet' => 'Main Street 1',
                 'companyCountryId' => Uuid::randomHex(),
                 'companyZipcode' => '12345',
                 'companyCity' => 'Berlin',
             ]),
-            ['displayCompanyAddress' => true],
-            [],
+            'updateConfig' => ['displayCompanyAddress' => true],
+            'expectedViolationPaths' => [],
         ];
 
         yield 'update provides address fields along with enabling displayCompanyAddress' => [
-            $fullConfig,
-            [
+            'existingConfig' => $fullConfig,
+            'updateConfig' => [
                 'displayCompanyAddress' => true,
                 'companyName' => 'Test GmbH',
                 'companyStreet' => 'Main Street 1',
@@ -341,13 +341,13 @@ class DocumentBaseConfigValidatorTest extends TestCase
                 'companyZipcode' => '12345',
                 'companyCity' => 'Berlin',
             ],
-            [],
+            'expectedViolationPaths' => [],
         ];
 
         yield 'no existing config - update must have all fields' => [
-            [],
-            ['pageSize' => 'a4'],
-            ['/config/pageOrientation', '/config/itemsPerPage', '/config/fileTypes'],
+            'existingConfig' => [],
+            'updateConfig' => ['pageSize' => 'a4'],
+            'expectedViolationPaths' => ['/config/pageOrientation', '/config/itemsPerPage', '/config/fileTypes'],
         ];
     }
 

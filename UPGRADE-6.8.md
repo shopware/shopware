@@ -712,12 +712,21 @@ Changes in `sw-mail-template-index`:
 
 We've restructured the document settings to make them more intuitive and user-friendly.
 
-As part of this update, the following administration components have been marked as private:
-- `src/module/sw-settings-document/page/sw-settings-document-detail`
-- `src/module/sw-settings-document/page/sw-settings-document-list`
+As part of this update, the following administration component parts have been removed:
+* `src/module/sw-settings-document/page/sw-settings-document-detail`:
+  * computed `expandButtonClass` was removed without replacement
+  * computed `collapseButtonClass` was removed without replacement
+  * property `sortBy` was removed without replacement
 
-We also marked the document settings module as private:
-- `src/module/sw-settings-document/index.js`
+* `src/module/sw-settings-document/page/sw-settings-document-list`
+  * computed `countryRepository` was removed without replacement
+  * computed `documentTypeRepository` was removed without replacement
+  * computed `documentBaseConfigSalesChannelRepository` was removed without replacement
+  * property `selectedType` was removed without replacement
+  * property `isSaveSuccessful` was removed without replacement
+  * property `isShowCountriesSelect` was removed without replacement
+  * method `loadAvailableSalesChannel()` was removed without replacement
+  * method `showOption()` was removed without replacement
 
 # Storefront
 

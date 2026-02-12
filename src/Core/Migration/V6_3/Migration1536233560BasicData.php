@@ -1894,8 +1894,7 @@ class Migration1536233560BasicData extends MigrationStep
             'displayLineItems' => true,
             'diplayLineItemPosition' => true,
             'displayPageCount' => true,
-            // company address is empty by default, so displayCompanyAddress is false by default
-            'displayCompanyAddress' => false,
+            'displayCompanyAddress' => true,
             'pageOrientation' => 'portrait',
             'pageSize' => 'a4',
             'itemsPerPage' => 10,

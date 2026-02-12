@@ -10,8 +10,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  */
 export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
     INVOICE: 'invoice',
-    CREDIT_NODE: 'credit_note',
-    CANCELATION: 'storno',
+    CREDIT_NOTE: 'credit_note',
+    CANCELLATION: 'storno',
     DELIVERY_NOTE: 'delivery_note',
 };
 
@@ -346,8 +346,6 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
 
 /**
  * @sw-package after-sales
- *
- * @deprecated tag:v6.8.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -622,7 +620,7 @@ export default {
 
             this.isShowDivergentDeliveryAddress = documentType.technicalName === DOCUMENT_TYPE_TECHNICAL_NAMES.INVOICE;
             this.isShowDisplayNoteDelivery = [
-                DOCUMENT_TYPE_TECHNICAL_NAMES.CANCELATION,
+                DOCUMENT_TYPE_TECHNICAL_NAMES.CANCELLATION,
                 DOCUMENT_TYPE_TECHNICAL_NAMES.DELIVERY_NOTE,
                 DOCUMENT_TYPE_TECHNICAL_NAMES.INVOICE,
             ].includes(documentType.technicalName);

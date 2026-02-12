@@ -30,9 +30,6 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
         'pageOrientation',
         'itemsPerPage',
         'fileTypes',
-    ];
-
-    private const REQUIRED_ADDRESS_FIELDS = [
         'companyName',
         'companyStreet',
         'companyCountryId',
@@ -75,17 +72,6 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
                     '/config/' . $field,
                     $field
                 );
-            }
-
-            if (!empty($config['displayCompanyAddress']) || !empty($config['displayReturnAddress'])) {
-                foreach (self::REQUIRED_ADDRESS_FIELDS as $field) {
-                    $this->validateRequiredField(
-                        $violations,
-                        $config[$field] ?? null,
-                        '/config/' . $field,
-                        $field
-                    );
-                }
             }
 
             if ($violations->count() > 0) {
@@ -145,7 +131,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
         if ($value === null || $value === '' || $value === []) {
             $violations->add(
                 $this->buildViolation(
-                    'The field "{{ field }}" is required.',
+                    'This field must not be empty.',
                     ['{{ field }}' => $fieldName],
                     $propertyPath,
                     $value,

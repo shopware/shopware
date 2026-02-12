@@ -5,17 +5,11 @@ import './acl';
 
 const { Module, Component } = Shopware;
 
-/**
- * @deprecated tag:v6.8.0 - Will be private
- */
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Component.register('sw-settings-document-list', () => import('./page/sw-settings-document-list'));
 Component.register('sw-settings-document-detail', () => import('./page/sw-settings-document-detail'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-/**
- * @deprecated tag:v6.8.0 - Will be private
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-document', {
     type: 'core',

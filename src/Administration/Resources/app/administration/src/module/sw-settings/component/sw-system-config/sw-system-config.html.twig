@@ -52,6 +52,7 @@
                     name="card-element"
                     v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }"
                 >
+                    {% block sw_system_config_content_card_group %}
                     <template v-if="isMeteorComponent(element)">
                         <sw-inherit-wrapper
                             v-model:value="actualConfigData[currentSalesChannelId][element.name]"
@@ -92,6 +93,7 @@
                         </sw-inherit-wrapper>
                     {% endblock %}
                     </template>
+                    {% endblock %}
                 </slot>
             </template>
             <slot name="card-element-last"></slot>

@@ -7245,6 +7245,7 @@
  "sw_system_config",
  "sw_system_config_content_card",
  "sw_system_config_content_card_field",
+ "sw_system_config_content_card_group",
  "sw_system_config_content_compile_notice",
  "sw_tabs",
  "sw_tabs_arrow_left",

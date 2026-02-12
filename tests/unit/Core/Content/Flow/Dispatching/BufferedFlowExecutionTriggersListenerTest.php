@@ -41,7 +41,7 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
 
     public function testRegistersBufferedFlowExecutionTriggers(): void
     {
-        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
             static::assertSame(
                 [
                     'kernel.terminate' => 'triggerBufferedFlowExecution',

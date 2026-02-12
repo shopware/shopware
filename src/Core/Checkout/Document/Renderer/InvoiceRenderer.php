@@ -54,7 +54,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
         $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 

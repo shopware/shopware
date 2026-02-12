@@ -340,7 +340,7 @@
                 ],
                 "summary": "Fetch the template data and send a mail",
                 "description": "Fetches the required data needed for the mail template, generates the mail content and sends it to the customer.",
-                "operationId": "send",
+                "operationId": "getDataAndSend",
                 "requestBody": {
                     "required": true,
                     "content": {

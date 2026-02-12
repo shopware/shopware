@@ -56,13 +56,19 @@ class MailTemplateServiceTest extends TestCase
 
     public function testPreviewNoTemplateFound(): void
     {
+        $errorThrown = false;
+
         try {
             $this->mailTemplateService->preview(Uuid::randomHex(), [], $this->context);
         } catch (\Throwable $e) {
+            $errorThrown = true;
+
             static::assertInstanceOf(MailTemplateException::class, $e);
             static::assertSame(MailTemplateException::MAIL_TEMPLATE_NOT_FOUND, $e->getErrorCode());
             static::assertSame(MailTemplateException::templateNotFound()->getMessage(), $e->getMessage());
         }
+
+        static::assertTrue($errorThrown, 'Expected MailTemplateException was not thrown.');
     }
 
     public function testPreviewInvalidContent(): void
@@ -75,13 +81,19 @@ class MailTemplateServiceTest extends TestCase
             ['mail_template_id' => Uuid::fromHexToBytes($id)]
         );
 
+        $errorThrown = false;
+
         try {
             $this->mailTemplateService->preview($id, [], $this->context);
         } catch (\Throwable $e) {
+            $errorThrown = true;
+
             static::assertInstanceOf(MailTemplateException::class, $e);
             static::assertSame(MailTemplateException::MAIL_INVALID_TEMPLATE_CONTENT, $e->getErrorCode());
             static::assertSame(MailTemplateException::invalidMailTemplateContent()->getMessage(), $e->getMessage());
         }
+
+        static::assertTrue($errorThrown, 'Expected MailTemplateException was not thrown.');
     }
 
     public function testPreviewNoEntities(): void
@@ -124,6 +136,8 @@ class MailTemplateServiceTest extends TestCase
             'Order ID: {{ order.id }}',
         );
 
+        $errorThrown = false;
+
         try {
             $this->mailTemplateService->preview(
                 $id,
@@ -134,9 +148,13 @@ class MailTemplateServiceTest extends TestCase
                 true,
             );
         } catch (\Throwable $e) {
+            $errorThrown = true;
+
             static::assertInstanceOf(AdapterException::class, $e);
             static::assertSame(AdapterException::STRING_TEMPLATE_RENDERING_FAILED, $e->getErrorCode());
         }
+
+        static::assertTrue($errorThrown, 'Expected AdapterException was not thrown.');
     }
 
     public function testPreviewIgnoresMissingVariablesInNonStrictMode(): void
@@ -184,13 +202,19 @@ class MailTemplateServiceTest extends TestCase
 
     public function testSendNoTemplateFound(): void
     {
+        $errorThrown = false;
+
         try {
             $this->mailTemplateService->getTemplateDataAndSend([], Uuid::randomHex(), [], $this->context);
         } catch (\Throwable $e) {
+            $errorThrown = true;
+
             static::assertInstanceOf(MailTemplateException::class, $e);
             static::assertSame(MailTemplateException::MAIL_TEMPLATE_NOT_FOUND, $e->getErrorCode());
             static::assertSame(MailTemplateException::templateNotFound()->getMessage(), $e->getMessage());
         }
+
+        static::assertTrue($errorThrown, 'Expected MailTemplateException was not thrown.');
     }
 
     public function testSendNoEntitiesButNotRequired(): void
@@ -272,7 +296,7 @@ class MailTemplateServiceTest extends TestCase
         );
 
         static::assertNull($email);
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line because throwable is set in the event listener but phpstan does not recognize this
         static::assertInstanceOf(AdapterException::class, $state->throwable);
         static::assertSame(
             AdapterException::STRING_TEMPLATE_RENDERING_FAILED,
@@ -309,7 +333,7 @@ class MailTemplateServiceTest extends TestCase
         );
 
         static::assertNull($email);
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line because throwable is set in the event listener but phpstan does not recognize this
         static::assertInstanceOf(AdapterException::class, $state->throwable);
         static::assertSame(
             AdapterException::STRING_TEMPLATE_RENDERING_FAILED,
@@ -350,7 +374,7 @@ class MailTemplateServiceTest extends TestCase
         $email = $this->mailTemplateService->getTemplateDataAndSend($data, $id, ['order' => $orderId], $this->context);
 
         static::assertNull($email);
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line because throwable is set in the event listener but phpstan does not recognize this
         static::assertInstanceOf(AdapterException::class, $state->throwable);
         static::assertSame(
             AdapterException::STRING_TEMPLATE_RENDERING_FAILED,

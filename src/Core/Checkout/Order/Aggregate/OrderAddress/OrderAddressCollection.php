@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryCollection;
@@ -40,15 +41,30 @@ class OrderAddressCollection extends EntityCollection
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     *
      * @return array<string>
      */
     public function getVatIds(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->fmap(fn (OrderAddressEntity $orderAddress) => $orderAddress->getVatId());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function filterByVatId(string $id): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->filter(fn (OrderAddressEntity $orderAddress) => $orderAddress->getVatId() === $id);
     }
 

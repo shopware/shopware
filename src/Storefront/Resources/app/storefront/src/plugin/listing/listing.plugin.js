@@ -538,7 +538,6 @@ export default class ListingPlugin extends Plugin {
             if (this._lastPathWithoutHash === currentPathWithoutHash) {
                 return;
             }
-
         }
 
         this.refreshRegistry();

@@ -1,7 +1,7 @@
 import { markRaw } from 'vue';
-import Repository from 'src/core/data/repository.data';
+import type Repository from 'src/core/data/repository.data';
 import type MediaService from 'src/core/service/api/media.api.service';
-import { type DIVEModel } from '@shopware-ag/dive';
+import type { DIVEModel } from '@shopware-ag/dive';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import { Toolbox } from '@shopware-ag/dive/toolbox';
 import { AssetExporter } from '@shopware-ag/dive/assetexporter';
@@ -26,7 +26,10 @@ const { Context } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['mediaService', 'repositoryFactory'],
+    inject: [
+        'mediaService',
+        'repositoryFactory',
+    ],
 
     props: {
         source: {
@@ -52,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
-            mediaService: MediaService,
+            mediaService: MediaService;
             modelEntity: EntitySchema.Entity<'media'> | null;
             quickView: QuickView | null;
             toolbox: Toolbox | null;
@@ -84,7 +87,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        mediaRepository(): Repository<"media"> {
+        mediaRepository(): Repository<'media'> {
             return this.repositoryFactory.create('media');
         },
     },
@@ -95,11 +98,13 @@ export default Shopware.Component.wrapComponentConfig({
             EventBus.on('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
         },
 
-        async beforeUnmountedComponent(): Promise<void> {
+        beforeUnmountedComponent(): void {
             // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
 
-            return this.disposeQuickView();
+            this.disposeQuickView().catch((error) => {
+                console.error(error);
+            });
         },
 
         mountedComponent(): void {
@@ -110,30 +115,40 @@ export default Shopware.Component.wrapComponentConfig({
             this.canvas = this.$el?.querySelector?.('.sw-model-editor-canvas');
 
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            this.initializeQuickView();
+            this.initializeQuickView().catch((error) => {
+                console.error(error);
+            });
         },
 
         async initializeQuickView(): Promise<void> {
-            if (!this.canvas || !this.modelEntity?.url) {
-                return Promise.reject();
+            if (!this.canvas) {
+                return Promise.reject(new Error('Canvas is missing'));
+            }
+
+            if (!this.modelEntity?.url) {
+                return Promise.reject(new Error('Model entity URL is missing'));
             }
 
             this.isLoading = true;
 
-            this.quickView = markRaw(await QuickView(this.modelEntity.url, {
-                canvas: this.canvas,
-                displayAxes: true,
-                displayGrid: true,
-            })
-                .catch((error) => {
-                    console.error(error);
-                    return Promise.reject(error);
+            this.quickView = markRaw(
+                await QuickView(this.modelEntity.url, {
+                    canvas: this.canvas,
+                    displayAxes: true,
+                    displayGrid: true,
                 })
-                .finally(() => {
-                    this.isLoading = false;
-                }));
+                    .catch((error: Error) => {
+                        console.error(error);
+                        return Promise.reject(error);
+                    })
+                    .finally(() => {
+                        this.isLoading = false;
+                    }),
+            );
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any,
+                @typescript-eslint/no-unsafe-argument
+            */
             this.toolbox = markRaw(new Toolbox(this.quickView.scene as any, this.quickView.orbitController as any));
             this.toolbox.enableTool('transform');
             this.toolbox.getTool('transform').setGizmoMode(this.currentEditMode);
@@ -149,12 +164,19 @@ export default Shopware.Component.wrapComponentConfig({
             await this.quickView?.dispose();
         },
 
-        async onMediaLibraryItemUpdated(mediaId: string): Promise<void> {
+        onMediaLibraryItemUpdated(mediaId: string): void {
             if (!this.modelEntity?.id) return;
             if (this.modelEntity?.id !== mediaId) return;
 
             // Refetch media entity to get fresh URL with updated cache-busting timestamp
-            this.modelEntity = await this.mediaRepository.get(mediaId, Context.api);
+            this.mediaRepository
+                .get(mediaId, Context.api)
+                .then((media) => {
+                    this.modelEntity = media;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         },
 
         setGizmoMode(mode: 'translate' | 'rotate' | 'scale'): void {
@@ -163,14 +185,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async save(): Promise<void> {
-            if(!this.modelEntity) return;
+            if (!this.modelEntity) return;
             const targetId = this.modelEntity.id;
             const fileName = this.modelEntity.fileName ?? 'model';
             const fileExtension = this.modelEntity.fileExtension ?? 'glb';
 
             const model = this.quickView?.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
             if (!model) return;
-
 
             const buffer = await new AssetExporter().export(model, 'glb');
             const file = new File([buffer], `${fileName}`, { type: 'model/gltf-binary' });
@@ -184,7 +205,7 @@ export default Shopware.Component.wrapComponentConfig({
                 targetId: targetId,
             };
 
-            await this.mediaService.addUpload('media', uploadData);
+            this.mediaService.addUpload('media', uploadData);
             await this.mediaService.runUploads('media');
 
             // Emit event to trigger refresh with new URL (includes updated cache-busting timestamp)

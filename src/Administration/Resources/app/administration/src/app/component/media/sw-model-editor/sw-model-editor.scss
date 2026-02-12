@@ -1,10 +1,9 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
 $sw-model-editor-canvas-ui__button-size: 42px;
 $sw-model-editor-canvas-ui__orientation-size: $sw-model-editor-canvas-ui__button-size;
-$sw-model-editor-box-shadow: 0px 2px 6px 0px #00000036;
+$sw-model-editor-box-shadow: 0 2px 6px 0 #00000036;
 $sw-button-transition: all 0.15s ease-out;
-
 
 .sw-model-editor {
     width: 100%;
@@ -57,6 +56,7 @@ $sw-button-transition: all 0.15s ease-out;
 
         &:disabled {
             color: $color-gray-300;
+
             &:hover {
                 background: $color-white;
             }

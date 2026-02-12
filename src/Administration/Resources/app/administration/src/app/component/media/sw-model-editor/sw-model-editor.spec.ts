@@ -39,6 +39,12 @@ const createMediaEntity = (overrides: Partial<EntitySchema.Entity<'media'>> = {}
     };
 };
 
+// Mock mediaService
+const mockMediaService = {
+    addUpload: jest.fn(),
+    runUploads: jest.fn().mockResolvedValue(undefined),
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function createWrapper(componentConfig: any = {}) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
@@ -57,6 +63,9 @@ async function createWrapper(componentConfig: any = {}) {
             },
             directives: {
                 tooltip: {},
+            },
+            provide: {
+                mediaService: mockMediaService,
             },
         },
         ...componentConfig,
@@ -81,6 +90,8 @@ describe('src/app/component/media/sw-model-editor', () => {
             orbitController: mockOrbitController,
             dispose: mockQuickViewDispose,
         });
+        mockMediaService.addUpload.mockClear();
+        mockMediaService.runUploads.mockClear().mockResolvedValue(undefined);
     });
 
     describe('Component Initialization', () => {
@@ -111,7 +122,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             expect(wrapper.vm.currentEditMode).toBe('translate');
             expect(wrapper.vm.isTranslatable).toBe(true);
             expect(wrapper.vm.isRotatable).toBe(true);
-            expect(wrapper.vm.isScalable).toBe(false);
+            expect(wrapper.vm.isScalable).toBe(true);
         });
     });
 
@@ -437,7 +448,6 @@ describe('src/app/component/media/sw-model-editor', () => {
 
             expect(mockToolboxDispose).toHaveBeenCalled();
         });
-
     });
 
     describe('Template Rendering', () => {
@@ -519,6 +529,9 @@ describe('src/app/component/media/sw-model-editor', () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
+            // Set isScalable to false to test disabled state
+            await wrapper.setData({ isScalable: false });
+
             const buttons = wrapper.findAll('.sw-model-editor-canvas-ui__button');
             const scaleButton = buttons[2];
 
@@ -574,9 +587,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
-            // Enable scale mode first (it's disabled by default)
-            await wrapper.setData({ isScalable: true });
-
+            // isScalable is true by default, so scale button should be enabled
             const buttons = wrapper.findAll('.sw-model-editor-canvas-ui__button');
             await buttons[2].trigger('click');
 
@@ -617,7 +628,35 @@ describe('src/app/component/media/sw-model-editor', () => {
                 id: 'update-test-id',
                 url: 'https://example.com/original-model.glb',
             });
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+            // Mock the API response for fetching updated media
+            /* eslint-disable @typescript-eslint/no-unsafe-assignment,
+                @typescript-eslint/no-explicit-any,
+                @typescript-eslint/no-unsafe-member-access,
+                @typescript-eslint/no-unsafe-call
+            */
+            const responses = (globalThis as any).repositoryFactoryMock.responses;
+            responses.addResponse(
+                /* eslint-enable */
+                {
+                    method: 'Post',
+                    url: '/search/media',
+                    status: 200,
+                    response: {
+                        data: [
+                            {
+                                id: 'update-test-id',
+                                attributes: {
+                                    id: 'update-test-id',
+                                    url: 'https://example.com/updated-model.glb',
+                                },
+                                relationships: [],
+                            },
+                        ],
+                    },
+                },
+            );
+
             const wrapper = await createWrapper({
                 props: {
                     source: mediaEntity,
@@ -625,13 +664,15 @@ describe('src/app/component/media/sw-model-editor', () => {
             });
             await flushPromises();
 
-            const initialCallCount = mockQuickView.mock.calls.length;
-
-            // Simulate media update
+            // Simulate media update event
             Shopware.Utils.EventBus.emit('sw-media-library-item-updated', 'update-test-id');
             await flushPromises();
 
-            expect(mockQuickView.mock.calls.length).toBeGreaterThan(initialCallCount);
+            // Verify modelEntity was updated with new URL from API
+            // Note: onMediaLibraryItemUpdated only refetches the entity, doesn't reinitialize QuickView
+            expect(wrapper.vm.modelEntity).toBeTruthy();
+            const updatedEntity = wrapper.vm.modelEntity as EntitySchema.Entity<'media'>;
+            expect(updatedEntity?.url).toBe('https://example.com/updated-model.glb');
         });
 
         it('should not reinitialize when media update is for different id', async () => {

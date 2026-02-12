@@ -713,5 +713,8 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Util\Backtrace\BacktraceCollector"/>
 
+        <service id="Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor">
+            <tag name="container.env_var_processor"/>
+        </service>
     </services>
 </container>

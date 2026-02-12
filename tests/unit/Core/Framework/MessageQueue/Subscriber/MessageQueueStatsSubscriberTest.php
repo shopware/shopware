@@ -6,11 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -41,13 +41,32 @@ class MessageQueueStatsSubscriberTest extends TestCase
         );
     }
 
+    public function testGetSubscribedEvents(): void
+    {
+        static::assertSame([
+            WorkerMessageHandledEvent::class => 'onMessageHandled',
+        ], MessageQueueStatsSubscriber::getSubscribedEvents());
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetGetSubscribedDeprecated(): void
+    {
+        static::assertSame([
+            WorkerMessageHandledEvent::class => 'onMessageHandled',
+            WorkerMessageFailedEvent::class => ['onMessageFailed', 99],
+            SendMessageToTransportsEvent::class => ['onMessageSent', 99],
+        ], MessageQueueStatsSubscriber::getSubscribedEvents());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testOnMessageFailed(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $envelope = new Envelope(new \stdClass());
         $event = new WorkerMessageFailedEvent($envelope, 'receiver', new \Exception());
 
@@ -73,10 +92,9 @@ class MessageQueueStatsSubscriberTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testOnMessageHandledUpdateIncrementStats(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $envelope = new Envelope(new \stdClass());
         $event = new WorkerMessageHandledEvent($envelope, 'theReceiver');
 
@@ -88,10 +106,9 @@ class MessageQueueStatsSubscriberTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testOnMessageSent(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $envelope = new Envelope(new \stdClass());
         $event = new SendMessageToTransportsEvent($envelope, []);
 

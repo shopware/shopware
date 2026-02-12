@@ -32,7 +32,6 @@ class ConsumeMessagesControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        // @deprecated tag:v6.8.0 - This initialization will be removed
         if (!Feature::isActive('v6.8.0.0')) {
             $this->incrementer = static::getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
         }

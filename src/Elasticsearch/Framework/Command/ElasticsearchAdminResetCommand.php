@@ -64,7 +64,6 @@ class ElasticsearchAdminResetCommand extends Command
 
         $this->connection->executeStatement('TRUNCATE admin_elasticsearch_index_task');
 
-        // @deprecated tag:v6.8.0 - This block will be removed. The increment-based message queue statistics are deprecated.
         if (!Feature::isActive('v6.8.0.0')) {
             try {
                 $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);

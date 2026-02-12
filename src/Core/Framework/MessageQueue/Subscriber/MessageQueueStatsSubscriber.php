@@ -36,7 +36,6 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
             WorkerMessageHandledEvent::class => 'onMessageHandled',
         ];
 
-        // @deprecated tag:v6.8.0 - These event subscriptions will be removed (only used for increment-based stats)
         if (!Feature::isActive('v6.8.0.0')) {
             $events[WorkerMessageFailedEvent::class] = ['onMessageFailed', 99];
             $events[SendMessageToTransportsEvent::class] = ['onMessageSent', 99];
@@ -80,7 +79,6 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
      */
     private function handle(Envelope $envelope, bool $increment): void
     {
-        // @deprecated tag:v6.8.0 - Method body will be removed
         if (Feature::isActive('v6.8.0.0')) {
             return;
         }

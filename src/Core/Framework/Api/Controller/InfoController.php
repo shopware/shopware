@@ -96,7 +96,6 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
     public function queue(): JsonResponse
     {
-        // @deprecated tag:v6.8.0 - Route will be removed entirely
         if (Feature::isActive('v6.8.0.0')) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', '\Shopware\Core\Framework\Api\Controller\InfoController::messageStats'));
         }

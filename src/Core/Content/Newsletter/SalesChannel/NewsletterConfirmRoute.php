@@ -53,9 +53,8 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
      * @deprecated tag:v6.8.0
      * Use confirmWithResponse() instead.
      * Starting with v6.8.0, the API route response is changing.
-     * This method will be removed and the route annotation will be moved to confirmWithResponse().
+     * This method will be removed.
      */
-    #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
         $response = $this->confirmWithResponse($dataBag, $context);
@@ -67,6 +66,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         return $response;
     }
 
+    #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]
     public function confirmWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $recipient = $this->getNewsletterRecipient('hash', $dataBag->get('hash', ''), $context->getContext());

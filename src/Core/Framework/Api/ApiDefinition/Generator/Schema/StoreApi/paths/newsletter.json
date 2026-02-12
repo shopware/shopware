@@ -37,6 +37,9 @@
                 "responses": {
                     "200": {
                         "description": "The newsletter confirmation was successful."
+                    },
+                    "400": {
+                      "$ref": "#/components/responses/400"
                     }
                 },
                 "security": [
@@ -123,7 +126,25 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": ["status"],
+                                    "properties": {
+                                        "status": {
+                                            "description": "The subscription status.",
+                                            "type": "string",
+                                            "enum": ["notSet", "optIn", "optOut", "direct"]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
                     }
                 },
                 "security": [
@@ -163,6 +184,9 @@
                 "responses": {
                     "200": {
                         "description": "Unsubscribing was successful."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
                     }
                 },
                 "security": [

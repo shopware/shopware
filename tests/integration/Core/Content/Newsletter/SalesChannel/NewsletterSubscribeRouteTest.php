@@ -14,7 +14,6 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -582,18 +581,8 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'test with double leading slash' => [['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page']];
     }
 
-    /**
-     * Before v6.8.0: expects HTTP_NO_CONTENT (204) with empty body
-     * From v6.8.0: expects HTTP_OK (200) with response body containing status
-     */
     private function assertNewsletterResponse(Response $response, ?string $expectedStatus = null): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-
-            return;
-        }
-
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         if ($expectedStatus !== null) {

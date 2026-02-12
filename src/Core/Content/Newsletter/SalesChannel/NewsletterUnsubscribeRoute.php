@@ -51,9 +51,8 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
      * @deprecated tag:v6.8.0
      * Use unsubscribeWithResponse() instead.
      * Starting with v6.8.0, the API route response is changing.
-     * This method will be removed and the route annotation will be moved to unsubscribeWithResponse().
+     * This method will be removed.
      */
-    #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
         $response = $this->unsubscribeWithResponse($dataBag, $context);
@@ -65,6 +64,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         return $response;
     }
 
+    #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
     public function unsubscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $data = $dataBag->only('email');

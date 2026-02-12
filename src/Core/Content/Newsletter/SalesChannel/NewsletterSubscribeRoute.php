@@ -104,9 +104,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      * @deprecated tag:v6.8.0
      * Use subscribeWithResponse() instead.
      * Starting with v6.8.0, the API route response is changing.
-     * This method will be removed and the route annotation will be moved to subscribeWithResponse().
+     * This method will be removed.
      */
-    #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): StoreApiResponse
     {
         $response = $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
@@ -118,6 +117,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return $response;
     }
 
+    #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
     {
         $doubleOptInDomain = $this->systemConfigService->getString(

@@ -74,6 +74,7 @@
                                 label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
                                 id: idPrefix ~ prefix ~ 'department',
                                 name: prefix ? prefix ~ '[department]' : 'department',
+                                autocomplete: 'off',
                                 value: address.get('department'),
                                 violationPath: violationPath,
                                 additionalClass: 'col-md-6',

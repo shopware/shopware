@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -62,7 +64,7 @@ class OrderAddressDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of order\'s address.'),
             (new VersionField())->addFlags(new ApiAware()),
 
@@ -81,7 +83,6 @@ class OrderAddressDefinition extends EntityDefinition
             (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Name of the company.'),
             (new StringField('department', 'department'))->addFlags(new ApiAware())->setDescription('Name of the department.'),
             (new StringField('title', 'title'))->addFlags(new ApiAware())->setDescription('Title name given to customer like DR. , Prof., etc.'),
-            (new StringField('vat_id', 'vatId'))->addFlags(new ApiAware())->setDescription('Unique identity of VAT.'),
             (new StringField('phone_number', 'phoneNumber'))->addFlags(new ApiAware())->setDescription('Phone number of the customer.'),
             (new StringField('additional_address_line1', 'additionalAddressLine1'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Additional address input if necessary.'),
             (new StringField('additional_address_line2', 'additionalAddressLine2'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Additional address input if necessary.'),
@@ -94,5 +95,13 @@ class OrderAddressDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', 'id'))->addFlags(new CascadeDelete()),
             (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false))->addFlags(new ApiAware()),
         ]);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new StringField('vat_id', 'vatId'))->addFlags(new ApiAware(), new Deprecated('v6.7.6.0', 'v6.8.0.0'))->setDescription('Unique identity of VAT.'),
+            );
+        }
+
+        return $fields;
     }
 }

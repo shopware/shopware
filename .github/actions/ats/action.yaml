@@ -209,7 +209,7 @@ runs:
               fi
 
         - name: Configure AWS credentials
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/test-results/*', inputs.directory)) }}
           uses: aws-actions/configure-aws-credentials@v4
           with:
             aws-region: eu-central-1
@@ -218,7 +218,7 @@ runs:
 
         - name: Upload Playwright HTML report to S3
           working-directory: ${{ inputs.directory }}
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/test-results/*', inputs.directory)) }}
           shell: bash
           run: |
                 set -euo pipefail
@@ -233,19 +233,19 @@ runs:
                 echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
 
         - name: Publish S3 Static Website URL
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/test-results/*', inputs.directory)) }}
           shell: bash
           run: |
                 set -euo pipefail
 
                 if [ -z "${REPORT_DEST:-}" ]; then
-                echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
-                exit 0
+                  echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+                  exit 0
                 fi
 
                 if ! aws s3 ls "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
-                echo "Index file not found ... skipping publish." >&2
-                exit 0
+                  echo "Index file not found ... skipping publish." >&2
+                  exit 0
                 fi
 
                 DOMAIN="${{ inputs.playwright-traces-domain }}"

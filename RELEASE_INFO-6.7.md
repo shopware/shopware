@@ -38,6 +38,17 @@ The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
 They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
 Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
 
+### Primary key validation in `dal:validate` command
+
+The `dal:validate` command now includes validation to detect mismatches between database PRIMARY KEY constraints and entity definition PrimaryKey flags.
+This validation prevents silent failures where queries return correct `total` counts but empty `data` arrays due to entity hydration failures caused by inconsistent primary key definitions.
+When a mismatch is detected, the command provides a clear error message indicating which fields differ between the database schema and the entity definition.
+
+### Deprecation of default value for `serializer` in `#[Serialized]` field attribute
+
+When you use `#[Serialized]` field in your attribute entity you should always pass the serializer explicitly, as the default serializer does not work as expected.
+Additionally, the `SerializerField` will become internal in the next major release, as that field should be only used for attribute entities, but never directly in classic `EntityDefinitions`.
+
 ## Administration
 
 ### Deprecation of `items` prop in `sw-entity-listing` component
@@ -128,6 +139,18 @@ This is done by changing the DOM within the `aria-live` region after a short del
 Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
 
 ## Hosting & Configuration
+
+### Configurable Elasticsearch shard and replica counts
+
+The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
+
+For the Storefront/Store API Elasticsearch:
+- `SHOPWARE_ES_NUMBER_OF_SHARDS` (default: empty, meaning Elasticsearch default)
+- `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
+
+For the Admin Elasticsearch:
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
 
 ## Critical Fixes
 

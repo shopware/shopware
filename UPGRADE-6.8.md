@@ -246,6 +246,12 @@ The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler
 The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only.
 Use on own risk as it may change without prior notice.
 
+## Removal of default value for `serializer` parameter in `#[Serialized]`field attribute
+
+The default value for the `serializer` parameter in the `#[Serialized]` field attribute was removed.
+You need to explicitly set the serializer to use for your field.
+Additionally, the `SerializedField` class is now internal, as you should not use it directly in classic `EntityDefinitions`. It's only intended use case is in combination with the `#[Serialized]` attribute in attribute entities.
+
 ## Removal of `EntityDefinition` constructor
 
 The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:
@@ -1080,6 +1086,15 @@ With this change, Cache-Control headers defined by cache policies are sent direc
 
 OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported.
 Please update OpenSearch to the latest supported Version.
+
+## Changed default Elasticsearch shard and replica counts for Admin ES
+
+The default values for `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` and `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` changed from `3` to empty (meaning Elasticsearch defaults are used). If you relied on the previous defaults, set these environment variables explicitly in your `.env` file:
+
+```
+SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS=3
+SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS=3
+```
 
 ## Removed configuration of Filesystem visibility in config array
 

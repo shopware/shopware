@@ -123,6 +123,24 @@ class TaxDetectorTest extends TestCase
         static::assertSame(CartPrice::TAX_STATE_NET, $detector->getTaxState($context));
     }
 
+    public function testIsCompanyTaxFreeReturnsTrueWhenNonEuCountry(): void
+    {
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => false,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'company' => 'Non-EU Company',
+        ]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $detector = new TaxDetector();
+        static::assertTrue($detector->isCompanyTaxFree($context, $country));
+    }
+
     public function testIsCompanyTaxFreeReturnsFalseWhenCustomerIsNull(): void
     {
         $country = (new CountryEntity())->assign([
@@ -132,6 +150,27 @@ class TaxDetectorTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
+
+        $detector = new TaxDetector();
+        static::assertFalse($detector->isCompanyTaxFree($context, $country));
+    }
+
+    public function testIsCompanyTaxFreeReturnsFalseWhenEuCountryAndEmptyVatIds(): void
+    {
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => '(DE)?[0-9]{9}',
+            'checkVatIdPattern' => true,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'company' => 'EU Company',
+            'vatIds' => [],
+        ]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();
         static::assertFalse($detector->isCompanyTaxFree($context, $country));

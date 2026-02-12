@@ -5,7 +5,7 @@ Plugins extend the ContentSystem through three mechanisms.
 ## Table of Contents
 
 1. [Extension Model](#extension-model)
-2. [Custom Rendering Specification Factories](#custom-rendering-specification-factories)
+2. [Custom Specification Sources](#custom-specification-sources)
 3. [Custom Data Loaders](#custom-data-loaders)
 4. [Event Subscribers](#event-subscribers)
 5. [Service Tags](#service-tag-reference)
@@ -14,60 +14,67 @@ Plugins extend the ContentSystem through three mechanisms.
 
 | Extension Point | Purpose |
 |-----------------|---------|
-| **Rendering Specification Factories** | New URL patterns, entity types, preview modes |
+| **Specification Sources** | New URL patterns, entity types, preview modes |
 | **Data Loaders** | External APIs, calculations, aggregated data (with cache control) |
 | **Event Subscribers** | Modify layout structure, enrich data, transform properties, cache tags |
 
 ---
 
-## Custom Rendering Specification Factories
+## Custom Specification Sources
 
-Factories translate path patterns into rendering specifications. A blog plugin rendering posts at `/store-api/content/blog/{id}` implements a factory that recognizes the `blog/` prefix and resolves the corresponding layout.
+Specification sources translate path patterns into rendering specifications via discrete steps. A blog plugin rendering posts at `/store-api/content/blog/{id}` implements a source that recognizes the `blog/` prefix and resolves the corresponding layout.
 
 ### Chain of Responsibility
 
-Factories are tried in priority order (highest first). The first factory to return a non-null `RenderingSpecification` handles the request.
+Sources are tried in priority order (highest first). The first source where `supports()` returns true handles the request via `RenderingSpecificationFactory`.
 
 | Priority | Behavior |
 |----------|----------|
 | Higher values | Tried first |
-| Return `null` | Skip to next factory |
-| Return `RenderingSpecification` | Handle request |
-| Throw exception | Only when your factory should handle but fails |
+| `supports()` returns `false` | Skip to next source |
+| `supports()` returns `true` | Handle request via stepped resolution |
+| Throw exception | Only when your source should handle but fails |
 
-### Example: Blog Post Factory
+### Example: Blog Post Source
 
 ```php
-final class BlogPostRenderingSpecificationFactory extends AbstractRenderingSpecificationFactory
+final class BlogPostSpecificationSource extends AbstractSpecificationSource
 {
     public function __construct(
-        private readonly EntityRepository $blogPostRepository,
         private readonly EntityRepository $blogLayoutAssignmentRepository,
     ) {}
 
-    public function getDecorated(): AbstractRenderingSpecificationFactory
+    public function getDecorated(): AbstractSpecificationSource
     { throw new DecorationPatternException(self::class); }
 
-    public function create(string $path, Request $request, SalesChannelContext $context): ?RenderingSpecification
-    { /* Return null if path doesn't start with 'blog/'; extract post ID from path; resolve layout via assignment table with sales channel fallback; return RenderingSpecification with blogPostId placeholder */ }
+    public function supports(string $path, Request $request, SalesChannelContext $context): bool
+    { /* Return true if path starts with '/blog/' */ }
 
-    private function resolveLayoutId(string $postId, SalesChannelContext $context): ?string
-    { /* Query blog_post_content_layout for postId, prioritize sales channel match over global */ }
+    public function resolveLayoutId(string $path, Request $request, SalesChannelContext $context): string
+    { /* Extract post ID from path; query blog_post_content_layout with sales channel fallback; return layout ID */ }
+
+    public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
+    { /* Resolve assignment; build data requirements and placeholder values; return SpecificationData */ }
+
+    public function resolveTargetElementId(string $path, Request $request, SalesChannelContext $context): ?string
+    { /* Extract optional elementId from request query parameters */ }
+
+    public function resolveCacheTags(string $path, Request $request, SalesChannelContext $context): array
+    { /* Return cache tags for the blog post entity */ }
 }
 ```
 
 **Service registration:**
 
 ```xml
-<service id="MyPlugin\ContentSystem\BlogPostRenderingSpecificationFactory">
-    <argument type="service" id="blog_post.repository"/>
+<service id="MyPlugin\ContentSystem\BlogPostSpecificationSource">
     <argument type="service" id="blog_post_content_layout.repository"/>
     <!-- Higher priority = tried first -->
     <tag name="content_system.context_factory" priority="100"/>
 </service>
 ```
 
-Reference: `Adapter/ProductContentLayoutContextFactory.php`
+Reference: `Adapter/ProductSpecificationSource.php`
 
 ---
 

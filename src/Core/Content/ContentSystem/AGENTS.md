@@ -4,12 +4,12 @@
 
 ## Source Code References
 
-- **Context Factories**: `Adapter/ProductContentLayoutContextFactory`, `Adapter/CategoryContentLayoutContextFactory`, `Adapter/LandingPageContentLayoutContextFactory`
-- **Header/Footer Factories**: `Adapter/HeaderSpecificationFactory`, `Adapter/FooterSpecificationFactory`
+- **Context Factories**: `Adapter/ProductSpecificationSource`, `Adapter/CategorySpecificationSource`, `Adapter/LandingPageSpecificationSource`
+- **Header/Footer Factories**: `Adapter/HeaderSpecificationSource`, `Adapter/FooterSpecificationSource`
 - **Resolvers**: `Adapter/FactoryHelper/DomainAwareLayoutResolver`, `Adapter/FactoryHelper/NavigationAliasResolver`
 - **Events**: `Event/PreContentHydrationEvent`, `Event/PostHydrationEvent`
 - **Event Subscribers**: `EventSubscriber/PreHydration/`, `EventSubscriber/PostHydration/`
-- **Specification**: `LayoutType`, `RenderingSpecification`, `PlaceholderValues`
+- **Specification**: `ContentSection`, `RenderingSpecification`, `PlaceholderValues`
 - **Hydration**: `Hydration/ContentElementHydrator`
 - **Store API (Main)**: `SalesChannel/ContentRoute`, `SalesChannel/ContentDecomposedRoute`, `SalesChannel/ContentSkeletonRoute`, `SalesChannel/ContentDataRoute`
 - **Store API (Header)**: `SalesChannel/Header/ContentHeaderRoute`, `SalesChannel/Header/ContentHeaderDecomposedRoute`, `SalesChannel/Header/ContentHeaderSkeletonRoute`, `SalesChannel/Header/ContentHeaderDataRoute`
@@ -28,7 +28,7 @@
   - Main: `/store-api/content/{path}` (entity-based resolution)
   - Header: `/store-api/content-header*` (domain-aware resolution)
   - Footer: `/store-api/content-footer*` (domain-aware resolution)
-- **Layout types**: `LayoutType::MAIN`, `LayoutType::HEADER`, `LayoutType::FOOTER`
+- **Content sections**: `ContentSection::MAIN`, `ContentSection::HEADER`, `ContentSection::FOOTER`
 - **DAL**: Use Criteria API + EntityDefinition, NOT Doctrine ORM
 
 ## Store API Schema

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem;
 
+use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Content\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
@@ -26,12 +27,6 @@ class ContentPipeline
     ) {
     }
 
-    /**
-     * Loads and renders content from a specification.
-     *
-     * For RenderingMode::SKELETON mode, hydration is skipped (elements have no hydrated properties).
-     * For RenderingMode::FULL mode, complete hydration runs.
-     */
     public function load(
         RenderingSpecification $specification,
         RenderingCacheContext $cacheContext,

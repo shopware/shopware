@@ -34,8 +34,6 @@ class EntityLayoutResolver
     }
 
     /**
-     * Resolves layout assignment and builds placeholder values for entity-based rendering.
-     *
      * @template TEntityCollection of CategoryContentLayoutCollection|ProductContentLayoutCollection|LandingPageContentLayoutCollection
      *
      * @param EntityRepository<TEntityCollection> $repository
@@ -68,6 +66,61 @@ class EntityLayoutResolver
         );
     }
 
+    /**
+     * Finds layout assignment with sales channel fallback priority: specific → global (null).
+     *
+     * @template TEntityCollection of CategoryContentLayoutCollection|ProductContentLayoutCollection|LandingPageContentLayoutCollection
+     *
+     * @param EntityRepository<TEntityCollection> $repository
+     */
+    public function findLayoutAssignment(
+        string $entityIdField,
+        string $entityId,
+        SalesChannelContext $context,
+        EntityRepository $repository
+    ): ?ContentLayoutAssignmentInterface {
+        $criteria = $this->buildAssignmentCriteria($entityIdField, $entityId, $context);
+        $criteria->addAssociation('contentLayout');
+
+        $result = $repository->search($criteria, $context->getContext());
+
+        return $result->first();
+    }
+
+    /**
+     * Returns only the content layout ID without loading the full assignment or contentLayout association.
+     *
+     * @template TEntityCollection of CategoryContentLayoutCollection|ProductContentLayoutCollection|LandingPageContentLayoutCollection
+     *
+     * @param EntityRepository<TEntityCollection> $repository
+     */
+    public function findLayoutId(
+        string $entityIdField,
+        string $entityId,
+        SalesChannelContext $context,
+        EntityRepository $repository
+    ): ?string {
+        $criteria = $this->buildAssignmentCriteria($entityIdField, $entityId, $context);
+
+        $assignment = $repository->search($criteria, $context->getContext())->first();
+
+        return $assignment?->getContentLayoutId();
+    }
+
+    private function buildAssignmentCriteria(string $entityIdField, string $entityId, SalesChannelContext $context): Criteria
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter($entityIdField, $entityId));
+        $criteria->addFilter(new OrFilter([
+            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+            new EqualsFilter('salesChannelId', null),
+        ]));
+        $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::DESCENDING));
+        $criteria->setLimit(1);
+
+        return $criteria;
+    }
+
     private function buildPlaceholderValues(
         ContentLayoutAssignmentInterface $assignment,
         string $entityIdField,
@@ -86,33 +139,5 @@ class EntityLayoutResolver
             [$entityIdPlaceholder => $entityId],
             $processedParameters
         ));
-    }
-
-    /**
-     * Finds layout assignment with sales channel fallback priority: specific → global (null).
-     *
-     * @template TEntityCollection of CategoryContentLayoutCollection|ProductContentLayoutCollection|LandingPageContentLayoutCollection
-     *
-     * @param EntityRepository<TEntityCollection> $repository
-     */
-    private function findLayoutAssignment(
-        string $entityIdField,
-        string $entityId,
-        SalesChannelContext $context,
-        EntityRepository $repository
-    ): ?ContentLayoutAssignmentInterface {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter($entityIdField, $entityId));
-        $criteria->addFilter(new OrFilter([
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
-            new EqualsFilter('salesChannelId', null),
-        ]));
-        $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::DESCENDING));
-        $criteria->setLimit(1);
-        $criteria->addAssociation('contentLayout');
-
-        $result = $repository->search($criteria, $context->getContext());
-
-        return $result->first();
     }
 }

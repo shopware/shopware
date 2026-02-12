@@ -33,17 +33,15 @@ class ContentPage extends Struct
     public function getContentDecomposedPage(
         DataLoaderConfigSerializerProvider $configSerializerProvider
     ): ContentDecomposedPage {
-        $skeletons = [];
         $visitor = new PropertiesExtractionVisitor($configSerializerProvider);
 
         foreach ($this->elements as $element) {
-            $skeleton = clone $element;
-            $skeleton->traverse($visitor);
-            $skeletons[] = $skeleton;
+            $clone = clone $element;
+            $clone->traverse($visitor);
         }
 
         return new ContentDecomposedPage(
-            $skeletons,
+            ContentSkeletonElement::fromElements($this->elements),
             $visitor->getData(),
             $visitor->getAssignments(),
             $this->layoutId,
@@ -59,7 +57,7 @@ class ContentPage extends Struct
     {
         return new ContentSkeletonPage(
             $this->layoutId,
-            $this->elements,
+            ContentSkeletonElement::fromElements($this->elements),
             $this->layoutName,
             $this->layoutVersion
         );

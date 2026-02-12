@@ -10,9 +10,9 @@ Products, Categories, and Landing Pages can have content layouts assigned direct
 
 The content is served through the `/store-api/content/{path}` endpoint with the following supported path patterns:
 
-- `product/{productId}` - Renders product content using `ProductContentLayoutContextFactory`
-- `category/{categoryId}` - Renders category content using `CategoryContentLayoutContextFactory`
-- `landing-page/{landingPageId}` - Renders landing page content using `LandingPageContentLayoutContextFactory`
+- `product/{productId}` - Renders product content using `ProductSpecificationSource`
+- `category/{categoryId}` - Renders category content using `CategorySpecificationSource`
+- `landing-page/{landingPageId}` - Renders landing page content using `LandingPageSpecificationSource`
 
 For detailed request and response schemas, see the OpenAPI specification files in `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/`. The complete Store API schema is also available at runtime via `/store-api/_info/openapi3.json`.
 
@@ -74,17 +74,17 @@ The system is organized into entity factories and rendering pipeline components.
 
 These factories translate entity IDs into rendering specifications:
 
-- **ProductContentLayoutContextFactory** - Creates specifications for product paths (located in `Adapter/`)
-- **CategoryContentLayoutContextFactory** - Creates specifications for category paths (located in `Adapter/`)
-- **LandingPageContentLayoutContextFactory** - Creates specifications for landing page paths (located in `Adapter/`)
+- **ProductSpecificationSource** - Creates specifications for product paths (located in `Adapter/`)
+- **CategorySpecificationSource** - Creates specifications for category paths (located in `Adapter/`)
+- **LandingPageSpecificationSource** - Creates specifications for landing page paths (located in `Adapter/`)
 - **EntityLayoutResolver** - Provides shared layout resolution logic (located in `Adapter/FactoryHelper/`)
 
 ### Header/Footer Factories
 
 These factories create specifications for header/footer rendering with domain-aware resolution:
 
-- **HeaderSpecificationFactory** - Creates specifications for header layouts (located in `Adapter/`)
-- **FooterSpecificationFactory** - Creates specifications for footer layouts (located in `Adapter/`)
+- **HeaderSpecificationSource** - Creates specifications for header layouts (located in `Adapter/`)
+- **FooterSpecificationSource** - Creates specifications for footer layouts (located in `Adapter/`)
 - **DomainAwareLayoutResolver** - Resolves layouts with domain → sales channel → global fallback (located in `Adapter/FactoryHelper/`)
 - **NavigationAliasResolver** - Resolves navigation aliases to category IDs (located in `Adapter/FactoryHelper/`)
 
@@ -92,7 +92,7 @@ These factories create specifications for header/footer rendering with domain-aw
 
 These classes handle the core rendering process:
 
-- **LayoutType** - Enum defining layout types (HEADER, FOOTER, MAIN) used in RenderingSpecification
+- **ContentSection** - Enum defining content sections (HEADER, FOOTER, MAIN) with route path segments and cache tag generation
 - **RenderingSpecification** - Contains the complete rendering specification including layout ID, placeholders, request data, target element, and layout type
 - **PlaceholderValues** - An immutable map of placeholder values used during rendering
 - **LayoutLoader** - Loads `ContentLayoutEntity` instances from the repository (located in `Layout/Loader/`)
@@ -107,7 +107,7 @@ These classes handle the core rendering process:
 
 ### Rendering Pipeline Design
 
-The rendering pipeline is designed to be independent of the data source. Context factories extend `AbstractRenderingSpecificationFactory` to translate entity IDs into `RenderingSpecification` objects. The pipeline receives a specification and renders the content without needing to know the original data source.
+The rendering pipeline is designed to be independent of the data source. Context factories extend `AbstractSpecificationSource` to translate entity IDs into `RenderingSpecification` objects. The pipeline receives a specification and renders the content without needing to know the original data source.
 
 The current factories for Product, Category, and Landing Page entities enable the content system to serve as a replacement for existing storefront and Store API pages, including product detail pages, product listing pages, and category pages.
 

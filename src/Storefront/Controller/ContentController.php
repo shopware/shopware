@@ -39,7 +39,9 @@ class ContentController extends StorefrontController
     {
         $pathInfo = $request->getPathInfo();
         $response = $this->contentRoute->load($pathInfo, $request, $context);
-        $contentPage = $response->getContentPage();
+
+        /** @var \Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage $contentPage */
+        $contentPage = $response->getObject();
 
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', [
             'contentPage' => $contentPage,

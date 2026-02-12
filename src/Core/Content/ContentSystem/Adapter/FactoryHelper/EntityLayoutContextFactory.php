@@ -12,8 +12,7 @@ use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Content\ContentSystem\LayoutType;
-use Shopware\Core\Content\ContentSystem\RenderingSpecification;
+use Shopware\Core\Content\ContentSystem\SpecificationData;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -25,11 +24,6 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
- * Factory for entity-based content layout rendering.
- *
- * Four-phase pipeline: parameter extraction, layout resolution,
- * data requirement transformation, specification assembly.
- *
  * @internal
  *
  * @final
@@ -43,16 +37,53 @@ class EntityLayoutContextFactory
     ) {
     }
 
+    public function supports(string $path, ContentLayoutAssignableDefinitionInterface $definition): bool
+    {
+        $path = '/' . ltrim($path, '/');
+        $pathPrefix = $definition->getContentLayoutPathPrefix();
+
+        return str_starts_with($path, $pathPrefix);
+    }
+
     /**
      * @param EntityRepository<ProductContentLayoutCollection|CategoryContentLayoutCollection|LandingPageContentLayoutCollection> $repository
      */
-    public function create(
+    public function resolveLayoutId(
+        string $path,
+        SalesChannelContext $context,
+        EntityRepository $repository,
+        ContentLayoutAssignableDefinitionInterface $definition
+    ): string {
+        $entityId = $this->extractEntityId($path, $definition);
+
+        $layoutId = $this->layoutResolver->findLayoutId(
+            $definition->getContentLayoutEntityIdField(),
+            $entityId,
+            $context,
+            $repository
+        );
+
+        if ($layoutId === null) {
+            throw ContentSystemException::layoutAssignmentNotFound(
+                $definition->getContentLayoutEntityType(),
+                $entityId,
+                $context->getSalesChannel()->getId()
+            );
+        }
+
+        return $layoutId;
+    }
+
+    /**
+     * @param EntityRepository<ProductContentLayoutCollection|CategoryContentLayoutCollection|LandingPageContentLayoutCollection> $repository
+     */
+    public function resolveSpecificationData(
         string $path,
         Request $request,
         SalesChannelContext $context,
         EntityRepository $repository,
         ContentLayoutAssignableDefinitionInterface $definition
-    ): RenderingSpecification {
+    ): SpecificationData {
         $entityId = $this->extractEntityId($path, $definition);
 
         $layoutData = $this->layoutResolver->resolve(
@@ -64,31 +95,40 @@ class EntityLayoutContextFactory
         );
 
         $dataRequirements = $this->transformDataRequirements($layoutData->assignment, $context, $definition);
-        $cacheTags = $definition->getCacheTags($entityId);
 
-        $params = $this->requestDataExtractor->extractData($request, null);
-        $targetElementId = \array_key_exists('elementId', $params) && \is_string($params['elementId']) && $params['elementId'] !== ''
-            ? $params['elementId']
-            : null;
-
-        return new RenderingSpecification(
-            layoutId: $layoutData->assignment->getContentLayoutId(),
+        return new SpecificationData(
             dataRequirements: $dataRequirements,
             placeholderValues: $layoutData->placeholderValues,
-            request: $request,
-            layoutType: LayoutType::MAIN,
-            targetElementId: $targetElementId,
-            cacheTags: $cacheTags,
         );
     }
 
+    public function resolveTargetElementId(Request $request): ?string
+    {
+        $params = $this->requestDataExtractor->extractData($request, null);
+
+        if (\array_key_exists('elementId', $params) && \is_string($params['elementId']) && $params['elementId'] !== '') {
+            return $params['elementId'];
+        }
+
+        return null;
+    }
+
     /**
-     * Extracts entity ID from URL path using Symfony UrlMatcher.
-     *
+     * @return list<string>
+     */
+    public function resolveCacheTags(string $path, ContentLayoutAssignableDefinitionInterface $definition): array
+    {
+        $entityId = $this->extractEntityId($path, $definition);
+
+        return $definition->getCacheTags($entityId);
+    }
+
+    /**
      * @throws ContentSystemException If path doesn't match route pattern
      */
     private function extractEntityId(string $path, ContentLayoutAssignableDefinitionInterface $definition): string
     {
+        $path = '/' . ltrim($path, '/');
         $routePattern = $definition->getContentLayoutRoutePattern();
         $pathPrefix = $definition->getContentLayoutPathPrefix();
 
@@ -118,9 +158,7 @@ class EntityLayoutContextFactory
     }
 
     /**
-     * Transforms data requirements by applying parameter binding remappings.
-     *
-     * When bindings remap property names (productId → product_id),
+     * When bindings remap property names (productId -> product_id),
      * data requirements must reference the remapped placeholder names.
      *
      * @return list<DataRequirement>

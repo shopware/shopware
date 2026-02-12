@@ -4,22 +4,22 @@ namespace Shopware\Core\Content\ContentSystem;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Bundles data requirements and placeholder values since both are
+ * produced from the same layout assignment resolution.
+ *
+ * @internal
+ */
 #[Package('discovery')]
-final readonly class RenderingSpecification
+final readonly class SpecificationData
 {
     /**
-     * @param array<string, DataRequirement> $dataRequirements keyed by requirement identifier
-     * @param list<string> $cacheTags
+     * @param list<DataRequirement> $dataRequirements
      */
     public function __construct(
-        public string $layoutId,
         public array $dataRequirements,
         public PlaceholderValues $placeholderValues,
-        public Request $request,
-        public ?string $targetElementId = null,
-        public array $cacheTags = [],
     ) {
     }
 }

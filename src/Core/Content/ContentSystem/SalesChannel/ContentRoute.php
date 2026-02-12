@@ -4,22 +4,19 @@ namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
 use Shopware\Core\Content\ContentSystem\Cache\CacheFinalizer;
 use Shopware\Core\Content\ContentSystem\ContentPipeline;
-use Shopware\Core\Content\ContentSystem\RenderingCacheContext;
-use Shopware\Core\Content\ContentSystem\RenderingMode;
-use Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver;
+use Shopware\Core\Content\ContentSystem\ContentSection;
+use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
+use Shopware\Core\Content\ContentSystem\Adapter\RenderingSpecificationResolver;
+use Shopware\Core\Content\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @final
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
 class ContentRoute extends AbstractContentRoute
 {
@@ -28,15 +25,12 @@ class ContentRoute extends AbstractContentRoute
      */
     public function __construct(
         private readonly RenderingSpecificationResolver $specificationResolver,
-        private readonly ContentPipeline $contentPipeline,
+        private readonly ContentSection $section,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly AbstractResponseFactory $responseFactory,
+        private readonly ContentPipeline $contentPipeline,
         private readonly CacheFinalizer $cacheFinalizer,
     ) {
-    }
-
-    public static function buildLayoutTag(string $layoutId): string
-    {
-        return 'content-layout-' . $layoutId;
     }
 
     public function getDecorated(): AbstractContentRoute
@@ -44,34 +38,21 @@ class ContentRoute extends AbstractContentRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(
-        path: '/store-api/content/{path}',
-        name: 'store-api.content.detail',
-        requirements: ['path' => '.+'],
-        defaults: [
-            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
-            'excludes' => [
-                'content_element' => [
-                    'dataRequirements',
-                    'contextDefinitions',
-                ],
-            ],
-        ],
-        methods: ['GET']
-    )]
-    public function load(string $path, Request $request, SalesChannelContext $context): ContentRouteResponse
+    public function load(string $path, Request $request, SalesChannelContext $context): AbstractContentRouteResponse
     {
         $renderingSpecification = $this->specificationResolver->resolve($path, $request, $context);
 
-        $this->cacheTagCollector->addTag(self::buildLayoutTag($renderingSpecification->layoutId));
+        foreach ($this->section->buildRouteCacheTags($renderingSpecification->layoutId) as $tag) {
+            $this->cacheTagCollector->addTag($tag);
+        }
 
         $cacheContext = new RenderingCacheContext();
         $cacheContext->addTags($renderingSpecification->cacheTags);
 
-        $contentPage = $this->contentPipeline->load($renderingSpecification, $cacheContext, RenderingMode::FULL, $context);
+        $contentPage = $this->contentPipeline->load($renderingSpecification, $cacheContext, $this->responseFactory->getRenderingMode(), $context);
 
         $this->cacheFinalizer->finalize($request, $cacheContext);
 
-        return new ContentRouteResponse($contentPage);
+        return $this->responseFactory->createResponse($contentPage);
     }
 }

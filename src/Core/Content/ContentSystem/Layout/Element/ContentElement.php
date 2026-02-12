@@ -242,8 +242,10 @@ class ContentElement extends Struct
         $data = parent::jsonSerialize();
 
         // Remove internal structCache from output (should not be exposed via API)
-        unset($data['structProperties']);
-        unset($data['nonStructProperties']);
+        unset(
+            $data['structProperties'],
+            $data['nonStructProperties'],
+        );
 
         $data['properties'] = array_merge(
             $this->structProperties,

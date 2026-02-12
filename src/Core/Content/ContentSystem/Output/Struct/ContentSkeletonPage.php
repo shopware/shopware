@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ContentSystem\Output\Struct;
 
-use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -15,11 +14,11 @@ use Shopware\Core\Framework\Struct\Struct;
 class ContentSkeletonPage extends Struct
 {
     /**
-     * @param iterable<ContentElement> $elements
+     * @param list<ContentSkeletonElement> $elements
      */
     public function __construct(
         public string $layoutId,
-        public iterable $elements,
+        public array $elements,
         public string $layoutName,
         public ?string $layoutVersion,
     ) {

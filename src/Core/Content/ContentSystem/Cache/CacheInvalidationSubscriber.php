@@ -5,9 +5,7 @@ namespace Shopware\Core\Content\ContentSystem\Cache;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute;
-use Shopware\Core\Content\ContentSystem\SalesChannel\Footer\ContentFooterRoute;
-use Shopware\Core\Content\ContentSystem\SalesChannel\Header\ContentHeaderRoute;
+use Shopware\Core\Content\ContentSystem\ContentSection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -18,8 +16,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Handles cache invalidation for content system entities.
- *
  * @internal
  */
 #[Package('discovery')]
@@ -59,7 +55,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         }
 
         $tags = array_map(
-            static fn (string $id) => ContentRoute::buildLayoutTag($id),
+            static fn (string $id) => ContentSection::MAIN->buildLayoutTag($id),
             $ids
         );
 
@@ -151,8 +147,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         $tags = [];
         foreach ($layoutIds as $layoutId) {
-            $tags[] = ContentRoute::buildLayoutTag($layoutId);
-            $tags[] = ContentHeaderRoute::buildLayoutTag($layoutId);
+            $tags = array_merge($tags, ContentSection::HEADER->buildRouteCacheTags($layoutId));
         }
 
         $this->cacheInvalidator->invalidate($tags);
@@ -174,8 +169,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         $tags = [];
         foreach ($layoutIds as $layoutId) {
-            $tags[] = ContentRoute::buildLayoutTag($layoutId);
-            $tags[] = ContentFooterRoute::buildLayoutTag($layoutId);
+            $tags = array_merge($tags, ContentSection::FOOTER->buildRouteCacheTags($layoutId));
         }
 
         $this->cacheInvalidator->invalidate($tags);

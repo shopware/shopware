@@ -5,15 +5,15 @@
 ## Source Code References
 
 **Entity Factories:**
-- `AbstractRenderingSpecificationFactory` - Factory base class (root ContentSystem/)
-- `ProductContentLayoutContextFactory` - Product entity factory
-- `CategoryContentLayoutContextFactory` - Category entity factory
-- `LandingPageContentLayoutContextFactory` - Landing page entity factory
+- `AbstractSpecificationSource` - Factory base class (root ContentSystem/)
+- `ProductSpecificationSource` - Product entity factory
+- `CategorySpecificationSource` - Category entity factory
+- `LandingPageSpecificationSource` - Landing page entity factory
 - `LayoutSearchHelper` - Shared query logic
 
 **Header/Footer Factories:**
-- `HeaderSpecificationFactory` - Header layout specification factory
-- `FooterSpecificationFactory` - Footer layout specification factory
+- `HeaderSpecificationSource` - Header layout specification factory
+- `FooterSpecificationSource` - Footer layout specification factory
 - `DomainAwareLayoutResolver` (FactoryHelper/) - Domain-aware layout resolution
 - `NavigationAliasResolver` (FactoryHelper/) - Resolves navigation aliases to category IDs
 

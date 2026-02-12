@@ -25,5 +25,5 @@
     <import resource="../../ProductExport/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Sitemap/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Flow/**/*Controller.php" type="attribute" />
-    <import resource="../../ContentSystem/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="." type="content_system" />
 </routes>

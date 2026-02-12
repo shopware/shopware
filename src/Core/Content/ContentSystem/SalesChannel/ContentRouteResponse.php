@@ -4,24 +4,24 @@ namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
  * @final
- *
- * @extends StoreApiResponse<ContentPage>
  */
 #[Package('discovery')]
-class ContentRouteResponse extends StoreApiResponse
+class ContentRouteResponse extends AbstractContentRouteResponse
 {
+    private readonly ContentPage $contentPage;
+
     public function __construct(
         ContentPage $contentPage,
     ) {
         parent::__construct($contentPage);
+        $this->contentPage = $contentPage;
     }
 
     public function getContentPage(): ContentPage
     {
-        return $this->object;
+        return $this->contentPage;
     }
 }

@@ -31,6 +31,7 @@ class ContentSystemException extends HttpException
     public const CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE = 'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE';
     public const PROPERTY_ALIAS_WITH_DOT_NOTATION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION';
     public const PROPERTY_ALIAS_COLLISION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
+    public const ROUTES_ALREADY_LOADED = 'CONTENT_SYSTEM__ROUTES_ALREADY_LOADED';
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
     {
@@ -227,6 +228,15 @@ class ContentSystemException extends HttpException
             self::PROPERTY_ALIAS_COLLISION,
             'Property key "{{ propertyKey }}" is used by both context "{{ firstContext }}" and "{{ secondContext }}". Each property_alias must be unique within an element.',
             ['propertyKey' => $propertyKey, 'firstContext' => $firstContext, 'secondContext' => $secondContext]
+        );
+    }
+
+    public static function routesAlreadyLoaded(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ROUTES_ALREADY_LOADED,
+            'Content system routes are already loaded.'
         );
     }
 }

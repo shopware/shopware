@@ -47,21 +47,21 @@ DomainAwareLayoutResolver queries with priority: domain + sales channel → sale
 ## Key Classes
 
 **Entity Factories:**
-- `ProductContentLayoutContextFactory` - Creates RenderingSpecification for product paths
-- `CategoryContentLayoutContextFactory` - Creates RenderingSpecification for category paths
-- `LandingPageContentLayoutContextFactory` - Creates RenderingSpecification for landing page paths
+- `ProductSpecificationSource` - Creates RenderingSpecification for product paths
+- `CategorySpecificationSource` - Creates RenderingSpecification for category paths
+- `LandingPageSpecificationSource` - Creates RenderingSpecification for landing page paths
 - `EntityLayoutResolver` (FactoryHelper/) - Shared layout resolution and placeholder processing
 - `EntityLayoutContextFactory` (FactoryHelper/) - Shared entity-to-specification transformation
 
 **Header/Footer Factories:**
-- `HeaderSpecificationFactory` - Creates RenderingSpecification for header layouts
-- `FooterSpecificationFactory` - Creates RenderingSpecification for footer layouts
+- `HeaderSpecificationSource` - Creates RenderingSpecification for header layouts
+- `FooterSpecificationSource` - Creates RenderingSpecification for footer layouts
 - `DomainAwareLayoutResolver` (FactoryHelper/) - Domain-aware layout resolution
 - `NavigationAliasResolver` (FactoryHelper/) - Resolves navigation aliases to category IDs
 
 ## Implementation
 
-Factories extend AbstractRenderingSpecificationFactory. ContentRoute tries factories in DI priority order (Chain of Responsibility). Entity factories check path prefix, query layout assignment, return RenderingSpecification or null.
+Factories extend AbstractSpecificationSource. ContentRoute tries factories in DI priority order (Chain of Responsibility). Entity factories check path prefix, query layout assignment, return RenderingSpecification or null.
 
 ## Subdirectories
 

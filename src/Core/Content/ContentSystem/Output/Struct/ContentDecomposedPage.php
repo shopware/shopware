@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ContentSystem\Output\Struct;
 
-use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -15,7 +14,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class ContentDecomposedPage extends Struct
 {
     /**
-     * @param array<ContentElement> $skeletons Element structures without property values
+     * @param list<ContentSkeletonElement> $skeletons Element structures without property values
      * @param array<string, mixed> $data Deduplicated property values
      * @param array<string, array<string, string>> $assignments Maps elements to property references
      */

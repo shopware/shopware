@@ -90,7 +90,7 @@
         "composer/semver": "^3.4.0",
         "doctrine/dbal": "~4.4.0",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "3.1.0",
+        "dompdf/dompdf": "3.1.4",
         "dragonmantank/cron-expression": "^3.3",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",

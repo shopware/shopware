@@ -618,4 +618,38 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(newProductMedia.media).toEqual(mediaItemToUnInherit);
         expect(newProductMedia._isNew).toBe(true);
     });
+
+    it('should handle error when deleting variant fails', async () => {
+        global.activeAclRoles = ['product.deleter'];
+
+        const syncDeletedMock = jest.fn().mockRejectedValueOnce(new Error('Delete failed'));
+
+        const wrapper = await createWrapper(
+            {},
+            {
+                create: jest.fn(() => ({
+                    search: () => Promise.resolve([]),
+                    save: jest.fn(() => Promise.resolve()),
+                    get: () => Promise.resolve({}),
+                    syncDeleted: syncDeletedMock,
+                })),
+            },
+        );
+        await flushPromises();
+
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        wrapper.vm.toBeDeletedVariantIds = [{ id: 'variant-1' }];
+        wrapper.vm.showDeleteModal = true;
+        wrapper.vm.modalLoading = false;
+
+        await wrapper.vm.onConfirmDelete();
+        await flushPromises();
+
+        expect(wrapper.vm.modalLoading).toBe(false);
+        expect(wrapper.vm.toBeDeletedVariantIds).toEqual([]);
+        expect(createNotificationErrorSpy).toHaveBeenCalledWith({
+            message: 'sw-product.variations.generatedListMessageDeleteError',
+        });
+    });
 });

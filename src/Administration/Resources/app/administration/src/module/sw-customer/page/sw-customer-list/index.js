@@ -205,15 +205,6 @@ export default {
         },
     },
 
-    watch: {
-        defaultCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -443,9 +434,12 @@ export default {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         async onBulkEditItems() {

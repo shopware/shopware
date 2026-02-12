@@ -176,8 +176,7 @@ class DefinitionValidator
 
         foreach ($this->registry->getDefinitions() as $definition) {
             $definitionClass = $definition->getClass();
-            // ignore definitions from a test namespace https://regex101.com/r/hpxAVN/1
-            if (preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
+            if ($this->shouldSkipDefinition($definitionClass)) {
                 continue;
             }
             if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
@@ -187,6 +186,8 @@ class DefinitionValidator
             $violations[$definitionClass] = [];
 
             $violations = array_merge_recursive($violations, $this->validateSchema($definition, $schema));
+
+            $violations = array_merge_recursive($violations, $this->validatePrimaryKeyConsistency($definition, $schema));
 
             $violations = array_merge_recursive($violations, $this->validateColumn($definition, $schema));
 
@@ -237,6 +238,17 @@ class DefinitionValidator
         $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($schema->getTables()));
 
         return array_filter($violations);
+    }
+
+    /**
+     * Check if a definition should be skipped during validation
+     *
+     * @see https://regex101.com/r/hpxAVN/1
+     */
+    protected function shouldSkipDefinition(string $definitionClass): bool
+    {
+        return (bool) preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass)
+            || (bool) preg_match('/.*ComposerChild\\\\.*/', $definitionClass);
     }
 
     /**
@@ -955,6 +967,52 @@ class DefinitionValidator
         }
 
         return [$definition->getClass() => $notices];
+    }
+
+    /**
+     * Validates that PrimaryKey flags in entity definition match the database PRIMARY KEY constraint
+     *
+     * @return array<class-string<EntityDefinition>, list<string>>
+     */
+    private function validatePrimaryKeyConsistency(EntityDefinition $definition, Schema $schema): array
+    {
+        if (!$schema->hasTable($definition->getEntityName())) {
+            return [];
+        }
+
+        $table = $schema->getTable($definition->getEntityName());
+
+        // Get primary key columns from database
+        $primaryKeyConstraint = $table->getPrimaryKeyConstraint();
+        $databasePrimaryKeys = $primaryKeyConstraint ? array_map(
+            fn ($identifier) => $identifier->toString(),
+            $primaryKeyConstraint->getColumnNames()
+        ) : [];
+
+        // Get primary key fields from entity definition
+        $definitionPkColumns = [];
+
+        foreach ($definition->getPrimaryKeys() as $pkField) {
+            if (!$pkField instanceof StorageAware) {
+                continue;
+            }
+            $definitionPkColumns[] = $pkField->getStorageName();
+        }
+
+        // Sort both arrays for consistent comparison
+        sort($databasePrimaryKeys);
+        sort($definitionPkColumns);
+
+        if ($databasePrimaryKeys !== $definitionPkColumns) {
+            return [$definition->getClass() => [\sprintf(
+                'Primary key mismatch in entity "%s": Table has PRIMARY KEY (%s), but entity definition has PrimaryKey flags on (%s). This causes entity hydration to fail silently. Ensure PrimaryKey flags match the database schema exactly.',
+                $definition->getEntityName(),
+                implode(', ', $databasePrimaryKeys),
+                implode(', ', $definitionPkColumns)
+            )]];
+        }
+
+        return [$definition->getClass() => []];
     }
 
     /**

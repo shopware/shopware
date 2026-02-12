@@ -51,16 +51,15 @@ class ElasticsearchCustomFieldsMappingHelper
     }
 
     /**
-     * @param array<array{name: string, type: string}> $customFields
+     * @param array<string, string> $customFields
      *
      * @return array<string, array{type: string}>
      */
     public static function mapCustomFieldsToEsTypes(array $customFields): array
     {
         $esTypes = [];
-        foreach ($customFields as $customField) {
-            $esType = self::getTypeFromCustomFieldType($customField['type']);
-            $esTypes[$customField['name']] = $esType;
+        foreach ($customFields as $name => $type) {
+            $esTypes[$name] = self::getTypeFromCustomFieldType($type);
         }
 
         return $esTypes;

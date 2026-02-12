@@ -119,9 +119,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'test_field', 'type' => 'int'],
+                'test_field' => 'int',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -210,9 +210,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'stream_field', 'type' => 'text'],
+                'stream_field' => 'text',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -261,10 +261,10 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'field1', 'type' => 'int'],
-                ['name' => 'field2', 'type' => 'text'],
+                'field1' => 'int',
+                'field2' => 'text',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -402,10 +402,10 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'field1', 'type' => 'int'],
-                ['name' => 'field2', 'type' => 'bool'],
+                'field1' => 'int',
+                'field2' => 'bool',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -474,9 +474,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'updated_field', 'type' => 'float'],
+                'updated_field' => 'float',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -531,7 +531,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         // Returns empty - custom field not found in database
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -580,9 +580,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'new_filter_field', 'type' => 'datetime'],
+                'new_filter_field' => 'datetime',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -674,10 +674,10 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->exactly(2))
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturnOnConsecutiveCalls(
-                [['name' => 'sorting_field', 'type' => 'int']],
-                [['name' => 'filter_field', 'type' => 'text']]
+                ['sorting_field' => 'int'],
+                ['filter_field' => 'text']
             );
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -741,9 +741,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'same_field', 'type' => 'int'],
+                'same_field' => 'int',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -800,9 +800,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'combined_field', 'type' => 'bool'],
+                'combined_field' => 'bool',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -973,13 +973,13 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'int_field', 'type' => 'int'],
-                ['name' => 'float_field', 'type' => 'float'],
-                ['name' => 'bool_field', 'type' => 'bool'],
-                ['name' => 'datetime_field', 'type' => 'datetime'],
-                ['name' => 'json_field', 'type' => 'json'],
+                'int_field' => 'int',
+                'float_field' => 'float',
+                'bool_field' => 'bool',
+                'datetime_field' => 'datetime',
+                'json_field' => 'json',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -1043,9 +1043,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'sorting_only_field', 'type' => 'text'],
+                'sorting_only_field' => 'text',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -1096,9 +1096,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $connection
             ->expects($this->once())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([
-                ['name' => 'filter_only_field', 'type' => 'int'],
+                'filter_only_field' => 'int',
             ]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);

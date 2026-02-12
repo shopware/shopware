@@ -114,21 +114,12 @@ WHERE custom_field_set_relation.entity_name = :entity
      */
     private function fetchCustomFieldNamesUsedInProductSorting(): array
     {
-        return $this->connection->fetchFirstColumn(
-            <<<'SQL'
-                SELECT
-                    REPLACE(jt.field_value, 'customFields.', '') as field_name
-                FROM product_sorting
-                CROSS JOIN JSON_TABLE(
-                    fields,
-                    '$[*]' COLUMNS (
-                        field_value VARCHAR(255) PATH '$.field'
-                    )
-                ) AS jt
-                WHERE jt.field_value LIKE :fields
-                SQL,
-            ['fields' => 'customFields.%']
+        $rows = $this->connection->fetchFirstColumn(
+            'SELECT fields FROM product_sorting WHERE fields LIKE :pattern',
+            ['pattern' => '%customFields.%']
         );
+
+        return $this->extractCustomFieldNames($rows);
     }
 
     /**
@@ -136,9 +127,47 @@ WHERE custom_field_set_relation.entity_name = :entity
      */
     private function fetchCustomFieldNamesUsedInProductStream(): array
     {
-        return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT REPLACE(field, \'customFields.\', \'\') FROM product_stream_filter WHERE field LIKE :field',
-            ['field' => 'customFields.%']
+        $rows = $this->connection->fetchFirstColumn(
+            'SELECT api_filter FROM product_stream WHERE api_filter LIKE :pattern',
+            ['pattern' => '%customFields.%']
         );
+
+        return $this->extractCustomFieldNames($rows);
+    }
+
+    /**
+     * @param list<string> $rows
+     *
+     * @return list<string>
+     */
+    private function extractCustomFieldNames(array $rows): array
+    {
+        $customFieldNames = [];
+        $prefixLength = \strlen('customFields.');
+
+        foreach ($rows as $row) {
+            try {
+                $data = json_decode((string) $row, true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                continue;
+            }
+
+            if (!\is_array($data)) {
+                continue;
+            }
+
+            array_walk_recursive($data, static function (mixed $value, string|int $key) use (&$customFieldNames, $prefixLength): void {
+                if ($key !== 'field' || !\is_string($value)) {
+                    return;
+                }
+
+                $pos = strpos($value, 'customFields.');
+                if ($pos !== false) {
+                    $customFieldNames[substr($value, $pos + $prefixLength)] = true;
+                }
+            });
+        }
+
+        return array_keys($customFieldNames);
     }
 }

@@ -151,9 +151,9 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
     {
         $customFieldNames = array_values(array_unique($customFieldNames));
 
-        $customFields = $this->fetchCustomFieldsByName($customFieldNames);
+        $customFieldTypes = $this->fetchCustomFieldTypesByName($customFieldNames);
 
-        $fields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes($customFields);
+        $fields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes($customFieldTypes);
 
         $this->mappingHelper->createFieldsInIndices($fields);
     }
@@ -161,23 +161,20 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
     /**
      * @param array<string> $fieldNames
      *
-     * @return list<array{name: string, type: string}>
+     * @return array<string, string>
      */
-    private function fetchCustomFieldsByName(array $fieldNames): array
+    private function fetchCustomFieldTypesByName(array $fieldNames): array
     {
         if (\count($fieldNames) === 0) {
             return [];
         }
 
-        $results = $this->connection->fetchAllAssociative(
+        $result = $this->connection->fetchAllKeyValue(
             'SELECT name, type FROM custom_field WHERE name IN (:names)',
             ['names' => $fieldNames],
             ['names' => ArrayParameterType::STRING]
         );
 
-        return array_map(static fn (array $row): array => [
-            'name' => (string) $row['name'],
-            'type' => (string) $row['type'],
-        ], $results);
+        return $result;
     }
 }

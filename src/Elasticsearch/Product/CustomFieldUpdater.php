@@ -92,8 +92,9 @@ class CustomFieldUpdater implements EventSubscriberInterface
         }
 
         $customFieldsBySet = $this->customFieldSetGateway->fetchCustomFieldsForSets($updatedCustomFieldSetIds);
+        $allCustomFields = array_merge([], ...array_values($customFieldsBySet));
         $fields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes(
-            array_merge([], ...array_values($customFieldsBySet))
+            array_column($allCustomFields, 'type', 'name')
         );
 
         $this->mappingHelper->createFieldsInIndices($fields);
@@ -151,12 +152,12 @@ class CustomFieldUpdater implements EventSubscriberInterface
             return;
         }
 
-        $newCreatedFields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes(
-            array_map(static fn (EntityWriteResult $writeResult) => [
-                'name' => $writeResult->getProperty('name'),
-                'type' => $writeResult->getProperty('type'),
-            ], $results)
-        );
+        $nameTypeMap = [];
+        foreach ($results as $writeResult) {
+            $nameTypeMap[$writeResult->getProperty('name')] = $writeResult->getProperty('type');
+        }
+
+        $newCreatedFields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes($nameTypeMap);
 
         $this->mappingHelper->createFieldsInIndices($newCreatedFields);
     }

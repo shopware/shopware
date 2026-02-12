@@ -111,12 +111,12 @@ class ElasticsearchIndexingUtilsTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
 
-        // First call returns sorting field, second call returns stream field
+        // First call returns sorting JSON, second call returns stream api_filter JSON (with entity prefix)
         $connection->expects($this->exactly(2))
             ->method('fetchFirstColumn')
             ->willReturnOnConsecutiveCalls(
-                ['sorting_field'],
-                ['stream_field']
+                [json_encode([['field' => 'customFields.sorting_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false]])],
+                [json_encode([['type' => 'equals', 'field' => 'product.customFields.stream_field', 'value' => '1']])]
             );
 
         $connection->expects($this->once())

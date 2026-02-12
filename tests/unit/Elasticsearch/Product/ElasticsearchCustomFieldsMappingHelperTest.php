@@ -101,10 +101,10 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
     public function testMapCustomFieldsToEsTypes(): void
     {
         $customFields = [
-            ['name' => 'field_int', 'type' => CustomFieldTypes::INT],
-            ['name' => 'field_bool', 'type' => CustomFieldTypes::BOOL],
-            ['name' => 'field_text', 'type' => CustomFieldTypes::TEXT],
-            ['name' => 'field_float', 'type' => CustomFieldTypes::FLOAT],
+            'field_int' => CustomFieldTypes::INT,
+            'field_bool' => CustomFieldTypes::BOOL,
+            'field_text' => CustomFieldTypes::TEXT,
+            'field_float' => CustomFieldTypes::FLOAT,
         ];
 
         $result = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes($customFields);

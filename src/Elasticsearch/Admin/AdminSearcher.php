@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
@@ -88,6 +89,10 @@ class AdminSearcher
 
     public function searchIds(string $entityName, Criteria $criteria, Context $context): IdSearchResult
     {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            Feature::throwException('ENABLE_OPENSEARCH_FOR_ADMIN_API', 'Method is unavailable when the feature is active.');
+        }
+
         if (!$context->isAllowed($entityName . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
             throw ElasticsearchException::missingPrivilege([
                 $entityName . ':' . AclRoleDefinition::PRIVILEGE_READ,

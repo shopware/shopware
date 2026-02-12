@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -85,6 +86,10 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
 
     public function mapping(array $mapping): array
     {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return parent::mapping($mapping);
+        }
+
         $languageFields = $this->fieldBuilder->translated(AbstractElasticsearchDefinition::KEYWORD_FIELD);
 
         $override = [

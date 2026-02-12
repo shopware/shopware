@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 
@@ -57,6 +58,10 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
 
     private function allowAdminEsSearch(EntityDefinition $definition, Context $context, Criteria $criteria): bool
     {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return false;
+        }
+
         if (!$context->getSource() instanceof AdminApiSource) {
             return false;
         }

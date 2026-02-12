@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,13 +75,13 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'customSearchKeywords',
         ]);
 
-        $categories = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductCategoryDefinition::ENTITY_NAME, [
+        $categories = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductCategoryDefinition::ENTITY_NAME, [
             'categoryId',
-        ]);
+        ]) : [];
 
-        $visibilities = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
+        $visibilities = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
             'salesChannelId',
-        ]);
+        ]) : [];
 
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
@@ -144,6 +145,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
     public function mapping(array $mapping): array
     {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return parent::mapping($mapping);
+        }
+
         $languageFields = $this->fieldBuilder->translated(AbstractElasticsearchDefinition::KEYWORD_FIELD);
 
         $override = [
@@ -179,9 +184,71 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, textBoosted:string, text:string}>
+     * @param array<string> $ids
+     *
+     * @return array<string, array<string, mixed>>
      */
     public function fetch(array $ids): array
+    {
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return $this->advancedFetch($ids);
+        }
+
+        $data = $this->connection->fetchAllAssociative(
+            '
+            SELECT LOWER(HEX(product.id)) as id,
+                   GROUP_CONCAT(DISTINCT translation.name SEPARATOR " ") as name,
+                   CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as custom_search_keywords,
+                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
+                   product.product_number,
+                   product.ean,
+                   product.manufacturer_number
+            FROM product
+                INNER JOIN product_translation AS translation
+                    ON product.id = translation.product_id AND product.version_id = translation.product_version_id
+                LEFT JOIN product_tag
+                    ON product.id = product_tag.product_id AND product.version_id = product_tag.product_version_id
+                LEFT JOIN tag
+                    ON product_tag.tag_id = tag.id
+            WHERE product.id IN (:ids)
+            AND product.version_id = :versionId
+            GROUP BY product.id
+        ',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ]
+        );
+
+        $mapped = [];
+        foreach ($data as $row) {
+            $textBoosted = $row['name'] . ' ' . $row['product_number'];
+
+            if ($row['custom_search_keywords']) {
+                $row['custom_search_keywords'] = json_decode((string) $row['custom_search_keywords'], true, 512, \JSON_THROW_ON_ERROR);
+                $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['custom_search_keywords'])));
+            }
+
+            $id = (string) $row['id'];
+            unset($row['name'],  $row['product_number'], $row['custom_search_keywords']);
+            $text = \implode(' ', array_filter(array_unique(array_values($row))));
+            $mapped[$id] = ['id' => $id, 'textBoosted' => \strtolower($textBoosted), 'text' => \strtolower($text)];
+        }
+
+        return $mapped;
+    }
+
+    /**
+     * @description to keep the writing fast we do a more complex fetch here only if the feature flag ENABLE_OPENSEARCH_FOR_ADMIN_API is enabled to reduce the number of joins in the sql query
+     *
+     * @param array<string> $ids
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function advancedFetch(array $ids): array
     {
         $baseMapping = [
             '#visibilities#' => SqlHelper::objectArray([

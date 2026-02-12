@@ -33,11 +33,11 @@ class Migration1770705203AddPaymentMethodChangedFlowAndMailTemplate extends Migr
     {
         // update mail templates
         $cancelledMailUpdate = new MailUpdate(MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED);
-        $cancelledMailUpdate->loadByDirectoryName('order_transaction.state.cancelled');
+        $cancelledMailUpdate->loadByDirectoryName(MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED);
         $this->updateMail($cancelledMailUpdate, $connection);
 
         $remindedMailUpdate = new MailUpdate(MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED);
-        $remindedMailUpdate->loadByDirectoryName('order_transaction.state.reminded');
+        $remindedMailUpdate->loadByDirectoryName(MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED);
         $this->updateMail($remindedMailUpdate, $connection);
 
         // create new mail template

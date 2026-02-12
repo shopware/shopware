@@ -34,7 +34,7 @@ class MailUpdate
         if ($filesystem->exists($path . '/de-plain.txt.twig')) {
             $this->dePlain = $filesystem->readFile($path . '/de-plain.txt.twig');
         } else {
-            $this->enPlain = $filesystem->readFile($path . '/de-plain.html.twig');
+            $this->dePlain = $filesystem->readFile($path . '/de-plain.html.twig');
         }
     }
 

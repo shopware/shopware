@@ -77,8 +77,7 @@
                             {% endblock %}
 
                             {% block page_account_order_item_context_menu_content %}
-                                <div class="dropdown-menu dropdown-menu-end order-table-header-context-menu-content"
-                                     aria-labelledby="accountOrderDropdown-{{ order.id }}">
+                                <div class="dropdown-menu dropdown-menu-end order-table-header-context-menu-content">
                                     {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
                                         {% block page_account_order_item_context_menu_content_change_payment_button %}
                                             {% if isPaymentNeeded %}

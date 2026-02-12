@@ -299,7 +299,7 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
-            cancellation_request_form:
+            revocation_request_form:
                 enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'

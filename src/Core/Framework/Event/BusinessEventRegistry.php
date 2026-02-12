@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
-use Shopware\Core\Content\CancellationRequest\Event\CancellationRequestEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
@@ -26,6 +25,7 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
+use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
@@ -60,7 +60,7 @@ class BusinessEventRegistry
         NewsletterUnsubscribeEvent::class,
         ProductExportLoggingEvent::class,
         CustomerPasswordChangedEvent::class,
-        CancellationRequestEvent::class,
+        RevocationRequestEvent::class,
     ];
 
     /**

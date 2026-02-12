@@ -87,7 +87,7 @@ describe('OffCanvasMenuPlugin tests', () => {
         };
 
         window.PluginManager.register = jest.fn();
-        window.PluginManager.initializePlugins = jest.fn(() => Promise.resolve());
+        window.PluginManager.initializePluginsInParentElement = jest.fn(() => Promise.resolve());
         window.history.replaceState = jest.fn(() => Promise.resolve());
 
         plugin = new OffCanvasMenuPlugin(el);
@@ -139,8 +139,8 @@ describe('OffCanvasMenuPlugin tests', () => {
         offCanvasMenuButton.click();
         await new Promise(process.nextTick);
 
-        // Ensure JS events are registered
-        expect(window.PluginManager.initializePlugins).toHaveBeenCalled();
+        // Ensure JS events are registered within the offcanvas
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalled();
         // Ensure the parameter is removed from the URL
         expect(window.history.replaceState).toHaveBeenCalled();
     });

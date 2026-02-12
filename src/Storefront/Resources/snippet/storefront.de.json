@@ -617,7 +617,7 @@
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
   },
-  "cancellationRequest": {
+  "revocationRequest": {
     "headline": "Widerruf",
     "firstNameLabel": "Vorname",
     "firstNamePlaceholder": "Vornamen eingeben ...",
@@ -854,6 +854,10 @@
       }
     },
     "cms": {
+      "video": {
+        "notSupported": "Dein Browser unterstützt das Abspielen von HTML5-Videos nicht.",
+        "ariaLabelPlay": "Video abspielen"
+      },
       "vimeo": {
         "privacyNoticeText": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "acceptButtonLabel": "Akzeptieren",

@@ -44,7 +44,7 @@ class SendMailAction extends FlowAction implements DelayableAction
     private const RECIPIENT_CONFIG_ADMIN = 'admin';
     private const RECIPIENT_CONFIG_CUSTOM = 'custom';
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
-    private const RECIPIENT_CONFIG_CANCELLATION_REQUEST_CUSTOMER_FORM_MAIL = 'cancellationRequestCustomerFormMail';
+    private const RECIPIENT_CONFIG_REVOCATION_REQUEST_CUSTOMER_FORM_MAIL = 'revocationRequestCustomerFormMail';
 
     /**
      * @internal
@@ -128,7 +128,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $eventConfig['recipient'],
             $mailStruct->getRecipients(),
             $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
-            $flow->getData(FlowMailVariables::CANCELLATION_REQUEST_FORM_DATA, []),
+            $flow->getData(FlowMailVariables::REVOCATION_REQUEST_FORM_DATA, []),
         );
 
         if (empty($recipients)) {
@@ -308,11 +308,11 @@ class SendMailAction extends FlowAction implements DelayableAction
      * @param array<string, mixed> $recipients
      * @param array<string, string> $mailStructRecipients
      * @param array<int|string, mixed> $contactFormData
-     * @param array<int|string, mixed> $cancellationRequestFormData
+     * @param array<int|string, mixed> $revocationRequestFormData
      *
      * @return array<int|string, string>
      */
-    private function getRecipients(array $recipients, $mailStructRecipients, array $contactFormData, array $cancellationRequestFormData): array
+    private function getRecipients(array $recipients, $mailStructRecipients, array $contactFormData, array $revocationRequestFormData): array
     {
         switch ($recipients['type']) {
             case self::RECIPIENT_CONFIG_CUSTOM:
@@ -329,8 +329,8 @@ class SendMailAction extends FlowAction implements DelayableAction
                 return $emails;
             case self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL:
                 return $this->createEnquiryReceiver($contactFormData);
-            case self::RECIPIENT_CONFIG_CANCELLATION_REQUEST_CUSTOMER_FORM_MAIL:
-                return $this->createEnquiryReceiver($cancellationRequestFormData);
+            case self::RECIPIENT_CONFIG_REVOCATION_REQUEST_CUSTOMER_FORM_MAIL:
+                return $this->createEnquiryReceiver($revocationRequestFormData);
             default:
                 return $mailStructRecipients;
         }

@@ -15,4 +15,9 @@ interface ConsentDefinition
     public function getScopeName(): string;
 
     public function getSince(): \DateTimeImmutable;
+
+    /**
+     * @return array<string>
+     */
+    public function getRequiredPermissions(): array;
 }

@@ -213,7 +213,7 @@ class ProductGeneratorTest extends TestCase
             static::assertIsInt($product['stock']);
             static::assertIsArray($product['prices']);
 
-            if (\count($product['prices']) > 0) {
+            if ($product['prices'] !== []) {
                 foreach ($product['prices'] as $price) {
                     static::assertContains($price['ruleId'], $ruleIds);
                     static::assertIsInt($price['quantityStart']);
@@ -269,7 +269,7 @@ class ProductGeneratorTest extends TestCase
                 static::assertIsInt($child['stock']);
                 static::assertIsArray($child['prices']);
 
-                if (\count($child['prices']) > 0) {
+                if ($child['prices'] !== []) {
                     foreach ($child['prices'] as $price) {
                         static::assertContains($price['ruleId'], $ruleIds);
                         static::assertIsInt($price['quantityStart']);

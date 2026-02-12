@@ -17,7 +17,7 @@ final class FlowMailVariables
     public const EVENT_NAME = 'name';
     public const MEDIA_ID = 'mediaId';
     public const EMAIL = 'email';
-    public const CANCELLATION_REQUEST_FORM_DATA = 'cancellationRequestFormData';
+    public const REVOCATION_REQUEST_FORM_DATA = 'revocationRequestFormData';
     public const CONTACT_FORM_DATA = 'contactFormData';
     public const CONTENTS = 'contents';
     public const CONTEXT_TOKEN = 'contextToken';

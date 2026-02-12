@@ -1,0 +1,10 @@
+Neuer Widerrufsantrag für den Vertrag mit der Nummer {{ revocationRequestFormData.contractNumber }}
+
+Weitere Informationen:
+Vorname: {{ revocationRequestFormData.firstName }}
+Nachname: {{ revocationRequestFormData.lastName }}
+E-Mail-Adresse: {{ revocationRequestFormData.email }}
+Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ revocationRequestFormData.contractNumber }}
+Kommentar: {{ revocationRequestFormData.comment }}
+
+Das Formular wurde am {{ revocationRequestFormData.submitTime|format_datetime('medium', 'short', locale='de-DE') }} eingereicht.

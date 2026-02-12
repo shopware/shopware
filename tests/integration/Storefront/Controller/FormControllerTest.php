@@ -163,7 +163,7 @@ class FormControllerTest extends TestCase
         static::assertSame(2, $messageCount);
     }
 
-    public function testSendCancellationRequest(): void
+    public function testSendRevocationRequest(): void
     {
         $formData = [
             'firstName' => 'Max',
@@ -175,8 +175,8 @@ class FormControllerTest extends TestCase
 
         $response = $this->request(
             Request::METHOD_POST,
-            '/form/cancellation/request',
-            $this->tokenize('frontend.form.cancellation.request', $formData)
+            '/form/revocation/request',
+            $this->tokenize('frontend.form.revocation.request', $formData)
         );
 
         static::assertInstanceOf(JsonResponse::class, $response);
@@ -189,10 +189,10 @@ class FormControllerTest extends TestCase
         static::assertArrayHasKey('type', $content);
         static::assertSame('success', $content['type']);
         static::assertArrayHasKey('alert', $content);
-        static::assertSame('We have received your cancellation request and will process it as soon as possible.', $content['alert']);
+        static::assertSame('We have received your revocation request and will process it as soon as possible.', $content['alert']);
     }
 
-    public function testSendCancellationRequestWithInvalidData(): void
+    public function testSendRevocationRequestWithInvalidData(): void
     {
         // invalid formData
         $formData = [
@@ -205,8 +205,8 @@ class FormControllerTest extends TestCase
 
         $response = $this->request(
             Request::METHOD_POST,
-            '/form/cancellation/request',
-            $this->tokenize('frontend.form.cancellation.request', $formData)
+            '/form/revocation/request',
+            $this->tokenize('frontend.form.revocation.request', $formData)
         );
 
         static::assertInstanceOf(JsonResponse::class, $response);

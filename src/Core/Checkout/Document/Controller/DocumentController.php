@@ -98,7 +98,7 @@ class DocumentController extends AbstractController
     {
         $documentIds = $request->request->all()['documentIds'] ?? [];
 
-        if (!\is_array($documentIds) || empty($documentIds)) {
+        if (!\is_array($documentIds) || $documentIds === []) {
             throw DocumentException::invalidRequestParameter('documentIds');
         }
 

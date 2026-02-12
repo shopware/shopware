@@ -54,7 +54,8 @@ describe('Plugin class', () => {
             getPluginInstancesFromElement: jest.fn().mockReturnValue(new Map()),
             getPlugin: jest.fn().mockReturnValue({
                 get: jest.fn().mockReturnValue([])
-            })
+            }),
+            initializePluginsInParentElement: jest.fn(),
         };
         
         window.PluginConfigManager = {

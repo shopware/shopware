@@ -122,7 +122,7 @@ class AddressDetailPageLoader
      */
     private function getAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): ?CustomerAddressEntity
     {
-        if (!$addressId = $request->query->get('addressId')) {
+        if (!$addressId = $request->attributes->getString('addressId')) {
             return null;
         }
 

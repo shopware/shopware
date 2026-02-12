@@ -322,13 +322,12 @@
                         :element="element"
                     >
                         <template #default="{ isInherited }">
-                            <mt-switch
+                            <mt-select
                                 v-model="element.config.navigationArrows.value"
                                 class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
                                 :label="$t('sw-cms.elements.productSlider.config.label.navigationArrows')"
                                 :options="arrowOptions"
                                 :disabled="isInherited"
-                                @update:model-value="emitUpdateEl"
                             />
                         </template>
                     </sw-cms-inherit-wrapper>

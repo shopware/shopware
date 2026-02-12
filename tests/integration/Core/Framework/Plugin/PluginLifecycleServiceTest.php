@@ -132,16 +132,6 @@ class PluginLifecycleServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (isset($this->container)) {
-            $dispatcher = $this->container->get('event_dispatcher');
-
-            foreach ($this->registeredListeners as [$eventName, $listener]) {
-                $dispatcher->removeListener($eventName, $listener);
-            }
-        }
-
-        $this->registeredListeners = [];
-
         static::getContainer()
             ->get(Connection::class)
             ->rollBack();
@@ -153,6 +143,14 @@ class PluginLifecycleServiceTest extends TestCase
         if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
             unset($_SERVER['TEST_KEEP_MIGRATIONS']);
         }
+
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        foreach ($this->registeredListeners as [$eventName, $listener]) {
+            $dispatcher->removeListener($eventName, $listener);
+        }
+
+        $this->registeredListeners = [];
     }
 
     public function testInstallPlugin(): void

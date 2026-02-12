@@ -2,7 +2,6 @@
 
 | Event | Description | Permissions needed | Payload
 | :--- | :--- | :--- | :--- |
-|`cancellation_request.sent` | __EMPTY__ | - | {"cancellationRequestFormData":"object"}
 |`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
 |`checkout.customer.deleted` | Triggers if a customer gets deleted | `customer:read` | {"entity":"customer"}
 |`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer","confirmUrl":"string"}
@@ -26,6 +25,7 @@
 |`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
 |`product_export.log` | __EMPTY__ | - | {"name":"string"}
 |`review_form.send` | Triggers when a product review form is send | `product:read` | {"reviewFormData":"object","entity":"product"}
+|`revocation_request.sent` | __EMPTY__ | - | {"revocationRequestFormData":"object"}
 |`state_enter.order.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}

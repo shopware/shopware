@@ -534,7 +534,7 @@
             "type": "Form type",
             "typeContact": "Contact",
             "typeNewsletter": "Newsletter",
-            "typeCancellationRequest": "Cancellation",
+            "typeRevocationRequest": "Revocation",
             "confirmationText": "Confirmation text"
           },
           "placeholder": {

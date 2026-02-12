@@ -28,8 +28,8 @@ Shopware.Component.register('sw-cms-el-form-template-newsletter', () => import('
  * @sw-package discovery
  */
 Shopware.Component.register(
-    'sw-cms-el-form-template-cancellation-request',
-    () => import('./component/templates/form-cancellation-request'),
+    'sw-cms-el-form-template-revocation-request',
+    () => import('./component/templates/form-revocation-request'),
 );
 
 /**

@@ -111,11 +111,11 @@ export default {
             ];
         },
 
-        recipientCancellationRequestFormMail() {
+        recipientRevocationRequestFormMail() {
             return [
                 {
-                    value: 'cancellationRequestCustomerFormMail',
-                    label: this.$tc('sw-flow.modals.mail.labelCancellationRequestFormMail'),
+                    value: 'revocationRequestCustomerFormMail',
+                    label: this.$tc('sw-flow.modals.mail.labelRevocationRequestFormMail'),
                 },
             ];
         },
@@ -153,10 +153,10 @@ export default {
                 ];
             }
 
-            if (this.triggerEvent.name === 'cancellation_request.sent') {
+            if (this.triggerEvent.name === 'revocation_request.sent') {
                 return [
                     ...this.recipientDefault,
-                    ...this.recipientCancellationRequestFormMail,
+                    ...this.recipientRevocationRequestFormMail,
                     ...this.recipientAdmin,
                     ...this.recipientCustom,
                 ];

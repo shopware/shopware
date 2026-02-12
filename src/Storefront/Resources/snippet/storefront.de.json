@@ -617,7 +617,7 @@
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
   },
-  "cancellationRequest": {
+  "revocationRequest": {
     "headline": "Widerruf",
     "firstNameLabel": "Vorname",
     "firstNamePlaceholder": "Vornamen eingeben ...",

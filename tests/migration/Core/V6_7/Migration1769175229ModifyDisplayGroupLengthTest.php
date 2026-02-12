@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1769175229ModifyDisplayGroupLength;
 
 /**
@@ -37,11 +38,8 @@ class Migration1769175229ModifyDisplayGroupLengthTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $columns = $this->connection->createSchemaManager()->listTableColumns('product');
-        static::assertArrayHasKey('display_group', $columns);
-
-        $column = $columns['display_group'];
-        static::assertSame(64, $column->getLength());
+        $column = TableHelper::getColumnOfTable($this->connection, 'product', 'display_group');
+        static::assertSame(64, $column->length);
     }
 
     private function rollback(): void

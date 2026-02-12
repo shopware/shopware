@@ -47,8 +47,12 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
                 ['ids' => $productIds],
                 ['ids' => ArrayParameterType::STRING]
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // On MySQL 9.6+ there is no longer support for MD5, so we silently ignore the missing function error here.
+            if (str_contains($e->getMessage(), 'MD5')) {
+                return;
+            }
+            throw $e;
         }
     }
 }

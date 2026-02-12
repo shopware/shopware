@@ -626,10 +626,6 @@ frame-ancestors 'none';
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Util\Database\TableHelperResetter">
-            <tag name="kernel.reset" method="reset"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
             <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
             <argument>%shopware.logger.exclude_exception%</argument>

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1762356839AddInternalCommentToStateMachineHistory;
 
 /**
@@ -34,15 +35,15 @@ class Migration1762356839AddInternalCommentToStateMachineHistoryTest extends Tes
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $existingColumns = $this->connection->createSchemaManager()->listTableColumns('state_machine_history');
-        static::assertArrayHasKey('internal_comment', $existingColumns);
+        $hasColumn = TableHelper::columnExists($this->connection, 'state_machine_history', 'internal_comment');
+        static::assertTrue($hasColumn);
     }
 
     private function rollback(): void
     {
-        $existingColumns = $this->connection->createSchemaManager()->listTableColumns('state_machine_history');
+        $hasColumn = TableHelper::columnExists($this->connection, 'state_machine_history', 'internal_comment');
 
-        if (\array_key_exists('internal_comment', $existingColumns)) {
+        if ($hasColumn) {
             $this->connection->executeStatement('ALTER TABLE `state_machine_history` DROP COLUMN `internal_comment`;');
         }
     }

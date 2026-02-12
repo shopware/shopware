@@ -439,7 +439,7 @@ class OrderRouteTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $eventCallCounter = 0;
         $listenerClosure = function (MailSentEvent $event) use (&$eventCallCounter): void {
-            $eventCallCounter++;
+            ++$eventCallCounter;
             static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
             static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };

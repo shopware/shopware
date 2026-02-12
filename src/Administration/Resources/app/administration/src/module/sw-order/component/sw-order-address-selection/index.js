@@ -158,6 +158,7 @@ export default {
             if (id === this.address.id) {
                 // create to prevent side effects when closing the modal
                 this.currentAddress = this.orderAddressRepository.create(Shopware.Context.api, id);
+                delete this.currentAddress._isNew;
                 Object.assign(this.currentAddress, this.address);
 
                 return;

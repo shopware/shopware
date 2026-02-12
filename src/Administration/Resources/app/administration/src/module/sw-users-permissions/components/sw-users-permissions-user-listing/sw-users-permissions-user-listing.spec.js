@@ -110,6 +110,26 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         ]);
     });
 
+    it('the data-grid should show the right columns with SSO', async () => {
+        wrapper = await createWrapper(['users_and_permissions.creator'], { isSso: true });
+        const swDataGrid = wrapper.findComponent('.sw-data-grid-stub');
+        expect(swDataGrid.props().columns).toStrictEqual([
+            {
+                property: 'email',
+                label: 'sw-users-permissions.users.user-grid.labelEmail',
+            },
+            {
+                property: 'aclRoles',
+                sortable: false,
+                label: 'sw-users-permissions.users.user-grid.labelRoles',
+            },
+            {
+                property: 'status',
+                label: 'sw-users-permissions.users.user-grid.status',
+            },
+        ]);
+    });
+
     it('the data-grid should get the right user data', async () => {
         const swDataGrid = wrapper.findComponent('.sw-data-grid-stub');
         expect(swDataGrid.props().dataSource).toStrictEqual([]);
@@ -263,6 +283,32 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         const routerLinkProp = contextMenuEdit.vm.$props.routerLink;
         expect(routerLinkProp).toBeDefined();
         expect(routerLinkProp.name).toBe('sw.users.permissions.user.detail');
+        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1ed571');
+    });
+
+    it('should use the correct route for the Edit context menu item with SSO', async () => {
+        wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
+        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            user: [
+                {
+                    id: '019bff8c86e773e79ec5538c7b1ed571',
+                    username: 'admin',
+                    firstName: 'Admin',
+                    lastName: 'User',
+                    email: 'admin@example.com',
+                },
+            ],
+        });
+        await wrapper.vm.$nextTick();
+
+        const contextMenuEdit = wrapper.findComponent('.sw-settings-user-list__user-view-action');
+        expect(contextMenuEdit.exists()).toBe(true);
+
+        // Check that the router-link prop uses the correct route name
+        const routerLinkProp = contextMenuEdit.vm.$props.routerLink;
+        expect(routerLinkProp).toBeDefined();
+        expect(routerLinkProp.name).toBe('sw.users.permissions.user.sso.detail');
         expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1ed571');
     });
 });

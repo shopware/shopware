@@ -8,7 +8,7 @@
                     "Mail Operations"
                 ],
                 "summary": "Send a mail",
-                "description": "Generates a mail from a mail template and sends it to the customer.\n\nTake a look at the `salesChannel` entity for possible values. For example `{{ salesChannel.name }}` can be used.",
+                "description": "Generates a mail and sends it to the customer. The mail content is rendered with data passed through the request.\n\nTake a look at the `salesChannel` entity for possible values. For example `{{ salesChannel.name }}` can be used.",
                 "operationId": "send",
                 "requestBody": {
                     "required": true,
@@ -213,8 +213,8 @@
                 "tags": [
                     "Mail Operations"
                 ],
-                "summary": "Preview a mail template",
-                "description": "Generates a preview of a mail template.",
+                "summary": "Build up a mail template",
+                "description": "Generates a preview of a mail template when all the required data is passed through the request.",
                 "operationId": "build",
                 "requestBody": {
                     "required": true,
@@ -271,6 +271,249 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/_action/mail-template/preview": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Preview a mail template",
+                "description": "Fetches the required data needed for the mail template and generates a preview.",
+                "operationId": "preview",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "mailTemplateId"
+                                ],
+                                "properties": {
+                                    "mailTemplateId": {
+                                        "description": "Identifier of the mail template which should be rendered.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890"
+                                    },
+                                    "entities": {
+                                        "description": "A map of entity names to their identifiers.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "example": {
+                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890",
+                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The rendered preview of the mail template.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data or invalid mailTemplateId"
+                    }
+                }
+            }
+        },
+        "/_action/mail-template/get-data-and-send": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Fetch the template data and send a mail",
+                "description": "Fetches the required data needed for the mail template, generates the mail content and sends it to the customer.",
+                "operationId": "send",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "mailTemplateId",
+                                    "recipients",
+                                    "salesChannelId"
+                                ],
+                                "properties": {
+                                    "mailTemplateId": {
+                                        "description": "Identifier of the mail template which should be rendered.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890"
+                                    },
+                                    "entities": {
+                                        "description": "A map of entity names to their identifiers.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "example": {
+                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890",
+                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90"
+                                        }
+                                    },
+                                    "recipients": {
+                                        "description": "A list of recipients with name and mail address.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "salesChannelId": {
+                                        "description": "Identifier of the sales channel from which the mail should be send.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "contentHtml": {
+                                        "description": "The content of the mail in HTML format. If passed, this content will be used instead of the content from the mail template.",
+                                        "type": "string"
+                                    },
+                                    "contentPlain": {
+                                        "description": "The content of the mail as plain text. If passed, this content will be used instead of the content from the mail template.",
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "description": "Subject of the mail. If passed, this subject will be used instead of the subject from the mail template.",
+                                        "type": "string"
+                                    },
+                                    "senderName": {
+                                        "description": "Name of the sender. If passed, this sender name will be used instead of the sender name from the mail template.",
+                                        "type": "string"
+                                    },
+                                    "senderEmail": {
+                                        "description": "Mail address of the sender. If not set, `core.basicInformation.email` or `core.mailerSettings.senderAddress` will be used from the shop configuration.",
+                                        "type": "string"
+                                    },
+                                    "mediaIds": {
+                                        "description": "List of media identifiers which should be attached to the mail.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "binAttachments": {
+                                        "description": "A list of binary attachments which should be added to the mail.",
+                                        "required": [
+                                            "content",
+                                            "fileName",
+                                            "mimeType"
+                                        ],
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "content": {
+                                                    "description": "Binary content of the attachment.",
+                                                    "type": "string"
+                                                },
+                                                "fileName": {
+                                                    "description": "File name of the attachment.",
+                                                    "type": "string"
+                                                },
+                                                "mimeType": {
+                                                    "description": "Mime type of the attachment.",
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "recipientsBcc": {
+                                        "description": "A list of recipients with name and mail address to be set in BCC.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "recipientsCc": {
+                                        "description": "A list of recipients with name and mail address to be set in CC.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "replyTo": {
+                                        "description": "A list of mail addresses with name and mail address to be set in reply to.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "returnPath": {
+                                        "description": "A list of mail addresses with name and mail address to be set in return path.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The mail was sent successful",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "size": {
+                                            "description": "Length of the email message",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data or invalid mailTemplateId"
                     }
                 }
             }

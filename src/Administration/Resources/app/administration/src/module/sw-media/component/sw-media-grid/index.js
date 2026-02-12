@@ -44,6 +44,8 @@ export default {
                 'sw-media-index__load-more',
                 'sw-media-index__options-container',
                 'sw-modal',
+                'mt-modal',
+                'mt-modal-root__backdrop',
             ];
         },
     },

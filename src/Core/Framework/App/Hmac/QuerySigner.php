@@ -45,7 +45,7 @@ class QuerySigner
             'in-app-purchases' => \urlencode($this->inAppPurchase->getJWTByExtension($app->getName()) ?? ''),
             AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
             AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
-            'sw-user-id' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : '',
+            'sw-user-id' => $context->getSource() instanceof AdminApiSource ? ($context->getSource()->getUserId() ?? '') : '',
         ]);
 
         return Uri::withQueryValue(

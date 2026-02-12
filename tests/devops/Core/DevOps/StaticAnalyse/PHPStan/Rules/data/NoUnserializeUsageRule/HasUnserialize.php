@@ -9,6 +9,13 @@ class HasUnserialize
         $first = unserialize($serialized);
         $second = \unserialize($serialized);
 
-        return [$first, $second];
+        $this->unserialize();
+        $unserialize = 'unserialize';
+
+        return [$first, $second, $unserialize];
+    }
+
+    private function unserialize(): void
+    {
     }
 }

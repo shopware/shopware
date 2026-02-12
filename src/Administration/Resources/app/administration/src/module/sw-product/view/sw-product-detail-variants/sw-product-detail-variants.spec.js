@@ -113,6 +113,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             ],
         };
         store.product = {
+            id: 'test-product-id',
             isNew: () => false,
             getEntityName: () => 'product',
             media: [],
@@ -214,6 +215,31 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         expect(wrapper.find('.mt-empty-state__description').text()).toBe(
             'sw-product.variations.emptyStatePropertyDescription',
         );
+    });
+
+    it('should not load data when product.id is missing', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        const originalProduct = store.product;
+
+        // Set product without id
+        store.product = {
+            isNew: () => false,
+            getEntityName: () => 'product',
+            media: [],
+            configuratorSettings: [],
+            children: [],
+        };
+
+        const wrapper = await createWrapper();
+        const loadOptionsSpy = jest.spyOn(wrapper.vm, 'loadOptions');
+
+        await flushPromises();
+
+        // loadOptions should not be called when product.id is missing
+        expect(loadOptionsSpy).not.toHaveBeenCalled();
+
+        // Restore original product
+        store.product = originalProduct;
     });
 
     it('should split the product states string into an array', async () => {

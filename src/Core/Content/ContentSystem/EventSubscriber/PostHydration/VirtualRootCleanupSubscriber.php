@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration;
 use Shopware\Core\Content\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
  * Removes virtual root wrapper added by VirtualRootPreparationSubscriber.
@@ -14,22 +14,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[AsEventListener(event: PostHydrationEvent::class, priority: 5000)]
 #[Package('discovery')]
-class VirtualRootCleanupSubscriber implements EventSubscriberInterface
+class VirtualRootCleanupSubscriber
 {
     public function __construct(
         private readonly VirtualRootWrapper $virtualRootWrapper
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PostHydrationEvent::class => ['onPostHydration', 5000],
-        ];
-    }
-
-    public function onPostHydration(PostHydrationEvent $event): void
+    public function __invoke(PostHydrationEvent $event): void
     {
         if (!$this->virtualRootWrapper->requiresWrapping($event->specification, $event->elements)) {
             return;

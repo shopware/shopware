@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration;
 use Shopware\Core\Content\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
  * Extracts target element + descendants for partial rendering.
@@ -15,22 +15,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[AsEventListener(event: PostHydrationEvent::class, priority: 1000)]
 #[Package('discovery')]
-class PartialRenderingExtractionSubscriber implements EventSubscriberInterface
+class PartialRenderingExtractionSubscriber
 {
     public function __construct(
         private readonly PartialRenderer $partialRenderer
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PostHydrationEvent::class => ['onPostHydration', 1000],
-        ];
-    }
-
-    public function onPostHydration(PostHydrationEvent $event): void
+    public function __invoke(PostHydrationEvent $event): void
     {
         $targetElementId = $event->specification->targetElementId;
 

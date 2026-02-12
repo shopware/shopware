@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration;
 
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
  * Resolves {{variable}} placeholders in element properties.
@@ -14,17 +14,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[AsEventListener(event: PreContentHydrationEvent::class, priority: 3000)]
 #[Package('discovery')]
-class PlaceholderResolutionSubscriber implements EventSubscriberInterface
+class PlaceholderResolutionSubscriber
 {
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PreContentHydrationEvent::class => ['onPreContentHydration', 3000],
-        ];
-    }
-
-    public function onPreContentHydration(PreContentHydrationEvent $event): void
+    public function __invoke(PreContentHydrationEvent $event): void
     {
         // ContentElement is mutable, so changes happen in place
         foreach ($event->elements as $element) {

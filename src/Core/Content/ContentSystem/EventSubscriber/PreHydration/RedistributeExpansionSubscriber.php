@@ -9,7 +9,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
  * Expands redistribute flags on consumers into broadcast providers.
@@ -20,17 +20,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[AsEventListener(event: PreContentHydrationEvent::class, priority: 4000)]
 #[Package('discovery')]
-class RedistributeExpansionSubscriber implements EventSubscriberInterface
+class RedistributeExpansionSubscriber
 {
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PreContentHydrationEvent::class => ['onPreContentHydration', 4000],
-        ];
-    }
-
-    public function onPreContentHydration(PreContentHydrationEvent $event): void
+    public function __invoke(PreContentHydrationEvent $event): void
     {
         foreach ($event->elements as $element) {
             $this->expandRecursively($element);

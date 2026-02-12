@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration;
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
  * Wraps layout roots with temporary virtual root to distribute layout-level data as context.
@@ -14,22 +14,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[AsEventListener(event: PreContentHydrationEvent::class, priority: 5000)]
 #[Package('discovery')]
-class VirtualRootPreparationSubscriber implements EventSubscriberInterface
+class VirtualRootPreparationSubscriber
 {
     public function __construct(
         private readonly VirtualRootWrapper $virtualRootWrapper
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PreContentHydrationEvent::class => ['onPreContentHydration', 5000],
-        ];
-    }
-
-    public function onPreContentHydration(PreContentHydrationEvent $event): void
+    public function __invoke(PreContentHydrationEvent $event): void
     {
         if (!$this->virtualRootWrapper->requiresWrapping($event->specification, $event->elements)) {
             return;

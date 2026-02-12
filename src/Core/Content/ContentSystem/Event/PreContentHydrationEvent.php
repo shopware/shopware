@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Content\ContentSystem\Event;
 
-use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
+use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Dispatched before content hydration to allow layout preparation.
@@ -35,7 +34,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @final
  */
 #[Package('discovery')]
-class PreContentHydrationEvent extends Event implements ShopwareEvent
+class PreContentHydrationEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @param list<ContentElement> $elements
@@ -55,5 +54,10 @@ class PreContentHydrationEvent extends Event implements ShopwareEvent
     public function getContext(): Context
     {
         return $this->salesChannelContext->getContext();
+    }
+
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->salesChannelContext;
     }
 }

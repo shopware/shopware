@@ -47,35 +47,35 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
         </service>
 
-        <!-- Event Subscribers (Hydration Pipeline) -->
-        <!-- Pre-Hydration Subscribers -->
+        <!-- Event Listeners (Hydration Pipeline) -->
+        <!-- Pre-Hydration Listeners -->
         <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\VirtualRootPreparationSubscriber">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper"/>
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\PlaceholderResolutionSubscriber">
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\RedistributeExpansionSubscriber">
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\PartialRenderingPreparationSubscriber">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\PartialRenderer"/>
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_listener"/>
         </service>
 
-        <!-- Post-Hydration Subscribers -->
+        <!-- Post-Hydration Listeners -->
         <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration\VirtualRootCleanupSubscriber">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper"/>
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration\PartialRenderingExtractionSubscriber">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\PartialRenderer"/>
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_listener"/>
         </service>
 
         <!-- Field Serializers -->

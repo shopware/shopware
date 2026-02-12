@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration;
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
  * Prunes layout tree to target element and dependencies when elementId parameter present.
@@ -15,22 +15,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[AsEventListener(event: PreContentHydrationEvent::class, priority: 1000)]
 #[Package('discovery')]
-class PartialRenderingPreparationSubscriber implements EventSubscriberInterface
+class PartialRenderingPreparationSubscriber
 {
     public function __construct(
         private readonly PartialRenderer $partialRenderer
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PreContentHydrationEvent::class => ['onPreContentHydration', 1000],
-        ];
-    }
-
-    public function onPreContentHydration(PreContentHydrationEvent $event): void
+    public function __invoke(PreContentHydrationEvent $event): void
     {
         $targetElementId = $event->specification->targetElementId;
 

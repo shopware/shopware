@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,6 +31,7 @@ class SyncControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     private Connection $connection;
 
@@ -348,8 +350,6 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->connection->executeStatement('DELETE FROM messenger_messages;');
-
         $this->getBrowser()->request(
             'POST',
             '/api/_action/sync',
@@ -367,7 +367,7 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $queuedMessages = $this->getQueuedMessageCount(ProductIndexingMessage::class);
+        $queuedMessages = $this->getDispatchedMessageCount(ProductIndexingMessage::class);
         static::assertSame(1, $queuedMessages);
     }
 
@@ -392,10 +392,6 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->connection->executeStatement('DELETE FROM messenger_messages;');
-
-        static::assertSame(0, $this->getQueuedMessageCount(ProductIndexingMessage::class));
-
         $this->getBrowser()->request(
             'POST',
             '/api/_action/sync',
@@ -413,7 +409,7 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        static::assertSame(0, $this->getQueuedMessageCount(ProductIndexingMessage::class));
+        static::assertSame(0, $this->getDispatchedMessageCount(ProductIndexingMessage::class));
     }
 
     public function testSkipIndexer(): void
@@ -612,16 +608,5 @@ class SyncControllerTest extends TestCase
             json_encode(['delete-mapping' => 'action:delete'], \JSON_THROW_ON_ERROR),
             'Invalid payload format. Expected an array of operations.',
         ];
-    }
-
-    /**
-     * @param class-string $messageClass
-     */
-    private function getQueuedMessageCount(string $messageClass): int
-    {
-        return (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM messenger_messages WHERE headers LIKE :class',
-            ['class' => '%' . $messageClass . '%']
-        );
     }
 }

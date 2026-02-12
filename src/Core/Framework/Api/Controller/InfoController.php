@@ -193,7 +193,6 @@ class InfoController extends AbstractController
             'transports' => $this->params->get('shopware.admin_worker.transports'),
         ];
 
-        // @deprecated tag:v6.8.0 - enableQueueStatsWorker will be removed. The increment-based message queue statistics are deprecated.
         if (!Feature::isActive('v6.8.0.0')) {
             $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
         }

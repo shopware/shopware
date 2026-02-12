@@ -35,57 +35,37 @@ class CategoryContentLayoutEntity extends Entity implements ContentLayoutAssignm
 
     protected ?ContentLayoutEntity $contentLayout = null;
 
-    /**
-     * @api
-     */
     public function getCategoryId(): string
     {
         return $this->categoryId;
     }
 
-    /**
-     * @api
-     */
     public function setCategoryId(string $categoryId): void
     {
         $this->categoryId = $categoryId;
     }
 
-    /**
-     * @api
-     */
     public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }
 
-    /**
-     * @api
-     */
     public function setSalesChannelId(?string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;
     }
 
-    /**
-     * @api
-     */
     public function getContentLayoutId(): string
     {
         return $this->contentLayoutId;
     }
 
-    /**
-     * @api
-     */
     public function setContentLayoutId(string $contentLayoutId): void
     {
         $this->contentLayoutId = $contentLayoutId;
     }
 
     /**
-     * @api
-     *
      * @return array<string, ParameterBinding>|null
      */
     public function getParameterBindings(): ?array
@@ -94,8 +74,6 @@ class CategoryContentLayoutEntity extends Entity implements ContentLayoutAssignm
     }
 
     /**
-     * @api
-     *
      * @param array<string, ParameterBinding>|null $parameterBindings
      */
     public function setParameterBindings(?array $parameterBindings): void
@@ -103,33 +81,21 @@ class CategoryContentLayoutEntity extends Entity implements ContentLayoutAssignm
         $this->parameterBindings = $parameterBindings;
     }
 
-    /**
-     * @api
-     */
     public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
 
-    /**
-     * @api
-     */
     public function setSalesChannel(?SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
     }
 
-    /**
-     * @api
-     */
     public function getContentLayout(): ?ContentLayoutEntity
     {
         return $this->contentLayout;
     }
 
-    /**
-     * @api
-     */
     public function setContentLayout(?ContentLayoutEntity $contentLayout): void
     {
         $this->contentLayout = $contentLayout;

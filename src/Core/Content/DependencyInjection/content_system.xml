@@ -156,16 +156,6 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <!-- Type Registry System -->
-        <service id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Registry\ContentElementTypeRegistry"/>
-
-        <!-- Element Type Definition Services -->
-        <service id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Schema\SchemaValidator"/>
-
-        <service id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Loader\ElementTypeLoader">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Schema\SchemaValidator"/>
-        </service>
-
         <!-- Content Data Loaders -->
         <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>

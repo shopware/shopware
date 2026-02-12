@@ -48,7 +48,7 @@ class ContentPipeline
         $this->eventDispatcher->dispatch($preHydrationEvent);
         $elements = $preHydrationEvent->elements;
 
-        if ($mode !== RenderingMode::SKELETON) {
+        if ($mode === RenderingMode::FULL) {
             $hydratedElementsGenerator = $this->hydrationService->hydrate(
                 $elements,
                 $salesChannelContext,

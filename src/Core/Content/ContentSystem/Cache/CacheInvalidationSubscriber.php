@@ -39,11 +39,11 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function onEntityWritten(EntityWrittenContainerEvent $event): void
     {
         $this->invalidateContentLayout($event);
-        $this->invalidateProductContentLayout($event);
-        $this->invalidateCategoryContentLayout($event);
-        $this->invalidateLandingPageContentLayout($event);
-        $this->invalidateHeaderContentLayout($event);
-        $this->invalidateFooterContentLayout($event);
+        $this->invalidateEntityContentLayout($event, 'product_content_layout', 'product_id', ProductDefinition::class);
+        $this->invalidateEntityContentLayout($event, 'category_content_layout', 'category_id', CategoryDefinition::class);
+        $this->invalidateEntityContentLayout($event, 'landing_page_content_layout', 'landing_page_id', LandingPageDefinition::class);
+        $this->invalidateSectionContentLayout($event, 'header_content_layout', ContentSection::HEADER);
+        $this->invalidateSectionContentLayout($event, 'footer_content_layout', ContentSection::FOOTER);
     }
 
     private function invalidateContentLayout(EntityWrittenContainerEvent $event): void
@@ -62,84 +62,48 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $this->cacheInvalidator->invalidate($tags);
     }
 
-    private function invalidateProductContentLayout(EntityWrittenContainerEvent $event): void
-    {
-        $ids = $event->getPrimaryKeys('product_content_layout');
+    /**
+     * @param class-string $definitionClass
+     */
+    private function invalidateEntityContentLayout(
+        EntityWrittenContainerEvent $event,
+        string $entityName,
+        string $column,
+        string $definitionClass,
+    ): void {
+        $ids = $event->getPrimaryKeys($entityName);
 
         if ($ids === []) {
             return;
         }
 
-        $productIds = $this->getProductIdsFromAssignments($ids);
+        $entityIds = $this->fetchIdsFromAssignments($ids, $entityName, $column);
 
-        if ($productIds === []) {
+        if ($entityIds === []) {
             return;
         }
 
-        $definition = $this->definitionRegistry->get(ProductDefinition::class);
+        $definition = $this->definitionRegistry->get($definitionClass);
         $tags = array_filter(array_map(
             fn (string $id) => $this->cacheTagResolver->resolve($definition, $id),
-            $productIds
+            $entityIds
         ));
 
         $this->cacheInvalidator->invalidate($tags);
     }
 
-    private function invalidateCategoryContentLayout(EntityWrittenContainerEvent $event): void
-    {
-        $ids = $event->getPrimaryKeys('category_content_layout');
+    private function invalidateSectionContentLayout(
+        EntityWrittenContainerEvent $event,
+        string $entityName,
+        ContentSection $section,
+    ): void {
+        $ids = $event->getPrimaryKeys($entityName);
 
         if ($ids === []) {
             return;
         }
 
-        $categoryIds = $this->getCategoryIdsFromAssignments($ids);
-
-        if ($categoryIds === []) {
-            return;
-        }
-
-        $definition = $this->definitionRegistry->get(CategoryDefinition::class);
-        $tags = array_filter(array_map(
-            fn (string $id) => $this->cacheTagResolver->resolve($definition, $id),
-            $categoryIds
-        ));
-
-        $this->cacheInvalidator->invalidate($tags);
-    }
-
-    private function invalidateLandingPageContentLayout(EntityWrittenContainerEvent $event): void
-    {
-        $ids = $event->getPrimaryKeys('landing_page_content_layout');
-
-        if ($ids === []) {
-            return;
-        }
-
-        $landingPageIds = $this->getLandingPageIdsFromAssignments($ids);
-
-        if ($landingPageIds === []) {
-            return;
-        }
-
-        $definition = $this->definitionRegistry->get(LandingPageDefinition::class);
-        $tags = array_filter(array_map(
-            fn (string $id) => $this->cacheTagResolver->resolve($definition, $id),
-            $landingPageIds
-        ));
-
-        $this->cacheInvalidator->invalidate($tags);
-    }
-
-    private function invalidateHeaderContentLayout(EntityWrittenContainerEvent $event): void
-    {
-        $ids = $event->getPrimaryKeys('header_content_layout');
-
-        if ($ids === []) {
-            return;
-        }
-
-        $layoutIds = $this->getLayoutIdsFromHeaderAssignments($ids);
+        $layoutIds = $this->fetchIdsFromAssignments($ids, $entityName, 'content_layout_id');
 
         if ($layoutIds === []) {
             return;
@@ -147,29 +111,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         $tags = [];
         foreach ($layoutIds as $layoutId) {
-            $tags = array_merge($tags, ContentSection::HEADER->buildRouteCacheTags($layoutId));
-        }
-
-        $this->cacheInvalidator->invalidate($tags);
-    }
-
-    private function invalidateFooterContentLayout(EntityWrittenContainerEvent $event): void
-    {
-        $ids = $event->getPrimaryKeys('footer_content_layout');
-
-        if ($ids === []) {
-            return;
-        }
-
-        $layoutIds = $this->getLayoutIdsFromFooterAssignments($ids);
-
-        if ($layoutIds === []) {
-            return;
-        }
-
-        $tags = [];
-        foreach ($layoutIds as $layoutId) {
-            $tags = array_merge($tags, ContentSection::FOOTER->buildRouteCacheTags($layoutId));
+            $tags = array_merge($tags, $section->buildRouteCacheTags($layoutId));
         }
 
         $this->cacheInvalidator->invalidate($tags);
@@ -180,66 +122,10 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      *
      * @return list<string>
      */
-    private function getProductIdsFromAssignments(array $assignmentIds): array
+    private function fetchIdsFromAssignments(array $assignmentIds, string $table, string $column): array
     {
         return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(product_id)) FROM product_content_layout WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($assignmentIds)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-    }
-
-    /**
-     * @param list<string> $assignmentIds
-     *
-     * @return list<string>
-     */
-    private function getCategoryIdsFromAssignments(array $assignmentIds): array
-    {
-        return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(category_id)) FROM category_content_layout WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($assignmentIds)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-    }
-
-    /**
-     * @param list<string> $assignmentIds
-     *
-     * @return list<string>
-     */
-    private function getLandingPageIdsFromAssignments(array $assignmentIds): array
-    {
-        return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(landing_page_id)) FROM landing_page_content_layout WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($assignmentIds)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-    }
-
-    /**
-     * @param list<string> $assignmentIds
-     *
-     * @return list<string>
-     */
-    private function getLayoutIdsFromHeaderAssignments(array $assignmentIds): array
-    {
-        return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(content_layout_id)) FROM header_content_layout WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($assignmentIds)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-    }
-
-    /**
-     * @param list<string> $assignmentIds
-     *
-     * @return list<string>
-     */
-    private function getLayoutIdsFromFooterAssignments(array $assignmentIds): array
-    {
-        return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(content_layout_id)) FROM footer_content_layout WHERE id IN (:ids)',
+            'SELECT DISTINCT LOWER(HEX(' . $column . ')) FROM ' . $table . ' WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($assignmentIds)],
             ['ids' => ArrayParameterType::BINARY]
         );

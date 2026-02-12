@@ -17,7 +17,8 @@ use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundEx
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\String\UnicodeString;
+
+use function Symfony\Component\String\u;
 
 /**
  * @internal
@@ -65,7 +66,7 @@ class EntityLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        $entityId = (new UnicodeString($entityId))->lower()->toString();
+        $entityId = u($entityId)->lower()->toString();
         $entity = $this->loadEntity($config->entity, $entityId, $config->associations, $context);
 
         if ($entity === null) {

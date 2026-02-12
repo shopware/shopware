@@ -38,7 +38,7 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
      * @internal
      */
     public function __construct(
-        private readonly ?ContentLayoutMetadataDeriver $metadataDeriver = null
+        private readonly ContentLayoutMetadataDeriver $metadataDeriver
     ) {
     }
 
@@ -64,7 +64,7 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
 
     public function getContentLayoutEntityIdField(): string
     {
-        return $this->getMetadataDeriver()->deriveEntityIdField($this->getContentLayoutEntityType());
+        return $this->metadataDeriver->deriveEntityIdField($this->getContentLayoutEntityType());
     }
 
     public function getContentLayoutEntityType(): string
@@ -74,12 +74,12 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
 
     public function getContentLayoutPathPrefix(): string
     {
-        return $this->getMetadataDeriver()->derivePathPrefix($this->getContentLayoutEntityType());
+        return $this->metadataDeriver->derivePathPrefix($this->getContentLayoutEntityType());
     }
 
     public function getContentLayoutRoutePattern(): string
     {
-        return $this->getMetadataDeriver()->deriveRoutePattern($this->getContentLayoutEntityIdField());
+        return $this->metadataDeriver->deriveRoutePattern($this->getContentLayoutEntityIdField());
     }
 
     public function getPageDataRequirements(SalesChannelContext $context): array
@@ -108,10 +108,5 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('contentLayout', 'content_layout_id', ContentLayoutDefinition::class, 'id', false),
         ]);
-    }
-
-    private function getMetadataDeriver(): ContentLayoutMetadataDeriver
-    {
-        return $this->metadataDeriver ?? new ContentLayoutMetadataDeriver();
     }
 }

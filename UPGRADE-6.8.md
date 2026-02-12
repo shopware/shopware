@@ -223,6 +223,12 @@ The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler
 ## SnippetValidator becomes internal
 The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
 
+## Removal of default value for `serializer` parameter in `#[Serialized]`field attribute
+
+The default value for the `serializer` parameter in the `#[Serialized]` field attribute was removed.
+You need to explicitly set the serializer to use for your field.
+Additionally, the `SerializedField` class is now internal, as you should not use it directly in classic `EntityDefinitions`. It's only intended use case is in combination with the `#[Serialized]` attribute in attribute entities.
+
 ## Removal of `EntityDefinition` constructor
 
 The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:

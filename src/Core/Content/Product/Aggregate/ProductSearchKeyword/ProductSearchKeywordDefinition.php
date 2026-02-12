@@ -57,7 +57,7 @@ class ProductSearchKeywordDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of Product Search Keyword.'),
             new VersionField(),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required())->setDescription('Unique identity of language.'),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of language.'),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required())->setDescription('Unique identity of Product.'),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
             (new StringField('keyword', 'keyword'))->addFlags(new Required())->setDescription('The keywords that help to search the product.'),

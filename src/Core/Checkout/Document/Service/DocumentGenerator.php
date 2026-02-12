@@ -91,8 +91,8 @@ class DocumentGenerator
         $config = new DocumentRendererConfig();
         $config->deepLinkCode = $deepLinkCode;
 
-        if (!empty($operation->getConfig()['custom']['invoiceNumber'])) {
-            $invoiceNumber = (string) $operation->getConfig()['custom']['invoiceNumber'];
+        $invoiceNumber = (string) ($operation->getConfig()['custom']['invoiceNumber'] ?? '');
+        if ($invoiceNumber !== '') {
             $operation->setReferencedDocumentId($this->getReferenceId($operation->getOrderId(), $invoiceNumber));
         }
 
@@ -216,7 +216,7 @@ class DocumentGenerator
      */
     private function writeRecords(array $records, Context $context): void
     {
-        if (empty($records)) {
+        if ($records === []) {
             return;
         }
 

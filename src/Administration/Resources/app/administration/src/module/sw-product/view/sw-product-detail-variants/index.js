@@ -134,7 +134,7 @@ export default {
         },
 
         loadData() {
-            if (!this.isStoreLoading) {
+            if (!this.isStoreLoading && this.product?.id) {
                 this.loadOptions()
                     .then(() => {
                         return this.loadGroups();

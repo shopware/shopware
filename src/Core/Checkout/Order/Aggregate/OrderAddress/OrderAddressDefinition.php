@@ -81,6 +81,7 @@ class OrderAddressDefinition extends EntityDefinition
             (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Name of the company.'),
             (new StringField('department', 'department'))->addFlags(new ApiAware())->setDescription('Name of the department.'),
             (new StringField('title', 'title'))->addFlags(new ApiAware())->setDescription('Title name given to customer like DR. , Prof., etc.'),
+            /** @deprecated tag:v6.8.0 - Will be removed */
             (new StringField('vat_id', 'vatId'))->addFlags(new ApiAware())->setDescription('Unique identity of VAT.'),
             (new StringField('phone_number', 'phoneNumber'))->addFlags(new ApiAware())->setDescription('Phone number of the customer.'),
             (new StringField('additional_address_line1', 'additionalAddressLine1'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Additional address input if necessary.'),

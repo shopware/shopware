@@ -87,6 +87,11 @@ class PluginLifecycleServiceTest extends TestCase
 
     private string $fixturePath;
 
+    /**
+     * @var array<array{string, callable}>
+     */
+    private array $registeredListeners = [];
+
     protected function setUp(): void
     {
         // force kernel boot
@@ -127,6 +132,16 @@ class PluginLifecycleServiceTest extends TestCase
 
     protected function tearDown(): void
     {
+        if (isset($this->container)) {
+            $dispatcher = $this->container->get('event_dispatcher');
+
+            foreach ($this->registeredListeners as [$eventName, $listener]) {
+                $dispatcher->removeListener($eventName, $listener);
+            }
+        }
+
+        $this->registeredListeners = [];
+
         static::getContainer()
             ->get(Connection::class)
             ->rollBack();
@@ -517,25 +532,21 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testPluginInstallFailureTriggersUninstall(): void
     {
-        $dispatcher = $this->container->get('event_dispatcher');
         $plugin = $this->getPlugin($this->context);
         $expectedException = new \RuntimeException('Fail from post-install event');
 
         $listener = static function () use ($expectedException): void {
             throw $expectedException;
         };
-        $dispatcher->addListener(PluginPostInstallEvent::class, $listener);
+
+        $this->addTestListener(PluginPostInstallEvent::class, $listener);
 
         try {
             $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+            static::fail('Expected exception was not thrown.');
         } catch (\Throwable $actualException) {
             static::assertSame($expectedException, $actualException);
             static::assertNull($plugin->getInstalledAt());
-        } finally {
-            /** * Cleanup: Ensure the listener is removed regardless of test success or failure
-             * to prevent side effects on later tests in the suite.
-             */
-            $dispatcher->removeListener(PluginPostInstallEvent::class, $listener);
         }
     }
 
@@ -895,5 +906,14 @@ class PluginLifecycleServiceTest extends TestCase
     private function getTestPlugin(Context $context): PluginEntity
     {
         return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $context);
+    }
+
+    private function addTestListener(string $eventName, callable $listener): void
+    {
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        $dispatcher->addListener($eventName, $listener);
+
+        $this->registeredListeners[] = [$eventName, $listener];
     }
 }

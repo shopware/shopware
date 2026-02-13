@@ -20,7 +20,7 @@ framework:
         handler_id: ~
         cookie_secure: 'auto'
         cookie_samesite: lax
-        storage_factory_id: session.storage.factory.native
+        storage_factory_id: Shopware\Core\Framework\Store\Session\StorefrontSessionStorageFactory
     serializer: { enabled: true }
     secret: "%env(APP_SECRET)%"
     profiler:

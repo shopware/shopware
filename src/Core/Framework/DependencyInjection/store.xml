@@ -305,5 +305,10 @@
         <service id="Shopware\Core\Framework\Store\Subscriber\ExtensionChangedSubscriber">
             <argument type="service" id="cache.object"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Store\Session\StorefrontSessionStorageFactory"
+                 decorates="session.storage.factory.native">
+            <argument type="service" id=".inner" />
+        </service>
     </services>
 </container>

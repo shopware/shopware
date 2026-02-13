@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 export default class CookieStorageHelper {
-
     /**
      * returns if cookies are supported
      *
@@ -33,7 +32,7 @@ export default class CookieStorageHelper {
             secure = 'secure';
         }
 
-        document.cookie = `${key}=${value};expires=${date.toUTCString()};path=/;sameSite=lax;${secure}`;
+        document.cookie = `${key}=${value};expires=${date.toUTCString()};path=${this.getPath()};sameSite=lax;${secure}`;
     }
 
     /**
@@ -64,6 +63,15 @@ export default class CookieStorageHelper {
         }
 
         return false;
+    }
+
+    /**
+     * Returns the base path for the current Sales Channel.
+     * Used to ensure cookies are scoped to the correct path
+     * * @returns {string} The base URL from the router configuration, or a default slash.
+     */
+    static getPath() {
+        return window.salesChannelBaseUrl || '/';
     }
 
     /**

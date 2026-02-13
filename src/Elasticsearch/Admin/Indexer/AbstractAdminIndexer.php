@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use OpenSearchDSL\Search;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @template IDStructure of string|array<string, string> = string
+ */
 #[Package('inventory')]
 abstract class AbstractAdminIndexer
 {
@@ -77,7 +81,7 @@ abstract class AbstractAdminIndexer
         foreach ($mapping as $field => $type) {
             if (\array_key_exists('properties', $type) && !empty($type['properties'])) {
                 foreach (array_keys($type['properties']) as $property) {
-                    if ($property === '_count') {
+                    if (!\is_string($property) || $property === '_count') {
                         continue;
                     }
 
@@ -102,5 +106,65 @@ abstract class AbstractAdminIndexer
         }
 
         return $supportedFields;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function decodeTranslatedValues(?string $encoded, string $field = 'name'): array
+    {
+        if ($encoded === null || $encoded === '') {
+            return [];
+        }
+
+        /** @var list<array<string, string|null>|null> $decoded */
+        $decoded = json_decode($encoded, true, 512, \JSON_THROW_ON_ERROR);
+
+        $translations = [];
+        foreach ($decoded as $entry) {
+            if (!\is_array($entry)) {
+                continue;
+            }
+
+            $languageId = $entry['languageId'] ?? null;
+            $value = $entry[$field] ?? null;
+
+            if (!\is_string($languageId) || $languageId === '' || !\is_string($value) || $value === '') {
+                continue;
+            }
+
+            $translations[$languageId] = $value;
+        }
+
+        return $translations;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return list<array{id: string, _count: int}>
+     */
+    protected function parseTagIds(array $row, string $key = 'tagIds'): array
+    {
+        if (!isset($row[$key]) || $row[$key] === '') {
+            return [];
+        }
+
+        return array_map(static fn (string $tagId) => [
+            'id' => $tagId,
+            '_count' => 1,
+        ], explode(' ', (string) $row[$key]));
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    protected function formatDateTime(array $row, string $key): ?string
+    {
+        if (!isset($row[$key])) {
+            return null;
+        }
+
+        return (new \DateTime((string) $row[$key]))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
     }
 }

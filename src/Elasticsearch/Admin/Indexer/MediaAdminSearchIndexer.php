@@ -14,9 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
 #[Package('inventory')]
 final class MediaAdminSearchIndexer extends AbstractAdminIndexer
@@ -30,6 +33,7 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
         private readonly Connection $connection,
         private readonly IteratorFactory $factory,
         private readonly EntityRepository $repository,
+        private readonly ElasticsearchFieldBuilder $fieldBuilder,
         private readonly int $indexingBatchSize
     ) {
     }
@@ -56,13 +60,13 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
-        $ids = $event->getPrimaryKeysWithPropertyChange(MediaDefinition::ENTITY_NAME, [
+        $mediaIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
             'fileName',
+            'fileExtension',
             'path',
             'mediaFolderId',
         ]);
 
-        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
         $multiplePrimaryKeyWrittenEvent = $event;
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(MediaTagDefinition::ENTITY_NAME, [
             'tagId',
@@ -73,13 +77,37 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
             'alt',
         ]);
 
-        foreach (array_merge($translations, $tags) as $pks) {
+        foreach (array_merge($tags, $translations) as $pks) {
             if (isset($pks['mediaId'])) {
-                $ids[] = $pks['mediaId'];
+                $mediaIds[] = $pks['mediaId'];
             }
         }
 
-        return \array_values(\array_unique($ids));
+        return array_values(array_unique(array_filter($mediaIds, '\is_string')));
+    }
+
+    public function mapping(array $mapping): array
+    {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return parent::mapping($mapping);
+        }
+
+        $languageFields = $this->fieldBuilder->translated(AbstractElasticsearchDefinition::KEYWORD_FIELD);
+
+        $override = [
+            'fileName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'fileExtension' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'mediaFolderId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'title' => $languageFields,
+            'alt' => $languageFields,
+            'createdAt' => ElasticsearchFieldBuilder::datetime(),
+            'tags' => ElasticsearchFieldBuilder::nested(),
+        ];
+
+        $mapping['properties'] ??= [];
+        $mapping['properties'] = array_merge($mapping['properties'], $override);
+
+        return $mapping;
     }
 
     public function globalData(array $result, Context $context): array
@@ -92,19 +120,31 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
         ];
     }
 
+    /**
+     * @return array<string, array{id:string, text:string}>
+     */
     public function fetch(array $ids): array
     {
         $data = $this->connection->fetchAllAssociative(
-            '
+            <<<'SQL'
             SELECT LOWER(HEX(media.id)) as id,
-                   media.file_name,
-                   media.path,
+                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
+                   GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
                    GROUP_CONCAT(DISTINCT media_translation.alt SEPARATOR " ") as alt,
                    GROUP_CONCAT(DISTINCT media_translation.title SEPARATOR " ") as title,
-                   media_folder.name,
-                   GROUP_CONCAT(tag.name SEPARATOR " ") as tags
+                   JSON_ARRAYAGG(JSON_OBJECT(
+                       'languageId', LOWER(HEX(media_translation.language_id)),
+                       'title', media_translation.title,
+                       'alt', media_translation.alt
+                   )) as translatedFields,
+                   media_folder.name as folderName,
+                   media.file_name,
+                   media.file_extension,
+                   media.path,
+                   LOWER(HEX(media.media_folder_id)) AS mediaFolderId,
+                   media.created_at as createdAt
             FROM media
-                INNER JOIN media_translation
+                LEFT JOIN media_translation
                     ON media.id = media_translation.media_id
                 LEFT JOIN media_folder
                     ON media.media_folder_id = media_folder.id
@@ -114,7 +154,7 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
                     ON media_tag.tag_id = tag.id
             WHERE media.id IN (:ids)
             GROUP BY media.id
-        ',
+SQL,
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
@@ -126,8 +166,31 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
         $mapped = [];
         foreach ($data as $row) {
             $id = (string) $row['id'];
-            $text = \implode(' ', array_filter(array_unique(array_values($row))));
-            $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
+            $text = \implode(' ', array_filter([
+                $row['file_name'] ?? '',
+                $row['file_extension'] ?? '',
+                $row['path'] ?? '',
+                $row['alt'] ?? '',
+                $row['title'] ?? '',
+                $row['folderName'] ?? '',
+                $row['tags'] ?? '',
+                $id,
+            ]));
+
+            $translatedTitles = $this->decodeTranslatedValues((string) $row['translatedFields'], 'title');
+            $translatedAlts = $this->decodeTranslatedValues((string) $row['translatedFields'], 'alt');
+
+            $mapped[$id] = [
+                'id' => $id,
+                'text' => \strtolower($text),
+                'fileName' => $row['file_name'] ?? null,
+                'fileExtension' => $row['file_extension'] ?? null,
+                'mediaFolderId' => $row['mediaFolderId'] ?? null,
+                'title' => $translatedTitles,
+                'alt' => $translatedAlts,
+                'tags' => $this->parseTagIds($row),
+                'createdAt' => $this->formatDateTime($row, 'createdAt'),
+            ];
         }
 
         return $mapped;

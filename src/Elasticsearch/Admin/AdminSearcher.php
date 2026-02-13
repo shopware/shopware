@@ -10,10 +10,10 @@ use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
@@ -28,8 +28,6 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 #[Package('inventory')]
 class AdminSearcher
 {
-    public const LOADED_BY_OPENSEARCH = 'loaded-by-opensearch';
-
     public function __construct(
         private readonly Client $client,
         private readonly AdminSearchRegistry $registry,
@@ -46,7 +44,7 @@ class AdminSearcher
     /**
      * @param array<string> $entities
      *
-     * @return array<string, array{total: int, data: EntityCollection<covariant Entity>, indexer: string, index: string}>
+     * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>, indexer: string, index: string}>
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
@@ -81,7 +79,7 @@ class AdminSearcher
 
             $data = $indexer->globalData($values, $context);
             $data['indexer'] = $indexer->getName();
-            $data['index'] = (string) $index;
+            $data['index'] = $index;
 
             $mapped[$indexer->getEntity()] = $data;
         }
@@ -91,6 +89,10 @@ class AdminSearcher
 
     public function searchIds(string $entityName, Criteria $criteria, Context $context): IdSearchResult
     {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            Feature::throwException('ENABLE_OPENSEARCH_FOR_ADMIN_API', 'Method is unavailable when the feature is active.');
+        }
+
         if (!$context->isAllowed($entityName . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
             throw ElasticsearchException::missingPrivilege([
                 $entityName . ':' . AclRoleDefinition::PRIVILEGE_READ,

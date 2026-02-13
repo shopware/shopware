@@ -150,12 +150,13 @@
         {% block sw_settings_user_list_column_username_acl_roles %}
         <template #column-aclRoles="{ item, compact }">
             <template v-if="item.aclRoles && item.aclRoles.length > 0">
-                <span
-                    v-for="(role, index) in item.aclRoles"
-                    :key="index"
-                    class="sw-data-grid__cell-value"
-                >
-                    {{ role.name }}<template v-if="index + 1 < item.aclRoles.length">,&nbsp;</template>
+                <span class="sw-data-grid__cell-value">
+                    <span
+                        v-for="(role, index) in item.aclRoles"
+                        :key="index"
+                    >
+                        {{ role.name }}<template v-if="index + 1 < item.aclRoles.length">,&nbsp;</template>
+                    </span>
                 </span>
             </template>
             <span v-else-if="item.admin">

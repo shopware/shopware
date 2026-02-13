@@ -61,42 +61,20 @@ abstract class AbstractAdminIndexer
      */
     public function getSupportedSearchFields(): array
     {
-        $supportedFields = [];
-
         $mapping = $this->mapping([])['properties'] ?? [];
 
         if ($mapping === []) {
             return [];
         }
 
-        foreach ($mapping as $field => $type) {
-            if (\array_key_exists('properties', $type) && !empty($type['properties'])) {
-                foreach (array_keys($type['properties']) as $property) {
-                    if (!\is_string($property) || $property === '_count') {
-                        continue;
-                    }
+        $supportedFields = $this->collectSupportedSearchFields($mapping);
 
-                    // adding original translated field, property in this case is the language id
-                    if (Uuid::isValid($property)) {
-                        $supportedFields[] = $field;
-
-                        break;
-                    }
-
-                    $supportedFields[] = $field . '.' . $property;
-                }
-
-                continue;
-            }
-
-            $supportedFields[] = $field;
-        }
-
+        $prefixedFields = $supportedFields;
         foreach ($supportedFields as $field) {
-            $supportedFields[] = $this->getEntity() . '.' . $field;
+            $prefixedFields[] = $this->getEntity() . '.' . $field;
         }
 
-        return $supportedFields;
+        return $prefixedFields;
     }
 
     /**
@@ -157,5 +135,61 @@ abstract class AbstractAdminIndexer
         }
 
         return (new \DateTime((string) $row[$key]))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+    }
+
+    /**
+     * @param array<string, array<mixed>> $properties
+     *
+     * @return list<string>
+     */
+    private function collectSupportedSearchFields(array $properties, string $prefix = ''): array
+    {
+        $supportedFields = [];
+
+        foreach ($properties as $field => $definition) {
+            if (!\is_string($field) || $field === '_count') {
+                continue;
+            }
+
+            $fieldName = $prefix === '' ? $field : $prefix . '.' . $field;
+
+            $subProperties = $definition['properties'] ?? [];
+            if (\is_array($subProperties) && $subProperties !== []) {
+                if ($this->isTranslationMapping($subProperties)) {
+                    $supportedFields[] = $fieldName;
+
+                    continue;
+                }
+
+                $supportedFields = array_merge(
+                    $supportedFields,
+                    $this->collectSupportedSearchFields($subProperties, $fieldName)
+                );
+
+                continue;
+            }
+
+            $supportedFields[] = $fieldName;
+        }
+
+        return $supportedFields;
+    }
+
+    /**
+     * @param array<string, mixed> $properties
+     */
+    private function isTranslationMapping(array $properties): bool
+    {
+        foreach ($properties as $property => $_definition) {
+            if (!\is_string($property) || $property === '_count') {
+                continue;
+            }
+
+            if (Uuid::isValid($property)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

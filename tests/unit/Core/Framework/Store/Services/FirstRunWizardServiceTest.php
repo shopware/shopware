@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
+use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
 use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -223,6 +225,34 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwService->upgradeAccessToken($this->context);
+    }
+
+    public function testUpgradeAccessTokenDispatchesShopwareAccountLoginEvent(): void
+    {
+        $shopUserTokenResponse = [
+            'shopUserToken' => [
+                'token' => 'shop-us3r-t0k3n',
+                'expirationDate' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            ],
+            'shopSecret' => 'shop-s3cr3t',
+        ];
+
+        $frwClient = $this->createMock(FirstRunWizardClient::class);
+        $frwClient->expects($this->once())
+            ->method('upgradeAccessToken')
+            ->willReturn($shopUserTokenResponse);
+
+        $eventDispatcher = new CollectingEventDispatcher();
+
+        $frwService = $this->createFirstRunWizardService(
+            eventDispatcher: $eventDispatcher,
+            frwClient: $frwClient,
+        );
+
+        $frwService->upgradeAccessToken($this->context);
+
+        static::assertCount(1, $eventDispatcher->getEvents());
+        static::assertInstanceOf(ShopwareAccountLoginEvent::class, $eventDispatcher->getEvents()[0]);
     }
 
     public function testFrwShouldNotRunIfAutoRunIsDisabled(): void

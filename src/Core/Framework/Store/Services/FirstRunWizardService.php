@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
+use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
 use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
@@ -90,6 +91,8 @@ class FirstRunWizardService
         $this->storeService->updateStoreToken($context, $accessToken);
         $this->configService->set(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, $accessToken->getShopSecret());
         $this->removeFrwUserToken($context);
+
+        $this->eventDispatcher->dispatch(new ShopwareAccountLoginEvent($context));
     }
 
     public function finishFrw(bool $failed, Context $context): void

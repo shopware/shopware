@@ -86,6 +86,7 @@ class ApiControllerDetailTest extends TestCase
 
     /**
      * Used in {@see testGetDefaultShippingAddressViaCustomer} which might get reactivated with the mentioned issue
+     *
      * @phpstan-ignore method.unused
      */
     private function createCustomer(): IdsCollection

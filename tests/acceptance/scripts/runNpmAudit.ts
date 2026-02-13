@@ -4,6 +4,7 @@ import { execSync } from 'child_process';
 // IDs of advisories to ignore
 const ignored: number[] = [
     1112686, // ESlint, moderate severity, major update necessary
+    1113092, // Axios, high severity, no compatible fix in current dependency tree
 ];
 let auditRaw = '';
 

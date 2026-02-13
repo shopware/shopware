@@ -62,6 +62,7 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
     {
         $categoryIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
             'active',
+            'parentId',
             'visible',
             'type',
         ]);
@@ -96,6 +97,7 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
             'active' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
             'visible' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
             'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'name' => $languageFields,
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
             'tags' => ElasticsearchFieldBuilder::nested(),
@@ -125,6 +127,7 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             <<<'SQL'
             SELECT LOWER(HEX(category.id)) as id,
+                   LOWER(HEX(category.parent_id)) as parentId,
                    GROUP_CONCAT(DISTINCT category_translation.name SEPARATOR " ") as name,
                    JSON_ARRAYAGG(JSON_OBJECT(
                        'languageId', LOWER(HEX(category_translation.language_id)),
@@ -162,6 +165,7 @@ SQL,
 
             $mapped[$id] = [
                 'id' => $id,
+                'parentId' => $row['parentId'] ?? null,
                 'text' => \strtolower($text),
                 'name' => $translatedNames,
                 'active' => (bool) $row['active'],

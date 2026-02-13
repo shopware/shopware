@@ -56,7 +56,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getIterator(): IterableQuery
     {
-        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
+        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize, Defaults::LIVE_VERSION);
     }
 
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array

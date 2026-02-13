@@ -97,9 +97,15 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
         $override = [
             'fileName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'fileExtension' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'private' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
             'mediaFolderId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'title' => $languageFields,
             'alt' => $languageFields,
+            'mediaFolder' => ElasticsearchFieldBuilder::nested([
+                'defaultFolder' => ElasticsearchFieldBuilder::nested([
+                    'entity' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                ]),
+            ]),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
             'tags' => ElasticsearchFieldBuilder::nested(),
         ];
@@ -138,6 +144,8 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
                        'alt', media_translation.alt
                    )) as translatedFields,
                    media_folder.name as folderName,
+                   media_default_folder.entity,
+                   media.private,
                    media.file_name,
                    media.file_extension,
                    media.path,
@@ -148,6 +156,8 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
                     ON media.id = media_translation.media_id
                 LEFT JOIN media_folder
                     ON media.media_folder_id = media_folder.id
+                LEFT JOIN media_default_folder
+                    ON media_folder.default_folder_id = media_default_folder.id
                 LEFT JOIN media_tag
                     ON media.id = media_tag.media_id
                 LEFT JOIN tag
@@ -180,13 +190,23 @@ SQL,
             $translatedTitles = $this->decodeTranslatedValues((string) $row['translatedFields'], 'title');
             $translatedAlts = $this->decodeTranslatedValues((string) $row['translatedFields'], 'alt');
 
+            $mediaFolder = [];
+
+            if (isset($row['entity']) && \is_string($row['entity'])) {
+                $mediaFolder['defaultFolder'] = [
+                    'entity' => $row['entity'],
+                ];
+            }
+
             $mapped[$id] = [
                 'id' => $id,
                 'text' => \strtolower($text),
                 'fileName' => $row['file_name'] ?? null,
+                'private' => (bool) $row['private'],
                 'fileExtension' => $row['file_extension'] ?? null,
                 'mediaFolderId' => $row['mediaFolderId'] ?? null,
                 'title' => $translatedTitles,
+                'mediaFolder' => $mediaFolder,
                 'alt' => $translatedAlts,
                 'tags' => $this->parseTagIds($row),
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),

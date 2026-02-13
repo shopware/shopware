@@ -74,7 +74,7 @@ class CustomEntityEnrichmentService
             unset($adminUiEntitiesConfig[$entity->getName()]);
         }
 
-        if (!empty($adminUiEntitiesConfig)) {
+        if ($adminUiEntitiesConfig !== []) {
             throw CustomEntityConfigurationException::entityNotGiven(
                 AdminUiXmlSchema::FILENAME,
                 array_keys($adminUiEntitiesConfig)

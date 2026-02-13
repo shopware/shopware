@@ -126,7 +126,7 @@ class StateMachineRegistry implements ResetInterface
                 $repository
             );
 
-            if (empty($transition->getTransitionName())) {
+            if (in_array($transition->getTransitionName(), ['', '0'], true)) {
                 $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
                 $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 

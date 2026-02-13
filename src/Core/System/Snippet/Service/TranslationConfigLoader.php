@@ -100,7 +100,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             throw SnippetException::translationConfigurationFileDoesNotExist($this->getConfigFilename(), $e);
         }
 
-        if (empty(\trim($content))) {
+        if (in_array(\trim($content), ['', '0'], true)) {
             throw SnippetException::translationConfigurationFileIsEmpty($this->getConfigFilename());
         }
 
@@ -165,7 +165,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             throw SnippetException::invalidRepositoryUrl($urlString, $e);
         }
 
-        if (empty($url->getScheme()) || empty($url->getHost())) {
+        if (in_array($url->getScheme(), ['', '0'], true) || in_array($url->getHost(), ['', '0'], true)) {
             throw SnippetException::invalidRepositoryUrl(
                 $urlString,
                 new MalformedUriException(\sprintf('"%s" must contain a schema and a host.', $type))

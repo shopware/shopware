@@ -94,7 +94,7 @@ class AdminUiXmlSchemaValidator
         }
 
         $invalidFields = array_diff($referencedFields, $entityFields);
-        if (!empty($invalidFields)) {
+        if ($invalidFields !== []) {
             throw CustomEntityConfigurationException::invalidReferences(
                 AdminUiXmlSchema::FILENAME,
                 $customEntityName,

@@ -59,7 +59,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             }
         }
 
-        if (empty($lineItemsIds)) {
+        if ($lineItemsIds === []) {
             return;
         }
 
@@ -81,7 +81,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
 
     public function lineItemDeleted(EntityDeletedEvent $event): void
     {
-        if (!empty($this->promotionIds)) {
+        if ($this->promotionIds !== []) {
             // Update all promotions, we searched beforeDelete
             $this->update($this->promotionIds, $event->getContext());
 
@@ -113,7 +113,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
     {
         $ids = array_unique(array_filter($ids));
 
-        if (empty($ids) || $context->getVersionId() !== Defaults::LIVE_VERSION) {
+        if ($ids === [] || $context->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
 
@@ -148,7 +148,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             $update->execute([
                 'id' => Uuid::fromHexToBytes($id),
                 'count' => (int) array_sum($totals),
-                'customerCount' => !empty($totals) ? json_encode($totals, \JSON_THROW_ON_ERROR) : null,
+                'customerCount' => $totals !== [] ? json_encode($totals, \JSON_THROW_ON_ERROR) : null,
             ]);
         }
     }

@@ -39,17 +39,17 @@ final readonly class PaymentMethodValidator implements EventSubscriberInterface
 
         $ids = \array_column($ids, 'id');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
-        $pluginIds = $this->connection->fetchOne(
+        $pluginId = $this->connection->fetchOne(
             'SELECT id FROM payment_method WHERE id IN (:ids) AND plugin_id IS NOT NULL',
             ['ids' => $ids],
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (!empty($pluginIds)) {
+        if ($pluginId !== false) {
             throw PaymentException::pluginPaymentMethodDeleteRestriction();
         }
     }

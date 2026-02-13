@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
@@ -39,12 +40,6 @@ class TableHelperTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = self::getContainer()->get(Connection::class);
-        TableHelper::resetSchemaManager();
-    }
-
-    protected function tearDown(): void
-    {
-        TableHelper::resetSchemaManager();
     }
 
     public function testTableExists(): void
@@ -238,16 +233,87 @@ class TableHelperTest extends TestCase
         TableHelper::foreignKeyExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'fk.product.parent_id');
     }
 
-    public function testResetSchemaManager(): void
+    /**
+     * @param list<string> $localColumns
+     * @param list<string> $foreignColumns
+     */
+    #[DataProvider('foreignKeyExistsByColumnsProvider')]
+    public function testForeignKeyExistsByColumns(
+        array $localColumns,
+        string $foreignTable,
+        array $foreignColumns,
+        bool $expectedResult
+    ): void {
+        static::assertSame(
+            $expectedResult,
+            TableHelper::foreignKeyExistsByColumns(
+                $this->connection,
+                ProductDefinition::ENTITY_NAME,
+                $localColumns,
+                $foreignTable,
+                $foreignColumns
+            )
+        );
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, string, list<string>, bool}>
+     */
+    public static function foreignKeyExistsByColumnsProvider(): iterable
     {
-        static::assertTrue(TableHelper::tableExists($this->connection, ProductDefinition::ENTITY_NAME));
-        // Invalid connection would normally cause an exception while getting the SchemaManager, but it is cached as static class property
-        static::assertTrue(TableHelper::tableExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME));
+        yield 'existing FK with columns in definition order' => [
+            ['parent_id', 'parent_version_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+            true,
+        ];
 
-        TableHelper::resetSchemaManager();
+        yield 'reversed local columns do not match' => [
+            ['parent_version_id', 'parent_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+            false,
+        ];
 
+        yield 'reversed foreign columns do not match' => [
+            ['parent_id', 'parent_version_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['version_id', 'id'],
+            false,
+        ];
+
+        yield 'non-existing FK with unknown local columns' => [
+            [self::UNKNOWN_NAME],
+            ProductDefinition::ENTITY_NAME,
+            ['id'],
+            false,
+        ];
+
+        yield 'non-existing FK with wrong foreign table' => [
+            ['parent_id', 'parent_version_id'],
+            self::UNKNOWN_NAME,
+            ['id', 'version_id'],
+            false,
+        ];
+
+        yield 'non-existing FK with partial local columns' => [
+            ['parent_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+            false,
+        ];
+    }
+
+    public function testForeignKeyExistsByColumnsThrowsExceptionWhileGettingSchemaManager(): void
+    {
         $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
-        static::assertTrue(TableHelper::tableExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME));
+        TableHelper::foreignKeyExistsByColumns(
+            $this->getInvalidConnection(),
+            ProductDefinition::ENTITY_NAME,
+            ['parent_id', 'parent_version_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+        );
     }
 
     private function getInvalidConnection(): Connection

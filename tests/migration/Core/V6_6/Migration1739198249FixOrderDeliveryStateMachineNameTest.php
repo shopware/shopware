@@ -42,8 +42,8 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         ));
 
         $stateMachineId = $this->connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technicalName', ['technicalName' => OrderDeliveryStates::STATE_MACHINE]);
-        if (!\is_string($stateMachineId) || empty($stateMachineId)) {
-            return;
+        if (!\is_string($stateMachineId) || $stateMachineId === '') {
+            static::markTestSkipped('No valid state machine found.');
         }
 
         $germanNames = $this->connection->fetchFirstColumn(
@@ -82,7 +82,7 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
     private function executeMigration(): void
     {
         $migration = new Migration1739198249FixOrderDeliveryStateMachineName();
-        static::assertSame($migration->getCreationTimestamp(), 1739198249);
+        static::assertSame(1739198249, $migration->getCreationTimestamp());
 
         $this->rollback();
 
@@ -99,11 +99,11 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         ));
 
         $stateMachineId = $this->connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technicalName', ['technicalName' => OrderDeliveryStates::STATE_MACHINE]);
-        if (!\is_string($stateMachineId) || empty($stateMachineId)) {
-            return;
+        if (!\is_string($stateMachineId) || $stateMachineId === '') {
+            static::markTestSkipped('No valid state machine found.');
         }
 
-        if (!empty($germanIds)) {
+        if ($germanIds !== []) {
             $this->connection->executeStatement('UPDATE state_machine_translation SET name = :name WHERE state_machine_id = :stateMachineId AND language_id IN (:languageIds) AND updated_at IS NULL', [
                 'name' => 'Bestellstatus',
                 'stateMachineId' => $stateMachineId,
@@ -115,7 +115,7 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
             ]);
         }
 
-        if (!empty($englishIds)) {
+        if ($englishIds !== []) {
             $this->connection->executeStatement('UPDATE state_machine_translation SET name = :name WHERE state_machine_id = :stateMachineId AND language_id IN (:languageIds) AND updated_at IS NULL', [
                 'name' => 'Order state',
                 'stateMachineId' => $stateMachineId,

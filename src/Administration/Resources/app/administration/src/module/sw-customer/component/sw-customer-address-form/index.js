@@ -70,7 +70,6 @@ export default {
             'city',
             'countryId',
             'phoneNumber',
-            'vatId',
             'countryStateId',
             'salutationId',
             'city',

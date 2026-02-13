@@ -8,9 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
-class ShopwareAccountLogoutEvent implements ShopwareEvent
+final class ShopwareAccountLogoutEvent implements ShopwareEvent
 {
     public function __construct(
         private readonly Context $context,

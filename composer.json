@@ -40,6 +40,7 @@
             "forward-command": false
         },
         "branch-alias": {
+            "dev-main": "6.7.x-dev",
             "dev-master": "6.7.x-dev",
             "dev-trunk": "6.7.x-dev"
         },

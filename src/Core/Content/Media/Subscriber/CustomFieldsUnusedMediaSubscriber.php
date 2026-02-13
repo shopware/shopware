@@ -62,7 +62,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (\count($statements) === 0) {
+        if ($statements === []) {
             return;
         }
 
@@ -114,7 +114,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (\count($statements) === 0) {
+        if ($statements === []) {
             return;
         }
 
@@ -155,7 +155,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (\count($statements) === 0) {
+        if ($statements === []) {
             return;
         }
 

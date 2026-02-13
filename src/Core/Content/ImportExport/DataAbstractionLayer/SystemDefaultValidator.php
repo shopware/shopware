@@ -47,7 +47,7 @@ class SystemDefaultValidator implements EventSubscriberInterface
         }
 
         $filteredIds = $this->filterSystemDefaults($ids);
-        if (!empty($filteredIds)) {
+        if ($filteredIds !== []) {
             $event->getExceptions()->add(new DeleteDefaultProfileException($filteredIds));
         }
     }
@@ -59,7 +59,7 @@ class SystemDefaultValidator implements EventSubscriberInterface
      */
     private function filterSystemDefaults(array $ids): array
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 

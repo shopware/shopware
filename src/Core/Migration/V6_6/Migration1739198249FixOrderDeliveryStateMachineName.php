@@ -37,7 +37,7 @@ class Migration1739198249FixOrderDeliveryStateMachineName extends MigrationStep
         ));
 
         $stateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technicalName', ['technicalName' => OrderDeliveryStates::STATE_MACHINE]);
-        if (!\is_string($stateMachineId) || ($stateMachineId === '' || $stateMachineId === '0')) {
+        if (!\is_string($stateMachineId) || $stateMachineId === '') {
             return;
         }
 

@@ -63,7 +63,7 @@ class Migration1717573310ImportExportTechnicalNameRequired extends MigrationStep
     {
         $name = $name ?? 'Unnamed profile';
 
-        if (in_array(trim($name), ['', '0'], true)) {
+        if (trim($name) === '') {
             $name = 'Unnamed profile';
         }
 

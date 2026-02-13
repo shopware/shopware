@@ -941,14 +941,16 @@
                         "ban_method": {
                             "type": "string",
                             "default": "BAN",
-                            "title": "HTTP method used to purge the cache at the remote server"
+                            "title": "HTTP method used to purge the cache at the remote server",
+                            "deprecationMessage": "The \"ban_method\" option has no effect anymore and therefore will be removed in 6.8.0."
                         },
                         "ban_headers": {
                             "type": [
                                 "object",
                                 "null"
                             ],
-                            "title": "The headers that should be send on a single purge"
+                            "title": "The headers that should be send on a single purge",
+                            "deprecationMessage": "The \"ban_headers\" option has no effect anymore and therefore will be removed in 6.8.0."
                         },
                         "hosts": {
                             "type": "array",
@@ -965,7 +967,8 @@
                         "use_varnish_xkey": {
                             "type": "boolean",
                             "default": false,
-                            "title": "Use the XKey Varnish feature"
+                            "title": "Use the XKey Varnish feature",
+                            "deprecationMessage": "The \"use_varnish_xkey\" option has no effect anymore and therefore will be removed in 6.8.0."
                         },
                         "redis_url": {
                             "type": "string",
@@ -982,20 +985,23 @@
                                 "ban_method": {
                                     "type": "string",
                                     "default": "BAN",
-                                    "title": "HTTP method used to purge the cache at the remote server"
+                                    "title": "HTTP method used to purge the cache at the remote server",
+                                    "deprecationMessage": "The \"ban_method\" option has no effect anymore and therefore will be removed in 6.8.0."
                                 },
                                 "ban_headers": {
                                     "type": [
                                         "object",
                                         "null"
                                     ],
-                                    "title": "The headers that should be send on a single purge"
+                                    "title": "The headers that should be send on a single purge",
+                                    "deprecationMessage": "The \"ban_headers\" option has no effect anymore and therefore will be removed in 6.8.0."
                                 },
                                 "urls": {
                                     "type": "array",
                                     "items": {
                                         "type": "string"
-                                    }
+                                    },
+                                    "deprecationMessage": "The \"urls\" option has no effect anymore and therefore will be removed in 6.8.0."
                                 }
                             }
                         },

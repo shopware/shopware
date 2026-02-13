@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -20,8 +21,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('after-sales')]
 class DocumentBaseConfigValidator implements EventSubscriberInterface
 {
-    final public const VIOLATION_REQUIRED = 'DOCUMENT_BASE_CONFIG__FIELD_REQUIRED';
-
     /**
      * The proper entity fields are validated by the definition, so we only validate the json config fields here
      */
@@ -30,6 +29,9 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
         'pageOrientation',
         'itemsPerPage',
         'fileTypes',
+    ];
+
+    private const REQUIRED_ADDRESS_FIELDS = [
         'companyName',
         'companyStreet',
         'companyCountryId',
@@ -74,6 +76,17 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
                 );
             }
 
+            if ($this->requiresAddressValidation($config)) {
+                foreach (self::REQUIRED_ADDRESS_FIELDS as $field) {
+                    $this->validateRequiredField(
+                        $violations,
+                        $config[$field] ?? null,
+                        '/config/' . $field,
+                        $field
+                    );
+                }
+            }
+
             if ($violations->count() > 0) {
                 $event->getExceptions()->add(
                     new WriteConstraintViolationException(
@@ -83,6 +96,12 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
                 );
             }
         }
+    }
+
+    private function requiresAddressValidation(array $config): bool
+    {
+        return (bool) ($config['displayCompanyAddress'] ?? false)
+            || (bool) ($config['displayReturnAddress'] ?? false);
     }
 
     /**
@@ -134,6 +153,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
                     'This field must not be empty.',
                     ['{{ field }}' => $fieldName],
                     $propertyPath,
+                    NotBlank::IS_BLANK_ERROR,
                     $value,
                 )
             );
@@ -147,6 +167,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
         string $messageTemplate,
         array $parameters,
         string $propertyPath,
+        string $code,
         mixed $invalidValue,
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
@@ -157,7 +178,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
             $propertyPath,
             $invalidValue,
             null,
-            self::VIOLATION_REQUIRED,
+            $code,
         );
     }
 }

@@ -706,9 +706,9 @@ export default {
                 }
 
                 await this.loadEntityData();
-            } catch (error) {
+            } catch {
                 this.createNotificationError({
-                    message: error.message,
+                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });
             } finally {
                 this.isLoading = false;

@@ -10,7 +10,7 @@
             columns="1fr minmax(100px, 200px)"
             gap="0 10px"
         >
-            {% block sw_settings_user_list_smart_bar_actions %}
+        {% block sw_settings_user_list_smart_bar_actions %}
             {% block sw_settings_user_list_search_bar %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -21,7 +21,6 @@
             {% endblock %}
 
             {% block sw_settings_user_list_actions_create_user %}
-
             <mt-button
                 v-if="isSso"
                 size="small"
@@ -32,6 +31,7 @@
             >
                 {{ $tc('sw-users-permissions.sso.inviteButtonLabel') }}
             </mt-button>
+
             <mt-button
                 v-else
                 ghost
@@ -51,11 +51,11 @@
                 @invitation-failed="invitationFailed"
             />
             {% endblock %}
-            {% endblock %}
+        {% endblock %}
         </sw-container>
     </div>
 
-    {% block sw_settings_user_list_content %}
+{% block sw_settings_user_list_content %}
     {% block sw_settings_user_list_content_grid %}
     <sw-data-grid
         :data-source="user"
@@ -73,7 +73,7 @@
             <sw-context-menu-item
                 class="sw-settings-user-list__user-view-action"
                 :disabled="!acl.can('users_and_permissions.editor') || undefined"
-                :router-link="{ name: 'sw.users.permissions.user.detail', params: { id: item.id } }"
+                :router-link="{ name: userDetailRouterLink, params: { id: item.id } }"
             >
                 {{ $tc('sw-users-permissions.users.user-grid.contextMenuEdit') }}
             </sw-context-menu-item>
@@ -110,7 +110,7 @@
             {% block sw_settings_user_list_column_username_content %}
             <router-link
                 class="sw-settings-user-list__columns"
-                :to="{ name: 'sw.users.permissions.user.detail', params: { id: item.id } }"
+                :to="{ name: userDetailRouterLink, params: { id: item.id } }"
             >
                 {{ item.username }}
             </router-link>
@@ -118,8 +118,31 @@
         </template>
         {% endblock %}
 
+        {% block sw_settings_user_list_column_email %}
+        <template #column-email="{ item }">
+            {% block sw_settings_user_list_column_email_content %}
+            <router-link
+                v-if="isSso"
+                class="sw-settings-user-list__columns"
+                :to="{ name: userDetailRouterLink, params: { id: item.id } }"
+            >
+                {{ item.email }}
+            </router-link>
+            <span
+                v-else
+                class="sw-data-grid__cell-value"
+            >
+                {{ item.email }}
+            </span>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
         {% block sw_settings_user_list_column_status %}
-        <template #column-status="{item}">
+        <template
+            v-if="isSso"
+            #column-status="{item}"
+        >
             <sw-user-sso-status-label :user="item" />
         </template>
         {% endblock %}
@@ -127,11 +150,13 @@
         {% block sw_settings_user_list_column_username_acl_roles %}
         <template #column-aclRoles="{ item, compact }">
             <template v-if="item.aclRoles && item.aclRoles.length > 0">
-                <span
-                    v-for="(role, index) in item.aclRoles"
-                    :key="index"
-                >
-                    {{ role.name }}<template v-if="index + 1 < item.aclRoles.length">,&nbsp;</template>
+                <span class="sw-data-grid__cell-value">
+                    <span
+                        v-for="(role, index) in item.aclRoles"
+                        :key="index"
+                    >
+                        {{ role.name }}<template v-if="index + 1 < item.aclRoles.length">,&nbsp;</template>
+                    </span>
                 </span>
             </template>
             <span v-else-if="item.admin">
@@ -142,7 +167,7 @@
         {% endblock %}
 
         <template #pagination>
-            {% block sw_settings_user_list_grid_pagination %}
+        {% block sw_settings_user_list_grid_pagination %}
             <sw-pagination
                 :page="page"
                 :limit="limit"
@@ -150,11 +175,11 @@
                 :auto-hide="true"
                 @page-change="onPageChange"
             />
-            {% endblock %}
+        {% endblock %}
         </template>
 
         <template #action-modals="{ item }">
-            {% block sw_settings_user_list_delete_modal %}
+        {% block sw_settings_user_list_delete_modal %}
             <sw-modal
                 v-if="getItemToDelete(item)"
                 :title="$tc('global.default.warning')"
@@ -212,6 +237,6 @@
         </template>
     </sw-data-grid>
     {% endblock %}
-    {% endblock %}
+{% endblock %}
 </mt-card>
 {% endblock %}

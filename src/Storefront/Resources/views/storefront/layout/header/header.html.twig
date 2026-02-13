@@ -102,10 +102,14 @@
                         {% endblock %}
 
                         {% block layout_header_actions_cart %}
+                            {% set offcanvasCartOptions = {
+                                autoFocus: true
+                            } %}
                             <div class="col-auto">
                                 <div
                                     class="header-cart"
                                     data-off-canvas-cart="true"
+                                    data-off-canvas-cart-options="{{ offcanvasCartOptions|json_encode }}"
                                 >
                                     <a
                                         class="btn header-cart-btn header-actions-btn"

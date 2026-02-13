@@ -28,31 +28,38 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                         create: () => ({
                             search: () => {
                                 return Promise.resolve(
-                                    new EntityCollection('user', 'user', Shopware.Context.api, new Criteria(1), [
-                                        {
-                                            id: '019bff8c86e773e79ec5538c7b1edabc',
-                                            username: 'maxmuster',
-                                            firstName: 'Max',
-                                            lastName: 'Mustermann',
-                                            email: 'max@mustermann.com',
-                                            active: false,
-                                            aclRoles: [
-                                                {name: 'testRole'}
-                                            ],
-                                        },
-                                        {
-                                            id: '019bff8c86e773e79ec5538c7b1ed571',
-                                            username: 'admin',
-                                            firstName: '',
-                                            lastName: 'admin',
-                                            email: 'info@shopware.com',
-                                            active: true,
-                                            aclRoles: [
-                                                {name: 'adminRole'},
-                                                {name: 'superUser'},
-                                            ],
-                                        },
-                                    ], 1),
+                                    new EntityCollection(
+                                        'user',
+                                        'user',
+                                        Shopware.Context.api,
+                                        new Criteria(1),
+                                        [
+                                            {
+                                                id: '019bff8c86e773e79ec5538c7b1edabc',
+                                                username: 'maxmuster',
+                                                firstName: 'Max',
+                                                lastName: 'Mustermann',
+                                                email: 'max@mustermann.com',
+                                                active: false,
+                                                aclRoles: [
+                                                    { name: 'testRole' },
+                                                ],
+                                            },
+                                            {
+                                                id: '019bff8c86e773e79ec5538c7b1ed571',
+                                                username: 'admin',
+                                                firstName: '',
+                                                lastName: 'admin',
+                                                email: 'info@shopware.com',
+                                                active: true,
+                                                aclRoles: [
+                                                    { name: 'adminRole' },
+                                                    { name: 'superUser' },
+                                                ],
+                                            },
+                                        ],
+                                        1,
+                                    ),
                                 );
                             },
                         }),
@@ -175,20 +182,23 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         await flushPromises();
 
         const expectedUser = [
-                {
-                    username: 'maxmuster',
-                    firstName: 'Max',
-                    lastName: 'Mustermann',
-                    email: 'max@mustermann.com',
-                    aclRoles: ['testRole'],
-                },
-                {
-                    username: 'admin',
-                    firstName: '',
-                    lastName: 'admin',
-                    email: 'info@shopware.com',
-                    aclRoles: ['adminRole', 'superUser'],
-                },
+            {
+                username: 'maxmuster',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                email: 'max@mustermann.com',
+                aclRoles: ['testRole'],
+            },
+            {
+                username: 'admin',
+                firstName: '',
+                lastName: 'admin',
+                email: 'info@shopware.com',
+                aclRoles: [
+                    'adminRole',
+                    'superUser',
+                ],
+            },
         ];
 
         const allAclRoles = wrapper.findAll('td.sw-data-grid__cell--aclRoles');
@@ -199,16 +209,16 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         });
 
         expectedUser.forEach((user) => {
-            const userName = wrapper.findByText('a.sw-settings-user-list__columns', user.username)
+            const userName = wrapper.findByText('a.sw-settings-user-list__columns', user.username);
             expect(userName.exists()).toBe(true);
 
-            const firstName = wrapper.findByText('div.sw-data-grid__cell-content', user.firstName)
+            const firstName = wrapper.findByText('div.sw-data-grid__cell-content', user.firstName);
             expect(firstName.exists()).toBe(true);
 
-            const lastName = wrapper.findByText('div.sw-data-grid__cell-content', user.lastName)
+            const lastName = wrapper.findByText('div.sw-data-grid__cell-content', user.lastName);
             expect(lastName.exists()).toBe(true);
 
-            const email = wrapper.findByText('div.sw-data-grid__cell-content', user.email)
+            const email = wrapper.findByText('div.sw-data-grid__cell-content', user.email);
             expect(email.exists()).toBe(true);
         });
     });
@@ -226,7 +236,10 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
             {
                 email: 'info@shopware.com',
                 active: true,
-                aclRoles: ['adminRole', 'superUser'],
+                aclRoles: [
+                    'adminRole',
+                    'superUser',
+                ],
             },
         ];
 
@@ -238,11 +251,14 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         });
 
         expectedUser.forEach((user) => {
-            const email = wrapper.findByText('a.sw-settings-user-list__columns', user.email)
+            const email = wrapper.findByText('a.sw-settings-user-list__columns', user.email);
             expect(email.exists()).toBe(true);
 
-            const activeText = user.active ? 'active' : 'inactive'
-            const statusLabel = wrapper.findByText('span', `sw-users-permissions.sso.user-listing.status-label.${  activeText}`);
+            const activeText = user.active ? 'active' : 'inactive';
+            const statusLabel = wrapper.findByText(
+                'span',
+                `sw-users-permissions.sso.user-listing.status-label.${activeText}`,
+            );
             expect(statusLabel.exists()).toBe(true);
         });
     });

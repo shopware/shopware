@@ -31,8 +31,8 @@ class AdminElasticsearchHelperTest extends TestCase
 
         static::assertFalse($searchHelper->isEnabled());
         static::assertFalse($searchHelper->getRefreshIndices());
-        static::assertEquals('sw-admin', $searchHelper->getPrefix());
-        static::assertEquals('sw-admin-promotion-listing', $searchHelper->getIndex('promotion-listing'));
+        static::assertSame('sw-admin', $searchHelper->getPrefix());
+        static::assertSame('sw-admin-promotion-listing', $searchHelper->getIndex('promotion-listing'));
 
         $searchHelper->setEnabled(true);
 

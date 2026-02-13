@@ -91,7 +91,7 @@ class CategoryAdminSearchIndexerTest extends TestCase
 
         $data = $indexer->globalData($result, $context);
 
-        static::assertEquals($result['total'], $data['total']);
+        static::assertSame($result['total'], $data['total']);
     }
 
     public function testFetching(): void

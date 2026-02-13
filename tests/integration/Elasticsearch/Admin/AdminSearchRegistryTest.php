@@ -67,8 +67,37 @@ class AdminSearchRegistryTest extends TestCase
             $this->client,
             $searchHelper,
             $this->createMock(LoggerInterface::class),
+            [
+                'settings' => [
+                    'analysis' => [
+                        'normalizer' => [
+                            'sw_lowercase_normalizer' => [
+                                'type' => 'custom',
+                                'filter' => ['lowercase'],
+                            ],
+                        ],
+                        'analyzer' => [
+                            'sw_ngram_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'whitespace',
+                                'filter' => [
+                                    'lowercase',
+                                    'sw_ngram_filter',
+                                ],
+                            ],
+                        ],
+                        'filter' => [
+                            'sw_ngram_filter' => [
+                                'type' => 'ngram',
+                                'min_gram' => 4,
+                                'max_gram' => 5,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             [],
-            []
+            'test'
         );
     }
 

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Hoa\Ustring\Search;
+use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -92,7 +92,7 @@ class ProductAdminSearchIndexerTest extends TestCase
 
         $data = $indexer->globalData($result, $context);
 
-        static::assertEquals($result['total'], $data['total']);
+        static::assertSame($result['total'], $data['total']);
     }
 
     public function testFetching(): void

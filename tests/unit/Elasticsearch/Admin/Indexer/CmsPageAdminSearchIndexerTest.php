@@ -91,30 +91,6 @@ class CmsPageAdminSearchIndexerTest extends TestCase
         static::assertSame([$cmsPageId], $indexer->getUpdatedIds($event));
     }
 
-    public function testGetUpdatedIds(): void
-    {
-        $indexer = new CmsPageAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            100
-        );
-
-        $cmsPageId = Uuid::randomHex();
-
-        $event = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([
-                new EntityWrittenEvent('cms_page', [
-                    new EntityWriteResult(['cmsPageId' => $cmsPageId], ['name' => 'Home'], 'cms_page', EntityWriteResult::OPERATION_UPDATE),
-                ], Context::createDefaultContext()),
-            ]),
-            []
-        );
-
-        static::assertSame([$cmsPageId], $indexer->getUpdatedIds($event));
-    }
-
     public function testGetEntity(): void
     {
         static::assertSame(CmsPageDefinition::ENTITY_NAME, $this->searchIndexer->getEntity());
@@ -165,7 +141,7 @@ class CmsPageAdminSearchIndexerTest extends TestCase
 
         $data = $indexer->globalData($result, $context);
 
-        static::assertEquals($result['total'], $data['total']);
+        static::assertSame($result['total'], $data['total']);
     }
 
     public function testFetching(): void

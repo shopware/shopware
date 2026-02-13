@@ -4,13 +4,19 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 
+/**
+ * @internal
+ */
 #[CoversClass(AbstractAdminIndexer::class)]
 class AbstractAdminIndexerTest extends TestCase
 {
@@ -25,7 +31,7 @@ class AbstractAdminIndexerTest extends TestCase
 
             public function getDecorated(): AbstractAdminIndexer
             {
-                throw new RuntimeException('not required in test');
+                throw new DecorationPatternException(self::class);
             }
 
             public function getName(): string
@@ -40,12 +46,12 @@ class AbstractAdminIndexerTest extends TestCase
 
             public function getIterator(): IterableQuery
             {
-                throw new RuntimeException('not required in test');
+                return new LastIdQuery(new QueryBuilder(new FakeConnection([])));
             }
 
             public function fetch(array $ids): array
             {
-                throw new RuntimeException('not required in test');
+                return [];
             }
 
             public function globalData(array $result, Context $context): array

@@ -357,6 +357,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         await flushPromises();
 
         const routerLink = wrapper.findComponent('.sw-settings-user-list__columns');
+        expect(routerLink.exists()).toBe(true);
 
         // Check that the router-link prop uses the correct route name
         const routerLinkProp = routerLink.vm.$props.to;
@@ -371,6 +372,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         await flushPromises();
 
         const routerLink = wrapper.findComponent('.sw-settings-user-list__columns');
+        expect(routerLink.exists()).toBe(true);
 
         // Check that the router-link prop uses the correct route name
         const routerLinkProp = routerLink.vm.$props.to;

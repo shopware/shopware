@@ -1141,7 +1141,7 @@ describe('src/app/component/form/sw-text-editor', () => {
             'mt-floating-ui__content',
         ];
 
-        for (const popoverClass of popoverClasses) {
+        popoverClasses.forEach((popoverClass) => {
             const popoverElement = document.createElement('div');
             popoverElement.classList.add(popoverClass);
             document.body.appendChild(popoverElement);
@@ -1167,7 +1167,7 @@ describe('src/app/component/form/sw-text-editor', () => {
             expect(wrapper.vm.selection.toString()).toBe('Hello World');
 
             document.body.removeChild(popoverElement);
-        }
+        });
     });
 
     it('should reset selection when clicking outside editor and toolbar', async () => {

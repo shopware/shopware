@@ -80,7 +80,19 @@ class ProductSortingStreamSearchTest extends TestCase
         $container = KernelLifecycleManager::getKernel()->getContainer();
 
         $connection = $container->get(Connection::class);
+
+        $connection->executeStatement('DELETE FROM product');
+
+        $connection->executeStatement(
+            'DELETE FROM product_stream WHERE id IN (SELECT product_stream_id FROM product_stream_translation WHERE name LIKE :name)',
+            ['name' => 'Custom Field %Stream%']
+        );
+
         $connection->executeStatement('DELETE FROM product_sorting WHERE url_key LIKE :key', ['key' => 'ss-test-%']);
+
+        $connection->executeStatement('DELETE FROM custom_field WHERE name LIKE :name', ['name' => 'ss\_test\_%']);
+        $connection->executeStatement('DELETE FROM custom_field_set WHERE name = :name', ['name' => 'sorting_stream_search_set']);
+
         $connection->executeStatement('DELETE FROM elasticsearch_index_task');
     }
 
@@ -90,6 +102,11 @@ class ProductSortingStreamSearchTest extends TestCase
 
         $this->clearElasticsearch();
 
+        $this->connection->executeStatement('DELETE FROM product_sorting WHERE url_key LIKE :key', ['key' => 'ss-test-%']);
+        $this->connection->executeStatement(
+            'DELETE FROM product_stream WHERE id IN (SELECT product_stream_id FROM product_stream_translation WHERE name LIKE :name)',
+            ['name' => 'Custom Field %Stream%']
+        );
         $this->connection->executeStatement('DELETE FROM custom_field');
 
         // Create the ES index first (empty, no custom fields yet)
@@ -197,7 +214,6 @@ class ProductSortingStreamSearchTest extends TestCase
         $utils = static::getContainer()->get(ElasticsearchIndexingUtils::class);
         (new \ReflectionProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes'))->setValue($utils, []);
 
-        // Create products with custom field values
         $products = [
             (new ProductBuilder($this->ids, 'product-1'))
                 ->name('Product Alpha')

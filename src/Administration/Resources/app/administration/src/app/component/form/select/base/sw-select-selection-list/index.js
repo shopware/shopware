@@ -94,6 +94,11 @@ export default {
             required: false,
             default: undefined,
         },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     computed: {

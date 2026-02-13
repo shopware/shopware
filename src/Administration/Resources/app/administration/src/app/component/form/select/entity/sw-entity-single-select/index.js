@@ -177,6 +177,11 @@ export default {
             required: false,
             default: () => [],
         },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {

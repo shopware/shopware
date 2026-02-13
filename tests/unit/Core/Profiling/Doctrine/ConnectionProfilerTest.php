@@ -25,7 +25,10 @@ class ConnectionProfilerTest extends TestCase
     {
         $c = $this->createCollector([]);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertSame(['default'], $c->getConnections());
     }
@@ -34,7 +37,10 @@ class ConnectionProfilerTest extends TestCase
     {
         $c = $this->createCollector([]);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertSame(0, $c->getQueryCount());
 
@@ -43,7 +49,10 @@ class ConnectionProfilerTest extends TestCase
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertSame(1, $c->getQueryCount());
     }
@@ -52,7 +61,10 @@ class ConnectionProfilerTest extends TestCase
     {
         $c = $this->createCollector([]);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertSame(0.0, $c->getTime());
 
@@ -61,7 +73,10 @@ class ConnectionProfilerTest extends TestCase
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertSame(10.0, $c->getTime());
 
@@ -71,7 +86,10 @@ class ConnectionProfilerTest extends TestCase
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         static::assertGreaterThanOrEqual(30, $c->getTime());
@@ -84,7 +102,10 @@ class ConnectionProfilerTest extends TestCase
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries();
@@ -101,7 +122,10 @@ class ConnectionProfilerTest extends TestCase
 
         $c->reset();
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         static::assertSame([], $c->getQueries());
@@ -118,7 +142,10 @@ class ConnectionProfilerTest extends TestCase
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries()['default'][0];
@@ -162,7 +189,10 @@ class ConnectionProfilerTest extends TestCase
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries();
@@ -187,7 +217,10 @@ class ConnectionProfilerTest extends TestCase
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
-        $c = unserialize(serialize($c));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $c = \unserialize(\serialize($c));
+
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries()['default'][0];

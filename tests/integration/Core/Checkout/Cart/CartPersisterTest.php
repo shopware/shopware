@@ -235,7 +235,8 @@ class CartPersisterTest extends TestCase
 
     public function testCartCanBeUnserialized(): void
     {
-        $cart = unserialize((string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $cart = \unserialize((string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
 
         static::assertInstanceOf(Cart::class, $cart);
     }

@@ -113,7 +113,8 @@ class ContextTest extends TestCase
 
         $context->addExtension('foo', new ArrayEntity());
 
-        $deserialized = unserialize(serialize($context));
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $deserialized = \unserialize(serialize($context));
 
         static::assertInstanceOf(Context::class, $deserialized);
 

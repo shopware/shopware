@@ -194,7 +194,10 @@ class FlowPayloadUpdaterTest extends TestCase
 
         $payload = $flowEntity->getPayload();
         static::assertIsString($payload);
-        $flow = unserialize($payload);
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $flow = \unserialize($payload);
+
         static::assertInstanceOf(Flow::class, $flow);
         static::assertInstanceOf(IfSequence::class, $flow->getSequences()[0]);
 

@@ -132,7 +132,8 @@ class NotFoundSubscriberTest extends TestCase
 
         static::assertArrayHasKey(0, $writtenCaches);
 
-        $cacheItem = unserialize($writtenCaches[0]);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $cacheItem = \unserialize($writtenCaches[0]);
         static::assertInstanceOf(Response::class, $cacheItem);
 
         $cookies = $cacheItem->headers->getCookies();

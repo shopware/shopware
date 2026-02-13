@@ -131,6 +131,7 @@ class CartMigrateCommand extends Command
                 continue;
             }
 
+            /** @phpstan-ignore shopware.unserializeUsage */
             $value = \unserialize($value);
 
             $content = $this->cartCompressor->unserialize($value['content'], (int) $value['compressed']);

@@ -52,6 +52,7 @@ class RedisCartPersister extends AbstractCartPersister
         }
 
         try {
+            /** @phpstan-ignore shopware.unserializeUsage */
             $value = @\unserialize($value);
         } catch (\Throwable) {
             throw CartException::tokenNotFound($token);

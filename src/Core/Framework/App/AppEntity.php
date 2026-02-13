@@ -150,7 +150,7 @@ class AppEntity extends Entity
     protected string $sourceType = 'local';
 
     /**
-     * @var array<string, string|null>
+     * @var array<string, string|list<string>|null>
      */
     protected array $sourceConfig = [];
 
@@ -671,7 +671,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return array<string, string|null>
+     * @return array<string, string|list<string>|null>
      */
     public function getSourceConfig(): array
     {
@@ -679,7 +679,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param array<string, string|null> $config
+     * @param array<string, string|list<string>|null> $config
      */
     public function setSourceConfig(array $config): void
     {

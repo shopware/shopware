@@ -34,7 +34,7 @@ class Manifest
     private ?string $sourceType = null;
 
     /**
-     * @var array<string, string|null>
+     * @var array<string, string|list<string>|null>
      */
     private array $sourceConfig = [];
 
@@ -247,7 +247,7 @@ class Manifest
     }
 
     /**
-     * @return array<string, string|null>
+     * @return array<string, string|list<string>|null>
      */
     public function getSourceConfig(): array
     {
@@ -255,7 +255,7 @@ class Manifest
     }
 
     /**
-     * @param array<string, string|null> $sourceConfig
+     * @param array<string, string|list<string>|null> $sourceConfig
      */
     public function setSourceConfig(array $sourceConfig): void
     {

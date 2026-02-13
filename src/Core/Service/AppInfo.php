@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 readonly class AppInfo
 {
+    /**
+     * @param list<string> $requirements
+     */
     public function __construct(
         public string $name,
         public string $version,
@@ -20,6 +23,7 @@ readonly class AppInfo
         public string $zipUrl,
         public ?string $hashAlgorithm = null,
         public ?string $minShopwareSupportedVersion = null,
+        public array $requirements = [],
     ) {
     }
 
@@ -28,7 +32,7 @@ readonly class AppInfo
      */
     public static function fromRegistryResponse(string $appName, array $appInfo): self
     {
-        $requiredKeys = ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'];
+        $requiredKeys = ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'requirements'];
         $missingKeys = [];
         foreach ($requiredKeys as $key) {
             if (!isset($appInfo[$key])) {
@@ -47,7 +51,8 @@ readonly class AppInfo
             $appInfo['app-revision'],
             $appInfo['app-zip-url'],
             $appInfo['app-hash-algorithm'],
-            $appInfo['app-min-shop-supported-version']
+            $appInfo['app-min-shop-supported-version'],
+            $appInfo['requirements'],
         );
     }
 
@@ -64,6 +69,7 @@ readonly class AppInfo
             $sourceConfig['zip-url'],
             $sourceConfig['hash-algorithm'] ?? null,
             $sourceConfig['min-shop-supported-version'] ?? null,
+            $sourceConfig['requirements'] ?? [],
         );
     }
 
@@ -79,6 +85,7 @@ readonly class AppInfo
             'zip-url' => $this->zipUrl,
             'hash-algorithm' => $this->hashAlgorithm,
             'min-shop-supported-version' => $this->minShopwareSupportedVersion,
+            'requirements' => $this->requirements,
         ];
     }
 }

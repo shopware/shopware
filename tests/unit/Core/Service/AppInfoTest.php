@@ -18,17 +18,17 @@ class AppInfoTest extends TestCase
     {
         yield 'empty' => [
             [],
-            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'requirements'],
         ];
 
         yield 'only app-version' => [
             ['app-version' => '1.0.0'],
-            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'requirements'],
         ];
 
         yield 'app-version + app-hash' => [
             ['app-version' => '1.0.0', 'app-hash' => 'a453f'],
-            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'requirements'],
         ];
 
         yield 'up to zip url' => [
@@ -38,7 +38,7 @@ class AppInfoTest extends TestCase
                 'app-revision' => '1.0.0-a453f',
                 'app-zip-url' => 'https://example.com/zip',
             ],
-            ['app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-hash-algorithm', 'app-min-shop-supported-version', 'requirements'],
         ];
 
         yield 'missing min version' => [
@@ -49,7 +49,7 @@ class AppInfoTest extends TestCase
                 'app-zip-url' => 'https://example.com/zip',
                 'app-hash-algorithm' => 'sha256',
             ],
-            ['app-min-shop-supported-version'],
+            ['app-min-shop-supported-version', 'requirements'],
         ];
 
         yield 'missing hash algorithm' => [
@@ -60,7 +60,19 @@ class AppInfoTest extends TestCase
                 'app-zip-url' => 'https://example.com/zip',
                 'app-min-shop-supported-version' => '6.6.0.0',
             ],
-            ['app-hash-algorithm'],
+            ['app-hash-algorithm', 'requirements'],
+        ];
+
+        yield 'missing requirements' => [
+            [
+                'app-version' => '1.0.0',
+                'app-hash' => 'a453f',
+                'app-revision' => '1.0.0-a453f',
+                'app-zip-url' => 'https://example.com/zip',
+                'app-hash-algorithm' => 'sha256',
+                'app-min-shop-supported-version' => '6.6.0.0',
+            ],
+            ['requirements'],
         ];
     }
 
@@ -85,6 +97,7 @@ class AppInfoTest extends TestCase
             'app-zip-url' => 'https://example.com/zip',
             'app-hash-algorithm' => 'sha256',
             'app-min-shop-supported-version' => '6.6.0.0',
+            'requirements' => ['service_consent'],
         ]);
 
         static::assertSame('TestApp', $appInfo->name);
@@ -94,6 +107,51 @@ class AppInfoTest extends TestCase
         static::assertSame('https://example.com/zip', $appInfo->zipUrl);
         static::assertSame('sha256', $appInfo->hashAlgorithm);
         static::assertSame('6.6.0.0', $appInfo->minShopwareSupportedVersion);
+        static::assertSame(['service_consent'], $appInfo->requirements);
+    }
+
+    public function testFromRegistryResponseParsesRequirements(): void
+    {
+        $appInfo = AppInfo::fromRegistryResponse('TestApp', [
+            'app-version' => '1.0.0',
+            'app-hash' => 'a453f',
+            'app-revision' => '1.0.0-a453f',
+            'app-zip-url' => 'https://example.com/zip',
+            'app-hash-algorithm' => 'sha256',
+            'app-min-shop-supported-version' => '6.6.0.0',
+            'requirements' => ['service_consent', 'shopware_account'],
+        ]);
+
+        static::assertSame(['service_consent', 'shopware_account'], $appInfo->requirements);
+    }
+
+    public function testFromNameAndSourceConfigParsesRequirements(): void
+    {
+        $appInfo = AppInfo::fromNameAndSourceConfig('TestApp', [
+            'version' => '1.0.0',
+            'hash' => 'a453f',
+            'revision' => '1.0.0-a453f',
+            'zip-url' => 'https://example.com/zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
+            'requirements' => ['shopware_account'],
+        ]);
+
+        static::assertSame(['shopware_account'], $appInfo->requirements);
+    }
+
+    public function testFromNameAndSourceConfigDefaultsRequirementsToEmptyArray(): void
+    {
+        $appInfo = AppInfo::fromNameAndSourceConfig('TestApp', [
+            'version' => '1.0.0',
+            'hash' => 'a453f',
+            'revision' => '1.0.0-a453f',
+            'zip-url' => 'https://example.com/zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
+        ]);
+
+        static::assertSame([], $appInfo->requirements);
     }
 
     public function testToArray(): void
@@ -108,8 +166,25 @@ class AppInfoTest extends TestCase
                 'zip-url' => 'https://example.com/zip',
                 'hash-algorithm' => 'sha256',
                 'min-shop-supported-version' => '6.6.0.0',
+                'requirements' => [],
             ],
             $appInfo->toArray()
         );
+    }
+
+    public function testToArrayIncludesRequirements(): void
+    {
+        $appInfo = new AppInfo(
+            'TestApp',
+            '1.0.0',
+            'a453f',
+            '1.0.0-a453f',
+            'https://example.com/zip',
+            'sha256',
+            '6.6.0.0',
+            ['service_consent', 'shopware_account'],
+        );
+
+        static::assertSame(['service_consent', 'shopware_account'], $appInfo->toArray()['requirements']);
     }
 }

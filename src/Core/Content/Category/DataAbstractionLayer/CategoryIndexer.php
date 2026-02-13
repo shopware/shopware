@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
@@ -10,7 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -83,7 +86,17 @@ class CategoryIndexer extends EntityIndexer
 
         $ids = $categoryEvent->getIds();
         $idsWithChangedParentIds = [];
+        $runAllUpdaters = false;
+        $parentIdChanged = false;
+
         foreach ($categoryEvent->getWriteResults() as $result) {
+            $operation = $result->getOperation();
+            $payload = $result->getPayload();
+
+            if ($operation === EntityWriteResult::OPERATION_INSERT || $operation === EntityWriteResult::OPERATION_DELETE) {
+                $runAllUpdaters = true;
+            }
+
             if (!$result->getExistence()) {
                 continue;
             }
@@ -93,8 +106,8 @@ class CategoryIndexer extends EntityIndexer
                 $ids[] = Uuid::fromBytesToHex($state['parent_id']);
             }
 
-            $payload = $result->getPayload();
             if (\array_key_exists('parentId', $payload)) {
+                $parentIdChanged = true;
                 if ($payload['parentId'] !== null) {
                     $ids[] = $payload['parentId'];
                 }
@@ -105,6 +118,8 @@ class CategoryIndexer extends EntityIndexer
         if (empty($ids)) {
             return null;
         }
+
+        $nameChanged = $runAllUpdaters || $this->hasNameChanged($event->getEventByEntityName(CategoryTranslationDefinition::ENTITY_NAME));
 
         if ($idsWithChangedParentIds !== []) {
             $this->treeUpdater->batchUpdate(
@@ -121,15 +136,21 @@ class CategoryIndexer extends EntityIndexer
         $chunks = \array_chunk($ids, self::UPDATE_IDS_CHUNK_SIZE);
         $idsForReturnedMessage = array_shift($chunks);
 
+        $updatersSkips = $this->getSkipUpdaters($runAllUpdaters, $parentIdChanged, $nameChanged);
+
         foreach ($chunks as $chunk) {
             $childrenIndexingMessage = new CategoryIndexingMessage($chunk, null, $event->getContext());
             $childrenIndexingMessage->setIndexer($this->getName());
+            $childrenIndexingMessage->addSkip(...$updatersSkips);
             EntityIndexerRegistry::addSkips($childrenIndexingMessage, $event->getContext());
 
             $this->messageBus->dispatch($childrenIndexingMessage);
         }
 
-        return new CategoryIndexingMessage($idsForReturnedMessage, null, $event->getContext());
+        $message = new CategoryIndexingMessage($idsForReturnedMessage, null, $event->getContext());
+        $message->addSkip(...$updatersSkips);
+
+        return $message;
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -215,5 +236,45 @@ class CategoryIndexer extends EntityIndexer
     private function getIterator(?array $offset): IterableQuery
     {
         return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
+    }
+
+    /**
+     * Checks if name changed in category_translation write results.
+     */
+    private function hasNameChanged(?EntityWrittenEvent $translationEvent): bool
+    {
+        if ($translationEvent === null) {
+            return false;
+        }
+
+        foreach ($translationEvent->getWriteResults() as $result) {
+            if (\array_key_exists('name', $result->getPayload())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getSkipUpdaters(bool $runAllUpdaters, bool $parentIdChanged, bool $nameChanged): array
+    {
+        if ($runAllUpdaters) {
+            return [];
+        }
+
+        $skipUpdaters = [];
+        if (!$parentIdChanged) {
+            $skipUpdaters[] = self::CHILD_COUNT_UPDATER;
+            $skipUpdaters[] = self::TREE_UPDATER;
+        }
+        // Breadcrumb depends on both name (label) and parentId (path in tree)
+        if (!$nameChanged && !$parentIdChanged) {
+            $skipUpdaters[] = self::BREADCRUMB_UPDATER;
+        }
+
+        return $skipUpdaters;
     }
 }

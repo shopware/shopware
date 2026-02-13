@@ -160,7 +160,7 @@ jobs:
               .map(label => label.name.replace('backport-', ''));
 
             const filteredLabels = labels
-              .filter(label => !label.name.startsWith('backport-'))
+              .filter(label => !label.name.startsWith('backport-') && !label.name.startsWith('milestone/'))
               .map(label => label.name);
 
             core.setOutput('target-branches', JSON.stringify(targetBranches));
@@ -211,6 +211,6 @@ jobs:
           reviewers: >- # Add the original assignees, as well as the reviewers of the original PR
             ${{ github.event.pull_request.assignees && format('{0},', join(github.event.pull_request.assignees.*.login, ',')) || '' }}
             ${{ github.event.pull_request.requested_reviewers && join(github.event.pull_request.requested_reviewers.*.login, ',') || '' }}
-          labels: >- # Inherit original labels, except backport ones
+          labels: >- # Inherit original labels, except backport and milestone ones
             ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
           dry-run: ${{ github.event.act && true || false }}

@@ -35,7 +35,8 @@ class FlowLoader extends AbstractFlowLoader
 
         foreach ($flows as $key => $flow) {
             try {
-                $payload = unserialize($flow['payload']);
+                /** @phpstan-ignore shopware.unserializeUsage */
+                $payload = \unserialize($flow['payload']);
             } catch (\Throwable $e) {
                 $this->logger->error(
                     "Flow payload is invalid:\n"

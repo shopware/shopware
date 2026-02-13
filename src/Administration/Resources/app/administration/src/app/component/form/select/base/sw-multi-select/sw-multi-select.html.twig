@@ -15,7 +15,7 @@
             ref="selectionList"
             :selections="visibleValues"
             :invisible-count="invisibleValueCount"
-            v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, disabled: disabled || undefined }"
+            v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, disabled: disabled || undefined, autocomplete }"
             :input-label="label"
             @total-count-click="expandValueLimit"
             @item-remove="remove"

@@ -56,7 +56,7 @@ class ElasticsearchDateHistogramAggregation extends AbstractAggregation
     }
 
     /**
-     * {@inheritdoc}
+     * @return array{field: string|null, calendar_interval: string, format?: non-empty-string}
      */
     protected function getArray(): array
     {

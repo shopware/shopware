@@ -1423,12 +1423,6 @@ parameters:
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/AbstractElasticsearchSearchHydrator.php
 
 		-
-			message: '#^Method Shopware\\Elasticsearch\\Framework\\ElasticsearchDateHistogramAggregation\:\:getArray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Elasticsearch/Framework/ElasticsearchDateHistogramAggregation.php
-
-		-
 			message: '#^Method Shopware\\Elasticsearch\\Framework\\Indexing\\IndexingDto\:\:__construct\(\) has parameter \$ids with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

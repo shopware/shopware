@@ -163,8 +163,14 @@ class PluginLifecycleService
 
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
-            if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
-                $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+            try {
+                if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
+                    $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+                }
+            } finally {
+                if ($plugin->getInstalledAt()) {
+                    $this->uninstallPlugin($plugin, $shopwareContext, true);
+                }
             }
 
             throw $e;

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Hoa\Ustring\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -11,11 +12,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
 /**
  * @internal
@@ -31,6 +37,7 @@ class ProductAdminSearchIndexerTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
     }
@@ -72,6 +79,7 @@ class ProductAdminSearchIndexerTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $repository,
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -95,6 +103,7 @@ class ProductAdminSearchIndexerTest extends TestCase
             $connection,
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -103,27 +112,118 @@ class ProductAdminSearchIndexerTest extends TestCase
 
         static::assertArrayHasKey($id, $documents);
 
+        /** @var array<string, mixed> $document */
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('809c1844f4734243b6aa04aba860cd45 tag 123', $document['text']);
+        static::assertSame('tag 809c1844f4734243b6aa04aba860cd45', $document['text']);
         static::assertSame('product sw1000299 keywords', $document['textBoosted']);
+        static::assertSame('SW1000299', $document['productNumber']);
+        static::assertTrue($document['active']);
+        static::assertSame(10, $document['sales']);
+        static::assertSame(100, $document['stock']);
+        static::assertIsArray($document['name']);
+        static::assertIsArray($document['tags']);
+    }
+
+    public function testGetUpdatedIds(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            $this->createMock(Connection::class),
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $productId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product', [
+                    new EntityWriteResult($productId, ['productNumber' => 'SW1000'], 'product', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGlobalCriteria(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            $this->createMock(Connection::class),
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $search = new Search();
+        $result = $indexer->globalCriteria('test', $search);
+
+        $boolQuery = $result->getQueries();
+        $boolQueryArray = $boolQuery->toArray();
+        $shouldQueries = $boolQueryArray['bool']['should'];
+
+        static::assertCount(2, $shouldQueries);
+
+        $matchQuery = null;
+        $simpleQueryStringQuery = null;
+        foreach ($shouldQueries as $query) {
+            if (isset($query['match']['textBoosted.ngram'])) {
+                $matchQuery = $query['match']['textBoosted.ngram'];
+            } elseif (isset($query['simple_query_string'])) {
+                $simpleQueryStringQuery = $query['simple_query_string'];
+            }
+        }
+
+        static::assertNotNull($matchQuery, 'MatchQuery for textBoosted.ngram should be present');
+        static::assertSame('test', $matchQuery['query']);
+        static::assertSame(10, $matchQuery['boost']);
+
+        static::assertNotNull($simpleQueryStringQuery, 'SimpleQueryStringQuery for textBoosted should be present');
+        static::assertSame(['textBoosted'], $simpleQueryStringQuery['fields']);
+        static::assertSame('test*', $simpleQueryStringQuery['query']);
+        static::assertSame(10, $simpleQueryStringQuery['boost']);
+        static::assertTrue($simpleQueryStringQuery['lenient']);
     }
 
     private function getConnection(): Connection
     {
         $connection = $this->createMock(Connection::class);
 
+        $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     'name' => 'Product',
-                    'custom_search_keywords' => '[["keywords"]]',
+                    'translatedNames' => json_encode([
+                        ['languageId' => $languageId, 'name' => 'Product'],
+                    ]),
+                    'translatedManufacturerNames' => json_encode([
+                        ['languageId' => $languageId, 'name' => 'Manufacturer'],
+                    ]),
+                    'customSearchKeywords' => '[["keywords"]]',
                     'tags' => 'Tag',
-                    'product_number' => 'SW1000299',
-                    'ean' => '123',
-                    'manufacturer_number' => '123',
+                    'tagIds' => 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6',
+                    'productNumber' => 'SW1000299',
+                    'active' => 1,
+                    'available' => 1,
+                    'parentId' => null,
+                    'sales' => 10,
+                    'stock' => 100,
+                    'type' => null,
+                    'states' => null,
+                    'manufacturerId' => 'aabbccdd11223344556677889900aabb',
+                    'categoryIds' => null,
+                    'visibilities' => null,
+                    'createdAt' => '2024-01-01 00:00:00.000',
+                    'updatedAt' => null,
+                    'releaseDate' => null,
                 ],
             ],
         );

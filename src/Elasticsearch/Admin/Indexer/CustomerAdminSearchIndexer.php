@@ -4,16 +4,21 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
 #[Package('inventory')]
 final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
@@ -51,6 +56,78 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
+    public function getUpdatedIds(EntityWrittenContainerEvent $event): array
+    {
+        $customerIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
+            'firstName',
+            'lastName',
+            'email',
+            'company',
+            'customerNumber',
+            'active',
+            'groupId',
+        ]);
+
+        $addresses = $event->getPrimaryKeysWithPropertyChange(CustomerAddressDefinition::ENTITY_NAME, [
+            'firstName',
+            'lastName',
+            'company',
+            'city',
+            'street',
+            'zipcode',
+            'phoneNumber',
+            'additionalAddressLine1',
+            'additionalAddressLine2',
+            'countryId',
+        ]);
+
+        if (!empty($addresses)) {
+            $customerIds = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
+        }
+
+        $multiplePrimaryKeyWrittenEvent = $event;
+        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CustomerTagDefinition::ENTITY_NAME, [
+            'tagId',
+        ]);
+
+        foreach ($tags as $pks) {
+            if (isset($pks['customerId'])) {
+                $customerIds[] = $pks['customerId'];
+            }
+        }
+
+        return array_values(array_unique(array_filter($customerIds, '\is_string')));
+    }
+
+    public function mapping(array $mapping): array
+    {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return parent::mapping($mapping);
+        }
+
+        $override = [
+            'active' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
+            'email' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'firstName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'lastName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'customerNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'company' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'affiliateCode' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'campaignCode' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'groupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'salutationId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'boundSalesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'requestedGroupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'createdAt' => ElasticsearchFieldBuilder::datetime(),
+            'tags' => ElasticsearchFieldBuilder::nested(),
+        ];
+
+        $mapping['properties'] ??= [];
+        $mapping['properties'] = array_merge($mapping['properties'], $override);
+
+        return $mapping;
+    }
+
     public function globalData(array $result, Context $context): array
     {
         $ids = array_column($result['hits'], 'id');
@@ -61,12 +138,16 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
         ];
     }
 
+    /**
+     * @return array<string, array{id:string, text:string}>
+     */
     public function fetch(array $ids): array
     {
         $data = $this->connection->fetchAllAssociative(
-            '
+            <<<'SQL'
             SELECT LOWER(HEX(customer.id)) as id,
                    GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
+                   GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
                    GROUP_CONCAT(DISTINCT country_translation.name SEPARATOR " ") as country,
                    GROUP_CONCAT(DISTINCT customer_address.first_name SEPARATOR " ") as address_first_name,
                    GROUP_CONCAT(DISTINCT customer_address.last_name SEPARATOR " ") as address_last_name,
@@ -81,7 +162,15 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
                    customer.last_name,
                    customer.email,
                    customer.company,
-                   customer.customer_number
+                   customer.customer_number,
+                   customer.active AS active,
+                   customer.affiliate_code AS affiliateCode,
+                   customer.campaign_code AS campaignCode,
+                   LOWER(HEX(customer.customer_group_id)) AS groupId,
+                   LOWER(HEX(customer.salutation_id)) AS salutationId,
+                   LOWER(HEX(customer.bound_sales_channel_id)) AS boundSalesChannelId,
+                   LOWER(HEX(customer.requested_customer_group_id)) AS requestedGroupId,
+                   customer.created_at as createdAt
             FROM customer
                 LEFT JOIN customer_address
                     ON customer_address.customer_id = customer.id
@@ -95,7 +184,7 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
                     ON customer_tag.tag_id = tag.id
             WHERE customer.id IN (:ids)
             GROUP BY customer.id
-        ',
+SQL,
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
@@ -107,8 +196,44 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
         $mapped = [];
         foreach ($data as $row) {
             $id = (string) $row['id'];
-            $text = \implode(' ', array_filter(array_unique(array_values($row))));
-            $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
+            $text = \implode(' ', array_filter([
+                $row['first_name'] ?? '',
+                $row['last_name'] ?? '',
+                $row['email'] ?? '',
+                $row['customer_number'] ?? '',
+                $row['company'] ?? '',
+                $row['tags'] ?? '',
+                $row['country'] ?? '',
+                $row['address_first_name'] ?? '',
+                $row['address_last_name'] ?? '',
+                $row['address_company'] ?? '',
+                $row['city'] ?? '',
+                $row['street'] ?? '',
+                $row['zipcode'] ?? '',
+                $row['phone_number'] ?? '',
+                $row['additional_address_line1'] ?? '',
+                $row['additional_address_line2'] ?? '',
+                $id,
+            ]));
+
+            $mapped[$id] = [
+                'id' => $id,
+                'text' => \strtolower($text),
+                'active' => (bool) $row['active'],
+                'email' => $row['email'] ?? null,
+                'firstName' => $row['first_name'] ?? null,
+                'lastName' => $row['last_name'] ?? null,
+                'customerNumber' => $row['customer_number'] ?? null,
+                'company' => $row['company'] ?? null,
+                'affiliateCode' => $row['affiliateCode'] ?? null,
+                'campaignCode' => $row['campaignCode'] ?? null,
+                'groupId' => $row['groupId'] ?? null,
+                'salutationId' => $row['salutationId'] ?? null,
+                'boundSalesChannelId' => $row['boundSalesChannelId'] ?? null,
+                'requestedGroupId' => $row['requestedGroupId'] ?? null,
+                'tags' => $this->parseTagIds($row),
+                'createdAt' => $this->formatDateTime($row, 'createdAt'),
+            ];
         }
 
         return $mapped;

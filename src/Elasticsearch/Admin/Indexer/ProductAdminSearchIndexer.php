@@ -7,6 +7,10 @@ use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -15,7 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,6 +54,45 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     public function getEntity(): string
     {
         return ProductDefinition::ENTITY_NAME;
+    }
+
+    public function getUpdatedIds(EntityWrittenContainerEvent $event): array
+    {
+        $productIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
+            'productNumber',
+            'ean',
+            'manufacturerNumber',
+            'active',
+            'manufacturerId',
+            'stock',
+            'releaseDate',
+        ]);
+
+        $multiplePrimaryKeyWrittenEvent = $event;
+        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
+            'name',
+            'customSearchKeywords',
+        ]);
+
+        $categories = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductCategoryDefinition::ENTITY_NAME, [
+            'categoryId',
+        ]) : [];
+
+        $visibilities = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
+            'salesChannelId',
+        ]) : [];
+
+        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
+            'tagId',
+        ]);
+
+        foreach (array_merge($translations, $tags, $visibilities, $categories) as $pks) {
+            if (isset($pks['productId'])) {
+                $productIds[] = $pks['productId'];
+            }
+        }
+
+        return array_values(array_unique(array_filter($productIds, '\is_string')));
     }
 
     public function getName(): string
@@ -94,6 +139,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
     public function mapping(array $mapping): array
     {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return parent::mapping($mapping);
+        }
+
         $languageFields = $this->fieldBuilder->translated(AbstractElasticsearchDefinition::KEYWORD_FIELD);
 
         $override = [
@@ -105,23 +154,20 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'productNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'ean' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'manufacturerNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'stock' => AbstractElasticsearchDefinition::INT_FIELD,
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
             'updatedAt' => ElasticsearchFieldBuilder::datetime(),
-            'categories' => ElasticsearchFieldBuilder::nested([
-                'versionId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-            ]),
+            'categories' => ElasticsearchFieldBuilder::nested(),
             'tags' => ElasticsearchFieldBuilder::nested(),
             'manufacturer' => ElasticsearchFieldBuilder::nested([
-                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'name' => $languageFields,
             ]),
             'visibilities' => ElasticsearchFieldBuilder::nested([
-                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-                'visibility' => AbstractElasticsearchDefinition::INT_FIELD,
             ]),
         ];
 
@@ -132,13 +178,74 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, textBoosted:string, text:string}>
+     * @param array<string> $ids
+     *
+     * @return array<string, array<string, mixed>>
      */
     public function fetch(array $ids): array
     {
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return $this->advancedFetch($ids);
+        }
+
+        $data = $this->connection->fetchAllAssociative(
+            '
+            SELECT LOWER(HEX(product.id)) as id,
+                   GROUP_CONCAT(DISTINCT translation.name SEPARATOR " ") as name,
+                   CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as custom_search_keywords,
+                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
+                   product.product_number,
+                   product.ean,
+                   product.manufacturer_number
+            FROM product
+                INNER JOIN product_translation AS translation
+                    ON product.id = translation.product_id AND product.version_id = translation.product_version_id
+                LEFT JOIN product_tag
+                    ON product.id = product_tag.product_id AND product.version_id = product_tag.product_version_id
+                LEFT JOIN tag
+                    ON product_tag.tag_id = tag.id
+            WHERE product.id IN (:ids)
+            AND product.version_id = :versionId
+            GROUP BY product.id
+        ',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ]
+        );
+
+        $mapped = [];
+        foreach ($data as $row) {
+            $textBoosted = $row['name'] . ' ' . $row['product_number'];
+
+            if ($row['custom_search_keywords']) {
+                $row['custom_search_keywords'] = json_decode((string) $row['custom_search_keywords'], true, 512, \JSON_THROW_ON_ERROR);
+                $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['custom_search_keywords'])));
+            }
+
+            $id = (string) $row['id'];
+            unset($row['name'],  $row['product_number'], $row['custom_search_keywords']);
+            $text = \implode(' ', array_filter(array_unique(array_values($row))));
+            $mapped[$id] = ['id' => $id, 'textBoosted' => \strtolower($textBoosted), 'text' => \strtolower($text)];
+        }
+
+        return $mapped;
+    }
+
+    /**
+     * @description to keep the writing fast we do a more complex fetch here only if the feature flag ENABLE_OPENSEARCH_FOR_ADMIN_API is enabled to reduce the number of joins in the sql query
+     *
+     * @param array<string> $ids
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function advancedFetch(array $ids): array
+    {
         $baseMapping = [
             '#visibilities#' => SqlHelper::objectArray([
-                'visibility' => 'product_visibility.visibility',
                 'salesChannelId' => 'LOWER(HEX(product_visibility.sales_channel_id))',
             ], 'visibilities'),
         ];
@@ -146,11 +253,11 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $baseSql = <<<'SQL'
             SELECT LOWER(HEX(product.id)) as id,
                    GROUP_CONCAT(DISTINCT translation.name SEPARATOR " ") as name,
-                   JSON_ARRAYAGG(DISTINCT JSON_OBJECT(
+                   JSON_ARRAYAGG(JSON_OBJECT(
                        'languageId', LOWER(HEX(translation.language_id)),
                        'name', translation.name
                    )) as translatedNames,
-                   JSON_ARRAYAGG(DISTINCT JSON_OBJECT(
+                   JSON_ARRAYAGG(JSON_OBJECT(
                        'languageId', LOWER(HEX(manufacturer_translation.language_id)),
                        'name', manufacturer_translation.name
                    )) as translatedManufacturerNames,
@@ -159,8 +266,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
                    IFNULL(product.active, parent.active) AS active,
                    product.available AS available,
-                   product.parent_id as parentId,
+                   LOWER(HEX(product.parent_id)) as parentId,
                    product.product_number as productNumber,
+                   product.ean as ean,
+                   product.manufacturer_number as manufacturerNumber,
                    product.sales as sales,
                    product.type as type,
                    product.states as states,
@@ -174,8 +283,6 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             FROM product
                 LEFT JOIN product parent ON (product.parent_id = parent.id AND parent.version_id = :versionId)
                 LEFT JOIN product_visibility ON (product_visibility.product_id = product.visibilities AND product_visibility.product_version_id = product.version_id)
-                LEFT JOIN product_media ON (product_media.product_id = product.media AND product_media.product_version_id = product.version_id)
-
                 INNER JOIN product_translation AS translation
                     ON product.id = translation.product_id AND product.version_id = translation.product_version_id
                 LEFT JOIN product_manufacturer_translation AS manufacturer_translation
@@ -229,6 +336,8 @@ SQL;
                 'name' => $translatedNames,
                 'parentId' => $row['parentId'] ?? null,
                 'productNumber' => $row['productNumber'] ?? null,
+                'ean' => $row['ean'] ?? null,
+                'manufacturerNumber' => $row['manufacturerNumber'] ?? null,
                 'manufacturerId' => $row['manufacturerId'] ?? null,
                 'sales' => (int) $row['sales'],
                 'active' => (bool) $row['active'],
@@ -252,49 +361,13 @@ SQL;
                         '_count' => 1,
                     ], $visibility);
                 }, ElasticsearchIndexingUtils::parseJson($row, 'visibilities')),
-                'tags' => isset($row['tagIds']) ? array_map(function (string $tagId) {
-                    return [
-                        'id' => $tagId,
-                        '_count' => 1,
-                    ];
-                }, explode(' ', $row['tagIds'])) : [],
-                'createdAt' => isset($row['createdAt']) ? (new \DateTime($row['createdAt']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
-                'updatedAt' => isset($row['updatedAt']) ? (new \DateTime($row['updatedAt']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
-                'releaseDate' => isset($row['releaseDate']) ? (new \DateTime($row['releaseDate']))->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+                'tags' => $this->parseTagIds($row),
+                'createdAt' => $this->formatDateTime($row, 'createdAt'),
+                'updatedAt' => $this->formatDateTime($row, 'updatedAt'),
+                'releaseDate' => $this->formatDateTime($row, 'releaseDate'),
             ];
         }
 
         return $mapped;
-    }
-
-    /**
-     * @return list<array<string, string>>
-     */
-    private function decodeTranslatedValues(?string $encoded): array
-    {
-        if ($encoded === null || $encoded === '') {
-            return [];
-        }
-
-        /** @var list<array{languageId?: string|null, name?: string|null}|null> $decoded */
-        $decoded = json_decode($encoded, true, 512, \JSON_THROW_ON_ERROR);
-
-        $translations = [];
-        foreach ($decoded as $entry) {
-            if (!\is_array($entry)) {
-                continue;
-            }
-
-            $languageId = $entry['languageId'] ?? null;
-            $name = $entry['name'] ?? null;
-
-            if (!\is_string($languageId) || $languageId === '' || !\is_string($name) || $name === '') {
-                continue;
-            }
-
-            $translations[$languageId] = $name;
-        }
-
-        return $translations;
     }
 }

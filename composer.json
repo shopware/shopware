@@ -40,6 +40,7 @@
             "forward-command": false
         },
         "branch-alias": {
+            "dev-main": "6.7.x-dev",
             "dev-master": "6.7.x-dev",
             "dev-trunk": "6.7.x-dev"
         },
@@ -88,9 +89,9 @@
         "composer/class-map-generator": "^1.7",
         "composer/composer": "^2.9.3",
         "composer/semver": "^3.4.0",
-        "doctrine/dbal": "~4.3.1",
+        "doctrine/dbal": "~4.4.0",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "3.1.0",
+        "dompdf/dompdf": "3.1.4",
         "dragonmantank/cron-expression": "^3.3",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",

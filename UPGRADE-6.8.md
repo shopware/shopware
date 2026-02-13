@@ -133,6 +133,19 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
+## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
+
+Following helper methods have been removed from the `EntityDefinitionQueryHelper`:
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
+
+## Thrown exception changed in migration helper traits
+
+Instead of `\Doctrine\DBAL\Exception\TableNotFoundException`, a `\Shopware\Core\Framework\Util\UtilException` is now thrown in the following methods:
+- \Shopware\Core\Framework\Migration\AddColumnTrait::addColumn
+- \Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists
+
 ## Cache improvements
 
 ### Only rules relevant for product prices are considered in the `sw-cache-hash`
@@ -209,6 +222,12 @@ The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler
 
 ## SnippetValidator becomes internal
 The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
+
+## Removal of default value for `serializer` parameter in `#[Serialized]`field attribute
+
+The default value for the `serializer` parameter in the `#[Serialized]` field attribute was removed.
+You need to explicitly set the serializer to use for your field.
+Additionally, the `SerializedField` class is now internal, as you should not use it directly in classic `EntityDefinitions`. It's only intended use case is in combination with the `#[Serialized]` attribute in attribute entities.
 
 ## Removal of `EntityDefinition` constructor
 
@@ -447,6 +466,36 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 # Administration
 
 <details>
+
+## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
+
+The method `loadConfigSettingGroups()` in the product detail variants view has been removed without replacement since `configSettingGroups` became a computed property.
+
+* If your code called `loadConfigSettingGroups()`, remove that call.
+* `configSettingGroups` is derived automatically from `productEntity.configuratorSettings` and `groups`.
+
+## Removal of `items` prop in `sw-entity-listing` component
+
+The `items` prop in the `sw-entity-listing` component has been removed.
+Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
+
+**Before:**
+```html
+<sw-entity-listing
+    :items="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+**After:**
+```html
+<sw-entity-listing
+    :data-source="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
 
 ## Axios v1 is now the default HTTP client
 
@@ -744,6 +793,11 @@ This method was moved to FocusHandler Helper. Use this instead.
 const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ```
 
+## Invalid locale codes no longer supported
+
+Passing invalid locale codes (esp non localized two letter codes like "US") to the default `format_number` and `format_currency` twig filters will now throw an error.
+Please use the proper localized codes like "en-US" instead. Additionally, you should use the shopware specific `currency`, instead of the native `format_currency` filter, to already handle configured rounding etc.
+
 ## Remove route `widgets.account.order.detail`
 
 Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
@@ -996,6 +1050,15 @@ If you are still using any of these options in your configuration, you can safel
 ## Dropped support for OpenSearch 1.x
 
 OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported. Please update OpenSearch to the latest supported Version.
+
+## Changed default Elasticsearch shard and replica counts for Admin ES
+
+The default values for `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` and `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` changed from `3` to empty (meaning Elasticsearch defaults are used). If you relied on the previous defaults, set these environment variables explicitly in your `.env` file:
+
+```
+SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS=3
+SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS=3
+```
 
 ## Removed configuration of Filesystem visibility in config array
 

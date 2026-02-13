@@ -639,7 +639,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->arrayNode('allowed_types')
-                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_PHYSICAL])
+                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_DIGITAL])
                 ->scalarPrototype()->end()
             ->end();
 

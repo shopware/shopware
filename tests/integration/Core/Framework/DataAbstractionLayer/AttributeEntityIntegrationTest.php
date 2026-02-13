@@ -968,7 +968,6 @@ class AttributeEntityIntegrationTest extends TestCase
         );
 
         $inheritedFlag = $inheritedWithForeignKeyField->getFlag(Inherited::class);
-        static::assertInstanceOf(Inherited::class, $inheritedFlag);
         static::assertSame('custom_fk', $inheritedFlag->getForeignKey());
 
         $productField = $definition->getFields()->get('product');

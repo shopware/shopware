@@ -137,7 +137,7 @@ class ThemeRuntimeConfigStorage
         $childThemeIds = [];
         $pendingParentIds = [$parentThemeId];
 
-        while (!empty($pendingParentIds)) {
+        while ($pendingParentIds !== []) {
             $directChildren = $this->connection->fetchFirstColumn(
                 <<<'SQL'
                     SELECT LOWER(HEX(id)) as id FROM theme WHERE parent_theme_id IN (:parentIds)

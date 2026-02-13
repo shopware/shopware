@@ -67,7 +67,7 @@ class RobotsDirectiveParser
                     $line,
                     $directiveType,
                     $directiveValue,
-                    \count($currentUserAgents) > 0,
+                    $currentUserAgents !== [],
                     $context,
                     $salesChannelId
                 );
@@ -93,7 +93,7 @@ class RobotsDirectiveParser
             // Handle User-agent directive
             if ($directiveTypeEnum === RobotsDirectiveType::USER_AGENT) {
                 // If we have a current block with directives, save it
-                if (\count($currentUserAgents) > 0 && \count($currentDirectives) > 0) {
+                if ($currentUserAgents !== [] && $currentDirectives !== []) {
                     foreach ($currentUserAgents as $userAgent) {
                         $userAgentBlocks[] = new RobotsUserAgentBlock($userAgent, $currentDirectives);
                     }
@@ -111,7 +111,7 @@ class RobotsDirectiveParser
             // Handle other directives
             $directive = new RobotsDirective($directiveTypeEnum, $directiveValue);
 
-            if (\count($currentUserAgents) > 0) {
+            if ($currentUserAgents !== []) {
                 // We're in a user-agent block
                 $currentDirectives[] = $directive;
             } else {
@@ -130,7 +130,7 @@ class RobotsDirectiveParser
         }
 
         // Save last block if any
-        if (\count($currentUserAgents) > 0 && \count($currentDirectives) > 0) {
+        if ($currentUserAgents !== [] && $currentDirectives !== []) {
             foreach ($currentUserAgents as $userAgent) {
                 $userAgentBlocks[] = new RobotsUserAgentBlock($userAgent, $currentDirectives);
             }

@@ -166,7 +166,7 @@ class ThemeLifecycleHandler
             ['technicalName' => $technicalName]
         );
 
-        if (empty($themeData)) {
+        if ($themeData === []) {
             return new ThemeDependencies();
         }
 

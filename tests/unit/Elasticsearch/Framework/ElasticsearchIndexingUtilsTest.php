@@ -206,4 +206,244 @@ class ElasticsearchIndexingUtilsTest extends TestCase
 
         ElasticsearchIndexingUtils::parseJson($record, $field);
     }
+
+    public function testExtractCustomFieldNamesSkipsInvalidJson(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag([]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls(
+                [
+                    'not-valid-json{{{',
+                    json_encode([
+                        ['field' => 'customFields.valid_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ]),
+                ],
+                []
+            );
+
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->with(
+                static::callback(function (string $sql): bool {
+                    return str_contains($sql, 'custom_field.name IN (:fields)');
+                }),
+                static::callback(function (array $params): bool {
+                    return \in_array('valid_field', $params['fields'], true)
+                        && \count($params['fields']) === 1;
+                }),
+                static::anything()
+            )
+            ->willReturn([
+                'valid_field' => 'int',
+            ]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $result = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
+
+        static::assertSame([
+            'valid_field' => 'int',
+        ], $result);
+    }
+
+    public function testExtractCustomFieldNamesSkipsNonArrayJson(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag([]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls(
+                [
+                    '"just a string"',
+                    '42',
+                    'null',
+                ],
+                []
+            );
+
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn([]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $result = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
+
+        static::assertSame([], $result);
+    }
+
+    public function testExtractCustomFieldNamesHandlesNestedApiFilterStructure(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag([]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $nestedApiFilter = json_encode([
+            [
+                'type' => 'multi',
+                'queries' => [
+                    [
+                        'type' => 'multi',
+                        'queries' => [
+                            ['type' => 'equals', 'field' => 'product.customFields.nested_field_a', 'value' => '0'],
+                            ['type' => 'equals', 'field' => 'product.customFields.nested_field_b', 'value' => '1'],
+                        ],
+                        'operator' => 'AND',
+                    ],
+                ],
+                'operator' => 'OR',
+            ],
+        ]);
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls(
+                [],
+                [$nestedApiFilter]
+            );
+
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->with(
+                static::callback(function (string $sql): bool {
+                    return str_contains($sql, 'custom_field.name IN (:fields)');
+                }),
+                static::callback(function (array $params): bool {
+                    return \in_array('nested_field_a', $params['fields'], true)
+                        && \in_array('nested_field_b', $params['fields'], true);
+                }),
+                static::anything()
+            )
+            ->willReturn([
+                'nested_field_a' => 'bool',
+                'nested_field_b' => 'text',
+            ]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $result = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
+
+        static::assertSame([
+            'nested_field_a' => 'bool',
+            'nested_field_b' => 'text',
+        ], $result);
+    }
+
+    public function testExtractCustomFieldNamesDeduplicatesAcrossSortingAndStream(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag([]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls(
+                [
+                    json_encode([
+                        ['field' => 'customFields.shared_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                        ['field' => 'customFields.sorting_only', 'order' => 'asc', 'priority' => 2, 'naturalSorting' => false],
+                    ]),
+                ],
+                [
+                    json_encode([
+                        ['type' => 'equals', 'field' => 'product.customFields.shared_field', 'value' => '1'],
+                        ['type' => 'equals', 'field' => 'product.customFields.stream_only', 'value' => '2'],
+                    ]),
+                ]
+            );
+
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->with(
+                static::anything(),
+                static::callback(function (array $params): bool {
+                    $fields = $params['fields'];
+
+                    return \count($fields) === 3
+                        && \in_array('shared_field', $fields, true)
+                        && \in_array('sorting_only', $fields, true)
+                        && \in_array('stream_only', $fields, true);
+                }),
+                static::anything()
+            )
+            ->willReturn([
+                'shared_field' => 'int',
+                'sorting_only' => 'text',
+                'stream_only' => 'bool',
+            ]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $result = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
+
+        static::assertSame([
+            'shared_field' => 'int',
+            'sorting_only' => 'text',
+            'stream_only' => 'bool',
+        ], $result);
+    }
+
+    public function testExtractCustomFieldNamesIgnoresNonCustomFieldEntries(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag([]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls(
+                [
+                    json_encode([
+                        ['field' => 'product.name', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                        ['field' => 'product.price', 'order' => 'asc', 'priority' => 2, 'naturalSorting' => false],
+                    ]),
+                ],
+                [
+                    json_encode([
+                        ['type' => 'equals', 'field' => 'product.active', 'value' => '1'],
+                    ]),
+                ]
+            );
+
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn([]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $result = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
+
+        static::assertSame([], $result);
+    }
 }

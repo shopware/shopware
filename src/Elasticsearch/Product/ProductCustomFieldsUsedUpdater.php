@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,6 +75,13 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
         $productStreamFilterIds = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
+            if (!\in_array($writeResult->getOperation(), [
+                EntityWriteResult::OPERATION_INSERT,
+                EntityWriteResult::OPERATION_UPDATE,
+            ], true)) {
+                continue;
+            }
+
             $key = $writeResult->getPrimaryKey();
             if (!\is_string($key)) {
                 continue;

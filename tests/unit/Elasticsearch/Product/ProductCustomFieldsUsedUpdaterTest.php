@@ -869,24 +869,18 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater->productSortingWritten($event);
     }
 
-    public function testProductStreamDeleteOperation(): void
+    public function testProductStreamFilterDeleteOperationIsSkipped(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $productStreamFilterId = Uuid::randomHex();
-
         $connection = $this->createMock(Connection::class);
-        // Stream deleted, filter query returns empty
-        $connection
-            ->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturn([]);
+        $connection->expects($this->never())->method('fetchFirstColumn');
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
-        $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
@@ -896,7 +890,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
         $writeResults = [
             new EntityWriteResult(
-                $productStreamFilterId,
+                Uuid::randomHex(),
                 [],
                 ProductStreamFilterDefinition::ENTITY_NAME,
                 EntityWriteResult::OPERATION_DELETE
@@ -1124,5 +1118,216 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
         $updater->productStreamFilterWritten($event);
+    }
+
+    public function testProductSortingWithNonStringPrimaryKeyIsSkipped(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $updater = new ProductCustomFieldsUsedUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $this->createMock(Connection::class)
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                ['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
+                [
+                    'fields' => [
+                        ['field' => 'customFields.test_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $updater->productSortingWritten($event);
+    }
+
+    public function testProductStreamFilterWithNonStringPrimaryKeyIsSkipped(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $updater = new ProductCustomFieldsUsedUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $this->createMock(Connection::class)
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                ['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
+                ['name' => 'Test Filter'],
+                ProductStreamFilterDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $updater->productStreamFilterWritten($event);
+    }
+
+    public function testSortingWithInvalidJsonFromDatabaseIsSkipped(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([
+                'not-valid-json{{{',
+                json_encode([
+                    ['field' => 'customFields.valid_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                ]),
+            ]);
+
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn([
+                'valid_field' => 'int',
+            ]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return \count($fields) === 1 && isset($fields['valid_field']);
+            }));
+
+        $updater = new ProductCustomFieldsUsedUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'fields' => [
+                        ['field' => 'customFields.valid_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $updater->productSortingWritten($event);
+    }
+
+    public function testSortingWithNonArrayJsonFromDatabaseIsSkipped(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([
+                '"just a string"',
+                '42',
+                'null',
+            ]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
+
+        $updater = new ProductCustomFieldsUsedUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'fields' => [
+                        ['field' => 'customFields.some_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $updater->productSortingWritten($event);
+    }
+
+    public function testSortingFieldsWithoutFieldKeyAreSkipped(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([
+                json_encode([
+                    ['order' => 'asc', 'priority' => 1],
+                    ['field' => 123, 'order' => 'asc', 'priority' => 2],
+                    ['field' => 'product.name', 'order' => 'asc', 'priority' => 3],
+                ]),
+            ]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
+
+        $updater = new ProductCustomFieldsUsedUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'fields' => [
+                        ['field' => 'product.name', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $updater->productSortingWritten($event);
     }
 }

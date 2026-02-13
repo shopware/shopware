@@ -37,4 +37,15 @@ class StoreService
             $this->userRepository->update([['id' => $userId, 'storeToken' => $storeToken]], $context);
         });
     }
+
+    public function removeStoreToken(Context $context): void
+    {
+        /** @var AdminApiSource $contextSource */
+        $contextSource = $context->getSource();
+        $userId = $contextSource->getUserId();
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId): void {
+            $this->userRepository->update([['id' => $userId, 'storeToken' => null]], $context);
+        });
+    }
 }

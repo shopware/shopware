@@ -20,8 +20,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
+/**
+ * @final
+ */
 #[Package('inventory')]
-final class PromotionAdminSearchIndexer extends AbstractAdminIndexer
+class PromotionAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
      * @internal

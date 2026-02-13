@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -123,12 +124,14 @@ class AdminSearchRegistryTest extends TestCase
         static::assertArrayHasKey('parameters', $properties);
         static::assertArrayHasKey('textBoosted', $properties);
 
-        // Assert promotion-specific properties from mapping()
-        static::assertArrayHasKey('active', $properties);
-        static::assertArrayHasKey('name', $properties);
-        static::assertArrayHasKey('validFrom', $properties);
-        static::assertArrayHasKey('validUntil', $properties);
-        static::assertArrayHasKey('createdAt', $properties);
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            // Assert promotion-specific properties from mapping()
+            static::assertArrayHasKey('active', $properties);
+            static::assertArrayHasKey('name', $properties);
+            static::assertArrayHasKey('validFrom', $properties);
+            static::assertArrayHasKey('validUntil', $properties);
+            static::assertArrayHasKey('createdAt', $properties);
+        }
     }
 
     public function testRefresh(): void
@@ -165,12 +168,14 @@ class AdminSearchRegistryTest extends TestCase
         static::assertArrayHasKey('parameters', $properties);
         static::assertArrayHasKey('textBoosted', $properties);
 
-        // Assert promotion-specific properties from mapping()
-        static::assertArrayHasKey('active', $properties);
-        static::assertArrayHasKey('name', $properties);
-        static::assertArrayHasKey('validFrom', $properties);
-        static::assertArrayHasKey('validUntil', $properties);
-        static::assertArrayHasKey('createdAt', $properties);
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            // Assert promotion-specific properties from mapping()
+            static::assertArrayHasKey('active', $properties);
+            static::assertArrayHasKey('name', $properties);
+            static::assertArrayHasKey('validFrom', $properties);
+            static::assertArrayHasKey('validUntil', $properties);
+            static::assertArrayHasKey('createdAt', $properties);
+        }
     }
 
     protected function getDiContainer(): ContainerInterface

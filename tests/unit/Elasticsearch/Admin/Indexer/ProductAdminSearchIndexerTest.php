@@ -112,6 +112,7 @@ class ProductAdminSearchIndexerTest extends TestCase
 
         static::assertArrayHasKey($id, $documents);
 
+        /** @var array<string, mixed> $document */
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);

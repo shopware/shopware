@@ -10,6 +10,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -100,14 +101,14 @@ class EntityCollectionLoader extends AbstractContentDataLoader
      * @param list<string> $entityIds
      * @param list<string> $associations
      *
-     * @return list<covariant Entity>
+     * @return EntityCollection<covariant Entity>
      */
     private function loadEntities(
         string $entityName,
         array $entityIds,
         array $associations,
         SalesChannelContext $context
-    ): array {
+    ): EntityCollection {
         $criteria = new Criteria($entityIds);
 
         foreach ($associations as $association) {
@@ -124,6 +125,6 @@ class EntityCollectionLoader extends AbstractContentDataLoader
             $result = $repository->search($criteria, $context->getContext());
         }
 
-        return array_values($result->getEntities()->getElements());
+        return $result->getEntities();
     }
 }

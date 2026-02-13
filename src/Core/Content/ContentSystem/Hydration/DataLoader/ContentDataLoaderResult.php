@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * Result object from content data loaders.
@@ -16,10 +17,11 @@ use Shopware\Core\Framework\Log\Package;
 final class ContentDataLoaderResult
 {
     /**
+     * @param Struct|array<Struct>|null $data
      * @param list<string>|null $cacheTags
      */
     private function __construct(
-        public readonly mixed $data,
+        public readonly Struct|array|null $data,
         private readonly ?array $cacheTags = null,
     ) {
     }

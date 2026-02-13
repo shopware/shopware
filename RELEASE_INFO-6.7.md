@@ -32,13 +32,35 @@ Doctrine does not support this format and creates broken migrations; therefore, 
 
 Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
 
+### CategoryIndexer selective indexing optimization
+
+The `CategoryIndexer` now skips tree/child-count updaters when `parentId` hasn't changed, and breadcrumb updater when `name` hasn't changed. All updaters still run for `INSERT` and `DELETE` operations.
+
 ### Updated `doctrine/dbal` dependency
 
 The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
 They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
 Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
 
+### Primary key validation in `dal:validate` command
+
+The `dal:validate` command now includes validation to detect mismatches between database PRIMARY KEY constraints and entity definition PrimaryKey flags.
+This validation prevents silent failures where queries return correct `total` counts but empty `data` arrays due to entity hydration failures caused by inconsistent primary key definitions.
+When a mismatch is detected, the command provides a clear error message indicating which fields differ between the database schema and the entity definition.
+
+### Deprecation of default value for `serializer` in `#[Serialized]` field attribute
+
+When you use `#[Serialized]` field in your attribute entity you should always pass the serializer explicitly, as the default serializer does not work as expected.
+Additionally, the `SerializerField` will become internal in the next major release, as that field should be only used for attribute entities, but never directly in classic `EntityDefinitions`.
+
 ## Administration
+
+### Product detail variants: `configSettingGroups` as computed and deprecations
+
+In `sw-product-detail-variants`, the following changes were made:
+
+* **`configSettingGroups`** (now computed): Previously a `data()` property set by `loadConfigSettingGroups()`. It is now a computed property derived from `productEntity.configuratorSettings` and `groups`.
+* **`loadConfigSettingGroups()`** (deprecated): Marked as `@deprecated tag:v6.8.0`. It will be removed in 6.8.0 without replacement.
 
 ### Deprecation of `items` prop in `sw-entity-listing` component
 

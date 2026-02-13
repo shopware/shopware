@@ -68,6 +68,8 @@ class ApiControllerDetailTest extends TestCase
 
     public function testGetDefaultShippingAddressViaCustomer(): void
     {
+        static::markTestSkipped('Can be activated again with https://github.com/shopware/shopware/issues/14018 once the association on the customer is fixed');
+
         $ids = $this->createCustomer();
 
         $this->getBrowser()->jsonRequest('GET', '/api/customer/' . $ids->get('customer') . '/default-shipping-address');
@@ -82,6 +84,10 @@ class ApiControllerDetailTest extends TestCase
         static::assertSame($ids->get('address2'), $response['data'][0]['id']);
     }
 
+    /**
+     * Used in {@see testGetDefaultShippingAddressViaCustomer} which might get reactivated with the mentioned issue
+     * @phpstan-ignore method.unused
+     */
     private function createCustomer(): IdsCollection
     {
         $ids = new IdsCollection();

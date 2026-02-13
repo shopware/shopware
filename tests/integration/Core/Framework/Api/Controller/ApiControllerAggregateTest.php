@@ -50,7 +50,7 @@ class ApiControllerAggregateTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        // data is empty as we ónly do aggregations
+        // data is empty as we only do aggregations
         static::assertEmpty($content['data']);
         static::assertArrayHasKey('aggregations', $content);
         static::assertSame(1, $content['aggregations']['total']['count']);

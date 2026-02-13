@@ -89,7 +89,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
-
         $indexers = $this->getIndexersArray();
         /** @var list<string> $entities */
         $entities = array_keys($indexers);

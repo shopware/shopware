@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin;
 
 use OpenSearch\Client;
 use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -255,6 +256,7 @@ class AdminSearcher
                 ];
             }
         }
+
         return $result;
     }
 }

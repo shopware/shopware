@@ -7,6 +7,7 @@ use AsyncAws\S3\Input\PutObjectRequest;
 use AsyncAws\S3\S3Client;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\S3ClientFactory;
 use Shopware\Core\Framework\Log\Package;
@@ -22,6 +23,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         private ?S3Client $s3Client,
         private ?string $bucket,
         private string $root,
+        private LoggerInterface $logger,
         private int $expirationMinutes,
         private bool $enabled,
     ) {
@@ -33,11 +35,12 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
     public static function create(
         AbstractMediaPathStrategy $mediaPathStrategy,
         array $filesystemConfig,
+        LoggerInterface $logger,
         int $expirationMinutes = 5,
         bool $enabled = true,
     ): self {
         if (!$enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
-            return new self($mediaPathStrategy, null, null, '', $expirationMinutes, $enabled);
+            return new self($mediaPathStrategy, null, null, '', $logger, $expirationMinutes, $enabled);
         }
 
         $s3Config = $filesystemConfig['config'] ?? [];
@@ -56,6 +59,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
             $result['client'],
             $result['bucket'],
             trim($result['root'], '/'),
+            $logger,
             $expirationMinutes,
             $enabled,
         );
@@ -160,7 +164,12 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
                 size: $result->getContentLength() ?? 0,
                 lastModified: $result->getLastModified() ?? new \DateTimeImmutable(),
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            $this->logger->warning($e->getMessage(), [
+                'exception' => $e,
+                'path' => $path,
+            ]);
+
             return null;
         }
     }

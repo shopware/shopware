@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Framework\Log\Package;
@@ -32,8 +33,8 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             ['type' => 'amazon-s3', 'config' => ['bucket' => 'test', 'region' => 'eu-west-1']],
-            5,
-            false
+            new NullLogger(),
+            enabled: false,
         );
 
         static::assertFalse($generator->isEnabled());
@@ -45,8 +46,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             ['type' => 'local'],
-            5,
-            true
+            new NullLogger(),
         );
 
         static::assertTrue($generator->isEnabled());
@@ -64,8 +64,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                     'region' => 'eu-west-1',
                 ],
             ],
-            5,
-            true
+            new NullLogger(),
         );
 
         static::assertTrue($generator->isEnabled());
@@ -87,8 +86,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                     ],
                 ],
             ],
-            5,
-            true
+            new NullLogger(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -106,8 +104,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                     'region' => 'eu-west-1',
                 ],
             ],
-            5,
-            true
+            new NullLogger(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -126,8 +123,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                     'use_path_style_endpoint' => true,
                 ],
             ],
-            5,
-            true
+            new NullLogger(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -145,8 +141,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                     'root' => 'shopware/media',
                 ],
             ],
-            5,
-            true
+            new NullLogger(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -162,7 +157,8 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             [
                 'type' => 'amazon-s3',
                 'config' => 'invalid',
-            ]
+            ],
+            new NullLogger(),
         );
     }
 
@@ -178,7 +174,8 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 'config' => [
                     'region' => 'eu-west-1',
                 ],
-            ]
+            ],
+            new NullLogger(),
         );
     }
 
@@ -194,7 +191,8 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 'config' => [
                     'bucket' => 'test-bucket',
                 ],
-            ]
+            ],
+            new NullLogger(),
         );
     }
 
@@ -215,7 +213,8 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                         // missing secret
                     ],
                 ],
-            ]
+            ],
+            new NullLogger(),
         );
     }
 
@@ -224,8 +223,8 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             ['type' => 'local'],
-            5,
-            false
+            new NullLogger(),
+            enabled: false,
         );
 
         $location = new MediaLocationStruct(
@@ -246,8 +245,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             ['type' => 'local'],
-            5,
-            true
+            new NullLogger(),
         );
 
         $location = new MediaLocationStruct(
@@ -274,8 +272,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                     'region' => 'eu-west-1',
                 ],
             ],
-            5,
-            true
+            new NullLogger(),
         );
 
         $location = new MediaLocationStruct(
@@ -302,8 +299,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                     'region' => 'eu-west-1',
                 ],
             ],
-            5,
-            true
+            new NullLogger(),
         );
 
         $location = new MediaLocationStruct(
@@ -336,8 +332,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                     'region' => 'eu-west-1',
                 ],
             ],
-            5,
-            true
+            new NullLogger(),
         );
 
         $location = new MediaLocationStruct(
@@ -358,8 +353,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             ['type' => 'local'],
-            5,
-            true
+            new NullLogger(),
         );
 
         static::assertFalse($generator->verifyUpload('media/ab/cd/test.jpg'));
@@ -370,8 +364,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
             ['type' => 'local'],
-            5,
-            true
+            new NullLogger(),
         );
 
         static::assertNull($generator->getFileMetadata('media/ab/cd/test.jpg'));

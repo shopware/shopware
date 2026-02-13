@@ -272,6 +272,7 @@
             <factory class="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator" method="create"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy"/>
             <argument>%shopware.filesystem.public%</argument>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface" class="Shopware\Core\Content\Media\MediaUrlPlaceholderHandler" public="true">

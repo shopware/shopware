@@ -15,7 +15,7 @@ jobs:
     name: "PHP lint"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -41,7 +41,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache CS Fixer
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./var/cache/cs_fixer
           key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
@@ -74,7 +74,7 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: "Restore result cache"
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: var/cache/phpstan
           key: "phpstan-result-cache-${{ github.run_id }}"
@@ -85,7 +85,7 @@ jobs:
         run: composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: always()
         with:
           path: var/cache/phpstan
@@ -96,7 +96,7 @@ jobs:
     name: "BC check"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: "0"
           fetch-tags: "1"
@@ -233,7 +233,7 @@ jobs:
     name: "composer audit"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

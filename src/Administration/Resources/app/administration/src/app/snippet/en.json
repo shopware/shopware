@@ -1579,7 +1579,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before.",
+            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.",
             "name": "Keep the shop identifier"
           },
           "reinstall-apps": {

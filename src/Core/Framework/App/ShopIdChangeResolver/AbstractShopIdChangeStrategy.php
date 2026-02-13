@@ -31,6 +31,12 @@ abstract class AbstractShopIdChangeStrategy
 
     abstract public function getName(): string;
 
+    /**
+     * @return string the description of the strategy used to explain what the strategy does in CLI and API
+     *
+     * Note: in the administration we have separate snippets for this to localize the description, keep the descriptions in sync
+     * `sw-app.component.sw-app-shop-id-change-modal.strategies.${strategy-name}.description`
+     */
     abstract public function getDescription(): string;
 
     abstract public function resolve(Context $context): void;

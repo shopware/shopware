@@ -279,7 +279,7 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
 
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_listener"/>
         </service>
 
         <!-- Hydration Services -->

@@ -49,7 +49,7 @@ class CategoryContentLayoutDefinition extends AbstractContentLayoutAssignableDef
             new DataRequirement(
                 self::CONTENT_LAYOUT_ENTITY_TYPE,
                 EntityLoader::SOURCE,
-                new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, 'categoryId', ['media', 'translations'])
+                new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, $this->getContentLayoutEntityIdField(), ['media', 'translations'])
             ),
         ];
     }

@@ -49,7 +49,7 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
             new DataRequirement(
                 self::CONTENT_LAYOUT_ENTITY_TYPE,
                 EntityLoader::SOURCE,
-                new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, 'productId', [
+                new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, $this->getContentLayoutEntityIdField(), [
                     'manufacturer.media',
                     'options.group',
                     'properties.group',

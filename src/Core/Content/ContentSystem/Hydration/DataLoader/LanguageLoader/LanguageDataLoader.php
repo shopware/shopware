@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class LanguageDataLoader extends AbstractContentDataLoader
 {
+    public const SOURCE = 'language';
+
     public function __construct(
         private readonly AbstractLanguageRoute $languageRoute,
     ) {
@@ -38,7 +40,7 @@ class LanguageDataLoader extends AbstractContentDataLoader
 
     public static function getRequirementType(): string
     {
-        return 'language';
+        return self::SOURCE;
     }
 
     public function load(

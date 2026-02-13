@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class PaymentMethodDataLoader extends AbstractContentDataLoader
 {
+    public const SOURCE = 'payment_method';
+
     public function __construct(
         private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
     ) {
@@ -39,7 +41,7 @@ class PaymentMethodDataLoader extends AbstractContentDataLoader
 
     public static function getRequirementType(): string
     {
-        return 'payment_method';
+        return self::SOURCE;
     }
 
     public function load(

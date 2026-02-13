@@ -38,57 +38,37 @@ class FooterContentLayoutEntity extends Entity implements ContentLayoutAssignmen
 
     protected ?ContentLayoutEntity $contentLayout = null;
 
-    /**
-     * @api
-     */
     public function getDomainId(): ?string
     {
         return $this->domainId;
     }
 
-    /**
-     * @api
-     */
     public function setDomainId(?string $domainId): void
     {
         $this->domainId = $domainId;
     }
 
-    /**
-     * @api
-     */
     public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }
 
-    /**
-     * @api
-     */
     public function setSalesChannelId(?string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;
     }
 
-    /**
-     * @api
-     */
     public function getContentLayoutId(): string
     {
         return $this->contentLayoutId;
     }
 
-    /**
-     * @api
-     */
     public function setContentLayoutId(string $contentLayoutId): void
     {
         $this->contentLayoutId = $contentLayoutId;
     }
 
     /**
-     * @api
-     *
      * @return array<string, ParameterBinding>|null
      */
     public function getParameterBindings(): ?array
@@ -97,8 +77,6 @@ class FooterContentLayoutEntity extends Entity implements ContentLayoutAssignmen
     }
 
     /**
-     * @api
-     *
      * @param array<string, ParameterBinding>|null $parameterBindings
      */
     public function setParameterBindings(?array $parameterBindings): void
@@ -106,49 +84,31 @@ class FooterContentLayoutEntity extends Entity implements ContentLayoutAssignmen
         $this->parameterBindings = $parameterBindings;
     }
 
-    /**
-     * @api
-     */
     public function getDomain(): ?SalesChannelDomainEntity
     {
         return $this->domain;
     }
 
-    /**
-     * @api
-     */
     public function setDomain(?SalesChannelDomainEntity $domain): void
     {
         $this->domain = $domain;
     }
 
-    /**
-     * @api
-     */
     public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
 
-    /**
-     * @api
-     */
     public function setSalesChannel(?SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
     }
 
-    /**
-     * @api
-     */
     public function getContentLayout(): ?ContentLayoutEntity
     {
         return $this->contentLayout;
     }
 
-    /**
-     * @api
-     */
     public function setContentLayout(?ContentLayoutEntity $contentLayout): void
     {
         $this->contentLayout = $contentLayout;

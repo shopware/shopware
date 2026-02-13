@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CurrencyDataLoader extends AbstractContentDataLoader
 {
+    public const SOURCE = 'currency';
+
     public function __construct(
         private readonly AbstractCurrencyRoute $currencyRoute,
     ) {
@@ -38,7 +40,7 @@ class CurrencyDataLoader extends AbstractContentDataLoader
 
     public static function getRequirementType(): string
     {
-        return 'currency';
+        return self::SOURCE;
     }
 
     public function load(

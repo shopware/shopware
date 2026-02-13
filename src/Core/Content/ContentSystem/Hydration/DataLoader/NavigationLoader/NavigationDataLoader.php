@@ -28,6 +28,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class NavigationDataLoader extends AbstractContentDataLoader
 {
+    public const SOURCE = 'navigation';
+
     public function __construct(
         private readonly NavigationLoaderInterface $navigationLoader,
         private readonly NavigationAliasResolver $aliasResolver,
@@ -41,7 +43,7 @@ class NavigationDataLoader extends AbstractContentDataLoader
 
     public static function getRequirementType(): string
     {
-        return 'navigation';
+        return self::SOURCE;
     }
 
     public function load(

@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class ShippingMethodDataLoader extends AbstractContentDataLoader
 {
+    public const SOURCE = 'shipping_method';
+
     public function __construct(
         private readonly AbstractShippingMethodRoute $shippingMethodRoute,
     ) {
@@ -39,7 +41,7 @@ class ShippingMethodDataLoader extends AbstractContentDataLoader
 
     public static function getRequirementType(): string
     {
-        return 'shipping_method';
+        return self::SOURCE;
     }
 
     public function load(

@@ -41,6 +41,8 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
 
     /**
      * Returns the field name used to identify the assigned entity in the assignment table.
+     *
+     * @return non-empty-string
      */
     public function getContentLayoutEntityIdField(): string
     {

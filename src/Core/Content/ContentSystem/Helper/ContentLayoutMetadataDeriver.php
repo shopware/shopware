@@ -18,6 +18,8 @@ class ContentLayoutMetadataDeriver
 {
     /**
      * Derives entity ID field name from entity type.
+     *
+     * @return non-empty-string
      */
     public function deriveEntityIdField(string $entityType): string
     {

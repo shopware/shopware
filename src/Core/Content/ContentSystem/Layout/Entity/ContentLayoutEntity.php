@@ -31,41 +31,27 @@ class ContentLayoutEntity extends Entity
      */
     protected ?array $schema = null;
 
-    /**
-     * @api
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @api
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @api
-     */
     public function getVersion(): string
     {
         return $this->version;
     }
 
-    /**
-     * @api
-     */
     public function setVersion(string $version): void
     {
         $this->version = $version;
     }
 
     /**
-     * @api
-     *
      * @return list<ContentElement>
      */
     public function getLayout(): array
@@ -74,8 +60,6 @@ class ContentLayoutEntity extends Entity
     }
 
     /**
-     * @api
-     *
      * @param list<ContentElement> $layout
      */
     public function setLayout(array $layout): void
@@ -84,8 +68,6 @@ class ContentLayoutEntity extends Entity
     }
 
     /**
-     * @api
-     *
      * @return array<string, mixed>|null
      */
     public function getSchema(): ?array
@@ -94,8 +76,6 @@ class ContentLayoutEntity extends Entity
     }
 
     /**
-     * @api
-     *
      * @param array<string, mixed>|null $schema
      */
     public function setSchema(?array $schema): void

@@ -46,7 +46,7 @@ class LandingPageContentLayoutDefinition extends AbstractContentLayoutAssignable
     public function getPageDataRequirements(SalesChannelContext $context): array
     {
         return [
-            new DataRequirement(self::CONTENT_LAYOUT_ENTITY_TYPE, EntityLoader::SOURCE, new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, 'landingPageId', [])),
+            new DataRequirement(self::CONTENT_LAYOUT_ENTITY_TYPE, EntityLoader::SOURCE, new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, $this->getContentLayoutEntityIdField(), [])),
         ];
     }
 

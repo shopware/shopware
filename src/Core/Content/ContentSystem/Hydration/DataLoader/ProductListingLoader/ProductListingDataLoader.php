@@ -12,7 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\String\UnicodeString;
+
+use function Symfony\Component\String\u;
 
 /**
  * @internal
@@ -22,6 +23,8 @@ use Symfony\Component\String\UnicodeString;
 #[Package('discovery')]
 class ProductListingDataLoader extends AbstractContentDataLoader
 {
+    public const SOURCE = 'product_listing';
+
     public function __construct(
         private readonly AbstractProductListingRoute $listingRoute
     ) {
@@ -34,7 +37,7 @@ class ProductListingDataLoader extends AbstractContentDataLoader
 
     public static function getRequirementType(): string
     {
-        return 'product_listing';
+        return self::SOURCE;
     }
 
     public function load(
@@ -56,7 +59,7 @@ class ProductListingDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        $navigationId = (new UnicodeString($navigationId))->lower()->toString();
+        $navigationId = u($navigationId)->lower()->toString();
 
         $criteria = $this->buildCriteria($element, $config);
 

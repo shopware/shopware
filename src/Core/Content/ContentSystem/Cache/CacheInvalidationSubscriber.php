@@ -13,13 +13,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
  * @internal
  */
+#[AsEventListener(event: EntityWrittenContainerEvent::class)]
 #[Package('discovery')]
-class CacheInvalidationSubscriber implements EventSubscriberInterface
+class CacheInvalidationSubscriber
 {
     public function __construct(
         private readonly CacheInvalidator $cacheInvalidator,
@@ -29,14 +30,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            EntityWrittenContainerEvent::class => 'onEntityWritten',
-        ];
-    }
-
-    public function onEntityWritten(EntityWrittenContainerEvent $event): void
+    public function __invoke(EntityWrittenContainerEvent $event): void
     {
         $this->invalidateContentLayout($event);
         $this->invalidateEntityContentLayout($event, 'product_content_layout', 'product_id', ProductDefinition::class);
@@ -109,10 +103,10 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $tags = [];
-        foreach ($layoutIds as $layoutId) {
-            $tags = array_merge($tags, $section->buildRouteCacheTags($layoutId));
-        }
+        $tags = array_merge([], ...array_map(
+            static fn (string $layoutId) => $section->buildRouteCacheTags($layoutId),
+            $layoutIds
+        ));
 
         $this->cacheInvalidator->invalidate($tags);
     }

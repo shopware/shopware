@@ -32,11 +32,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <!-- Layout Loading -->
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader">
-            <argument type="service" id="content_layout.repository"/>
-        </service>
-
         <!-- Scaffolding Services -->
         <service id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper"/>
 
@@ -350,7 +345,7 @@
 
         <!-- Content Pipeline -->
         <service id="Shopware\Core\Content\ContentSystem\ContentPipeline" public="true">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader"/>
+            <argument type="service" id="content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator"/>
             <argument type="service" id="event_dispatcher"/>
         </service>

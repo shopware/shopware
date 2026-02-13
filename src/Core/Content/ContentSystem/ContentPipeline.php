@@ -6,8 +6,11 @@ use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Content\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
-use Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader;
+use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -20,8 +23,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('discovery')]
 class ContentPipeline
 {
+    /**
+     * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
+     */
     public function __construct(
-        private readonly LayoutLoader $layoutLoader,
+        private readonly EntityRepository $contentLayoutRepository,
         private readonly ContentElementHydrator $hydrationService,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
@@ -33,7 +39,12 @@ class ContentPipeline
         RenderingMode $mode,
         SalesChannelContext $salesChannelContext,
     ): ContentPage {
-        $layoutEntity = $this->layoutLoader->load($specification->layoutId, $salesChannelContext->getContext());
+        $criteria = new Criteria([$specification->layoutId]);
+        $layoutEntity = $this->contentLayoutRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+        if (!$layoutEntity instanceof ContentLayoutEntity) {
+            throw ContentSystemException::layoutNotFound($specification->layoutId);
+        }
 
         $preHydrationEvent = new PreContentHydrationEvent(
             $layoutEntity->getLayout(),

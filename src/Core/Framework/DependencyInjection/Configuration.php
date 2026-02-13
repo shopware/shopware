@@ -1010,6 +1010,7 @@ class Configuration implements ConfigurationInterface
                             ->scalarPrototype()->end()
                         ->end()
                         ->arrayNode('purge_all')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
                             ->children()
                                 ->scalarNode('ban_method')
                                     ->defaultValue('BAN')

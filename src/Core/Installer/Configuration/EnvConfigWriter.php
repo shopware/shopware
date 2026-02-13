@@ -98,15 +98,15 @@ EOT;
         $newEnv[] = 'APP_URL=' . $shop['schema'] . '://' . $shop['host'] . $shop['basePath'];
         $newEnv[] = 'DATABASE_URL=' . $info->asDsn();
 
-        if (!empty($info->getSslCaPath())) {
+        if (!in_array($info->getSslCaPath(), [null, '', '0'], true)) {
             $newEnv[] = 'DATABASE_SSL_CA=' . $info->getSslCaPath();
         }
 
-        if (!empty($info->getSslCertPath())) {
+        if (!in_array($info->getSslCertPath(), [null, '', '0'], true)) {
             $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
         }
 
-        if (!empty($info->getSslCertKeyPath())) {
+        if (!in_array($info->getSslCertKeyPath(), [null, '', '0'], true)) {
             $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
         }
 

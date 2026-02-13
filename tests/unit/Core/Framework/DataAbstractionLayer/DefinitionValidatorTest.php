@@ -139,7 +139,7 @@ class DefinitionValidatorTest extends TestCase
     private function createValidatorWithTable(EntityDefinition $definition, array $dbPrimaryKeys): DefinitionValidator
     {
         $pkConstraint = null;
-        if (!empty($dbPrimaryKeys)) {
+        if ($dbPrimaryKeys !== []) {
             $pkColumns = array_map(
                 static function (string $col): UnqualifiedName {
                     static::assertNotEmpty($col);

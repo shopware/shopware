@@ -75,7 +75,7 @@ class StaticSystemConfigService extends SystemConfigService
         }
 
         // @phpstan-ignore empty.variable ($foundValues can be empty)
-        if (empty($foundValues)) {
+        if ($foundValues === []) {
             return null;
         }
 

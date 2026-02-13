@@ -36,7 +36,7 @@ readonly class AppInfo
             }
         }
 
-        if (!empty($missingKeys)) {
+        if ($missingKeys !== []) {
             throw ServiceException::missingAppVersionInformation(...$missingKeys);
         }
 

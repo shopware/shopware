@@ -25,7 +25,7 @@ abstract class RequirementCheck extends Struct
         string $name,
         string $status
     ) {
-        if (empty($name)) {
+        if ($name === '' || $name === '0') {
             throw new \RuntimeException('Empty name for RequirementCheck provided.');
         }
 

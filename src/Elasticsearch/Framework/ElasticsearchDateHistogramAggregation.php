@@ -65,7 +65,7 @@ class ElasticsearchDateHistogramAggregation extends AbstractAggregation
             'calendar_interval' => $this->getInterval(),
         ];
 
-        if (!empty($this->format)) {
+        if ($this->format !== null && $this->format !== '' && $this->format !== '0') {
             $out['format'] = $this->format;
         }
 

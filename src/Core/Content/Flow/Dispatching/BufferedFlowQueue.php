@@ -35,6 +35,6 @@ class BufferedFlowQueue
 
     public function isEmpty(): bool
     {
-        return empty($this->bufferedFlows);
+        return $this->bufferedFlows === [];
     }
 }

@@ -77,7 +77,7 @@ class LandingPageLoaderTest extends TestCase
             $expectedException = new PageNotFoundException($landingPageId);
         }
 
-        static::expectExceptionObject($expectedException);
+        $this->expectExceptionObject($expectedException);
         $landingPageLoader->load($request, $salesChannelContext);
     }
 

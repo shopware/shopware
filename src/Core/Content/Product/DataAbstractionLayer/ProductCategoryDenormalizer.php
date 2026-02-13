@@ -31,7 +31,7 @@ class ProductCategoryDenormalizer
         $ids = array_unique(\array_filter($ids));
         $allIds = [];
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -48,13 +48,13 @@ class ProductCategoryDenormalizer
             $categoryIds = $this->mapCategories($mapping);
 
             $json = null;
-            if (!empty($categoryIds)) {
+            if ($categoryIds !== []) {
                 $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
             }
 
             $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
 
-            if (empty($categoryIds)) {
+            if ($categoryIds === []) {
                 continue;
             }
 
@@ -92,7 +92,7 @@ class ProductCategoryDenormalizer
      */
     private function insertTree(array $inserts): void
     {
-        if (empty($inserts)) {
+        if ($inserts === []) {
             return;
         }
 

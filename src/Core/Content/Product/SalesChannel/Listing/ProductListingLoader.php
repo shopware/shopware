@@ -178,7 +178,7 @@ class ProductListingLoader
         }
 
         // now we have a mapping for "child => main variant"
-        if (empty($mapping)) {
+        if ($mapping === []) {
             return $ids;
         }
 

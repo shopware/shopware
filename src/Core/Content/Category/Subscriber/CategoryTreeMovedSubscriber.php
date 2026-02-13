@@ -35,7 +35,7 @@ readonly class CategoryTreeMovedSubscriber implements EventSubscriberInterface
 
         $salesChannelIds = $event->getPrimaryKeysWithPropertyChange(SalesChannelDefinition::ENTITY_NAME, $properties);
 
-        if (empty($salesChannelIds)) {
+        if ($salesChannelIds === []) {
             return;
         }
 

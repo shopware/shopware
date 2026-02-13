@@ -168,7 +168,7 @@ class ProductSubscriber implements EventSubscriberInterface
     {
         $deletedProductIds = $event->getIds(ProductDefinition::ENTITY_NAME);
 
-        if (empty($deletedProductIds)) {
+        if ($deletedProductIds === []) {
             return;
         }
 
@@ -185,7 +185,7 @@ class ProductSubscriber implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (empty($parentIds)) {
+        if ($parentIds === []) {
             return;
         }
 
@@ -201,7 +201,7 @@ class ProductSubscriber implements EventSubscriberInterface
      */
     private function cleanupConfiguratorSettings(array $parentIds, string $versionBytes): void
     {
-        if (empty($parentIds)) {
+        if ($parentIds === []) {
             return;
         }
 
@@ -271,7 +271,7 @@ class ProductSubscriber implements EventSubscriberInterface
             $assigns[$unit] = $convertedUnit->value;
         }
 
-        if (!empty($assigns)) {
+        if ($assigns !== []) {
             $product->assign($assigns);
         }
     }

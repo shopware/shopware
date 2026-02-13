@@ -107,7 +107,7 @@ class CustomFieldsSerializer extends FieldSerializer
 
         $customFields = $this->customFieldsSerializer->decode($field, $customFields);
 
-        if (!\is_array($customFields) || empty($customFields)) {
+        if (!\is_array($customFields) || $customFields === []) {
             return null;
         }
 

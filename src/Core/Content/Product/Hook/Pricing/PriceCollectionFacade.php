@@ -66,7 +66,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
 
         \ksort($mapped, \SORT_NUMERIC);
         $arrayKeys = \array_keys($mapped);
-        \assert(!empty($arrayKeys));
+        \assert($arrayKeys !== []);
         $max = \max($arrayKeys);
 
         $mapped[$max + 1] = $last;

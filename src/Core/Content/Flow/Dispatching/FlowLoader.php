@@ -29,7 +29,7 @@ class FlowLoader extends AbstractFlowLoader
                 ORDER BY `priority` DESC',
         );
 
-        if (empty($flows)) {
+        if ($flows === []) {
             return [];
         }
 

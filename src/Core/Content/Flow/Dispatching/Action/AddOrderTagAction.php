@@ -52,7 +52,7 @@ class AddOrderTagAction extends FlowAction implements DelayableAction
      */
     private function update(Context $context, array $config, string $orderId): void
     {
-        if (!\array_key_exists('tagIds', $config) || empty(array_keys($config['tagIds']))) {
+        if (!\array_key_exists('tagIds', $config) || array_keys($config['tagIds']) === []) {
             return;
         }
 

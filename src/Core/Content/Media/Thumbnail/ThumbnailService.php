@@ -92,7 +92,7 @@ class ThumbnailService
         // disable media indexing to trigger it once after processing all thumbnails
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
-        if (!empty($delete)) {
+        if ($delete !== []) {
             $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
 
             $delete = \array_values(\array_map(fn (string $id) => ['id' => $id], $delete));

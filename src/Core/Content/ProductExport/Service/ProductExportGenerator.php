@@ -192,7 +192,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
 
-        if (empty($content)) {
+        if ($content === '') {
             return null;
         }
 

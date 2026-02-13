@@ -121,7 +121,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
         $ids = array_values(array_filter($ids));
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 

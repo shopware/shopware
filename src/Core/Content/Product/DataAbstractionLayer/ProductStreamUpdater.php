@@ -120,7 +120,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $insert->execute();
 
-        if (!empty($toBeDeleted)) {
+        if ($toBeDeleted !== []) {
             RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $binaryStreamId): void {
                 $this->connection->executeStatement(
                     'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
@@ -163,7 +163,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             'position',
         ]);
 
-        if (empty($ids) || empty($filterIds)) {
+        if ($ids === [] || $filterIds === []) {
             return null;
         }
 
@@ -257,7 +257,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if (empty($filters)) {
+        if ($filters === []) {
             return null;
         }
 

@@ -34,7 +34,7 @@ class CheapestPriceUpdater
     {
         $parentIds = array_unique(array_filter($parentIds));
 
-        if (empty($parentIds)) {
+        if ($parentIds === []) {
             return;
         }
 
@@ -93,7 +93,7 @@ class CheapestPriceUpdater
             }
         }
 
-        if (!empty($variantIdsUpdated)) {
+        if ($variantIdsUpdated !== []) {
             $this->dispatcher->dispatch(new ProductIndexerEvent($variantIdsUpdated, $context, ['product.seo-url']));
         }
     }
@@ -279,7 +279,7 @@ class CheapestPriceUpdater
      */
     private function fetchVisibilityMap(array $productIds, Context $context): array
     {
-        if (empty($productIds)) {
+        if ($productIds === []) {
             return [];
         }
 

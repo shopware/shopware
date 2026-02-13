@@ -92,7 +92,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         if ($aggregation instanceof TermsResult) {
             $buckets = $aggregation->getBuckets();
 
-            return empty($buckets) ? 0 : $buckets[0]->getCount();
+            return $buckets === [] ? 0 : $buckets[0]->getCount();
         }
 
         return $reviews->getTotal();
@@ -155,7 +155,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         $reviewFilters = [];
         $points = RequestParamHelper::get($request, self::PARAMETER_NAME_POINTS, []);
 
-        if (\is_array($points) && \count($points) > 0) {
+        if (\is_array($points) && $points !== []) {
             $pointFilter = [];
             foreach ($points as $point) {
                 $pointFilter[] = new RangeFilter('points', [

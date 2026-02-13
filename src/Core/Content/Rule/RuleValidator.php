@@ -90,7 +90,7 @@ class RuleValidator implements EventSubscriberInterface
             throw RuleException::unsupportedCommandType($command);
         }
 
-        if (!empty($updateQueue)) {
+        if ($updateQueue !== []) {
             $this->validateUpdateCommands($updateQueue, $writeException, $event->getContext());
         }
     }

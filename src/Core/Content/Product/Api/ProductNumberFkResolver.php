@@ -36,7 +36,7 @@ class ProductNumberFkResolver extends AbstractFkResolver
 
         $numbers = \array_filter(\array_unique($numbers));
 
-        if (empty($numbers)) {
+        if ($numbers === []) {
             return $map;
         }
 

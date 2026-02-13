@@ -233,7 +233,7 @@ class ImportExportActionController extends AbstractController
             $missingPrivileges = $this->getMissingPrivileges($properties, $definition, $context, $missingPrivileges);
         }
 
-        if (!empty($missingPrivileges)) {
+        if ($missingPrivileges !== []) {
             throw ImportExportException::missingPrivilege($missingPrivileges);
         }
     }
@@ -265,7 +265,7 @@ class ImportExportActionController extends AbstractController
             $missingPrivileges[] = $privilege;
         }
 
-        if (!empty($properties)) {
+        if ($properties !== []) {
             $missingPrivileges = $this->getMissingPrivileges($properties, $definition, $context, $missingPrivileges);
         }
 

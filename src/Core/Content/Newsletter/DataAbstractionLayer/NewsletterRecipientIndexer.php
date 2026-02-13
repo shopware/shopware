@@ -44,7 +44,7 @@ class NewsletterRecipientIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -55,7 +55,7 @@ class NewsletterRecipientIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(NewsletterRecipientDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -71,7 +71,7 @@ class NewsletterRecipientIndexer extends EntityIndexer
 
         $ids = array_unique(array_filter($ids));
 
-        if (empty($ids) || !$message instanceof NewsletterRecipientIndexingMessage) {
+        if ($ids === [] || !$message instanceof NewsletterRecipientIndexingMessage) {
             return;
         }
 

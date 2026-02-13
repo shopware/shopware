@@ -44,7 +44,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $tokens = $this->tokenFilter->filter($tokens, $context);
         $originalTokens = $tokens;
 
-        if (empty($tokens)) {
+        if ($tokens === []) {
             return new SearchPattern(new SearchTerm(''));
         }
 
@@ -191,7 +191,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
             $matchSegments = $this->tokenizer->tokenize($match, $minSearchLength);
             $exactMatch = \count($originalTokens) === \count($matchSegments)
-                && \count(array_diff($originalTokens, $matchSegments)) === 0;
+                && array_diff($originalTokens, $matchSegments) === [];
             $exactTokenMatches = array_intersect($originalTokens, $matchSegments);
 
             $score = ($exactMatch ? 2 : 1) + \count($exactTokenMatches) * 4;

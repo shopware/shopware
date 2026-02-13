@@ -92,7 +92,7 @@ class MailerTransportDecorator implements \Stringable, TransportInterface
 
         $documentAttachments = array_column($documentAttachments, 'id');
 
-        if (empty($documentAttachments)) {
+        if ($documentAttachments === []) {
             return;
         }
 

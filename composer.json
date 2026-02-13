@@ -426,16 +426,22 @@
         "phpstan-errors-by-area": [
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"
         ],
+        "rector": [
+            "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+            "rector process"
+        ],
         "phpunit": [
             "phpunit"
         ],
         "post-install-cmd": [
             "@composer bin all install --ansi",
-            "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check"
+            "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
+            "ln -sf ./../../vendor-bin/rector/vendor/bin/rector vendor/bin/rector"
         ],
         "post-update-cmd": [
             "@composer bin all update --ansi",
-            "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check"
+            "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
+            "ln -sf ./../../vendor-bin/rector/vendor/bin/rector vendor/bin/rector"
         ],
         "reset": [
             "@init:db",

@@ -68,12 +68,12 @@ class MailAttachmentsBuilder
             $documentIds = array_unique(array_merge($documentIds, $latestDocuments));
         }
 
-        if (!empty($documentIds)) {
+        if ($documentIds !== []) {
             $extensions->setDocumentIds($documentIds);
             $attachments = $this->mappingAttachments($documentIds, $attachments, $context);
         }
 
-        if (empty($extensions->getMediaIds())) {
+        if ($extensions->getMediaIds() === []) {
             return $attachments;
         }
 

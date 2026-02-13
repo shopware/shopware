@@ -132,7 +132,7 @@ class ImportExport
                 $record[$key] = $value;
             }
 
-            if (empty($record)) {
+            if ($record === []) {
                 continue;
             }
 
@@ -188,7 +188,7 @@ class ImportExport
 
         $this->eventDispatcher->removeListener(WriteCommandExceptionEvent::class, $this->onWriteException(...));
 
-        if (!empty($failedRecords)) {
+        if ($failedRecords !== []) {
             $invalidRecordsProgress = $this->exportInvalid($context, $failedRecords);
             $progress->setInvalidRecordsLogId($invalidRecordsProgress->getLogId());
         }
@@ -280,7 +280,7 @@ class ImportExport
             $criteria->setOffset((int) $criteria->getOffset() + (int) $criteria->getLimit());
         } while ($fullExport && $progress->getOffset() < $progress->getTotal());
 
-        if (!empty($failedRecords)) {
+        if ($failedRecords !== []) {
             $progress->setInvalidRecordsLogId($this->exportInvalid($context, $failedRecords)->getLogId());
             $this->importExportService->saveProgress($progress);
         }

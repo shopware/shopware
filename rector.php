@@ -23,6 +23,7 @@ return RectorConfig::configure()
         '**/node_modules/*',
         '**/Resources/*',
     ])
+    ->withCache(__DIR__ . '/var/cache/rector')
     ->withRules([
         ClassConstantToSelfClassRector::class,
         DisallowedEmptyRuleFixerRector::class,

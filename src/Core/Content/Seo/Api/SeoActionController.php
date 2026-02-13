@@ -191,7 +191,7 @@ class SeoActionController extends AbstractController
 
         $salesChannelIds = array_column($urls, 'salesChannelId');
 
-        if (!empty($salesChannelIds)) {
+        if ($salesChannelIds !== []) {
             $salesChannels = $this->salesChannelRepository->search(new Criteria($salesChannelIds), $context)->getEntities();
         }
 
@@ -290,7 +290,7 @@ class SeoActionController extends AbstractController
         }
 
         $ids = $repository->searchIds($criteria, $context)->getIds();
-        if (empty($ids)) {
+        if ($ids === []) {
             throw SeoException::noEntitiesForPreview($repository->getDefinition()->getEntityName(), $seoUrlTemplate['routeName']);
         }
 

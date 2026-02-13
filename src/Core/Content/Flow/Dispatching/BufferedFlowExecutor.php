@@ -42,7 +42,7 @@ class BufferedFlowExecutor
                 $storableFlow = $this->flowFactory->restoreBuffered($bufferedFlow);
                 $flowHolders = $this->getFlowHoldersForEvent($storableFlow->getName(), $eventGroupedFlowHolders);
 
-                if (empty($flowHolders)) {
+                if ($flowHolders === []) {
                     continue;
                 }
 

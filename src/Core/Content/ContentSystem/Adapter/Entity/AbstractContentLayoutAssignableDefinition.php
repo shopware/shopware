@@ -30,7 +30,7 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
      * @internal
      */
     public function __construct(
-        private readonly ContentLayoutMetadataDeriver $metadataDeriver
+        private readonly ContentLayoutMetadataDeriver $metadataDeriver = new ContentLayoutMetadataDeriver(),
     ) {
     }
 

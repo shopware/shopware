@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 final readonly class RenderingSpecification
 {
     /**
-     * @param array<string, DataRequirement> $dataRequirements keyed by requirement identifier
+     * @param list<DataRequirement> $dataRequirements
      * @param list<string> $cacheTags
      */
     public function __construct(

@@ -53,7 +53,7 @@ class ContentRouteCompilerPass implements CompilerPassInterface
                 $routeServiceDefinition->setArguments([
                     new Reference($resolverId),
                     $section,
-                    new Reference(CacheTagCollector::INVALID_URI),
+                    new Reference(CacheTagCollector::class),
                     new Reference($formatHandlerId),
                     new Reference(ContentPipeline::class),
                     new Reference(CacheFinalizer::class),

@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration;
 
+use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;

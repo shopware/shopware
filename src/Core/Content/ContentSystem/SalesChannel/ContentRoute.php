@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
+use Shopware\Core\Content\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Content\ContentSystem\Cache\CacheFinalizer;
+use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Content\ContentSystem\ContentPipeline;
 use Shopware\Core\Content\ContentSystem\ContentSection;
-use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Content\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Content\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;

@@ -32,6 +32,10 @@ Doctrine does not support this format and creates broken migrations; therefore, 
 
 Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
 
+### CategoryIndexer selective indexing optimization
+
+The `CategoryIndexer` now skips tree/child-count updaters when `parentId` hasn't changed, and breadcrumb updater when `name` hasn't changed. All updaters still run for `INSERT` and `DELETE` operations.
+
 ### Updated `doctrine/dbal` dependency
 
 The `doctrine/dbal` dependency was updated to the new 4.4 minor version.

@@ -3,18 +3,17 @@
 namespace Shopware\Core\Content\Media\Upload;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class PresignedUrlResult extends Struct
+readonly class PresignedUrlResult
 {
     public function __construct(
-        public readonly string $url,
-        public readonly string $path,
-        public readonly \DateTimeImmutable $expiresAt,
+        public string $url,
+        public string $path,
+        public \DateTimeImmutable $expiresAt,
     ) {
     }
 }

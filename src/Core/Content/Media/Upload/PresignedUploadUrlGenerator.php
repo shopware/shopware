@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInterface
 {
-    public function __construct(
+    private function __construct(
         private AbstractMediaPathStrategy $mediaPathStrategy,
         private ?S3Client $s3Client,
         private ?string $bucket,
@@ -48,7 +48,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         try {
             $result = S3ClientFactory::create($s3Config);
         } catch (\Throwable $e) {
-            throw MediaException::presignedUploadInvalidConfiguration($e->getMessage());
+            throw MediaException::presignedUploadInvalidConfiguration($e->getMessage(), $e);
         }
 
         return new self(

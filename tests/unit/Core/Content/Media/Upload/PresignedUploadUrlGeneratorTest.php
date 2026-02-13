@@ -221,11 +221,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testGenerateWhenDisabled(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
-            null,
-            null,
-            '',
+            ['type' => 'local'],
             5,
             false
         );
@@ -245,11 +243,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testGenerateWhenNotSupported(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
-            null,
-            null,
-            '',
+            ['type' => 'local'],
             5,
             true
         );
@@ -359,11 +355,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testVerifyUploadWhenNotSupported(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
-            null,
-            null,
-            '',
+            ['type' => 'local'],
             5,
             true
         );
@@ -373,11 +367,9 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testGetFileMetadataWhenNotSupported(): void
     {
-        $generator = new PresignedUploadUrlGenerator(
+        $generator = PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
-            null,
-            null,
-            '',
+            ['type' => 'local'],
             5,
             true
         );

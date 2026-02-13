@@ -500,13 +500,14 @@ class MediaException extends HttpException
         );
     }
 
-    public static function presignedUploadInvalidConfiguration(string $message): self
+    public static function presignedUploadInvalidConfiguration(string $message, ?\Throwable $e = null): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION,
             'Invalid presigned upload configuration: {{ message }}',
-            ['message' => $message]
+            ['message' => $message],
+            $e
         );
     }
 

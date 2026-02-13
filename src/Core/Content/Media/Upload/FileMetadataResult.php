@@ -3,17 +3,16 @@
 namespace Shopware\Core\Content\Media\Upload;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class FileMetadataResult extends Struct
+readonly class FileMetadataResult
 {
     public function __construct(
-        public readonly int $size,
-        public readonly \DateTimeImmutable $lastModified,
+        public int $size,
+        public \DateTimeImmutable $lastModified,
     ) {
     }
 }

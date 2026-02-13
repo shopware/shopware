@@ -83,9 +83,6 @@ class StoreController extends AbstractController
     #[Route(path: '/api/_action/store/logout', name: 'api.custom.store.logout', methods: ['POST'])]
     public function logout(Context $context): Response
     {
-        $source = $context->getSource();
-        \assert($source instanceof AdminApiSource);
-
         $this->storeClient->logout($context);
 
         return new Response();

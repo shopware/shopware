@@ -40,8 +40,8 @@ class StoreService
 
     public function removeStoreToken(Context $context): void
     {
-        /** @var AdminApiSource $contextSource */
         $contextSource = $context->getSource();
+        \assert($contextSource instanceof AdminApiSource);
         $userId = $contextSource->getUserId();
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId): void {

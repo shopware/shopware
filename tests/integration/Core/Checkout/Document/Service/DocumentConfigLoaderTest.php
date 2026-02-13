@@ -67,19 +67,8 @@ class DocumentConfigLoaderTest extends TestCase
 
         $base = $this->getBaseConfig('invoice');
         $globalConfig = $base === null ? [] : $base->getConfig();
-        static::assertIsArray($globalConfig);
-
-        $config = [
-            'displayCompanyAddress' => true,
-            'companyName' => 'Test corp.',
-            'companyStreet' => 'Company street',
-            'companyCountryId' => Uuid::randomHex(),
-            'companyZipcode' => '12345',
-            'companyCity' => 'Company city',
-        ];
-
-        $globalConfig = array_merge($globalConfig, $config);
-
+        $globalConfig['companyName'] = 'Test corp.';
+        $globalConfig['displayCompanyAddress'] = true;
         $this->upsertBaseConfig($globalConfig, 'invoice');
 
         $salesChannelId = $this->salesChannelContext->getSalesChannelId();
@@ -98,12 +87,8 @@ class DocumentConfigLoaderTest extends TestCase
         $base = $this->getBaseConfig('invoice');
 
         $globalConfig = DocumentConfigurationFactory::createConfiguration([
-            'displayCompanyAddress' => true,
             'companyName' => 'Test corp.',
-            'companyStreet' => 'Company street',
-            'companyCountryId' => Uuid::randomHex(),
-            'companyZipcode' => '12345',
-            'companyCity' => 'Company city',
+            'displayCompanyAddress' => true,
         ], $base);
 
         $this->upsertBaseConfig($globalConfig->jsonSerialize(), InvoiceRenderer::TYPE);

@@ -477,30 +477,14 @@ class DocumentGeneratorTest extends TestCase
     {
         $base = $this->getBaseConfig(InvoiceRenderer::TYPE);
         $globalConfig = $base instanceof DocumentBaseConfigEntity ? $base->getConfig() : [];
-        static::assertIsArray($globalConfig);
-
-        $config = [
-            'displayCompanyAddress' => true,
-            'companyName' => 'Test corp.',
-            'companyStreet' => 'Company street',
-            'companyCountryId' => Uuid::randomHex(),
-            'companyZipcode' => '12345',
-            'companyCity' => 'Company city',
-        ];
-
-        $globalConfig = array_merge($globalConfig, $config);
-
+        $globalConfig['companyName'] = 'Test corp.';
+        $globalConfig['displayCompanyAddress'] = true;
         $this->upsertBaseConfig($globalConfig, InvoiceRenderer::TYPE);
 
         $salesChannelConfig = [
-            'displayCompanyAddress' => false,
             'companyName' => 'Custom corp.',
-            'pageSize' => 'a4',
-            'pageOrientation' => 'portrait',
-            'itemsPerPage' => 10,
-            'fileTypes' => ['pdf', 'html'],
+            'displayCompanyAddress' => false,
         ];
-
         $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannelId());
 
         $operation = new DocumentGenerateOperation($this->orderId);
@@ -527,34 +511,19 @@ class DocumentGeneratorTest extends TestCase
 
         $base = $this->getBaseConfig(InvoiceRenderer::TYPE);
         $globalConfig = $base instanceof DocumentBaseConfigEntity ? $base->getConfig() : [];
-
-        $config = [
-            'companyName' => 'Test corp.',
-            'displayCompanyAddress' => true,
-            'companyStreet' => 'Company street',
-            'companyCountryId' => Uuid::randomHex(),
-            'companyZipcode' => '12345',
-            'companyCity' => 'Company city',
-        ];
-
+        $globalConfig['companyName'] = 'Test corp.';
         $globalConfig['displayCompanyAddress'] = true;
-        $globalConfig = array_merge($globalConfig, $config);
-
         $this->upsertBaseConfig($globalConfig, InvoiceRenderer::TYPE);
 
         $salesChannelConfig = [
-            ...$config,
+            'companyName' => 'Custom corp.',
             'displayCompanyAddress' => false,
             'pageSize' => 'a5',
-            'pageOrientation' => 'portrait',
-            'itemsPerPage' => 10,
-            'fileTypes' => ['pdf', 'html'],
         ];
-
         $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannelId());
 
         $overrides = [
-            ...$config,
+            'companyName' => 'Override corp.',
             'displayCompanyAddress' => true,
             'fileType' => PdfRenderer::FILE_EXTENSION,
         ];

@@ -52,7 +52,7 @@
                                 :entity-media-items="mediaItems"
                                 :entity="entity"
                                 :upload-tag="uploadTag"
-                                :default-folder="defaultFolderName"
+                                :default-folder-name="defaultFolderName"
                                 :disabled="isInherited"
                                 @upload-finish="onImageUpload"
                                 @item-remove="onItemRemove"
@@ -100,6 +100,14 @@
                     </template>
                 </sw-cms-inherit-wrapper>
 
+                {% endblock %}
+
+                {% block sw_cms_element_image_gallery_config_media_upload_listener %}
+                <sw-upload-listener
+                    :upload-tag="uploadTag"
+                    auto-upload
+                    @media-upload-finish="onImageUpload"
+                />
                 {% endblock %}
 
                 {% block sw_cms_element_image_gallery_config_media_modal %}

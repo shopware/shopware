@@ -697,6 +697,7 @@
  "sw_cms_element_image_gallery_config_media_preview_item",
  "sw_cms_element_image_gallery_config_media_preview_list",
  "sw_cms_element_image_gallery_config_media_selection",
+ "sw_cms_element_image_gallery_config_media_upload_listener",
  "sw_cms_element_image_gallery_config_settings",
  "sw_cms_element_image_gallery_config_settings_aspect_ratio_magnifier_over_gallery_toggles",
  "sw_cms_element_image_gallery_config_settings_display_mode",

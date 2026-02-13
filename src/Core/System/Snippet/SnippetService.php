@@ -333,10 +333,11 @@ class SnippetService
             );
 
             // If the locale has a region (e.g., "es-AR"), try to load its base language ("es")
-            if (isset($matchedPattern['region']) && ($matchedPattern['region'] !== '' && $matchedPattern['region'] !== '0') && strtolower($matchedPattern['region']) !== $iso) {
-                \assert(isset($matchedPattern['language']) && ($matchedPattern['language'] !== '' && $matchedPattern['language'] !== '0'));
-                \assert(isset($matchedPattern['region']) && ($matchedPattern['region'] !== '' && $matchedPattern['region'] !== '0'));
-                $fallbackFiles = $this->snippetFileCollection->getSnippetFilesByIso($matchedPattern['language']);
+            $region = $matchedPattern['region'] ?? '';
+            if ($region !== '' && strtolower($region) !== $iso) {
+                $language = $matchedPattern['language'] ?? '';
+                \assert($language !== '');
+                $fallbackFiles = $this->snippetFileCollection->getSnippetFilesByIso($language);
                 // Prepend fallback files so region-specific ones override them
                 $files = [...$fallbackFiles, ...$files];
             }
@@ -577,7 +578,7 @@ class SnippetService
     {
         $result = [];
         foreach ($array as $index => $value) {
-            $newIndex = $prefix . ($prefix === '' || $prefix === '0' ? '' : '.') . $index;
+            $newIndex = $prefix . ($prefix === '' ? '' : '.') . $index;
 
             if (\is_array($value)) {
                 $result = [...$result, ...$this->flatten($value, $newIndex, $additionalParameters)];

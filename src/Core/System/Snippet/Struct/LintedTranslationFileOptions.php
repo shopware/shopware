@@ -36,8 +36,8 @@ readonly class LintedTranslationFileOptions
         return new self(
             (bool) $input->getOption('fix'),
             (bool) $input->getOption('all'),
-            $extensions !== '' && $extensions !== '0' ? explode(',', $extensions) : [],
-            $ignoredPaths !== '' && $ignoredPaths !== '0' ? explode(',', $ignoredPaths) : [],
+            $extensions !== '' ? explode(',', $extensions) : [],
+            $ignoredPaths !== '' ? explode(',', $ignoredPaths) : [],
             (string) $input->getOption('dir') ?: null,
         );
     }

@@ -78,7 +78,7 @@ class CountryAgnosticFileLinter
 
             $currentDomain = $currentFileData['domain'] ?? 'administration';
             $locale = str_replace('_', '-', $currentFileData['locale']);
-            $isBase = !$isAdminTranslationFile && (isset($currentFileData['isBase']) && ($currentFileData['isBase'] !== '' && $currentFileData['isBase'] !== '0'));
+            $isBase = !$isAdminTranslationFile && ($currentFileData['isBase'] ?? '') !== '';
 
             $translationFile = new TranslationFile(
                 $file->getFilename(),

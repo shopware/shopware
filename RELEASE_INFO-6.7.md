@@ -51,6 +51,13 @@ Additionally, the `SerializerField` will become internal in the next major relea
 
 ## Administration
 
+### Product detail variants: `configSettingGroups` as computed and deprecations
+
+In `sw-product-detail-variants`, the following changes were made:
+
+* **`configSettingGroups`** (now computed): Previously a `data()` property set by `loadConfigSettingGroups()`. It is now a computed property derived from `productEntity.configuratorSettings` and `groups`.
+* **`loadConfigSettingGroups()`** (deprecated): Marked as `@deprecated tag:v6.8.0`. It will be removed in 6.8.0 without replacement.
+
 ### Deprecation of `items` prop in `sw-entity-listing` component
 
 The `items` prop in the `sw-entity-listing` component has been deprecated and will be removed in v6.8.0.

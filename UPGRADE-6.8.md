@@ -467,6 +467,13 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 <details>
 
+## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
+
+The method `loadConfigSettingGroups()` in the product detail variants view has been removed without replacement since `configSettingGroups` became a computed property.
+
+* If your code called `loadConfigSettingGroups()`, remove that call.
+* `configSettingGroups` is derived automatically from `productEntity.configuratorSettings` and `groups`.
+
 ## Removal of `items` prop in `sw-entity-listing` component
 
 The `items` prop in the `sw-entity-listing` component has been removed.

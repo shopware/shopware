@@ -63,7 +63,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     it('should not allow to create', async () => {
         const wrapper = await createWrapper();
 
-        const createButtonGroup= wrapper.find('.sw-button-group');
+        const createButtonGroup = wrapper.find('.sw-button-group');
 
         expect(createButtonGroup.attributes('tooltip-mock-message')).toBe('sw-privileges.tooltip.warning');
         expect(createButtonGroup.attributes('tooltip-mock-disabled')).toBe('false');
@@ -80,7 +80,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
 
         const wrapper = await createWrapper();
 
-        const createButtonGroup= wrapper.find('.sw-button-group');
+        const createButtonGroup = wrapper.find('.sw-button-group');
 
         expect(createButtonGroup.attributes('tooltip-mock-message')).toBe('sw-privileges.tooltip.warning');
         expect(createButtonGroup.attributes('tooltip-mock-disabled')).toBe('true');

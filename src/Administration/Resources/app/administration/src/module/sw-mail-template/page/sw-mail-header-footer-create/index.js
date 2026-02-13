@@ -17,8 +17,10 @@ export default {
                 Shopware.Store.get('context').resetLanguageToDefault();
             }
 
-            this.mailHeaderFooter =
-                this.mailHeaderFooterRepository.create(Shopware.Context.api, this.$route.params.id ?? null);
+            this.mailHeaderFooter = this.mailHeaderFooterRepository.create(
+                Shopware.Context.api,
+                this.$route.params.id ?? null,
+            );
             this.mailHeaderFooterId = this.mailHeaderFooter.id;
 
             this.isLoading = false;

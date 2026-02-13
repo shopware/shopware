@@ -5,15 +5,13 @@
 import { mount } from '@vue/test-utils';
 
 const createWrapper = async (routeParams = {}) => {
-    return mount(await wrapTestComponent('sw-mail-header-footer-create', { sync:true }), {
+    return mount(await wrapTestComponent('sw-mail-header-footer-create', { sync: true }), {
         global: {
             provide: {
-                entityMappingService: {
-
-                },
+                entityMappingService: {},
             },
             mocks: {
-                $route: { params: {...routeParams } },
+                $route: { params: { ...routeParams } },
             },
             stubs: {
                 'sw-page': true,
@@ -30,15 +28,15 @@ const createWrapper = async (routeParams = {}) => {
 };
 
 describe('modules/sw-mail-template/page/sw-mail-header-footer-create', () => {
-    it ('should set mailHeaderFooterId to route id param when set', async () => {
-        const mailHeaderFooterId = 'foo'
+    it('should set mailHeaderFooterId to route id param when set', async () => {
+        const mailHeaderFooterId = 'foo';
 
         const wrapper = await createWrapper({ id: mailHeaderFooterId });
 
         expect(wrapper.vm.mailHeaderFooterId).toEqual(mailHeaderFooterId);
     });
 
-    it ('should set mailHeaderFooterId when route id param not set', async () => {
+    it('should set mailHeaderFooterId when route id param not set', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.mailHeaderFooterId).not.toBeNull();

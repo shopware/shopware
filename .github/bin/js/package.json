@@ -2,6 +2,9 @@
   "dependencies": {
     "@shopware-ag/gh-project-automation": "1.14.1"
   },
+  "overrides": {
+    "axios": "1.13.5"
+  },
   "devDependencies": {
     "@types/node": "24.10.0"
   }

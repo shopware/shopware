@@ -23,7 +23,7 @@ export default {
         return {
             entityName: 'document_base_config',
             /**
-             * @deprecated tag:v6.8.0 - Will be removed without replacement
+             * @deprecated tag:v6.9.0 - Will be removed without replacement
              */
             sortBy: 'document_base_config.name',
         };
@@ -55,7 +55,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         * @deprecated tag:v6.9.0 - Will be removed without replacement
          */
         expandButtonClass() {
             return {
@@ -64,7 +64,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         * @deprecated tag:v6.9.0 - Will be removed without replacement
          */
         collapseButtonClass() {
             return {

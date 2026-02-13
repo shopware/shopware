@@ -57,6 +57,11 @@ In `sw-product-detail-variants`, the following changes were made:
 
 * **`configSettingGroups`** (now computed): Previously a `data()` property set by `loadConfigSettingGroups()`. It is now a computed property derived from `productEntity.configuratorSettings` and `groups`.
 * **`loadConfigSettingGroups()`** (deprecated): Marked as `@deprecated tag:v6.8.0`. It will be removed in 6.8.0 without replacement.
+### Feature flag for Admin OpenSearch routing
+
+The new feature flag `ENABLE_OPENSEARCH_FOR_ADMIN_API` (see `adr/2026-01-28-apply-opensearch-in-admin-api.md`) keeps the recent Admin OpenSearch integration opt-in.
+When the flag is disabled, Administration lists, filters, and DAL searches continue to use MySQL exactly as in previous releases.
+Once enabled, supported Admin API entities reuse the Admin OpenSearch indices for criteria-based searches, which requires admin OpenSearch to be configured and re-indexed via `bin/console es:admin:index`.
 
 ### Deprecation of `items` prop in `sw-entity-listing` component
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
-use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -41,21 +41,21 @@ class AppTemplateIterator implements \IteratorAggregate
      */
     private function getDatabaseTemplatePaths(): array
     {
+        if (MySQLFactory::isDatabaseless()) {
+            return [];
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addAggregation(
             new TermsAggregation('path-names', 'path')
         );
 
-        try {
-            /** @var TermsResult $pathNames */
-            $pathNames = $this->templateRepository->aggregate(
-                $criteria,
-                Context::createDefaultContext()
-            )->get('path-names');
-        } catch (Exception) {
-            return [];
-        }
+        /** @var TermsResult $pathNames */
+        $pathNames = $this->templateRepository->aggregate(
+            $criteria,
+            Context::createDefaultContext()
+        )->get('path-names');
 
         return $pathNames->getKeys();
     }

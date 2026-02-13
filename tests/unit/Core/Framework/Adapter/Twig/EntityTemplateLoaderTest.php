@@ -3,10 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception as DBALException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Twig\Error\LoaderError;
 
 /**
@@ -15,6 +16,8 @@ use Twig\Error\LoaderError;
 #[CoversClass(EntityTemplateLoader::class)]
 class EntityTemplateLoaderTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testTemplatesAreOnlyLoadedOnce(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -219,11 +222,12 @@ class EntityTemplateLoaderTest extends TestCase
         static::assertFalse($loader->exists('@TestApp/storefront/page/missing.html.twig'));
     }
 
-    public function testConnectionFailureReturnsNull(): void
+    public function testDatabaselessModeReturnsFalse(): void
     {
+        $this->setEnvVars(['DATABASE_URL' => MySQLFactory::PLACEHOLDER_DATABASE_URL]);
+
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')
-            ->willThrowException($this->createMock(DBALException::class));
+        $connection->expects(static::never())->method('fetchAllAssociative');
 
         $loader = new EntityTemplateLoader($connection, 'prod');
 

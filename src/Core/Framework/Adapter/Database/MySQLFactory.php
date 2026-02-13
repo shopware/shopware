@@ -18,6 +18,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MySQLFactory
 {
+    public const PLACEHOLDER_DATABASE_URL = 'mysql://_placeholder.test';
+
+    public static function isDatabaseless(): bool
+    {
+        return (string) EnvironmentHelper::getVariable('DATABASE_URL', '') === self::PLACEHOLDER_DATABASE_URL;
+    }
+
     /**
      * @param array<Middleware> $middlewares
      */

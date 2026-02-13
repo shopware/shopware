@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -107,22 +107,23 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
 
         if ($this->databaseTemplateCache === null) {
             $this->databaseTemplateCache = [];
-            try {
-                /** @var list<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
-                $templates = $this->connection->fetchAllAssociative('
-                    SELECT
-                        `app_template`.`path` AS `path`,
-                        `app_template`.`template` AS `template`,
-                        `app_template`.`hash` AS `hash`,
-                        `app_template`.`updated_at` AS `updatedAt`,
-                        `app`.`name` AS `namespace`
-                    FROM `app_template`
-                    INNER JOIN `app` ON `app_template`.`app_id` = `app`.`id`
-                    WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
-                ');
-            } catch (Exception) {
+
+            if (MySQLFactory::isDatabaseless()) {
                 return null;
             }
+
+            /** @var list<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
+            $templates = $this->connection->fetchAllAssociative('
+                SELECT
+                    `app_template`.`path` AS `path`,
+                    `app_template`.`template` AS `template`,
+                    `app_template`.`hash` AS `hash`,
+                    `app_template`.`updated_at` AS `updatedAt`,
+                    `app`.`name` AS `namespace`
+                FROM `app_template`
+                INNER JOIN `app` ON `app_template`.`app_id` = `app`.`id`
+                WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
+            ');
 
             foreach ($templates as $template) {
                 $this->databaseTemplateCache[$template['path']][$template['namespace']] = [

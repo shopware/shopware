@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
-use Doctrine\DBAL\Exception as DBALException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 
 /**
  * @internal
@@ -17,6 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 #[CoversClass(AppTemplateIterator::class)]
 class AppTemplateIteratorTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testIteratorYieldsFilesystemAndDatabaseTemplates(): void
     {
         $filesystemTemplates = new \ArrayObject(['storefront/base.html.twig', 'storefront/page.html.twig']);
@@ -42,12 +45,14 @@ class AppTemplateIteratorTest extends TestCase
         ], $result);
     }
 
-    public function testIteratorYieldsOnlyFilesystemTemplatesOnDatabaseFailure(): void
+    public function testIteratorYieldsOnlyFilesystemTemplatesInDatabaselessMode(): void
     {
+        $this->setEnvVars(['DATABASE_URL' => MySQLFactory::PLACEHOLDER_DATABASE_URL]);
+
         $filesystemTemplates = new \ArrayObject(['storefront/base.html.twig']);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('aggregate')->willThrowException($this->createMock(DBALException::class));
+        $repository->expects(static::never())->method('aggregate');
 
         $iterator = new AppTemplateIterator($filesystemTemplates, $repository);
 

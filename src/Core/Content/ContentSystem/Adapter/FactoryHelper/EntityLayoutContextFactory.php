@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper;
 
-use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
@@ -36,7 +36,7 @@ class EntityLayoutContextFactory
     ) {
     }
 
-    public function supports(string $path, ContentLayoutAssignableDefinitionInterface $definition): bool
+    public function supports(string $path, AbstractContentLayoutAssignableDefinition $definition): bool
     {
         $path = '/' . ltrim($path, '/');
         $pathPrefix = $definition->getContentLayoutPathPrefix();
@@ -51,7 +51,7 @@ class EntityLayoutContextFactory
         string $path,
         SalesChannelContext $context,
         EntityRepository $repository,
-        ContentLayoutAssignableDefinitionInterface $definition
+        AbstractContentLayoutAssignableDefinition $definition
     ): string {
         $entityId = $this->extractEntityId($path, $definition);
 
@@ -81,7 +81,7 @@ class EntityLayoutContextFactory
         Request $request,
         SalesChannelContext $context,
         EntityRepository $repository,
-        ContentLayoutAssignableDefinitionInterface $definition
+        AbstractContentLayoutAssignableDefinition $definition
     ): SpecificationData {
         $entityId = $this->extractEntityId($path, $definition);
 
@@ -115,7 +115,7 @@ class EntityLayoutContextFactory
     /**
      * @return list<string>
      */
-    public function resolveCacheTags(string $path, ContentLayoutAssignableDefinitionInterface $definition): array
+    public function resolveCacheTags(string $path, AbstractContentLayoutAssignableDefinition $definition): array
     {
         $entityId = $this->extractEntityId($path, $definition);
 
@@ -125,7 +125,7 @@ class EntityLayoutContextFactory
     /**
      * @throws ContentSystemException If path doesn't match route pattern
      */
-    private function extractEntityId(string $path, ContentLayoutAssignableDefinitionInterface $definition): string
+    private function extractEntityId(string $path, AbstractContentLayoutAssignableDefinition $definition): string
     {
         $path = '/' . ltrim($path, '/');
         $routePattern = $definition->getContentLayoutRoutePattern();
@@ -165,7 +165,7 @@ class EntityLayoutContextFactory
     private function transformDataRequirements(
         ContentLayoutAssignmentInterface $assignment,
         SalesChannelContext $context,
-        ContentLayoutAssignableDefinitionInterface $definition
+        AbstractContentLayoutAssignableDefinition $definition
     ): array {
         $requirements = $definition->getPageDataRequirements($context);
         $bindings = $assignment->getParameterBindings();

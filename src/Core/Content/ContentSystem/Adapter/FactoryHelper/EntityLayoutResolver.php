@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper;
 
-use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
@@ -40,7 +40,7 @@ class EntityLayoutResolver
         Request $request,
         SalesChannelContext $context,
         EntityRepository $repository,
-        ContentLayoutAssignableDefinitionInterface $definition
+        AbstractContentLayoutAssignableDefinition $definition
     ): LayoutResolutionResult {
         $entityIdField = $definition->getContentLayoutEntityIdField();
         $entityType = $definition->getContentLayoutEntityType();

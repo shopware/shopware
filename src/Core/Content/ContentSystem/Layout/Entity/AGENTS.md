@@ -1,6 +1,4 @@
-# Entity
-
-@README.md
+@.
 
 ## Source Code References
 
@@ -10,9 +8,7 @@
 
 ## Quick Reference
 
-- **Pair pattern**: Entity (data) + Definition (schema)
-- **Collection**: Extends EntityCollection with type hint
-- **ID generation**: Always use Uuid::randomHex()
-- **Repository**: Access via 'content_layout.repository'
-- **Serialization**: Automatic via custom field serializers
-- **Package**: `#[Package('discovery')]` on all entities
+- Repository: `content_layout.repository`
+- ID generation: `Uuid::randomHex()`
+- Serialization: Automatic via custom field serializers in `Field/`
+- Package: `#[Package('discovery')]`

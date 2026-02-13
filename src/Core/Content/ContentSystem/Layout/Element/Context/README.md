@@ -9,94 +9,15 @@ Context provider and consumer definitions for content elements.
 - `ContextDefinitions` - Container holding providers and consumers for an element
 - `ContextDependencyAnalyzer` - Analyzes context dependencies for tree pruning
 
-## Redistribution Shorthand
+## Redistribution
 
-`ContextConsumer::$redistribute` auto-generates a broadcast provider when `true`. Simplifies common pattern of accepting context and immediately re-providing to children.
+`ContextConsumer::$redistribute` auto-generates a broadcast provider when `true` — expanded at runtime by `RedistributeExpansionSubscriber`, not persisted.
 
-**Example:**
-```json
-{
-  "accepts_context": {
-    "product": {
-      "type": "single",
-      "required": true,
-      "redistribute": true
-    }
-  }
-}
-```
+## Aliases
 
-Equivalent to explicit provider:
-```json
-{
-  "accepts_context": {
-    "product": {"type": "single", "required": true}
-  },
-  "provides_context": {
-    "product": {"type": "single", "distribution": "broadcast"}
-  }
-}
-```
+- **Consumer Alias** (`$consumerAlias`): Transforms key when redistributing. Requires `redistribute: true`
+- **Property Alias** (`$propertyAlias`): Renames storage key. No dots allowed, unique per element. Independent of redistribute
 
-Virtual providers not persisted to database.
+## Subdirectories
 
-## Consumer Alias
-
-`ContextConsumer::$consumerAlias` transforms context key when redistributing. Element accepts under one key, provides to children under different key.
-
-**Example:**
-```json
-{
-  "accepts_context": {
-    "featuredProduct": {
-      "type": "single",
-      "required": true,
-      "redistribute": true,
-      "consumer_alias": "product"
-    }
-  }
-}
-```
-
-Element accepts context as `"featuredProduct"`, children receive as `"product"`. Useful for semantic clarity.
-
-## Property Alias
-
-`ContextConsumer::$propertyAlias` renames storage key for resolved context data within consuming element.
-
-**Example:**
-```json
-{
-  "accepts_context": {
-    "product.cover": {
-      "type": "single",
-      "required": true,
-      "property_alias": "cover"
-    }
-  }
-}
-```
-
-Element receives `product.cover` from parent but stores as `cover` property. Useful for simplifying nested paths.
-
-**Constraints:**
-- No dots allowed in alias value
-- Each alias must be unique within element (validated at serialization)
-
-**Implementation:** `ContextConsumer::$propertyAlias` applied in `ContextResolutionVisitor::setContextForConsumer()`.
-
-## Distribution Strategies
-
-Distribution configs (value objects with `distribute()` method) control how provider data distributes to consumers:
-
-- `BroadcastDistributionConfig` - All children receive identical data
-- `IndexedDistributionConfig` - Position-based: child[N] gets data[N]
-- `KeyedDistributionConfig` - Children receive by matching `data_key` property
-- `SlicedDistributionConfig` - Data split into chunks across children
-- `IteratorDistributionConfig` - Round-robin distribution
-
-See `Distribution/` subdirectory for implementation.
-
-## Subdirectory
-
-- `Distribution/` - Distribution config value objects (DistributionConfig interface and implementations)
+- **Distribution/** - Distribution strategy value objects (Broadcast, Indexed, Keyed, Sliced, Iterator)

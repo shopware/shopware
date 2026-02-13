@@ -7,16 +7,17 @@ Plugins extend the ContentSystem through three mechanisms.
 1. [Extension Model](#extension-model)
 2. [Custom Specification Sources](#custom-specification-sources)
 3. [Custom Data Loaders](#custom-data-loaders)
-4. [Event Subscribers](#event-subscribers)
+4. [Event Listeners](#event-listeners)
 5. [Service Tags](#service-tag-reference)
+6. [Type Reference](#type-reference)
 
 ## Extension Model
 
-| Extension Point | Purpose |
-|-----------------|---------|
-| **Specification Sources** | New URL patterns, entity types, preview modes |
-| **Data Loaders** | External APIs, calculations, aggregated data (with cache control) |
-| **Event Subscribers** | Modify layout structure, enrich data, transform properties, cache tags |
+| Extension Point           | Purpose                                                                |
+|---------------------------|------------------------------------------------------------------------|
+| **Specification Sources** | New URL patterns, entity types                                         |
+| **Data Loaders**          | External APIs, calculations, aggregated data (with cache control)      |
+| **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags |
 
 ---
 
@@ -28,12 +29,12 @@ Specification sources translate path patterns into rendering specifications via 
 
 Sources are tried in priority order (highest first). The first source where `supports()` returns true handles the request via `RenderingSpecificationFactory`.
 
-| Priority | Behavior |
-|----------|----------|
-| Higher values | Tried first |
-| `supports()` returns `false` | Skip to next source |
-| `supports()` returns `true` | Handle request via stepped resolution |
-| Throw exception | Only when your source should handle but fails |
+| Priority                     | Behavior                                      |
+|------------------------------|-----------------------------------------------|
+| Higher values                | Tried first                                   |
+| `supports()` returns `false` | Skip to next source                           |
+| `supports()` returns `true`  | Handle request via stepped resolution         |
+| Throw exception              | Only when your source should handle but fails |
 
 ### Example: Blog Post Source
 
@@ -48,7 +49,7 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
     { throw new DecorationPatternException(self::class); }
 
     public function supports(string $path, Request $request, SalesChannelContext $context): bool
-    { /* Return true if path starts with '/blog/' */ }
+    { /* Return true if path starts with 'blog/' */ }
 
     public function resolveLayoutId(string $path, Request $request, SalesChannelContext $context): string
     { /* Extract post ID from path; query blog_post_content_layout with sales channel fallback; return layout ID */ }
@@ -80,7 +81,7 @@ Reference: `Adapter/ProductSpecificationSource.php`
 
 ## Custom Data Loaders
 
-Data loaders fetch external data—APIs, computed values, aggregations. The built-in `entity` loader handles Shopware entities; Other built-on loaders handle known data structures like product listing.
+Data loaders fetch external data—APIs, computed values, aggregations. The built-in `entity` loader handles Shopware entities; other built-in loaders handle known data structures like product listing, navigation, language, currency, payment method, and shipping method.
 
 A data loader consists of three classes:
 
@@ -145,6 +146,9 @@ final class WeatherLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
+        $config = $requirement->config;
+        \assert($config instanceof WeatherLoaderConfig);
+
         $weather = $this->weatherClient->fetch($config->location);
         if ($weather === null) {
             return ContentDataLoaderResult::notFound();
@@ -172,29 +176,31 @@ final class WeatherLoader extends AbstractContentDataLoader
 
 All data loaders must return `ContentDataLoaderResult` to indicate cache behavior:
 
-| Factory Method | When to Use |
-|----------------|-------------|
-| `notFound()` | Data not found, page remains cacheable |
-| `cached($data, ...$tags)` | Data with invalidation tags (e.g., `'product-' . $id`) |
+| Factory Method            | When to Use                                               |
+|---------------------------|-----------------------------------------------------------|
+| `notFound()`              | Data not found, page remains cacheable                    |
+| `cached($data, ...$tags)` | Data with invalidation tags (e.g., `'product-' . $id`)    |
 | `cachedExternally($data)` | Data loaded via delegated route that handles its own tags |
-| `uncacheable($data)` | External APIs or data that cannot be cache-tracked |
+| `uncacheable($data)`      | External APIs or data that cannot be cache-tracked        |
 
 If any loader returns uncacheable data, the entire page becomes uncacheable.
 
-For entity-based data, use `EntityCacheTagResolver` to generate proper tags:
+For entity-based data, provide cache tags that match Shopware's existing invalidation patterns:
 
 ```php
-$tags = $this->cacheTagResolver->resolve($entity::class, $entityId);
-return ContentDataLoaderResult::cached($entity, ...$tags);
+// Use tag patterns matching Shopware's cache invalidation system:
+// product → 'product-{id}', category → 'category-route-{id}',
+// landing_page → 'landing-page-route-{id}', cms_page → 'cms-page-{id}'
+return ContentDataLoaderResult::cached($entity, 'product-' . $entityId);
 ```
 
 Reference: `Hydration/DataLoader/EntityLoader/`
 
 ---
 
-## Event Subscribers
+## Event Listeners
 
-Subscribers modify elements before or after hydration—computing derived values, transforming structure, resolving custom placeholders.
+Listeners modify elements before or after hydration—computing derived values, transforming structure, resolving custom placeholders.
 
 | Event | When | Purpose |
 |-------|------|---------|
@@ -203,25 +209,48 @@ Subscribers modify elements before or after hydration—computing derived values
 
 Both events expose the same properties. Only `elements` is mutable:
 
-- `elements` — `array<ContentElement>`, mutable
-- `layoutId`, `layoutName`, `layoutVersionId` — layout metadata
-- `specification` — the `RenderingSpecification`
-- `mode` — `RenderingMode`
-- `salesChannelContext` — `SalesChannelContext`
-- `cacheContext` — `RenderingCacheContext`, for cache tag management
+- `elements` — `list<ContentElement>`, mutable
+- `layoutId`, `layoutName`, `layoutVersionId` — layout metadata (readonly)
+- `specification` — `RenderingSpecification` (readonly)
+- `mode` — `RenderingMode` (readonly)
+- `salesChannelContext` — `SalesChannelContext` (readonly)
+- `cacheContext` — `RenderingCacheContext`, for cache tag management (readonly reference, but methods mutate state)
 
-### Example: Reading Time Subscriber
+### Working with ContentElement
+
+`ContentElement` is the tree node in the layout. In event listeners, access and modify element data through these methods:
+
+| Method                                         | Purpose                                          |
+|------------------------------------------------|--------------------------------------------------|
+| `getProperty(string $key): mixed`              | Get property value (returns null if not found)   |
+| `setProperty(string $key, mixed $value): void` | Set a property value                             |
+| `hasProperty(string $key): bool`               | Check if property exists                         |
+| `getProperties(): array`                       | Get all properties                               |
+| `getId(): string`                              | Element ID                                       |
+| `getComponent(): string`                       | Component type identifier                        |
+| `getSlots(): array`                            | Named child slots (`array<string, SlotContent>`) |
+| `allSlotElements(): Generator`                 | Generator yielding all direct child elements     |
+| `hasSlots(): bool`                             | Whether element has child slots                  |
+
+### Example: Reading Time Listener
 
 ```php
-class ReadingTimeSubscriber implements EventSubscriberInterface
+#[AsEventListener(event: PostHydrationEvent::class, priority: 500)]
+class ReadingTimeSubscriber
 {
     private const WORDS_PER_MINUTE = 200;
 
-    public static function getSubscribedEvents(): array
-    { return [PostHydrationEvent::class => ['addReadingTime', 500]]; }
-
-    public function addReadingTime(PostHydrationEvent $event): void
-    { /* Iterate elements; get 'content' property; count words; set 'readingTimeMinutes' property */ }
+    public function __invoke(PostHydrationEvent $event): void
+    {
+        foreach ($event->elements as $element) {
+            $content = $element->getProperty('content');
+            if (!\is_string($content)) {
+                continue;
+            }
+            $wordCount = str_word_count(strip_tags($content));
+            $element->setProperty('readingTimeMinutes', (int) ceil($wordCount / self::WORDS_PER_MINUTE));
+        }
+    }
 }
 ```
 
@@ -239,23 +268,71 @@ $event->cacheContext->disable();
 
 ### Priority Guidelines
 
-| Range | Usage |
-|-------|-------|
-| `>= 6000` | Run BEFORE core processing |
+| Range                | Usage                              |
+|----------------------|------------------------------------|
+| `>= 6000`            | Run BEFORE core processing         |
 | `< 6000 and >= 1000` | **Reserved for core** - do not use |
-| `< 1000 and >= 0` | Run AFTER core processing |
-| `< 0` | Run after all other subscribers |
+| `< 1000 and >= 0`    | Run AFTER core processing          |
+| `< 0`                | Run after all other subscribers    |
 
-Reference: `EventSubscriber/PreHydration/PlaceholderResolutionSubscriber.php`
+Reference: `Event/Listener/PreHydration/PlaceholderResolutionSubscriber.php`
 
 ---
 
 ## Service Tag Reference
 
-| Tag | Index Method | Attributes |
-|-----|-------------|------------|
-| `content_system.context_factory` | N/A | `priority` (optional, default 0) |
-| `content_system.data_loader` | `getRequirementType()` | None |
-| `content_system.config_serializer` | `getSource()` | None |
+| Tag                                | Index Method           | Attributes                       |
+|------------------------------------|------------------------|----------------------------------|
+| `content_system.context_factory`   | N/A                    | `priority` (optional, default 0) |
+| `content_system.data_loader`       | `getRequirementType()` | None                             |
+| `content_system.config_serializer` | `getSource()`          | None                             |
 
 Full DI configuration: `src/Core/Content/DependencyInjection/content_system.xml`
+
+---
+
+## Type Reference
+
+Key types extension developers encounter when working with the ContentSystem:
+
+### Base Classes (extend these)
+
+| Class                                       | Purpose                     |
+|---------------------------------------------|-----------------------------|
+| `AbstractSpecificationSource`               | Custom specification source |
+| `AbstractContentDataLoader`                 | Custom data loader          |
+| `AbstractContentDataLoaderConfig`           | Loader configuration DTO    |
+| `AbstractContentDataLoaderConfigSerializer` | Config encode/decode        |
+
+### Result / Value Objects
+
+| Class                     | Purpose                                                                                |
+|---------------------------|----------------------------------------------------------------------------------------|
+| `ContentDataLoaderResult` | Loader return value with cache info                                                    |
+| `SpecificationData`       | Return type of `resolveSpecificationData()` (bundles data requirements + placeholders) |
+| `PlaceholderValues`       | Immutable placeholder map, created via `PlaceholderValues::from(array $values)`        |
+| `RenderingSpecification`  | Layout ID, data requirements, placeholders, request, target element, cache tags        |
+
+### Enums
+
+| Enum             | Values                     | Purpose                         |
+|------------------|----------------------------|---------------------------------|
+| `RenderingMode`  | `FULL`, `SKELETON`         | Controls whether hydration runs |
+| `ContentSection` | `MAIN`, `HEADER`, `FOOTER` | Identifies content section      |
+
+### Event Classes
+
+| Class                      | Purpose                     |
+|----------------------------|-----------------------------|
+| `PreContentHydrationEvent` | Dispatched before hydration |
+| `PostHydrationEvent`       | Dispatched after hydration  |
+
+### Layout / Response
+
+| Class                    | Purpose                                         |
+|--------------------------|-------------------------------------------------|
+| `ContentElement`         | Tree node: properties, slots, data requirements |
+| `RenderingCacheContext`  | Cache tag collection + disable flag             |
+| `ContentSystemException` | Exception class with error codes                |
+
+All classes above are in the `Shopware\Core\Content\ContentSystem` namespace (or subnamespaces).

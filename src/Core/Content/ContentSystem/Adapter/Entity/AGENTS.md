@@ -1,61 +1,26 @@
-# Entity
-
-@README.md
+@.
 
 ## Source Code References
 
 **Entity Assignments:**
-- `{Product|Category|LandingPage}ContentLayoutDefinition` - Assignment DAL definitions
-- `{Product|Category|LandingPage}ContentLayoutEntity` - Assignment entities
-- `{Product|Category|LandingPage}ContentLayoutCollection` - Assignment collections
-- `ContentLayoutAssignmentInterface` - Entity contract for assignments (getAssignedEntityId, getContentLayoutId, etc)
-- `ContentLayoutAssignableDefinitionInterface` - Definition contract (getContentLayoutEntityType, getContentLayoutPathPrefix, etc)
+- `AbstractContentLayoutAssignableDefinition` - Base definition with shared fields
+- `AbstractContentLayoutAssignmentEntity` - Base entity with shared properties
+- `ContentLayoutAssignmentInterface` - Entity contract (getContentLayoutId, getParameterBindings)
+- `{Product|Category|LandingPage}ContentLayout{Definition|Entity|Collection}` - Concrete implementations
 
 **Header/Footer Assignments:**
-- `HeaderContentLayoutDefinition/Entity/Collection` - Header layout assignments
-- `FooterContentLayoutDefinition/Entity/Collection` - Footer layout assignments
+- `{Header|Footer}ContentLayout{Definition|Entity|Collection}` - Domain-aware assignments (do NOT extend abstract)
 
-## Assignment Pattern
+## Constraints
 
-Three entity types (Product, Category, LandingPage) with identical structure referencing different parent entities. Assignments owned by ContentSystem via interface contracts - parent entities have no awareness (unidirectional).
-
-## Header/Footer Assignment Pattern
-
-Header/Footer entities do NOT implement `ContentLayoutAssignableDefinitionInterface`. They use domain-aware resolution with `domainId` field instead of entity-based resolution. No parent entity reference - these are singleton assignments per domain/sales channel scope.
-
-## Sales Channel Fallback
-
-Query pattern with priority-based fallback (specific → global):
-
-```php
-$criteria->addFilter(new EqualsFilter($entityIdField, $entityId));
-$criteria->addFilter(new OrFilter([
-    new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
-    new EqualsFilter('salesChannelId', null),  // Global
-]));
-$criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::DESCENDING));
-$criteria->setLimit(1);
-```
-
-See `EntityLayoutResolver::resolve()` in `Adapter/FactoryHelper/`.
-
-## Unique Constraints
-
-Each table: `UNIQUE (entity_id, sales_channel_id)`
-
-- One global assignment per entity (entity_id, null)
-- One assignment per entity per sales channel (entity_id, sc_id)
+- Entity assignments: `UNIQUE (entity_id, sales_channel_id)` — one global + one per channel per entity
+- Header/Footer: `UNIQUE (domain_id, sales_channel_id)` — uses domain-aware resolution, no abstract base
+- Assignments are unidirectional — parent entities have no awareness of ContentSystem
+- Entity fallback: sales channel specific → global (null)
+- Header/footer fallback: domain+channel → channel → global
 
 ## Quick Reference
 
-- **Entity types**: Product/Category/LandingPage assignments (identical structure, different parents)
-- **Header/Footer types**: Singleton assignments per domain/sales channel scope
-- **Unidirectional**: Parents unaware of ContentSystem, accessed via interfaces
-- **Sales channel**: null = global, specific ID = channel-specific
-- **Domain (header/footer only)**: null = any domain, specific ID = domain-specific
-- **Fallback (entities)**: Specific channel → Global (null)
-- **Fallback (header/footer)**: Domain+Channel → Channel → Global
-- **Repository**: `{entity}_content_layout.repository`, `header_content_layout.repository`, `footer_content_layout.repository`
-- **Package**: `#[Package('discovery')]`
-- **Parent reference**: `getParentDefinitionClass()` for DAL only, no OneToMany in parent
-- **Header/Footer difference**: No `ContentLayoutAssignableDefinitionInterface`, uses `domainId` field
+- Repositories: `{entity}_content_layout.repository`, `header_content_layout.repository`, `footer_content_layout.repository`
+- Resolution: see `FactoryHelper/EntityLayoutResolver` and `FactoryHelper/DomainAwareLayoutResolver`
+- Package: `#[Package('discovery')]`

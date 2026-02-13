@@ -1,57 +1,24 @@
-# ContentSystem
-
 @README.md
 
 ## Source Code References
 
-- **Context Factories**: `Adapter/ProductSpecificationSource`, `Adapter/CategorySpecificationSource`, `Adapter/LandingPageSpecificationSource`
-- **Header/Footer Factories**: `Adapter/HeaderSpecificationSource`, `Adapter/FooterSpecificationSource`
-- **Resolvers**: `Adapter/FactoryHelper/DomainAwareLayoutResolver`, `Adapter/FactoryHelper/NavigationAliasResolver`
+- **Specification Sources**: `Adapter/ProductSpecificationSource`, `Adapter/CategorySpecificationSource`, `Adapter/LandingPageSpecificationSource`
+- **Header/Footer Sources**: `Adapter/HeaderSpecificationSource`, `Adapter/FooterSpecificationSource`
+- **Resolver**: `Adapter/RenderingSpecificationResolver` (3 instances: main, header, footer — see DI config)
 - **Events**: `Event/PreContentHydrationEvent`, `Event/PostHydrationEvent`
-- **Event Subscribers**: `EventSubscriber/PreHydration/`, `EventSubscriber/PostHydration/`
-- **Specification**: `ContentSection`, `RenderingSpecification`, `PlaceholderValues`
-- **Hydration**: `Hydration/ContentElementHydrator`
-- **Store API (Main)**: `SalesChannel/ContentRoute`, `SalesChannel/ContentDecomposedRoute`, `SalesChannel/ContentSkeletonRoute`, `SalesChannel/ContentDataRoute`
-- **Store API (Header)**: `SalesChannel/Header/ContentHeaderRoute`, `SalesChannel/Header/ContentHeaderDecomposedRoute`, `SalesChannel/Header/ContentHeaderSkeletonRoute`, `SalesChannel/Header/ContentHeaderDataRoute`
-- **Store API (Footer)**: `SalesChannel/Footer/ContentFooterRoute`, `SalesChannel/Footer/ContentFooterDecomposedRoute`, `SalesChannel/Footer/ContentFooterSkeletonRoute`, `SalesChannel/Footer/ContentFooterDataRoute`
-- **Pipeline**: `ContentPipeline`, `RenderingSpecificationResolver`
-
-## Quick Reference
-
-- **Architecture**: Event-driven pipeline with PreContentHydrationEvent and PostHydrationEvent
-- **Pipeline**: Entity ID → Layout → Event (PreHydration) → Hydration → Event (PostHydration) → Response
-- **Core Subscribers**: EventSubscriber/PreHydration/ (preparation) and EventSubscriber/PostHydration/ (finalization)
-- **Main exception class**: `ContentSystemException`
-- **ID generation**: `Uuid::randomHex()`
-- **Package**: `#[Package('discovery')]`
-- **API endpoints**:
-  - Main: `/store-api/content/{path}` (entity-based resolution)
-  - Header: `/store-api/content-header*` (domain-aware resolution)
-  - Footer: `/store-api/content-footer*` (domain-aware resolution)
-- **Content sections**: `ContentSection::MAIN`, `ContentSection::HEADER`, `ContentSection::FOOTER`
-- **DAL**: Use Criteria API + EntityDefinition, NOT Doctrine ORM
-
-## Store API Schema
-
-Update OpenAPI schema files when modifying endpoints or response structures.
-
-- **Location**: `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/`
-- **Files**: `paths/content.json`, `components/schemas/Content*.json`
-- **Validate**: `jq '.' <file>.json`
+- **Pipeline**: `ContentPipeline` (steps 2-5), `RenderingMode` (FULL vs SKELETON)
+- **Store API**: `SalesChannel/ContentRoute` (single class, DI-parameterized per format + section)
 
 ## Constraints
 
-### Pipeline Orchestration
+- `RenderingSpecificationResolver`: iterates sources via `supports()` bool check, first match wins — NOT null-return
+- `ContentPipeline::load()`: layout load → PreHydration events → hydration (FULL mode only) → PostHydration events
+- Specification resolution happens in `ContentRoute`, NOT in `ContentPipeline`
+- OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
 
-`ContentPipeline` orchestrates rendering via `RenderingSpecificationResolver`:
+## Quick Reference
 
-1. **Factory Selection**: Iterate context factories in DI priority order until one returns RenderingSpecification
-2. **PreHydration Events**: Subscribers prepare layout (placeholder resolution, virtual root, partial pruning)
-3. **Hydration**: ContentElementHydrator loads data + resolves context
-4. **PostHydration Events**: Subscribers finalize layout (virtual root cleanup, partial extraction)
-
-See `ContentPipeline::load()` for implementation.
-
-### Chain of Responsibility
-
-`RenderingSpecificationResolver` implements Chain of Responsibility pattern. Factories tagged with `content_system.context_factory` are tried in DI priority order. First non-null `RenderingSpecification` wins. Throws `ContentSystemException` if no factory handles the path.
+- Exception class: `ContentSystemException`
+- Package: `#[Package('discovery')]`
+- DAL: Use Criteria API + EntityDefinition, NOT Doctrine ORM
+- DI config: `src/Core/Content/DependencyInjection/content_system.xml`

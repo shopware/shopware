@@ -3,13 +3,9 @@
 namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout;
 
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
-use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
@@ -41,13 +37,6 @@ class LandingPageContentLayoutDefinition extends AbstractContentLayoutAssignable
     public function getContentLayoutEntityType(): string
     {
         return self::CONTENT_LAYOUT_ENTITY_TYPE;
-    }
-
-    public function getPageDataRequirements(SalesChannelContext $context): array
-    {
-        return [
-            new DataRequirement(self::CONTENT_LAYOUT_ENTITY_TYPE, EntityLoader::SOURCE, new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, $this->getContentLayoutEntityIdField(), [])),
-        ];
     }
 
     public function getCacheTags(string $entityId): array

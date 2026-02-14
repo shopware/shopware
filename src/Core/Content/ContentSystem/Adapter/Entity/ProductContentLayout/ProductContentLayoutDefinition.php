@@ -3,13 +3,9 @@
 namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout;
 
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
-use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
@@ -43,26 +39,20 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
         return self::CONTENT_LAYOUT_ENTITY_TYPE;
     }
 
-    public function getPageDataRequirements(SalesChannelContext $context): array
-    {
-        return [
-            new DataRequirement(
-                self::CONTENT_LAYOUT_ENTITY_TYPE,
-                EntityLoader::SOURCE,
-                new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, $this->getContentLayoutEntityIdField(), [
-                    'manufacturer.media',
-                    'options.group',
-                    'properties.group',
-                    'mainCategories.category',
-                    'media.media',
-                ])
-            ),
-        ];
-    }
-
     public function getCacheTags(string $entityId): array
     {
         return [EntityCacheKeyGenerator::buildProductTag($entityId)];
+    }
+
+    protected function getEntityAssociations(): array
+    {
+        return [
+            'manufacturer.media',
+            'options.group',
+            'properties.group',
+            'mainCategories.category',
+            'media.media',
+        ];
     }
 
     protected function defineEntityIdField(): IdField

@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\ContentSystem\Adapter\Entity;
 
 use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -50,7 +52,10 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
     }
 
     /**
-     * Returns the entity type name for exception messages and logging.
+     * Returns the entity type name used as primary identifier for
+     * field derivation, routing, data requirements, and resolution.
+     *
+     * @return non-empty-string
      */
     abstract public function getContentLayoutEntityType(): string;
 
@@ -82,7 +87,16 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
      *
      * @return array<DataRequirement>
      */
-    abstract public function getPageDataRequirements(SalesChannelContext $context): array;
+    public function getPageDataRequirements(SalesChannelContext $context): array
+    {
+        return [
+            new DataRequirement(
+                $this->getContentLayoutEntityType(),
+                EntityLoader::SOURCE,
+                new EntityLoaderConfig($this->getContentLayoutEntityType(), $this->getContentLayoutEntityIdField(), $this->getEntityAssociations())
+            ),
+        ];
+    }
 
     /**
      * Added to cache context at start of rendering for invalidation
@@ -91,6 +105,16 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
      * @return list<string>
      */
     abstract public function getCacheTags(string $entityId): array;
+
+    /**
+     * Returns entity associations to eager-load with the page entity.
+     *
+     * @return list<non-empty-string>
+     */
+    protected function getEntityAssociations(): array
+    {
+        return [];
+    }
 
     /**
      * Returns the entity-specific ID field (e.g., product_id, category_id).

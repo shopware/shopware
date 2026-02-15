@@ -105,6 +105,9 @@
                 "messenger": {
                     "$ref": "#/definitions/messenger"
                 },
+                "scheduled_task": {
+                    "$ref": "#/definitions/scheduled_task"
+                },
                 "redis": {
                     "$ref": "#/definitions/redis"
                 },
@@ -373,6 +376,27 @@
                             "default": 12
                         }
                     }
+                }
+            }
+        },
+        "scheduled_task": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "maintenance_window_start": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 0,
+                    "maximum": 23,
+                    "title": "Defines the start of the maintenance window in hours (0-23) at which maintenance scheduled tasks will be scheduled",
+                    "description": "The maintenance window is used to schedule maintenance tasks such as database cleanup or log pruning during off-peak hours."
+                },
+                "maintenance_scheduled_tasks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "List of maintenance scheduled tasks that are scheduled in the maintenance window"
                 }
             }
         },

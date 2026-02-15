@@ -25,11 +25,13 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $exceptionLogger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly Connection $connection,
         private readonly FilesystemOperator $themeFileSystem,
         private readonly AbstractThemePathBuilder $themePathBuilder,
     ) {
-        parent::__construct($scheduledTaskRepository, $exceptionLogger);
+        parent::__construct($scheduledTaskRepository, $exceptionLogger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

@@ -23,6 +23,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $handler = new InvalidateCacheTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $cacheInvalidator
         );
         $handler->run();
@@ -36,6 +38,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $handler = new InvalidateCacheTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $cacheInvalidator
         );
         $handler->run();
@@ -51,6 +55,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $handler = new InvalidateCacheTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $cacheInvalidator
         );
         $handler->run();

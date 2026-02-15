@@ -22,10 +22,12 @@ final class DummyScheduledTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly string $taskId,
         private readonly bool $shouldThrowException = false
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

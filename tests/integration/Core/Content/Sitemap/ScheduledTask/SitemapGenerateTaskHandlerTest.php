@@ -56,6 +56,8 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $this->sitemapHandler = new SitemapGenerateTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $this->salesChannelRepository,
             static::getContainer()->get(SystemConfigService::class),
             $this->messageBusMock,

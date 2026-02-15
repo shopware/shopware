@@ -24,6 +24,8 @@ class CleanupWebhookEventLogTaskHandlerTest extends TestCase
         $handler = new CleanupWebhookEventLogTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $cleaner
         );
 

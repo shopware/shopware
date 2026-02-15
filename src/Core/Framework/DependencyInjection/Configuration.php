@@ -50,6 +50,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createStagingNode())
                 ->append($this->createSystemConfigNode())
                 ->append($this->createMessengerSection())
+                ->append($this->createScheduledTaskSection())
                 ->append($this->createSearchSection())
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
@@ -1094,6 +1095,20 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('enabled')->defaultTrue()->end()
                         ->integerNode('time_span')->defaultValue(300)->end()
                     ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createScheduledTaskSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('scheduled_task');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->integerNode('maintenance_window_start')->defaultValue(1)->min(0)->max(23)->end()
+            ->arrayNode('maintenance_scheduled_tasks')->prototype('scalar')->end()->end()
             ->end();
 
         return $rootNode;

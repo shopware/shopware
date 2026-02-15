@@ -159,6 +159,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return new ProductExportGenerateTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             static::getContainer()->get(Connection::class),
             static::getContainer()->get('messenger.default_bus')
         );

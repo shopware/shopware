@@ -101,6 +101,8 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
         $handler = new DeleteThemeFilesTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $connection,
             $themeFileSystem,
             $themePathBuilder

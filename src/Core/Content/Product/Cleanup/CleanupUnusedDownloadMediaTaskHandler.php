@@ -24,9 +24,11 @@ final class CleanupUnusedDownloadMediaTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly UnusedMediaPurger $unusedMediaPurger
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

@@ -14,10 +14,13 @@ abstract class ScheduledTaskHandler
 {
     /**
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
+     * @param array<string> $maintenanceScheduledTasks
      */
     public function __construct(
         protected EntityRepository $scheduledTaskRepository,
         protected readonly LoggerInterface $exceptionLogger,
+        protected readonly int $maintenanceWindowStart,
+        protected readonly array $maintenanceScheduledTasks
     ) {
     }
 
@@ -100,6 +103,10 @@ abstract class ScheduledTaskHandler
             $newNextExecutionTime = $now;
         }
 
+        if (\in_array($task::class, $this->maintenanceScheduledTasks, true)) {
+            $newNextExecutionTime = $this->getNextMaintenanceWindowStart();
+        }
+
         $this->scheduledTaskRepository->update([
             [
                 'id' => $task->getTaskId(),
@@ -108,5 +115,17 @@ abstract class ScheduledTaskHandler
                 'nextExecutionTime' => $newNextExecutionTime,
             ],
         ], Context::createCLIContext());
+    }
+
+    private function getNextMaintenanceWindowStart(): \DateTimeImmutable
+    {
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $nextWindowTime = $now->setTime($this->maintenanceWindowStart, 0);
+
+        if ($nextWindowTime <= $now) {
+            $nextWindowTime = $nextWindowTime->modify('+1 day');
+        }
+
+        return $nextWindowTime;
     }
 }

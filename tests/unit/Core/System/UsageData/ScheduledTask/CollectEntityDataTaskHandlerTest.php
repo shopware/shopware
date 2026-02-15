@@ -31,6 +31,8 @@ class CollectEntityDataTaskHandlerTest extends TestCase
         $taskHandler = new CollectEntityDataTaskHandler(
             $repository,
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $entityDispatchService
         );
 

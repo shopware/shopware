@@ -70,7 +70,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, 1, [], $taskId);
         $handler($task);
 
         static::assertTrue($handler->wasCalled());
@@ -123,7 +123,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, 1, [], $taskId);
         $handler($task);
         $nowTime = new \DateTime();
 
@@ -161,7 +161,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, 1, [], $taskId, true);
 
         $exception = null;
 
@@ -203,7 +203,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         $this->logger->expects($this->once())->method('error');
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, 1, [], $taskId, true);
 
         $exception = null;
 
@@ -227,7 +227,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, 1, [], $taskId);
         $handler($task);
 
         static::assertFalse($handler->wasCalled());
@@ -254,7 +254,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, 1, [], $taskId);
         $handler($task);
 
         static::assertFalse($handler->wasCalled());
@@ -262,6 +262,103 @@ class ScheduledTaskHandlerTest extends TestCase
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
         static::assertSame($status, $task->getStatus());
+    }
+
+    public function testHandleReschedulesMaintenanceTaskToNextMaintenanceWindow(): void
+    {
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
+
+        $taskId = Uuid::randomHex();
+        $originalNextExecution = (new \DateTime())->modify('-10 seconds');
+        $interval = 300;
+        $maintenanceWindowStart = 3;
+
+        $this->scheduledTaskRepo->create([
+            [
+                'id' => $taskId,
+                'name' => 'test',
+                'scheduledTaskClass' => TestTask::class,
+                'runInterval' => $interval,
+                'defaultRunInterval' => $interval,
+                'status' => ScheduledTaskDefinition::STATUS_QUEUED,
+                'nextExecutionTime' => $originalNextExecution,
+            ],
+        ], Context::createDefaultContext());
+
+        $task = new TestTask();
+        $task->setTaskId($taskId);
+
+        $handler = new DummyScheduledTaskHandler(
+            $this->scheduledTaskRepo,
+            $this->logger,
+            $maintenanceWindowStart,
+            [TestTask::class],
+            $taskId
+        );
+        $handler($task);
+
+        static::assertTrue($handler->wasCalled());
+
+        /** @var ScheduledTaskEntity $task */
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $expectedNextExecution = $now->setTime($maintenanceWindowStart, 0);
+        if ($expectedNextExecution <= $now) {
+            $expectedNextExecution = $expectedNextExecution->modify('+1 day');
+        }
+
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+        static::assertSame(
+            $expectedNextExecution->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $task->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
+    }
+
+    public function testHandleDoesNotUseMaintenanceWindowForNonMaintenanceTasks(): void
+    {
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
+
+        $taskId = Uuid::randomHex();
+        $originalNextExecution = (new \DateTime())->modify('-10 seconds');
+        $interval = 300;
+
+        $this->scheduledTaskRepo->create([
+            [
+                'id' => $taskId,
+                'name' => 'test',
+                'scheduledTaskClass' => TestTask::class,
+                'runInterval' => $interval,
+                'defaultRunInterval' => $interval,
+                'status' => ScheduledTaskDefinition::STATUS_QUEUED,
+                'nextExecutionTime' => $originalNextExecution,
+            ],
+        ], Context::createDefaultContext());
+
+        $task = new TestTask();
+        $task->setTaskId($taskId);
+
+        $handler = new DummyScheduledTaskHandler(
+            $this->scheduledTaskRepo,
+            $this->logger,
+            3,
+            [],
+            $taskId
+        );
+        $handler($task);
+
+        static::assertTrue($handler->wasCalled());
+
+        /** @var ScheduledTaskEntity $task */
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+
+        $newOriginalNextExecution = clone $originalNextExecution;
+        $newOriginalNextExecution->modify(\sprintf('+%d seconds', $interval));
+        $newOriginalNextExecutionString = $newOriginalNextExecution->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $nextExecutionTimeString = $task->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+        static::assertSame($newOriginalNextExecutionString, $nextExecutionTimeString);
     }
 
     /**

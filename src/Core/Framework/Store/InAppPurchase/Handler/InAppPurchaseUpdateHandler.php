@@ -23,9 +23,11 @@ final class InAppPurchaseUpdateHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly InAppPurchaseUpdater $iapUpdater
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

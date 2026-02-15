@@ -27,6 +27,8 @@ class CleanupCartTaskHandlerTest extends TestCase
         $handler = new CleanupCartTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $cartPersister,
             30
         );

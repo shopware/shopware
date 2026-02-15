@@ -405,6 +405,8 @@
         <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument>%shopware.scheduled_task.maintenance_window_start%</argument>
+            <argument>%shopware.scheduled_task.maintenance_scheduled_tasks%</argument>
             <argument type="service" id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService" />
 
             <tag name="messenger.message_handler" />

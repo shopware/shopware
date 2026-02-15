@@ -50,6 +50,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $productExportGenerateTaskHandler = new ProductExportGenerateTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $connection,
             $messageBusMock
         );

@@ -27,9 +27,11 @@ final class CleanupCorruptedMediaHandler extends ScheduledTaskHandler
     public function __construct(
         protected EntityRepository $scheduledTaskRepository,
         protected readonly LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly EntityRepository $mediaRepository
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

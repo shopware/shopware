@@ -26,10 +26,12 @@ final class CleanupVersionTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly Connection $connection,
         private readonly int $days
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

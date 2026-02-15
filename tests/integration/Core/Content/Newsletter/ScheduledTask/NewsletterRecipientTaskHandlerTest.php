@@ -84,6 +84,8 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         return new NewsletterRecipientTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             static::getContainer()->get('newsletter_recipient.repository')
         );
     }

@@ -63,6 +63,8 @@
         <service id="Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument>%shopware.scheduled_task.maintenance_window_start%</argument>
+            <argument>%shopware.scheduled_task.maintenance_scheduled_tasks%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="string">%product_export.stale_min_seconds%</argument>

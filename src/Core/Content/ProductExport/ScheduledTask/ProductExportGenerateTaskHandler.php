@@ -29,12 +29,14 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly Connection $connection,
         private readonly MessageBusInterface $messageBus,
         private readonly int $staleMinSeconds = 300,
         private readonly float $staleIntervalFactor = 2.0
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

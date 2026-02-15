@@ -307,6 +307,8 @@
         <service id="Shopware\Core\Framework\App\ScheduledTask\UpdateAppsHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument>%shopware.scheduled_task.maintenance_window_start%</argument>
+            <argument>%shopware.scheduled_task.maintenance_scheduled_tasks%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater" on-invalid="null"/>
             <tag name="messenger.message_handler"/>
         </service>
@@ -318,6 +320,8 @@
         <service id="Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument>%shopware.scheduled_task.maintenance_window_start%</argument>
+            <argument>%shopware.scheduled_task.maintenance_scheduled_tasks%</argument>
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="integration.repository"/>
             <tag name="messenger.message_handler"/>

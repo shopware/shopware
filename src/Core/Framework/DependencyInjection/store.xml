@@ -266,6 +266,8 @@
         <service id="Shopware\Core\Framework\Store\InAppPurchase\Handler\InAppPurchaseUpdateHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument>%shopware.scheduled_task.maintenance_window_start%</argument>
+            <argument>%shopware.scheduled_task.maintenance_scheduled_tasks%</argument>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
 

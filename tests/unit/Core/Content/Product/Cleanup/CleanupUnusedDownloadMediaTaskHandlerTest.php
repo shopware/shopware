@@ -28,6 +28,8 @@ class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
         $this->handler = new CleanupUnusedDownloadMediaTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $this->purger
         );
     }

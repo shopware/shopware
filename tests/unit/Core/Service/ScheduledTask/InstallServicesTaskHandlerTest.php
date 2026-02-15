@@ -24,6 +24,8 @@ class InstallServicesTaskHandlerTest extends TestCase
         $handler = new InstallServicesTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $manager,
         );
 

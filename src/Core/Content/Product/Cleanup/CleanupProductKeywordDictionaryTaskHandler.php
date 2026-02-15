@@ -26,9 +26,11 @@ final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHand
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly Connection $connection
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

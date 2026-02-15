@@ -38,6 +38,8 @@
         <service id="Shopware\Core\Content\ProductStream\ScheduledTask\UpdateProductStreamMappingTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument>%shopware.scheduled_task.maintenance_window_start%</argument>
+            <argument>%shopware.scheduled_task.maintenance_scheduled_tasks%</argument>
             <argument type="service" id="product_stream.repository"/>
             <tag name="messenger.message_handler"/>
         </service>

@@ -584,6 +584,10 @@ shopware:
     feature_toggle:
         enable: true
 
+    scheduled_task:
+        maintenance_window_start: 1
+        maintenance_scheduled_tasks: []
+
     search:
         term_max_length: 300
         # special chars that will not be removed on tokenizing

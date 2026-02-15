@@ -32,13 +32,15 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly Client $client,
         private readonly Connection $connection,
         private readonly ElasticsearchHelper $elasticsearchHelper,
         private readonly array $config,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

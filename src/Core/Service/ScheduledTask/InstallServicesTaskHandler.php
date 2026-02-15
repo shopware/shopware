@@ -24,9 +24,11 @@ final class InstallServicesTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly LifecycleManager $manager,
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

@@ -23,9 +23,11 @@ final class CollectEntityDataTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        int $maintenanceWindowStart,
+        array $maintenanceScheduledTasks,
         private readonly EntityDispatchService $entityDispatchService,
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $maintenanceWindowStart, $maintenanceScheduledTasks);
     }
 
     public function run(): void

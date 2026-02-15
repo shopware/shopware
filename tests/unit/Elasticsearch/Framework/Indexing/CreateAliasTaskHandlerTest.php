@@ -36,6 +36,8 @@ class CreateAliasTaskHandlerTest extends TestCase
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $this->createMock(Client::class),
             $connection,
             $elasticsearchHelper,
@@ -60,6 +62,8 @@ class CreateAliasTaskHandlerTest extends TestCase
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
@@ -134,6 +138,8 @@ class CreateAliasTaskHandlerTest extends TestCase
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
@@ -208,6 +214,8 @@ class CreateAliasTaskHandlerTest extends TestCase
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            1,
+            [],
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),

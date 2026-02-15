@@ -78,6 +78,6 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
 
     private function createHandler(): CleanupCorruptedMediaHandler
     {
-        return new CleanupCorruptedMediaHandler($this->scheduledTaskRepository, $this->logger, $this->mediaRepository);
+        return new CleanupCorruptedMediaHandler($this->scheduledTaskRepository, $this->logger, 1, [], $this->mediaRepository);
     }
 }

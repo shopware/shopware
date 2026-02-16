@@ -390,13 +390,14 @@ export default {
             this.showModal = false;
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showModal = false;
             if (this.currentStateType === 'orderTransactionState') {
                 this.orderStateMachineService
                     .transitionOrderTransactionState(this.transaction.id, this.currentActionName, {
                         documentIds: docIds,
                         sendMail,
+                        internalComment,
                     })
                     .then(() => {
                         this.$emit('order-state-change');
@@ -407,7 +408,11 @@ export default {
                     });
             } else if (this.currentStateType === 'orderState') {
                 this.orderStateMachineService
-                    .transitionOrderState(this.order.id, this.currentActionName, { documentIds: docIds, sendMail })
+                    .transitionOrderState(this.order.id, this.currentActionName, {
+                        documentIds: docIds,
+                        sendMail,
+                        internalComment,
+                    })
                     .then(() => {
                         this.$emit('order-state-change');
                         this.loadHistory();
@@ -420,6 +425,7 @@ export default {
                     .transitionOrderDeliveryState(this.delivery.id, this.currentActionName, {
                         documentIds: docIds,
                         sendMail,
+                        internalComment,
                     })
                     .then(() => {
                         this.$emit('order-state-change');

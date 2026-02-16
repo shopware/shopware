@@ -94,14 +94,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order',
                 $orderId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );
@@ -128,14 +130,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order_transaction',
                 $orderTransactionId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );
@@ -162,14 +166,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order_delivery',
                 $orderDeliveryId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );

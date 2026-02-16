@@ -125,6 +125,7 @@ async function createWrapper() {
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-loader': true,
+                'mt-icon': true,
             },
         },
     });

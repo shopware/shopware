@@ -294,6 +294,9 @@
           "label": "Ändern: Bestellstatus",
           "placeholder": "Bestellstatus auswählen ..."
         },
+        "transitionInternalComment": {
+          "label": "Interner Kommentar zur Statusänderung"
+        },
         "statusMails": {
           "label": "Versende: Status-E-Mails",
           "helpText": "Diese Option ist verfügbar, sobald mindestens ein Statuswechsel erfolgt ist."

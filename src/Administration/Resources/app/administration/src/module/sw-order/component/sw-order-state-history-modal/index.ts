@@ -1,3 +1,4 @@
+import './sw-order-state-history-modal.scss';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
@@ -23,6 +24,7 @@ interface StateMachineHistoryData {
     };
     entity: string;
     referencedId?: string;
+    internalComment?: string;
 }
 
 interface CombinedStates {
@@ -141,6 +143,10 @@ export default Component.wrapComponentConfig({
                 {
                     property: 'order',
                     label: this.$tc('sw-order.stateHistoryModal.column.order'),
+                },
+                {
+                    property: 'internalComment',
+                    label: this.$tc('sw-order.stateHistoryModal.column.internalComment'),
                 },
             ];
         },
@@ -284,6 +290,7 @@ export default Component.wrapComponentConfig({
                 integration: 'integration' in entry ? entry.integration : undefined,
                 entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
                 referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
+                internalComment: 'internalComment' in entry ? entry.internalComment : undefined,
             };
         },
 

@@ -294,6 +294,9 @@
           "label": "Change: Order status",
           "placeholder": "Select order status..."
         },
+        "transitionInternalComment": {
+          "label": "Internal comment on status change"
+        },
         "statusMails": {
           "label": "Send: Status emails",
           "helpText": "Available only if status has been changed."

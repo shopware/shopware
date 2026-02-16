@@ -70,7 +70,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (!\count($rules)) {
+        if ($rules === []) {
             return;
         }
 

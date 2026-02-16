@@ -184,27 +184,13 @@ export default class VariantSwitchPlugin extends Plugin {
     _redirectToVariant(data) {
         PageLoadingIndicatorUtil.create();
 
-        let baseUrl = this.options.url;
-
-        if (window.isHotMode) {
-            baseUrl = this._createHotModeUrl(this.options.url);
-        }
-
-        const url = `${baseUrl}?${new URLSearchParams(data).toString()}`;
+        const url = `${this.options.url}?${new URLSearchParams(data).toString()}`;
 
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => response.json())
-            .then(data => {
-                let redirectUrl = data.url;
-
-                if (window.isHotMode) {
-                    redirectUrl = this._createHotModeUrl(data.url);
-                }
-
-                window.location.replace(redirectUrl);
-            });
+            .then(data => window.location.replace(data.url));
     }
 
     /**
@@ -220,23 +206,5 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _resumeFocusState() {
         window.focusHandler.resumeFocusStatePersistent(this.options.focusHandlerKey);
-    }
-
-    /**
-     * Creates an URL that uses
-     * the hot reload proxy port
-     *
-     * @param {string} url
-     * @returns {string}
-     * @private
-     */
-    _createHotModeUrl(url) {
-        const {
-            protocol,
-            hostname,
-            pathname,
-        } = new URL(url);
-
-        return `${protocol}//${hostname}:${window.proxyPort}${pathname}`;
     }
 }

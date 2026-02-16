@@ -626,10 +626,6 @@ frame-ancestors 'none';
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Util\Database\TableHelperResetter">
-            <tag name="kernel.reset" method="reset"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
             <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
             <argument>%shopware.logger.exclude_exception%</argument>
@@ -713,5 +709,8 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Util\Backtrace\BacktraceCollector"/>
 
+        <service id="Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor">
+            <tag name="container.env_var_processor"/>
+        </service>
     </services>
 </container>

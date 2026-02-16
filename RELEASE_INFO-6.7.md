@@ -151,6 +151,19 @@ Custom headers defined in app flow action configurations are now correctly sent 
 
 ## Hosting & Configuration
 
+### Deprecated HTTP cache reverse proxy configuration
+
+The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:
+
+- `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+- `shopware.http_cache.reverse_proxy.ban_method`
+- `shopware.http_cache.reverse_proxy.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_method`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
+  - `shopware.http_cache.reverse_proxy.purge_all.urls`
+
+If you are currently using any of these options, you can safely remove them from your configuration.
 ### Configurable Elasticsearch shard and replica counts
 
 The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.

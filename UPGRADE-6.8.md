@@ -1089,6 +1089,19 @@ With this change, Cache-Control headers defined by cache policies are sent direc
 - Client-side caching (browser cache) now respects your configured policies.
 - Ensure your cache policies are configured appropriately for client exposure: unlike reverse proxies that use tag-based invalidation, browser caches cannot be invalidated on-demand.
 
+### Removed HTTP cache reverse proxy configuration options
+
+The following HTTP cache reverse proxy configuration options have been removed as they had no effect anymore:
+
+- `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+- `shopware.http_cache.reverse_proxy.ban_method`
+- `shopware.http_cache.reverse_proxy.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all.ban_method`
+- `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all.urls`
+
+If you are still using any of these options in your configuration, you can safely remove them.
+
 ## Dropped support for OpenSearch 1.x
 
 OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported.

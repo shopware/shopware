@@ -68,7 +68,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
 
         $theme = $this->salesChannelThemeLoader?->load($context->getSalesChannelId());
 
-        if (!empty($theme) && isset($theme[0])) {
+        if ($theme !== null && $theme !== [] && isset($theme[0])) {
             $themes[$theme[0]] = true;
         }
 
@@ -79,7 +79,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array
     {
-        if (empty($this->themes)) {
+        if ($this->themes === []) {
             return $namespaceHierarchy;
         }
 

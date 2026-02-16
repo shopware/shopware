@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<array{status: string}>>
+ * @extends StoreApiResponse<ArrayStruct<array{status: string, success: bool}>>
  */
 #[Package('after-sales')]
 class NewsletterSubscribeRouteResponse extends StoreApiResponse
@@ -16,6 +16,7 @@ class NewsletterSubscribeRouteResponse extends StoreApiResponse
     {
         parent::__construct(new ArrayStruct([
             'status' => $status,
+            'success' => true,
         ], 'newsletter_subscribe'));
     }
 

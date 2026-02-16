@@ -20,11 +20,11 @@ The new methods currently return `StoreApiResponse` in the abstract classes. In 
 
 The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
 
-| Route | Response |
-|-------|----------|
-| `/store-api/newsletter/subscribe` | `{"status": "notSet\|optIn\|optOut\|direct"}` |
-| `/store-api/newsletter/confirm` | `{"success": true}` |
-| `/store-api/newsletter/unsubscribe` | `{"success": true}` |
+| Route | Response                                                       |
+|-------|----------------------------------------------------------------|
+| `/store-api/newsletter/subscribe` | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
+| `/store-api/newsletter/confirm` | `{"success": true}`                                            |
+| `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
 
 ## Core
 

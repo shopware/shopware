@@ -36,7 +36,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The newsletter confirmation was successful."
+                        "description": "The newsletter confirmation was successful.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
                     },
                     "400": {
                       "$ref": "#/components/responses/400"
@@ -130,8 +137,12 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "required": ["status"],
+                                    "required": ["success","status"],
                                     "properties": {
+                                        "success": {
+                                          "description": "Indicates whether the subscribe request was successful.",
+                                          "type": "boolean"
+                                        },
                                         "status": {
                                             "description": "The subscription status.",
                                             "type": "string",
@@ -183,7 +194,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Unsubscribing was successful."
+                        "description": "Unsubscribing was successful.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "$ref": "#/components/responses/400"

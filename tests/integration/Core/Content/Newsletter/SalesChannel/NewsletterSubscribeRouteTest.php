@@ -590,6 +590,8 @@ class NewsletterSubscribeRouteTest extends TestCase
 
             static::assertArrayHasKey('status', $responseBody);
             static::assertSame($expectedStatus, $responseBody['status']);
+            static::assertArrayHasKey('success', $responseBody);
+            static::assertTrue($responseBody['success']);
         }
     }
 }

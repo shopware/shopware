@@ -77,7 +77,7 @@ class IdleFeatureFlagTest extends TestCase
             preg_match_all($regex, $contents, $keys);
             $availableFlag = array_unique($keys[0]);
 
-            if (!empty($availableFlag)) {
+            if ($availableFlag !== []) {
                 foreach ($availableFlag as $flag) {
                     if (\in_array($flag, self::EXCLUDE_BY_FLAG, true)) {
                         continue;

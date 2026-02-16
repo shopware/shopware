@@ -735,7 +735,7 @@ class ProductSubscriberTest extends TestCase
     ): void {
         $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
 
-        if (!empty($expectedConversions)) {
+        if ($expectedConversions !== []) {
             $measurementUnitConverter->expects($this->exactly(\count($expectedConversions)))
                 ->method('convert')
                 ->willReturn(new ConvertedUnit(2.0, 'm'));
@@ -773,7 +773,7 @@ class ProductSubscriberTest extends TestCase
                 return $hasFieldReturns[$field] ?? false;
             });
 
-        if (!empty($expectedConversions)) {
+        if ($expectedConversions !== []) {
             $command->expects($this->exactly(\count($expectedConversions)))
                 ->method('addPayload');
         } else {

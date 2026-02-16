@@ -392,6 +392,8 @@
       "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
       "generatedListMessageDeleteErrorCanonicalUrl": "Die Variante konnte nicht gelöscht werden, da sie als Canonical-URL-Template dient.",
       "generatedListMessageDeleteSuccess": "Die Variante wurde gelöscht.",
+      "generatedListMessageDeleteError": "Ein unerwarteter Fehler ist aufgetreten. Bitte aktualisieren Sie die Seite, um es erneut zu versuchen.",
+      "generatedListMessageGenerateError": "Ein unerwarteter Fehler ist aufgetreten. Bitte aktualisieren Sie die Seite, um es erneut zu versuchen.",
       "overview": {
         "filterReset": "Zurücksetzen",
         "filter": "Filtern",

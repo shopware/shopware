@@ -392,6 +392,8 @@
       "generatedListMessageSaveError": "Variant could not be saved.",
       "generatedListMessageDeleteErrorCanonicalUrl": "Variant could not be deleted because it is being used as the canonical url template.",
       "generatedListMessageDeleteSuccess": "Variant has been deleted.",
+      "generatedListMessageDeleteError": "An unexpected error occurred. Please refresh the page to try again.",
+      "generatedListMessageGenerateError": "An unexpected error occurred. Please refresh the page to try again.",
       "overview": {
         "filterReset": "Reset",
         "filter": "Filter",

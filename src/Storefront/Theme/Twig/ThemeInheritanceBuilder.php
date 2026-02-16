@@ -111,7 +111,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
         $inheritance = $runtimeConfig->viewInheritance;
 
-        if (empty($inheritance)) {
+        if ($inheritance === []) {
             return $default;
         }
 

@@ -328,6 +328,7 @@
     },
     "stateCard": {
       "cardTitle": "Statusverlauf",
+      "cartTitleChangeState": "Status ändern",
       "headlineOrderState": "Bestellstatus",
       "headlineTransactionState": "Zahlungsstatus",
       "headlineDeliveryState": "Lieferstatus",
@@ -337,6 +338,7 @@
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
+      "labelInternalComment": "Interner Kommentar",
       "labelSelectStateButton": "Status aktualisieren",
       "labelSendMailSwitch": "E-Mail an Kunden senden",
       "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
@@ -469,7 +471,8 @@
         "user": "Geändert von",
         "transaction": "Zahlung",
         "delivery": "Versand",
-        "order": "Bestellung"
+        "order": "Bestellung",
+        "internalComment": "Interner Kommentar"
       }
     },
     "newCustomerModal": {

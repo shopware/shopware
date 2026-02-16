@@ -160,6 +160,7 @@ class StateMachineRegistry implements ResetInterface
                 'integrationId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getIntegrationId() : null,
                 'referencedId' => $transition->getEntityId(),
                 'referencedVersionId' => $context->getVersionId(),
+                'internalComment' => $transition->getInternalComment(),
             ];
 
             $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
@@ -174,7 +175,8 @@ class StateMachineRegistry implements ResetInterface
                     $transition->getEntityId(),
                     $fromPlace,
                     $toPlace,
-                    $context
+                    $context,
+                    $transition->getInternalComment(),
                 )
             );
 

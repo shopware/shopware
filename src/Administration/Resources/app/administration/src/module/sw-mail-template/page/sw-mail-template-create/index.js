@@ -30,6 +30,7 @@ export default {
             }
 
             this.mailTemplateId = this.mailTemplate.id;
+            this.loadTriggerEvents();
         },
 
         saveFinish() {

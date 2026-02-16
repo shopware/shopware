@@ -29,7 +29,8 @@
       "warning": {
         "levelName": "Warning",
         "complexElement": "Complex element found: \"{variable}\". Verify output manually."
-      }
+      },
+      "hint": "{field} | Line {line} / {field}"
     },
     "list": {
       "textMailTemplateOverview": "Email templates",

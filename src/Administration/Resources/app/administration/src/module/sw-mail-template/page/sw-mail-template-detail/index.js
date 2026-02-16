@@ -2,7 +2,7 @@ import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Mixin, Context} = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { camelCase } = Shopware.Utils.string;
@@ -238,29 +238,16 @@ export default {
                 path: 'testerMail',
                 scope: this,
             });
+
             if (this.$route.params.id) {
                 this.mailTemplateId = this.$route.params.id.toLowerCase();
                 this.loadEntityData();
             }
-            this.businessEventService.getBusinessEvents().then(events => {
-                this.triggerEvents = events
-                    .filter(event => event.aware.includes("mailAware"))
-                    .map(event => ({
-                    ...event,
-                    label: event.name.split('.').map(eventName => this.getEventNameTranslated(eventName)).join(' / '),
-                    data: {
-                        ...event.data,
-                        'salesChannel': {
-                            nullable: true,
-                            type: 'entity',
-                            entityName: 'sales_channel',
-                        },
-                    },
-                }));
-            });
+
+            this.loadTriggerEvents();
         },
 
-        getEventNameTranslated(eventName) {
+        getTriggerEventNameTranslated(eventName) {
             const eventNameCamelCase = camelCase(eventName);
             const translatedEventName = [
                 `sw-flow-app.triggers-app.${eventNameCamelCase}`,
@@ -269,6 +256,28 @@ export default {
             ].find((key) => this.$te(key));
 
             return translatedEventName ? this.$t(translatedEventName) : eventName.replace(/_|-/g, ' ');
+        },
+
+        loadTriggerEvents() {
+            this.businessEventService.getBusinessEvents().then((events) => {
+                this.triggerEvents = events
+                    .filter((event) => event.aware.includes('mailAware'))
+                    .map((event) => ({
+                        ...event,
+                        label: event.name
+                            .split('.')
+                            .map((eventName) => this.getTriggerEventNameTranslated(eventName))
+                            .join(' / '),
+                        data: {
+                            ...event.data,
+                            salesChannel: {
+                                nullable: true,
+                                type: 'entity',
+                                entityName: 'sales_channel',
+                            },
+                        },
+                    }));
+            });
         },
 
         loadEntityData() {
@@ -433,32 +442,33 @@ export default {
         },
 
         onClickValidateMailTemplate() {
-            this.mailService.validateMailTemplate(
-                this.triggerEvent.class,
-                {
+            this.mailService
+                .validateMailTemplate(this.triggerEvent.class, {
                     subject: this.mailTemplate.subject,
                     senderName: this.mailTemplate.senderName,
                     contentHtml: this.mailTemplate.contentHtml,
                     contentPlain: this.mailTemplate.contentPlain,
-                },
-            ).then((response) => {
-                this.validationErrors = [
-                    ...response.subject.map(e => this.translateValidationError(e, 'subject')),
-                    ...response.senderName.map(e => this.translateValidationError(e, 'senderName')),
-                    ...response.contentPlain.map(e => this.translateValidationError(e, 'contentPlain')),
-                    ...response.contentHtml.map(e => this.translateValidationError(e, 'contentHtml')),
-                ].sort((a, b) => {
-                    if (a.level === b.level) {
-                        return 0;
-                    }
-                    if (a.level === 'error') {
-                        return -1;
-                    }
-                    return 1;
+                })
+                .then((response) => {
+                    this.validationErrors = [];
+
+                    Object.entries(response).forEach(entry => {
+                        const field = entry[0];
+                        const validationErrors = entry[1];
+
+                        this.validationErrors = [
+                            ...this.validationErrors,
+                            ...validationErrors.map((e) => this.translateValidationError(e, field)),
+                        ];
+                    });
+
+                    this.validationErrors = this.validationErrors.sort((a, b) => {
+                        return (a.level === 'error' ? 1 : 0) - (b.level === 'error' ? 1 : 0);
+                    });
+                })
+                .catch((exception) => {
+                    this.createNotificationError(exception.message);
                 });
-            }).catch((exception) => {
-                this.createNotificationError(exception.message);
-            });
         },
 
         translateValidationError(validationError, field) {
@@ -479,35 +489,34 @@ export default {
                     break;
             }
 
-            let message;
+            const content = {};
             switch (validationError.type) {
                 case 'arrayAccess':
                 case 'unknownVariable':
                 case 'complexElement':
-                    message = {'variable': validationError.variable};
+                    content.variable = validationError.variable;
                     break;
                 case 'syntax':
-                    message = {'message': validationError.message};
+                    content.message = validationError.message;
                     break;
                 default:
-                    message = {};
+                    break;
             }
 
             return {
                 level: validationError.level,
-                message: this.$t(
-                    `sw-mail-template.validation.${validationError.level}.${validationError.type}`,
-                    message,
-                    message.path ? 2 : 1,
+                message: this.$t(`sw-mail-template.validation.${validationError.level}.${validationError.type}`, content),
+                hint: this.$t(
+                    'sw-mail-template.validation.hint',
+                    { line: validationError.line, field: this.$t(`sw-mail-template.detail.${field}`) },
+                    validationError.line === 0 ? 1 : 2,
                 ),
-                hint: (validationError.line > 0 ? `Line ${validationError.line} / ` : "")
-                    + this.$t(`sw-mail-template.detail.${field}`),
                 name: this.$t(`sw-mail-template.validation.${validationError.level}.levelName`),
             };
         },
 
         onTriggerEventChange(eventName) {
-            this.triggerEvent = this.triggerEvents.find(event => event.name === eventName);
+            this.triggerEvent = this.triggerEvents.find((event) => event.name === eventName);
         },
 
         onClickShowPreview() {
@@ -713,7 +722,7 @@ export default {
             let currentField = null;
             let skip = false;
 
-            variablePathParts.forEach(variablePathPart => {
+            variablePathParts.forEach((variablePathPart) => {
                 if (skip) {
                     return;
                 }
@@ -736,14 +745,23 @@ export default {
             }
 
             if (currentField.type === 'object') {
-                this.addVariables(Object.keys(currentField.data).sort().map(key => ({
-                    id: `${variable}.${key}`,
-                    schema: variableEntitySchema,
-                    name: key,
-                    childCount: (['object', 'entity'].includes(currentField.data[key]) ? 1 : 0),
-                    parentId: variable,
-                    afterId: null,
-                })));
+                this.addVariables(
+                    Object.keys(currentField.data)
+                        .sort()
+                        .map((key) => ({
+                            id: `${variable}.${key}`,
+                            schema: variableEntitySchema,
+                            name: key,
+                            childCount: [
+                                'object',
+                                'entity',
+                            ].includes(currentField.data[key])
+                                ? 1
+                                : 0,
+                            parentId: variable,
+                            afterId: null,
+                        })),
+                );
 
                 return;
             }
@@ -752,20 +770,24 @@ export default {
                 const mapping = [];
                 mapping[currentField.entityName] = currentField.entityName;
 
-                const entityMappingPath = variable.split(entityPath)[1] ?
-                        `${currentField.entityName}.${variable.split(entityPath)[1]}.` : `${currentField.entityName}.`;
+                const entityMappingPath = variable.split(entityPath)[1]
+                    ? `${currentField.entityName}.${variable.split(entityPath)[1]}.`
+                    : `${currentField.entityName}.`;
 
                 const entitySchema = this.entityMappingService.getEntityMapping(entityMappingPath, mapping);
 
-                this.addVariables(Object.keys(entitySchema).sort().map(key => ({
-                    id: `${variable}.${key}`,
-                    schema: variableEntitySchema,
-                    name: key,
-                    childCount: (entitySchema[key].type === 'association' ? 1 : 0),
-                    parentId: variable,
-                    afterId: null,
-                })));
-
+                this.addVariables(
+                    Object.keys(entitySchema)
+                        .sort()
+                        .map((key) => ({
+                            id: `${variable}.${key}`,
+                            schema: variableEntitySchema,
+                            name: key,
+                            childCount: entitySchema[key].type === 'association' ? 1 : 0,
+                            parentId: variable,
+                            afterId: null,
+                        })),
+                );
             }
         },
 
@@ -786,14 +808,23 @@ export default {
                 return;
             }
 
-            this.addVariables(Object.keys(this.triggerEvent.data).sort().map((variable) => ({
-                id: variable,
-                schema: variable,
-                name: variable,
-                childCount: ['entity', 'object'].includes(this.triggerEvent.data[variable].type) ? 1 : 0,
-                parentId: null,
-                afterId: null,
-            })));
+            this.addVariables(
+                Object.keys(this.triggerEvent.data)
+                    .sort()
+                    .map((variable) => ({
+                        id: variable,
+                        schema: variable,
+                        name: variable,
+                        childCount: [
+                            'entity',
+                            'object',
+                        ].includes(this.triggerEvent.data[variable].type)
+                            ? 1
+                            : 0,
+                        parentId: null,
+                        afterId: null,
+                    })),
+            );
         },
     },
 };

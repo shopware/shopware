@@ -133,7 +133,7 @@ async function createWrapper(privileges = []) {
                 },
                 businessEventService: {
                     getBusinessEvents: () => Promise.resolve([]),
-                }
+                },
             },
             mocks: {
                 $route: { params: { id: Shopware.Utils.createId() } },

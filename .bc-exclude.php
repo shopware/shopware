@@ -79,5 +79,7 @@ return [
         'Type of property Shopware\\\\.*\\\\OrderTransactionCaptureEntity#$stateMachineState changed .* to Shopware\\\\.*\\\\StateMachineStateEntity|null',
         'The return type of Shopware\\\\.*\\\\OrderTransactionCaptureEntity#getStateMachineState() changed .* Shopware\\\\.*\\\\StateMachineStateEntity|null',
         'The parameter $stateMachineState of Shopware\\\\.*\\\\OrderTransactionCaptureEntity#setStateMachineState() changed .* Shopware\\\\.*\\\\StateMachineStateEntity|null',
+
+        preg_quote('CHANGED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$internal changed default value from NULL to false', '/'),
     ],
 ];

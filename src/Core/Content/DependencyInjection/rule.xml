@@ -26,9 +26,7 @@
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater"/>
-            <argument type="service" id="Shopware\Core\Framework\Script\Debugging\ScriptTraces"/>
-            <argument>%twig.cache%</argument>
-            <argument>%kernel.debug%</argument>
+            <argument type="service" id="service_container"/>
         </service>
 
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer">

@@ -38,7 +38,7 @@ class Migration1742563555AddNotificationTableTest extends TestCase
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'notification'));
 
-        static::assertCount(9, TableHelper::getTable($this->connection, 'notification')->columnNames);
+        static::assertCount(9, TableHelper::getTable($this->connection, 'notification')->columns);
         $messageColumn = TableHelper::getColumnOfTable($this->connection, 'notification', 'message');
         static::assertSame(Types::TEXT, $messageColumn->type);
     }

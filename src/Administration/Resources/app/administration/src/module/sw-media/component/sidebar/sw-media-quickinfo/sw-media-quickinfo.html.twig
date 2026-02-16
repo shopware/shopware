@@ -268,7 +268,7 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_preview_item %}
-                <template v-if="item.mimeType?.split('/')[0] === 'model'">
+                <template v-if="item.mimeType?.startsWith('model/gltf')">
                     <div class="sw-model-viewer-wrapper">
                         <mt-button
                             v-if="!isLoading"

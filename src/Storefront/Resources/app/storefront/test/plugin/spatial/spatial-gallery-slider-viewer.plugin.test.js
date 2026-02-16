@@ -69,7 +69,7 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
 
         await spatialGallerySliderViewerPlugin.initViewer();
 
-        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement, displayFloor: true });
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement });
 
         expect(spatialGallerySliderViewerPlugin.ready).toBe(true);
 

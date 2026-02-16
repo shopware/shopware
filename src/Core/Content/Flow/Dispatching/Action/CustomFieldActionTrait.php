@@ -60,7 +60,7 @@ trait CustomFieldActionTrait
                 $customFields[$customFieldName] = (array) ($customFields[$customFieldName] ?? []);
                 $addData = array_diff((array) $customFieldValue, $customFields[$customFieldName]);
 
-                if (empty($addData)) {
+                if ($addData === []) {
                     return null;
                 }
 
@@ -75,7 +75,7 @@ trait CustomFieldActionTrait
                 $customFields[$customFieldName] = (array) ($customFields[$customFieldName] ?? []);
                 $removeData = array_intersect($customFields[$customFieldName], (array) $customFieldValue);
 
-                if (empty($removeData)) {
+                if ($removeData === []) {
                     return null;
                 }
 

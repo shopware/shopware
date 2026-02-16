@@ -241,12 +241,12 @@ class CmsSlotsDataResolver
         }
 
         // sortings must be an own search
-        if (\count($criteria->getSorting())) {
+        if ($criteria->getSorting() !== []) {
             return false;
         }
 
         // queries must be an own search
-        if (\count($criteria->getQueries())) {
+        if ($criteria->getQueries() !== []) {
             return false;
         }
 
@@ -264,11 +264,11 @@ class CmsSlotsDataResolver
         );
 
         // any kind of filters must be an own search
-        if (!empty($filters)) {
+        if ($filters !== []) {
             return false;
         }
 
-        if (empty($criteria->getIds())) {
+        if ($criteria->getIds() === []) {
             return false;
         }
 

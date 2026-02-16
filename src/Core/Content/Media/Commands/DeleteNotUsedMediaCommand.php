@@ -185,7 +185,7 @@ class DeleteNotUsedMediaCommand extends Command
 
         $totalCount = 0;
         $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, function ($batchNum, array $medias) use ($io, $cursor, &$totalCount, $input) {
-            if ($batchNum === 0 && \count($medias) === 0) {
+            if ($batchNum === 0 && $medias === []) {
                 return true;
             }
 
@@ -263,7 +263,7 @@ class DeleteNotUsedMediaCommand extends Command
         }
 
         // last remaining batch
-        if (\count($batch) > 0) {
+        if ($batch !== []) {
             return $callback($i++, $batch);
         }
 

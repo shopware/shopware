@@ -80,7 +80,7 @@ class UnusedMediaPurger
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $unusedIds = $this->dispatchEvent($ids);
 
-            if (empty($unusedIds)) {
+            if ($unusedIds === []) {
                 continue;
             }
 
@@ -111,7 +111,7 @@ class UnusedMediaPurger
             $idsToDelete = [...$idsToDelete, ...$idBatch];
         }
 
-        if (!empty($idsToDelete)) {
+        if ($idsToDelete !== []) {
             $this->mediaRepo->delete(
                 array_map(static fn ($id) => ['id' => $id], $idsToDelete),
                 $context
@@ -180,7 +180,7 @@ class UnusedMediaPurger
             return yield $this->dispatchEvent($ids);
         }
 
-        while (!empty($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds())) {
+        while (($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds()) !== []) {
             $unusedIds = $this->dispatchEvent($ids);
 
             yield $unusedIds;

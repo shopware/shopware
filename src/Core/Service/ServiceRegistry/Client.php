@@ -27,6 +27,7 @@ class Client implements ResetInterface
 
     public function __construct(
         string $registryUrl,
+        private readonly string $appUrl,
         private readonly HttpClientInterface $client,
     ) {
         $this->registryUrl = rtrim($registryUrl, '/');
@@ -164,6 +165,7 @@ class Client implements ResetInterface
         try {
             $response = $this->client->request('GET', \sprintf('%s/api/service/', $this->registryUrl), [
                 'headers' => [
+                    'Referer' => $this->appUrl,
                     'Accept' => 'application/json',
                 ],
                 'query' => [

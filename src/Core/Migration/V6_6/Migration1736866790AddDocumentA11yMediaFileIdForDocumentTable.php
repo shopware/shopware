@@ -3,9 +3,9 @@
 namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -27,12 +27,7 @@ class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable extends Migr
             'BINARY(16)',
         );
 
-        $foreignKeys = $connection->createSchemaManager()->introspectTableForeignKeyConstraintsByUnquotedName('document');
-
-        if (\array_filter($foreignKeys, static fn (ForeignKeyConstraint $foreignKey) => $foreignKey->getReferencedTableName()->getUnqualifiedName()->getValue() === 'media'
-            && $foreignKey->getReferencingColumnNames()[0]->getIdentifier()->getValue() === 'document_a11y_media_file_id'
-            && $foreignKey->getReferencedColumnNames()[0]->getIdentifier()->getValue() === 'id')
-        ) {
+        if (TableHelper::foreignKeyExistsByColumns($connection, 'document', ['document_a11y_media_file_id'], 'media', ['id'])) {
             return;
         }
 

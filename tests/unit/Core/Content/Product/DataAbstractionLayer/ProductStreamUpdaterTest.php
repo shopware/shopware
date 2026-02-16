@@ -300,7 +300,7 @@ class ProductStreamUpdaterTest extends TestCase
         $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
 
         $manyToManyFieldUpdater
-            ->expects(empty($manyToManyUpdatedIds) ? $this->never() : $this->once())
+            ->expects($manyToManyUpdatedIds === [] ? $this->never() : $this->once())
             ->method('update')
             ->with($definition->getEntityName(), $manyToManyUpdatedIds, Context::createDefaultContext(), 'streamIds');
 

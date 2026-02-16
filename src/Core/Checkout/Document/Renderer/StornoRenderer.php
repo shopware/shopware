@@ -57,7 +57,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
         $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 
@@ -70,7 +70,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 $orderId = $operation->getOrderId();
                 $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
-                if (empty($invoice)) {
+                if ($invoice === []) {
                     throw DocumentException::generationError('Can not generate cancellation invoice document because no invoice document exists. OrderId: ' . $operation->getOrderId());
                 }
 

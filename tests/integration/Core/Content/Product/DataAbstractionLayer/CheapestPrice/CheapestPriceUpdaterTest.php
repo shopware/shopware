@@ -63,7 +63,8 @@ class CheapestPriceUpdaterTest extends TestCase
 
         static::assertNotEmpty($cheapestPriceRaw, 'Cheapest price should be stored');
 
-        $cheapestPrice = unserialize($cheapestPriceRaw);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $cheapestPrice = \unserialize($cheapestPriceRaw);
         static::assertInstanceOf(CheapestPriceContainer::class, $cheapestPrice);
 
         $context = new Context(

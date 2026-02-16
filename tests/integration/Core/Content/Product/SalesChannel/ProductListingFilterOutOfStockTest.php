@@ -220,7 +220,7 @@ class ProductListingFilterOutOfStockTest extends TestCase
             ],
         ];
 
-        if (!empty($options)) {
+        if ($options !== []) {
             foreach ($options as $index => $option) {
                 $combination = $option['combination'];
 

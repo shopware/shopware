@@ -10,6 +10,7 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
@@ -54,7 +55,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate([]);
@@ -94,7 +96,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createBacktraceCollectorMock('Foo', 'a')
+            $this->createBacktraceCollectorMock('Foo', 'a'),
+            null
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -134,7 +137,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            $this->createBacktraceCollectorMock('Foo', 'a')
+            $this->createBacktraceCollectorMock('Foo', 'a'),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -169,7 +173,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             false,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -197,7 +202,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -228,7 +234,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidateExpired();
@@ -262,6 +269,9 @@ class CacheInvalidatorTest extends TestCase
                 ]
             );
 
+        $reverseProxyGateway = $this->createMock(AbstractReverseProxyGateway::class);
+        $reverseProxyGateway->expects($this->once())->method('flush');
+
         $invalidator = new CacheInvalidator(
             [
                 $tagAwareAdapter,
@@ -274,7 +284,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
+            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
+            $reverseProxyGateway
         );
 
         $invalidator->invalidateExpired();
@@ -312,7 +323,8 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
+            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
+            null
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -349,7 +361,8 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            $this->createBacktraceCollectorMock()
+            $this->createBacktraceCollectorMock(),
+            null
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -374,7 +387,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -414,7 +428,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -452,7 +467,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);

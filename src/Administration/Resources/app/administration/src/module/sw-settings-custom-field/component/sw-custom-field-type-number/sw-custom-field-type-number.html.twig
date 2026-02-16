@@ -18,6 +18,7 @@
     <mt-number-field
         v-model="currentCustomField.config.step"
         :label="$tc('sw-settings-custom-field.customField.detail.labelStep')"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 
@@ -25,6 +26,7 @@
     <mt-number-field
         v-model="currentCustomField.config.min"
         :label="$tc('sw-settings-custom-field.customField.detail.labelMin')"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 
@@ -32,6 +34,7 @@
     <mt-number-field
         v-model="currentCustomField.config.max"
         :label="$tc('sw-settings-custom-field.customField.detail.labelMax')"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 </sw-container>

@@ -101,10 +101,10 @@
                             </div>
                         {% endblock %}
 
+                        {% set offcanvasCartOptions = {
+                            autoFocus: true
+                        } %}
                         {% block layout_header_actions_cart %}
-                            {% set offcanvasCartOptions = {
-                                autoFocus: true
-                            } %}
                             <div class="col-auto">
                                 <div
                                     class="header-cart"

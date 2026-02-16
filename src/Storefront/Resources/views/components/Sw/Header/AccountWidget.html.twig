@@ -1,0 +1,76 @@
+{# TODO: Guest support #}
+{% props
+    isCustomer = context.customer,
+    isGuest = context.customer.guest,
+    loginRoute = path('frontend.account.login.page'),
+    logoutRoute = path('frontend.account.logout.page'),
+    accountHeadline = 'account.myAccount'|trans|sw_sanitize,
+    accountMenuItems = [
+        { label: 'Overview', path: path('frontend.account.home.page') },
+        { label: 'Your Profile', path: path('frontend.account.profile.page') },
+        { label: 'Addresses', path: path('frontend.account.address.page') },
+        { label: 'Orders', path: path('frontend.account.order.page') },
+    ],
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-account-widget dropdown',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <twig:Sw:Header:Widget
+        icon="avatar"
+        data-bs-toggle="dropdown"
+        data-bs-auto-close="outside"
+        aria-expanded="false"
+    >
+    </twig:Sw:Header:Widget>
+
+    {% if isCustomer %}
+        <ul class="sw-account-widget__dropdown dropdown-menu dropdown-menu-end">
+
+            <li><h6 class="dropdown-header">{{ accountHeadline }}</h6></li>
+
+            {% for menuItem in accountMenuItems %}
+                <li class="sw-account-widget__dropdown-item">
+                    <a
+                        class="sw-account-widget__dropdown-link dropdown-item"
+                        href="{{ menuItem.path|striptags }}"
+                    >
+                        {{ menuItem.label|sw_sanitize }}
+                    </a>
+                </li>
+            {% endfor %}
+
+            <li class="sw-account-widget__dropdown-item"><hr class="dropdown-divider"></li>
+            <li class="sw-account-widget__dropdown-item">
+                <a
+                    class="sw-account-widget__dropdown-link dropdown-item fw-semibold"
+                    href="{{ logoutRoute }}"
+                >
+                    <twig:Sw:Icon name="log-out" size="xs" />
+                    {{- 'account.logout'|trans|sw_sanitize }}
+                </a>
+            </li>
+        </ul>
+    {% else %}
+        <div class="dropdown-menu dropdown-menu-end">
+            <h6 class="dropdown-header">{{ accountHeadline }}</h6>
+            <div class="py-1 px-3">
+                <a
+                    href="{{ loginRoute }}"
+                    class="btn btn-primary w-100"
+                >
+                    {{ 'account.loginSubmit'|trans|sw_sanitize }}
+                </a>
+                <div class="py-2 text-center">
+                    {{ 'account.orRegister'|trans|sw_sanitize }}
+                    <a
+                        href="{{ loginRoute }}">
+                        {{ 'account.orRegisterLink'|trans|striptags|lower }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>

@@ -191,9 +191,19 @@ class NavigationController extends StorefrontController
 
         $this->hook(new HeaderPageletLoadedHook($header, $context));
 
+        $headerParameters = $request->get('headerParameters') ?? [];
+
+        if (array_key_exists('isNewContentStructure', $headerParameters)) {
+            return $this->renderStorefront('@Storefront/storefront/page/content/header.html.twig', [
+                'header' => $header,
+                'headerParameters' => $headerParameters,
+                'isNewContentStructure' => true
+            ]);
+        }
+
         return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', [
             'header' => $header,
-            'headerParameters' => $request->query->all()['headerParameters'] ?? [],
+            'headerParameters' => $headerParameters,
         ]);
     }
 

@@ -30,7 +30,7 @@
  * Components
  *
  * @ToDo: Remove after migration to the new component system.
- * These have to be here, as parts of the page still use these styles. 
+ * These have to be here, as parts of the page still use these styles.
  * ---------- */
 @import 'component/icon';
 @import 'skin/shopware/component/_button';
@@ -39,22 +39,17 @@
 @import 'component/_line-item.scss';
 @import 'component/_quantity-selector.scss';
 @import 'component/_delivery-status.scss';
-@import 'component/_flags.scss';
 @import 'component/product-wishlist';
 
 /*
  * Layout-related sections
- * 
+ *
  * @ToDo: Remove after migration to the new component system.
  * ----------------------- */
 @import 'layout/_container';
-@import 'layout/_header';
-@import 'layout/_header-minimal';
 @import 'layout/_footer';
 @import 'layout/_navigation-offcanvas';
 @import 'layout/_offcanvas-cart';
-@import 'layout/_account-menu';
-@import 'layout/_search-suggest';
 @import 'layout/_cookie-permission';
 @import 'layout/_cookie-configuration';
 @import 'layout/_scroll-up';
@@ -67,11 +62,6 @@
 @import 'skin/shopware/vendor/_inter-fontface';
 @import 'skin/shopware/base/_base';
 @import 'skin/shopware/base/_typography';
-// @ToDo: Remove after migration to the new component system.
-@import 'skin/shopware/layout/_header';
 @import 'skin/shopware/layout/_footer';
-@import 'skin/shopware/layout/_main-navigation';
-@import 'skin/shopware/layout/_navigation-flyout';
 @import 'skin/shopware/layout/_navigation-offcanvas';
 @import 'skin/shopware/layout/_offcanvas-cart';
-@import 'skin/shopware/layout/_top-bar';

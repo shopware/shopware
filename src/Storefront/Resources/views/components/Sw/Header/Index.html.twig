@@ -1,0 +1,43 @@
+{% props
+    header,
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-header',
+} %}
+
+<header {{ attributes.defaults(attributeDefaults) }}>
+    <twig:Sw:Header:TopBar>
+        <twig:Sw:Header:LanguageSelect :languages="header.languages" />
+        <twig:Sw:Header:CurrencySelect :currencies="header.currencies" />
+    </twig:Sw:Header:TopBar>
+
+    <twig:Sw:Grid:Container
+        :columnsSm="1"
+        :rowsSm="2"
+        :columns="3"
+        :centered="true"
+        justifyContent="stretch"
+        alignContent="center"
+        align="center"
+        gap="16"
+        style="margin-bottom: 1.2rem;"
+    >
+        <twig:Sw:Grid:Column>
+            <twig:Sw:Header:Logo />
+        </twig:Sw:Grid:Column>
+        <twig:Sw:Grid:Column>
+            <twig:Sw:Header:Search />
+        </twig:Sw:Grid:Column>
+        <twig:Sw:Grid:Column justify="end">
+            <div class="sw-header__widgets d-flex justify-content-end">
+                <twig:Sw:Header:AccountWidget />
+                <twig:Sw:Header:CartWidget />
+            </div>
+        </twig:Sw:Grid:Column>
+    </twig:Sw:Grid:Container>
+
+    <twig:Sw:Header:Navbar
+        :navigationTree="header.navigation.tree"
+    />
+</header>

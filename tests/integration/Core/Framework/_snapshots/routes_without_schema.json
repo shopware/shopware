@@ -70,8 +70,6 @@
     "/_action/snippet-set/author",
     "/_action/snippet-set/baseFile",
     "/_action/snippet/filter",
-    "/_action/state-machine/{entityName}/{entityId}/state",
-    "/_action/state-machine/{entityName}/{entityId}/state/{transition}",
     "/_action/store/checklogin",
     "/_action/store/demo-data-plugins",
     "/_action/store/frw/finish",

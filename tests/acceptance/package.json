@@ -25,10 +25,13 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
-    "@currents/playwright": "1.21.0",
+    "@currents/playwright": "1.21.1",
     "@shopware-ag/acceptance-test-suite": "12.4.3",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.8.2",
     "playwright-lighthouse": "4.0.0"
+  },
+  "overrides": {
+    "axios": "^1.13.5"
   }
 }

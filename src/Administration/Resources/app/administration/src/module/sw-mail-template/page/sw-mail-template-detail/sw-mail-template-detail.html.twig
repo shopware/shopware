@@ -532,32 +532,15 @@
                                 {{ $t('sw-mail-template.validation.result.error.title', {'number': validationErrors.length}, validationErrors.length) }}
                             </h4>
 
-                            <mt-banner
+                            <sw-mail-template-validation-result
                                 v-for="error in validationErrors"
-                                :key="error.id"
                                 :title="error.name"
-                                class="sw-mail-template-detail__validation-sidebar-result-error-element"
+                                :hint="error.hint"
+                                :type="error.level"
                             >
-                                <template #customIcon>
-                                    <mt-icon
-                                        size="16"
-                                        :name="error.level === 'error' ? 'solid-exclamation-circle' : 'solid-exclamation-triangle'"
-                                        class="sw-mail-template-detail__validation-sidebar-result-error-element-icon"
-                                        :color="error.level === 'error' ? 'var(--color-icon-critical-default)' : 'var(--color-icon-attention-default)'"
-                                    />
-                                </template>
+                                {{ error.message }}
+                            </sw-mail-template-validation-result>
 
-                                <p
-                                    class="sw-mail-template-detail__validation-sidebar-result-error-element-hint"
-                                >
-                                    ({{ error.hint }})
-                                </p>
-                                <p
-                                    class="sw-mail-template-detail__validation-sidebar-result-error-element-message"
-                                >
-                                    {{ error.message }}
-                                </p>
-                            </mt-banner>
                         </div>
                         <div
                             v-else

@@ -1,0 +1,20 @@
+.sw-mail-template-validation-result {
+    position: relative;
+    width: 100%;
+
+    &__icon {
+        margin-top: var(--scale-size-2);
+    }
+
+    &__hint {
+        position: absolute;
+        top: var(--scale-size-8);
+        right: var(--scale-size-8);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-2xs);
+    }
+
+    .mt-banner__body {
+        overflow-x: auto;
+    }
+}

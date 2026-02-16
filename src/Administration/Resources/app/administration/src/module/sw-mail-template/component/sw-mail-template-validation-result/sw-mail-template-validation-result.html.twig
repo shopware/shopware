@@ -1,0 +1,20 @@
+<mt-banner
+    class="sw-mail-template-validation-result"
+    :title="title"
+>
+    <template #customIcon>
+        <mt-icon
+            class="sw-mail-template-validation-result__icon"
+            size="16"
+            :name="icon"
+            :color="iconColor"
+        />
+    </template>
+
+    <p class="sw-mail-template-validation-result__hint">
+        {{ hint }}
+    </p>
+    <p class="sw-mail-template-validation-result__content">
+        <slot></slot>
+    </p>
+</mt-banner>

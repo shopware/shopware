@@ -99,8 +99,7 @@ class ThemeCompilerTest extends TestCase
         $config = $this->createThemeConfig('TestTheme');
         $compiler = $this->createThemeCompiler();
 
-        $this->expectException(ThemeCompileException::class);
-        $this->expectExceptionMessage('TestTheme');
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme'));
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
@@ -123,8 +122,7 @@ class ThemeCompilerTest extends TestCase
         $config = $this->createThemeConfig('TestTheme');
         $compiler = $this->createThemeCompiler();
 
-        $this->expectException(ThemeCompileException::class);
-        $this->expectExceptionMessage('TestTheme');
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme'));
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
@@ -147,8 +145,7 @@ class ThemeCompilerTest extends TestCase
         $config = $this->createThemeConfig('TestTheme', assetPaths: ['assets']);
         $compiler = $this->createThemeCompiler();
 
-        $this->expectException(ThemeCompileException::class);
-        $this->expectExceptionMessage('TestTheme');
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme'));
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
@@ -171,8 +168,7 @@ class ThemeCompilerTest extends TestCase
         $config = $this->createThemeConfig('TestTheme');
         $compiler = $this->createThemeCompiler();
 
-        $this->expectException(ThemeCompileException::class);
-        $this->expectExceptionMessage('SCSS compilation error');
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'SCSS compilation error'));
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
@@ -211,6 +207,8 @@ class ThemeCompilerTest extends TestCase
         $compiler = $this->createThemeCompiler($pathBuilder);
         $config = $this->createThemeConfig('TestTheme');
 
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Compilation failed'));
+
         try {
             $compiler->compileTheme(
                 TestDefaults::SALES_CHANNEL,
@@ -220,14 +218,11 @@ class ThemeCompilerTest extends TestCase
                 false,
                 Context::createDefaultContext()
             );
-            static::fail('Expected ThemeCompileException');
-        } catch (ThemeCompileException) {
-            // Expected exception
+        } finally {
+            // Verify existing files still exist
+            static::assertTrue($this->filesystem->fileExists('theme/current/css/all.css'));
+            static::assertSame('existing content', $this->filesystem->read('theme/current/css/all.css'));
         }
-
-        // Verify existing files still exist
-        static::assertTrue($this->filesystem->fileExists('theme/current/css/all.css'));
-        static::assertSame('existing content', $this->filesystem->read('theme/current/css/all.css'));
     }
 
     public function testNewDirectoryIsNotCreatedOnCompileError(): void
@@ -251,6 +246,8 @@ class ThemeCompilerTest extends TestCase
         $compiler = $this->createThemeCompiler($pathBuilder);
         $config = $this->createThemeConfig('TestTheme');
 
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Compilation failed'));
+
         try {
             $compiler->compileTheme(
                 TestDefaults::SALES_CHANNEL,
@@ -260,11 +257,9 @@ class ThemeCompilerTest extends TestCase
                 false,
                 Context::createDefaultContext()
             );
-        } catch (ThemeCompileException) {
-            // Expected
+        } finally {
+            static::assertFalse($this->filesystem->directoryExists('theme/new'));
         }
-
-        static::assertFalse($this->filesystem->directoryExists('theme/new'));
     }
 
     // ===================================
@@ -317,18 +312,16 @@ class ThemeCompilerTest extends TestCase
         $compiler = $this->createThemeCompiler();
         $config = $this->createThemeConfig('TestTheme');
 
-        try {
-            $compiler->compileTheme(
-                TestDefaults::SALES_CHANNEL,
-                'theme-id',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                false,
-                Context::createDefaultContext()
-            );
-        } catch (ThemeCompileException) {
-            // Expected
-        }
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Compilation failed'));
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
     }
 
     // ===================================
@@ -619,18 +612,16 @@ class ThemeCompilerTest extends TestCase
         $compiler = $this->createThemeCompiler($pathBuilder);
         $config = $this->createThemeConfig('TestTheme');
 
-        try {
-            $compiler->compileTheme(
-                TestDefaults::SALES_CHANNEL,
-                'theme-id',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                false,
-                Context::createDefaultContext()
-            );
-        } catch (ThemeCompileException) {
-            // Expected
-        }
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Compilation failed'));
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
     }
 
     // ===================================
@@ -953,8 +944,7 @@ class ThemeCompilerTest extends TestCase
         $compiler = $this->createThemeCompiler();
         $config = $this->createThemeConfig('TestTheme');
 
-        $this->expectException(ThemeCompileException::class);
-        $this->expectExceptionMessageMatches('/base style/i');
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Base style compilation failed'));
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,

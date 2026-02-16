@@ -102,11 +102,15 @@ class TwigComponentCollectionTest extends TestCase
 
     public function testValidateTypeThrowsExceptionForInvalidType(): void
     {
-        $this->expectException(FrameworkException::class);
-        $this->expectExceptionMessage('Expected collection element of type Shopware\Storefront\Framework\Twig\Components\TwigComponent');
-
         $invalidElement = new class() extends Struct {
         };
+
+        $this->expectExceptionObject(
+            FrameworkException::collectionElementInvalidType(
+                TwigComponent::class,
+                $invalidElement::class
+            )
+        );
 
         /** @phpstan-ignore-next-line argument.type - Intentionally passing wrong type to test validation */
         new TwigComponentCollection([$invalidElement]);

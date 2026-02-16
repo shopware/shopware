@@ -77,10 +77,6 @@ export default {
             return this.repositoryFactory.create('order');
         },
 
-        orderAddressRepository() {
-            return this.repositoryFactory.create('order_address');
-        },
-
         addressRepository() {
             return this.repositoryFactory.create(this.customer.addresses.entity, this.customer.addresses.source);
         },
@@ -156,10 +152,8 @@ export default {
 
         onEditAddress(id) {
             if (id === this.address.id) {
-                // create to prevent side effects when closing the modal
-                this.currentAddress = this.orderAddressRepository.create(Shopware.Context.api, id);
-                delete this.currentAddress._isNew;
-                Object.assign(this.currentAddress, this.address);
+                // clone, to prevent side effects when closing the modal
+                this.currentAddress = cloneDeep(this.address);
 
                 return;
             }
@@ -195,7 +189,7 @@ export default {
 
             // edit order address
             if (this.currentAddress.id === this.address.id) {
-                Object.assign(this.address, this.currentAddress);
+                this.address = cloneDeep(this.address);
                 return this.orderRepository
                     .save(this.order, this.versionContext)
                     .then(() => {

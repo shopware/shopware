@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -37,7 +38,7 @@ class DefinitionWithAssociations extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware()),
-            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
 
             // Association with description and ApiAware for Store API
             (new ManyToOneAssociationField(

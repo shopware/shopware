@@ -121,7 +121,7 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayNotHasKey('/_action/order_delivery/{orderDeliveryId}/state/{transition}', $paths);
     }
 
-    public function testMergeComponentsSchemaRequiredFieldsRecursive(): void
+    public function testStaticJsonRequiredFieldsTakePrecedenceOverDefinition(): void
     {
         $schema = $this->customApiGenerator->generate(
             $this->definitionRegistry->getDefinitions(),
@@ -132,61 +132,35 @@ class StoreApiGeneratorTest extends TestCase
 
         $entities = $schema['components']['schemas'];
 
+        // Case 1: Simple.json defines required: ["apiAlias"], PHP defines required: ["requiredField"]
+        // Static JSON takes precedence — only "apiAlias" should be present
         static::assertArrayHasKey('Simple', $entities);
         static::assertArrayHasKey('required', $entities['Simple']);
-        static::assertCount(2, $entities['Simple']['required']);
-        static::assertContains('requiredField', $entities['Simple']['required']);
-        static::assertContains('apiAlias', $entities['Simple']['required']);
+        static::assertSame(['apiAlias'], $entities['Simple']['required']);
+
+        // Case 2: TestEntityWithAssociations.json defines required: [], PHP defines required: ["name"]
+        // Static JSON explicitly sets empty — PHP required is ignored
+        static::assertArrayHasKey('TestEntityWithAssociations', $entities);
+        static::assertArrayHasKey('required', $entities['TestEntityWithAssociations']);
+        static::assertSame([], $entities['TestEntityWithAssociations']['required']);
     }
 
-    public function testStaticJsonRequiredFieldsTakePrecedenceOverDefinition(): void
+    public function testPhpRequiredFieldsUsedWhenNoStaticJsonRequired(): void
     {
-        $reflection = new \ReflectionClass($this->generator);
-        $method = $reflection->getMethod('mergeComponentsSchemaRequiredFieldsRecursive');
+        // $this->generator has no custom bundle schemas, so Simple has no JSON override
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
 
-        $specsFromDefinition = [
-            'components' => [
-                'schemas' => [
-                    'Country' => [
-                        'required' => ['id', 'name', 'addressFormat'],
-                    ],
-                    'OnlyInPhp' => [
-                        'required' => ['id'],
-                    ],
-                    'ExplicitlyEmpty' => [
-                        'required' => ['id', 'name'],
-                    ],
-                ],
-            ],
-        ];
+        $entities = $schema['components']['schemas'];
 
-        $specsFromJson = [
-            'components' => [
-                'schemas' => [
-                    'Country' => [
-                        'required' => ['id', 'name'],
-                    ],
-                    'OnlyInPhp' => [],
-                    'ExplicitlyEmpty' => [
-                        'required' => [],
-                    ],
-                ],
-            ],
-        ];
-
-        $result = $method->invoke($this->generator, $specsFromDefinition, $specsFromJson);
-
-        // Static JSON defines required for Country — use it as-is, no merge with PHP
-        $required = $result['components']['schemas']['Country']['required'];
-        static::assertSame(['id', 'name'], $required);
-
-        // Static JSON has no required for OnlyInPhp — fall back to PHP definition
-        $required = $result['components']['schemas']['OnlyInPhp']['required'];
-        static::assertSame(['id'], $required);
-
-        // Static JSON explicitly sets required to empty — PHP required is ignored
-        $required = $result['components']['schemas']['ExplicitlyEmpty']['required'];
-        static::assertSame([], $required);
+        // Case 3: No static JSON for Simple — PHP required fields should be used as fallback
+        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayHasKey('required', $entities['Simple']);
+        static::assertContains('requiredField', $entities['Simple']['required']);
     }
 
     public function testGroupsParametersParsing(): void

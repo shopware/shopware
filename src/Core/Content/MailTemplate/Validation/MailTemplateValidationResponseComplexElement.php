@@ -5,12 +5,13 @@ namespace Shopware\Core\Content\MailTemplate\Validation;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
-abstract class MailTemplateValidationWarning extends MailTemplateValidationResponse
+class MailTemplateValidationResponseComplexElement extends MailTemplateValidationWarning
 {
-    private const LEVEL = 'warning';
+    private const TYPE = 'complexElement';
 
     public function __construct(
         private readonly string $field,
+        private readonly string $variable,
         private readonly int $line = 0,
     ) {
         parent::__construct($this->field, $this->line);
@@ -20,7 +21,8 @@ abstract class MailTemplateValidationWarning extends MailTemplateValidationRespo
     {
         return [
             ...parent::jsonSerialize(),
-            'level' => self::LEVEL,
+            'variable' => $this->variable,
+            'type' => self::TYPE,
         ];
     }
 }

@@ -8,6 +8,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationResponseCollection;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EntityType;
@@ -77,12 +78,13 @@ class MailActionController extends AbstractController
         $vars = $post->get('flowEventClass')::getAvailableData()
             ->add('salesChannel', new EntityType(SalesChannelDefinition::class));
 
-        $errors = [];
-        foreach ($post->get('mailTemplateContent') as $name => $content) {
-            $errors[$name] = $this->mailTemplateService->validateTemplate($content, $vars);
+        $validationResponses = new MailTemplateValidationResponseCollection();
+
+        foreach ($post->get('mailTemplateContent') as $mailTemplateField => $content) {
+            $this->mailTemplateService->validateTemplate($mailTemplateField, $content, $vars, $validationResponses);
         }
 
-        return new JsonResponse($errors, Response::HTTP_OK);
+        return new JsonResponse($validationResponses, Response::HTTP_OK);
     }
 
     #[Route(

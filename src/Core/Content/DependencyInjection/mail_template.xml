@@ -49,7 +49,6 @@
             <argument type="service" id="twig"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
 
         <!-- Sending -->

@@ -2,33 +2,28 @@
 
 namespace Shopware\Core\Content\MailTemplate\Validation;
 
+use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
 abstract class MailTemplateValidationResponse extends Struct
 {
-    final public const LEVEL_ERROR = 'error';
-    final public const LEVEL_WARNING = 'warning';
-
     public function __construct(
-        private readonly string $level,
+        private readonly string $field,
+        private readonly int $line = 0,
     ) {
-        if (!($level === self::LEVEL_ERROR || $level === self::LEVEL_WARNING)) {
-            throw new \Exception('Mail template validation response level is not valid');
+        if ($line < 0) {
+            MailTemplateException::invalidMailTemplateValidationResponseLineNumber();
         }
-    }
-
-    public function getLevel(): string
-    {
-        return $this->level;
     }
 
     public function jsonSerialize(): array
     {
         return [
             ...parent::jsonSerialize(),
-            'level' => $this->level,
+            'field' => $this->field,
+            'line' => $this->line,
         ];
     }
 }

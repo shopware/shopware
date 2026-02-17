@@ -446,33 +446,24 @@ export default {
                 .validateMailTemplate(this.triggerEvent.class, {
                     subject: this.mailTemplate.subject,
                     senderName: this.mailTemplate.senderName,
-                    contentHtml: this.mailTemplate.contentHtml,
                     contentPlain: this.mailTemplate.contentPlain,
+                    contentHtml: this.mailTemplate.contentHtml,
                 })
                 .then((response) => {
-                    this.validationErrors = [];
-
-                    Object.entries(response).forEach((entry) => {
-                        const field = entry[0];
-                        const validationErrors = entry[1];
-
-                        this.validationErrors = [
-                            ...this.validationErrors,
-                            ...validationErrors.map((e) => this.translateValidationError(e, field)),
-                        ];
-                    });
-
-                    this.validationErrors = this.validationErrors.sort((a, b) => {
-                        return (a.level === 'error' ? 1 : 0) - (b.level === 'error' ? 1 : 0);
-                    });
+                    this.validationErrors = response
+                        .map((entry) => this.translateValidationError(entry))
+                        .sort((a, b) => {
+                            return (a.level === 'error' ? 1 : 0) - (b.level === 'error' ? 1 : 0);
+                        });
                 })
                 .catch((exception) => {
                     this.createNotificationError(exception.message);
                 });
         },
 
-        translateValidationError(validationError, field) {
-            switch (field) {
+        translateValidationError(validationError) {
+            let field;
+            switch (validationError.field) {
                 case 'subject':
                     field = 'options.labelSubject';
                     break;

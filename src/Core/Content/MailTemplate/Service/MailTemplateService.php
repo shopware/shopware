@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationError;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationResponse;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationWarning;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationResponseArrayAccess;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationResponseCollection;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationResponseComplexElement;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationResponseSyntax;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationResponseUnknownVariable;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -34,80 +36,49 @@ class MailTemplateService
         Environment $twig,
         private readonly TwigVariableParserFactory $twigVariableParserFactory,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly DataValidator $dataValidator,
     ) {
         $this->twigVariableParser = $this->twigVariableParserFactory->getParser($twig);
     }
 
-    /**
-     * @return MailTemplateValidationResponse[]
-     */
-    public function validateTemplate(string $mailTemplate, EventDataCollection $availableVariables): array
+    public function validateTemplate(string $mailTemplateField, string $mailTemplate, EventDataCollection $availableVariables, MailTemplateValidationResponseCollection $validationResponses): void
     {
         try {
             $usedVariables = $this->twigVariableParser->parse($mailTemplate);
+            $this->validateVariables($mailTemplateField, $usedVariables, $availableVariables, $validationResponses);
         } catch (SyntaxError $exception) {
-            return [new MailTemplateValidationError(
-                $this->dataValidator,
-                MailTemplateValidationError::TYPE_SYNTAX,
-                ['message' => $exception->getRawMessage()],
-                $exception->getTemplateLine(),
-            )];
+            $validationResponses->add(
+                new MailTemplateValidationResponseSyntax($mailTemplateField, $exception->getRawMessage(), $exception->getTemplateLine())
+            );
         }
-
-        return $this->validateVariables($usedVariables, $availableVariables);
     }
 
     /**
      * @param array<string, string> $usedVariables
-     *
-     * @return MailTemplateValidationResponse[]
      */
-    public function validateVariables(array $usedVariables, EventDataCollection $availableVariables): array
+    public function validateVariables(string $mailTemplateField, array $usedVariables, EventDataCollection $availableVariables, MailTemplateValidationResponseCollection $validationResponses): void
     {
-        $errors = [];
-
         foreach ($usedVariables as $var) {
-            if ($this->isKnownVariable($var, $availableVariables, $errors)) {
+            if ($field = $availableVariables->get($var)) {
+                if (!($field instanceof ScalarValueType)) {
+                    $validationResponses->add(
+                        new MailTemplateValidationResponseUnknownVariable(
+                            $mailTemplateField,
+                            $var
+                        )
+                    );
+                }
                 continue;
             }
 
-            $this->validateComplexVariable($var, $availableVariables, $errors);
+            $this->validateComplexVariable($mailTemplateField, $var, $availableVariables, $validationResponses);
         }
-
-        return $errors;
     }
 
-    /**
-     * @param MailTemplateValidationResponse[] $errors
-     */
-    private function isKnownVariable(string $var, EventDataCollection $availableVariables, array &$errors): bool
-    {
-        if ($field = $availableVariables->get($var)) {
-            if (!($field instanceof ScalarValueType)) {
-                $errors[] = new MailTemplateValidationWarning(
-                    $this->dataValidator,
-                    MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
-                    ['variable' => $var]
-                );
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param MailTemplateValidationResponse[] $errors
-     */
-    private function validateComplexVariable(string $var, EventDataCollection $availableVariables, array &$errors): void
+    private function validateComplexVariable(string $mailTemplateField, string $var, EventDataCollection $availableVariables, MailTemplateValidationResponseCollection $validationResponses): void
     {
         if (!str_contains($var, '.')) {
-            $errors[] = new MailTemplateValidationError(
-                $this->dataValidator,
-                MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
-                ['variable' => $var]
-            );
+            $validationResponses->add(new MailTemplateValidationResponseUnknownVariable($mailTemplateField, $var));
+
             return;
         }
 
@@ -117,11 +88,7 @@ class MailTemplateService
 
         for ($i = 0; $i < \count($varParts); ++$i) {
             if (!$nestedAvVars) {
-                $errors[] = new MailTemplateValidationError(
-                    $this->dataValidator,
-                    MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
-                    ['variable' => $var]
-                );
+                $validationResponses->add(new MailTemplateValidationResponseUnknownVariable($mailTemplateField, $var));
                 break;
             }
 
@@ -137,7 +104,7 @@ class MailTemplateService
 
                 $path = \implode('.', $varParts);
 
-                $errors = $this->validateEntityField($path, $prefix, $nestedAvVars->getDefinitionClass(), $errors);
+                $this->validateEntityField($mailTemplateField, $path, $prefix, $nestedAvVars->getDefinitionClass(), $validationResponses);
 
                 break;
             }
@@ -145,20 +112,12 @@ class MailTemplateService
             if ($nestedAvVars instanceof ArrayType) {
                 if ($i === \count($varParts) - 1) {
                     if (!($nestedAvVars->getType() instanceof ScalarValueType)) {
-                        $errors[] = new MailTemplateValidationWarning(
-                            $this->dataValidator,
-                            MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
-                            ['variable' => $var]
-                        );
+                        $validationResponses->add(new MailTemplateValidationResponseComplexElement($mailTemplateField, $var));
                     }
                     break;
                 }
                 if (!($varParts[$i + 1] === 'first' || $varParts[$i + 1] === 'last' || \is_numeric($varParts[$i + 1]))) {
-                    $errors[] = new MailTemplateValidationError(
-                        $this->dataValidator,
-                        MailTemplateValidationError::TYPE_INVALID_ARRAY_ACCESS,
-                        ['variable' => $var]
-                    );
+                    $validationResponses->add(new MailTemplateValidationResponseArrayAccess($mailTemplateField, $var));
                     break;
                 }
 
@@ -173,21 +132,12 @@ class MailTemplateService
                 continue;
             }
 
-            $errors[] = new MailTemplateValidationError(
-                $this->dataValidator,
-                MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
-                ['variable' => $var]
-            );
+            $validationResponses->add(new MailTemplateValidationResponseUnknownVariable($mailTemplateField, $var));
             break;
         }
     }
 
-    /**
-     * @param MailTemplateValidationResponse[] $errors
-     *
-     * @return MailTemplateValidationResponse[]
-     */
-    private function validateEntityField(string $fieldName, string $prefix, string $entityDefinition, array $errors): array
+    private function validateEntityField(string $mailTemplateField, string $fieldName, string $prefix, string $entityDefinition, MailTemplateValidationResponseCollection $validationResponses): void
     {
         $parts = \explode('.', $fieldName);
 
@@ -205,23 +155,15 @@ class MailTemplateService
 
             if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField || $field instanceof ListField) {
                 if ($i === \count($parts) - 1) {
-                    $errors[] = new MailTemplateValidationWarning(
-                        $this->dataValidator,
-                        MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
-                        ['variable' => $currentFieldName]
-                    );
+                    $validationResponses->add(new MailTemplateValidationResponseComplexElement($mailTemplateField, $currentFieldName));
 
-                    return $errors;
+                    return;
                 }
 
                 if (!($parts[$i + 1] === 'first' || $parts[$i + 1] === 'last' || \is_numeric($parts[$i + 1]))) {
-                    $errors[] = new MailTemplateValidationError(
-                        $this->dataValidator,
-                        MailTemplateValidationError::TYPE_INVALID_ARRAY_ACCESS,
-                        ['variable' => $currentFieldName]
-                    );
+                    $validationResponses->add(new MailTemplateValidationResponseArrayAccess($mailTemplateField, $currentFieldName));
 
-                    return $errors;
+                    return;
                 }
 
                 ++$i;
@@ -229,13 +171,7 @@ class MailTemplateService
         }
 
         if (!$field) {
-            $errors[] = new MailTemplateValidationError(
-                $this->dataValidator,
-                MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
-                ['variable' => $currentFieldName]
-            );
+            $validationResponses->add(new MailTemplateValidationResponseUnknownVariable($mailTemplateField, $currentFieldName));
         }
-
-        return $errors;
     }
 }

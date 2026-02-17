@@ -38,7 +38,7 @@ class ClientRepository implements ClientRepositoryInterface
                 return false;
             }
 
-            if (!empty($values['id'])) {
+            if (isset($values['id']) && ($values['id'] !== '' && $values['id'] !== '0')) {
                 $this->updateLastUsageDate($values['id']);
             }
 

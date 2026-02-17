@@ -96,7 +96,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         $schemaPaths = [$this->schemaPath];
 
-        if (!empty($bundleName)) {
+        if ($bundleName !== null && $bundleName !== '' && $bundleName !== '0') {
             $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
             $data['paths'] = [];
         } else {

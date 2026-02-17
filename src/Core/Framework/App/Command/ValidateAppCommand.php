@@ -53,7 +53,7 @@ class ValidateAppCommand extends Command
 
         $invalids = $this->validate($dir);
 
-        if (\count($invalids) > 0) {
+        if ($invalids !== []) {
             foreach ($invalids as $invalid) {
                 $io->error($invalid);
             }
@@ -113,7 +113,7 @@ class ValidateAppCommand extends Command
             $manifests[] = Manifest::createFromXmlFile($xml->getPathname());
         }
 
-        if (\count($manifests) === 0) {
+        if ($manifests === []) {
             throw new ManifestNotFoundException($dir);
         }
 

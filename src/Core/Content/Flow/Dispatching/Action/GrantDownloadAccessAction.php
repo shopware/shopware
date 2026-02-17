@@ -86,7 +86,7 @@ class GrantDownloadAccessAction extends FlowAction implements DelayableAction
             }
         }
 
-        if (empty($downloadIds)) {
+        if ($downloadIds === []) {
             return;
         }
 

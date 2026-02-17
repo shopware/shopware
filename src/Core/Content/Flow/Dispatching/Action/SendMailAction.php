@@ -131,7 +131,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $flow->getData(FlowMailVariables::REVOCATION_REQUEST_FORM_DATA, []),
         );
 
-        if (empty($recipients)) {
+        if ($recipients === []) {
             return;
         }
 
@@ -255,13 +255,16 @@ class SendMailAction extends FlowAction implements DelayableAction
     private function sanitizeMailTemplateData(array $templateData): array
     {
         foreach ($templateData as $key => $value) {
-            if (!$value instanceof Entity || empty($value->getInternalEntityName())) {
+            if (!$value instanceof Entity) {
                 continue;
             }
 
-            $definition = $this->definitionInstanceRegistry->getByEntityName(
-                $value->getInternalEntityName()
-            );
+            $internalEntityName = $value->getInternalEntityName();
+            if ($internalEntityName === null || $internalEntityName === '') {
+                continue;
+            }
+
+            $definition = $this->definitionInstanceRegistry->getByEntityName($internalEntityName);
 
             $templateData[$key] = $this->jsonEntityEncoder->encode(
                 new Criteria(),
@@ -343,7 +346,7 @@ class SendMailAction extends FlowAction implements DelayableAction
      */
     private function createEnquiryReceiver(array $formData): array
     {
-        if (empty($formData)) {
+        if ($formData === []) {
             return [];
         }
 

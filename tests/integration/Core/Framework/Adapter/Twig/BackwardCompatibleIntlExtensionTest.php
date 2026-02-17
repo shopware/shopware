@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
@@ -20,6 +21,9 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             static::markTestSkipped('This test is only relevant for versions before v6.8.0');
         }
+
+        // Force kernel reboot to ensure Twig environment is completely fresh
+        KernelLifecycleManager::getKernel()->reboot(null);
     }
 
     public function testNumberFormatWithInvalidLocaleFallsBackToDefault(): void

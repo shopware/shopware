@@ -28,10 +28,7 @@ describe('src/app/adapter/composition-extension-system', () => {
             delete _overridesMap[key];
         });
 
-        // Reset the composition API components set
         _compositionApiComponents.clear();
-
-        // Clear all mocks
         jest.clearAllMocks();
     });
 
@@ -3648,7 +3645,6 @@ describe('src/app/adapter/composition-extension-system', () => {
 
             mount(originalComponent);
 
-            // After mounting, setup() runs and the component is registered
             expect(_compositionApiComponents.has('testMountedComponent')).toBe(true);
         });
 
@@ -3662,7 +3658,6 @@ describe('src/app/adapter/composition-extension-system', () => {
 
             mount(plainComponent);
 
-            // Plain components should not be registered
             expect(_compositionApiComponents.has('plainComponent')).toBe(false);
         });
 

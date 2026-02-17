@@ -111,7 +111,6 @@ describe('core/factory/async-component.factory.ts', () => {
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
 
-        // Reset Options API shim state
         _compositionApiComponents.clear();
         const entries = [...Object.keys(_overridesMap)];
         entries.forEach((key) => {
@@ -3300,12 +3299,10 @@ describe('core/factory/async-component.factory.ts', () => {
         it('should route Options API override to _overridesMap when target is a Composition API component', async () => {
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-            // Register a standard component
             ComponentFactory.register('shim-test-component', {
                 template: '{% block shim_test %}test{% endblock %}',
             });
 
-            // Override with Options API patterns (before component is known as Composition API)
             ComponentFactory.override('shim-test-component', {
                 methods: {
                     save() {
@@ -3314,13 +3311,10 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Mark it as using Composition API (simulates component mounting after override registration)
             _compositionApiComponents.add('shim-test-component');
 
-            // Build the component
             await ComponentFactory.build('shim-test-component');
 
-            // The override should have been routed to _overridesMap
             expect(_overridesMap['shim-test-component']).toBeDefined();
             expect(_overridesMap['shim-test-component']).toHaveLength(1);
             expect(typeof _overridesMap['shim-test-component'][0]).toBe('function');
@@ -3329,7 +3323,6 @@ describe('core/factory/async-component.factory.ts', () => {
         });
 
         it('should NOT route Options API override to _overridesMap when target is NOT a Composition API component', async () => {
-            // Register a standard Options API component
             ComponentFactory.register('legacy-component', {
                 template: '{% block legacy %}legacy{% endblock %}',
                 methods: {
@@ -3339,9 +3332,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Do NOT mark as Composition API
-
-            // Override with Options API patterns
             ComponentFactory.override('legacy-component', {
                 methods: {
                     testMethod() {
@@ -3350,13 +3340,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Build the component
             const component = await ComponentFactory.build('legacy-component');
 
-            // The override should NOT have been routed to _overridesMap
             expect(_overridesMap['legacy-component']).toBeUndefined();
-
-            // The standard override should work as usual
             expect(component._isOverride).toBe(true);
         });
 
@@ -3367,7 +3353,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: '{% block multi_shim %}test{% endblock %}',
             });
 
-            // Plugin A override (before component is known as Composition API)
+            // Plugin A
             ComponentFactory.override('multi-shim-component', {
                 methods: {
                     save() {
@@ -3376,7 +3362,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Plugin B override
+            // Plugin B
             ComponentFactory.override('multi-shim-component', {
                 computed: {
                     label() {
@@ -3385,7 +3371,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Mark as Composition API after overrides are registered
             _compositionApiComponents.add('multi-shim-component');
 
             await ComponentFactory.build('multi-shim-component');
@@ -3411,7 +3396,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Mark as Composition API after override registration
             _compositionApiComponents.add('warn-test-component');
 
             await ComponentFactory.build('warn-test-component');
@@ -3434,7 +3418,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Options API override (should be shimmed)
             ComponentFactory.override('mixed-override-component', {
                 methods: {
                     save() {
@@ -3443,17 +3426,14 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Standard override without Options API patterns (no methods/computed/data/watch/inject)
             ComponentFactory.override('mixed-override-component', {
                 template: '{% block mixed_override %}overridden{% endblock %}',
             });
 
-            // Mark as Composition API after overrides are registered
             _compositionApiComponents.add('mixed-override-component');
 
             await ComponentFactory.build('mixed-override-component');
 
-            // The Options API override should be in _overridesMap
             expect(_overridesMap['mixed-override-component']).toBeDefined();
             expect(_overridesMap['mixed-override-component']).toHaveLength(1);
 
@@ -3475,17 +3455,14 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Mark as Composition API after override registration
             _compositionApiComponents.add('fn-test-component');
 
             await ComponentFactory.build('fn-test-component');
 
-            // Invoke the shimmed override function with mock previousState using real refs
             const overrideFn = _overridesMap['fn-test-component'][0];
             const mockPreviousState = { count: ref(5) };
             const result = overrideFn(mockPreviousState, {});
 
-            // The converted method should work with the proxy
             expect(result.getDouble()).toBe(10);
 
             consoleWarn.mockRestore();
@@ -3496,13 +3473,10 @@ describe('core/factory/async-component.factory.ts', () => {
         it('should immediately route through the shim when target is in _compositionApiComponents', async () => {
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-            // Mark as Composition API (simulates a mounted component)
             _compositionApiComponents.add('live-comp');
 
-            // Initialize the overrides array (simulates createExtendableSetup)
             _overridesMap['live-comp'] = [];
 
-            // Call override — should route through shim without build()
             ComponentFactory.override('live-comp', {
                 methods: {
                     save() {
@@ -3511,7 +3485,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 },
             });
 
-            // Wait for the async shim routing
             await flushPromises();
 
             expect(_overridesMap['live-comp']).toHaveLength(1);
@@ -3521,8 +3494,6 @@ describe('core/factory/async-component.factory.ts', () => {
         });
 
         it('should NOT route through the shim when target is NOT in _compositionApiComponents', async () => {
-            // Do NOT add to _compositionApiComponents
-
             ComponentFactory.override('legacy-only-comp', {
                 methods: {
                     save() {
@@ -3533,10 +3504,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
             await flushPromises();
 
-            // No routing — _overridesMap should not have this component
             expect(_overridesMap['legacy-only-comp']).toBeUndefined();
-
-            // But the override should be in the override registry
             expect(ComponentFactory.getOverrideRegistry().has('legacy-only-comp')).toBe(true);
         });
 

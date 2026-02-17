@@ -39,7 +39,6 @@ async function applyOptionsOverride(componentName: string, config: any) {
 
 describe('Options API Shim — Integrative Tests', () => {
     beforeEach(() => {
-        // Reset component factory state
         ComponentFactory.getComponentRegistry().clear();
         ComponentFactory.getOverrideRegistry().clear();
         ComponentFactory._clearComponentHelper();
@@ -48,14 +47,12 @@ describe('Options API Shim — Integrative Tests', () => {
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
 
-        // Reset shim state
         _compositionApiComponents.clear();
         const entries = [...Object.keys(_overridesMap)];
         entries.forEach((key) => {
             delete _overridesMap[key];
         });
 
-        // Clear all mocks
         jest.clearAllMocks();
     });
 

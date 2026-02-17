@@ -674,7 +674,9 @@ function override(
 
                 _overridesMap[componentName].push(compositionOverride);
             }
-        })();
+        })().catch((error) => {
+            warn('ComponentFactory', `Failed to apply Options API shim for "${componentName}":`, error);
+        });
     }
 
     return configResolveMethod;
@@ -753,18 +755,14 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
 
         // Resolve all override configs in parallel, then separate by type
         const resolvedEntries = await Promise.all(
-            overrides!.map(async (overrideEntry) => ({
-                config: await overrideEntry.config(),
-                configFn: overrideEntry.config,
-            })),
+            overrides!.map(async (overrideEntry) => overrideEntry.config()),
         );
 
         const standardOverrideConfigs: AwaitedComponentConfig[] = [];
 
-        resolvedEntries.forEach((entry) => {
-            if (typeof entry.config !== 'boolean' && shouldActivateShim(componentName, entry.config)) {
-                // Route through the Options API -> Composition API shim
-                const compositionOverride = convertOptionsApiOverrideToCompositionApi(componentName, entry.config);
+        resolvedEntries.forEach((resolvedConfig) => {
+            if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(componentName, resolvedConfig)) {
+                const compositionOverride = convertOptionsApiOverrideToCompositionApi(componentName, resolvedConfig);
 
                 if (!_overridesMap[componentName]) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -773,7 +771,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
 
                 _overridesMap[componentName].push(compositionOverride);
             } else {
-                standardOverrideConfigs.push(entry.configFn);
+                standardOverrideConfigs.push(() => Promise.resolve(resolvedConfig));
             }
         });
 

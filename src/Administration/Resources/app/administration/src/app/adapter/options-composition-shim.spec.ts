@@ -29,16 +29,12 @@ function convertWithSilencedWarning(
 
 describe('src/app/adapter/options-composition-shim', () => {
     beforeEach(() => {
-        // Reset the overrides map before each test
         const entries = [...Object.keys(_overridesMap)];
         entries.forEach((key) => {
             delete _overridesMap[key];
         });
 
-        // Reset the composition API components set
         _compositionApiComponents.clear();
-
-        // Clear all mocks
         jest.clearAllMocks();
     });
 
@@ -179,7 +175,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const result = overrideFn({}, {});
 
-            // Data values should be converted to refs
             expect(result.count.value).toBe(42);
             expect(result.name.value).toBe('test');
         });
@@ -495,7 +490,6 @@ describe('src/app/adapter/options-composition-shim', () => {
             await flushPromises();
             await nextTick();
 
-            // Should be called immediately
             expect(watchCallback).toHaveBeenCalled();
         });
 
@@ -632,7 +626,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const result = overrideFn(previousState, {});
 
-            // Local data should take priority
             expect(result.getCount()).toBe(999);
         });
 
@@ -794,7 +787,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const result = overrideFn({}, {});
 
-            // Both data sources should be present as refs
             expect(result.mixinValue.value).toBe('from-mixin');
             expect(result.localValue.value).toBe('from-override');
         });

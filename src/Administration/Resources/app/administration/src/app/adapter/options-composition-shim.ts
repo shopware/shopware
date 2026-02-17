@@ -15,6 +15,20 @@ import { ref, computed, watch, isRef, reactive } from 'vue';
 import type { Ref, ComputedRef } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 
+const LIFECYCLE_HOOKS = [
+    'beforeCreate',
+    'created',
+    'beforeMount',
+    'mounted',
+    'beforeUpdate',
+    'updated',
+    'beforeUnmount',
+    'unmounted',
+    'activated',
+    'deactivated',
+    'errorCaptured',
+];
+
 /**
  * Track components using Composition API
  * @private
@@ -30,10 +44,8 @@ export const _compositionApiComponents = reactive(new Set<string>());
  * @returns true if shim should activate, false otherwise
  */
 export function shouldActivateShim(componentName: string, overrideConfig: ComponentConfig): boolean {
-    // Check if target uses Composition API
     const targetUsesCompositionApi = _compositionApiComponents.has(componentName);
 
-    // Check if override uses Options API patterns
     const usesOptionsApi = !!(
         overrideConfig.data ||
         overrideConfig.methods ||
@@ -43,7 +55,6 @@ export function shouldActivateShim(componentName: string, overrideConfig: Compon
         overrideConfig.inject
     );
 
-    // Only activate shim if there's a mismatch
     return targetUsesCompositionApi && usesOptionsApi;
 }
 
@@ -59,19 +70,14 @@ export function convertOptionsApiOverrideToCompositionApi(
     componentName: string,
     optionsConfig: ComponentConfig,
 ): (previousState: any, props: any, context?: any) => any {
-    // Log deprecation warning
     logDeprecationWarning(componentName);
-
-    // Check for unsupported features
     checkUnsupportedFeatures(componentName, optionsConfig);
 
     return (previousState: any, props: any) => {
         const result: Record<string, any> = {};
 
-        // Merge mixins first
         const mergedConfig = mergeMixins(optionsConfig);
 
-        // Convert data() -> refs
         if (mergedConfig.data) {
             Object.assign(result, convertData(mergedConfig.data));
         }
@@ -79,22 +85,18 @@ export function convertOptionsApiOverrideToCompositionApi(
         // Create the this proxy (needs to be created after data but before computed/methods)
         const thisProxy = createThisProxy(previousState, props, result);
 
-        // Convert computed -> computed refs
         if (mergedConfig.computed) {
-            Object.assign(result, convertComputed(mergedConfig.computed, previousState, thisProxy));
+            Object.assign(result, convertComputed(mergedConfig.computed, thisProxy));
         }
 
-        // Convert methods -> functions
         if (mergedConfig.methods) {
-            Object.assign(result, convertMethods(mergedConfig.methods, previousState, thisProxy));
+            Object.assign(result, convertMethods(mergedConfig.methods, thisProxy));
         }
 
-        // Convert watch
         if (mergedConfig.watch) {
-            setupWatchers(mergedConfig.watch, previousState, thisProxy);
+            setupWatchers(mergedConfig.watch, thisProxy);
         }
 
-        // Handle inject
         if (mergedConfig.inject) {
             result._inject = mergedConfig.inject;
         }
@@ -118,18 +120,8 @@ function mergeMixins(config: ComponentConfig): ComponentConfig {
         watch: { ...config.watch },
     };
 
-    // Merge each mixin
     config.mixins.forEach((mixin: ComponentConfig) => {
-        // Check for unsupported lifecycle hooks
-        const lifecycleHooks = [
-            'created',
-            'mounted',
-            'updated',
-            'beforeUnmount',
-            'unmounted',
-            'beforeMount',
-        ];
-        lifecycleHooks.forEach((hook: string) => {
+        LIFECYCLE_HOOKS.forEach((hook: string) => {
             if ((mixin as any)[hook]) {
                 console.warn(
                     `[Options API Shim] Mixin lifecycle hooks are not supported by the compatibility shim. ` +
@@ -141,23 +133,19 @@ function mergeMixins(config: ComponentConfig): ComponentConfig {
         const existingDataValue =
             merged.data && typeof merged.data === 'function' ? (merged.data as () => any)() : (merged.data ?? {});
 
-        // Merge data
         if (mixin.data) {
             const mixinData = typeof mixin.data === 'function' ? (mixin.data as () => any)() : mixin.data;
             merged.data = () => ({ ...mixinData, ...existingDataValue });
         }
 
-        // Merge methods
         if (mixin.methods) {
             merged.methods = { ...mixin.methods, ...merged.methods };
         }
 
-        // Merge computed
         if (mixin.computed) {
             merged.computed = { ...mixin.computed, ...merged.computed };
         }
 
-        // Merge watch
         if (mixin.watch) {
             merged.watch = { ...mixin.watch, ...merged.watch };
         }
@@ -171,7 +159,6 @@ function mergeMixins(config: ComponentConfig): ComponentConfig {
  */
 function convertMethods(
     methods: Record<string, (...args: any[]) => any>,
-    previousState: any,
     thisProxy: any,
 ): Record<string, (...args: any[]) => any> {
     const converted: Record<string, (...args: any[]) => any> = {};
@@ -202,7 +189,6 @@ function createThisProxy(previousState: any, props: any, localState: any): any {
         {},
         {
             get(target: any, prop: string | symbol) {
-                // Only handle string properties
                 if (typeof prop !== 'string') {
                     return undefined;
                 }
@@ -232,7 +218,6 @@ function createThisProxy(previousState: any, props: any, localState: any): any {
                     return unwrapRef(previousState[prop]);
                 }
 
-                // Warn about undefined properties (unless it's a Vue internal property)
                 if (!prop.startsWith('_') && !prop.startsWith('$')) {
                     console.warn(
                         `[Options API Shim] Property "${prop}" not found in component state. ` +
@@ -243,12 +228,10 @@ function createThisProxy(previousState: any, props: any, localState: any): any {
                 return undefined;
             },
             set(target: any, prop: string | symbol, value: any) {
-                // Only handle string properties
                 if (typeof prop !== 'string') {
                     return false;
                 }
 
-                // Try to set in local state first
                 if (localState[prop] !== undefined) {
                     if (isRef(localState[prop])) {
                         localState[prop].value = value;
@@ -258,7 +241,6 @@ function createThisProxy(previousState: any, props: any, localState: any): any {
                     return true;
                 }
 
-                // Try to set in previous state
                 if (previousState[prop] !== undefined) {
                     if (isRef(previousState[prop])) {
                         previousState[prop].value = value;
@@ -287,7 +269,6 @@ function unwrapRef(value: any): any {
  */
 function convertComputed(
     computedDefs: Record<string, any>,
-    previousState: any,
     thisProxy: any,
 ): Record<string, ComputedRef> {
     const converted: Record<string, ComputedRef> = {};
@@ -352,7 +333,7 @@ function convertData(dataFn: (() => Record<string, any>) | Record<string, any>):
 /**
  * Sets up watchers for Options API watch configuration
  */
-function setupWatchers(watchConfig: Record<string, any>, previousState: any, thisProxy: any): void {
+function setupWatchers(watchConfig: Record<string, any>, thisProxy: any): void {
     Object.entries(watchConfig).forEach(
         ([
             key,
@@ -361,12 +342,7 @@ function setupWatchers(watchConfig: Record<string, any>, previousState: any, thi
             string,
             any,
         ]) => {
-            // Create a source function that watches the property
-            const source = () => {
-                // Try to get the value from the proxy
-                const value = thisProxy[key];
-                return value;
-            };
+            const source = () => thisProxy[key];
 
             if (typeof handler === 'function') {
                 // Simple function handler
@@ -403,21 +379,7 @@ function setupWatchers(watchConfig: Record<string, any>, previousState: any, thi
  * Checks for unsupported features and logs appropriate errors
  */
 function checkUnsupportedFeatures(componentName: string, config: ComponentConfig): void {
-    const lifecycleHooks = [
-        'beforeCreate',
-        'created',
-        'beforeMount',
-        'mounted',
-        'beforeUpdate',
-        'updated',
-        'beforeUnmount',
-        'unmounted',
-        'activated',
-        'deactivated',
-        'errorCaptured',
-    ];
-
-    lifecycleHooks.forEach((hook: string) => {
+    LIFECYCLE_HOOKS.forEach((hook: string) => {
         if ((config as any)[hook]) {
             console.error(
                 `[Options API Shim] Lifecycle hooks are not supported by the compatibility shim. ` +

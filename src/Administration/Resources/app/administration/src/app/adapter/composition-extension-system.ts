@@ -220,7 +220,6 @@ export function createExtendableSetup<
     // Register this component as using Composition API for the Options API shim
     _compositionApiComponents.add(options.name as string);
 
-    // Initialize the overrides array for this component if it doesn't exist
     if (!_overridesMap[options.name]) {
         _overridesMap[options.name] = reactive([]);
     }

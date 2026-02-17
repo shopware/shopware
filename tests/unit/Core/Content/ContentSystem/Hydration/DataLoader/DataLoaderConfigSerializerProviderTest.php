@@ -1,0 +1,80 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataLoader;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\DependencyInjection\ServiceLocator;
+
+/**
+ * @internal
+ */
+#[Package('discovery')]
+#[CoversClass(DataLoaderConfigSerializerProvider::class)]
+class DataLoaderConfigSerializerProviderTest extends TestCase
+{
+    #[TestDox('routes decode to the correct serializer and returns its result')]
+    public function testDecodeRoutesToRegisteredSerializer(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $serializer = $this->createMock(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('decode')
+            ->with(['key' => 'value'])
+            ->willReturn($config);
+
+        $locator = new ServiceLocator(['entity' => fn () => $serializer]);
+        $provider = new DataLoaderConfigSerializerProvider($locator);
+
+        $result = $provider->decode('entity', ['key' => 'value']);
+
+        static::assertSame($config, $result);
+    }
+
+    #[TestDox('routes encode to the correct serializer and returns its result')]
+    public function testEncodeRoutesToRegisteredSerializer(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $encoded = ['foo' => 'bar'];
+
+        $serializer = $this->createMock(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('encode')
+            ->with($config)
+            ->willReturn($encoded);
+
+        $locator = new ServiceLocator(['entity' => fn () => $serializer]);
+        $provider = new DataLoaderConfigSerializerProvider($locator);
+
+        $result = $provider->encode('entity', $config);
+
+        static::assertSame($encoded, $result);
+    }
+
+    #[TestDox('throws configSerializerNotRegistered when decode is called with an unknown source')]
+    public function testDecodeThrowsForUnknownSource(): void
+    {
+        $locator = new ServiceLocator([]);
+        $provider = new DataLoaderConfigSerializerProvider($locator);
+
+        static::expectExceptionObject(ContentSystemException::configSerializerNotRegistered('unknown_source'));
+
+        $provider->decode('unknown_source', []);
+    }
+
+    #[TestDox('throws configSerializerNotRegistered when encode is called with an unknown source')]
+    public function testEncodeThrowsForUnknownSource(): void
+    {
+        $locator = new ServiceLocator([]);
+        $provider = new DataLoaderConfigSerializerProvider($locator);
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+
+        static::expectExceptionObject(ContentSystemException::configSerializerNotRegistered('unknown_source'));
+
+        $provider->encode('unknown_source', $config);
+    }
+}

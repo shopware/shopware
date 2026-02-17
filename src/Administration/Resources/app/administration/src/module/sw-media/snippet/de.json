@@ -112,7 +112,7 @@
     "sw-model-editor": {
       "titleModal": "Model Editor",
       "edit-options": {
-        "move-ooltip": "Objekt verschieben",
+        "move-tooltip": "Objekt verschieben",
         "rotate-tooltip": "Objekt drehen",
         "scale-tooltip": "Objekt skalieren"
       },

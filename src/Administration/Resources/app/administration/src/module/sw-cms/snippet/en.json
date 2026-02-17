@@ -849,7 +849,7 @@
           "404Page": "404 pages",
           "maintenancePage": "Maintenance pages",
           "contactPage": "Contact forms",
-          "revocationRequestPage": "Cancellation request form",
+          "revocationRequestPage": "Revocation request form",
           "newsletterPage": "Newsletter pages"
         },
         "products": {

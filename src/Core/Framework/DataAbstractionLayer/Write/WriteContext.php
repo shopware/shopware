@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,7 +31,7 @@ class WriteContext
     /**
      * @var LanguageData
      */
-    private array $languages;
+    private array $languages = [];
 
     /**
      * @var array<string, string>|null
@@ -57,8 +59,8 @@ class WriteContext
      */
     public function getLanguages(): array
     {
-        if (!isset($this->languages) || $this->languages === []) {
-            throw new \RuntimeException('languages not initialized');
+        if ($this->languages === []) {
+            throw DataAbstractionLayerException::invalidWriteContext('Languages are not initialized.');
         }
 
         return $this->languages;
@@ -92,7 +94,11 @@ class WriteContext
         $path = $this->buildPathName($entity, $propertyName);
 
         if (!$this->has($entity, $propertyName)) {
-            throw new \InvalidArgumentException(\sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
+            if (Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
+                throw new \InvalidArgumentException(\sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
+            }
+            throw DataAbstractionLayerException::invalidWriteContext(\sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
         }
 
         return $this->paths[$path];

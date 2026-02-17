@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -290,7 +291,7 @@ class TreeUpdater
         } while ($parentIds !== [] && $levels >= 0);
 
         if ($levels <= 0) {
-            throw new \RuntimeException('Reached max depth, aborting');
+            throw DataAbstractionLayerException::treeUpdateError('Reached max depth, aborting');
         }
     }
 
@@ -357,7 +358,7 @@ class TreeUpdater
     private function updateEntity(array $entity, EntityDefinition $definition, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context, TreeUpdaterBag $bag): void
     {
         if ($pathField === null && $levelField) {
-            throw new \RuntimeException('`TreePathField` or `TreeLevelField` required.');
+            throw DataAbstractionLayerException::treeUpdateError('`TreePathField` or `TreeLevelField` required.');
         }
 
         if ($bag->alreadyUpdated($entity['id'])) {

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -101,7 +101,7 @@ class RepositoryFacade
         $missingPermissions = $this->criteriaValidator->validate($entityName, $criteriaObject, $this->context);
 
         if ($missingPermissions !== []) {
-            throw new MissingPrivilegeException($missingPermissions);
+            throw DataAbstractionLayerException::missingPrivileges($missingPermissions);
         }
 
         return $criteriaObject;

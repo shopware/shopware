@@ -713,7 +713,8 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        if ($filteredIds = \array_filter($ids) !== []) {
+        $filteredIds = \array_filter($ids);
+        if ($filteredIds !== []) {
             $fieldCriteria->setIds($filteredIds);
         }
 

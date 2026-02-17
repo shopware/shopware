@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
@@ -139,6 +141,10 @@ class DataAbstractionLayerException extends HttpException
     public const FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD = 'FRAMEWORK__FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD';
     public const WRONG_FIELD_TYPE_FOR_EXTENSION = 'FRAMEWORK__WRONG_FIELD_TYPE_FOR_EXTENSION';
     public const DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER = 'FRAMEWORK__DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER';
+    public const INVALID_WRITE_CONTEXT = 'FRAMEWORK__DAL_INVALID_WRITE_CONTEXT';
+    public const TREE_UPDATER_ERROR = 'FRAMEWORK__DAL_TREE_UPDATER_ERROR';
+    public const ASSOCIATION_NOT_INHERITED = 'FRAMEWORK__DAL_ASSOCIATION_NOT_INHERITED';
+    public const ENTITY_HYDRATOR_ERROR = 'FRAMEWORK__DAL_ENTITY_HYDRATOR_ERROR';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -1209,6 +1215,51 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER,
             'Serialized fields can only be written by an indexer.',
+        );
+    }
+
+    public static function invalidWriteContext(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_WRITE_CONTEXT,
+            $message,
+        );
+    }
+
+    public static function treeUpdateError(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TREE_UPDATER_ERROR,
+            $message,
+        );
+    }
+
+    public static function associationNotInherited(string $association): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ASSOCIATION_NOT_INHERITED,
+            'Association "{{ association }}" is not marked as inherited',
+            ['association' => $association],
+        );
+    }
+
+    /**
+     * @param list<string> $permissions
+     */
+    public static function missingPrivileges(array $permissions): ShopwareHttpException
+    {
+        return new MissingPrivilegeException($permissions);
+    }
+
+    public static function entityHydratorError(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_HYDRATOR_ERROR,
+            $message,
         );
     }
 }

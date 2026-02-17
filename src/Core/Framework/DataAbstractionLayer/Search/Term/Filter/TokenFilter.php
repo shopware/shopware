@@ -82,7 +82,7 @@ class TokenFilter extends AbstractTokenFilter
         foreach ($tokens as $tag) {
             $tag = trim((string) $tag);
 
-            if ($tag === '' || $tag === '0' || mb_strlen($tag) < $minSearchTermLength) {
+            if ($tag === '' || mb_strlen($tag) < $minSearchTermLength) {
                 continue;
             }
 

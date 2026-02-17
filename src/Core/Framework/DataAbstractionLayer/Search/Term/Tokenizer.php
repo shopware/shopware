@@ -51,7 +51,7 @@ class Tokenizer implements TokenizerInterface
         foreach ($tags as $tag) {
             $tag = trim($tag);
 
-            if ($tag === '' || $tag === '0' || mb_strlen($tag) < $tokenMinimumLength) {
+            if ($tag === '' || mb_strlen($tag) < $tokenMinimumLength) {
                 continue;
             }
 

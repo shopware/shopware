@@ -584,7 +584,7 @@ class Criteria extends Struct implements \Stringable
         }
 
         // result will be sorted by interpreted search term and the calculated ranking
-        if (!\in_array($this->getTerm(), [null, '', '0'], true)) {
+        if (($this->getTerm() ?? '') !== '') {
             return false;
         }
 

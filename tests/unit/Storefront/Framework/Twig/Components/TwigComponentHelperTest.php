@@ -3,12 +3,9 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Components;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\UX\TwigComponent\ComponentFactory;
@@ -28,45 +25,9 @@ class TwigComponentHelperTest extends TestCase
         mkdir($this->tempDir, 0777, true);
     }
 
-    private function createComponentFactory(?ComponentMetadata $metadata = null): ComponentFactory
-    {
-        // ComponentFactory is final, so we use reflection to create a stub instance
-        $reflectionClass = new \ReflectionClass(ComponentFactory::class);
-        $instance = $reflectionClass->newInstanceWithoutConstructor();
-
-        // If metadata is provided, inject it so metadataFor() can return it
-        if ($metadata !== null) {
-            $configProperty = $reflectionClass->getProperty('config');
-            $configProperty->setValue($instance, [
-                $metadata->getName() => [
-                    'key' => $metadata->getName(),
-                    'template' => $metadata->getTemplate(),
-                    'class' => $metadata->getClass(),
-                    'service_id' => $metadata->getServiceId(),
-                ],
-            ]);
-        }
-
-        return $instance;
-    }
-
     protected function tearDown(): void
     {
         $this->removeTempDir($this->tempDir);
-    }
-
-    private function removeTempDir(string $dir): void
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $files = array_diff(scandir($dir), ['.', '..']);
-        foreach ($files as $file) {
-            $path = $dir . '/' . $file;
-            is_dir($path) ? $this->removeTempDir($path) : unlink($path);
-        }
-        rmdir($dir);
     }
 
     public function testGetComponentsReturnsEmptyCollectionWhenNoBundlesOrApps(): void
@@ -98,7 +59,6 @@ class TwigComponentHelperTest extends TestCase
 
         $components = $helper->getComponents();
 
-        static::assertInstanceOf(TwigComponentCollection::class, $components);
         static::assertCount(0, $components);
     }
 
@@ -258,7 +218,8 @@ class TwigComponentHelperTest extends TestCase
 
         static::assertCount(1, $components);
         $component = $components->get('TestBundle:Button');
-        
+        static::assertNotNull($component);
+
         $componentMetadata = $component->getMetadata();
         static::assertNotNull($componentMetadata);
         static::assertSame('Button', $componentMetadata->getName());
@@ -298,6 +259,7 @@ class TwigComponentHelperTest extends TestCase
 
         static::assertCount(1, $components);
         $component = $components->get('TestBundle:Button');
+        static::assertNotNull($component);
         static::assertNull($component->getMetadata());
     }
 
@@ -319,7 +281,6 @@ class TwigComponentHelperTest extends TestCase
 
         $component = $helper->getComponentFromTemplate($splFileInfo, 'TestNamespace');
 
-        static::assertInstanceOf(TwigComponent::class, $component);
         static::assertSame('Button', $component->getName());
         static::assertSame($templatePath, $component->getPath());
         static::assertSame('TestNamespace', $component->getNamespace());
@@ -491,5 +452,41 @@ class TwigComponentHelperTest extends TestCase
         static::assertCount(1, $components);
         static::assertTrue($components->has('Button'));
         static::assertFalse($components->has('Storefront:Button'));
+    }
+
+    private function createComponentFactory(?ComponentMetadata $metadata = null): ComponentFactory
+    {
+        // ComponentFactory is final, so we use reflection to create a stub instance
+        $reflectionClass = new \ReflectionClass(ComponentFactory::class);
+        $instance = $reflectionClass->newInstanceWithoutConstructor();
+
+        // If metadata is provided, inject it so metadataFor() can return it
+        if ($metadata !== null) {
+            $configProperty = $reflectionClass->getProperty('config');
+            $configProperty->setValue($instance, [
+                $metadata->getName() => [
+                    'key' => $metadata->getName(),
+                    'template' => $metadata->getTemplate(),
+                    'class' => $metadata->getClass(),
+                    'service_id' => $metadata->getServiceId(),
+                ],
+            ]);
+        }
+
+        return $instance;
+    }
+
+    private function removeTempDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $files = array_diff(scandir($dir), ['.', '..']);
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+            is_dir($path) ? $this->removeTempDir($path) : unlink($path);
+        }
+        rmdir($dir);
     }
 }

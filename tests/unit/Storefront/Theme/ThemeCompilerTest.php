@@ -400,7 +400,7 @@ class ThemeCompilerTest extends TestCase
     {
         $this->setupBasicFileResolution();
 
-        $capturedScss = null;
+        $capturedScss = '';
         $this->scssPhpCompiler
             ->method('compileString')
             ->willReturnCallback(function ($config, $scss) use (&$capturedScss) {
@@ -431,6 +431,7 @@ class ThemeCompilerTest extends TestCase
             Context::createDefaultContext()
         );
 
+        static::assertNotEmpty($capturedScss, 'SCSS should have been captured');
         static::assertStringContainsString('$custom-variable: #ff0000', $capturedScss);
     }
 

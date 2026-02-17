@@ -34,7 +34,7 @@ class MediaExtension extends AbstractExtension
      */
     public function searchMedia(array $ids, Context $context): MediaCollection
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return new MediaCollection();
         }
 

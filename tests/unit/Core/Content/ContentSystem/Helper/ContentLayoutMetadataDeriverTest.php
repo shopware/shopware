@@ -1,0 +1,66 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Helper;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('discovery')]
+#[CoversClass(ContentLayoutMetadataDeriver::class)]
+class ContentLayoutMetadataDeriverTest extends TestCase
+{
+    /**
+     * @return \Generator<string, array{string, string}>
+     */
+    public static function entityIdFieldProvider(): \Generator
+    {
+        yield 'product' => ['product', 'productId'];
+        yield 'landing_page' => ['landing_page', 'landingPageId'];
+        yield 'category' => ['category', 'categoryId'];
+        yield 'custom underscore type' => ['some_custom_type', 'someCustomTypeId'];
+    }
+
+    #[DataProvider('entityIdFieldProvider')]
+    #[TestDox('derives entity ID field "$expected" from entity type "$entityType"')]
+    public function testDerivesEntityIdFieldFromEntityType(string $entityType, string $expected): void
+    {
+        $deriver = new ContentLayoutMetadataDeriver();
+
+        static::assertSame($expected, $deriver->deriveEntityIdField($entityType));
+    }
+
+    /**
+     * @return \Generator<string, array{string, string}>
+     */
+    public static function pathPrefixProvider(): \Generator
+    {
+        yield 'product' => ['product', '/product/'];
+        yield 'landing_page' => ['landing_page', '/landing-page/'];
+        yield 'category' => ['category', '/category/'];
+        yield 'custom underscore type' => ['some_custom_type', '/some-custom-type/'];
+    }
+
+    #[DataProvider('pathPrefixProvider')]
+    #[TestDox('derives path prefix "$expected" from entity type "$entityType"')]
+    public function testDerivesPathPrefixFromEntityType(string $entityType, string $expected): void
+    {
+        $deriver = new ContentLayoutMetadataDeriver();
+
+        static::assertSame($expected, $deriver->derivePathPrefix($entityType));
+    }
+
+    #[TestDox('derives route pattern from entity ID field')]
+    public function testDerivesRoutePatternFromEntityIdField(): void
+    {
+        $deriver = new ContentLayoutMetadataDeriver();
+
+        static::assertSame('{productId}', $deriver->deriveRoutePattern('productId'));
+    }
+}

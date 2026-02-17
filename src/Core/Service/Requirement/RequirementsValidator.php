@@ -4,10 +4,13 @@ namespace Shopware\Core\Service\Requirement;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\State;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ServiceSourceConfig from ServiceSourceResolver
  */
 #[Package('framework')]
 class RequirementsValidator
@@ -26,13 +29,11 @@ class RequirementsValidator
     }
 
     /**
-     * Returns true if ALL requirements for the given service are met.
+     * Returns true only if all requirements for the given service are satisfied.
      *
-     * Unknown requirements (not registered in platform) are treated as
-     * not met for inactive services, preventing activation. However, if
-     * the service is already active, unknown requirements are ignored —
-     * a bad app release should not deactivate a running service. The app
-     * should release a fix targeting the correct platform version.
+     * Unknown requirements are treated as not met for inactive services, preventing activation.
+     * However, if the service is already active, unknown requirements are ignored. A bad app
+     * release should not deactivate a running service. The app should release a fix targeting the correct platform version.
      */
     public function isSatisfied(AppEntity $app): bool
     {
@@ -66,13 +67,9 @@ class RequirementsValidator
      */
     private function getRequirements(AppEntity $app): array
     {
-        $requirements = $app->getSourceConfig()['requirements'] ?? [];
+        /** @var ServiceSourceConfig $sourceConfig */
+        $sourceConfig = $app->getSourceConfig();
 
-        if (!\is_array($requirements)) {
-            return [];
-        }
-
-        /** @var list<string> $requirements */
-        return $requirements;
+        return $sourceConfig['requirements'];
     }
 }

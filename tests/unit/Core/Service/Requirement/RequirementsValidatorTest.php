@@ -21,7 +21,7 @@ class RequirementsValidatorTest extends TestCase
             'shopware_account' => $this->createRequirement(true),
         ]));
 
-        $app = $this->createApp(['service_consent', 'shopware_account'], 'pending_permissions');
+        $app = $this->createApp(['service_consent', 'shopware_account'], false);
 
         static::assertTrue($validator->isSatisfied($app));
     }
@@ -33,7 +33,7 @@ class RequirementsValidatorTest extends TestCase
             'shopware_account' => $this->createRequirement(false),
         ]));
 
-        $app = $this->createApp(['service_consent', 'shopware_account'], 'pending_permissions');
+        $app = $this->createApp(['service_consent', 'shopware_account'], false);
 
         static::assertFalse($validator->isSatisfied($app));
     }
@@ -44,7 +44,7 @@ class RequirementsValidatorTest extends TestCase
             'service_consent' => $this->createRequirement(true),
         ]));
 
-        $app = $this->createApp(['service_consent', 'unknown_requirement'], 'pending_permissions');
+        $app = $this->createApp(['service_consent', 'unknown_requirement'], false);
 
         static::assertFalse($validator->isSatisfied($app));
     }
@@ -55,7 +55,7 @@ class RequirementsValidatorTest extends TestCase
             'service_consent' => $this->createRequirement(true),
         ]));
 
-        $app = $this->createApp(['service_consent', 'unknown_requirement'], 'active');
+        $app = $this->createApp(['service_consent', 'unknown_requirement'], true);
 
         static::assertTrue($validator->isSatisfied($app));
     }
@@ -66,7 +66,7 @@ class RequirementsValidatorTest extends TestCase
             'service_consent' => $this->createRequirement(false),
         ]));
 
-        $app = $this->createApp(['service_consent'], 'active');
+        $app = $this->createApp(['service_consent'], true);
 
         static::assertFalse($validator->isSatisfied($app));
     }
@@ -74,7 +74,7 @@ class RequirementsValidatorTest extends TestCase
     /**
      * @param list<string> $requirements
      */
-    private function createApp(array $requirements, string $state): AppEntity
+    private function createApp(array $requirements, bool $active = true): AppEntity
     {
         $app = new AppEntity();
         $app->assign([
@@ -82,22 +82,9 @@ class RequirementsValidatorTest extends TestCase
             'name' => 'TestApp',
             'selfManaged' => true,
             'sourceConfig' => ['requirements' => $requirements],
+            'active' => true,
+            'requestedPrivileges' => $active ? [] : ['some:privilege'],
         ]);
-
-        // State is derived from requestedPrivileges + active:
-        // ACTIVE = no requested privileges + active
-        // PENDING_PERMISSIONS = has requested privileges + active
-        if ($state === 'active') {
-            $app->assign([
-                'active' => true,
-                'requestedPrivileges' => [],
-            ]);
-        } else {
-            $app->assign([
-                'active' => true,
-                'requestedPrivileges' => ['some:privilege'],
-            ]);
-        }
 
         return $app;
     }
@@ -112,7 +99,7 @@ class RequirementsValidatorTest extends TestCase
 
             public static function getName(): string
             {
-                return '';
+                return 'test';
             }
 
             public function isSatisfied(): bool

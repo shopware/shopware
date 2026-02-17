@@ -140,23 +140,9 @@ class AppInfoTest extends TestCase
         static::assertSame(['shopware_account'], $appInfo->requirements);
     }
 
-    public function testFromNameAndSourceConfigDefaultsRequirementsToEmptyArray(): void
-    {
-        $appInfo = AppInfo::fromNameAndSourceConfig('TestApp', [
-            'version' => '1.0.0',
-            'hash' => 'a453f',
-            'revision' => '1.0.0-a453f',
-            'zip-url' => 'https://example.com/zip',
-            'hash-algorithm' => 'sha256',
-            'min-shop-supported-version' => '6.6.0.0',
-        ]);
-
-        static::assertSame([], $appInfo->requirements);
-    }
-
     public function testToArray(): void
     {
-        $appInfo = new AppInfo('TestApp', '1.0.0', 'a453f', '1.0.0-a453f', 'https://example.com/zip', 'sha256', '6.6.0.0');
+        $appInfo = new AppInfo('TestApp', '1.0.0', 'a453f', '1.0.0-a453f', 'https://example.com/zip', ['service_consent'], 'sha256', '6.6.0.0');
 
         static::assertSame(
             [
@@ -166,7 +152,7 @@ class AppInfoTest extends TestCase
                 'zip-url' => 'https://example.com/zip',
                 'hash-algorithm' => 'sha256',
                 'min-shop-supported-version' => '6.6.0.0',
-                'requirements' => [],
+                'requirements' => ['service_consent'],
             ],
             $appInfo->toArray()
         );
@@ -180,9 +166,9 @@ class AppInfoTest extends TestCase
             'a453f',
             '1.0.0-a453f',
             'https://example.com/zip',
+            ['service_consent', 'shopware_account'],
             'sha256',
             '6.6.0.0',
-            ['service_consent', 'shopware_account'],
         );
 
         static::assertSame(['service_consent', 'shopware_account'], $appInfo->toArray()['requirements']);

@@ -21,7 +21,7 @@ class ShopwareAccountRequirementTest extends TestCase
     public function testIsSatisfiedWhenUserHasStoreToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->with('SELECT 1 FROM `user` WHERE `store_token` IS NOT NULL LIMIT 1')
             ->willReturn('1');
@@ -34,7 +34,7 @@ class ShopwareAccountRequirementTest extends TestCase
     public function testIsNotSatisfiedWhenNoUserHasStoreToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->with('SELECT 1 FROM `user` WHERE `store_token` IS NOT NULL LIMIT 1')
             ->willReturn(false);

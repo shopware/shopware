@@ -21,7 +21,7 @@ class ServiceConsentRequirementTest extends TestCase
     public function testIsSatisfiedWhenPermissionsAreGranted(): void
     {
         $permissionsService = $this->createMock(PermissionsService::class);
-        $permissionsService->expects(static::once())
+        $permissionsService->expects($this->once())
             ->method('areGranted')
             ->willReturn(true);
 
@@ -33,7 +33,7 @@ class ServiceConsentRequirementTest extends TestCase
     public function testIsNotSatisfiedWhenPermissionsAreNotGranted(): void
     {
         $permissionsService = $this->createMock(PermissionsService::class);
-        $permissionsService->expects(static::once())
+        $permissionsService->expects($this->once())
             ->method('areGranted')
             ->willReturn(false);
 

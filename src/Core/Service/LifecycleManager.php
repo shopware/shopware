@@ -28,6 +28,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * Stopped: The service is not running. The underlying application backing the service is in a Pending Permission state.
  *
  * @internal
+ *
+ * @phpstan-import-type ServiceSourceConfig from ServiceSourceResolver
  */
 #[Package('framework')]
 class LifecycleManager
@@ -102,7 +104,9 @@ class LifecycleManager
     public function syncRequirement(string $requirementName, Context $context): void
     {
         foreach ($this->getAllServices($context) as $app) {
-            $requirements = $app->getSourceConfig()['requirements'] ?? [];
+            /** @var ServiceSourceConfig $sourceConfig */
+            $sourceConfig = $app->getSourceConfig();
+            $requirements = $sourceConfig['requirements'];
 
             if (\in_array($requirementName, $requirements, true)) {
                 $this->syncPrivileges($app, $context);

@@ -12,9 +12,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 interface ServiceRequirement
 {
-    /**
-     * The requirement name as returned by the service's app endpoint.
-     */
     public static function getName(): string;
 
     public function isSatisfied(): bool;

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 readonly class AppInfo
 {
     /**
-     * @param list<string> $requirements
+     * @param non-empty-list<string> $requirements
      */
     public function __construct(
         public string $name,
@@ -21,9 +21,9 @@ readonly class AppInfo
         public string $hash,
         public string $revision,
         public string $zipUrl,
+        public array $requirements,
         public ?string $hashAlgorithm = null,
         public ?string $minShopwareSupportedVersion = null,
-        public array $requirements = [],
     ) {
     }
 
@@ -50,9 +50,9 @@ readonly class AppInfo
             $appInfo['app-hash'],
             $appInfo['app-revision'],
             $appInfo['app-zip-url'],
+            $appInfo['requirements'],
             $appInfo['app-hash-algorithm'],
             $appInfo['app-min-shop-supported-version'],
-            $appInfo['requirements'],
         );
     }
 
@@ -67,9 +67,9 @@ readonly class AppInfo
             $sourceConfig['hash'],
             $sourceConfig['revision'],
             $sourceConfig['zip-url'],
+            $sourceConfig['requirements'],
             $sourceConfig['hash-algorithm'] ?? null,
             $sourceConfig['min-shop-supported-version'] ?? null,
-            $sourceConfig['requirements'] ?? [],
         );
     }
 

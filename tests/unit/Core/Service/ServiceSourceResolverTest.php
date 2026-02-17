@@ -110,6 +110,7 @@ class ServiceSourceResolverTest extends TestCase
             'abc123',
             '1.0.0-abc123',
             'https://example.com/app.zip',
+            ['service_consent'],
             'sha256',
             '6.6.0.0'
         );

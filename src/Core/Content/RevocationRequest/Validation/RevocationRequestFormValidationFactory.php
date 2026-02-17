@@ -47,8 +47,7 @@ class RevocationRequestFormValidationFactory implements DataValidationFactoryInt
             ->add('firstName', new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false))
             ->add('lastName', new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false))
             ->add('email', new NotBlank(), new Email())
-            ->add('contractNumber', new NotBlank())
-            ->add('comment', new NotBlank());
+            ->add('contractNumber', new NotBlank());
 
         $required = $this->systemConfigService->get('core.basicInformation.firstNameFieldRequired', $context->getSalesChannelId());
         if ($required) {

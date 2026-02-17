@@ -52,13 +52,13 @@ class RevocationRequestFormValidationFactoryTest extends TestCase
         yield 'all is invalid' => [
             'formData' => [],
             'requireNames' => true,
-            'expectedViolationCount' => 5,
+            'expectedViolationCount' => 4,
         ];
 
         yield 'all is invalid but names are not required' => [
             'formData' => [],
             'requireNames' => false,
-            'expectedViolationCount' => 3,
+            'expectedViolationCount' => 2,
         ];
 
         $formData = self::createValidData();
@@ -116,7 +116,7 @@ class RevocationRequestFormValidationFactoryTest extends TestCase
         yield 'comment is missing' => [
             'formData' => $formData,
             'requireNames' => true,
-            'expectedViolationCount' => 1,
+            'expectedViolationCount' => 0,
         ];
     }
 

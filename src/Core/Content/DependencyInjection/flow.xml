@@ -179,7 +179,7 @@
 
         <service id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Indexing\FlowBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
@@ -197,7 +197,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\FlowBuilder"/>
+        <service id="Shopware\Core\Content\Flow\Indexing\FlowBuilder"/>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer">
             <argument type="service" id="order.repository"/>

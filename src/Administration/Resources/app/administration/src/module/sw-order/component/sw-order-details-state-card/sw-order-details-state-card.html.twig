@@ -38,6 +38,7 @@
                 v-if="lastStateChange"
                 class="sw-order-detail-state-card__state-history-text"
             >
+                {% block sw_order_detail_state_card_state_history_text_label %}
                 <i18n-t
                     keypath="sw-order.stateCard.labelHistory"
                     scope="local"
@@ -52,6 +53,16 @@
                         {{ lastChangeAuthorLabel }}
                     </template>
                 </i18n-t>
+                {% endblock %}
+
+                {% block sw_order_detail_state_card_state_history_text_internal_comment %}
+                <mt-icon
+                    v-if="lastStateChange.internalComment"
+                    v-tooltip="lastStateChange.internalComment"
+                    name="regular-comment"
+                    size="14"
+                />
+                {% endblock %}
             </div>
             <div v-else></div>
             {% endblock %}

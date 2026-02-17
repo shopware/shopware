@@ -78,7 +78,7 @@
                                 {% block layout_footer_navigation_revocation_button %}
                                     {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestTextPage' %}
                                     {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
-                                    {% set showRevocationButton = config('core.basicInformation.showRevokationButton') %}
+                                    {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
 
                                     {% if revocationRequestCmsPageId and showRevocationButton %}
                                         {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}

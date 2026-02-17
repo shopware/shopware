@@ -152,13 +152,13 @@ class MakeCoverageTestCommand extends Command
                     continue;
                 }
 
-                if (!\in_array($excludedDir->prefix(), ['', '0'], true) && str_ends_with($fileName, $excludedDir->prefix())) {
+                if ($excludedDir->prefix() !== '' && str_ends_with($fileName, $excludedDir->prefix())) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
 
                     continue;
                 }
 
-                if (!\in_array($excludedDir->suffix(), ['', '0'], true) && str_ends_with($fileName, $excludedDir->suffix())) {
+                if ($excludedDir->suffix() !== '' && str_ends_with($fileName, $excludedDir->suffix())) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
                 }
             }

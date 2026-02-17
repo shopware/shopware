@@ -36,7 +36,7 @@ class NavigationLoader implements NavigationLoaderInterface
      *
      * @throws CategoryNotFoundException
      */
-    public function load(string $activeId, SalesChannelContext $context, string $rootId, int $depth = 2): Tree
+    public function load(string $activeId, SalesChannelContext $context, string $rootId, int $depth = NavigationLoaderInterface::DEFAULT_DEPTH): Tree
     {
         $request = new Request();
         $request->query->set('buildTree', 'false');

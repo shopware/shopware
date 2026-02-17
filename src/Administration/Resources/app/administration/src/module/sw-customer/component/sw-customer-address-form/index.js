@@ -151,6 +151,15 @@ export default {
             },
         },
 
+        isBusinessAccountType: {
+            immediate: true,
+            handler(newVal) {
+                const definition = EntityDefinition.get(this.address.getEntityName());
+
+                definition.properties.company.flags.required = newVal;
+            },
+        },
+
         'address.company'(newVal) {
             if (!newVal || !this.customer.isNew()) {
                 return;

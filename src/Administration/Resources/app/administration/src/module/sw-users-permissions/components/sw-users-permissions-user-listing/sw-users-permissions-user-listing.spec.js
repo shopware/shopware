@@ -1,7 +1,9 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, RouterLinkStub } from '@vue/test-utils';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper(privileges = [], isSso = { isSso: false }) {
     return mount(
@@ -24,7 +26,42 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                     userService: {},
                     repositoryFactory: {
                         create: () => ({
-                            search: () => Promise.resolve([]),
+                            search: () => {
+                                return Promise.resolve(
+                                    new EntityCollection(
+                                        'user',
+                                        'user',
+                                        Shopware.Context.api,
+                                        new Criteria(1),
+                                        [
+                                            {
+                                                id: '019bff8c86e773e79ec5538c7b1edabc',
+                                                username: 'maxmuster',
+                                                firstName: 'Max',
+                                                lastName: 'Mustermann',
+                                                email: 'max@mustermann.com',
+                                                active: false,
+                                                aclRoles: [
+                                                    { name: 'testRole' },
+                                                ],
+                                            },
+                                            {
+                                                id: '019bff8c86e773e79ec5538c7b1ed571',
+                                                username: 'admin',
+                                                firstName: '',
+                                                lastName: 'admin',
+                                                email: 'info@shopware.com',
+                                                active: true,
+                                                aclRoles: [
+                                                    { name: 'adminRole' },
+                                                    { name: 'superUser' },
+                                                ],
+                                            },
+                                        ],
+                                        1,
+                                    ),
+                                );
+                            },
                         }),
                     },
                     loginService: {},
@@ -41,23 +78,9 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                     $route: { query: '' },
                 },
                 stubs: {
-                    'sw-user-sso-invitation-modal': true,
                     'sw-user-sso-status-label': await wrapTestComponent('sw-user-sso-status-label'),
-                    'sw-container': true,
-                    'sw-simple-search-field': true,
-                    'sw-data-grid': {
-                        props: [
-                            'dataSource',
-                            'columns',
-                        ],
-                        template: `
-<div class="sw-data-grid-stub">
-  <template v-for="item in dataSource">
-      <slot name="actions" v-bind="{ item }"></slot>
-  </template>
-</div>
-`,
-                    },
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'router-link': RouterLinkStub,
                     'sw-context-menu-item': {
                         template:
                             '<div class="sw-context-menu-item-stub" :disabled="disabled ? \'true\' : undefined"><slot /></div>',
@@ -67,9 +90,18 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                             'variant',
                         ],
                     },
+                    'sw-user-sso-invitation-modal': true,
+                    'sw-container': true,
+                    'sw-simple-search-field': true,
                     'sw-avatar': true,
-                    'router-link': true,
                     'sw-pagination': true,
+                    'sw-context-button': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-provide': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-color-badge': true,
                 },
             },
         },
@@ -84,8 +116,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     it('the data-grid should show the right columns', async () => {
-        const swDataGrid = wrapper.findComponent('.sw-data-grid-stub');
-        expect(swDataGrid.props().columns).toStrictEqual([
+        await flushPromises();
+
+        const expectedColumns = [
             {
                 property: 'username',
                 label: 'sw-users-permissions.users.user-grid.labelUsername',
@@ -100,55 +133,134 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
             },
             {
                 property: 'aclRoles',
-                sortable: false,
                 label: 'sw-users-permissions.users.user-grid.labelRoles',
             },
             {
                 property: 'email',
                 label: 'sw-users-permissions.users.user-grid.labelEmail',
             },
-        ]);
+        ];
+
+        expectedColumns.forEach((column) => {
+            const label = wrapper.findByText('div', column.label);
+            expect(label.exists()).toBe(true);
+
+            const dataCell = wrapper.find('td', column.property);
+            expect(dataCell.exists()).toBe(true);
+        });
+    });
+
+    it('the data-grid should show the right columns with SSO', async () => {
+        wrapper = await createWrapper(['users_and_permissions.creator'], { isSso: true });
+        await flushPromises();
+
+        const expectedColumns = [
+            {
+                property: 'email',
+                label: 'sw-users-permissions.users.user-grid.labelEmail',
+            },
+            {
+                property: 'aclRoles',
+                label: 'sw-users-permissions.users.user-grid.labelRoles',
+            },
+            {
+                property: 'status',
+                label: 'sw-users-permissions.users.user-grid.status',
+            },
+        ];
+
+        expectedColumns.forEach((column) => {
+            const label = wrapper.findByText('div', column.label);
+            expect(label.exists()).toBe(true);
+
+            const dataCell = wrapper.find('td', column.property);
+            expect(dataCell.exists()).toBe(true);
+        });
     });
 
     it('the data-grid should get the right user data', async () => {
-        const swDataGrid = wrapper.findComponent('.sw-data-grid-stub');
-        expect(swDataGrid.props().dataSource).toStrictEqual([]);
+        await flushPromises();
 
-        await wrapper.setData({
-            user: [
-                {
-                    localeId: '12345',
-                    username: 'maxmuster',
-                    firstName: 'Max',
-                    lastName: 'Mustermann',
-                    email: 'max@mustermann.com',
-                },
-                {
-                    localeId: '7dc07b43229843d387bb5f59233c2d66',
-                    username: 'admin',
-                    firstName: '',
-                    lastName: 'admin',
-                    email: 'info@shopware.com',
-                },
-            ],
-        });
-
-        expect(swDataGrid.props().dataSource).toStrictEqual([
+        const expectedUser = [
             {
-                localeId: '12345',
                 username: 'maxmuster',
                 firstName: 'Max',
                 lastName: 'Mustermann',
                 email: 'max@mustermann.com',
+                aclRoles: ['testRole'],
             },
             {
-                localeId: '7dc07b43229843d387bb5f59233c2d66',
                 username: 'admin',
                 firstName: '',
                 lastName: 'admin',
                 email: 'info@shopware.com',
+                aclRoles: [
+                    'adminRole',
+                    'superUser',
+                ],
             },
-        ]);
+        ];
+
+        const allAclRoles = wrapper.findAll('td.sw-data-grid__cell--aclRoles');
+        allAclRoles.forEach((aclRole, index) => {
+            expectedUser[index].aclRoles.forEach((role) => {
+                expect(aclRole.text()).toContain(role);
+            });
+        });
+
+        expectedUser.forEach((user) => {
+            const userName = wrapper.findByText('a.sw-settings-user-list__columns', user.username);
+            expect(userName.exists()).toBe(true);
+
+            const firstName = wrapper.findByText('div.sw-data-grid__cell-content', user.firstName);
+            expect(firstName.exists()).toBe(true);
+
+            const lastName = wrapper.findByText('div.sw-data-grid__cell-content', user.lastName);
+            expect(lastName.exists()).toBe(true);
+
+            const email = wrapper.findByText('div.sw-data-grid__cell-content', user.email);
+            expect(email.exists()).toBe(true);
+        });
+    });
+
+    it('the data-grid should get the right user data with SSO', async () => {
+        wrapper = await createWrapper(['users_and_permissions.creator'], { isSso: true });
+        await flushPromises();
+
+        const expectedUser = [
+            {
+                email: 'max@mustermann.com',
+                active: false,
+                aclRoles: ['testRole'],
+            },
+            {
+                email: 'info@shopware.com',
+                active: true,
+                aclRoles: [
+                    'adminRole',
+                    'superUser',
+                ],
+            },
+        ];
+
+        const allAclRoles = wrapper.findAll('td.sw-data-grid__cell--aclRoles');
+        allAclRoles.forEach((aclRole, index) => {
+            expectedUser[index].aclRoles.forEach((role) => {
+                expect(aclRole.text()).toContain(role);
+            });
+        });
+
+        expectedUser.forEach((user) => {
+            const email = wrapper.findByText('a.sw-settings-user-list__columns', user.email);
+            expect(email.exists()).toBe(true);
+
+            const activeText = user.active ? 'active' : 'inactive';
+            const statusLabel = wrapper.findByText(
+                'span',
+                `sw-users-permissions.sso.user-listing.status-label.${activeText}`,
+            );
+            expect(statusLabel.exists()).toBe(true);
+        });
     });
 
     it('the card should contain the right title', async () => {
@@ -171,12 +283,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     it('the context menu should be disabled', async () => {
         wrapper = await createWrapper([]);
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            user: [
-                {},
-            ],
-        });
+        await flushPromises();
 
         const contextMenuEdit = wrapper.find('.sw-settings-user-list__user-view-action');
         const contextMenuDelete = wrapper.find('.sw-settings-user-list__user-delete-action');
@@ -187,12 +294,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     it('the context menu edit should be enabled', async () => {
         wrapper = await createWrapper(['users_and_permissions.editor']);
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            user: [
-                {},
-            ],
-        });
+        await flushPromises();
 
         const contextMenuEdit = wrapper.find('.sw-settings-user-list__user-view-action');
         const contextMenuDelete = wrapper.find('.sw-settings-user-list__user-delete-action');
@@ -203,12 +305,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     it('the context menu delete should be enabled', async () => {
         wrapper = await createWrapper(['users_and_permissions.deleter']);
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            user: [
-                {},
-            ],
-        });
+        await flushPromises();
 
         const contextMenuEdit = wrapper.find('.sw-settings-user-list__user-view-action');
         const contextMenuDelete = wrapper.find('.sw-settings-user-list__user-delete-action');
@@ -242,19 +339,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     it('should use the correct route for the Edit context menu item', async () => {
         wrapper = await createWrapper(['users_and_permissions.editor']);
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            user: [
-                {
-                    id: '019bff8c86e773e79ec5538c7b1ed571',
-                    username: 'admin',
-                    firstName: 'Admin',
-                    lastName: 'User',
-                    email: 'admin@example.com',
-                },
-            ],
-        });
-        await wrapper.vm.$nextTick();
+
+        await flushPromises();
 
         const contextMenuEdit = wrapper.findComponent('.sw-settings-user-list__user-view-action');
         expect(contextMenuEdit.exists()).toBe(true);
@@ -263,6 +349,51 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         const routerLinkProp = contextMenuEdit.vm.$props.routerLink;
         expect(routerLinkProp).toBeDefined();
         expect(routerLinkProp.name).toBe('sw.users.permissions.user.detail');
-        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1ed571');
+        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
+    });
+
+    it('should use the correct route for the Edit context menu item with SSO', async () => {
+        wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
+
+        await flushPromises();
+
+        const contextMenuEdit = wrapper.findComponent('.sw-settings-user-list__user-view-action');
+        expect(contextMenuEdit.exists()).toBe(true);
+
+        // Check that the router-link prop uses the correct route name
+        const routerLinkProp = contextMenuEdit.vm.$props.routerLink;
+        expect(routerLinkProp).toBeDefined();
+        expect(routerLinkProp.name).toBe('sw.users.permissions.user.sso.detail');
+        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
+    });
+
+    it('should use the correct route for editing on the user name', async () => {
+        wrapper = await createWrapper(['users_and_permissions.editor']);
+
+        await flushPromises();
+
+        const routerLink = wrapper.findComponent('.sw-settings-user-list__columns');
+        expect(routerLink.exists()).toBe(true);
+
+        // Check that the router-link prop uses the correct route name
+        const routerLinkProp = routerLink.vm.$props.to;
+        expect(routerLinkProp).toBeDefined();
+        expect(routerLinkProp.name).toBe('sw.users.permissions.user.detail');
+        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
+    });
+
+    it('should use the correct route for editing on the user name with SSO', async () => {
+        wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
+
+        await flushPromises();
+
+        const routerLink = wrapper.findComponent('.sw-settings-user-list__columns');
+        expect(routerLink.exists()).toBe(true);
+
+        // Check that the router-link prop uses the correct route name
+        const routerLinkProp = routerLink.vm.$props.to;
+        expect(routerLinkProp).toBeDefined();
+        expect(routerLinkProp.name).toBe('sw.users.permissions.user.sso.detail');
+        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
     });
 });

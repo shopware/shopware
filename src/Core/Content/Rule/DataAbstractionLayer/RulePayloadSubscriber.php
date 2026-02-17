@@ -48,7 +48,8 @@ class RulePayloadSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $payload = unserialize($payload);
+            /** @phpstan-ignore shopware.unserializeUsage */
+            $payload = \unserialize($payload);
 
             $this->enrichConditions([$payload]);
 
@@ -69,7 +70,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (!\count($rules)) {
+        if ($rules === []) {
             return;
         }
 

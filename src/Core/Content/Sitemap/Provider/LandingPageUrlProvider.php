@@ -55,7 +55,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
     {
         $landingPages = $this->getLandingPages($context, $limit, $offset);
 
-        if (empty($landingPages)) {
+        if ($landingPages === []) {
             return new UrlResult([], null);
         }
 
@@ -118,7 +118,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
         }
 
         $excludedLandingPageIds = $this->getExcludedLandingPageIds($context);
-        if (!empty($excludedLandingPageIds)) {
+        if ($excludedLandingPageIds !== []) {
             $query->andWhere('lp.id NOT IN (:landingPageIds)');
             $query->setParameter('landingPageIds', Uuid::fromHexToBytesList($excludedLandingPageIds), ArrayParameterType::BINARY);
         }
@@ -148,7 +148,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
-        if (empty($excludedUrls)) {
+        if ($excludedUrls === []) {
             return [];
         }
 

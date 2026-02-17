@@ -225,10 +225,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      *
      * @return array<string, array<string, mixed>>
      */
-    private function mergeComponentsSchemaRequiredFieldsRecursive(array $specsFromDefinition, array $specsFromStaticJsonDefinition): array
+    private function mergeComponentsSchemaRequiredFieldsRecursive(array &$specsFromDefinition, array $specsFromStaticJsonDefinition): array
     {
         foreach ($specsFromDefinition['components']['schemas'] as $key => $value) {
             if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required'])) {
+                unset($specsFromDefinition['components']['schemas'][$key]['required']);
+
                 continue;
             }
 

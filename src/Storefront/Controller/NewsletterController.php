@@ -66,6 +66,8 @@ class NewsletterController extends StorefrontController
         }
 
         if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'forwardTo')) {
+            $this->addFlash(self::SUCCESS, $this->trans('newsletter.subscriptionCompleted'));
+
             return $this->createActionResponse($request);
         }
 

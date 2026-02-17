@@ -4,6 +4,13 @@ namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\CustomerAware;

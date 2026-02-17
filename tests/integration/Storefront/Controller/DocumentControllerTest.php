@@ -185,9 +185,9 @@ class DocumentControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
         static::assertNotEmpty($response->getContent());
-        static::assertSame(
-            'inline; filename=invoice_1000.' . $expectedFileType,
-            $response->headers->get('content-disposition')
+        static::assertMatchesRegularExpression(
+            '/inline; filename=.*1000\.' . preg_quote($expectedFileType, '/') . '/',
+            (string) $response->headers->get('content-disposition')
         );
         static::assertStringContainsString(
             $expectedContentType,

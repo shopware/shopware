@@ -437,9 +437,9 @@ class OrderRouteTest extends TestCase
     public function testSetSamePaymentMethodToOrder(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
+        $eventCallCounter = 0;
+        $listenerClosure = function (MailSentEvent $event) use (&$eventCallCounter): void {
+            ++$eventCallCounter;
             static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
             static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
@@ -466,7 +466,7 @@ class OrderRouteTest extends TestCase
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
-        static::assertFalse($eventDidRun, 'The mail.sent did not run');
+        static::assertSame(1, $eventCallCounter, 'The ‘mail.sent’ event was executed too often');
     }
 
     public function testSetPaymentOrderWrongPayment(): void

@@ -19,12 +19,6 @@ class Migration1737472122TokenUser extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // Cleanup the old Administration migration
-        $connection->delete(
-            'migration',
-            ['class' => 'Shopware\\Administration\\Migration\\V6_7\\Migration1737472122TokenUser']
-        );
-
         $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS oauth_user (
                 `id` BINARY(16) UNIQUE NOT NULL,

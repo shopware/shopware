@@ -106,7 +106,7 @@ EOT;
             $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
         }
 
-        if (!($info->getSslCertKeyPath() ?? '') !== '') {
+        if (($info->getSslCertKeyPath() ?? '') !== '') {
             $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
         }
 

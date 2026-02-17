@@ -3,9 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Twig\Environment;
+use Twig\Extra\Intl\IntlExtension;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -21,14 +24,11 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             static::markTestSkipped('This test is only relevant for versions before v6.8.0');
         }
-
-        // Force kernel reboot to ensure Twig environment is completely fresh
-        KernelLifecycleManager::getKernel()->reboot(null);
     }
 
     public function testNumberFormatWithInvalidLocaleFallsBackToDefault(): void
     {
-        $twig = $this->getContainer()->get('twig');
+        $twig = $this->createTwigEnvironment();
 
         $template = $twig->createTemplate('{{ value|format_number({fraction_digit: 1}, locale="us") }}');
 
@@ -39,12 +39,25 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
 
     public function testCurrencyFormatWithInvalidLocaleFallsBackToDefault(): void
     {
-        $twig = $this->getContainer()->get('twig');
+        $twig = $this->createTwigEnvironment();
 
         $template = $twig->createTemplate('{{ value|format_currency("USD", locale="us") }}');
 
         $output = $template->render(['value' => 1234567.891]);
 
         static::assertSame("\$\u{a0}1234567.89", $output);
+    }
+
+    private function createTwigEnvironment(): Environment
+    {
+        $loader = new ArrayLoader();
+        $twig = new Environment($loader);
+
+        // Add IntlExtension and BackwardCompatibleIntlExtension
+        $intlExtension = new IntlExtension();
+        $twig->addExtension($intlExtension);
+        $twig->addExtension(new BackwardCompatibleIntlExtension($intlExtension));
+
+        return $twig;
     }
 }

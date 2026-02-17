@@ -8,15 +8,15 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-class MailCreateResult
+class MailCreationState
 {
     protected ?string $mailTemplateTypeByteId = null;
 
-    protected bool $mailTemplateTypeAlreadyExists = true;
+    protected bool $mailTemplateTypeExists = true;
 
     protected ?string $mailTemplateByteId = null;
 
-    protected bool $mailTemplateAlreadyExists = true;
+    protected bool $mailTemplateExists = true;
 
     protected ?string $enLanguageByteId;
 
@@ -32,14 +32,14 @@ class MailCreateResult
         $this->mailTemplateTypeByteId = $mailTemplateTypeByteId;
     }
 
-    public function isMailTemplateTypeAlreadyExists(): bool
+    public function mailTemplateTypeExists(): bool
     {
-        return $this->mailTemplateTypeAlreadyExists;
+        return $this->mailTemplateTypeExists;
     }
 
     public function mailTemplateTypeDoesNotExist(): void
     {
-        $this->mailTemplateTypeAlreadyExists = false;
+        $this->mailTemplateTypeExists = false;
     }
 
     public function getMailTemplateByteId(): ?string
@@ -52,14 +52,14 @@ class MailCreateResult
         $this->mailTemplateByteId = $mailTemplateByteId;
     }
 
-    public function isMailTemplateAlreadyExists(): bool
+    public function mailTemplateExists(): bool
     {
-        return $this->mailTemplateAlreadyExists;
+        return $this->mailTemplateExists;
     }
 
     public function mailTemplateDoesNotExist(): void
     {
-        $this->mailTemplateAlreadyExists = false;
+        $this->mailTemplateExists = false;
     }
 
     public function hasEnLanguageByteId(): bool

@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\Traits;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\Structs\MailCreateResult;
+use Shopware\Core\Migration\Structs\MailCreationState;
 use Shopware\Core\Migration\Structs\MailTemplateCreateStruct;
 use Shopware\Core\Migration\Structs\MailTemplateTypeCreateStruct;
 
@@ -20,32 +20,32 @@ trait CreateMailTemplateTrait
         MailTemplateTypeCreateStruct $mailTemplateType,
         MailTemplateCreateStruct $mailTemplate,
     ): void {
-        $mailCreateResult = new MailCreateResult();
-        $mailCreateResult->setEnLanguageByteId($this->getLanguageIdByLocale($connection, 'en-GB'));
-        $mailCreateResult->setDeLanguageByteId($this->getLanguageIdByLocale($connection, 'de-DE'));
+        $mailCreationState = new MailCreationState();
+        $mailCreationState->setEnLanguageByteId($this->getLanguageIdByLocale($connection, 'en-GB'));
+        $mailCreationState->setDeLanguageByteId($this->getLanguageIdByLocale($connection, 'de-DE'));
 
-        $this->createMailTemplateType($connection, $mailTemplateType, $mailCreateResult);
-        $this->createMailTemplate($connection, $mailTemplate, $mailCreateResult);
+        $this->createMailTemplateType($connection, $mailTemplateType, $mailCreationState);
+        $this->createMailTemplate($connection, $mailTemplate, $mailCreationState);
     }
 
     private function createMailTemplateType(
         Connection $connection,
         MailTemplateTypeCreateStruct $mailTemplateType,
-        MailCreateResult $mailCreateResult,
+        MailCreationState $mailCreationState,
     ): void {
         $mailTemplateTypeByteId = $this->getMailTemplateTypeId($connection, $mailTemplateType->getTechnicalName());
         if (empty($mailTemplateTypeByteId)) {
-            $mailCreateResult->mailTemplateTypeDoesNotExist();
+            $mailCreationState->mailTemplateTypeDoesNotExist();
             $mailTemplateTypeByteId = Uuid::randomBytes();
         }
 
-        $mailCreateResult->setMailTemplateTypeByteId($mailTemplateTypeByteId);
+        $mailCreationState->setMailTemplateTypeByteId($mailTemplateTypeByteId);
 
-        if (!$mailCreateResult->isMailTemplateTypeAlreadyExists()) {
+        if (!$mailCreationState->mailTemplateTypeExists()) {
             $connection->insert(
                 'mail_template_type',
                 [
-                    'id' => $mailCreateResult->getMailTemplateTypeByteId(),
+                    'id' => $mailCreationState->getMailTemplateTypeByteId(),
                     'technical_name' => $mailTemplateType->getTechnicalName(),
                     'available_entities' => \json_encode($mailTemplateType->getAvailableEntities(), \JSON_THROW_ON_ERROR),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -53,25 +53,25 @@ trait CreateMailTemplateTrait
             );
         }
 
-        if ($mailCreateResult->hasEnLanguageByteId() && !$this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $mailCreateResult->getEnLanguageByteId() ?? '')) {
+        if ($mailCreationState->hasEnLanguageByteId() && !$this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $mailCreationState->getEnLanguageByteId() ?? '')) {
             $connection->insert(
                 'mail_template_type_translation',
                 [
-                    'mail_template_type_id' => $mailCreateResult->getMailTemplateTypeByteId(),
+                    'mail_template_type_id' => $mailCreationState->getMailTemplateTypeByteId(),
                     'name' => $mailTemplateType->getEnName(),
-                    'language_id' => $mailCreateResult->getEnLanguageByteId(),
+                    'language_id' => $mailCreationState->getEnLanguageByteId(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
 
-        if ($mailCreateResult->hasDeLanguageByteId() && !$this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $mailCreateResult->getDeLanguageByteId() ?? '')) {
+        if ($mailCreationState->hasDeLanguageByteId() && !$this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $mailCreationState->getDeLanguageByteId() ?? '')) {
             $connection->insert(
                 'mail_template_type_translation',
                 [
-                    'mail_template_type_id' => $mailCreateResult->getMailTemplateTypeByteId(),
+                    'mail_template_type_id' => $mailCreationState->getMailTemplateTypeByteId(),
                     'name' => $mailTemplateType->getDeName(),
-                    'language_id' => $mailCreateResult->getDeLanguageByteId(),
+                    'language_id' => $mailCreationState->getDeLanguageByteId(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
@@ -81,34 +81,34 @@ trait CreateMailTemplateTrait
     private function createMailTemplate(
         Connection $connection,
         MailTemplateCreateStruct $mailCreateStruct,
-        MailCreateResult $mailCreateResult,
+        MailCreationState $mailCreationState,
     ): void {
-        $mailTemplateByteId = $this->getMailTemplateId($connection, $mailCreateResult->getMailTemplateTypeByteId());
+        $mailTemplateByteId = $this->getMailTemplateId($connection, $mailCreationState->getMailTemplateTypeByteId());
         if (empty($mailTemplateByteId)) {
-            $mailCreateResult->mailTemplateDoesNotExist();
+            $mailCreationState->mailTemplateDoesNotExist();
             $mailTemplateByteId = Uuid::randomBytes();
         }
 
-        $mailCreateResult->setMailTemplateByteId($mailTemplateByteId);
+        $mailCreationState->setMailTemplateByteId($mailTemplateByteId);
 
-        if (!$mailCreateResult->isMailTemplateAlreadyExists()) {
+        if (!$mailCreationState->mailTemplateExists()) {
             $connection->insert(
                 'mail_template',
                 [
-                    'id' => $mailCreateResult->getMailTemplateByteId(),
-                    'mail_template_type_id' => $mailCreateResult->getMailTemplateTypeByteId(),
+                    'id' => $mailCreationState->getMailTemplateByteId(),
+                    'mail_template_type_id' => $mailCreationState->getMailTemplateTypeByteId(),
                     'system_default' => $mailCreateStruct->isSystemDefault(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
 
-        if ($mailCreateResult->hasEnLanguageByteId() && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $mailCreateResult->getEnLanguageByteId() ?? '')) {
+        if ($mailCreationState->hasEnLanguageByteId() && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $mailCreationState->getEnLanguageByteId() ?? '')) {
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'mail_template_id' => $mailCreateResult->getMailTemplateByteId(),
-                    'language_id' => $mailCreateResult->getEnLanguageByteId(),
+                    'mail_template_id' => $mailCreationState->getMailTemplateByteId(),
+                    'language_id' => $mailCreationState->getEnLanguageByteId(),
                     'sender_name' => $mailCreateStruct->getEnSenderName(),
                     'subject' => $mailCreateStruct->getEnSubject(),
                     'description' => $mailCreateStruct->getEnDescription(),
@@ -119,12 +119,12 @@ trait CreateMailTemplateTrait
             );
         }
 
-        if ($mailCreateResult->hasDeLanguageByteId() && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $mailCreateResult->getDeLanguageByteId() ?? '')) {
+        if ($mailCreationState->hasDeLanguageByteId() && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $mailCreationState->getDeLanguageByteId() ?? '')) {
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'mail_template_id' => $mailCreateResult->getMailTemplateByteId(),
-                    'language_id' => $mailCreateResult->getDeLanguageByteId(),
+                    'mail_template_id' => $mailCreationState->getMailTemplateByteId(),
+                    'language_id' => $mailCreationState->getDeLanguageByteId(),
                     'sender_name' => $mailCreateStruct->getDeSenderName(),
                     'subject' => $mailCreateStruct->getDeSubject(),
                     'description' => $mailCreateStruct->getDeDescription(),

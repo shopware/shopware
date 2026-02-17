@@ -1,16 +1,16 @@
 <div style="font-family:arial; font-size:12px;">
 
     {% set currencyIsoCode = order.currency.isoCode %}
-    {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
-    <br>
-    We have received your order on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }}.<br>
-    <br>
-    Order number: {{ order.orderNumber }}.<br>
-    <br>
-    You have not completed your payment with {{ order.transactions.first.paymentMethod.translated.name }} yet. You can resume the payment process by using the following URL: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}<br>
-    <br>
-    <strong>Information on your order:</strong><br>
-    <br>
+    {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
+    <br/>
+    We have received your order on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }}.<br/>
+    <br/>
+    Order number: {{ order.orderNumber }}.<br/>
+    <br/>
+    You have not completed your payment with {{ order.transactions.first.paymentMethod.translated.name }} yet. You can resume the payment process by using the following URL: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}<br/>
+    <br/>
+    <strong>Information on your order:</strong><br/>
+    <br/>
 
     <table border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
         <tr>
@@ -96,64 +96,65 @@
         {% set decimals = order.itemRounding.decimals %}
     {% endif %}
     <p>
-        <br>
-        <br>
+        <br/>
+        <br/>
         {% for shippingCost in order.deliveries %}
-            Shipping costs: {{ shippingCost.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+            Shipping costs: {{ shippingCost.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br/>
         {% endfor %}
 
-        Net total: {{ order.amountNet|currency(currencyIsoCode) }}<br>
+        Net total: {{ order.amountNet|currency(currencyIsoCode) }}<br/>
         {% for calculatedTax in order.price.calculatedTaxes %}
-            {% if order.taxStatus is same as('net') %}plus{% else %}including{% endif %} {{ calculatedTax.taxRate }}% VAT. {{ calculatedTax.tax|currency(currencyIsoCode) }}<br>
+            {% if order.taxStatus is same as('net') %}plus{% else %}including{% endif %} {{ calculatedTax.taxRate }}% VAT. {{ calculatedTax.tax|currency(currencyIsoCode) }}<br/>
         {% endfor %}
-        {% if not displayRounded %}<strong>{% endif %}Total gross: {{ total|currency(currencyIsoCode,decimals=decimals) }}{% if not displayRounded %}</strong>{% endif %}<br>
+        {% if not displayRounded %}<strong>{% endif %}Total gross: {{ total|currency(currencyIsoCode,decimals=decimals) }}{% if not displayRounded %}</strong>{% endif %}<br/>
         {% if displayRounded %}
-            <strong>Rounded total gross: {{ order.price.totalPrice|currency(currencyIsoCode,decimals=order.totalRounding.decimals) }}</strong><br>
+            <strong>Rounded total gross: {{ order.price.totalPrice|currency(currencyIsoCode,decimals=order.totalRounding.decimals) }}</strong><br/>
         {% endif %}
-        <br>
+        <br/>
 
         {% if order.transactions is defined and order.transactions is not empty %}
-            <strong>Selected payment type:</strong> {{ order.transactions.first.paymentMethod.translated.name }}<br>
-            {{ order.transactions.first.paymentMethod.translated.description }}<br>
-            <br>
+            <strong>Selected payment type:</strong> {{ order.transactions.first.paymentMethod.translated.name }}<br/>
+            {{ order.transactions.first.paymentMethod.translated.description }}<br/>
+            <br/>
         {% endif %}
 
         {% if delivery %}
-            <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.translated.name }}<br>
-            {{ delivery.shippingMethod.translated.description }}<br>
-            <br>
+            <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.translated.name }}<br/>
+            {{ delivery.shippingMethod.translated.description }}<br/>
+            <br/>
         {% endif %}
 
         {% set billingAddress = order.addresses.get(order.billingAddressId) %}
-        <strong>Billing address:</strong><br>
-        {{ billingAddress.company }}<br>
-        {{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
-        {{ billingAddress.street }} <br>
-        {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
-        {{ billingAddress.country.translated.name }}<br>
-        <br>
+        <strong>Billing address:</strong><br/>
+        {{ billingAddress.company }}<br/>
+        {{ billingAddress.firstName }} {{ billingAddress.lastName }}<br/>
+        {{ billingAddress.street }} <br/>
+        {{ billingAddress.zipcode }} {{ billingAddress.city }}<br/>
+        {{ billingAddress.country.translated.name }}<br/>
+        <br/>
 
         {% if delivery %}
-            <strong>Shipping address:</strong><br>
-            {{ delivery.shippingOrderAddress.company }}<br>
-            {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
-            {{ delivery.shippingOrderAddress.street }} <br>
-            {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
-            {{ delivery.shippingOrderAddress.country.translated.name }}<br>
-            <br>
+            <strong>Shipping address:</strong><br/>
+            {{ delivery.shippingOrderAddress.company }}<br/>
+            {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br/>
+            {{ delivery.shippingOrderAddress.street }} <br/>
+            {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br/>
+            {{ delivery.shippingOrderAddress.country.translated.name }}<br/>
+            <br/>
         {% endif %}
         {% if order.orderCustomer.vatIds %}
             Your VAT-ID: {{ order.orderCustomer.vatIds|first }}
-            In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.<br>
+            In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.<br/>
         {% endif %}
-        <br>
+        <br/>
         You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
-        <br>
+        However, in case you have purchased without a registration or a customer account, you do not have this option.
+        <br/>
         If you have any questions, do not hesitate to contact us.
-        <br>
+        <br/>
         {% if a11yDocuments is defined and a11yDocuments is not empty %}
-        <br>
-        For better accessibility we also provide an HTML version of the documents here:<br><br>
+        <br/>
+        For better accessibility we also provide an HTML version of the documents here:<br/><br/>
     <ul>
         {% for a11y in a11yDocuments %}
             {% set documentLink = rawUrl(
@@ -168,9 +169,9 @@
             <li><a href="{{ documentLink }}" target="_blank">{{ documentLink }}</a></li>
         {% endfor %}
     </ul>
-For data protection reasons the HTML version requires a login. <br><br>
-In case of a guest order, you can use your email address and postal code of the billing address.<br>
+For data protection reasons the HTML version requires a login. <br/><br/>
+In case of a guest order, you can use your email address and postal code of the billing address.<br/>
     {% endif %}
     </p>
-    <br>
+    <br/>
 </div>

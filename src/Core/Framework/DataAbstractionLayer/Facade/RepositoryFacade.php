@@ -100,7 +100,7 @@ class RepositoryFacade
 
         $missingPermissions = $this->criteriaValidator->validate($entityName, $criteriaObject, $this->context);
 
-        if (!empty($missingPermissions)) {
+        if ($missingPermissions !== []) {
             throw new MissingPrivilegeException($missingPermissions);
         }
 

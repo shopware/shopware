@@ -51,14 +51,14 @@ class Tokenizer implements TokenizerInterface
         foreach ($tags as $tag) {
             $tag = trim($tag);
 
-            if (empty($tag) || mb_strlen($tag) < $tokenMinimumLength) {
+            if ($tag === '' || $tag === '0' || mb_strlen($tag) < $tokenMinimumLength) {
                 continue;
             }
 
             $filtered[] = $tag;
         }
 
-        if (empty($filtered)) {
+        if ($filtered === []) {
             return $tags;
         }
 

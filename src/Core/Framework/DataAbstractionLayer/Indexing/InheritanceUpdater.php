@@ -38,7 +38,7 @@ class InheritanceUpdater
     public function update(string $entity, array $ids, Context $context): void
     {
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

@@ -84,7 +84,7 @@ class EntityHydrator
 
         self::$partialFullPaths = [];
 
-        if (!empty(self::$partial)) {
+        if (self::$partial !== []) {
             /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
 
@@ -412,7 +412,7 @@ class EntityHydrator
                 $values[] = self::value($row, $accessor, $propertyName);
             }
 
-            if (empty($values)) {
+            if ($values === []) {
                 return;
             }
 

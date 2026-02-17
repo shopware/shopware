@@ -27,7 +27,7 @@ class SearchRequestException extends ShopwareHttpException
 
     public function tryToThrow(): void
     {
-        if (empty($this->exceptions)) {
+        if ($this->exceptions === []) {
             return;
         }
 

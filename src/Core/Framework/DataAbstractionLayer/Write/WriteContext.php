@@ -57,7 +57,7 @@ class WriteContext
      */
     public function getLanguages(): array
     {
-        if (empty($this->languages)) {
+        if (!isset($this->languages) || $this->languages === []) {
             throw new \RuntimeException('languages not initialized');
         }
 

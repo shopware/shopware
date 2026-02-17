@@ -37,7 +37,7 @@ class TreeUpdater
     public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
     {
         $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
-        if (empty($updateIds)) {
+        if ($updateIds === []) {
             return;
         }
 
@@ -301,7 +301,7 @@ class TreeUpdater
      */
     private function fetchByColumn(array $ids, EntityDefinition $definition, string $column, Context $context, TreeUpdaterBag $bag): array
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -328,7 +328,7 @@ class TreeUpdater
      */
     private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag, bool $recursive): void
     {
-        if (empty($updateIds)) {
+        if ($updateIds === []) {
             return;
         }
 

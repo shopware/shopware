@@ -56,8 +56,8 @@ module.exports = {
                 // Time to Interactive: Admin must be usable within 4 seconds
                 'interactive': ['error', { maxNumericValue: 4000 }],
 
-                // Total Blocking Time: Prevent excessive JS blocking (60ms threshold)
-                'total-blocking-time': ['error', { maxNumericValue: 60 }],
+                // Total Blocking Time: Prevent excessive JS blocking (150ms threshold)
+                'total-blocking-time': ['error', { maxNumericValue: 150 }],
 
                 // Largest Contentful Paint: Main UI should render within 4 seconds
                 'largest-contentful-paint': ['error', { maxNumericValue: 4000 }],

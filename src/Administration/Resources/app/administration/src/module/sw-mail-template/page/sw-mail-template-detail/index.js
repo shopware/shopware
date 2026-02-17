@@ -452,7 +452,7 @@ export default {
                 .then((response) => {
                     this.validationErrors = [];
 
-                    Object.entries(response).forEach(entry => {
+                    Object.entries(response).forEach((entry) => {
                         const field = entry[0];
                         const validationErrors = entry[1];
 

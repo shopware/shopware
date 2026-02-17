@@ -463,7 +463,10 @@
             {% endblock %}
 
             {% block sw_mail_template_detail_sidebar_inner_media %}
-            <sw-sidebar-media-item ref="mediaSidebarItem">
+            <sw-sidebar-media-item
+                ref="mediaSidebarItem"
+                class="sw-mail-template-detail__media-sidebar"
+            >
                 <template
                     #context-menu-items="media"
                 >
@@ -485,77 +488,74 @@
                 :disabled="isLoading"
                 :title="$t('sw-mail-template.detail.sidebar.titleValidation')"
             >
-                <div class="sw-mail-template-detail__validation-sidebar-container">
-                    <div>
-                        <mt-select
-                            value-property="name"
-                            :label="$t('sw-mail-template.detail.sidebar.selectValidation')"
-                            :model-value="triggerEvent"
-                            :options="triggerEvents"
-                            @update:model-value="onTriggerEventChange"
-                        >
-                            <template #hint>
-                                <div class="sw-mail-template-detail__field-hint">
-                                    <div class="sw-mail-template-detail__field-hint-icon-container">
-                                        <mt-icon
-                                            size="12"
-                                            name="solid-info-circle"
-                                            class="sw-mail-template-detail__field-hint-icon"
-                                        />
-                                    </div>
-                                    <p>{{ $t('sw-mail-template.detail.sidebar.hintValidation') }}</p>
+                <div>
+                    <mt-select
+                        value-property="name"
+                        :label="$t('sw-mail-template.detail.sidebar.selectValidation')"
+                        :model-value="triggerEvent"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
+                    >
+                        <template #hint>
+                            <div class="sw-mail-template-detail__field-hint">
+                                <div class="sw-mail-template-detail__field-hint-icon-container">
+                                    <mt-icon
+                                        size="12"
+                                        name="solid-info-circle"
+                                        class="sw-mail-template-detail__field-hint-icon"
+                                    />
                                 </div>
-                            </template>
-                        </mt-select>
+                                <p>{{ $t('sw-mail-template.detail.sidebar.hintValidation') }}</p>
+                            </div>
+                        </template>
+                    </mt-select>
 
-                        <mt-button
-                            class="sw-mail-template-detail__validate-mail-template"
-                            variant="secondary"
-                            :disabled="!triggerEvent"
-                            @click="onClickValidateMailTemplate"
-                        >
-                            Validate
-                        </mt-button>
-                    </div>
+                    <mt-button
+                        variant="secondary"
+                        :disabled="!triggerEvent"
+                        @click="onClickValidateMailTemplate"
+                    >
+                        Validate
+                    </mt-button>
+                </div>
+
+                <div
+                    v-if="validationErrors !== null"
+                    class="sw-mail-template-detail__validation-sidebar-result"
+                >
+                    <hr class="sw-mail-template-detail__validation-sidebar-result-divider">
 
                     <div
-                        v-if="validationErrors !== null"
-                        class="sw-mail-template-detail__validation-sidebar-result"
+                        v-if="validationErrors?.length > 0"
+                        class="sw-mail-template-detail__validation-sidebar-result-error"
                     >
-                        <hr class="sw-mail-template-detail__validation-sidebar-result-divider">
+                        <h4 class="sw-mail-template-detail__validation-sidebar-result-error-title">
+                            {{ $t('sw-mail-template.validation.result.error.title', {'number': validationErrors.length}, validationErrors.length) }}
+                        </h4>
 
-                        <div
-                            v-if="validationErrors?.length > 0"
-                            class="sw-mail-template-detail__validation-sidebar-result-error"
+                        <sw-mail-template-validation-result
+                            v-for="error in validationErrors"
+                            :title="error.name"
+                            :hint="error.hint"
+                            :type="error.level"
                         >
-                            <h4 class="sw-mail-template-detail__validation-sidebar-result-error-title">
-                                {{ $t('sw-mail-template.validation.result.error.title', {'number': validationErrors.length}, validationErrors.length) }}
-                            </h4>
+                            {{ error.message }}
+                        </sw-mail-template-validation-result>
 
-                            <sw-mail-template-validation-result
-                                v-for="error in validationErrors"
-                                :title="error.name"
-                                :hint="error.hint"
-                                :type="error.level"
-                            >
-                                {{ error.message }}
-                            </sw-mail-template-validation-result>
-
-                        </div>
-                        <div
-                            v-else
-                            class="sw-mail-template-detail__validation-sidebar-result-success"
-                        >
-                            <mt-icon
-                                size="16"
-                                name="solid-check-circle"
-                                class="sw-mail-template-detail__validation-sidebar-result-success-icon"
-                                color="var(--color-icon-positive-default)"
-                            />
-                            <h4 class="sw-mail-template-detail__validation-sidebar-result-success-title">
-                                {{ $t('sw-mail-template.validation.result.success.title') }}
-                            </h4>
-                        </div>
+                    </div>
+                    <div
+                        v-else
+                        class="sw-mail-template-detail__validation-sidebar-result-success"
+                    >
+                        <mt-icon
+                            size="16"
+                            name="solid-check-circle"
+                            class="sw-mail-template-detail__validation-sidebar-result-success-icon"
+                            color="var(--color-icon-positive-default)"
+                        />
+                        <h4 class="sw-mail-template-detail__validation-sidebar-result-success-title">
+                            {{ $t('sw-mail-template.validation.result.success.title') }}
+                        </h4>
                     </div>
                 </div>
             </sw-sidebar-item>

@@ -488,13 +488,12 @@ class ApiController extends AbstractController
 
         if ($association instanceof ManyToManyAssociationField) {
             // fetch inverse association definition for filter
-            $reverses = $definition->getFields()->filter(
+            $reverse = $definition->getFields()->firstWhere(
                 fn (Field $field) => $field instanceof ManyToManyAssociationField && $association->getMappingDefinition() === $field->getMappingDefinition()
             );
 
             // contains now the inverse side association: category.products
-            $reverse = $reverses->first();
-            if (!$reverse) {
+            if ($reverse === null) {
                 throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 
@@ -546,15 +545,14 @@ class ApiController extends AbstractController
              */
 
             // get inverse association to filter to parent value
-            $reverses = $definition->getFields()->filter(
+            $reverse = $definition->getFields()->firstWhere(
                 function (Field $field) use ($parentDefinition, $association) {
                     return $field instanceof OneToManyAssociationField
                         && $parentDefinition === $field->getReferenceDefinition()
                         && $association->getStorageName() === $field->getReferenceField();
                 }
             );
-            $reverse = $reverses->first();
-            if (!$reverse) {
+            if ($reverse === null) {
                 throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 
@@ -573,15 +571,14 @@ class ApiController extends AbstractController
              */
 
             // get inverse association to filter to parent value
-            $reverses = $definition->getFields()->filter(
+            $reverse = $definition->getFields()->firstWhere(
                 function (Field $field) use ($parentDefinition, $association) {
                     return $field instanceof OneToOneAssociationField
                         && $parentDefinition === $field->getReferenceDefinition()
                         && $association->getStorageName() === $field->getReferenceField();
                 }
             );
-            $reverse = $reverses->first();
-            if (!$reverse) {
+            if ($reverse === null) {
                 throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 

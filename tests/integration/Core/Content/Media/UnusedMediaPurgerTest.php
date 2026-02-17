@@ -96,6 +96,43 @@ class UnusedMediaPurgerTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($fourthPath));
     }
 
+    public function testDeleteNotUsedMediaWithLimit(): void
+    {
+        $this->setFixtureContext($this->context);
+
+        $txt = $this->getTxt();
+        $png = $this->getPng();
+        $pdf = $this->getPdf();
+
+        $firstPath = $txt->getPath();
+        $secondPath = $png->getPath();
+        $thirdPath = $pdf->getPath();
+
+        $this->getPublicFilesystem()->writeStream($firstPath, \fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->writeStream($secondPath, \fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->writeStream($thirdPath, \fopen(self::FIXTURE_FILE, 'r'));
+
+        $this->unusedMediaPurger->deleteNotUsedMedia(limit: 2);
+        $this->runWorker();
+
+        $result = $this->mediaRepo->search(
+            new Criteria([
+                $txt->getId(),
+                $png->getId(),
+                $pdf->getId(),
+            ]),
+            $this->context
+        );
+
+        static::assertNull($result->get($txt->getId()));
+        static::assertNull($result->get($png->getId()));
+        static::assertNull($result->get($pdf->getId()));
+
+        static::assertFalse($this->getPublicFilesystem()->has($firstPath));
+        static::assertFalse($this->getPublicFilesystem()->has($secondPath));
+        static::assertFalse($this->getPublicFilesystem()->has($thirdPath));
+    }
+
     public function testDeleteNotUsedMediaDoesNotDeleteA11yDocumentMedia(): void
     {
         $this->setFixtureContext($this->context);

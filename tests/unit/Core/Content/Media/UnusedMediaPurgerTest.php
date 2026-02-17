@@ -109,7 +109,6 @@ class UnusedMediaPurgerTest extends TestCase
                     $filters = $criteria->getFilters();
 
                     self::assertCount(0, $filters);
-                    self::assertNull($criteria->getOffset());
                     self::assertSame(50, $criteria->getLimit());
 
                     return [$id1, $id2];
@@ -123,7 +122,6 @@ class UnusedMediaPurgerTest extends TestCase
                     $filters = $criteria->getFilters();
 
                     self::assertCount(0, $filters);
-                    self::assertSame(50, $criteria->getOffset());
                     self::assertSame(50, $criteria->getLimit());
 
                     return [$id3, $id4];
@@ -654,7 +652,6 @@ class UnusedMediaPurgerTest extends TestCase
                     $filters = $criteria->getFilters();
 
                     self::assertCount(0, $filters);
-                    self::assertSame(0, $criteria->getOffset());
                     self::assertSame(50, $criteria->getLimit());
 
                     return [$id1, $id2];
@@ -662,8 +659,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id3, $id4) {
                     $filters = $criteria->getFilters();
 
-                    self::assertCount(0, $filters);
-                    self::assertSame(50, $criteria->getOffset());
+                    self::assertCount(1, $filters);
                     self::assertSame(50, $criteria->getLimit());
 
                     return [$id3, $id4];
@@ -681,6 +677,8 @@ class UnusedMediaPurgerTest extends TestCase
                 [
                     ['id' => $media1->getId()],
                     ['id' => $media2->getId()],
+                ],
+                [
                     ['id' => $media3->getId()],
                     ['id' => $media4->getId()],
                 ],

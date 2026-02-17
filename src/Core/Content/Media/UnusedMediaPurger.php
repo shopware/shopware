@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -104,21 +105,21 @@ class UnusedMediaPurger
 
         $this->eventDispatcher->dispatch(new UnusedMediaSearchStartEvent($totalMedia, $totalCandidates));
 
-        $idsToDelete = [];
+        $totalDeleted = 0;
         foreach ($this->getUnusedMediaIds($context, $limit, $offset, $folderEntity) as $idBatch) {
             $idBatch = $this->filterOutNewMedia($idBatch, $gracePeriodDays, $context);
 
-            $idsToDelete = [...$idsToDelete, ...$idBatch];
+            if ($idBatch !== []) {
+                $this->mediaRepo->delete(
+                    array_map(static fn ($id) => ['id' => $id], $idBatch),
+                    $context
+                );
+
+                $totalDeleted += \count($idBatch);
+            }
         }
 
-        if ($idsToDelete !== []) {
-            $this->mediaRepo->delete(
-                array_map(static fn ($id) => ['id' => $id], $idsToDelete),
-                $context
-            );
-        }
-
-        return \count($idsToDelete);
+        return $totalDeleted;
     }
 
     /**
@@ -169,7 +170,6 @@ class UnusedMediaPurger
         $criteria = $this->createFilterForNotUsedMedia($folderEntity);
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
-        $criteria->setOffset(0);
 
         // if we provided an offset, then just grab that batch based on the limit
         if ($offset !== null) {
@@ -180,12 +180,23 @@ class UnusedMediaPurger
             return yield $this->dispatchEvent($ids);
         }
 
-        while (($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds()) !== []) {
+        // Use last ID instead of offset for cursor-based pagination, which allows deletion of records between batches
+        $lastId = null;
+        while ($lastId !== false) {
+            $iterationCriteria = clone $criteria;
+            if ($lastId !== null) {
+                $iterationCriteria->addFilter(new RangeFilter('id', ['gt' => Uuid::fromHexToBytes($lastId)]));
+            }
+
+            $ids = $this->mediaRepo->searchIds($iterationCriteria, $context)->getIds();
+            if ($ids === []) {
+                break;
+            }
+
+            $lastId = end($ids);
             $unusedIds = $this->dispatchEvent($ids);
 
             yield $unusedIds;
-
-            $criteria->setOffset((int) $criteria->getOffset() + $limit);
         }
     }
 

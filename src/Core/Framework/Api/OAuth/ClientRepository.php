@@ -38,8 +38,9 @@ class ClientRepository implements ClientRepositoryInterface
                 return false;
             }
 
-            if (isset($values['id']) && ($values['id'] !== '' && $values['id'] !== '0')) {
-                $this->updateLastUsageDate($values['id']);
+            $id = $values['id'] ?? '';
+            if ($id !== '') {
+                $this->updateLastUsageDate($id);
             }
 
             return true;
@@ -59,16 +60,16 @@ class ClientRepository implements ClientRepositoryInterface
             return new ApiClient('administration', true, confidential: false);
         }
 
-        $values = $this->getByAccessKey($clientIdentifier);
+        $accessKey = $this->getByAccessKey($clientIdentifier);
 
-        if (!$values) {
+        if ($accessKey === null) {
             return null;
         }
 
         return new ApiClient(
             $clientIdentifier,
             true,
-            name: $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']),
+            name: $accessKey['label'] ?? Uuid::fromBytesToHex($accessKey['user_id'] ?? ''),
             confidential: true
         );
     }
@@ -83,7 +84,7 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return array<string, string|null>|null
+     * @return array{user_id: string, secret_access_key: string}|array{id: string, label: string, active: '1', secret_access_key: string}|null
      */
     private function getByAccessKey(string $clientIdentifier): ?array
     {
@@ -101,15 +102,19 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return array<string, string|null>|null
+     * @return array{user_id: string, secret_access_key: string}|null
      */
     private function getUserByAccessKey(string $clientIdentifier): ?array
     {
-        $key = $this->connection->fetchAssociative('SELECT user_id, secret_access_key FROM user_access_key WHERE access_key = :accessKey', [
-            'accessKey' => $clientIdentifier,
-        ]);
+        /** @var array{user_id: string, secret_access_key: string}|false $key */
+        $key = $this->connection->fetchAssociative(
+            'SELECT user_id, secret_access_key
+             FROM user_access_key
+             WHERE access_key = :accessKey',
+            ['accessKey' => $clientIdentifier]
+        );
 
-        if (!$key) {
+        if ($key === false) {
             return null;
         }
 
@@ -117,15 +122,20 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return array<string, string|null>|null
+     * @return array{id: string, label: string, active: '1', secret_access_key: string}|null
      */
     private function getIntegrationByAccessKey(string $clientIdentifier): ?array
     {
-        $key = $this->connection->fetchAssociative('SELECT integration.id AS id, label, app.active AS active, secret_access_key FROM integration LEFT JOIN app ON app.integration_id = integration.id WHERE access_key = :accessKey', [
-            'accessKey' => $clientIdentifier,
-        ]);
+        /** @var array{id: string, label: string, active: '1'|'0', secret_access_key: string}|false $key */
+        $key = $this->connection->fetchAssociative(
+            'SELECT integration.id AS id, label, app.active AS active, secret_access_key
+             FROM integration
+             LEFT JOIN app ON app.integration_id = integration.id
+             WHERE access_key = :accessKey',
+            ['accessKey' => $clientIdentifier]
+        );
 
-        if (!$key) {
+        if ($key === false) {
             return null;
         }
 

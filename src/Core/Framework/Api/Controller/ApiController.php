@@ -870,7 +870,7 @@ class ApiController extends AbstractController
                 continue;
             }
 
-            if ($part === '' || $part === '0') {
+            if ($part === '') {
                 continue;
             }
 

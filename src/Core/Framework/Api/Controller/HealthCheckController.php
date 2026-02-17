@@ -77,7 +77,8 @@ class HealthCheckController
     {
         $authorizationHeader = $request->headers->get(self::HEADER_AUTHORIZATION);
         if (
-            $this->staticToken !== null && $this->staticToken !== '' && $this->staticToken !== '0'
+            $this->staticToken !== null
+            && $this->staticToken !== ''
             && $authorizationHeader !== null
             && str_contains($authorizationHeader, 'Static')
         ) {

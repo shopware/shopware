@@ -95,7 +95,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         $schemaPaths = [$this->schemaPath];
 
-        if ($bundleName !== null && $bundleName !== '' && $bundleName !== '0') {
+        if ($bundleName !== null && $bundleName !== '') {
             $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
         } else {
             $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
@@ -351,7 +351,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             }
 
             $doc = $this->getAssociationsDocumentation($def);
-            if ($doc !== '' && $doc !== '0') {
+            if ($doc !== '') {
                 $associationDocs[$def->getEntityName()] = $doc;
             }
         }

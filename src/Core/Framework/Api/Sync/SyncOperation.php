@@ -68,14 +68,14 @@ class SyncOperation extends Struct
     {
         $errors = [];
 
-        if ($this->entity === '' || $this->entity === '0') {
+        if ($this->entity === '') {
             $errors[] = \sprintf(
                 'Missing "entity" argument for operation with key "%s". It needs to be a non-empty string.',
                 $this->key
             );
         }
 
-        if ($this->action === '' || $this->action === '0' || !\in_array($this->action, $this->getSupportedActions(), true)) {
+        if ($this->action === '' || !\in_array($this->action, $this->getSupportedActions(), true)) {
             $errors[] = \sprintf(
                 'Missing or invalid "action" argument for operation with key "%s". Supported actions are [%s]',
                 $this->key,

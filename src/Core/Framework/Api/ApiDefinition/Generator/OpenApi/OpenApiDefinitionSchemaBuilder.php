@@ -62,7 +62,7 @@ class OpenApiDefinitionSchemaBuilder
     }
 
     /**
-     * @return Schema[]
+     * @return array<string, Schema>
      */
     public function getSchemaByDefinition(
         EntityDefinition $definition,
@@ -186,6 +186,7 @@ class OpenApiDefinitionSchemaBuilder
         $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
         $requiredAttributes = array_values(array_unique($requiredAttributes));
 
+        $since = $definition->since();
         if (!$onlyFlat && $apiType === 'jsonapi') {
             $schema[$schemaName . 'JsonApi'] = new Schema([
                 'schema' => $schemaName . 'JsonApi',
@@ -198,8 +199,8 @@ class OpenApiDefinitionSchemaBuilder
                 ],
             ]);
 
-            if (!\in_array($definition->since(), [null, '', '0'], true)) {
-                $schema[$schemaName . 'JsonApi']->description = 'Added since version: ' . $definition->since();
+            if ($since !== null && $since !== '') {
+                $schema[$schemaName . 'JsonApi']->description = 'Added since version: ' . $since;
             }
 
             if ($requiredAttributes !== []) {
@@ -244,8 +245,8 @@ class OpenApiDefinitionSchemaBuilder
             'properties' => $attributes,
         ]);
 
-        if (!\in_array($definition->since(), [null, '', '0'], true)) {
-            $schema[$schemaName]->description = 'Added since version: ' . $definition->since();
+        if ($since !== null && $since !== '') {
+            $schema[$schemaName]->description = 'Added since version: ' . $since;
         }
 
         if ($requiredAttributes !== []) {

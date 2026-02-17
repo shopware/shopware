@@ -93,7 +93,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: lts/*
 
       - name: Refresh Package List
         shell: bash
@@ -354,7 +354,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: lts/*
 
       - name: Install dependencies
         working-directory: new-shopware/tests/acceptance

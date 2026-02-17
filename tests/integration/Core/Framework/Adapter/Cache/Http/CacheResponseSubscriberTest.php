@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 class CacheResponseSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
+
     private const NO_STORE_ROUTES = [
         'frontend.account.order.page' => [],
         'frontend.account.order.single.page' => ['deepLinkCode' => 'abc'],
@@ -35,6 +36,14 @@ class CacheResponseSubscriberTest extends TestCase
         'frontend.account.customer-group-registration.page' => ['customerGroupId' => 'abc'],
     ];
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Ensure kernel is properly reset between tests to avoid contamination
+        KernelLifecycleManager::bootKernel();
+    }
+
     /**
      * @param array<string, string> $routeParameters
      */
@@ -44,9 +53,16 @@ class CacheResponseSubscriberTest extends TestCase
         $router = static::getContainer()->get('router');
         $route = $router->generate($routeName, $routeParameters);
 
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+        // Create a fresh browser for each test to avoid request contamination
+        $kernel = KernelLifecycleManager::getKernel();
+        $browser = KernelLifecycleManager::createBrowser($kernel);
+
+        // Reset browser state to ensure clean request
+        $browser->restart();
+
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
+
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
         static::assertTrue($response->headers->hasCacheControlDirective('private'));
         static::assertFalse($response->isCacheable());

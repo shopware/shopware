@@ -11,10 +11,6 @@ use Shopware\Core\Migration\Structs\MailTemplateTypeCreateStruct;
 
 trait CreateMailTemplateTrait
 {
-    private string $enLanguageByteId;
-
-    private string $deLanguageByteId;
-
     protected function createMail(
         Connection $connection,
         MailTemplateTypeCreateStruct $mailTemplateType,

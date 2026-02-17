@@ -36,14 +36,6 @@ class CacheResponseSubscriberTest extends TestCase
         'frontend.account.customer-group-registration.page' => ['customerGroupId' => 'abc'],
     ];
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Ensure kernel is properly reset between tests to avoid contamination
-        KernelLifecycleManager::bootKernel();
-    }
-
     /**
      * @param array<string, string> $routeParameters
      */

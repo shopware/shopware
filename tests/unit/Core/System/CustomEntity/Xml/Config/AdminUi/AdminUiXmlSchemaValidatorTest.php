@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[CoversClass(AdminUiXmlSchemaValidator::class)]
-#[CoversClass(CustomEntityConfigurationException::class)]
 class AdminUiXmlSchemaValidatorTest extends TestCase
 {
     public function testThatNoExceptionIsThrown(): void
@@ -30,12 +29,12 @@ class AdminUiXmlSchemaValidatorTest extends TestCase
         try {
             $this->validate('invalidReferences/inColumns');
             static::fail('no Exception was thrown');
-        } catch (CustomEntityConfigurationException $exception) {
+        } catch (CustomEntityException $exception) {
             static::assertSame(
                 'In `admin-ui.xml` the entity `ce_invalid_ref_in_columns` has invalid references (regarding `entities.xml`) inside of `<listing>`: i_am_an_invalid_reference',
                 $exception->getMessage()
             );
-            static::assertSame(CustomEntityConfigurationException::INVALID_REFERENCES, $exception->getErrorCode());
+            static::assertSame(CustomEntityException::INVALID_REFERENCES, $exception->getErrorCode());
             static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         }
     }
@@ -45,12 +44,12 @@ class AdminUiXmlSchemaValidatorTest extends TestCase
         try {
             $this->validate('invalidReferences/inCard');
             static::fail('no Exception was thrown');
-        } catch (CustomEntityConfigurationException $exception) {
+        } catch (CustomEntityException $exception) {
             static::assertSame(
                 'In `admin-ui.xml` the entity `ce_invalid_ref_in_card` has invalid references (regarding `entities.xml`) inside of `<detail>`: i_am_an_invalid_reference',
                 $exception->getMessage()
             );
-            static::assertSame(CustomEntityConfigurationException::INVALID_REFERENCES, $exception->getErrorCode());
+            static::assertSame(CustomEntityException::INVALID_REFERENCES, $exception->getErrorCode());
             static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         }
     }
@@ -60,13 +59,13 @@ class AdminUiXmlSchemaValidatorTest extends TestCase
         try {
             $this->validate('invalidReferences/complex');
             static::fail('no Exception was thrown');
-        } catch (CustomEntityConfigurationException $exception) {
+        } catch (CustomEntityException $exception) {
             // Exception is thrown in listing first
             static::assertSame(
                 'In `admin-ui.xml` the entity `ce_invalid_ref_complex` has invalid references (regarding `entities.xml`) inside of `<listing>`: i_am_an_invalid_reference',
                 $exception->getMessage()
             );
-            static::assertSame(CustomEntityConfigurationException::INVALID_REFERENCES, $exception->getErrorCode());
+            static::assertSame(CustomEntityException::INVALID_REFERENCES, $exception->getErrorCode());
             static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         }
     }
@@ -76,12 +75,12 @@ class AdminUiXmlSchemaValidatorTest extends TestCase
         try {
             $this->validate('duplicateReferences/inColumns');
             static::fail('no Exception was thrown');
-        } catch (CustomEntityConfigurationException $exception) {
+        } catch (CustomEntityException $exception) {
             static::assertSame(
                 'In `admin-ui.xml`, the entity `ce_duplicate_ref_in_columns` only allows unique fields per xml element, but found the following duplicates inside of `<listing>`: test_string',
                 $exception->getMessage()
             );
-            static::assertSame(CustomEntityConfigurationException::DUPLICATE_REFERENCES, $exception->getErrorCode());
+            static::assertSame(CustomEntityException::DUPLICATE_REFERENCES, $exception->getErrorCode());
             static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         }
     }
@@ -91,12 +90,12 @@ class AdminUiXmlSchemaValidatorTest extends TestCase
         try {
             $this->validate('duplicateReferences/inCard');
             static::fail('no Exception was thrown');
-        } catch (CustomEntityConfigurationException $exception) {
+        } catch (CustomEntityException $exception) {
             static::assertSame(
                 'In `admin-ui.xml`, the entity `ce_duplicate_ref_in_card` only allows unique fields per xml element, but found the following duplicates inside of `<detail>`: test_string',
                 $exception->getMessage()
             );
-            static::assertSame(CustomEntityConfigurationException::DUPLICATE_REFERENCES, $exception->getErrorCode());
+            static::assertSame(CustomEntityException::DUPLICATE_REFERENCES, $exception->getErrorCode());
             static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         }
     }
@@ -106,13 +105,13 @@ class AdminUiXmlSchemaValidatorTest extends TestCase
         try {
             $this->validate('duplicateReferences/complex');
             static::fail('no Exception was thrown');
-        } catch (CustomEntityConfigurationException $exception) {
+        } catch (CustomEntityException $exception) {
             // Exception is thrown in listing first
             static::assertSame(
                 'In `admin-ui.xml`, the entity `ce_duplicate_ref_complex` only allows unique fields per xml element, but found the following duplicates inside of `<listing>`: test_float',
                 $exception->getMessage()
             );
-            static::assertSame(CustomEntityConfigurationException::DUPLICATE_REFERENCES, $exception->getErrorCode());
+            static::assertSame(CustomEntityException::DUPLICATE_REFERENCES, $exception->getErrorCode());
             static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         }
     }

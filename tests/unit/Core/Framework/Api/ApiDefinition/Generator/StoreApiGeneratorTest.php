@@ -139,7 +139,7 @@ class StoreApiGeneratorTest extends TestCase
         static::assertContains('apiAlias', $entities['Simple']['required']);
     }
 
-    public function testMergeComponentsSchemaRequiredFieldsDeduplication(): void
+    public function testStaticJsonRequiredFieldsTakePrecedenceOverDefinition(): void
     {
         $reflection = new \ReflectionClass($this->generator);
         $method = $reflection->getMethod('mergeComponentsSchemaRequiredFieldsRecursive');
@@ -150,6 +150,12 @@ class StoreApiGeneratorTest extends TestCase
                     'Country' => [
                         'required' => ['id', 'name', 'addressFormat'],
                     ],
+                    'OnlyInPhp' => [
+                        'required' => ['id'],
+                    ],
+                    'ExplicitlyEmpty' => [
+                        'required' => ['id', 'name'],
+                    ],
                 ],
             ],
         ];
@@ -158,7 +164,11 @@ class StoreApiGeneratorTest extends TestCase
             'components' => [
                 'schemas' => [
                     'Country' => [
-                        'required' => ['id', 'name', 'addressFormat'],
+                        'required' => ['id', 'name'],
+                    ],
+                    'OnlyInPhp' => [],
+                    'ExplicitlyEmpty' => [
+                        'required' => [],
                     ],
                 ],
             ],
@@ -166,11 +176,17 @@ class StoreApiGeneratorTest extends TestCase
 
         $result = $method->invoke($this->generator, $specsFromDefinition, $specsFromJson);
 
+        // Static JSON defines required for Country — use it as-is, no merge with PHP
         $required = $result['components']['schemas']['Country']['required'];
-        static::assertCount(3, $required, 'Required fields should not contain duplicates after merge');
-        static::assertContains('id', $required);
-        static::assertContains('name', $required);
-        static::assertContains('addressFormat', $required);
+        static::assertSame(['id', 'name'], $required);
+
+        // Static JSON has no required for OnlyInPhp — fall back to PHP definition
+        $required = $result['components']['schemas']['OnlyInPhp']['required'];
+        static::assertSame(['id'], $required);
+
+        // Static JSON explicitly sets required to empty — PHP required is ignored
+        $required = $result['components']['schemas']['ExplicitlyEmpty']['required'];
+        static::assertSame([], $required);
     }
 
     public function testGroupsParametersParsing(): void

@@ -2,6 +2,7 @@ import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
 import { computed, getCurrentInstance, isReactive, isReadonly, isRef, reactive, toRefs, watch } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { SetupContext, PublicProps } from '@vue/runtime-core';
+import { _compositionApiComponents } from './options-composition-shim';
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -215,6 +216,9 @@ export function createExtendableSetup<
             delete originalSetupResult[key];
         }
     });
+
+    // Register this component as using Composition API for the Options API shim
+    _compositionApiComponents.add(options.name as string);
 
     // Initialize the overrides array for this component if it doesn't exist
     if (!_overridesMap[options.name]) {

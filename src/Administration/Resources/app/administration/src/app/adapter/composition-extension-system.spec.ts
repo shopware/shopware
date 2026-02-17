@@ -8,6 +8,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call */
 
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
+import { _compositionApiComponents } from 'src/app/adapter/options-composition-shim';
 import { mount } from '@vue/test-utils';
 import type { EmitFn } from 'vue';
 import { ref, computed, reactive, defineComponent } from 'vue';
@@ -26,6 +27,9 @@ describe('src/app/adapter/composition-extension-system', () => {
         entries.forEach((key) => {
             delete _overridesMap[key];
         });
+
+        // Reset the composition API components set
+        _compositionApiComponents.clear();
 
         // Clear all mocks
         jest.clearAllMocks();
@@ -3589,6 +3593,98 @@ describe('src/app/adapter/composition-extension-system', () => {
             await flushPromises();
 
             expect(wrapper.find('.private').text()).toContain('Private: Overridden');
+        });
+    });
+
+    describe('Options API Shim registration:', () => {
+        it('should register component in _compositionApiComponents when createExtendableSetup is used', () => {
+            expect(_compositionApiComponents.has('testRegistrationComponent')).toBe(false);
+
+            defineComponent({
+                template: '<div>Test</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'testRegistrationComponent',
+                        },
+                        () => {
+                            return {
+                                public: {
+                                    value: ref(1),
+                                },
+                            };
+                        },
+                    ),
+            });
+
+            // After defineComponent with createExtendableSetup, the component should NOT yet be registered
+            // (registration happens at mount/setup time, not at define time)
+            expect(_compositionApiComponents.has('testRegistrationComponent')).toBe(false);
+        });
+
+        it('should register component in _compositionApiComponents when component is mounted', () => {
+            expect(_compositionApiComponents.has('testMountedComponent')).toBe(false);
+
+            const originalComponent = defineComponent({
+                template: '<div>Test</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'testMountedComponent',
+                        },
+                        () => {
+                            return {
+                                public: {
+                                    value: ref(1),
+                                },
+                            };
+                        },
+                    ),
+            });
+
+            mount(originalComponent);
+
+            // After mounting, setup() runs and the component is registered
+            expect(_compositionApiComponents.has('testMountedComponent')).toBe(true);
+        });
+
+        it('should not register component names that do not use createExtendableSetup', () => {
+            const plainComponent = defineComponent({
+                template: '<div>Plain</div>',
+                setup() {
+                    return { value: ref(1) };
+                },
+            });
+
+            mount(plainComponent);
+
+            // Plain components should not be registered
+            expect(_compositionApiComponents.has('plainComponent')).toBe(false);
+        });
+
+        it('should register multiple different component names independently', () => {
+            const componentA = defineComponent({
+                template: '<div>A</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'componentA' }, () => ({ public: { val: ref(1) } })),
+            });
+
+            const componentB = defineComponent({
+                template: '<div>B</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'componentB' }, () => ({ public: { val: ref(2) } })),
+            });
+
+            mount(componentA);
+            mount(componentB);
+
+            expect(_compositionApiComponents.has('componentA')).toBe(true);
+            expect(_compositionApiComponents.has('componentB')).toBe(true);
+            expect(_compositionApiComponents.has('componentC')).toBe(false);
         });
     });
 });

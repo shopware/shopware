@@ -6,6 +6,8 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
+import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi, _compositionApiComponents } from 'src/app/adapter/options-composition-shim';
+import { _overridesMap } from 'src/app/adapter/composition-extension-system';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -26,7 +28,7 @@ import type {
     SlotsType,
     VNodeProps,
 } from 'vue';
-import { defineComponent } from 'vue';
+import { defineComponent, reactive } from 'vue';
 
 /**
  * This method is just for adding TypeScript support to component configuration and provides a this context.
@@ -657,6 +659,24 @@ function override(
     overrides.sort((a, b) => a.index - b.index);
     overrideRegistry.set(componentName, overrides);
 
+    // If the target component already uses Composition API (it's mounted),
+    // immediately route the override through the Options API shim
+    if (_compositionApiComponents.has(componentName)) {
+        void (async () => {
+            const resolvedConfig = await configResolveMethod();
+
+            if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(componentName, resolvedConfig)) {
+                const compositionOverride = convertOptionsApiOverrideToCompositionApi(componentName, resolvedConfig);
+
+                if (!_overridesMap[componentName]) {
+                    _overridesMap[componentName] = reactive([]);
+                }
+
+                _overridesMap[componentName].push(compositionOverride);
+            }
+        })();
+    }
+
     return configResolveMethod;
 }
 
@@ -731,16 +751,42 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         // clone the override configuration to prevent side-effects to the config
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
-        const convertedOverrides = await convertOverrides(
-            overrides!.map((c) => c.config),
-            config,
+        // Resolve all override configs in parallel, then separate by type
+        const resolvedEntries = await Promise.all(
+            overrides!.map(async (overrideEntry) => ({
+                config: await overrideEntry.config(),
+                configFn: overrideEntry.config,
+            })),
         );
 
-        convertedOverrides.forEach((overrideComp) => {
-            overrideComp.extends = config;
-            overrideComp._isOverride = true;
-            config = { ...overrideComp };
+        const standardOverrideConfigs: AwaitedComponentConfig[] = [];
+
+        resolvedEntries.forEach((entry) => {
+            if (typeof entry.config !== 'boolean' && shouldActivateShim(componentName, entry.config)) {
+                // Route through the Options API -> Composition API shim
+                const compositionOverride = convertOptionsApiOverrideToCompositionApi(componentName, entry.config);
+
+                if (!_overridesMap[componentName]) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    _overridesMap[componentName] = reactive([]);
+                }
+
+                _overridesMap[componentName].push(compositionOverride);
+            } else {
+                standardOverrideConfigs.push(entry.configFn);
+            }
         });
+
+        // Continue with standard Options API overrides
+        if (standardOverrideConfigs.length > 0) {
+            const convertedOverrides = await convertOverrides(standardOverrideConfigs, config);
+
+            convertedOverrides.forEach((overrideComp) => {
+                overrideComp.extends = config;
+                overrideComp._isOverride = true;
+                config = { ...overrideComp };
+            });
+        }
     }
 
     const superRegistry = buildSuperRegistry(config);

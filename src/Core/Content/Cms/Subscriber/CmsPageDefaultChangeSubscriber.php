@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
@@ -67,7 +68,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
         $defaultPages = $this->cmsPageIsDefault($cmsPageIds);
 
         // count !== 0 indicates that there are some cms pages which would be deleted but are currently a default
-        if (\count($defaultPages) !== 0) {
+        if ($defaultPages !== []) {
             throw CmsException::deletionOfDefault($defaultPages);
         }
     }
@@ -96,12 +97,20 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
         }
 
         if (!\is_string($newDefaultCmsPageId) && $newDefaultCmsPageId !== null) {
-            throw new PageNotFoundException('invalid page');
+            if (!Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
+                throw new PageNotFoundException('invalid page');
+            }
+            throw CmsException::pageNotFound('invalid page');
         }
 
         // prevent changing the default to an invalid cms page id
         if (\is_string($newDefaultCmsPageId) && !$this->cmsPageExists($newDefaultCmsPageId)) {
-            throw new PageNotFoundException($newDefaultCmsPageId);
+            if (!Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
+                throw new PageNotFoundException($newDefaultCmsPageId);
+            }
+            throw CmsException::pageNotFound($newDefaultCmsPageId);
         }
     }
 

@@ -55,6 +55,10 @@ class MediaException extends HttpException
     public const CONTENT_MEDIA_NO_FORM_DATA_FIELD_PROVIDED = 'CONTENT__MEDIA_NO_FORM_DATA_FIELD_PROVIDED';
     public const CONTENT_MEDIA_NO_MIME_TYPE_PROVIDED = 'CONTENT__MEDIA_NO_MIME_TYPE_PROVIDED';
     public const MEDIA_INVALID_REQUEST_PARAMETER = 'CONTENT__MEDIA_INVALID_REQUEST_PARAMETER';
+    public const MEDIA_PRESIGNED_UPLOAD_DISABLED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_DISABLED';
+    public const MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED';
+    public const MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION';
+    public const MEDIA_PRESIGNED_UPLOAD_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FAILED';
 
     public static function cannotBanRequest(string $url, string $error, ?\Throwable $e = null): self
     {
@@ -475,6 +479,46 @@ class MediaException extends HttpException
             self::MEDIA_INVALID_REQUEST_PARAMETER,
             'The parameter "{{ parameter }}" is invalid.',
             ['parameter' => $name]
+        );
+    }
+
+    public static function presignedUploadDisabled(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_DISABLED,
+            'Presigned upload is disabled.'
+        );
+    }
+
+    public static function presignedUploadNotSupported(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED,
+            'Presigned upload is not supported. S3 filesystem must be configured.'
+        );
+    }
+
+    public static function presignedUploadInvalidConfiguration(string $message, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION,
+            'Invalid presigned upload configuration: {{ message }}',
+            ['message' => $message],
+            $e
+        );
+    }
+
+    public static function presignedUploadFailed(\Throwable $e): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_PRESIGNED_UPLOAD_FAILED,
+            'Failed to generate presigned URL: {{ message }}',
+            ['message' => $e->getMessage()],
+            $e
         );
     }
 }

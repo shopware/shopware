@@ -1,15 +1,11 @@
-import { test } from '@fixtures/AcceptanceTest';
-import { expect, Request, Route, Page } from '@playwright/test';
-import {
+import { test,
+    AdminPageObjects,
     createNewAdminPageContext,
     loginToAdministration,
     User,
 } from '@fixtures/AcceptanceTest';
-import { AdminPageObjects } from '@shopware-ag/acceptance-test-suite';
-
-interface CapturedRequest {
-    postData: string;
-}
+import { expect, Page } from '@playwright/test';
+import { removeSymfonyToolbar } from '../../helpers/styleTag-helper';
 
 /**
  * Settings for running tests in serial mode.
@@ -26,36 +22,12 @@ const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
  */
 const ENTITY_GATEWAY_ENDPOINT = 'usage-data';
 
-const captured: CapturedRequest[] = [];
-
-const requestHandler = async (route: Route) => {
-    const req: Request = route.request();
-    captured.push({
-        postData: req.postData(),
-    });
-    await route.fulfill(
-        {
-            status: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Credentials': 'true',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                'code': 200,
-            }),
-        }
-    )
-};
-
 test('Only authorized users in administration can change store consent.', { tag: '@ProductAnalytics' }, async ({
     TestDataService,
     SalesChannelBaseConfig,
     browser,
     InstanceMeta,
 }) => {
-
-
 
     let page: Page;
     let customUser: User;
@@ -94,11 +66,8 @@ test('Only authorized users in administration can change store consent.', { tag:
         page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
     });
 
-    await test.step('Intercept all the API calls to product analytics', async () => {
-        await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
-    });
-
     await test.step('Login to shopware administration', async () => {
+
         await loginToAdministration(
             page,
             customUser,
@@ -107,23 +76,7 @@ test('Only authorized users in administration can change store consent.', { tag:
 
         AdminYourProfile = new AdminPageObjects['YourProfile'](page);
         AdminDataSharingConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
-
-        await page.addStyleTag({
-            content: `
-                    .sf-toolbar {
-                        width: 0 !important;
-                        height: 0 !important;
-                        display: none !important;
-                        pointer-events: none !important;
-                    }
-                    `.trim(),
-        });
-
-    });
-
-    await test.step('Validate no captured requests for product analytics', async () => {
-
-        expect(captured.length).toBe(0);
+        await removeSymfonyToolbar(page);
     });
 
     await test.step('Validate only my data consent can be adjusted in modal', async () => {
@@ -134,22 +87,15 @@ test('Only authorized users in administration can change store consent.', { tag:
         await expect(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).toBeEditable();
         await expect(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).not.toBeChecked();
 
+        const requestPromise = page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, { timeout: 3000 });
         await AdminDataSharingConsentModal.savePreferencesButton.click();
+        await expect(requestPromise).rejects.toThrow();
     });
 
     await test.step('Validate privacy preferences of user can be accessed', async () => {
 
         await page.goto(AdminYourProfile.url('privacy-preferences'));
-        await page.addStyleTag({
-            content: `
-                    .sf-toolbar {
-                        width: 0 !important;
-                        height: 0 !important;
-                        display: none !important;
-                        pointer-events: none !important;
-                    }
-                    `.trim(),
-        });
+        await removeSymfonyToolbar(page);
 
         await expect(AdminYourProfile.dataSharingMyDataCheckbox).toBeVisible();
         await expect(AdminYourProfile.dataSharingMyDataCheckbox).toBeEditable();

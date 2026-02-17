@@ -230,10 +230,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         foreach ($specsFromDefinition['components']['schemas'] as $key => $value) {
             if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required']) && isset($specsFromDefinition['components']['schemas'][$key]['required'])) {
                 $specsFromStaticJsonDefinition['components']['schemas'][$key]['required']
-                    = array_merge_recursive(
+                    = array_values(array_unique(array_merge(
                         $specsFromStaticJsonDefinition['components']['schemas'][$key]['required'],
                         $specsFromDefinition['components']['schemas'][$key]['required']
-                    );
+                    )));
             }
         }
 

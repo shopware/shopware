@@ -139,6 +139,40 @@ class StoreApiGeneratorTest extends TestCase
         static::assertContains('apiAlias', $entities['Simple']['required']);
     }
 
+    public function testMergeComponentsSchemaRequiredFieldsDeduplication(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('mergeComponentsSchemaRequiredFieldsRecursive');
+
+        $specsFromDefinition = [
+            'components' => [
+                'schemas' => [
+                    'Country' => [
+                        'required' => ['id', 'name', 'addressFormat'],
+                    ],
+                ],
+            ],
+        ];
+
+        $specsFromJson = [
+            'components' => [
+                'schemas' => [
+                    'Country' => [
+                        'required' => ['id', 'name', 'addressFormat'],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $method->invoke($this->generator, $specsFromDefinition, $specsFromJson);
+
+        $required = $result['components']['schemas']['Country']['required'];
+        static::assertCount(3, $required, 'Required fields should not contain duplicates after merge');
+        static::assertContains('id', $required);
+        static::assertContains('name', $required);
+        static::assertContains('addressFormat', $required);
+    }
+
     public function testGroupsParametersParsing(): void
     {
         $schema = $this->generator->generate(

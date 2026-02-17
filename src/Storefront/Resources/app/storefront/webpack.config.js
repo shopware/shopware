@@ -272,13 +272,6 @@ const coreConfig = {
         ...(() => {
             if (isHotMode) {
                 return [
-                    /**
-                     * Inject `isHotMode` and `storefrontProxyPort` into browser's window object
-                     */
-                    new webpack.DefinePlugin({
-                        "window.isHotMode": isHotMode,
-                        "window.storefrontProxyPort": JSON.stringify(proxyPort),
-                    }),
                     new webpack.HotModuleReplacementPlugin(),
                 ];
             }

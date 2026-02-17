@@ -75,7 +75,7 @@ class Migration1768545322AssignRevocationPageToSystemConfigSettingTest extends T
     }
 
     /**
-     * @return array{id: string, configuration_value: string}|null
+     * @return array<string, mixed>|null
      */
     private function getConfig(): ?array
     {

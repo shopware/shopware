@@ -19,12 +19,12 @@ use Shopware\Core\Framework\Log\Package;
 class MailDataProvider
 {
     /**
-     * @var array<string, AbstractProvider<Entity, EntityCollection>>
+     * @var array<string, AbstractProvider<Entity, EntityCollection<Entity>>>
      */
     private array $dataProviders;
 
     /**
-     * @param iterable<string, AbstractProvider<Entity, EntityCollection>> $dataProviders
+     * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
      */
     public function __construct(
         iterable $dataProviders,
@@ -44,12 +44,12 @@ class MailDataProvider
         $availableEntities = $mailTemplate->getMailTemplateType()?->getAvailableEntities() ?? [];
 
         // Filter entities array so only those are left which are in the mail template's available entities list
-        $entities = array_filter(
+        $entities = \array_filter(
             $entities,
             function (string $entityName) use ($availableEntities) {
                 return in_array($entityName, $availableEntities, true);
             },
-            ARRAY_FILTER_USE_KEY
+            \ARRAY_FILTER_USE_KEY
         );
 
         $templateData = [];

@@ -49,21 +49,31 @@ class BenchExtension implements ExtensionInterface
         $runGroup = $this->getRunGroup();
 
         foreach ($this->findFixtures($fixturePath) as $fixtureFile) {
+            // Get classes before requiring the file
+            $declaredBefore = get_declared_classes();
             require $fixtureFile;
-            $declared = get_declared_classes();
-            /** @var string $currentFixtureClass */
-            $currentFixtureClass = end($declared);
-            if (!str_contains($currentFixtureClass, 'Fixture.php')) {
-                $currentFixtureClass = $declared[\count($declared) - 2];
+            // Get classes after requiring the file
+            $declaredAfter = get_declared_classes();
+            // Find all newly declared classes (fixes bug where parent class was incorrectly picked up)
+            $newClasses = array_diff($declaredAfter, $declaredBefore);
+
+            if (empty($newClasses)) {
+                continue;
             }
 
-            if (
-                is_subclass_of($currentFixtureClass, AbstractGroupAwareExtension::class)
-                && \constant("$currentFixtureClass::TARGET_GROUP") === $runGroup
-            ) {
-                $fixture = new $currentFixtureClass($container);
-                $fixture->configure($this->resolver);
-                $fixture->load($container);
+            // Iterate through all newly declared classes to find the fixture
+            // (a file may declare helper classes before the actual fixture class)
+            foreach ($newClasses as $currentFixtureClass) {
+                if (
+                    is_subclass_of($currentFixtureClass, AbstractGroupAwareExtension::class)
+                    && \defined("$currentFixtureClass::TARGET_GROUP")
+                    && \constant("$currentFixtureClass::TARGET_GROUP") === $runGroup
+                ) {
+                    $fixture = new $currentFixtureClass($container);
+                    $fixture->configure($this->resolver);
+                    $fixture->load($container);
+                    break; // Found and loaded the fixture, no need to check other classes from this file
+                }
             }
         }
 

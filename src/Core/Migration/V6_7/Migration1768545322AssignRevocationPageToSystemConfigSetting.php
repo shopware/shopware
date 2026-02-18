@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('after-sales')]
 class Migration1768545322AssignRevocationPageToSystemConfigSetting extends MigrationStep
 {
-    public const REVOCATION_PAGE_CONFIG_KEY = 'core.basicInformation.revocationRequestPage';
-    public const REVOCATION_BUTTON_CONFIG_KEY = 'core.basicInformation.showRevocationButton';
+    final public const REVOCATION_PAGE_CONFIG_KEY = 'core.basicInformation.revocationRequestPage';
+    final public const REVOCATION_BUTTON_CONFIG_KEY = 'core.basicInformation.showRevocationButton';
 
     public function getCreationTimestamp(): int
     {
@@ -68,7 +68,7 @@ class Migration1768545322AssignRevocationPageToSystemConfigSetting extends Migra
     private function isPageAssigned(Connection $connection): bool
     {
         return (bool) $connection->fetchOne(
-            'SELECT 1 FROM system_config WHERE configuration_key = :configKey',
+            'SELECT 1 FROM system_config WHERE configuration_key = :configKey LIMIT 1',
             ['configKey' => self::REVOCATION_PAGE_CONFIG_KEY]
         );
     }

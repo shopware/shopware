@@ -86,7 +86,7 @@
                                         {# Check for seoUrl and use it if present #}
                                         {% for serviceMenuItem in footer.serviceMenu %}
                                             {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
-                                                {% set contactUrl = serviceMenuItem.seoUrl %}
+                                                {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
                                             {% endif %}
                                         {% endfor %}
 
@@ -94,7 +94,7 @@
                                         {% if footer.navigation and footer.navigation.tree %}
                                             {% for footerItem in footer.navigation.tree %}
                                                 {% if footerItem.category.cmsPageId == revocationRequestCmsPageId and footerItem.category.seoUrl %}
-                                                    {% set contactUrl = footerItem.category.seoUrl %}
+                                                    {% set revocationRequestUrl = footerItem.category.seoUrl %}
                                                 {% endif %}
                                             {% endfor %}
                                         {% endif %}

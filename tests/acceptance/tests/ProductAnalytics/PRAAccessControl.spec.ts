@@ -22,7 +22,7 @@ const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
  */
 const ENTITY_GATEWAY_ENDPOINT = 'usage-data';
 
-test('Only authorized users in administration can change store consent.', { tag: '@ProductAnalytics' }, async ({
+test('Only authorized users in administration can change store consent and user data consent', { tag: '@ProductAnalytics' }, async ({
     TestDataService,
     SalesChannelBaseConfig,
     browser,
@@ -33,6 +33,11 @@ test('Only authorized users in administration can change store consent.', { tag:
     let customUser: User;
     let AdminYourProfile;
     let AdminDataSharingConsentModal;
+
+    await test.step('Create user with user data consent given.', async () => {
+
+        //To-Do: Create user with user data consent given via API once endpoint is available. For now, we need to set consent via UI.
+    });
 
     await test.step('Setup user which can not change store consent but user data consent', async () => {
 

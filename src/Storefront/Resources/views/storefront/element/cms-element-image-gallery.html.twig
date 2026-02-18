@@ -19,19 +19,6 @@
         {% set navigationDots = sliderConfig.navigationDots.value %}
         {% set galleryPosition = sliderConfig.galleryPosition.value %}
         {% set verticalAlign = sliderConfig.verticalAlign.value %}
-
-        {% set containerClass = '' %}
-        {% if minHeight and verticalAlign %}
-            {% set containerClass = ' has-vertical-align is-align-' %}
-            {% if verticalAlign == "center" %}
-                {% set containerClass = containerClass ~ 'center' %}
-            {% elseif verticalAlign == "flex-end" %}
-                {% set containerClass = containerClass ~ 'bottom' %}
-            {% else %}
-                {% set containerClass = containerClass ~ 'top' %}
-            {% endif %}
-        {% endif %}
-
         {% set zoomImageContainerSelector = sliderConfig.zoomImageContainerSelector.value %}
         {% set arViewerBaseOptions = {
             snippets: {
@@ -207,7 +194,7 @@
                                     {% if imageCount > 1 %}
                                         {% block element_image_gallery_inner_multiple_slides %}
                                             {% block element_image_gallery_inner_container %}
-                                                <div class="gallery-slider-container{{ containerClass }}"
+                                                <div class="gallery-slider-container"
                                                      data-gallery-slider-container="true">
                                                     {% block element_image_gallery_inner_items %}
                                                         {% for image in mediaItems %}

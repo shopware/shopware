@@ -144,7 +144,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
             $schema = array_shift($schema);
             if ($schema === null) {
-                throw ApiException::invalidSchemaByDefinition($definition, 'No schema found');
+                throw ApiException::invalidSchemaForDefinition($definition, 'No schema found');
             }
             $schema = json_decode($schema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
             $schema = $schema['allOf'][1]['properties'];
@@ -160,7 +160,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     } elseif ($type === 'array') {
                         $entity = $relationshipData['items']['properties']['type']['example'];
                     } else {
-                        throw ApiException::invalidSchemaByDefinition($definition, 'Invalid type');
+                        throw ApiException::invalidSchemaForDefinition($definition, 'Invalid type');
                     }
 
                     $relationships[$propertyName] = [
@@ -201,7 +201,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     } elseif ($type === 'array') {
                         $entity = $data['items']['properties']['type']['example'];
                     } else {
-                        throw ApiException::invalidSchemaByDefinition($definition, 'Invalid type');
+                        throw ApiException::invalidSchemaForDefinition($definition, 'Invalid type');
                     }
 
                     $extensions[$propertyName] = ['type' => $type, 'entity' => $entity];
@@ -223,7 +223,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function getResourceUri(EntityDefinition $definition): string
     {
-        return ltrim('/', '/') . '/' . str_replace('_', '-', $definition->getEntityName());
+        return '/' . str_replace('_', '-', $definition->getEntityName());
     }
 
     /**

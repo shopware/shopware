@@ -61,7 +61,7 @@ class ApiException extends HttpException
     public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
     public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
-    public const INVALID_SCHEMA_BY_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_BY_DEFINITION';
+    public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -368,11 +368,11 @@ class ApiException extends HttpException
         );
     }
 
-    public static function invalidSchemaByDefinition(EntityDefinition $definition, string $message): self
+    public static function invalidSchemaForDefinition(EntityDefinition $definition, string $message): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::INVALID_SCHEMA_BY_DEFINITION,
+            self::INVALID_SCHEMA_FOR_DEFINITION,
             'Invalid schema for entity "{{ entityName }}". ' . $message,
             ['entityName' => $definition->getEntityName()]
         );

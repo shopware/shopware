@@ -532,7 +532,8 @@ export default {
                 path.some(
                     (el) =>
                         el.classList?.contains('sw-popover__wrapper') ||
-                        el.classList?.contains('mt-popover-deprecated__wrapper'),
+                        el.classList?.contains('mt-popover-deprecated__wrapper') ||
+                        el.classList?.contains('mt-floating-ui__content'),
                 )
             ) {
                 return;

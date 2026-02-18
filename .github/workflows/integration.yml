@@ -599,7 +599,6 @@ jobs:
   update-66-67:
       name: "PHP update 6.6 -> 6.7"
       runs-on: ubuntu-24.04
-      if: inputs.nightly == 'true'
       env:
           APP_ENV: test
           APP_URL: http://localhost:8000
@@ -655,7 +654,7 @@ jobs:
             run: bin/console theme:refresh
 
           - name: Run integration tests
-            run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+            run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error
 
   # this allows us to specifiy just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations

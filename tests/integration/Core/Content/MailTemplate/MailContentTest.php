@@ -134,6 +134,9 @@ class MailContentTest extends TestCase
 
         $plainFixturePath = $fixturePath . '-plain.html.twig';
         $htmlFixturePath = $fixturePath . '-html.html.twig';
+        if (!$this->filesystem->exists($plainFixturePath)) {
+            $plainFixturePath = $fixturePath . '-plain.txt.twig';
+        }
 
         $plainFixtureContent = $this->filesystem->readFile($plainFixturePath);
         $htmlFixtureContent = $this->filesystem->readFile($htmlFixturePath);

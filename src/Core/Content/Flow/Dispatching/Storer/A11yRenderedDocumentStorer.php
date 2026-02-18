@@ -73,7 +73,7 @@ class A11yRenderedDocumentStorer extends FlowStorer
             $ids = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
         }
 
-        if (!\is_array($ids) || empty($ids)) {
+        if (!\is_array($ids) || $ids === []) {
             return [];
         }
 

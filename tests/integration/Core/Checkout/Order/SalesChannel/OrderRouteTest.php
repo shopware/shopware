@@ -439,6 +439,10 @@ class OrderRouteTest extends TestCase
 
     public function testSetSamePaymentMethodToOrder(): void
     {
+        if (!static::getContainer()->has(AccountOrderController::class)) {
+            static::markTestSkipped('Order mail tests should be fixed without storefront');
+        }
+
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->mailSentEventCounter = 0;
 

@@ -849,6 +849,7 @@
           "404Page": "404-Seiten",
           "maintenancePage": "Wartungsseiten",
           "contactPage": "Kontaktformulare",
+          "revocationRequestPage": "Widerrufsformular",
           "newsletterPage": "Newsletterseiten"
         },
         "products": {

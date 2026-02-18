@@ -68,7 +68,6 @@
                     {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
                         with {
                         rows: 5,
-                        required: true,
                         fieldName: 'comment',
                         additionalClass: 'col-12',
                         label: 'revocationRequest.commentLabel',
@@ -91,7 +90,7 @@
             {% endblock %}
 
             {% block cms_form_ocr_submit %}
-                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' with { submitText: 'revocationRequest.formSubmit' } %}
             {% endblock %}
         </div>
 

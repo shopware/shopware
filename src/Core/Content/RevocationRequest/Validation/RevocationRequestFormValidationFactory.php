@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\RevocationRequest\Validation;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -19,7 +21,23 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class RevocationRequestFormValidationFactory implements DataValidationFactoryInterface
 {
     public const CREATE_VALIDATION_NAME = 'revocation_request_form.create';
+
     public const UPDATE_VALIDATION_NAME = 'revocation_request_form.update';
+
+    public const FIRST_NAME_FIELD = 'core.basicInformation.firstNameFieldRequired';
+
+    public const LAST_NAME_FIELD = 'core.basicInformation.lastNameFieldRequired';
+
+    public const COMMENT_MAX_LENGTH = 4096;
+
+    public const CONTRACT_NUMBER_MAX_LENGTH = 255;
+
+    /**
+     * see:
+     * https://www.rfc-editor.org/rfc/rfc3696
+     * 3. Restrictions on email addresses
+     */
+    public const EMAIL_MAX_LENGTH = 320;
 
     /**
      * @internal
@@ -44,20 +62,50 @@ class RevocationRequestFormValidationFactory implements DataValidationFactoryInt
     {
         $validationDefinition = new DataValidationDefinition($name);
         $validationDefinition
-            ->add('firstName', new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false))
-            ->add('lastName', new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false))
-            ->add('email', new NotBlank(), new Email())
-            ->add('contractNumber', new NotBlank())
-            ->add('comment', new NotBlank());
+            ->add(
+                'firstName',
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
+                new Length(min: 0, max: CustomerDefinition::MAX_LENGTH_FIRST_NAME)
+            )
+            ->add(
+                'lastName',
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
+                new Length(min: 0, max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
+            )
+            ->add(
+                'email',
+                new NotBlank(),
+                new Email(),
+                new Length(min: 0, max: self::EMAIL_MAX_LENGTH)
+            )
+            ->add(
+                'contractNumber',
+                new NotBlank(),
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
+                new Length(min: 0, max: self::CONTRACT_NUMBER_MAX_LENGTH)
+            )
+            ->add(
+                'comment',
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
+                new Length(min: 0, max: self::COMMENT_MAX_LENGTH)
+            );
 
-        $required = $this->systemConfigService->get('core.basicInformation.firstNameFieldRequired', $context->getSalesChannelId());
-        if ($required) {
-            $validationDefinition->set('firstName', new NotBlank(), new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false));
+        if ($this->systemConfigService->get(self::FIRST_NAME_FIELD, $context->getSalesChannelId())) {
+            $validationDefinition->set(
+                'firstName',
+                new NotBlank(),
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
+                new Length(min: 0, max: CustomerDefinition::MAX_LENGTH_FIRST_NAME)
+            );
         }
 
-        $required = $this->systemConfigService->get('core.basicInformation.lastNameFieldRequired', $context->getSalesChannelId());
-        if ($required) {
-            $validationDefinition->set('lastName', new NotBlank(), new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false));
+        if ($this->systemConfigService->get(self::LAST_NAME_FIELD, $context->getSalesChannelId())) {
+            $validationDefinition->set(
+                'lastName',
+                new NotBlank(),
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
+                new Length(min: 0, max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
+            );
         }
 
         $validationEvent = new BuildValidationEvent($validationDefinition, new DataBag(), $context->getContext());

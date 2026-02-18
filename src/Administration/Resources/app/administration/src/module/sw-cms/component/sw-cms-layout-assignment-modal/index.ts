@@ -102,6 +102,10 @@ export default Shopware.Component.wrapComponentConfig({
                     value: 'core.basicInformation.contactPage',
                 },
                 {
+                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.revocationRequestPage'),
+                    value: 'core.basicInformation.revocationRequestPage',
+                },
+                {
                     label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.newsletterPage'),
                     value: 'core.basicInformation.newsletterPage',
                 },

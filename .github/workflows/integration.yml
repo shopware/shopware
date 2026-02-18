@@ -380,11 +380,11 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright install --with-deps chromium
       - name: Run update tests with reporting
-        if: inputs.nightly == 'true'
+        if: ${{ (inputs.nightly == 'true' && github.event_name == 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
-        if: inputs.nightly != 'true'
+        if: ${{ (inputs.nightly != 'true' || github.event_name != 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 

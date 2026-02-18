@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -74,11 +76,6 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
             return false;
         }
 
-        // if no filters, aggregations, queries etc, we can use es
-        if ($criteria->getTerm() && $criteria->getAllFields() === []) {
-            return true;
-        }
-
         if (!$this->registry->hasIndexer($definition->getEntityName())) {
             return false;
         }
@@ -88,6 +85,11 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
         // no field is marked for ES index, skip it
         if ($indexer->mapping([]) === []) {
             return false;
+        }
+
+        // if no filters, aggregations, queries etc, we can use es
+        if ($criteria->getTerm() && $criteria->getAllFields() === []) {
+            return true;
         }
 
         // if criteria contains unsupported fields, we cannot use es
@@ -105,13 +107,40 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
         return true;
     }
 
+    /**
+     * @description Checks if the criteria contains filters or queries that are not supported by the our implementation. Goal is to prevent sending queries to ES that we know will fail and fallback to the default search implementation instead.
+     * We currently do not support ContainsFilter, PrefixFilter and SuffixFilter in the admin ES search, as they would require a full reimplementation of the way we parse filters for the admin search but all index fields are keyword fields where these filters would not work anyway.
+     * This is because we want to minimize offloading to ES as much as possible and only want to use it for very simple queries with term and filters on keyword fields.
+     * For "searching" functionality in the admin we recommend using the criteria.setTerm() functionality which is supported by text field that are part of every admin ES indexes in current implementation.
+     */
     private function criteriaHasUnsupportedFeatures(Criteria $criteria): bool
     {
         $filters = [...$criteria->getFilters(), ...$criteria->getPostFilters()];
 
+        foreach ($criteria->getQueries() as $scoreQuery) {
+            $filters[] = $scoreQuery->getQuery();
+        }
+
         foreach ($filters as $filter) {
-            if ($filter instanceof ContainsFilter || $filter instanceof PrefixFilter || $filter instanceof SuffixFilter) {
+            if ($this->unsupportedFilter($filter)) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function unsupportedFilter(Filter $filter): bool
+    {
+        if ($filter instanceof ContainsFilter || $filter instanceof PrefixFilter || $filter instanceof SuffixFilter) {
+            return true;
+        }
+
+        if ($filter instanceof MultiFilter) {
+            foreach ($filter->getQueries() as $childFilter) {
+                if ($this->unsupportedFilter($childFilter)) {
+                    return true;
+                }
             }
         }
 

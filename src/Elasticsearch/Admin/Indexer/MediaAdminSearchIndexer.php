@@ -187,6 +187,15 @@ SQL,
                 $id,
             ]));
 
+            if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                $mapped[$id] = [
+                    'id' => $id,
+                    'text' => \strtolower($text),
+                ];
+
+                continue;
+            }
+
             $translatedTitles = $this->decodeTranslatedValues((string) $row['translatedFields'], 'title');
             $translatedAlts = $this->decodeTranslatedValues((string) $row['translatedFields'], 'alt');
 

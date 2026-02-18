@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
@@ -472,6 +473,11 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'parameters' => ['type' => 'keyword'],
             ],
         ]);
+
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            $mapping['properties']['textBoosted']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
+            $mapping['properties']['text']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
+        }
 
         $debug = $this->environment === 'dev' || $this->environment === 'test';
 

@@ -161,6 +161,16 @@ SQL,
         foreach ($data as $row) {
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter([$row['name'] ?? '', $row['tags'] ?? '', $id]));
+
+            if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                $mapped[$id] = [
+                    'id' => $id,
+                    'text' => \strtolower($text),
+                ];
+
+                continue;
+            }
+
             $translatedNames = $this->decodeTranslatedValues((string) $row['translatedNames']);
 
             $mapped[$id] = [

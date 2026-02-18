@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\AppInfo;
+use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 use Shopware\Core\Service\ServiceException;
 
 /**
@@ -18,17 +19,17 @@ class AppInfoTest extends TestCase
     {
         yield 'empty' => [
             [],
-            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
         yield 'only app-version' => [
             ['app-version' => '1.0.0'],
-            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
         yield 'app-version + app-hash' => [
             ['app-version' => '1.0.0', 'app-hash' => 'a453f'],
-            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
         yield 'up to zip url' => [
@@ -38,7 +39,7 @@ class AppInfoTest extends TestCase
                 'app-revision' => '1.0.0-a453f',
                 'app-zip-url' => 'https://example.com/zip',
             ],
-            ['app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
         yield 'missing min version' => [
@@ -49,7 +50,7 @@ class AppInfoTest extends TestCase
                 'app-zip-url' => 'https://example.com/zip',
                 'app-hash-algorithm' => 'sha256',
             ],
-            ['app-min-shop-supported-version', 'app-requirements'],
+            ['app-min-shop-supported-version'],
         ];
 
         yield 'missing hash algorithm' => [
@@ -60,19 +61,7 @@ class AppInfoTest extends TestCase
                 'app-zip-url' => 'https://example.com/zip',
                 'app-min-shop-supported-version' => '6.6.0.0',
             ],
-            ['app-hash-algorithm', 'app-requirements'],
-        ];
-
-        yield 'missing app-requirements' => [
-            [
-                'app-version' => '1.0.0',
-                'app-hash' => 'a453f',
-                'app-revision' => '1.0.0-a453f',
-                'app-zip-url' => 'https://example.com/zip',
-                'app-hash-algorithm' => 'sha256',
-                'app-min-shop-supported-version' => '6.6.0.0',
-            ],
-            ['app-requirements'],
+            ['app-hash-algorithm'],
         ];
     }
 
@@ -123,6 +112,20 @@ class AppInfoTest extends TestCase
         ]);
 
         static::assertSame(['service_consent', 'shopware_account'], $appInfo->requirements);
+    }
+
+    public function testFromRegistryResponseUsesDefaultRequirementsWhenMissing(): void
+    {
+        $appInfo = AppInfo::fromRegistryResponse('TestApp', [
+            'app-version' => '1.0.0',
+            'app-hash' => 'a453f',
+            'app-revision' => '1.0.0-a453f',
+            'app-zip-url' => 'https://example.com/zip',
+            'app-hash-algorithm' => 'sha256',
+            'app-min-shop-supported-version' => '6.6.0.0',
+        ]);
+
+        static::assertSame([ServiceConsentRequirement::NAME], $appInfo->requirements);
     }
 
     public function testFromNameAndSourceConfigParsesRequirements(): void

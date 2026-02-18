@@ -5,7 +5,6 @@ namespace Shopware\Core\Service\Requirement;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceSourceResolver;
-use Shopware\Core\Service\State;
 
 /**
  * @internal

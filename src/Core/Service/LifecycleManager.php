@@ -104,10 +104,7 @@ class LifecycleManager
     public function syncRequirement(string $requirementName, Context $context): void
     {
         foreach ($this->getAllServices($context) as $app) {
-            /** @var ServiceSourceConfig $sourceConfig */
-            $sourceConfig = $app->getSourceConfig();
-            $requirements = $sourceConfig['requirements'];
-
+            $requirements = $this->getRequirements($app);
             if (\in_array($requirementName, $requirements, true)) {
                 $this->syncPrivileges($app, $context);
             }
@@ -187,5 +184,16 @@ class LifecycleManager
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
 
         return $this->repository->search($criteria, $context)->getEntities();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getRequirements(AppEntity $app): array
+    {
+        /** @var ServiceSourceConfig $sourceConfig */
+        $sourceConfig = $app->getSourceConfig();
+
+        return AppInfo::fromNameAndSourceConfig($app->getName(), $sourceConfig)->requirements;
     }
 }

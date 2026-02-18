@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 use Shopware\Core\Service\ServiceClient;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
@@ -27,14 +28,14 @@ class ServiceClientTest extends TestCase
                 'app-version' => '6.6.0.0',
                 'app-hash' => 'a5b32',
             ],
-            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
         yield 'only app-version' => [
             [
                 'app-version' => '6.6.0.0',
             ],
-            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
         yield 'app-revision + app-hash' => [
@@ -42,7 +43,7 @@ class ServiceClientTest extends TestCase
                 'app-revision' => '6.6.0.0',
                 'app-hash' => 'a5b32',
             ],
-            ['app-version', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-version', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
         yield 'app-revision + app-version' => [
@@ -50,12 +51,12 @@ class ServiceClientTest extends TestCase
                 'app-revision' => '6.6.0.0',
                 'app-version' => '6.6.0.0',
             ],
-            ['app-hash', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-hash', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
         yield 'empty' => [
             [],
-            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
+            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
     }
 
@@ -142,5 +143,28 @@ class ServiceClientTest extends TestCase
         static::assertSame('6.6.0.0-a5b32', $appInfo->revision);
         static::assertSame('https://example.com/service/lifecycle/app-zip/6.6.0.0', $appInfo->zipUrl);
         static::assertSame(['service_consent'], $appInfo->requirements);
+    }
+
+    public function testLatestInfoUsesDefaultRequirementsWhenMissing(): void
+    {
+        $httpClient = new MockHttpClient([
+            new MockResponse((string) json_encode([
+                'app-version' => '6.6.0.0',
+                'app-hash' => 'a5b32',
+                'app-revision' => '6.6.0.0-a5b32',
+                'app-zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
+                'app-hash-algorithm' => 'sha256',
+                'app-min-shop-supported-version' => '6.6.0.0',
+            ])),
+        ]);
+        $client = new ServiceClient(
+            $httpClient,
+            '6.6.0.0',
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/app-endpoint')
+        );
+
+        $appInfo = $client->latestAppInfo();
+
+        static::assertSame([ServiceConsentRequirement::NAME], $appInfo->requirements);
     }
 }

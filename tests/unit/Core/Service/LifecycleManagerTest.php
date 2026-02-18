@@ -219,8 +219,8 @@ class LifecycleManagerTest extends TestCase
 
     public function testSyncRequirementReEvaluatesAffectedServices(): void
     {
-        $app1 = (new AppEntity())->assign(['id' => 'id-1', 'name' => 'Service1', 'selfManaged' => true, 'sourceConfig' => ['requirements' => ['service_consent']]]);
-        $app2 = (new AppEntity())->assign(['id' => 'id-2', 'name' => 'Service2', 'selfManaged' => true, 'sourceConfig' => ['requirements' => ['service_consent']]]);
+        $app1 = (new AppEntity())->assign(['id' => 'id-1', 'name' => 'Service1', 'selfManaged' => true, 'sourceConfig' => $this->createSourceConfig(['service_consent'])]);
+        $app2 = (new AppEntity())->assign(['id' => 'id-2', 'name' => 'Service2', 'selfManaged' => true, 'sourceConfig' => $this->createSourceConfig(['service_consent'])]);
         $services = new AppCollection([$app1, $app2]);
 
         $this->requirementsValidator->expects($this->exactly(2))
@@ -246,7 +246,7 @@ class LifecycleManagerTest extends TestCase
     public function testSyncRequirementDoesNothingWhenNoServicesAffected(): void
     {
         $services = new AppCollection([
-            (new AppEntity())->assign(['id' => 'id-1', 'name' => 'Service1', 'selfManaged' => true, 'sourceConfig' => ['requirements' => ['service_consent']]]),
+            (new AppEntity())->assign(['id' => 'id-1', 'name' => 'Service1', 'selfManaged' => true, 'sourceConfig' => $this->createSourceConfig(['service_consent'])]),
         ]);
 
         $this->requirementsValidator->expects($this->never())
@@ -394,5 +394,25 @@ class LifecycleManagerTest extends TestCase
         ]);
 
         return $appRepository;
+    }
+
+    /**
+     * @param list<string> $requirements
+     *
+     * @return array<string, mixed>
+     */
+    private function createSourceConfig(array $requirements = ['service_consent']): array
+    {
+        $sourceConfig = [
+            'version' => '1.0.0',
+            'hash' => 'a453f',
+            'revision' => '1.0.0-a453f',
+            'zip-url' => 'https://example.com/zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
+            'requirements' => $requirements,
+        ];
+
+        return $sourceConfig;
     }
 }

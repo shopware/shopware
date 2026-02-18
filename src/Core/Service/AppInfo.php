@@ -3,6 +3,7 @@
 namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 
 /**
  * @internal
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 readonly class AppInfo
 {
+    private const DEFAULT_REQUIREMENTS = [ServiceConsentRequirement::NAME];
+
     /**
      * @param non-empty-list<string> $requirements
      */
@@ -32,7 +35,7 @@ readonly class AppInfo
      */
     public static function fromRegistryResponse(string $appName, array $appInfo): self
     {
-        $requiredKeys = ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'];
+        $requiredKeys = ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'];
         $missingKeys = [];
         foreach ($requiredKeys as $key) {
             if (!isset($appInfo[$key])) {
@@ -50,7 +53,7 @@ readonly class AppInfo
             $appInfo['app-hash'],
             $appInfo['app-revision'],
             $appInfo['app-zip-url'],
-            $appInfo['app-requirements'],
+            $appInfo['app-requirements'] ?? self::DEFAULT_REQUIREMENTS,
             $appInfo['app-hash-algorithm'],
             $appInfo['app-min-shop-supported-version'],
         );

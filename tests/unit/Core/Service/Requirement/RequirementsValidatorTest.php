@@ -73,12 +73,22 @@ class RequirementsValidatorTest extends TestCase
      */
     private function createApp(array $requirements): AppEntity
     {
+        $sourceConfig = [
+            'version' => '1.0.0',
+            'hash' => 'a453f',
+            'revision' => '1.0.0-a453f',
+            'zip-url' => 'https://example.com/zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
+            'requirements' => $requirements,
+        ];
+
         $app = new AppEntity();
         $app->assign([
             'id' => 'app-' . bin2hex(random_bytes(4)),
             'name' => 'TestApp',
             'selfManaged' => true,
-            'sourceConfig' => ['requirements' => $requirements],
+            'sourceConfig' => $sourceConfig,
             'active' => true,
             'requestedPrivileges' => ['some:privilege'],
         ]);

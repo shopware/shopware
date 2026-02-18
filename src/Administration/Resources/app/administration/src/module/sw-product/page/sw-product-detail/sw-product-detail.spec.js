@@ -919,6 +919,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should load mode settings from user config when editing existing product', async () => {
+        // Mock user config with 'prices' disabled (enabled: false)
         const mockSettings = {
             first: () => ({
                 value: {
@@ -958,7 +959,18 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.setProps({ productId: '1234' });
         await flushPromises();
 
-        expect(wrapper.vm.modeSettings).not.toContain('prices');
-        expect(wrapper.vm.modeSettings).toContain('general_information');
+        // 'prices' should be missing from modeSettings
+        expect(wrapper.vm.modeSettings).toEqual([
+            'general_information',
+            'deliverability',
+            'visibility_structure',
+            'media',
+            'labelling',
+            'measurement',
+            'selling_packaging',
+            'properties',
+            'essential_characteristics',
+            'custom_fields',
+        ]);
     });
 });

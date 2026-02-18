@@ -87,6 +87,22 @@ class RevocationRequestFormValidationFactoryTest extends TestCase
         ];
 
         $formData = self::createValidData();
+        $formData['firstName'] = self::getToLongFirstName();
+        yield 'firstName is longer than maximum length but not required' => [
+            'formData' => $formData,
+            'requireNames' => false,
+            'expectedViolationCount' => 1,
+        ];
+
+        $formData = self::createValidData();
+        $formData['lastName'] = self::getToLongLastName();
+        yield 'lastName is longer than maximum length but not required' => [
+            'formData' => $formData,
+            'requireNames' => false,
+            'expectedViolationCount' => 1,
+        ];
+
+        $formData = self::createValidData();
         $formData['lastName'] = self::getToLongLastName();
         yield 'lastName is longer than maximum length' => [
             'formData' => $formData,
@@ -95,8 +111,7 @@ class RevocationRequestFormValidationFactoryTest extends TestCase
         ];
 
         $formData = self::createValidData();
-        unset($formData['firstName']);
-        unset($formData['lastName']);
+        unset($formData['firstName'], $formData['lastName']);
         yield 'firstName and lastName is missing' => [
             'formData' => $formData,
             'requireNames' => true,
@@ -104,8 +119,7 @@ class RevocationRequestFormValidationFactoryTest extends TestCase
         ];
 
         $formData = self::createValidData();
-        unset($formData['firstName']);
-        unset($formData['lastName']);
+        unset($formData['firstName'], $formData['lastName']);
         yield 'firstName and lastName is missing but not required' => [
             'formData' => $formData,
             'requireNames' => false,

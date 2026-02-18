@@ -82,7 +82,7 @@ class AdminElasticsearchEntitySearcherTest extends TestCase
         $registry->method('hasIndexer')->with($definition->getEntityName())->willReturn(true);
         $registry->method('getIndexer')->with($definition->getEntityName())->willReturn($indexer);
 
-        $expected = new IdSearchResult(1, ['abc' => ['primaryKey' => 'abc', 'data' => [ 'id' => 'abc']]], $criteria, $context);
+        $expected = new IdSearchResult(1, ['abc' => ['primaryKey' => 'abc', 'data' => ['id' => 'abc']]], $criteria, $context);
 
         $searcher->expects($this->once())
             ->method('searchIds')

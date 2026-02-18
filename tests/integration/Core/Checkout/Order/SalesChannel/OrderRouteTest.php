@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -463,7 +464,13 @@ class OrderRouteTest extends TestCase
 
         $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
-        static::assertSame(1, $this->mailSentEventCounter, 'The ‘mail.sent’ event was executed too often');
+        $expectedMailSentEventCount = 0;
+        // see SetPaymentOrderRoute tryTransition()
+        if (Feature::isActive('v6.8.0.0')) {
+            $expectedMailSentEventCount = 1;
+        }
+
+        static::assertSame($expectedMailSentEventCount, $this->mailSentEventCounter, 'The ‘mail.sent’ event was executed too often');
     }
 
     public function testSetPaymentOrderWrongPayment(): void

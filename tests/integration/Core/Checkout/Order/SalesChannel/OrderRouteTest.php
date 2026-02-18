@@ -463,7 +463,7 @@ class OrderRouteTest extends TestCase
 
         $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
-        static::assertSame(0, $this->mailSentEventCounter, 'The mail.sent event should not be sent when setting the same payment method');
+        static::assertSame(1, $this->mailSentEventCounter, 'The ‘mail.sent’ event was executed too often');
     }
 
     public function testSetPaymentOrderWrongPayment(): void

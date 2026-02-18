@@ -209,6 +209,54 @@ class AdministrationControllerTest extends TestCase
         static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }
 
+    public function testIndexOmitsStaleWhileRevalidateWhenFrwIsActive(): void
+    {
+        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
+        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+
+        $frwService = $this->createMock(FirstRunWizardService::class);
+        $frwService->method('frwShouldRun')->willReturn(true);
+
+        $controller = $this->createAdministrationController(firstRunWizardService: $frwService);
+
+        $container = new Container();
+        $twig = $this->createMock(Environment::class);
+
+        $twig->expects($this->once())->method('render')
+            ->willReturn('<html></html>');
+
+        $container->set('twig', $twig);
+        $controller->setContainer($container);
+
+        $currencyCollection = new CurrencyCollection();
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setIsoCode('EUR');
+        $currencyCollection->add($currency);
+
+        $this->currencyRepository->expects($this->once())->method('search')->willReturn(
+            new EntitySearchResult(
+                'currency',
+                1,
+                $currencyCollection,
+                null,
+                new Criteria(),
+                $this->context
+            )
+        );
+
+        $response = $controller->index(new Request(), $this->context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertTrue($response->headers->has('cache-control'));
+
+        $cacheControl = $response->headers->get('cache-control');
+        static::assertNotNull($cacheControl);
+        static::assertStringContainsString('max-age=0', $cacheControl);
+        static::assertStringContainsString('public', $cacheControl);
+        static::assertStringNotContainsString('stale-while-revalidate', $cacheControl);
+    }
+
     public function testCheckCustomerEmailValidWithoutException(): void
     {
         $controller = $this->createAdministrationController();
@@ -623,6 +671,7 @@ class AdministrationControllerTest extends TestCase
         ?EntityRepository $languageRepository = null,
         (SnippetFinderInterface&MockObject)|null $snippetFinder = null,
         (SymfonyBearerTokenValidator&MockObject)|null $tokenValidator = null,
+        ?FirstRunWizardService $firstRunWizardService = null,
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
@@ -631,7 +680,7 @@ class AdministrationControllerTest extends TestCase
 
         return new AdministrationController(
             $this->createMock(TemplateFinder::class),
-            $this->createMock(FirstRunWizardService::class),
+            $firstRunWizardService ?? $this->createMock(FirstRunWizardService::class),
             $snippetFinder ?? $this->createMock(SnippetFinderInterface::class),
             [],
             new KnownIpsCollector(),

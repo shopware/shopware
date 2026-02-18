@@ -29,6 +29,12 @@ class SwTwigFunctionTest extends TestCase
         class_exists(CoreExtension::class);
     }
 
+    protected function tearDown(): void
+    {
+        // Clean up static cache after each test to avoid test pollution
+        SwTwigFunction::resetEscapeCache();
+    }
+
     public function testSwGetAttributeValueNull(): void
     {
         $object = new ArrayStruct(['test' => null]);
@@ -145,6 +151,36 @@ class SwTwigFunctionTest extends TestCase
         $result = SwTwigFunction::escapeFilter($env, 'cached_string', 'html', 'UTF-8');
 
         static::assertSame('cached_string', $result);
+    }
+
+    public function testResetEscapeCacheClearsCache(): void
+    {
+        $env = $this->environmentMock;
+        $runtimeCallCount = 0;
+
+        $escaperRuntime = new EscaperRuntime($env);
+        $env->method('getRuntime')->willReturnCallback(function () use ($escaperRuntime, &$runtimeCallCount) {
+            ++$runtimeCallCount;
+
+            return $escaperRuntime;
+        });
+
+        // First call - should call getRuntime
+        SwTwigFunction::escapeFilter($env, 'test_reset_string', 'html', 'UTF-8');
+        static::assertSame(1, $runtimeCallCount);
+
+        // Second call - should use cache, NOT call getRuntime
+        SwTwigFunction::escapeFilter($env, 'test_reset_string', 'html', 'UTF-8');
+        // @phpstan-ignore staticMethod.alreadyNarrowedType (PHPStan doesn't track reference through callback)
+        static::assertSame(1, $runtimeCallCount, 'Second call should use cache');
+
+        // Reset the cache
+        SwTwigFunction::resetEscapeCache();
+
+        // Third call after reset - should call getRuntime again
+        SwTwigFunction::escapeFilter($env, 'test_reset_string', 'html', 'UTF-8');
+        // @phpstan-ignore staticMethod.impossibleType (PHPStan doesn't track reference through callback)
+        static::assertSame(2, $runtimeCallCount, 'After reset, cache should be empty and getRuntime called again');
     }
 }
 

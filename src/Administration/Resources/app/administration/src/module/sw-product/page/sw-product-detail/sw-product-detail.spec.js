@@ -893,4 +893,84 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.id).toBe('test');
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 10, linked: false, gross: 19 }]);
     });
+
+    it('should reset mode settings to default when creating a new product', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve({}),
+            null,
+        );
+
+        await flushPromises();
+
+        expect(wrapper.vm.modeSettings).toEqual([
+            'general_information',
+            'prices',
+            'deliverability',
+            'visibility_structure',
+            'media',
+            'labelling',
+            'measurement',
+            'selling_packaging',
+            'properties',
+            'essential_characteristics',
+            'custom_fields',
+        ]);
+    });
+
+    it('should load mode settings from user config when editing existing product', async () => {
+        // Mock user config with 'prices' disabled (enabled: false)
+        const mockSettings = {
+            first: () => ({
+                value: {
+                    advancedMode: {
+                        label: 'sw-product.general.textAdvancedMode',
+                        enabled: true,
+                    },
+                    settings: [
+                        {
+                            key: 'prices',
+                            label: 'sw-product.detailBase.cardTitlePrices',
+                            enabled: false,
+                            name: 'general',
+                        },
+                    ],
+                },
+            }),
+            total: 1,
+        };
+
+        wrapper = await createWrapper(
+            (criteria) => {
+                const isUserConfigSearch = criteria.filters.some(
+                    (f) => f.field === 'key' && f.value === 'mode.setting.advancedModeSettings',
+                );
+                if (isUserConfigSearch) {
+                    return Promise.resolve(mockSettings);
+                }
+                return Promise.resolve([]);
+            },
+            () => Promise.resolve({}),
+            null,
+        );
+
+        await flushPromises();
+
+        await wrapper.setProps({ productId: '1234' });
+        await flushPromises();
+
+        // 'prices' should be missing from modeSettings
+        expect(wrapper.vm.modeSettings).toEqual([
+            'general_information',
+            'deliverability',
+            'visibility_structure',
+            'media',
+            'labelling',
+            'measurement',
+            'selling_packaging',
+            'properties',
+            'essential_characteristics',
+            'custom_fields',
+        ]);
+    });
 });

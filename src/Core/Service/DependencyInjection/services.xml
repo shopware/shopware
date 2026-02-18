@@ -148,7 +148,7 @@
         </service>
 
         <service id="Shopware\Core\Service\Requirement\RequirementsValidator">
-            <argument type="tagged_iterator" tag="shopware.service.requirement" index-by="getName"/>
+            <argument type="tagged_iterator" tag="shopware.service.requirement" default-index-method="getName"/>
         </service>
 
         <service id="Shopware\Core\Service\LifecycleManager">

@@ -448,7 +448,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
      */
     private function buildMapping(AbstractAdminIndexer $indexer): array
     {
-        $mapping = $indexer->mapping([
+        $properties = [
             'properties' => [
                 'id' => ['type' => 'keyword'],
                 'textBoosted' => [
@@ -466,12 +466,14 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'entityName' => ['type' => 'keyword'],
                 'parameters' => ['type' => 'keyword'],
             ],
-        ]);
+        ];
 
         if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
-            $mapping['properties']['textBoosted']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
-            $mapping['properties']['text']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
+            $properties['properties']['textBoosted']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
+            $properties['properties']['text']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
         }
+
+        $mapping = $indexer->mapping($properties);
 
         $debug = $this->environment === 'dev' || $this->environment === 'test';
 

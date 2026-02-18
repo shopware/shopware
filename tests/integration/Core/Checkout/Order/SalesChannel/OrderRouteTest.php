@@ -469,9 +469,9 @@ class OrderRouteTest extends TestCase
         $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
         // see SetPaymentOrderRoute tryTransition()
-        // When v6.8.0.0 is OFF: uses last() which may not match correctly → email sent
-        // When v6.8.0.0 is ON: uses getPrimaryOrderTransaction() with improved logic → no email for same payment method
-        static::assertSame(Feature::isActive('v6.8.0.0') ? 0 : 1, $this->mailSentEventCounter, 'The "mail.sent" event was executed too often');
+        // When v6.8.0.0 is OFF: uses last() → finds match → returns true → early exit → NO email
+        // When v6.8.0.0 is ON: uses getPrimaryOrderTransaction() → may not match → returns false → creates transaction → email sent
+        static::assertSame(Feature::isActive('v6.8.0.0') ? 1 : 0, $this->mailSentEventCounter, 'The "mail.sent" event execution count does not match expected behavior');
     }
 
     public function testSetPaymentOrderWrongPayment(): void

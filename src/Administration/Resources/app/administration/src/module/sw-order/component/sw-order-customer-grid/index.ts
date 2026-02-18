@@ -20,6 +20,10 @@ interface GridColumn {
     primary?: boolean;
 }
 
+interface CustomerFilterRef {
+    term: string;
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
@@ -187,8 +191,11 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            // @ts-expect-error
-            this.$refs.customerFilter.term = this.customerData?.customerNumber;
+            const customerFilter = this.$refs.customerFilter as CustomerFilterRef | undefined;
+            if (customerFilter) {
+                customerFilter.term = this.customerData?.customerNumber ?? '';
+            }
+
             void this.onSearch(this.customerData?.customerNumber);
             void this.onCheckCustomer(this.customerData);
         },

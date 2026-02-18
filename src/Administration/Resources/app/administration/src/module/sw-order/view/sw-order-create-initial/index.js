@@ -11,6 +11,12 @@ const { Criteria } = Data;
 export default {
     template,
 
+    data() {
+        return {
+            routeCustomerReady: false,
+        };
+    },
+
     computed: {
         customerRepository() {
             return Service('repositoryFactory').create('customer');
@@ -45,16 +51,29 @@ export default {
             const customerId = this.$route.query?.customerId;
 
             if (!customerId) {
+                this.routeCustomerReady = true;
                 return;
             }
 
-            const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.customerCriteria);
-            if (customer) {
-                Store.get('swOrder').setCustomer(customer);
+            try {
+                const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.customerCriteria);
+
+                if (!customer) {
+                    return;
+                }
+
+                const orderStore = Store.get('swOrder');
+
+                // Reset store so the customer grid never sees a stale customer from a previous session
+                orderStore.$reset();
+
+                orderStore.setCustomer(customer);
+            } finally {
+                this.routeCustomerReady = true;
             }
         },
 
-        onCloseCreateModal() {
+        async onCloseCreateModal() {
             this.$nextTick(() => {
                 this.$router.push({ name: 'sw.order.index' });
             });

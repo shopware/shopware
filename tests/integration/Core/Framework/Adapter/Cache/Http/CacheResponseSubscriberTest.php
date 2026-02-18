@@ -44,10 +44,12 @@ class CacheResponseSubscriberTest extends TestCase
         $router = static::getContainer()->get('router');
         $route = $router->generate($routeName, $routeParameters);
 
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), true);
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
 
+        static::assertTrue($response->headers->hasCacheControlDirective('no-store'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
+        static::assertTrue($response->headers->hasCacheControlDirective('private'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
         static::assertFalse($response->isCacheable());
     }
 

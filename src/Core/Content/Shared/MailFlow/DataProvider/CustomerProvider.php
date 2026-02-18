@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @method CustomerEntity|null getData(string $entityId, Context $context)
+ * @extends AbstractProvider<CustomerEntity, CustomerCollection>
  */
 #[Package('after-sales')]
 class CustomerProvider extends AbstractProvider

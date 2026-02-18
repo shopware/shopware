@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
 /**
  * @internal
  *
- * @method UserRecoveryEntity|null getData(string $entityId, Context $context)
+ * @extends AbstractProvider<UserRecoveryEntity, UserRecoveryCollection>
  */
 #[Package('after-sales')]
 class UserRecoveryProvider extends AbstractProvider

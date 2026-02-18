@@ -56,19 +56,9 @@ class MailTemplateServiceTest extends TestCase
 
     public function testPreviewNoTemplateFound(): void
     {
-        $errorThrown = false;
+        $this->expectExceptionObject(MailTemplateException::templateNotFound());
 
-        try {
-            $this->mailTemplateService->preview(Uuid::randomHex(), [], $this->context);
-        } catch (\Throwable $e) {
-            $errorThrown = true;
-
-            static::assertInstanceOf(MailTemplateException::class, $e);
-            static::assertSame(MailTemplateException::MAIL_TEMPLATE_NOT_FOUND, $e->getErrorCode());
-            static::assertSame(MailTemplateException::templateNotFound()->getMessage(), $e->getMessage());
-        }
-
-        static::assertTrue($errorThrown, 'Expected MailTemplateException was not thrown.');
+        $this->mailTemplateService->preview(Uuid::randomHex(), [], $this->context);
     }
 
     public function testPreviewInvalidContent(): void
@@ -81,19 +71,9 @@ class MailTemplateServiceTest extends TestCase
             ['mail_template_id' => Uuid::fromHexToBytes($id)]
         );
 
-        $errorThrown = false;
+        $this->expectExceptionObject(MailTemplateException::invalidMailTemplateContent());
 
-        try {
-            $this->mailTemplateService->preview($id, [], $this->context);
-        } catch (\Throwable $e) {
-            $errorThrown = true;
-
-            static::assertInstanceOf(MailTemplateException::class, $e);
-            static::assertSame(MailTemplateException::MAIL_INVALID_TEMPLATE_CONTENT, $e->getErrorCode());
-            static::assertSame(MailTemplateException::invalidMailTemplateContent()->getMessage(), $e->getMessage());
-        }
-
-        static::assertTrue($errorThrown, 'Expected MailTemplateException was not thrown.');
+        $this->mailTemplateService->preview($id, [], $this->context);
     }
 
     public function testPreviewNoEntities(): void
@@ -202,19 +182,9 @@ class MailTemplateServiceTest extends TestCase
 
     public function testSendNoTemplateFound(): void
     {
-        $errorThrown = false;
+        $this->expectExceptionObject(MailTemplateException::templateNotFound());
 
-        try {
-            $this->mailTemplateService->getTemplateDataAndSend([], Uuid::randomHex(), [], $this->context);
-        } catch (\Throwable $e) {
-            $errorThrown = true;
-
-            static::assertInstanceOf(MailTemplateException::class, $e);
-            static::assertSame(MailTemplateException::MAIL_TEMPLATE_NOT_FOUND, $e->getErrorCode());
-            static::assertSame(MailTemplateException::templateNotFound()->getMessage(), $e->getMessage());
-        }
-
-        static::assertTrue($errorThrown, 'Expected MailTemplateException was not thrown.');
+        $this->mailTemplateService->getTemplateDataAndSend([], Uuid::randomHex(), [], $this->context);
     }
 
     public function testSendNoEntitiesButNotRequired(): void

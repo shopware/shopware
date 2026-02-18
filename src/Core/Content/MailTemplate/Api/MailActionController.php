@@ -114,7 +114,7 @@ class MailActionController extends AbstractController
     )]
     public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
-        $templateId = (string) $post->get('mailTemplateId');
+        $templateId = $post->getString('mailTemplateId');
         $entities = $post->get('entities');
 
         if (!$entities instanceof DataBag) {
@@ -139,7 +139,7 @@ class MailActionController extends AbstractController
     )]
     public function getDataAndSend(RequestDataBag $post, Context $context): JsonResponse
     {
-        $templateId = (string) $post->get('mailTemplateId');
+        $templateId = $post->getString('mailTemplateId');
         $entities = $post->get('entities');
 
         if (!$entities instanceof DataBag) {

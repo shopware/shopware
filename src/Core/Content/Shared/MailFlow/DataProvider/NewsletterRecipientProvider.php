@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @method NewsletterRecipientEntity|null getData(string $entityId, Context $context)
+ * @extends AbstractProvider<NewsletterRecipientEntity, NewsletterRecipientCollection>
  */
 #[Package('after-sales')]
 class NewsletterRecipientProvider extends AbstractProvider

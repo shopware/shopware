@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * @method OrderEntity|null getData(string $entityId, Context $context)
+ * @extends AbstractProvider<OrderEntity, OrderCollection>
  */
 #[Package('after-sales')]
 class OrderProvider extends AbstractProvider

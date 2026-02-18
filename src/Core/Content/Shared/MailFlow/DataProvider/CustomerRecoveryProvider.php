@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @method CustomerRecoveryEntity|null getData(string $entityId, Context $context)
+ * @extends AbstractProvider<CustomerRecoveryEntity, CustomerRecoveryCollection>
  */
 #[Package('after-sales')]
 class CustomerRecoveryProvider extends AbstractProvider

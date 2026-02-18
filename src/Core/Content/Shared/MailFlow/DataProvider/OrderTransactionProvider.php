@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @method OrderTransactionEntity|null getData(string $entityId, Context $context)
+ * @extends AbstractProvider<OrderTransactionEntity, OrderTransactionCollection>
  */
 #[Package('after-sales')]
 class OrderTransactionProvider extends AbstractProvider

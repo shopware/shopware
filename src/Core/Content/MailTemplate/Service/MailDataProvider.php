@@ -47,7 +47,7 @@ class MailDataProvider
         $entities = \array_filter(
             $entities,
             function (string $entityName) use ($availableEntities) {
-                return in_array($entityName, $availableEntities, true);
+                return \in_array($entityName, $availableEntities, true);
             },
             \ARRAY_FILTER_USE_KEY
         );

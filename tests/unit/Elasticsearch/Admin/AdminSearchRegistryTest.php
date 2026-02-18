@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
@@ -99,26 +100,33 @@ class AdminSearchRegistryTest extends TestCase
             'test'
         );
 
+        $properties = [
+            'id' => ['type' => 'keyword'],
+            'textBoosted' => [
+                'type' => 'text',
+                'fields' => [
+                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                ],
+            ],
+            'text' => [
+                'type' => 'text',
+                'fields' => [
+                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                ],
+            ],
+            'entityName' => ['type' => 'keyword'],
+            'parameters' => ['type' => 'keyword'],
+        ];
+
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            $properties['textBoosted']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
+            $properties['text']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
+        }
+
         $this->indexer->expects($this->once())
             ->method('mapping')
             ->with([
-                'properties' => [
-                    'id' => ['type' => 'keyword'],
-                    'textBoosted' => [
-                        'type' => 'text',
-                        'fields' => [
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'text' => [
-                        'type' => 'text',
-                        'fields' => [
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'entityName' => ['type' => 'keyword'],
-                    'parameters' => ['type' => 'keyword'],
-                ],
+                'properties' => $properties,
             ]);
         $registry->updateMappings();
     }

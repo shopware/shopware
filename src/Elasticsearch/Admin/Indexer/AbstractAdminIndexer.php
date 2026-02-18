@@ -37,7 +37,7 @@ abstract class AbstractAdminIndexer
     abstract public function getIterator(): IterableQuery;
 
     /**
-     * @return list<string>
+     * @return IDStructure[]
      */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {

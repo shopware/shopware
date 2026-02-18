@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -147,6 +148,16 @@ SQL,
         foreach ($data as $row) {
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter([$row['name'] ?? '', $row['tags'] ?? '', $id]));
+
+            if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                $mapped[$id] = [
+                    'id' => $id,
+                    'text' => \strtolower($text),
+                ];
+
+                continue;
+            }
+
             $translatedNames = $this->decodeTranslatedValues((string) $row['translatedNames']);
 
             $mapped[$id] = [

@@ -12,9 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @template IDStructure of string|array<string, string> = string
- */
 #[Package('inventory')]
 abstract class AbstractAdminIndexer
 {
@@ -37,16 +34,11 @@ abstract class AbstractAdminIndexer
     abstract public function getIterator(): IterableQuery;
 
     /**
-     * @param EntityWrittenContainerEvent<IDStructure> $event
-     *
-     * @return list<IDStructure>
+     * @return list<string>
      */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
-        /** @var list<IDStructure> $ids */
-        $ids = $event->getPrimaryKeys($this->getEntity());
-
-        return $ids;
+        return $event->getPrimaryKeys($this->getEntity());
     }
 
     /**

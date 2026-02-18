@@ -1,6 +1,31 @@
 .grid-column {
     min-width: 100%;
 
+    @for $i from 1 through 12 {
+        &.span-#{$i} {
+            grid-column: span #{$i};
+        }
+    }
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-up($breakpoint) {
+            @for $i from 1 through 12 {
+                &.span-#{$breakpoint}-#{$i} {
+                    grid-column: span #{$i};
+                }
+            }
+        }
+    }
+
+    // TODO: This should be generic later and not bound to the grid-column, done on "slot" level (layout options)
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            &.d-#{$breakpoint}-hidden {
+                display: none !important;
+            }
+        }
+    }
+
     &.align-start {
         align-self: start;
     }

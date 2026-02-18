@@ -7,37 +7,84 @@
 } %}
 
 <header {{ attributes.defaults(attributeDefaults) }}>
-    <twig:Sw:Header:TopBar>
-        <twig:Sw:Header:LanguageSelect :languages="header.languages" />
-        <twig:Sw:Header:CurrencySelect :currencies="header.currencies" />
-    </twig:Sw:Header:TopBar>
+    <twig:Sw:Grid:Container
+        justifyContent="end"
+        align="end"
+        :autoColumnsMax="true"
+        gap="15"
+    >
+        <twig:Sw:Grid:Column :display="{ xs: false, sm: false, md: false, lg: true, xl: true, xxl: true }">
+            <twig:Sw:Header:LanguageSelect :languages="header.languages" />
+        </twig:Sw:Grid:Column>
+        <twig:Sw:Grid:Column :display="{ xs: false, sm: false, md: false, lg: true, xl: true, xxl: true }">
+            <twig:Sw:Header:CurrencySelect :currencies="header.currencies" />
+        </twig:Sw:Grid:Column>
+    </twig:Sw:Grid:Container>
 
     <twig:Sw:Grid:Container
-        :columnsSm="1"
-        :rowsSm="2"
         :columns="3"
         :centered="true"
         justifyContent="stretch"
         alignContent="center"
         align="center"
         gap="16"
-        style="margin-bottom: 1.2rem;"
     >
-        <twig:Sw:Grid:Column>
+        <twig:Sw:Grid:Column
+            justify="stretch"
+            span="3"
+            spanLg="1"
+        >
             <twig:Sw:Header:Logo />
         </twig:Sw:Grid:Column>
-        <twig:Sw:Grid:Column>
+
+        {# Mobile menu trigger #}
+        <twig:Sw:Grid:Column
+            :display="{ xs: true, sm: true, md: true, lg: false, xl: false, xxl: false }"
+            span="2"
+            spanSm="1"
+        >
+            <twig:Sw:Header:MenuWidget />
+        </twig:Sw:Grid:Column>
+
+        <twig:Sw:Grid:Column :display="{ xs: false, sm: true, md: true, lg: true, xl: true, xxl: true }">
             <twig:Sw:Header:Search />
         </twig:Sw:Grid:Column>
+
         <twig:Sw:Grid:Column justify="end">
-            <div class="sw-header__widgets d-flex justify-content-end">
+            <twig:Sw:Grid:Container
+                columns="auto"
+                gap="0"
+                justifyContent="end"
+                :centered="false"
+                :autoColumnsMax="true"
+            >
+
+                <twig:Sw:Header:WishlistWidget />
+
+                {# Mobile search trigger #}
+                <twig:Sw:Grid:Column :display="{ xs: true, sm: false, md: false, lg: false, xl: false, xxl: false }">
+                    <twig:Sw:Header:Widget
+                        icon="search"
+                    />
+                </twig:Sw:Grid:Column>
                 <twig:Sw:Header:AccountWidget />
                 <twig:Sw:Header:CartWidget />
-            </div>
+            </twig:Sw:Grid:Container>
         </twig:Sw:Grid:Column>
     </twig:Sw:Grid:Container>
 
-    <twig:Sw:Header:Navbar
-        :navigationTree="header.navigation.tree"
-    />
+    <twig:Sw:Grid:Container
+        :centered="false"
+        columns="100%"
+        gap="0"
+        justify="center"
+        border="bottom"
+        borderVariant="secondarySubtle"
+    >
+        {# :display="{ xs: false, sm: false, md: false, lg: true, xl: true, xxl: true }" #}
+        <twig:Sw:Header:Navbar
+            class="d-none d-lg-block"
+            :navigationTree="header.navigation.tree"
+        />
+    </twig:Sw:Grid:Container>
 </header>

@@ -1,7 +1,10 @@
 .grid-container {
     display: grid;
-    padding-left: 20px;
-    padding-right: 20px;
+
+    &.centered {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
 
     &.centered {
         max-width: 1400px;
@@ -12,10 +15,10 @@
     &.auto-columns {
         grid-auto-flow: column;
         grid-auto-columns: 1fr;
+    }
 
-        @include media-breakpoint-down(md) {
-            grid-auto-flow: initial;
-        }
+    &.auto-columns-max {
+        grid-auto-columns: max-content;
     }
 
     @for $i from 1 through 12 {

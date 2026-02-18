@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @phpstan-type TransformedAddressArray array{id: non-falsy-string, company?: non-falsy-string, department?: non-falsy-string, salutationId?: non-falsy-string, title?: non-falsy-string, firstName?: non-falsy-string, lastName?: non-falsy-string, street?: non-falsy-string, zipcode?: non-falsy-string, city?: non-falsy-string, phoneNumber?: non-falsy-string, additionalAddressLine1?: non-falsy-string, additionalAddressLine2?: non-falsy-string, countryId?: non-falsy-string, countryStateId?: non-falsy-string, customFields?: array<string, mixed>}
+ * @phpstan-type TransformedAddressArray array{id: non-empty-string, company?: non-falsy-string, department?: non-falsy-string, salutationId?: non-falsy-string, title?: non-falsy-string, firstName?: non-falsy-string, lastName?: non-falsy-string, street?: non-falsy-string, zipcode?: non-falsy-string, city?: non-falsy-string, phoneNumber?: non-falsy-string, additionalAddressLine1?: non-falsy-string, additionalAddressLine2?: non-falsy-string, countryId?: non-falsy-string, countryStateId?: non-falsy-string, customFields?: array<string, mixed>}
  */
 #[Package('checkout')]
 class AddressTransformer
@@ -26,7 +26,7 @@ class AddressTransformer
             $output[$address->getId()] = self::transform($address);
         }
 
-        if (!$useIdAsKey) {
+        if ($useIdAsKey === false) {
             return array_values($output);
         }
 
@@ -38,8 +38,7 @@ class AddressTransformer
      */
     public static function transform(CustomerAddressEntity $address): array
     {
-        return array_filter([
-            'id' => Uuid::randomHex(),
+        $addressArray = array_filter([
             'company' => $address->getCompany(),
             'department' => $address->getDepartment(),
             'salutationId' => $address->getSalutationId(),
@@ -56,5 +55,9 @@ class AddressTransformer
             'countryStateId' => $address->getCountryStateId(),
             'customFields' => $address->getCustomFields(),
         ]);
+
+        $addressArray['id'] = Uuid::randomHex();
+
+        return $addressArray;
     }
 }

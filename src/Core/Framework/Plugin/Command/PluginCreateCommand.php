@@ -138,7 +138,7 @@ class PluginCreateCommand extends Command
 
         $question = new Question($questionText);
         $question->setValidator(function (?string $answer) {
-            if ($answer === null || $answer === '' || $answer === '0') {
+            if ($answer === null || $answer === '') {
                 throw PluginException::invalidPluginCreationInputError('Answer cannot be empty');
             }
 

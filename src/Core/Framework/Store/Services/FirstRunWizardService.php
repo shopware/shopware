@@ -19,8 +19,8 @@ use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
 use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
-use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\DomainVerificationRequestStruct;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -237,7 +237,7 @@ class FirstRunWizardService
         }
 
         if (!$existing || !$existing->isVerified()) {
-            throw new LicenseDomainVerificationException($domain);
+            throw StoreException::licenseDomainVerificationFailure($domain);
         }
         $existing->assign(['active' => true]);
 
@@ -332,7 +332,7 @@ class FirstRunWizardService
         try {
             $this->filesystem->write($validationRequest->getFileName(), $validationRequest->getContent());
         } catch (UnableToWriteFile) {
-            throw new LicenseDomainVerificationException($domain);
+            throw StoreException::licenseDomainVerificationFailure($domain);
         }
     }
 

@@ -67,7 +67,7 @@ abstract class ZipCodeRule extends Rule
             self::OPERATOR_LTE => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThanOrEquals((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_GT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThan((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_LT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThan((float) $zipCode, (float) $compareZipCode),
-            self::OPERATOR_EMPTY => $zipCode === '' || $zipCode === '0',
+            self::OPERATOR_EMPTY => $zipCode === '',
             default => throw RuleException::unsupportedOperator($this->operator, self::class),
         };
     }

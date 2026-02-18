@@ -48,7 +48,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
         $entities = $this->askForEntities($io);
 
-        if ($entities === null || $entities === '' || $entities === '0') {
+        if ($entities === null || $entities === '') {
             return;
         }
 
@@ -172,7 +172,7 @@ class EntityGenerator implements ScaffoldingGenerator
     {
         $entitiesProvided = $io->confirm('Do you want to create entities?');
 
-        if (!$entitiesProvided) {
+        if ($entitiesProvided === false) {
             return null;
         }
 

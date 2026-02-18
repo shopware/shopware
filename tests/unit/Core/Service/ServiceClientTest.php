@@ -27,14 +27,14 @@ class ServiceClientTest extends TestCase
                 'app-version' => '6.6.0.0',
                 'app-hash' => 'a5b32',
             ],
-            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
         ];
 
         yield 'only app-version' => [
             [
                 'app-version' => '6.6.0.0',
             ],
-            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
         ];
 
         yield 'app-revision + app-hash' => [
@@ -42,7 +42,7 @@ class ServiceClientTest extends TestCase
                 'app-revision' => '6.6.0.0',
                 'app-hash' => 'a5b32',
             ],
-            ['app-version', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-version', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
         ];
 
         yield 'app-revision + app-version' => [
@@ -50,12 +50,12 @@ class ServiceClientTest extends TestCase
                 'app-revision' => '6.6.0.0',
                 'app-version' => '6.6.0.0',
             ],
-            ['app-hash', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-hash', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
         ];
 
         yield 'empty' => [
             [],
-            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version', 'app-requirements'],
         ];
     }
 
@@ -125,6 +125,7 @@ class ServiceClientTest extends TestCase
                 'app-zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
                 'app-hash-algorithm' => 'sha256',
                 'app-min-shop-supported-version' => '6.6.0.0',
+                'app-requirements' => ['service_consent'],
             ])),
         ]);
         $client = new ServiceClient(
@@ -140,5 +141,6 @@ class ServiceClientTest extends TestCase
         static::assertSame('a5b32', $appInfo->hash);
         static::assertSame('6.6.0.0-a5b32', $appInfo->revision);
         static::assertSame('https://example.com/service/lifecycle/app-zip/6.6.0.0', $appInfo->zipUrl);
+        static::assertSame(['service_consent'], $appInfo->requirements);
     }
 }

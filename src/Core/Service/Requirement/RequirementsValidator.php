@@ -29,28 +29,31 @@ class RequirementsValidator
     }
 
     /**
+     * @param list<string> $requirements
+     */
+    public function isValidSet(array $requirements): bool
+    {
+        foreach ($requirements as $requirement) {
+            if (!isset($this->requirements[$requirement])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Returns true only if all requirements for the given service are satisfied.
      *
-     * Unknown requirements are treated as not met for inactive services, preventing activation.
-     * However, if the service is already active, unknown requirements are ignored. A bad app
-     * release should not deactivate a running service. The app should release a fix targeting the correct platform version.
+     * Unknown requirements are treated as unsatisfied; however, we already check that in ServiceLifecycle::install/update
+     * so this code path should never execute.
      */
     public function isSatisfied(AppEntity $app): bool
     {
         $requirementNames = $this->getRequirements($app);
-        $state = State::state($app);
 
         foreach ($requirementNames as $name) {
             if (!isset($this->requirements[$name])) {
-                // registry return requirement that we don't have
-                if ($state === State::ACTIVE) {
-                    // if the app is already active, it could be that a faulty update was made
-                    // let's keep it active
-                    continue;
-                }
-
-                // however, if it's not already active, we can hold off
-                // and wait for the app to be fixed.
                 return false;
             }
 

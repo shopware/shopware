@@ -187,6 +187,7 @@ class ServiceSourceResolverTest extends TestCase
             'zip-url' => 'https://example.com/service.zip',
             'hash-algorithm' => 'sha256',
             'min-shop-supported-version' => '6.6.0.0',
+            'requirements' => ['service_consent'],
         ]);
 
         $result = $source->filesystem($app);
@@ -229,6 +230,7 @@ class ServiceSourceResolverTest extends TestCase
                 'zip-url' => 'https://example.com/manifest.zip',
                 'hash-algorithm' => 'sha512',
                 'min-shop-supported-version' => '6.7.0.0',
+                'requirements' => ['service_consent'],
             ]);
 
         $this->successfulDownloadVersionCommonExpectations(
@@ -288,6 +290,7 @@ class ServiceSourceResolverTest extends TestCase
             'zip-url' => 'https://example.com/failing.zip',
             'hash-algorithm' => 'sha256',
             'min-shop-supported-version' => '6.6.0.0',
+            'requirements' => ['service_consent'],
         ]);
 
         $this->expectException(AppException::class);
@@ -344,6 +347,7 @@ class ServiceSourceResolverTest extends TestCase
             'zip-url' => 'https://example.com/failing.zip',
             'hash-algorithm' => 'sha256',
             'min-shop-supported-version' => '6.6.0.0',
+            'requirements' => ['service_consent'],
         ]);
 
         $this->expectException(AppException::class);
@@ -397,6 +401,7 @@ class ServiceSourceResolverTest extends TestCase
             'zip-url' => 'https://example.com/failing.zip',
             'hash-algorithm' => 'sha256',
             'min-shop-supported-version' => '6.6.0.0',
+            'requirements' => ['service_consent'],
         ]);
 
         static::expectExceptionObject(AppException::cannotMountAppFilesystem('WriteFailService', ServiceException::cannotWriteAppToDestination('/tmp/test/WriteFailService', $underlyingException)));

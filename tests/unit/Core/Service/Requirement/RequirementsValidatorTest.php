@@ -14,6 +14,25 @@ use Shopware\Core\Service\Requirement\ServiceRequirement;
 #[CoversClass(RequirementsValidator::class)]
 class RequirementsValidatorTest extends TestCase
 {
+    public function testIsValidSetReturnsTrueWhenAllRequirementsAreKnown(): void
+    {
+        $validator = new RequirementsValidator(new \ArrayIterator([
+            'service_consent' => $this->createRequirement(true),
+            'shopware_account' => $this->createRequirement(true),
+        ]));
+
+        static::assertTrue($validator->isValidSet(['service_consent', 'shopware_account']));
+    }
+
+    public function testIsValidSetReturnsFalseWhenRequirementIsUnknown(): void
+    {
+        $validator = new RequirementsValidator(new \ArrayIterator([
+            'service_consent' => $this->createRequirement(true),
+        ]));
+
+        static::assertFalse($validator->isValidSet(['service_consent', 'unknown_requirement']));
+    }
+
     public function testIsSatisfiedReturnsTrueWhenAllMet(): void
     {
         $validator = new RequirementsValidator(new \ArrayIterator([
@@ -21,7 +40,7 @@ class RequirementsValidatorTest extends TestCase
             'shopware_account' => $this->createRequirement(true),
         ]));
 
-        $app = $this->createApp(['service_consent', 'shopware_account'], false);
+        $app = $this->createApp(['service_consent', 'shopware_account']);
 
         static::assertTrue($validator->isSatisfied($app));
     }
@@ -33,40 +52,18 @@ class RequirementsValidatorTest extends TestCase
             'shopware_account' => $this->createRequirement(false),
         ]));
 
-        $app = $this->createApp(['service_consent', 'shopware_account'], false);
+        $app = $this->createApp(['service_consent', 'shopware_account']);
 
         static::assertFalse($validator->isSatisfied($app));
     }
 
-    public function testUnknownRequirementBlocksActivationForInactiveService(): void
+    public function testIsSatisfiedReturnsFalseForUnknown(): void
     {
         $validator = new RequirementsValidator(new \ArrayIterator([
             'service_consent' => $this->createRequirement(true),
         ]));
 
-        $app = $this->createApp(['service_consent', 'unknown_requirement'], false);
-
-        static::assertFalse($validator->isSatisfied($app));
-    }
-
-    public function testUnknownRequirementIsIgnoredForActiveService(): void
-    {
-        $validator = new RequirementsValidator(new \ArrayIterator([
-            'service_consent' => $this->createRequirement(true),
-        ]));
-
-        $app = $this->createApp(['service_consent', 'unknown_requirement'], true);
-
-        static::assertTrue($validator->isSatisfied($app));
-    }
-
-    public function testKnownUnmetRequirementStillRevokesActiveService(): void
-    {
-        $validator = new RequirementsValidator(new \ArrayIterator([
-            'service_consent' => $this->createRequirement(false),
-        ]));
-
-        $app = $this->createApp(['service_consent'], true);
+        $app = $this->createApp(['service_consent', 'unknown_requirement']);
 
         static::assertFalse($validator->isSatisfied($app));
     }
@@ -74,7 +71,7 @@ class RequirementsValidatorTest extends TestCase
     /**
      * @param list<string> $requirements
      */
-    private function createApp(array $requirements, bool $active = true): AppEntity
+    private function createApp(array $requirements): AppEntity
     {
         $app = new AppEntity();
         $app->assign([
@@ -83,7 +80,7 @@ class RequirementsValidatorTest extends TestCase
             'selfManaged' => true,
             'sourceConfig' => ['requirements' => $requirements],
             'active' => true,
-            'requestedPrivileges' => $active ? [] : ['some:privilege'],
+            'requestedPrivileges' => ['some:privilege'],
         ]);
 
         return $app;

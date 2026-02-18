@@ -190,7 +190,7 @@ class StornoRendererTest extends TestCase
             'displayHeader' => true,
         ];
 
-        if (!empty($additionalConfig)) {
+        if ($additionalConfig !== []) {
             $config = array_merge($config, $additionalConfig);
         }
 

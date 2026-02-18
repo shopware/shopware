@@ -61,7 +61,8 @@ class PromotionProcessor implements CartProcessorInterface
             if (!$data->has(self::DATA_KEY)) {
                 $lineItemPromotions = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
                 foreach ($lineItemPromotions as $lineItemPromotion) {
-                    if (empty($lineItemPromotion->getReferencedId())) {
+                    $referencedId = $lineItemPromotion->getReferencedId();
+                    if ($referencedId === null || $referencedId === '') {
                         $toCalculate->addErrors(
                             new AutoPromotionNotFoundError($lineItemPromotion->getLabel() ?? $lineItemPromotion->getId())
                         );

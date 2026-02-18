@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -71,14 +72,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             return;
         }
 
-        $columnNameInDb = $connection->fetchOne(
-            'SELECT COLUMN_NAME FROM information_schema.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = "event_action"
-                AND COLUMN_NAME = "migrated_flow_id";'
-        );
-
-        if (!$columnNameInDb) {
+        if (!TableHelper::columnExists($connection, 'event_action', 'migrated_flow_id')) {
             $connection->executeStatement('
                 ALTER TABLE `event_action`
                 ADD COLUMN `migrated_flow_id` BINARY(16) NULL AFTER `active`;

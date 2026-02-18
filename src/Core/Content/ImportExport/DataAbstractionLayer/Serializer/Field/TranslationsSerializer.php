@@ -86,14 +86,14 @@ class TranslationsSerializer extends FieldSerializer
                 $deserialized = iterator_to_array($deserialized);
             }
 
-            if (empty($deserialized)) {
+            if ($deserialized === []) {
                 unset($translations[$languageId]);
             } else {
                 $translations[$languageId] = $deserialized;
             }
         }
 
-        if (empty($translations)) {
+        if ($translations === []) {
             return null;
         }
 

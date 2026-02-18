@@ -140,7 +140,7 @@ class ProductFeatureBuilder
             }
         }
 
-        if (empty($required)) {
+        if ($required === []) {
             return;
         }
 
@@ -228,7 +228,7 @@ class ProductFeatureBuilder
             }
         );
 
-        if (empty($properties)) {
+        if ($properties === []) {
             return null;
         }
 

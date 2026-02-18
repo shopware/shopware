@@ -34,6 +34,7 @@ import (synchronously) plugins
  */
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 import SpeculationRulesPlugin from 'src/plugin/speculation-rules/speculation-rules.plugin';
+import AlertAriaPlugin from 'src/plugin/alert-aria/alert-aria.plugin';
 
 window.Feature = Feature;
 window.eventEmitter = new NativeEventEmitter();
@@ -99,11 +100,13 @@ PluginManager.register('DatePicker', () => import('src/plugin/date-picker/date-p
 PluginManager.register('FormCmsHandler', () => import('src/plugin/forms/form-cms-handler.plugin'), '.cms-element-form form');
 PluginManager.register('CountryStateSelect', () => import('src/plugin/forms/form-country-state-select.plugin'), '[data-country-state-select]');
 PluginManager.register('ClearInput', () => import('src/plugin/clear-input-button/clear-input.plugin'), '[data-clear-input]'); // Not used in core, but implemented for plugins
-PluginManager.register('CmsGdprVideoElement', () => import('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin'), '[data-cms-gdpr-video-element]');
+PluginManager.register('CmsVideo', () => import('src/plugin/cms-video/cms-video.plugin'), '[data-cms-video-element]');
 PluginManager.register('BuyBox', () => import('src/plugin/buy-box/buy-box.plugin'), '[data-buy-box]');
 PluginManager.register('BasicCaptcha', () => import('src/plugin/captcha/basic-captcha.plugin'), '[data-basic-captcha]');
 PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-selector/quantity-selector.plugin'), '[data-quantity-selector]');
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
+PluginManager.register('CmsGdprVideoElement', () => import('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin'), '[data-cms-gdpr-video-element]');
+PluginManager.register('AlertAria', AlertAriaPlugin, '[data-alert-aria]'); // Plugin not async to prevent unreliable load time for the screenreader.
 
 /**
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
@@ -221,4 +224,3 @@ run utils
 new TimezoneUtil();
 
 BootstrapUtil.initBootstrapPlugins();
-

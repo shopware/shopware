@@ -3,14 +3,18 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Cms;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('discovery')]
+#[CoversClass(DefaultMediaResolver::class)]
 class DefaultMediaResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

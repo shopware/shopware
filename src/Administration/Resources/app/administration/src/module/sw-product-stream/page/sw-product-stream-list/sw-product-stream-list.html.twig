@@ -78,7 +78,7 @@
                 v-else-if="isLoading || (productStreams && entitySearchable)"
                 ref="swProductStreamGrid"
                 class="sw-product-stream-list-grid"
-                :items="productStreams"
+                :data-source="productStreams"
                 :columns="getProductStreamColumns()"
                 :repository="productStreamRepository"
                 detail-route="sw.product.stream.detail"

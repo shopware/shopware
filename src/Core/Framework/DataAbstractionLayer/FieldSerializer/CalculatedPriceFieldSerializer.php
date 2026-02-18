@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -32,6 +33,10 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         unset($value['extensions']);
         if (isset($value['listPrice'])) {
             unset($value['listPrice']['extensions']);
+        }
+
+        if (isset($value['regulationPrice'])) {
+            unset($value['regulationPrice']['extensions']);
         }
 
         $data->setValue($value);
@@ -88,6 +93,13 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
             );
         }
 
+        $regulationPrice = null;
+        if (isset($decoded['regulationPrice'])) {
+            $regulationPrice = new RegulationPrice(
+                (float) $decoded['regulationPrice']['price']
+            );
+        }
+
         return new CalculatedPrice(
             (float) $decoded['unitPrice'],
             (float) $decoded['totalPrice'],
@@ -95,7 +107,8 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
             new TaxRuleCollection($taxRules),
             (int) $decoded['quantity'],
             $referencePriceDefinition,
-            $listPrice
+            $listPrice,
+            $regulationPrice
         );
     }
 }

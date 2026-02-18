@@ -48,11 +48,13 @@ export const EXPECTED_PACKAGE_JSON_FILES: readonly PackageInfo[] = [
   },
   {
     path: './src/Storefront/Resources/app/storefront/package.json',
-    name: 'Storefront Main'
+    name: 'Storefront Main',
+    hasCustomAuditScript: true
   },
   {
     path: './tests/acceptance/package.json',
-    name: 'Tests Acceptance'
+    name: 'Tests Acceptance',
+    hasCustomAuditScript: true,
   }
 ] as const;
 

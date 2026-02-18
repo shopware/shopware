@@ -68,7 +68,7 @@ jobs:
           poll_interval: 1m
           token: ${{ steps.sts.outputs.token }}
           env:
-            NIGHTLY=${{ inputs.nightly }}
+            NIGHTLY=${{ inputs.nightly }}\nUPSTREAM_EVENT_NAME=${{ github.event_name }}
 
   mergeability-check:
     name: Downstream Mergeability Check

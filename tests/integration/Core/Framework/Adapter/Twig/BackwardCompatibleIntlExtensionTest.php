@@ -19,11 +19,18 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    private ?string $locale;
+
     protected function setUp(): void
     {
         if (Feature::isActive('v6.8.0.0')) {
             static::markTestSkipped('This test is only relevant for versions before v6.8.0');
         }
+
+        // Set locale based on PHP version
+        // PHP 8.4+ throws exceptions for invalid locales, so we use null to fallback to default
+        // PHP < 8.4 allows invalid locales, so we test with 'zzz'
+        $this->locale = \PHP_VERSION_ID >= 80400 ? null : 'zzz';
     }
 
     public function testNumberFormatWithInvalidLocaleFallsBackToDefault(): void
@@ -36,12 +43,12 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
         $twig->addExtension($intlExtension);
         $twig->addExtension(new BackwardCompatibleIntlExtension($intlExtension));
 
-        $template = $twig->createTemplate('{{ value|format_number({fraction_digit: 1}, locale="zz") }}');
+        $template = $twig->createTemplate('{{ value|format_number({fraction_digit: 1}, locale="zzz") }}');
 
         $output = $template->render(['value' => 1234567.891]);
 
         // Create expected value using IntlExtension with same settings as template (fraction_digit: 1)
-        $expected = $intlExtension->formatNumber(1234567.891, ['fraction_digit' => 1]);
+        $expected = $intlExtension->formatNumber(1234567.891, ['fraction_digit' => 1], 'decimal', 'default', $this->locale);
         static::assertSame($expected, $output);
     }
 
@@ -60,7 +67,7 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
         $output = $template->render(['value' => 1234567.891]);
 
         // Create expected value using IntlExtension with same settings as template
-        $expected = $intlExtension->formatCurrency(1234567.891, 'USD');
+        $expected = $intlExtension->formatCurrency(1234567.891, 'USD', [], $this->locale);
         static::assertSame($expected, $output);
     }
 }

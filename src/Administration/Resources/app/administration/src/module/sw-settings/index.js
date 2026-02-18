@@ -3,13 +3,13 @@
  */
 import './mixin/sw-settings-list.mixin';
 import './acl';
+import './override/sw-settings-index-override';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-item', () => import('./component/sw-settings-item'));
 Shopware.Component.register('sw-system-config', () => import('./component/sw-system-config'));
-Shopware.Component.register('sw-settings-index', () => import('./page/sw-settings-index'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -23,7 +23,7 @@ Module.register('sw-settings', {
 
     routes: {
         index: {
-            component: 'sw-settings-index',
+            component: () => import('./page/sw-settings-index/sw-settings-index.vue'),
             path: 'index',
             icon: 'regular-cog',
             redirect: {
@@ -33,21 +33,18 @@ Module.register('sw-settings', {
                 shop: {
                     path: 'shop',
                     meta: {
-                        component: 'sw-settings-index',
                         parentPath: 'sw.settings.index',
                     },
                 },
                 system: {
                     path: 'system',
                     meta: {
-                        component: 'sw-settings-index',
                         parentPath: 'sw.settings.index',
                     },
                 },
                 plugins: {
                     path: 'plugins',
                     meta: {
-                        component: 'sw-settings-index',
                         parentPath: 'sw.settings.index',
                     },
                 },

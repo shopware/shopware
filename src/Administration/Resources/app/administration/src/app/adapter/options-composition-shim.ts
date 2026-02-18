@@ -199,6 +199,12 @@ function createThisProxy(previousState: any, props: any, localState: any): any {
                         if (previousState[methodName] && typeof previousState[methodName] === 'function') {
                             return previousState[methodName](...args);
                         }
+
+                        // Support $super for computed properties (refs/computedRefs)
+                        if (previousState[methodName] !== undefined && isRef(previousState[methodName])) {
+                            return previousState[methodName].value;
+                        }
+
                         throw new Error(`$super: method "${methodName}" not found in previous state`);
                     };
                 }

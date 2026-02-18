@@ -2,7 +2,7 @@ import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
 import { computed, getCurrentInstance, isReactive, isReadonly, isRef, reactive, toRefs, watch } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { SetupContext, PublicProps } from '@vue/runtime-core';
-import { _compositionApiComponents } from './options-composition-shim';
+import { _compositionApiComponents, shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from './options-composition-shim';
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -224,6 +224,29 @@ export function createExtendableSetup<
         _overridesMap[options.name] = reactive([]);
     }
 
+    // Process pending overrides from the component factory override registry.
+    // This handles the case where Shopware.Component.override() was called before this
+    // component mounted (e.g. during module init). At that time, _compositionApiComponents
+    // didn't have this component yet, so the override went only to overrideRegistry.
+    // We now pull those pending overrides and route them through the Options API shim.
+    void (async () => {
+        try {
+            const overrideRegistry = Shopware?.Component?.getOverrideRegistry?.();
+            if (overrideRegistry?.has(options.name as string)) {
+                const pendingOverrides = overrideRegistry.get(options.name as string)!;
+                for (const pendingOverride of pendingOverrides) {
+                    const resolvedConfig = await pendingOverride.config();
+                    if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(options.name as string, resolvedConfig)) {
+                        const compositionOverride = convertOptionsApiOverrideToCompositionApi(options.name as string, resolvedConfig);
+                        _overridesMap[options.name].push(compositionOverride);
+                    }
+                }
+            }
+        } catch (e) {
+            // Silently handle - Shopware global may not be available in tests
+        }
+    })();
+
     const overrides = _overridesMap[options.name];
 
     // Create a reactive wrapper for the original setup result
@@ -288,8 +311,13 @@ export function createExtendableSetup<
                     // @ts-expect-error - "effect" is not part of the Ref type
                     !resultValue?.effect
                 ) {
-                    // Handle normal ref values with 2-Way sync
-                    syncRef(resultValue, wrappedState[key]);
+                    if (wrappedState[key] !== undefined && isRef(wrappedState[key])) {
+                        // Handle normal ref values with 2-Way sync
+                        syncRef(resultValue, wrappedState[key]);
+                    } else {
+                        // New property from override (e.g. Options API shim data), add directly
+                        reactiveWrappedState[key] = resultValue;
+                    }
                 } else if (isReadonly(resultValue) && isRef(resultValue)) {
                     // Handle readonly computed values
                     reactiveWrappedState[key] = resultValue;

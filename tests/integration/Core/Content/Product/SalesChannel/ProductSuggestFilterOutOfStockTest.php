@@ -224,7 +224,7 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
             ],
         ];
 
-        if (!empty($options)) {
+        if ($options !== []) {
             foreach ($options as $index => $option) {
                 // $combination = $this->combos($option['combination']);
                 $combination = $option['combination'];

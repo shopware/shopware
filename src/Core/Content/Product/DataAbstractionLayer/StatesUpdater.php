@@ -70,14 +70,14 @@ class StatesUpdater
             $newStates = $this->getNewStates($product);
             $oldStates = $product['states'] ? json_decode((string) $product['states'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
-            if (\count(array_diff($newStates, $oldStates)) === 0) {
+            if (array_diff($newStates, $oldStates) === []) {
                 continue;
             }
 
             $updates[] = new UpdatedStates($product['id'], $oldStates, $newStates);
         }
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return;
         }
 

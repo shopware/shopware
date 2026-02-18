@@ -48,6 +48,11 @@ const createWrapper = async () => {
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'router-view': true,
+                    'sw-button-group': {
+                        template: `
+                            <span class="sw-button-group"><slot></slot></span>
+                        `,
+                    },
                 },
             },
         },
@@ -58,9 +63,16 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     it('should not allow to create', async () => {
         const wrapper = await createWrapper();
 
-        const createButton = wrapper.findByText('button', 'global.default.add');
+        const createButtonGroup = wrapper.find('.sw-button-group');
 
-        expect(createButton.attributes('disabled') !== undefined).toBe(true);
+        expect(createButtonGroup.attributes('tooltip-mock-message')).toBe('sw-privileges.tooltip.warning');
+        expect(createButtonGroup.attributes('tooltip-mock-disabled')).toBe('false');
+        expect(wrapper.find('.sw-mail-template__button-create').attributes('disabled')).toBeDefined();
+
+        const contextButton = wrapper.find('.sw-context-button');
+
+        expect(contextButton.find('button').attributes('disabled')).toBeDefined();
+        expect(contextButton.find('sw-context-menu-item-stub').attributes('disabled')).toBeDefined();
     });
 
     it('should allow to create', async () => {
@@ -68,9 +80,16 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
 
         const wrapper = await createWrapper();
 
-        const createButton = wrapper.findByText('button', 'global.default.add');
+        const createButtonGroup = wrapper.find('.sw-button-group');
 
-        expect(createButton.attributes('disabled')).toBeUndefined();
+        expect(createButtonGroup.attributes('tooltip-mock-message')).toBe('sw-privileges.tooltip.warning');
+        expect(createButtonGroup.attributes('tooltip-mock-disabled')).toBe('true');
+        expect(wrapper.find('.sw-mail-template__button-create').attributes('disabled')).toBeUndefined();
+
+        const contextButton = wrapper.find('.sw-context-button');
+
+        expect(contextButton.find('button').attributes('disabled')).toBeUndefined();
+        expect(contextButton.find('sw-context-menu-item-stub').attributes('disabled')).toBe('false');
     });
 
     /**

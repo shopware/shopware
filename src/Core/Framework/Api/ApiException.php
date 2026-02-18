@@ -62,7 +62,7 @@ class ApiException extends HttpException
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
 
     /**
-     * @param array<array{pointer: string, entity: string}> $exceptions
+     * @param list<array{pointer: string, entity: string}> $exceptions
      */
     public static function canNotResolveForeignKeysException(array $exceptions): self
     {
@@ -151,7 +151,7 @@ class ApiException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::API_INVALID_ASSOCIATION_FIELD,
-            'Field "%s" is not a valid association field.',
+            'Field "{{ path }}" is not a valid association field.',
             ['path' => $path]
         );
     }
@@ -250,6 +250,26 @@ class ApiException extends HttpException
             self::API_UNSUPPORTED_OPERATION_EXCEPTION,
             'Unsupported {{ operation }} operation.',
             ['operation' => $operation]
+        );
+    }
+
+    public static function noPrimaryKeyDefined(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            'No primary key defined for {{ entityName }}',
+            ['entityName' => $entityName]
+        );
+    }
+
+    public static function mappingFieldNotFound(string $storageField): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            'Can not find mapping entity field for storage field {{ storageField }}',
+            ['storageField' => $storageField]
         );
     }
 

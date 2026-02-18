@@ -93,7 +93,7 @@
                 ref="listing"
                 :repository="promotionRepository"
                 :columns="promotionColumns"
-                :items="promotions"
+                :data-source="promotions"
                 detail-route="sw.promotion.v2.detail"
                 :is-loading="isLoading"
                 :allow-inline-edit="acl.can('promotion.editor') || undefined"

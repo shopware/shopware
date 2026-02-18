@@ -8,7 +8,7 @@
     }
 
     @each $breakpoint, $value in $grid-breakpoints {
-        @include media-breakpoint-up($breakpoint) {
+        @include media-breakpoint-only($breakpoint) {
             @for $i from 1 through 12 {
                 &.span-#{$breakpoint}-#{$i} {
                     grid-column: span #{$i};

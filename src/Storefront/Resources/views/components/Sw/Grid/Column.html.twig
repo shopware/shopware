@@ -1,22 +1,9 @@
 {% props
     start = null,
     span = null,
-    spanSm = null,
-    spanMd = null,
-    spanLg = null,
-    spanXl = null,
-    spanXxl = null,
     justify = null,
     align = null,
     slots = [],
-    breakpoints = {
-        xs: theme_config('breakpoint.xs'),
-        sm: theme_config('breakpoint.sm'),
-        md: theme_config('breakpoint.md'),
-        lg: theme_config('breakpoint.lg'),
-        xl: theme_config('breakpoint.xl'),
-        xxl: theme_config('breakpoint.xxl'),
-    },
     display = {
         xs: null,
         sm: null,
@@ -27,42 +14,20 @@
     },
 %}
 
-{# TODO: Generator for grid classes as CVA object #}
-{# Generates:
-{
-    "spanXs": { ... }
-    "spanSm": { ... }
-    "spanMd": {
-        0 => "span-md-1"
-        1 => "span-md-2"
-        ...
-        10 => "span-md-11"
-        11 => "span-md-12"
-    }
-    "spanLg": { ... }
-    "spanXl": { ... }
-    "spanXxl": { ... }
-}
-#}
-
 {% set displayClasses = [] %}
+{% set spanClasses = [] %}
+
 {% for breakpoint, value in display %}
     {% if value is not null and value == false %}
         {% set displayClasses = displayClasses|merge(["d-#{breakpoint}-hidden"]) %}
     {% endif %}
 {% endfor %}
 
-{% set classes = {} %}
-{% for breakpoint, value in breakpoints %}
-    {% set classes = classes|merge({('span' ~ breakpoint|capitalize): {} }) %}
-    {% set gridClasses = {} %}
-    {% for i in 1..12 %}
-        {% set gridClasses = gridClasses|merge({ (i): "span-#{breakpoint}-#{i}" }) %}
+{% if span is not null and span is iterable %}
+    {% for breakpoint, value in span %}
+        {% set spanClasses = spanClasses|merge(["span-#{breakpoint}-#{value}"]) %}
     {% endfor %}
-    {% set classes = classes|merge({
-        ('span' ~ breakpoint|capitalize): gridClasses
-    }) %}
-{% endfor %}
+{% endif %}
 
 {% set columnCVA = cva({
     base: 'grid-column',
@@ -79,81 +44,11 @@
             center: 'justify-center',
             stretch: 'justify-stretch',
         },
-        span: {
-            '1': 'span-1',
-            '2': 'span-2',
-            '3': 'span-3',
-            '4': 'span-4',
-            '5': 'span-5',
-            '6': 'span-6',
-            '7': 'span-7',
-            '8': 'span-8',
-            '9': 'span-9',
-            '10': 'span-10',
-            '11': 'span-11',
-            '12': 'span-12',
-        },
-        spanSm: {
-            '1': 'span-sm-1',
-            '2': 'span-sm-2',
-            '3': 'span-sm-3',
-            '4': 'span-sm-4',
-            '5': 'span-sm-5',
-            '6': 'span-sm-6',
-            '7': 'span-sm-7',
-            '8': 'span-sm-8',
-            '9': 'span-sm-9',
-            '10': 'span-sm-10',
-            '11': 'span-sm-11',
-            '12': 'span-sm-12',
-        },
-        spanMd: {
-            '1': 'span-md-1',
-            '2': 'span-md-2',
-            '3': 'span-md-3',
-            '4': 'span-md-4',
-            '5': 'span-md-5',
-            '6': 'span-md-6',
-            '7': 'span-md-7',
-            '8': 'span-md-8',
-            '9': 'span-md-9',
-            '10': 'span-md-10',
-            '11': 'span-md-11',
-            '12': 'span-md-12',
-        },
-        spanLg: {
-            '1': 'span-lg-1',
-            '2': 'span-lg-2',
-            '3': 'span-lg-3',
-            '4': 'span-lg-4',
-            '5': 'span-lg-5',
-            '6': 'span-lg-6',
-            '7': 'span-lg-7',
-            '8': 'span-lg-8',
-            '9': 'span-lg-9',
-            '10': 'span-lg-10',
-            '11': 'span-lg-11',
-            '12': 'span-lg-12',
-        },
-        spanXl: {
-            '1': 'span-xl-1',
-            '2': 'span-xl-2',
-            '3': 'span-xl-3',
-            '4': 'span-xl-4',
-            '5': 'span-xl-5',
-            '6': 'span-xl-6',
-            '7': 'span-xl-7',
-            '8': 'span-xl-8',
-            '9': 'span-xl-9',
-            '10': 'span-xxl-10',
-            '11': 'span-xxl-11',
-            '12': 'span-xxl-12',
-        },
     },
 }) %}
 
 {% set attributeDefaults = {
-    class: columnCVA.apply({ align, justify, span, spanSm, spanMd, spanLg, spanXl, spanXxl }) ~ ' ' ~ displayClasses|join(' '),
+    class: columnCVA.apply({ align, justify }) ~ ' ' ~ [...displayClasses, ...spanClasses]|join(' '),
 } %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>

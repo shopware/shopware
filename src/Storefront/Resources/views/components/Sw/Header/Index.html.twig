@@ -31,8 +31,7 @@
     >
         <twig:Sw:Grid:Column
             justify="stretch"
-            span="3"
-            spanLg="1"
+            :span="{ xs: 3, sm: 3, md: 3, lg: 1, xl: 1, xxl: 1 }"
         >
             <twig:Sw:Header:Logo />
         </twig:Sw:Grid:Column>
@@ -40,8 +39,7 @@
         {# Mobile menu trigger #}
         <twig:Sw:Grid:Column
             :display="{ xs: true, sm: true, md: true, lg: false, xl: false, xxl: false }"
-            span="2"
-            spanSm="1"
+            :span="{ xs: 2, sm: 1, md: 1, lg: 1, xl: 1, xxl: 1 }"
         >
             <twig:Sw:Header:MenuWidget />
         </twig:Sw:Grid:Column>

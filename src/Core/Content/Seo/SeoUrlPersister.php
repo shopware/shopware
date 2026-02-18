@@ -201,7 +201,7 @@ class SeoUrlPersister
      */
     private function findInUseCanonicalSeoUrls(array $seoPathInfos, string $languageId, ?string $salesChannelId = null): array
     {
-        if (empty($seoPathInfos)) {
+        if ($seoPathInfos === []) {
             return [];
         }
 
@@ -227,7 +227,7 @@ class SeoUrlPersister
      */
     private function updateCanonicalSeoUrls(array $seoUrls, string $languageId): void
     {
-        if (empty($seoUrls)) {
+        if ($seoUrls === []) {
             return;
         }
 
@@ -258,7 +258,7 @@ class SeoUrlPersister
             }
         }
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -274,7 +274,7 @@ class SeoUrlPersister
      */
     private function obsoleteIds(array $ids, ?string $salesChannelId): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -301,7 +301,7 @@ class SeoUrlPersister
      */
     private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

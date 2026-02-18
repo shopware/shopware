@@ -89,15 +89,15 @@ class AdvancedPackageFilter extends PackageFilter
 
     private function hasFilterSettings(string $sorterKey, string $applierKey, string $countKey): bool
     {
-        if (empty($sorterKey)) {
+        if ($sorterKey === '') {
             return false;
         }
 
-        if (empty($applierKey)) {
+        if ($applierKey === '') {
             return false;
         }
 
-        if (empty($countKey)) {
+        if ($countKey === '') {
             return false;
         }
 
@@ -122,7 +122,7 @@ class AdvancedPackageFilter extends PackageFilter
             // if our indexes are empty, then
             // we use all items, otherwise do only use
             // the items of our pre calculated indexes
-            if (!empty($applierIndexes) && !\in_array($index, $applierIndexes, true)) {
+            if ($applierIndexes !== [] && !\in_array($index, $applierIndexes, true)) {
                 continue;
             }
 

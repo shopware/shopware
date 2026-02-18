@@ -111,7 +111,7 @@ class MailTemplateServiceTest extends TestCase
     public function testPreviewNonExistingEntitiesErrorInStrictMode(): void
     {
         $id = $this->createMailTemplate(
-            ['order' => 'order'],
+            ['mainOrder' => 'order'],
             'Order ID: {{ order.id }}', // order variable is required for rendering the template
             'Order ID: {{ order.id }}',
         );
@@ -323,7 +323,7 @@ class MailTemplateServiceTest extends TestCase
         ]);
 
         $id = $this->createMailTemplate(
-            availableEntities: ['product' => 'product'],
+            availableEntities: ['mainProduct' => 'product'],
             contentHtml: 'Order ID: {{ order.id }}',
             contentPlain: 'Order ID: {{ order.id }}',
         );

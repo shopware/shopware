@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
@@ -18,12 +19,12 @@ use Shopware\Core\Framework\Log\Package;
 class MailDataProvider
 {
     /**
-     * @var array<string, AbstractProvider>
+     * @var array<string, AbstractProvider<Entity, EntityCollection>>
      */
     private array $dataProviders;
 
     /**
-     * @param iterable<string, AbstractProvider> $dataProviders
+     * @param iterable<string, AbstractProvider<Entity, EntityCollection>> $dataProviders
      */
     public function __construct(
         iterable $dataProviders,
@@ -43,7 +44,13 @@ class MailDataProvider
         $availableEntities = $mailTemplate->getMailTemplateType()?->getAvailableEntities() ?? [];
 
         // Filter entities array so only those are left which are in the mail template's available entities list
-        $entities = array_intersect_key($entities, $availableEntities);
+        $entities = array_filter(
+            $entities,
+            function (string $entityName) use ($availableEntities) {
+                return in_array($entityName, $availableEntities, true);
+            },
+            ARRAY_FILTER_USE_KEY
+        );
 
         $templateData = [];
 

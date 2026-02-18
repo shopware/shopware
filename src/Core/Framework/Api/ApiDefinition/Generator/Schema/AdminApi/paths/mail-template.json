@@ -299,7 +299,7 @@
                                         "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890"
                                     },
                                     "entities": {
-                                        "description": "A map of entity names to their identifiers.",
+                                        "description": "A map of entity names to their identifiers. The keys should be the values of the entity name constant from the entity definition",
                                         "type": "object",
                                         "additionalProperties": {
                                             "type": "string",
@@ -359,7 +359,7 @@
                                         "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890"
                                     },
                                     "entities": {
-                                        "description": "A map of entity names to their identifiers.",
+                                        "description": "A map of entity names to their identifiers. The keys should be the values of the entity name constant from the entity definition",
                                         "type": "object",
                                         "additionalProperties": {
                                             "type": "string",

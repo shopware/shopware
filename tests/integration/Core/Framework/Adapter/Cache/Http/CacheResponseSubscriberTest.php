@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 
@@ -44,11 +45,15 @@ class CacheResponseSubscriberTest extends TestCase
         $router = static::getContainer()->get('router');
         $route = $router->generate($routeName, $routeParameters);
 
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), true);
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
-        static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
-        static::assertTrue($response->headers->hasCacheControlDirective('private'));
+
+        // see noCache() in CacheResponseSubscriber, no-store is only enforced when CACHE_REWORK and v6.8.0.0 are active
+        if (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0')) {
+            static::assertTrue($response->headers->hasCacheControlDirective('no-store'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
+        }
+        static::assertTrue($response->headers->hasCacheControlDirective('private'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
         static::assertFalse($response->isCacheable());
     }
 

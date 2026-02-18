@@ -22,7 +22,7 @@ class PackageProvider
 
         [$errors, $publishErrors, $warnings] = $validator->validate($composerJsonPath, ValidatingArrayLoader::CHECK_ALL, 0);
         $errors = [...$errors, ...$publishErrors];
-        if (\count($errors) !== 0) {
+        if ($errors !== []) {
             throw new PluginComposerJsonInvalidException($composerJsonPath, $errors);
         }
 

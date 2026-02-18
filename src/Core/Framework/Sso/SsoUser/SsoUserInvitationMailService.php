@@ -130,11 +130,11 @@ class SsoUserInvitationMailService
         $lastName = $user?->getLastName();
         $userName = $user?->getUsername();
 
-        if (!empty($firstName) && !empty($lastName)) {
+        if ($firstName !== null && $firstName !== '' && $firstName !== '0' && ($lastName !== null && $lastName !== '' && $lastName !== '0')) {
             return $firstName . ' ' . $lastName;
         }
 
-        if (!empty($userName)) {
+        if ($userName !== null && $userName !== '' && $userName !== '0') {
             return $userName;
         }
 

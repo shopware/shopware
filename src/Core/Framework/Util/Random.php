@@ -54,7 +54,7 @@ class Random
         }
 
         // charlist is empty or not provided
-        if (empty($charlist)) {
+        if ($charlist === null || $charlist === '' || $charlist === '0') {
             /** @var int<1, max> $numBytes */
             $numBytes = (int) ceil($length * 0.75);
             $bytes = static::getBytes($numBytes);

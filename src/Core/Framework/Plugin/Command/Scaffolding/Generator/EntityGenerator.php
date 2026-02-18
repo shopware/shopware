@@ -48,7 +48,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
         $entities = $this->askForEntities($io);
 
-        if (empty($entities)) {
+        if ($entities === null || $entities === '' || $entities === '0') {
             return;
         }
 
@@ -183,7 +183,7 @@ class EntityGenerator implements ScaffoldingGenerator
     {
         $parsed = $this->parseEntities($entities);
 
-        if (!empty($parsed)) {
+        if ($parsed !== []) {
             $config->addOption(self::OPTION_NAME, $this->parseEntities($entities));
         }
     }

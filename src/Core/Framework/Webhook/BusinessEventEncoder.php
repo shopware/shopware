@@ -103,7 +103,7 @@ class BusinessEventEncoder
             case EntityCollectionType::TYPE:
                 return $this->encodeEntity($dataType, $property);
             case ObjectType::TYPE:
-                if (\is_array($dataType['data']) && !empty($dataType['data'])) {
+                if (\is_array($dataType['data']) && (isset($dataType['data']) && $dataType['data'] !== [])) {
                     return $this->encodeType($dataType['data'], $property);
                 }
 

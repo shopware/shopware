@@ -91,7 +91,7 @@ final class PublicKeyLoader
         }
 
         $publicKeyToString = $publicKey->toString('pkcs8');
-        if (!\is_string($publicKeyToString) || empty($publicKeyToString)) {
+        if (!\is_string($publicKeyToString) || ($publicKeyToString === '' || $publicKeyToString === '0')) {
             return null;
         }
 

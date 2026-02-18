@@ -177,7 +177,7 @@ class FirstRunWizardService
                 }
                 $categories[] = new PluginCategoryStruct($category['name'], $category['label']);
             }
-            if (empty($region['name']) || empty($region['label']) || empty($categories)) {
+            if (empty($region['name']) || empty($region['label']) || $categories === []) {
                 continue;
             }
             $regions->add(new PluginRegionStruct($region['name'], $region['label'], $categories));

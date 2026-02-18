@@ -48,7 +48,7 @@ class CanonicalRedirectService
             return null;
         }
 
-        if (!\is_string($canonical) || empty($canonical)) {
+        if (!\is_string($canonical) || ($canonical === '' || $canonical === '0')) {
             return null;
         }
 

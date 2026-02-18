@@ -75,7 +75,7 @@ class Uuid
             throw UuidException::invalidUuid($uuid);
         }
 
-        \assert(!empty($uuid));
+        \assert($uuid !== '' && $uuid !== '0');
 
         return $uuid;
     }

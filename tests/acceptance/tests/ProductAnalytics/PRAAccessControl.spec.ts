@@ -107,3 +107,54 @@ test('Only authorized users in administration can change store consent and user 
         await expect(AdminYourProfile.dataSharingMyDataCheckbox).not.toBeChecked();
     });
 });
+
+test('Store consent not shown in modal if already given.', { tag: '@ProductAnalytics' }, async ({
+    TestDataService,
+    SalesChannelBaseConfig,
+    browser,
+}) => {
+
+    let page: Page;
+    let customUser: User;
+    let AdminDataSharingConsentModal;
+
+    await test.step('Setup store consent is given via API', async () => {
+
+        //To-Do:
+    });
+
+    await test.step('Setup user which is able to adjust store consent', async () => {
+
+        customUser = await TestDataService.createUser();
+        const basicShopPermissions = await TestDataService.createAclRole();
+        await TestDataService.assignAclRoleUser(basicShopPermissions.id, customUser.id);
+    });
+
+    await test.step('Setup page object before login to shopware administration', async () => {
+
+        page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
+    });
+
+    await test.step('Login to shopware administration', async () => {
+
+        await loginToAdministration(
+            page,
+            customUser,
+            TestDataService.AdminApiClient,
+        );
+
+        AdminDataSharingConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
+        await removeSymfonyToolbar(page);
+    });
+
+    await test.step('Validate only my data consent can be adjusted in modal', async () => {
+
+        await expect(AdminDataSharingConsentModal.consentModal).toBeVisible();
+        await expect(AdminDataSharingConsentModal.shareStoreDataCheckbox).toBeHidden();
+        await expect(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).toBeVisible();
+        await expect(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).toBeEditable();
+        await expect(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).not.toBeChecked();
+
+    });
+});
+

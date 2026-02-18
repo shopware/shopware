@@ -21,6 +21,10 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
 
     private ?string $locale;
 
+    private Environment $twig;
+
+    private IntlExtension $intlExtension;
+
     protected function setUp(): void
     {
         if (Feature::isActive('v6.8.0.0')) {
@@ -29,45 +33,37 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
 
         // Set locale based on PHP version
         // PHP 8.4+ throws exceptions for invalid locales, so we use null to fallback to default
-        // PHP < 8.4 allows invalid locales, so we test with 'zzz'
+        // PHP < 8.4 allows invalid locales, so we keep 'zzz'
         $this->locale = \PHP_VERSION_ID >= 80400 ? null : 'zzz';
+
+        // Create a fresh Twig environment with IntlExtension and BackwardCompatibleIntlExtension
+        $loader = new ArrayLoader();
+        $this->twig = new Environment($loader);
+
+        $this->intlExtension = new IntlExtension();
+        $this->twig->addExtension($this->intlExtension);
+        $this->twig->addExtension(new BackwardCompatibleIntlExtension($this->intlExtension));
     }
 
     public function testNumberFormatWithInvalidLocaleFallsBackToDefault(): void
     {
-        // Create a fresh Twig environment with IntlExtension and BackwardCompatibleIntlExtension
-        $loader = new ArrayLoader();
-        $twig = new Environment($loader);
-
-        $intlExtension = new IntlExtension();
-        $twig->addExtension($intlExtension);
-        $twig->addExtension(new BackwardCompatibleIntlExtension($intlExtension));
-
-        $template = $twig->createTemplate('{{ value|format_number({fraction_digit: 1}, locale="zzz") }}');
+        $template = $this->twig->createTemplate('{{ value|format_number({fraction_digit: 1}, locale="zzz") }}');
 
         $output = $template->render(['value' => 1234567.891]);
 
         // Create expected value using IntlExtension with same settings as template (fraction_digit: 1)
-        $expected = $intlExtension->formatNumber(1234567.891, ['fraction_digit' => 1], 'decimal', 'default', $this->locale);
+        $expected = $this->intlExtension->formatNumber(1234567.891, ['fraction_digit' => 1], 'decimal', 'default', $this->locale);
         static::assertSame($expected, $output);
     }
 
     public function testCurrencyFormatWithInvalidLocaleFallsBackToDefault(): void
     {
-        // Create a fresh Twig environment with IntlExtension and BackwardCompatibleIntlExtension
-        $loader = new ArrayLoader();
-        $twig = new Environment($loader);
-
-        $intlExtension = new IntlExtension();
-        $twig->addExtension($intlExtension);
-        $twig->addExtension(new BackwardCompatibleIntlExtension($intlExtension));
-
-        $template = $twig->createTemplate('{{ value|format_currency("USD", locale="zzz") }}');
+        $template = $this->twig->createTemplate('{{ value|format_currency("USD", locale="zzz") }}');
 
         $output = $template->render(['value' => 1234567.891]);
 
         // Create expected value using IntlExtension with same settings as template
-        $expected = $intlExtension->formatCurrency(1234567.891, 'USD', [], $this->locale);
+        $expected = $this->intlExtension->formatCurrency(1234567.891, 'USD', [], $this->locale);
         static::assertSame($expected, $output);
     }
 }

@@ -21,8 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
-use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
+use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 
 /**
@@ -44,12 +44,12 @@ class AdminElasticsearchEntitySearcherTest extends TestCase
 
         $expected = new IdSearchResult(0, [], $criteria, $context);
 
-        $decorated->expects(static::once())
+        $decorated->expects($this->once())
             ->method('search')
             ->with($definition, $criteria, $context)
             ->willReturn($expected);
 
-        $searcher->expects(static::never())->method('searchIds');
+        $searcher->expects($this->never())->method('searchIds');
 
         Feature::fake([], function () use ($decorated, $registry, $helper, $searcher, $definition, $criteria, $context, $expected): void {
             $entitySearcher = new AdminElasticsearchEntitySearcher(
@@ -82,14 +82,14 @@ class AdminElasticsearchEntitySearcherTest extends TestCase
         $registry->method('hasIndexer')->with($definition->getEntityName())->willReturn(true);
         $registry->method('getIndexer')->with($definition->getEntityName())->willReturn($indexer);
 
-        $expected = new IdSearchResult(1, [['id' => 'abc']], $criteria, $context);
+        $expected = new IdSearchResult(1, ['abc' => ['primaryKey' => 'abc', 'data' => [ 'id' => 'abc']]], $criteria, $context);
 
-        $searcher->expects(static::once())
+        $searcher->expects($this->once())
             ->method('searchIds')
             ->with($definition->getEntityName(), $criteria, $context)
             ->willReturn($expected);
 
-        $decorated->expects(static::never())->method('search');
+        $decorated->expects($this->never())->method('search');
 
         Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($decorated, $registry, $helper, $searcher, $definition, $criteria, $context, $expected): void {
             $entitySearcher = new AdminElasticsearchEntitySearcher(

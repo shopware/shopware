@@ -56,21 +56,21 @@ They are selected because they represent the most commonly searched/filter entit
           return false; // explicit ID filters stay on SQL
       }
 
-        // if no filters, aggregations, queries etc, we can use es
-        if ($criteria->getTerm() && $criteria->getAllFields() === []) {
-            return true;
-        }
+      if (!$this->registry->hasIndexer($definition->getEntityName())) {
+          return false;
+      }
+      
+      // if no filters, aggregations, queries etc, we can use es
+      if ($criteria->getTerm() && $criteria->getAllFields() === []) {
+          return true;
+      }
 
-        if (!$this->registry->hasIndexer($definition->getEntityName())) {
-            return false;
-        }
-        
-        $indexer = $this->registry->getIndexer($definition->getEntityName());
+      $indexer = $this->registry->getIndexer($definition->getEntityName());
 
-        // no field is marked for ES index, skip it
-        if ($indexer->mapping([]) === []) {
-            return false;
-        }
+      // no field is marked for ES index, skip it
+      if ($indexer->mapping([]) === []) {
+          return false;
+      }
 
       // use opensearch if all querying fields are supported
       return array_diff(

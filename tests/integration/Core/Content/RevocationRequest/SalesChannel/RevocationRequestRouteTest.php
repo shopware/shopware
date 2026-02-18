@@ -101,7 +101,7 @@ class RevocationRequestRouteTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
 
-        static::assertCount(8, $response['errors']);
+        static::assertCount(4, $response['errors']);
         static::assertFalse($listenerIsCalled);
 
         $this->eventDispatcher->removeListener(MailSentEvent::class, $revocationRequestCallback);

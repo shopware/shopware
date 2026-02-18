@@ -62,14 +62,27 @@ class RevocationRequestFormValidationFactory implements DataValidationFactoryInt
     {
         $validationDefinition = new DataValidationDefinition($name);
         $validationDefinition
-            ->add('firstName', new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false))
-            ->add('lastName', new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false))
-            ->add('email', new NotBlank(), new Email(), new Length(min: 3, max: self::EMAIL_MAX_LENGTH))
+            ->add(
+                'firstName',
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
+                new Length(min: 0, max: CustomerDefinition::MAX_LENGTH_FIRST_NAME)
+            )
+            ->add(
+                'lastName',
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
+                new Length(min: 0, max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
+            )
+            ->add(
+                'email',
+                new NotBlank(),
+                new Email(),
+                new Length(min: 0, max: self::EMAIL_MAX_LENGTH)
+            )
             ->add(
                 'contractNumber',
                 new NotBlank(),
                 new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
-                new Length(min: 1, max: self::CONTRACT_NUMBER_MAX_LENGTH)
+                new Length(min: 0, max: self::CONTRACT_NUMBER_MAX_LENGTH)
             )
             ->add(
                 'comment',
@@ -82,7 +95,7 @@ class RevocationRequestFormValidationFactory implements DataValidationFactoryInt
                 'firstName',
                 new NotBlank(),
                 new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
-                new Length(min: 1, max: CustomerDefinition::MAX_LENGTH_FIRST_NAME)
+                new Length(min: 0, max: CustomerDefinition::MAX_LENGTH_FIRST_NAME)
             );
         }
 
@@ -91,7 +104,7 @@ class RevocationRequestFormValidationFactory implements DataValidationFactoryInt
                 'lastName',
                 new NotBlank(),
                 new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
-                new Length(min: 1, max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
+                new Length(min: 0, max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
             );
         }
 

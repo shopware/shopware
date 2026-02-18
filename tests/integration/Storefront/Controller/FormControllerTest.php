@@ -220,6 +220,6 @@ class FormControllerTest extends TestCase
         static::assertSame('danger', $content['type']);
 
         $invalidFieldCount = mb_substr_count((string) $content['alert'], '<li>');
-        static::assertSame(3, $invalidFieldCount);
+        static::assertSame(2, $invalidFieldCount);
     }
 }

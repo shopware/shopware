@@ -25,7 +25,7 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
 
         // Save the original locale and set test locale
         $this->originalLocale = \Locale::getDefault();
-        \Locale::setDefault('us');
+        \Locale::setDefault('en_GB');
     }
 
     protected function tearDown(): void

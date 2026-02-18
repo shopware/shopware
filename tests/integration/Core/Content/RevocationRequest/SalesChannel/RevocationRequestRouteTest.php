@@ -100,7 +100,8 @@ class RevocationRequestRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertCount(4, $response['errors']);
+
+        static::assertCount(8, $response['errors']);
         static::assertFalse($listenerIsCalled);
 
         $this->eventDispatcher->removeListener(MailSentEvent::class, $revocationRequestCallback);

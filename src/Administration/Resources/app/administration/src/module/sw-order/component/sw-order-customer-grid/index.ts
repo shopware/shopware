@@ -191,12 +191,14 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
+            const customerNumber = this.customerData.customerNumber ?? '';
+
             const customerFilter = this.$refs.customerFilter as CustomerFilterRef | undefined;
             if (customerFilter) {
-                customerFilter.term = this.customerData?.customerNumber ?? '';
+                customerFilter.term = customerNumber;
             }
 
-            void this.onSearch(this.customerData?.customerNumber);
+            void this.onSearch(customerNumber);
             void this.onCheckCustomer(this.customerData);
         },
 

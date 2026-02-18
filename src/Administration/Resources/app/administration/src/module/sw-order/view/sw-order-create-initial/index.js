@@ -49,6 +49,10 @@ export default {
     methods: {
         async createdComponent() {
             const customerId = this.$route.query?.customerId;
+            const orderStore = Store.get('swOrder');
+
+            // Reset so grid never sees a stale customer (with or without customerId)
+            orderStore.$reset();
 
             if (!customerId) {
                 this.routeCustomerReady = true;
@@ -57,23 +61,13 @@ export default {
 
             try {
                 const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.customerCriteria);
-
-                if (!customer) {
-                    return;
-                }
-
-                const orderStore = Store.get('swOrder');
-
-                // Reset store so the customer grid never sees a stale customer from a previous session
-                orderStore.$reset();
-
-                orderStore.setCustomer(customer);
+                if (customer) orderStore.setCustomer(customer);
             } finally {
                 this.routeCustomerReady = true;
             }
         },
 
-        async onCloseCreateModal() {
+        onCloseCreateModal() {
             this.$nextTick(() => {
                 this.$router.push({ name: 'sw.order.index' });
             });

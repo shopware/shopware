@@ -12,11 +12,20 @@
  * - methods: override existing method with $super delegation
  * - methods: add new methods accessing both local and previous state
  * - watch: watch a reactive property from the Composition API component
+ * - lifecycle hooks: created and mounted fire at the correct time
  */
 
 /* eslint-disable no-console, sw-deprecation-rules/private-feature-declarations */
 
 Shopware.Component.override('sw-settings-index', {
+    created() {
+        console.log('[Options API Shim Test] created hook fired — searchQuery:', this.searchQuery);
+    },
+
+    mounted() {
+        console.log('[Options API Shim Test] mounted hook fired — total settings groups:', Object.keys(this.settingsGroups).length);
+    },
+
     data() {
         return {
             overrideMessage: 'Hello from Options API override!',

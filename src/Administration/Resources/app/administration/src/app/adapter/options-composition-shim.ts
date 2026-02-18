@@ -11,23 +11,49 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, max-len */
 
-import { ref, computed, watch, isRef, reactive } from 'vue';
+import {
+    ref,
+    computed,
+    watch,
+    isRef,
+    reactive,
+    getCurrentInstance,
+    onBeforeMount,
+    onMounted,
+    onBeforeUpdate,
+    onUpdated,
+    onBeforeUnmount,
+    onUnmounted,
+    onActivated,
+    onDeactivated,
+    onErrorCaptured,
+} from 'vue';
 import type { Ref, ComputedRef } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 
-const LIFECYCLE_HOOKS = [
-    'beforeCreate',
-    'created',
-    'beforeMount',
-    'mounted',
-    'beforeUpdate',
-    'updated',
-    'beforeUnmount',
-    'unmounted',
-    'activated',
-    'deactivated',
-    'errorCaptured',
-];
+/**
+ * Maps Options API lifecycle hook names to their Composition API equivalents.
+ * `null` means the hook runs immediately (beforeCreate/created happen during setup).
+ */
+const LIFECYCLE_HOOK_MAP: Record<string, ((...args: any[]) => any) | null> = {
+    beforeCreate: null,
+    created: null,
+    beforeMount: onBeforeMount,
+    mounted: onMounted,
+    beforeUpdate: onBeforeUpdate,
+    updated: onUpdated,
+    beforeUnmount: onBeforeUnmount,
+    unmounted: onUnmounted,
+    activated: onActivated,
+    deactivated: onDeactivated,
+    errorCaptured: onErrorCaptured,
+};
+
+const LIFECYCLE_HOOKS = Object.keys(LIFECYCLE_HOOK_MAP);
+
+interface MergedConfig extends ComponentConfig {
+    _lifecycleHooks?: Record<string, ((...args: any[]) => void)[]>;
+}
 
 /**
  * Track components using Composition API
@@ -46,13 +72,20 @@ export const _compositionApiComponents = reactive(new Set<string>());
 export function shouldActivateShim(componentName: string, overrideConfig: ComponentConfig): boolean {
     const targetUsesCompositionApi = _compositionApiComponents.has(componentName);
 
+    const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!(overrideConfig as any)[hook]);
+    const mixinsHaveLifecycleHooks = overrideConfig.mixins?.some(
+        (mixin: any) => LIFECYCLE_HOOKS.some((hook) => !!(mixin as any)[hook]),
+    ) ?? false;
+
     const usesOptionsApi = !!(
         overrideConfig.data ||
         overrideConfig.methods ||
         overrideConfig.computed ||
         overrideConfig.watch ||
         overrideConfig.mixins ||
-        overrideConfig.inject
+        overrideConfig.inject ||
+        hasLifecycleHooks ||
+        mixinsHaveLifecycleHooks
     );
 
     return targetUsesCompositionApi && usesOptionsApi;
@@ -97,6 +130,10 @@ export function convertOptionsApiOverrideToCompositionApi(
             setupWatchers(mergedConfig.watch, thisProxy);
         }
 
+        if (mergedConfig._lifecycleHooks) {
+            setupLifecycleHooks(mergedConfig._lifecycleHooks, thisProxy);
+        }
+
         if (mergedConfig.inject) {
             result._inject = mergedConfig.inject;
         }
@@ -108,48 +145,64 @@ export function convertOptionsApiOverrideToCompositionApi(
 /**
  * Merges mixins into the component configuration
  */
-function mergeMixins(config: ComponentConfig): ComponentConfig {
-    if (!config.mixins || config.mixins.length === 0) {
-        return config;
-    }
+function mergeMixins(config: ComponentConfig): MergedConfig {
+    const lifecycleHooks: Record<string, ((...args: any[]) => void)[]> = {};
 
-    const merged: ComponentConfig = {
+    const merged: MergedConfig = {
         data: config.data,
         methods: { ...config.methods },
         computed: { ...config.computed },
         watch: { ...config.watch },
+        inject: config.inject,
     };
 
-    config.mixins.forEach((mixin: ComponentConfig) => {
-        LIFECYCLE_HOOKS.forEach((hook: string) => {
-            if ((mixin as any)[hook]) {
-                console.warn(
-                    `[Options API Shim] Mixin lifecycle hooks are not supported by the compatibility shim. ` +
-                        `Hook "${hook}" will be ignored. Please migrate to Composition API.`,
-                );
+    if (config.mixins && config.mixins.length > 0) {
+        config.mixins.forEach((mixin: ComponentConfig) => {
+            // Collect lifecycle hooks from mixin (mixin hooks fire before component hooks)
+            LIFECYCLE_HOOKS.forEach((hook: string) => {
+                if ((mixin as any)[hook]) {
+                    if (!lifecycleHooks[hook]) {
+                        lifecycleHooks[hook] = [];
+                    }
+                    lifecycleHooks[hook].push((mixin as any)[hook]);
+                }
+            });
+
+            const existingDataValue =
+                merged.data && typeof merged.data === 'function' ? (merged.data as () => any)() : (merged.data ?? {});
+
+            if (mixin.data) {
+                const mixinData = typeof mixin.data === 'function' ? (mixin.data as () => any)() : mixin.data;
+                merged.data = () => ({ ...mixinData, ...existingDataValue });
+            }
+
+            if (mixin.methods) {
+                merged.methods = { ...mixin.methods, ...merged.methods };
+            }
+
+            if (mixin.computed) {
+                merged.computed = { ...mixin.computed, ...merged.computed };
+            }
+
+            if (mixin.watch) {
+                merged.watch = { ...mixin.watch, ...merged.watch };
             }
         });
+    }
 
-        const existingDataValue =
-            merged.data && typeof merged.data === 'function' ? (merged.data as () => any)() : (merged.data ?? {});
-
-        if (mixin.data) {
-            const mixinData = typeof mixin.data === 'function' ? (mixin.data as () => any)() : mixin.data;
-            merged.data = () => ({ ...mixinData, ...existingDataValue });
-        }
-
-        if (mixin.methods) {
-            merged.methods = { ...mixin.methods, ...merged.methods };
-        }
-
-        if (mixin.computed) {
-            merged.computed = { ...mixin.computed, ...merged.computed };
-        }
-
-        if (mixin.watch) {
-            merged.watch = { ...mixin.watch, ...merged.watch };
+    // Component's own hooks go last (after mixin hooks), matching Vue's merge strategy
+    LIFECYCLE_HOOKS.forEach((hook: string) => {
+        if ((config as any)[hook]) {
+            if (!lifecycleHooks[hook]) {
+                lifecycleHooks[hook] = [];
+            }
+            lifecycleHooks[hook].push((config as any)[hook]);
         }
     });
+
+    if (Object.keys(lifecycleHooks).length > 0) {
+        merged._lifecycleHooks = lifecycleHooks;
+    }
 
     return merged;
 }
@@ -382,19 +435,58 @@ function setupWatchers(watchConfig: Record<string, any>, thisProxy: any): void {
 }
 
 /**
+ * Hooks that have already executed by the time the component is mounted.
+ * If the override is applied late (after setup), these are called immediately.
+ */
+const ALREADY_PASSED_WHEN_MOUNTED = new Set(['beforeCreate', 'created', 'beforeMount', 'mounted']);
+
+/**
+ * Registers Options API lifecycle hooks using their Composition API equivalents.
+ * Hooks mapped to `null` (beforeCreate, created) are called immediately since
+ * setup() is the Composition API equivalent of both.
+ *
+ * When the override is applied late (after setup has returned, e.g. via the
+ * async override registry processing), `getCurrentInstance()` returns null
+ * and `on*` registration functions cannot be used. In that case:
+ * - Hooks that have already passed (beforeCreate, created, beforeMount, mounted)
+ *   are invoked immediately.
+ * - Future hooks (beforeUnmount, unmounted, etc.) cannot be registered and
+ *   a warning is logged.
+ */
+function setupLifecycleHooks(
+    hooks: Record<string, ((...args: any[]) => void)[]>,
+    thisProxy: any,
+): void {
+    const instance = getCurrentInstance();
+
+    Object.entries(hooks).forEach(([hookName, handlers]) => {
+        const compositionHook = LIFECYCLE_HOOK_MAP[hookName];
+
+        handlers.forEach((handler) => {
+            if (compositionHook === null) {
+                handler.call(thisProxy);
+                return;
+            }
+
+            if (instance) {
+                compositionHook(() => handler.call(thisProxy));
+            } else if (ALREADY_PASSED_WHEN_MOUNTED.has(hookName)) {
+                handler.call(thisProxy);
+            } else {
+                console.warn(
+                    `[Options API Shim] Lifecycle hook "${hookName}" could not be registered because ` +
+                        `the override was applied after setup(). Only beforeCreate, created, beforeMount, ` +
+                        `and mounted are supported for late-applied overrides.`,
+                );
+            }
+        });
+    });
+}
+
+/**
  * Checks for unsupported features and logs appropriate errors
  */
 function checkUnsupportedFeatures(componentName: string, config: ComponentConfig): void {
-    LIFECYCLE_HOOKS.forEach((hook: string) => {
-        if ((config as any)[hook]) {
-            console.error(
-                `[Options API Shim] Lifecycle hooks are not supported by the compatibility shim. ` +
-                    `Hook "${hook}" in component "${componentName}" will not work. ` +
-                    `Please migrate to Composition API using onMounted, onUpdated, etc.`,
-            );
-        }
-    });
-
     if (config.render && typeof config.render === 'function') {
         console.error(
             `[Options API Shim] Custom render() functions are not supported by the compatibility shim. ` +

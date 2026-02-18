@@ -11,7 +11,7 @@ import {
     _compositionApiComponents,
 } from 'src/app/adapter/options-composition-shim';
 import { mount } from '@vue/test-utils';
-import { ref, computed, defineComponent, nextTick } from 'vue';
+import { ref, computed, defineComponent, nextTick, reactive } from 'vue';
 
 /**
  * Helper: wraps convertOptionsApiOverrideToCompositionApi and silences the
@@ -100,6 +100,26 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const result = shouldActivateShim('sw-example', {
                 mixins: [{ methods: { foo() {} } }],
+            });
+
+            expect(result).toBe(true);
+        });
+
+        it('should return true when target uses Composition API and override has lifecycle hooks', () => {
+            _compositionApiComponents.add('sw-example');
+
+            const result = shouldActivateShim('sw-example', {
+                mounted() {},
+            });
+
+            expect(result).toBe(true);
+        });
+
+        it('should return true when target uses Composition API and mixin has lifecycle hooks', () => {
+            _compositionApiComponents.add('sw-example');
+
+            const result = shouldActivateShim('sw-example', {
+                mixins: [{ created() {} }],
             });
 
             expect(result).toBe(true);
@@ -791,73 +811,363 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(result.localValue.value).toBe('from-override');
         });
 
-        it('should warn about lifecycle hooks in mixins', () => {
+        it('should merge mixin lifecycle hooks and fire them', async () => {
             _compositionApiComponents.add('originalComponent');
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            const createdCallback = jest.fn();
 
             const myMixin = {
                 created() {
-                    // This should trigger a warning
+                    createdCallback();
                 },
                 methods: {
                     foo() {},
                 },
             };
 
-            // Need to invoke the returned function to trigger mergeMixins
-            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
                 mixins: [myMixin],
             });
 
-            // Invoke the override function to trigger mixin merging
-            overrideFn({}, {});
+            _overridesMap.originalComponent.push(overrideFn);
 
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('Mixin lifecycle hooks are not supported'));
+            await flushPromises();
 
-            consoleWarn.mockRestore();
+            expect(createdCallback).toHaveBeenCalled();
+        });
+    });
+
+    describe('setupLifecycleHooks():', () => {
+        it('should fire created hook immediately during setup', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            const createdCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                created() {
+                    createdCallback();
+                },
+                methods: { noop() {} },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            expect(createdCallback).toHaveBeenCalledTimes(1);
+        });
+
+        it('should fire beforeCreate hook immediately during setup', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            const beforeCreateCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                beforeCreate() {
+                    beforeCreateCallback();
+                },
+                methods: { noop() {} },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            expect(beforeCreateCallback).toHaveBeenCalledTimes(1);
+        });
+
+        it('should fire mounted hook after component mounts', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            const mountedCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mounted() {
+                    mountedCallback();
+                },
+                methods: { noop() {} },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent);
+
+            await flushPromises();
+            await nextTick();
+
+            expect(mountedCallback).toHaveBeenCalledTimes(1);
+        });
+
+        it('should fire beforeUnmount and unmounted hooks on component destroy', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            const beforeUnmountCallback = jest.fn();
+            const unmountedCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                beforeUnmount() {
+                    beforeUnmountCallback();
+                },
+                unmounted() {
+                    unmountedCallback();
+                },
+                methods: { noop() {} },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            const wrapper = mount(originalComponent);
+
+            await flushPromises();
+            await nextTick();
+
+            expect(beforeUnmountCallback).not.toHaveBeenCalled();
+            expect(unmountedCallback).not.toHaveBeenCalled();
+
+            wrapper.unmount();
+
+            expect(beforeUnmountCallback).toHaveBeenCalledTimes(1);
+            expect(unmountedCallback).toHaveBeenCalledTimes(1);
+        });
+
+        it('should provide correct this context inside lifecycle hooks', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            let capturedCount: number | undefined;
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(42);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                created() {
+                    capturedCount = this.count;
+                },
+                methods: { noop() {} },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            expect(capturedCount).toBe(42);
+        });
+
+        it('should fire mixin hooks before component hooks (Vue merge order)', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            const callOrder: string[] = [];
+
+            const myMixin = {
+                created() {
+                    callOrder.push('mixin-created');
+                },
+            };
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mixins: [myMixin],
+                created() {
+                    callOrder.push('component-created');
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            expect(callOrder).toEqual([
+                'mixin-created',
+                'component-created',
+            ]);
+        });
+
+        it('should fire hooks from multiple mixins in order', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            const callOrder: string[] = [];
+
+            const mixinA = {
+                created() {
+                    callOrder.push('mixinA');
+                },
+            };
+            const mixinB = {
+                created() {
+                    callOrder.push('mixinB');
+                },
+            };
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mixins: [mixinA, mixinB],
+                created() {
+                    callOrder.push('component');
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            expect(callOrder).toEqual([
+                'mixinA',
+                'mixinB',
+                'component',
+            ]);
+        });
+
+        it('should work together with watch and data overrides', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            const createdCallback = jest.fn();
+            const watchCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                data() {
+                    return { extra: 'test' };
+                },
+                created() {
+                    createdCallback(this.extra);
+                },
+                watch: {
+                    count(newVal: number) {
+                        watchCallback(newVal);
+                    },
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            expect(createdCallback).toHaveBeenCalledWith('test');
+        });
+
+        it('should handle override with only lifecycle hooks (no methods/data)', async () => {
+            _compositionApiComponents.add('originalComponent');
+
+            const mountedCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mounted() {
+                    mountedCallback();
+                },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent);
+
+            await flushPromises();
+            await nextTick();
+
+            expect(mountedCallback).toHaveBeenCalledTimes(1);
         });
     });
 
     describe('Unsupported features:', () => {
-        it('should log error for lifecycle hooks in override config', () => {
-            _compositionApiComponents.add('originalComponent');
-            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-            convertOptionsApiOverrideToCompositionApi('originalComponent', {
-                mounted() {
-                    // This should trigger an error
-                },
-                methods: { foo() {} },
-            });
-
-            expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('Lifecycle hooks are not supported'));
-            expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('"mounted"'));
-
-            consoleError.mockRestore();
-            consoleWarn.mockRestore();
-        });
-
-        it('should log error for multiple lifecycle hooks', () => {
-            _compositionApiComponents.add('originalComponent');
-            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-            convertOptionsApiOverrideToCompositionApi('originalComponent', {
-                created() {},
-                beforeMount() {},
-                mounted() {},
-                methods: { foo() {} },
-            });
-
-            expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('"created"'));
-            expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('"beforeMount"'));
-            expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('"mounted"'));
-
-            consoleError.mockRestore();
-            consoleWarn.mockRestore();
-        });
-
         it('should log error for custom render() functions', () => {
             _compositionApiComponents.add('originalComponent');
             const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});

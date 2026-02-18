@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnableToLoadPathException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -145,6 +146,7 @@ class DataAbstractionLayerException extends HttpException
     public const TREE_UPDATER_ERROR = 'FRAMEWORK__DAL_TREE_UPDATER_ERROR';
     public const ASSOCIATION_NOT_INHERITED = 'FRAMEWORK__DAL_ASSOCIATION_NOT_INHERITED';
     public const ENTITY_HYDRATOR_ERROR = 'FRAMEWORK__DAL_ENTITY_HYDRATOR_ERROR';
+    public const UNABLE_TO_LOAD_PATH = 'FRAMEWORK__DAL_UNABLE_TO_LOAD_PATH';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -1261,5 +1263,13 @@ class DataAbstractionLayerException extends HttpException
             self::ENTITY_HYDRATOR_ERROR,
             $message,
         );
+    }
+
+    /**
+     * @param array<string, string> $paths
+     */
+    public static function unableToLoadPath(string $path, array $paths): UnableToLoadPathException
+    {
+        return new UnableToLoadPathException($path, $paths);
     }
 }

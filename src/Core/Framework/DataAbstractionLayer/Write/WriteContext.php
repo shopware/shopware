@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnableToLoadPathException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
@@ -89,6 +90,9 @@ class WriteContext
         $this->paths[$this->buildPathName($entity, $propertyName)] = $value;
     }
 
+    /**
+     * @throws \InvalidArgumentException|UnableToLoadPathException
+     */
     public function get(string $entity, string $propertyName): string
     {
         $path = $this->buildPathName($entity, $propertyName);
@@ -98,7 +102,7 @@ class WriteContext
                 /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
                 throw new \InvalidArgumentException(\sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
             }
-            throw DataAbstractionLayerException::invalidWriteContext(\sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
+            throw DataAbstractionLayerException::unableToLoadPath($path, $this->paths);
         }
 
         return $this->paths[$path];

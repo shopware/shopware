@@ -116,6 +116,21 @@ class OrderRouteTest extends TestCase
         $this->defaultPaymentMethodId = $firstPaymentMethod->getId();
         $this->orderId = $this->createOrder($this->customerId, $this->email);
 
+        // Ensure primaryOrderTransactionId is set for testing purposes
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addAssociation('transactions');
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($order);
+        $transaction = $order->getTransactions()?->last();
+        if ($transaction && !$order->getPrimaryOrderTransaction()) {
+            $this->orderRepository->update([
+                [
+                    'id' => $this->orderId,
+                    'primaryOrderTransactionId' => $transaction->getId(),
+                ],
+            ], Context::createDefaultContext());
+        }
+
         $this->browser
             ->request(
                 'POST',

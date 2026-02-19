@@ -443,6 +443,25 @@ class OrderRouteTest extends TestCase
             static::markTestSkipped('Order mail tests should be fixed without storefront');
         }
 
+        // Ensure the order transaction is in initial state so the test behavior is predictable
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addAssociation('transactions');
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($order);
+        $transaction = $order->getTransactions()?->last();
+        static::assertNotNull($transaction);
+
+        $initialStateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE);
+        if ($transaction->getStateId() !== $initialStateId) {
+            // Reset transaction to initial state
+            static::getContainer()->get('order_transaction.repository')->update([
+                [
+                    'id' => $transaction->getId(),
+                    'stateId' => $initialStateId,
+                ],
+            ], Context::createDefaultContext());
+        }
+
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->mailSentEventCounter = 0;
 

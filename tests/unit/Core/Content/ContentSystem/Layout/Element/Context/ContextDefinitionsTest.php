@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ContextDefinitions::class)]
 class ContextDefinitionsTest extends TestCase
 {
-    #[TestDox('merges new providers into existing ones')]
-    public function testWithAddedProviders(): void
+    #[TestDox('merges new providers into result and returns a new immutable instance')]
+    public function testWithAddedProvidersMergesResultAndIsImmutable(): void
     {
         $existingProvider = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
         $additionalProvider = new ContextProvider(ContextType::Collection, BroadcastDistributionConfig::simple());
@@ -34,22 +34,7 @@ class ContextDefinitionsTest extends TestCase
             ['product' => $existingProvider, 'category' => $additionalProvider],
             $merged->getAllProviders()
         );
-    }
-
-    #[TestDox('returns a new instance without mutating the original when adding providers')]
-    public function testWithAddedProvidersIsImmutable(): void
-    {
-        $existingProvider = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
-        $additionalProvider = new ContextProvider(ContextType::Collection, BroadcastDistributionConfig::simple());
-
-        $original = new ContextDefinitions(
-            providers: ['product' => $existingProvider],
-        );
-
-        $merged = $original->withAddedProviders(['category' => $additionalProvider]);
-
         static::assertNotSame($original, $merged);
         static::assertSame(['product' => $existingProvider], $original->getAllProviders());
-        static::assertCount(2, $merged->getAllProviders());
     }
 }

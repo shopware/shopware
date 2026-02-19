@@ -70,21 +70,23 @@ class ContentRouteLoaderTest extends TestCase
         static::assertTrue($loader->supports(null, 'content_system'));
     }
 
-    /**
-     * @return iterable<string, array{mixed, ?string}>
-     */
-    public static function unsupportedTypeProvider(): iterable
-    {
-        yield 'null type' => [null, null];
-        yield 'non-matching string type' => [null, 'xml'];
-    }
-
     #[DataProvider('unsupportedTypeProvider')]
-    #[TestDox('returns false for unsupported type $type')]
-    public function testSupportsReturnsFalseForOtherTypes(mixed $resource, ?string $type): void
+    #[TestDox('returns false for unsupported types')]
+    public function testSupportsReturnsFalseForOtherTypes(mixed $type): void
     {
         $loader = new ContentRouteLoader([]);
 
-        static::assertFalse($loader->supports($resource, $type));
+        static::assertFalse($loader->supports(null, $type));
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function unsupportedTypeProvider(): array
+    {
+        return [
+            'null type' => [null],
+            'xml type' => ['xml'],
+        ];
     }
 }

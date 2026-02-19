@@ -9,14 +9,12 @@ use Shopware\Core\Content\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Content\ContentSystem\Adapter\RenderingSpecificationFactory;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\SpecificationData;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(RenderingSpecificationFactory::class)]
 class RenderingSpecificationFactoryTest extends TestCase
 {
@@ -46,12 +44,13 @@ class RenderingSpecificationFactoryTest extends TestCase
         static::assertSame(['product-abc123'], $result->cacheTags);
     }
 
-    #[TestDox('passes through null target element ID from source')]
+    #[TestDox('passes through null target element id from source')]
     public function testCreatePassesThroughNullTargetElementId(): void
     {
         $request = new Request();
         $context = Generator::generateSalesChannelContext();
-        $placeholders = PlaceholderValues::from([]);
+        $path = '/product/abc123';
+        $placeholders = PlaceholderValues::from(['productId' => 'abc123']);
         $specData = new SpecificationData([], $placeholders);
 
         $source = static::createStub(AbstractSpecificationSource::class);
@@ -61,7 +60,7 @@ class RenderingSpecificationFactoryTest extends TestCase
         $source->method('resolveCacheTags')->willReturn([]);
 
         $factory = new RenderingSpecificationFactory();
-        $result = $factory->create($source, '/test', $request, $context);
+        $result = $factory->create($source, $path, $request, $context);
 
         static::assertNull($result->targetElementId);
     }

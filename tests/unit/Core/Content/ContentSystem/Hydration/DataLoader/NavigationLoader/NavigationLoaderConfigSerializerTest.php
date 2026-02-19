@@ -31,15 +31,6 @@ class NavigationLoaderConfigSerializerTest extends TestCase
         static::assertSame('navigation', NavigationLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
-
-        $this->serializer->getDecorated();
-    }
-
     #[TestDox('decodes empty array into NavigationLoaderConfig with default values')]
     public function testDecodeEmptyArrayReturnsNavigationLoaderConfigWithDefaults(): void
     {
@@ -287,5 +278,14 @@ class NavigationLoaderConfigSerializerTest extends TestCase
         $encoded = $this->serializer->encode($config);
 
         static::assertSame($original, $encoded);
+    }
+
+    #[TestDox('throws DecorationPatternException when getDecorated is called')]
+    public function testGetDecoratedThrowsDecorationPatternException(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+        $this->expectExceptionMessage('The getDecorated() function of core class');
+
+        $this->serializer->getDecorated();
     }
 }

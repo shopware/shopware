@@ -70,20 +70,6 @@ class DataRequirementsFieldSerializerTest extends TestCase
         $this->parameters = static::createStub(WriteParameterBag::class);
     }
 
-    #[TestDox('encodes null value as null')]
-    public function testEncodeWithNullYieldsNull(): void
-    {
-        $field = $this->createDataRequirementsField();
-        $kvPair = new KeyValuePair('data_requirements', null, false);
-
-        $result = iterator_to_array(
-            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
-        );
-
-        static::assertArrayHasKey('data_requirements', $result);
-        static::assertNull($result['data_requirements']);
-    }
-
     #[TestDox('encodes DataRequirement array to JSON string')]
     public function testEncodeWithDataRequirementArrayYieldsJson(): void
     {
@@ -141,6 +127,20 @@ class DataRequirementsFieldSerializerTest extends TestCase
         static::assertSame('"raw-string"', $result['data_requirements']);
     }
 
+    #[TestDox('encodes null value as null')]
+    public function testEncodeWithNullYieldsNull(): void
+    {
+        $field = $this->createDataRequirementsField();
+        $kvPair = new KeyValuePair('data_requirements', null, false);
+
+        $result = iterator_to_array(
+            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
+        );
+
+        static::assertArrayHasKey('data_requirements', $result);
+        static::assertNull($result['data_requirements']);
+    }
+
     #[TestDox('throws exception when encode receives wrong field type')]
     public function testEncodeThrowsOnNonDataRequirementsField(): void
     {
@@ -156,16 +156,6 @@ class DataRequirementsFieldSerializerTest extends TestCase
         iterator_to_array(
             $this->serializer->encode($invalidField, $this->existence, $kvPair, $this->parameters)
         );
-    }
-
-    #[TestDox('decodes null to null')]
-    public function testDecodeWithNullReturnsNull(): void
-    {
-        $field = $this->createDataRequirementsField();
-
-        $result = $this->serializer->decode($field, null);
-
-        static::assertNull($result);
     }
 
     #[TestDox('decodes JSON string to DataRequirement array')]
@@ -226,6 +216,16 @@ class DataRequirementsFieldSerializerTest extends TestCase
         static::assertIsArray($result);
         static::assertArrayHasKey('my-req', $result);
         static::assertSame('my-req', $result['my-req']->key);
+    }
+
+    #[TestDox('decodes null to null')]
+    public function testDecodeWithNullReturnsNull(): void
+    {
+        $field = $this->createDataRequirementsField();
+
+        $result = $this->serializer->decode($field, null);
+
+        static::assertNull($result);
     }
 
     #[TestDox('throws exception when decode receives wrong field type')]

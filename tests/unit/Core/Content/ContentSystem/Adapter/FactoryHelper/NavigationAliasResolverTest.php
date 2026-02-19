@@ -18,16 +18,6 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(NavigationAliasResolver::class)]
 class NavigationAliasResolverTest extends TestCase
 {
-    /**
-     * @return \Generator<string, array{string, string}>
-     */
-    public static function knownAliasProvider(): \Generator
-    {
-        yield 'main-navigation resolves to navigationCategoryId' => ['main-navigation', 'nav-cat-id'];
-        yield 'service-navigation resolves to serviceCategoryId' => ['service-navigation', 'service-cat-id'];
-        yield 'footer-navigation resolves to footerCategoryId' => ['footer-navigation', 'footer-cat-id'];
-    }
-
     #[DataProvider('knownAliasProvider')]
     #[TestDox('resolves alias to correct category ID')]
     public function testResolvesKnownAliasesToCategoryIds(string $alias, string $expectedCategoryId): void
@@ -77,5 +67,15 @@ class NavigationAliasResolverTest extends TestCase
         $resolver = new NavigationAliasResolver();
 
         static::assertSame('footer-navigation', $resolver->resolve('footer-navigation', $context));
+    }
+
+    /**
+     * @return \Generator<string, array{string, string}>
+     */
+    public static function knownAliasProvider(): \Generator
+    {
+        yield 'main-navigation resolves to navigationCategoryId' => ['main-navigation', 'nav-cat-id'];
+        yield 'service-navigation resolves to serviceCategoryId' => ['service-navigation', 'service-cat-id'];
+        yield 'footer-navigation resolves to footerCategoryId' => ['footer-navigation', 'footer-cat-id'];
     }
 }

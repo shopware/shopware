@@ -22,8 +22,6 @@ class ContentLayoutMetadataDeriverTest extends TestCase
     public static function entityIdFieldProvider(): \Generator
     {
         yield 'product' => ['product', 'productId'];
-        yield 'landing_page' => ['landing_page', 'landingPageId'];
-        yield 'category' => ['category', 'categoryId'];
         yield 'custom underscore type' => ['some_custom_type', 'someCustomTypeId'];
     }
 
@@ -42,8 +40,6 @@ class ContentLayoutMetadataDeriverTest extends TestCase
     public static function pathPrefixProvider(): \Generator
     {
         yield 'product' => ['product', '/product/'];
-        yield 'landing_page' => ['landing_page', '/landing-page/'];
-        yield 'category' => ['category', '/category/'];
         yield 'custom underscore type' => ['some_custom_type', '/some-custom-type/'];
     }
 

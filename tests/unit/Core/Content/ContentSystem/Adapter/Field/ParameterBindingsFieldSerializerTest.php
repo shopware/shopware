@@ -54,10 +54,9 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $serializedBinding = ['placeholder' => 'seoUrl'];
 
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $bindingSerializer = $this->createMock(ParameterBindingFieldSerializer::class);
+        $bindingSerializer = static::createStub(ParameterBindingFieldSerializer::class);
         $bindingSerializer
             ->method('serializeParameterBinding')
-            ->with($binding)
             ->willReturn($serializedBinding);
 
         $passthroughValidator = static::createStub(ValidatorInterface::class);
@@ -83,10 +82,9 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $serializedBinding = ['placeholder' => 'productId'];
 
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $bindingSerializer = $this->createMock(ParameterBindingFieldSerializer::class);
+        $bindingSerializer = static::createStub(ParameterBindingFieldSerializer::class);
         $bindingSerializer
             ->method('serializeParameterBinding')
-            ->with($binding)
             ->willReturn($serializedBinding);
 
         $passthroughValidator = static::createStub(ValidatorInterface::class);
@@ -127,7 +125,7 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $invalidField = new TranslatedField('parameterBindings');
         $kvPair = new KeyValuePair('parameter_bindings', null, false);
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldType(StorageAware::class, TranslatedField::class)
         );
 
@@ -140,10 +138,9 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $binding = new ParameterBinding('seoUrl', 'seoUrl');
 
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $bindingSerializer = $this->createMock(ParameterBindingFieldSerializer::class);
+        $bindingSerializer = static::createStub(ParameterBindingFieldSerializer::class);
         $bindingSerializer
             ->method('deserializeParameterBinding')
-            ->with(['placeholder' => 'seoUrl'], 'seoUrl')
             ->willReturn($binding);
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
@@ -166,7 +163,7 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $binding2 = new ParameterBinding('productId', 'productId');
 
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $bindingSerializer = $this->createMock(ParameterBindingFieldSerializer::class);
+        $bindingSerializer = static::createStub(ParameterBindingFieldSerializer::class);
         $bindingSerializer
             ->method('deserializeParameterBinding')
             ->willReturnMap([
@@ -207,7 +204,7 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $invalidField = new JsonField('parameter_bindings', 'parameterBindings');
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldType(ParameterBindingsField::class, JsonField::class)
         );
 
@@ -219,7 +216,7 @@ class ParameterBindingsFieldSerializerTest extends TestCase
     {
         $field = $this->createParameterBindingsField();
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldValueType('parameter_bindings', 'array', 'integer')
         );
 

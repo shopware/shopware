@@ -16,23 +16,17 @@ use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder
 #[CoversClass(PathFinderVisitor::class)]
 class PathFinderVisitorTest extends TestCase
 {
-    #[TestDox('finds root element by id and returns path with single entry')]
-    public function testFindsRootElementByIdAndReturnsPathWithSingleEntry(): void
+    #[TestDox('finds element and returns correct path from root')]
+    public function testFindElementReturnsCorrectPath(): void
     {
         $rootId = 'root-element-id';
 
-        $root = ContentElementBuilder::create('block', $rootId)->build();
+        $rootOnly = ContentElementBuilder::create('block', $rootId)->build();
+        $rootVisitor = new PathFinderVisitor($rootId);
+        $rootOnly->traverse($rootVisitor);
 
-        $visitor = new PathFinderVisitor($rootId);
-        $root->traverse($visitor);
+        static::assertSame([$rootId], $rootVisitor->getPath());
 
-        static::assertSame([$rootId], $visitor->getPath());
-    }
-
-    #[TestDox('finds nested element and returns full path from root')]
-    public function testFindsNestedElementAndReturnsFullPathFromRoot(): void
-    {
-        $rootId = 'root-element-id';
         $parentId = 'parent-element-id';
         $targetId = 'target-element-id';
 
@@ -44,10 +38,10 @@ class PathFinderVisitorTest extends TestCase
             ->withSlot('default', [$parent])
             ->build();
 
-        $visitor = new PathFinderVisitor($targetId);
-        $root->traverse($visitor);
+        $nestedVisitor = new PathFinderVisitor($targetId);
+        $root->traverse($nestedVisitor);
 
-        static::assertSame([$rootId, $parentId, $targetId], $visitor->getPath());
+        static::assertSame([$rootId, $parentId, $targetId], $nestedVisitor->getPath());
     }
 
     #[TestDox('returns empty path when element not found')]

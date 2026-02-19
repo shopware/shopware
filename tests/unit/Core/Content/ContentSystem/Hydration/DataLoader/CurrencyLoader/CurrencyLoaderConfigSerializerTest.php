@@ -40,22 +40,28 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
         static::assertSame(['country', 'translations'], $result->associations);
     }
 
-    #[TestDox('decodes empty array into CurrencyLoaderConfig with empty associations')]
-    public function testDecodeEmptyArrayReturnsCurrencyLoaderConfigWithEmptyAssociations(): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('emptyOrNullAssociationsProvider')]
+    #[TestDox('decodes absent or null associations into CurrencyLoaderConfig with empty associations')]
+    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
     {
-        $result = $this->serializer->decode([]);
+        $result = $this->serializer->decode($data);
 
         static::assertInstanceOf(CurrencyLoaderConfig::class, $result);
         static::assertSame([], $result->associations);
     }
 
-    #[TestDox('decodes array with null associations into CurrencyLoaderConfig with empty associations')]
-    public function testDecodeWithNullAssociationsReturnsCurrencyLoaderConfigWithEmptyAssociations(): void
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     */
+    public static function emptyOrNullAssociationsProvider(): array
     {
-        $result = $this->serializer->decode(['associations' => null]);
-
-        static::assertInstanceOf(CurrencyLoaderConfig::class, $result);
-        static::assertSame([], $result->associations);
+        return [
+            'absent associations key' => [[]],
+            'null associations value' => [['associations' => null]],
+        ];
     }
 
     #[TestDox('decodes array with empty associations list into CurrencyLoaderConfig with empty associations')]

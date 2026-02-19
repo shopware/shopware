@@ -114,7 +114,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
         $invalidField = new TranslatedField('parameterBinding');
         $kvPair = new KeyValuePair('parameter_binding', null, false);
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldType(StorageAware::class, TranslatedField::class)
         );
 
@@ -127,12 +127,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
         $field = $this->createParameterBindingField();
         $json = json_encode(['placeholder' => 'seoUrl'], \JSON_THROW_ON_ERROR);
 
-        $resolutionConfigSerializer = static::createStub(ResolutionConfigFieldSerializer::class);
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $serializer = new ParameterBindingFieldSerializer($validator, $definitionRegistry, $resolutionConfigSerializer);
-
-        $result = $serializer->decode($field, $json);
+        $result = $this->serializer->decode($field, $json);
 
         static::assertInstanceOf(ParameterBinding::class, $result);
         static::assertSame('seoUrl', $result->placeholder);
@@ -168,7 +163,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
         $invalidField = new JsonField('parameter_binding', 'parameterBinding');
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldType(ParameterBindingField::class, JsonField::class)
         );
 
@@ -180,7 +175,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
     {
         $field = $this->createParameterBindingField();
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldValueType('parameter_binding', 'array', 'integer')
         );
 
@@ -219,10 +214,9 @@ class ParameterBindingFieldSerializerTest extends TestCase
 
         $expectedResolutionData = ['entity' => 'product', 'match_field' => 'productNumber'];
 
-        $resolutionConfigSerializer = $this->createMock(ResolutionConfigFieldSerializer::class);
+        $resolutionConfigSerializer = static::createStub(ResolutionConfigFieldSerializer::class);
         $resolutionConfigSerializer
             ->method('serializeResolutionConfig')
-            ->with($resolution)
             ->willReturn($expectedResolutionData);
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
@@ -270,10 +264,9 @@ class ParameterBindingFieldSerializerTest extends TestCase
             'resolution' => ['entity' => 'product', 'match_field' => 'productNumber'],
         ];
 
-        $resolutionConfigSerializer = $this->createMock(ResolutionConfigFieldSerializer::class);
+        $resolutionConfigSerializer = static::createStub(ResolutionConfigFieldSerializer::class);
         $resolutionConfigSerializer
             ->method('deserializeResolutionConfig')
-            ->with(['entity' => 'product', 'match_field' => 'productNumber'])
             ->willReturn($expectedResolution);
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();

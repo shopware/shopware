@@ -156,7 +156,7 @@ class CriteriaFilterListFieldSerializerTest extends TestCase
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
         $kvPair = new KeyValuePair('criteria_filters', null, false);
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldType(CriteriaFilterListField::class, JsonField::class)
         );
 
@@ -175,7 +175,7 @@ class CriteriaFilterListFieldSerializerTest extends TestCase
         $filterSerializer = new CriteriaFilterFieldSerializer($passthroughValidator, $definitionRegistry);
         $serializer = new CriteriaFilterListFieldSerializer($passthroughValidator, $definitionRegistry, $filterSerializer);
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldValueType('criteriaFilters', 'Filter or array', 'string')
         );
 
@@ -187,7 +187,7 @@ class CriteriaFilterListFieldSerializerTest extends TestCase
     {
         $field = $this->createCriteriaFilterListField();
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::criteriaFilterFieldDecodeNotSupported()
         );
 

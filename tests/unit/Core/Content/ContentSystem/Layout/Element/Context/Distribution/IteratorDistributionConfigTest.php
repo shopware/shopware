@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
@@ -25,14 +26,20 @@ class IteratorDistributionConfigTest extends TestCase
         static::assertSame(['a', 'b', 'c'], $result);
     }
 
+    /**
+     * @return \Generator<string, array{mixed}>
+     */
+    public static function nonArrayDataProvider(): \Generator
+    {
+        yield 'integer' => [42];
+    }
+
+    #[DataProvider('nonArrayDataProvider')]
     #[TestDox('returns empty array when data is not an array')]
-    public function testDistributeReturnsEmptyArrayWhenDataIsNotArray(): void
+    public function testDistributeReturnsEmptyArrayWhenDataIsNotArray(mixed $data): void
     {
         $config = IteratorDistributionConfig::simple();
-
-        static::assertSame([], $config->distribute('not-an-array', []));
-        static::assertSame([], $config->distribute(42, []));
-        static::assertSame([], $config->distribute(null, []));
+        static::assertSame([], $config->distribute($data, []));
     }
 
     #[TestDox('produces same data via fromArray and toArray roundtrip')]

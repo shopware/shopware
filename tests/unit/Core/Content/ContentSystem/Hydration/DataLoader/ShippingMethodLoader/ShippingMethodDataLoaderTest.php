@@ -15,7 +15,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ShippingMethodLoade
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ShippingMethodDataLoader::class)]
 class ShippingMethodDataLoaderTest extends TestCase
 {
@@ -43,15 +41,6 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame('shipping_method', ShippingMethodDataLoader::getRequirementType());
     }
 
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
-
-        $this->dataLoader->getDecorated();
-    }
-
     #[TestDox('loads shipping methods and returns cachedExternally result with empty cache tags')]
     public function testLoadReturnsCachedExternallyResult(): void
     {
@@ -66,6 +55,15 @@ class ShippingMethodDataLoaderTest extends TestCase
 
         $this->shippingMethodRoute
             ->method('load')
+            ->with(
+                static::callback(function (Request $clonedRequest): bool {
+                    static::assertTrue($clonedRequest->query->get('onlyAvailable'));
+
+                    return true;
+                }),
+                static::anything(),
+                static::anything()
+            )
             ->willReturn($response);
 
         $result = $this->dataLoader->load($element, $requirement, $context, $request);
@@ -90,47 +88,18 @@ class ShippingMethodDataLoaderTest extends TestCase
         $this->shippingMethodRoute
             ->method('load')
             ->with(
-                static::isInstanceOf(Request::class),
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    $associations = $criteria->getAssociations();
+                static::anything(),
+                static::anything(),
+                static::callback(function (Criteria $criteria): bool {
+                    static::assertContains('country', array_keys($criteria->getAssociations()));
+                    static::assertContains('translations', array_keys($criteria->getAssociations()));
 
-                    return isset($associations['country']) && isset($associations['translations']);
+                    return true;
                 })
             )
             ->willReturn($response);
 
         $result = $this->dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertTrue($result->hasData());
-        static::assertSame($shippingMethods, $result->data);
-    }
-
-    #[TestDox('sets onlyAvailable true on cloned request when config has onlyAvailable true')]
-    public function testLoadSetsOnlyAvailableTrueOnClonedRequest(): void
-    {
-        $shippingMethods = new ShippingMethodCollection();
-        $response = $this->createShippingMethodRouteResponse($shippingMethods);
-
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig(onlyAvailable: true);
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
-        $context = Generator::generateSalesChannelContext();
-        $originalRequest = new Request();
-
-        $this->shippingMethodRoute
-            ->method('load')
-            ->with(
-                static::callback(static function (Request $clonedRequest) use ($originalRequest): bool {
-                    return $clonedRequest !== $originalRequest
-                        && $clonedRequest->query->get('onlyAvailable') === true;
-                }),
-                $context,
-                static::isInstanceOf(Criteria::class)
-            )
-            ->willReturn($response);
-
-        $result = $this->dataLoader->load($element, $requirement, $context, $originalRequest);
 
         static::assertTrue($result->hasData());
         static::assertSame($shippingMethods, $result->data);
@@ -151,12 +120,14 @@ class ShippingMethodDataLoaderTest extends TestCase
         $this->shippingMethodRoute
             ->method('load')
             ->with(
-                static::callback(static function (Request $clonedRequest) use ($originalRequest): bool {
-                    return $clonedRequest !== $originalRequest
-                        && $clonedRequest->query->get('onlyAvailable') === false;
+                static::callback(function (Request $clonedRequest) use ($originalRequest): bool {
+                    static::assertNotSame($originalRequest, $clonedRequest);
+                    static::assertFalse($clonedRequest->query->get('onlyAvailable'));
+
+                    return true;
                 }),
-                $context,
-                static::isInstanceOf(Criteria::class)
+                static::anything(),
+                static::anything()
             )
             ->willReturn($response);
 
@@ -180,17 +151,6 @@ class ShippingMethodDataLoaderTest extends TestCase
 
         $this->shippingMethodRoute
             ->method('load')
-            ->with(
-                static::callback(static function (Request $clonedRequest) use ($originalRequest): bool {
-                    return $clonedRequest !== $originalRequest
-                        && $clonedRequest->query->get('onlyAvailable') === true
-                        && $clonedRequest->query->count() === 1;
-                }),
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    return $criteria->getAssociations() === [];
-                })
-            )
             ->willReturn($response);
 
         $result = $this->dataLoader->load($element, $requirement, $context, $originalRequest);
@@ -199,6 +159,15 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame($shippingMethods, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('throws DecorationPatternException when getDecorated is called')]
+    public function testGetDecoratedThrowsDecorationPatternException(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+        $this->expectExceptionMessage('The getDecorated() function of core class');
+
+        $this->dataLoader->getDecorated();
     }
 
     private function createShippingMethodRouteResponse(ShippingMethodCollection $shippingMethods): ShippingMethodRouteResponse

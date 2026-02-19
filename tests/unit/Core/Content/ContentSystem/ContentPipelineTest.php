@@ -49,8 +49,8 @@ class ContentPipelineTest extends TestCase
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
-    #[TestDox('dispatches pre and post hydration events')]
-    public function testLoadDispatchesPreAndPostHydrationEvents(): void
+    #[TestDox('dispatches pre and post hydration events and returns hydrated elements in FULL mode')]
+    public function testLoadDispatchesEventsAndReturnsHydratedElementsInFullMode(): void
     {
         $layoutId = Uuid::randomHex();
         $layoutEntity = $this->createLayoutEntity($layoutId);
@@ -69,34 +69,17 @@ class ContentPipelineTest extends TestCase
         $pipeline = new ContentPipeline($repository, $this->hydrator, $this->eventDispatcher);
         $specification = new RenderingSpecification($layoutId, [], PlaceholderValues::from([]), new Request());
 
-        $pipeline->load($specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
-
-        static::assertSame([PreContentHydrationEvent::class, PostHydrationEvent::class], $dispatchedEvents);
-    }
-
-    #[TestDox('returns content page with hydrated elements in FULL mode')]
-    public function testLoadReturnsHydratedElementsInFullMode(): void
-    {
-        $layoutId = Uuid::randomHex();
-        $layoutEntity = $this->createLayoutEntity($layoutId);
-
-        $repository = $this->createLayoutRepository($layoutEntity);
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $pipeline = new ContentPipeline($repository, $this->hydrator, $this->eventDispatcher);
-        $specification = new RenderingSpecification($layoutId, [], PlaceholderValues::from([]), new Request());
-
         $result = $pipeline->load($specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
 
+        static::assertSame([PreContentHydrationEvent::class, PostHydrationEvent::class], $dispatchedEvents);
         static::assertNotEmpty($result->elements);
     }
 
-    #[TestDox('returns content page with original elements in SKELETON mode')]
-    public function testLoadReturnsOriginalElementsInSkeletonMode(): void
+    #[TestDox('returns content page with original elements and layout metadata in SKELETON mode')]
+    public function testLoadReturnsContentPageInSkeletonMode(): void
     {
         $layoutId = Uuid::randomHex();
-        $layoutEntity = $this->createLayoutEntity($layoutId);
+        $layoutEntity = $this->createLayoutEntity($layoutId, 'My Layout');
 
         $repository = $this->createLayoutRepository($layoutEntity);
 
@@ -110,6 +93,8 @@ class ContentPipelineTest extends TestCase
         $elements = iterator_to_array($result->elements, false);
         static::assertNotEmpty($elements);
         static::assertSame('section', $elements[0]->getComponent());
+        static::assertSame($layoutId, $result->layoutId);
+        static::assertSame('My Layout', $result->layoutName);
     }
 
     #[TestDox('throws layout not found when layout does not exist')]
@@ -125,25 +110,6 @@ class ContentPipelineTest extends TestCase
         static::expectExceptionObject(ContentSystemException::layoutNotFound($layoutId));
 
         $pipeline->load($specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
-    }
-
-    #[TestDox('returns content page with layout metadata')]
-    public function testLoadReturnsContentPageWithLayoutMetadata(): void
-    {
-        $layoutId = Uuid::randomHex();
-        $layoutEntity = $this->createLayoutEntity($layoutId, 'My Layout');
-
-        $repository = $this->createLayoutRepository($layoutEntity);
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $pipeline = new ContentPipeline($repository, $this->hydrator, $this->eventDispatcher);
-        $specification = new RenderingSpecification($layoutId, [], PlaceholderValues::from([]), new Request());
-
-        $result = $pipeline->load($specification, new RenderingCacheContext(), RenderingMode::SKELETON, Generator::generateSalesChannelContext());
-
-        static::assertSame($layoutId, $result->layoutId);
-        static::assertSame('My Layout', $result->layoutName);
     }
 
     /**

@@ -141,16 +141,6 @@ class ContextConsumersFieldSerializerTest extends TestCase
         );
     }
 
-    #[TestDox('decodes null to null')]
-    public function testDecodeWithNullReturnsNull(): void
-    {
-        $field = $this->createContextConsumersField();
-
-        $result = $this->serializer->decode($field, null);
-
-        static::assertNull($result);
-    }
-
     #[TestDox('decodes JSON string to ContextConsumer array')]
     public function testDecodeWithJsonStringReturnsContextConsumers(): void
     {
@@ -212,6 +202,16 @@ class ContextConsumersFieldSerializerTest extends TestCase
         static::assertCount(1, $result);
         static::assertArrayHasKey('valid', $result);
         static::assertArrayNotHasKey('invalid', $result);
+    }
+
+    #[TestDox('decodes null to null')]
+    public function testDecodeWithNullReturnsNull(): void
+    {
+        $field = $this->createContextConsumersField();
+
+        $result = $this->serializer->decode($field, null);
+
+        static::assertNull($result);
     }
 
     #[TestDox('throws exception when decode receives wrong field type')]

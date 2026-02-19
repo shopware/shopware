@@ -103,7 +103,7 @@ class EntityLayoutContextFactoryTest extends TestCase
         $this->factory->resolveLayoutId('/product/' . $entityId, $context, $repository, $definition);
     }
 
-    #[TestDox('resolves specification data with transformed requirements')]
+    #[TestDox('resolves specification data with empty requirements when no parameter bindings are configured')]
     public function testResolveSpecificationData(): void
     {
         $entityId = Uuid::randomHex();

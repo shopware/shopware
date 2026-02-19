@@ -211,7 +211,7 @@ class ContentElementFieldSerializerTest extends TestCase
         $this->serializer->decode($invalidField, '{}');
     }
 
-    #[TestDox('decodes element with minimal fields and with properties')]
+    #[TestDox('decodes element with minimal fields into a ContentElement with empty defaults')]
     public function testDecodeElementWithMinimalFieldsReturnsContentElement(): void
     {
         $minimal = $this->serializer->decodeElement([
@@ -225,7 +225,11 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertFalse($minimal->hasSlots());
         static::assertSame([], $minimal->getProvidesContext());
         static::assertSame([], $minimal->getAcceptsContext());
+    }
 
+    #[TestDox('decodes element with properties into a ContentElement with accessible property values')]
+    public function testDecodeElementWithPropertiesReturnsContentElementWithProperties(): void
+    {
         $withProperties = $this->serializer->decodeElement([
             'id' => 'elem-props',
             'component' => 'image',

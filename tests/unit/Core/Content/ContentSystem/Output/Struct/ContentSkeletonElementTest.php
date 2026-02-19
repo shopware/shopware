@@ -19,13 +19,8 @@ class ContentSkeletonElementTest extends TestCase
     #[TestDox('converts elements recursively into skeleton structure preserving IDs and components')]
     public function testFromElements(): void
     {
-        $child = ContentElementBuilder::create('text', 'child-1')
-            ->withProperty('title', 'Hello')
-            ->build();
-
         $root = ContentElementBuilder::create('section', 'root-1')
             ->withProperty('background', 'blue')
-            ->withSlot('content', [$child])
             ->build();
 
         $skeletons = ContentSkeletonElement::fromElements([$root]);
@@ -33,6 +28,7 @@ class ContentSkeletonElementTest extends TestCase
         static::assertCount(1, $skeletons);
         static::assertSame('root-1', $skeletons[0]->id);
         static::assertSame('section', $skeletons[0]->component);
+        static::assertSame([], $skeletons[0]->slots);
     }
 
     #[TestDox('preserves slot structure in skeleton including nested children')]

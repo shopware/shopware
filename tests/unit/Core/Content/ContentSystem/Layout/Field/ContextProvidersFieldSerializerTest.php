@@ -68,20 +68,6 @@ class ContextProvidersFieldSerializerTest extends TestCase
         $this->parameters = static::createStub(WriteParameterBag::class);
     }
 
-    #[TestDox('encodes null value as null')]
-    public function testEncodeWithNullYieldsNull(): void
-    {
-        $field = $this->createContextProvidersField();
-        $kvPair = new KeyValuePair('provides_context', null, false);
-
-        $result = iterator_to_array(
-            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
-        );
-
-        static::assertArrayHasKey('provides_context', $result);
-        static::assertNull($result['provides_context']);
-    }
-
     #[TestDox('encodes ContextProvider array to JSON string')]
     public function testEncodeWithContextProviderArrayYieldsJson(): void
     {
@@ -122,6 +108,20 @@ class ContextProvidersFieldSerializerTest extends TestCase
         static::assertArrayHasKey('provides_context', $result);
         $decoded = json_decode($result['provides_context'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame($arrayValue, $decoded);
+    }
+
+    #[TestDox('encodes null value as null')]
+    public function testEncodeWithNullYieldsNull(): void
+    {
+        $field = $this->createContextProvidersField();
+        $kvPair = new KeyValuePair('provides_context', null, false);
+
+        $result = iterator_to_array(
+            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
+        );
+
+        static::assertArrayHasKey('provides_context', $result);
+        static::assertNull($result['provides_context']);
     }
 
     #[TestDox('throws exception when encode receives wrong field type')]
@@ -258,10 +258,7 @@ class ContextProvidersFieldSerializerTest extends TestCase
     {
         $result = $this->serializer->serializeContextProvider($provider);
 
-        foreach ($expected as $key => $value) {
-            static::assertArrayHasKey($key, $result);
-            static::assertSame($value, $result[$key]);
-        }
+        static::assertSame($expected, $result);
     }
 
     #[TestDox('returns Type array and All constraints without Required flag')]

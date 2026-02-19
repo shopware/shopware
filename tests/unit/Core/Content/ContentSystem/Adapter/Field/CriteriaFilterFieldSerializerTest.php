@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
@@ -31,7 +30,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(CriteriaFilterFieldSerializer::class)]
 class CriteriaFilterFieldSerializerTest extends TestCase
 {
@@ -116,7 +114,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
         $kvPair = new KeyValuePair('criteria_filter', null, false);
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldType(CriteriaFilterField::class, JsonField::class)
         );
 
@@ -129,16 +127,11 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         $field = $this->createCriteriaFilterField();
         $kvPair = new KeyValuePair('criteria_filter', 42, false);
 
-        $passthroughValidator = static::createStub(ValidatorInterface::class);
-        $passthroughValidator->method('validate')->willReturn(new ConstraintViolationList());
-        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $serializer = new CriteriaFilterFieldSerializer($passthroughValidator, $definitionRegistry);
-
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldValueType('criteriaFilter', 'Filter or array', 'integer')
         );
 
-        iterator_to_array($serializer->encode($field, $this->existence, $kvPair, $this->parameters));
+        iterator_to_array($this->serializerWithPassthroughValidator->encode($field, $this->existence, $kvPair, $this->parameters));
     }
 
     #[TestDox('decode always throws unsupported operation exception')]
@@ -146,45 +139,11 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     {
         $field = $this->createCriteriaFilterField();
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::criteriaFilterFieldDecodeNotSupported()
         );
 
         $this->serializer->decode($field, ['type' => 'equals', 'field' => 'active', 'value' => true]);
-    }
-
-    /**
-     * @return iterable<string, array{Filter, array<string, mixed>}>
-     */
-    public static function filterSerializationProvider(): iterable
-    {
-        yield 'equals filter maps to type/field/value keys' => [
-            new EqualsFilter('active', true),
-            ['type' => 'equals', 'field' => 'active', 'value' => true],
-        ];
-
-        yield 'contains filter maps to type/field/value keys' => [
-            new ContainsFilter('name', 'shirt'),
-            ['type' => 'contains', 'field' => 'name', 'value' => 'shirt'],
-        ];
-
-        yield 'multi filter maps nested queries with AND operator' => [
-            new MultiFilter(
-                MultiFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('active', true),
-                    new EqualsFilter('stock', 0),
-                ]
-            ),
-            [
-                'type' => 'multi',
-                'queries' => [
-                    ['type' => 'equals', 'field' => 'active', 'value' => true],
-                    ['type' => 'equals', 'field' => 'stock', 'value' => 0],
-                ],
-                'operator' => 'AND',
-            ],
-        ];
     }
 
     /**
@@ -258,6 +217,40 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         $this->expectExceptionMessage('Mapping failed, got 0 failure(s).');
 
         $this->serializer->deserializeCriteriaFilter($data, $definition);
+    }
+
+    /**
+     * @return iterable<string, array{Filter, array<string, mixed>}>
+     */
+    public static function filterSerializationProvider(): iterable
+    {
+        yield 'equals filter maps to type/field/value keys' => [
+            new EqualsFilter('active', true),
+            ['type' => 'equals', 'field' => 'active', 'value' => true],
+        ];
+
+        yield 'contains filter maps to type/field/value keys' => [
+            new ContainsFilter('name', 'shirt'),
+            ['type' => 'contains', 'field' => 'name', 'value' => 'shirt'],
+        ];
+
+        yield 'multi filter maps nested queries with AND operator' => [
+            new MultiFilter(
+                MultiFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('active', true),
+                    new EqualsFilter('stock', 0),
+                ]
+            ),
+            [
+                'type' => 'multi',
+                'queries' => [
+                    ['type' => 'equals', 'field' => 'active', 'value' => true],
+                    ['type' => 'equals', 'field' => 'stock', 'value' => 0],
+                ],
+                'operator' => 'AND',
+            ],
+        ];
     }
 
     private function createCriteriaFilterField(): CriteriaFilterField

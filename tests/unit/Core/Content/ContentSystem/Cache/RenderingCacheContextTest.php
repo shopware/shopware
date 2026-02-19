@@ -15,12 +15,19 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(RenderingCacheContext::class)]
 class RenderingCacheContextTest extends TestCase
 {
-    #[TestDox('returns false for isDisabled and empty tags on construction')]
-    public function testNewContextIsNotDisabledAndHasNoTags(): void
+    #[TestDox('returns false for isDisabled on construction')]
+    public function testNewContextIsNotDisabled(): void
     {
         $context = new RenderingCacheContext();
 
         static::assertFalse($context->isDisabled());
+    }
+
+    #[TestDox('returns empty tags on construction')]
+    public function testNewContextHasNoTags(): void
+    {
+        $context = new RenderingCacheContext();
+
         static::assertSame([], $context->getTags());
     }
 

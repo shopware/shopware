@@ -77,41 +77,8 @@ class VirtualRootWrapperTest extends TestCase
         static::assertFalse($this->wrapper->requiresWrapping($specification, []));
     }
 
-    #[TestDox('creates virtual root with correct identity (id and component)')]
-    public function testWrapCreatesVirtualRootWithCorrectIdentity(): void
-    {
-        $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
-        $specification = new RenderingSpecification(
-            'layout-1',
-            [$requirement],
-            PlaceholderValues::from([]),
-            new Request(),
-        );
-
-        $virtualRoot = $this->wrapper->wrap([ContentElementBuilder::create('Sw:Text')->build()], $specification);
-
-        static::assertSame('__page_context_root__', $virtualRoot->getId());
-        static::assertSame('Sw:Internal:PageContext', $virtualRoot->getComponent());
-    }
-
-    #[TestDox('registers data requirements as broadcast providers on the virtual root')]
-    public function testWrapRegistersRequirementsAsBroadcastProviders(): void
-    {
-        $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
-        $specification = new RenderingSpecification(
-            'layout-1',
-            [$requirement],
-            PlaceholderValues::from([]),
-            new Request(),
-        );
-
-        $virtualRoot = $this->wrapper->wrap([ContentElementBuilder::create('Sw:Text')->build()], $specification);
-
-        static::assertArrayHasKey('language', $virtualRoot->getProvidesContext());
-    }
-
-    #[TestDox('places actual roots in the page roots slot')]
-    public function testWrapPlacesActualRootsInPageRootsSlot(): void
+    #[TestDox('creates virtual root with correct identity, broadcast providers, and slot contents')]
+    public function testWrapCreatesVirtualRootWithBroadcastProvidersAndSlotContents(): void
     {
         $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
         $specification = new RenderingSpecification(
@@ -125,6 +92,10 @@ class VirtualRootWrapperTest extends TestCase
         $root2 = ContentElementBuilder::create('Sw:Image')->build();
 
         $virtualRoot = $this->wrapper->wrap([$root1, $root2], $specification);
+
+        static::assertSame('__page_context_root__', $virtualRoot->getId());
+        static::assertSame('Sw:Internal:PageContext', $virtualRoot->getComponent());
+        static::assertArrayHasKey('language', $virtualRoot->getProvidesContext());
 
         $slots = $virtualRoot->getSlots();
         static::assertArrayHasKey('__page_roots__', $slots);

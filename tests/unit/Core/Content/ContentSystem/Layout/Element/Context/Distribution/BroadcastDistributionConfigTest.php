@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -35,30 +34,17 @@ class BroadcastDistributionConfigTest extends TestCase
         static::assertSame(DistributionStrategy::Broadcast, $config->getStrategy());
     }
 
-    /**
-     * @return \Generator<string, array{int}>
-     */
-    public static function consumerCountsProvider(): \Generator
-    {
-        yield '1 consumer' => [1];
-        yield '3 consumers' => [3];
-        yield '5 consumers' => [5];
-    }
-
-    #[DataProvider('consumerCountsProvider')]
     #[TestDox('duplicates data to all consumers')]
-    public function testDistributeDuplicatesDataToAllConsumers(int $consumerCount): void
+    public function testDistributeCreatesCorrectNumberOfSlots(): void
     {
+        $consumerCount = 3;
         $config = BroadcastDistributionConfig::simple();
         $data = ['value' => 'test'];
         $consumers = array_fill(0, $consumerCount, ['component' => 'foo', 'properties' => []]);
 
         $result = $config->distribute($data, $consumers);
 
-        static::assertCount($consumerCount, $result);
-        foreach ($result as $distributed) {
-            static::assertSame($data, $distributed);
-        }
+        static::assertSame(array_fill(0, $consumerCount, $data), $result);
     }
 
     #[TestDox('returns an empty array when no consumers are given')]

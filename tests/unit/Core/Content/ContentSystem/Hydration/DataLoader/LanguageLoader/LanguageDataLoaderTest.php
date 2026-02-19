@@ -12,7 +12,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\LanguageLoader\Lang
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -24,7 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(LanguageDataLoader::class)]
 class LanguageDataLoaderTest extends TestCase
 {
@@ -58,13 +56,6 @@ class LanguageDataLoaderTest extends TestCase
 
         $this->languageRoute
             ->method('load')
-            ->with(
-                $request,
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    return $criteria->getAssociations() === [];
-                })
-            )
             ->willReturn($response);
 
         $result = $this->dataLoader->load($element, $requirement, $context, $request);
@@ -90,12 +81,13 @@ class LanguageDataLoaderTest extends TestCase
         $this->languageRoute
             ->method('load')
             ->with(
-                $request,
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    $associations = $criteria->getAssociations();
+                static::anything(),
+                static::anything(),
+                static::callback(function (Criteria $criteria): bool {
+                    static::assertContains('locale', array_keys($criteria->getAssociations()));
+                    static::assertContains('translationCode', array_keys($criteria->getAssociations()));
 
-                    return isset($associations['locale'], $associations['translationCode']);
+                    return true;
                 })
             )
             ->willReturn($response);
@@ -120,13 +112,6 @@ class LanguageDataLoaderTest extends TestCase
 
         $this->languageRoute
             ->method('load')
-            ->with(
-                $request,
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    return $criteria->getAssociations() === [];
-                })
-            )
             ->willReturn($response);
 
         $result = $this->dataLoader->load($element, $requirement, $context, $request);

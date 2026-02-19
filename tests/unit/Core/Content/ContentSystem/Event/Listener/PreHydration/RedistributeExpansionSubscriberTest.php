@@ -55,6 +55,40 @@ class RedistributeExpansionSubscriberTest extends TestCase
         static::assertEmpty($providers);
     }
 
+    #[TestDox('expands redistribute recursively into nested elements')]
+    public function testExpandsRecursivelyIntoNestedElements(): void
+    {
+        $child = ContentElementBuilder::create('child', 'c1')
+            ->withConsumer('product', ContextType::Single, required: false, redistribute: true)
+            ->build();
+
+        $parent = ContentElementBuilder::create('parent', 'p1')
+            ->withConsumer('product', ContextType::Single, required: false, redistribute: true)
+            ->withSlot('default', [$child])
+            ->build();
+
+        $event = EventFactory::preHydration([$parent]);
+        $this->subscriber->__invoke($event);
+
+        static::assertArrayHasKey('product', $parent->getProvidesContext());
+        static::assertArrayHasKey('product', $child->getProvidesContext());
+    }
+
+    #[TestDox('uses consumer alias as provider key when set')]
+    public function testUsesConsumerAliasAsProviderKeyWhenSet(): void
+    {
+        $element = ContentElementBuilder::create('section', 'e1')
+            ->withConsumer('product', ContextType::Single, required: false, redistribute: true, consumerAlias: 'myProduct')
+            ->build();
+
+        $event = EventFactory::preHydration([$element]);
+        $this->subscriber->__invoke($event);
+
+        $providers = $element->getProvidesContext();
+        static::assertArrayHasKey('myProduct', $providers);
+        static::assertArrayNotHasKey('product', $providers);
+    }
+
     #[TestDox('throws when redistribute consumer has dotted context path')]
     public function testThrowsWhenRedistributeConsumerHasDottedPath(): void
     {
@@ -97,39 +131,5 @@ class RedistributeExpansionSubscriberTest extends TestCase
         static::expectExceptionObject(ContentSystemException::propertyAliasCollision('data', 'product', 'category'));
 
         $this->subscriber->__invoke($event);
-    }
-
-    #[TestDox('expands redistribute recursively into nested elements')]
-    public function testExpandsRecursivelyIntoNestedElements(): void
-    {
-        $child = ContentElementBuilder::create('child', 'c1')
-            ->withConsumer('product', ContextType::Single, required: false, redistribute: true)
-            ->build();
-
-        $parent = ContentElementBuilder::create('parent', 'p1')
-            ->withConsumer('product', ContextType::Single, required: false, redistribute: true)
-            ->withSlot('default', [$child])
-            ->build();
-
-        $event = EventFactory::preHydration([$parent]);
-        $this->subscriber->__invoke($event);
-
-        static::assertArrayHasKey('product', $parent->getProvidesContext());
-        static::assertArrayHasKey('product', $child->getProvidesContext());
-    }
-
-    #[TestDox('uses consumer alias as provider key when set')]
-    public function testUsesConsumerAliasAsProviderKeyWhenSet(): void
-    {
-        $element = ContentElementBuilder::create('section', 'e1')
-            ->withConsumer('product', ContextType::Single, required: false, redistribute: true, consumerAlias: 'myProduct')
-            ->build();
-
-        $event = EventFactory::preHydration([$element]);
-        $this->subscriber->__invoke($event);
-
-        $providers = $element->getProvidesContext();
-        static::assertArrayHasKey('myProduct', $providers);
-        static::assertArrayNotHasKey('product', $providers);
     }
 }

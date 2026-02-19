@@ -16,6 +16,10 @@
     justifyContent = 'start',
     centered = true,
     slots = [],
+    autoColumns = null,
+    border = null,
+    borderVariant = null,
+    borderSubtle = false,
 %}
 
 {% set gridCVA = cva({
@@ -198,6 +202,21 @@
         centered: {
             true: 'centered',
         },
+        autoColumns: {
+            'max-content': 'auto-columns-max-content',
+        },
+        border: {
+            true: 'border',
+            top: 'border-top',
+            end: 'border-end',
+            bottom: 'border-bottom',
+            start: 'border-start'
+        },
+        borderVariant: {
+            primary: 'border-primary',
+            secondary: 'border-secondary',
+            secondarySubtle: 'border-secondary-subtle'
+        },
     }
 }) %}
 
@@ -217,7 +236,11 @@
         rowsSm,
         rowsMd,
         rowsLg,
-        rowsXl
+        rowsXl,
+        autoColumns,
+        border,
+        borderVariant,
+        borderSubtle,
     }),
 } %}
 

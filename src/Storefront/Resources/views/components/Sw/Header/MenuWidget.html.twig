@@ -1,0 +1,15 @@
+{# Mobile menu trigger #}
+
+{% set attributeDefaults = {
+    class: 'sw-menu-widget',
+    icon: 'stack',
+    'data-component': 'Sw:Header:MenuWidget',
+    'data-component-options': {}|json_encode,
+} %}
+
+<twig:Sw:Header:Widget {{ ...attributes.defaults(attributeDefaults) }}>
+</twig:Sw:Header:Widget>
+
+<twig:Sw:Content:Offcanvas>
+
+</twig:Sw:Content:Offcanvas>

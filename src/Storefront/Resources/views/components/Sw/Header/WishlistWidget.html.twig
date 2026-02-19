@@ -1,5 +1,11 @@
-<twig:Sw:Header:Widget
-    :icon="''"
->
-    Wishlist
-</twig:Sw:Header:Widget>
+{% props
+    wishlistEnabled = config('core.cart.wishlistEnabled'),
+%}
+
+{% if wishlistEnabled %}
+    <twig:Sw:Header:Widget
+        icon="heart"
+    >
+
+    </twig:Sw:Header:Widget>
+{% endif %}

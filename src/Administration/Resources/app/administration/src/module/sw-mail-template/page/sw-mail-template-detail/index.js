@@ -444,10 +444,10 @@ export default {
         onClickValidateMailTemplate() {
             this.mailService
                 .validateMailTemplate(this.triggerEvent.class, {
-                    subject: this.mailTemplate.subject,
-                    senderName: this.mailTemplate.senderName,
-                    contentPlain: this.mailTemplate.contentPlain,
-                    contentHtml: this.mailTemplate.contentHtml,
+                    subject: this.mailTemplate.subject ?? '',
+                    senderName: this.mailTemplate.senderName ?? '',
+                    contentPlain: this.mailTemplate.contentPlain ?? '',
+                    contentHtml: this.mailTemplate.contentHtml ?? '',
                 })
                 .then((response) => {
                     this.validationErrors = response

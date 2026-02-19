@@ -26,6 +26,14 @@ class ObjectType extends EventDataType
         return $this->data[$name] ?? null;
     }
 
+    /**
+     * @return array<string, EventDataType>
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
     public function toArray(): array
     {
         return [

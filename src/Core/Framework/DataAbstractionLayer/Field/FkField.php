@@ -53,6 +53,11 @@ class FkField extends Field implements StorageAware
         return $this->referenceDefinition;
     }
 
+    public function getReferenceClass(): string
+    {
+        return $this->referenceClass;
+    }
+
     public function getReferenceField(): string
     {
         return $this->referenceField;

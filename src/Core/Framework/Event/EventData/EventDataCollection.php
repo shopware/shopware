@@ -25,6 +25,14 @@ class EventDataCollection
     }
 
     /**
+     * @return array<string, EventDataType>
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    /**
      * @return array<string, array<string, mixed>>
      */
     public function toArray(): array

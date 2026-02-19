@@ -81,6 +81,7 @@ class MailActionController extends AbstractController
         $validationResponses = new MailTemplateValidationResponseCollection();
 
         foreach ($post->get('mailTemplateContent') as $mailTemplateField => $content) {
+            $this->mailTemplateService->render($content, $post->get('flowEventClass'), $context);
             $this->mailTemplateService->validateTemplate($mailTemplateField, $content, $vars, $validationResponses);
         }
 

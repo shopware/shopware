@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
@@ -97,7 +98,7 @@ class MailTemplateService
             new MailTemplateEntity(),
             $extension,
             [],
-            $templateData['order']?->get('id') ?? null
+            isset($templateData['order']) && $templateData['order'] instanceof OrderEntity ? $templateData['order']->getId() : null,
         );
 
         return $this->mailService->send($data, $context, $templateData);

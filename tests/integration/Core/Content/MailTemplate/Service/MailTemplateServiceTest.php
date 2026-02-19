@@ -363,8 +363,8 @@ class MailTemplateServiceTest extends TestCase
 
         $id = $this->createMailTemplate(
             ['mainOrder' => 'order'],
-            'Order ID: {{ order.id }}',
-            'Order ID: {{ order.id }}',
+            'Order ID: {{ mainOrder.id }}',
+            'Order ID: {{ mainOrder.id }}',
         );
 
         $data = [

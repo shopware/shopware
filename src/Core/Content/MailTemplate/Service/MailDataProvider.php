@@ -4,12 +4,9 @@ namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
-use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -26,11 +23,8 @@ class MailDataProvider
     /**
      * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
      */
-    public function __construct(
-        iterable $dataProviders,
-        private readonly JsonEntityEncoder $jsonEntityEncoder,
-        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-    ) {
+    public function __construct(iterable $dataProviders)
+    {
         $this->dataProviders = $dataProviders instanceof \Traversable ? iterator_to_array($dataProviders) : $dataProviders;
     }
 

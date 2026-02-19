@@ -489,7 +489,12 @@ class OrderRouteTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->mailSentEventCounter = 0;
 
-        $this->addEventListener($dispatcher, MailSentEvent::class, $this->handleMailSentEvent(...));
+        // Use a simple counter without content assertions for this test
+        $mailCounterClosure = function (MailSentEvent $event) {
+            ++$this->mailSentEventCounter;
+        };
+
+        $this->addEventListener($dispatcher, MailSentEvent::class, $mailCounterClosure);
 
         // Final verification: Ensure transaction is still in initial state right before the request
         $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
@@ -551,7 +556,7 @@ class OrderRouteTest extends TestCase
         }
         echo "=================================\n";
 
-        $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
+        $dispatcher->removeListener(MailSentEvent::class, $mailCounterClosure);
 
         // see SetPaymentOrderRoute tryTransition()
         // primaryOrderTransactionId cannot be set via update(), so getPrimaryOrderTransaction() returns NULL

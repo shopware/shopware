@@ -1914,6 +1914,569 @@ describe('src/app/adapter/options-composition-shim', () => {
             wrapper.unmount();
         });
     });
+
+    describe('Vue instance property forwarding:', () => {
+        it('should forward this.$emit() to the component instance', async () => {
+            const originalComponent = defineComponent({
+                template: '<button class="btn" @click="doEmit">Emit</button>',
+                emits: ['custom-event'],
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const doEmit = () => {};
+                        return { public: { doEmit } };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                methods: {
+                    doEmit() {
+                        this.$emit('custom-event', 'payload');
+                    },
+                },
+            });
+
+            // Push BEFORE mount so the proxy captures the component instance during setup
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            const wrapper = mount(originalComponent);
+
+            await flushPromises();
+
+            await wrapper.find('.btn').trigger('click');
+
+            expect(wrapper.emitted('custom-event')).toBeTruthy();
+            expect(wrapper.emitted('custom-event')![0]).toEqual(['payload']);
+        });
+
+        it('should forward this.$nextTick() to the component instance', async () => {
+            let nextTickResolved = false;
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                created() {
+                    if (this.$nextTick) {
+                        this.$nextTick(() => {
+                            nextTickResolved = true;
+                        });
+                    }
+                },
+            });
+
+            // Push BEFORE mount so the proxy captures the component instance during setup
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent);
+
+            await flushPromises();
+            await nextTick();
+
+            expect(nextTickResolved).toBe(true);
+        });
+
+        it('should forward this.$refs to the component instance', async () => {
+            let capturedRef: any = null;
+
+            const originalComponent = defineComponent({
+                template: '<div ref="myDiv" class="target">hello</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mounted() {
+                    capturedRef = this.$refs;
+                },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent);
+
+            await flushPromises();
+            await nextTick();
+
+            expect(capturedRef).toBeDefined();
+            expect(capturedRef).not.toBeNull();
+        });
+    });
+
+    describe('Deep nested reactive data:', () => {
+        it('should maintain reactivity for deeply nested object data', async () => {
+            const originalComponent = defineComponent({
+                template: '<div class="city">{{ city }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const city = ref('initial');
+                        return { public: { city } };
+                    }),
+            });
+
+            const wrapper = mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                data() {
+                    return { city: 'Berlin' };
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            expect(wrapper.find('.city').text()).toBe('Berlin');
+        });
+
+        it('should handle nested object data with deep reactivity', () => {
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                data() {
+                    return {
+                        user: { address: { city: 'Berlin' } },
+                    };
+                },
+            });
+
+            const result = overrideFn({}, {});
+
+            expect(result.user.value.address.city).toBe('Berlin');
+
+            result.user.value.address.city = 'Hamburg';
+            expect(result.user.value.address.city).toBe('Hamburg');
+        });
+    });
+
+    describe('Mixin inject merging:', () => {
+        it('should resolve inject from mixin via this in a method', async () => {
+            const serviceInstance = { load: () => 'loaded' };
+            let capturedService: any = null;
+
+            const myMixin = {
+                inject: ['repositoryFactory'] as any,
+            };
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mixins: [myMixin],
+                created() {
+                    capturedService = this.repositoryFactory;
+                },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent, {
+                global: { provide: { repositoryFactory: serviceInstance } },
+            });
+
+            await flushPromises();
+
+            expect(capturedService).toBe(serviceInstance);
+        });
+
+        it('should resolve inject from deeply nested mixin', async () => {
+            let capturedAcl: any = null;
+
+            const deepMixin = {
+                inject: ['acl'] as any,
+            };
+
+            const shallowMixin = {
+                mixins: [deepMixin],
+            };
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mixins: [shallowMixin],
+                created() {
+                    capturedAcl = this.acl;
+                },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent, {
+                global: { provide: { acl: { can: () => true } } },
+            });
+
+            await flushPromises();
+
+            expect(capturedAcl).toBeDefined();
+            expect(capturedAcl.can()).toBe(true);
+        });
+
+        it('should let component inject win over mixin inject on conflict', async () => {
+            let capturedVal: any = null;
+
+            const myMixin = {
+                inject: { myService: { from: 'myService', default: 'mixin-default' } } as any,
+            };
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mixins: [myMixin],
+                inject: { myService: { from: 'myService', default: 'component-default' } } as any,
+                created() {
+                    capturedVal = this.myService;
+                },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent);
+
+            await flushPromises();
+
+            expect(capturedVal).toBe('component-default');
+        });
+    });
+
+    describe('Explicit undefined property handling:', () => {
+        it('should return undefined from local state when data explicitly sets a value to undefined', () => {
+            const previousState = {
+                selectedId: ref('previous-value'),
+            };
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                data() {
+                    return { selectedId: undefined };
+                },
+                methods: {
+                    getSelectedId() {
+                        return this.selectedId;
+                    },
+                },
+            });
+
+            const result = overrideFn(previousState, {});
+
+            expect(result.getSelectedId()).toBeUndefined();
+        });
+    });
+
+    describe('Watch flush option:', () => {
+        it('should forward flush option to Vue watch', async () => {
+            const watchCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                watch: {
+                    count: {
+                        handler(newVal: number) {
+                            watchCallback(newVal);
+                        },
+                        flush: 'post',
+                    },
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            _overridesMap.originalComponent.push((previousState: any) => {
+                previousState.count.value = 42;
+                return {};
+            });
+
+            await flushPromises();
+            await nextTick();
+
+            expect(watchCallback).toHaveBeenCalledWith(42);
+        });
+    });
+
+    describe('Watch handler arrays:', () => {
+        it('should support array of handlers for a single watch key', async () => {
+            const callback1 = jest.fn();
+            const callback2 = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                watch: {
+                    count: [
+                        function (this: any, newVal: number) {
+                            callback1(newVal);
+                        },
+                        {
+                            handler(newVal: number) {
+                                callback2(newVal);
+                            },
+                            immediate: true,
+                        },
+                    ],
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+            await nextTick();
+
+            // The immediate handler should have fired already
+            expect(callback2).toHaveBeenCalled();
+
+            // Trigger a change
+            _overridesMap.originalComponent.push((previousState: any) => {
+                previousState.count.value = 99;
+                return {};
+            });
+
+            await flushPromises();
+            await nextTick();
+
+            expect(callback1).toHaveBeenCalledWith(99);
+            expect(callback2).toHaveBeenCalledWith(99);
+        });
+    });
+
+    describe('Extended unsupported features:', () => {
+        it('should warn when override uses components option', () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            convertOptionsApiOverrideToCompositionApi('originalComponent', {
+                components: { SomeComponent: {} } as any,
+                methods: { foo() {} },
+            });
+
+            const relevantWarnings = consoleWarn.mock.calls.filter(
+                (call) => typeof call[0] === 'string' && call[0].includes('"components" is not supported'),
+            );
+            expect(relevantWarnings).toHaveLength(1);
+
+            consoleWarn.mockRestore();
+        });
+
+        it('should warn when override uses provide option', () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            convertOptionsApiOverrideToCompositionApi('originalComponent', {
+                provide: { someKey: 'someValue' } as any,
+                methods: { foo() {} },
+            });
+
+            const relevantWarnings = consoleWarn.mock.calls.filter(
+                (call) => typeof call[0] === 'string' && call[0].includes('"provide" is not supported'),
+            );
+            expect(relevantWarnings).toHaveLength(1);
+
+            consoleWarn.mockRestore();
+        });
+
+        it('should warn when override uses template option', () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            convertOptionsApiOverrideToCompositionApi('originalComponent', {
+                template: '<div>override</div>',
+                methods: { foo() {} },
+            });
+
+            const relevantWarnings = consoleWarn.mock.calls.filter(
+                (call) => typeof call[0] === 'string' && call[0].includes('"template" is not supported'),
+            );
+            expect(relevantWarnings).toHaveLength(1);
+
+            consoleWarn.mockRestore();
+        });
+
+        it('should warn for multiple unsupported options at once', () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            convertOptionsApiOverrideToCompositionApi('originalComponent', {
+                components: { Foo: {} } as any,
+                directives: { focus: {} } as any,
+                emits: ['foo'] as any,
+                methods: { foo() {} },
+            });
+
+            const shimWarnings = consoleWarn.mock.calls.filter(
+                (call) => typeof call[0] === 'string' && call[0].includes('is not supported by the compatibility shim'),
+            );
+            expect(shimWarnings.length).toBeGreaterThanOrEqual(3);
+
+            consoleWarn.mockRestore();
+        });
+    });
+
+    describe('Component unmount cleanup:', () => {
+        it('should not fire watchers after component unmount', async () => {
+            const watchCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                watch: {
+                    count(newVal: number) {
+                        watchCallback(newVal);
+                    },
+                },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            const wrapper = mount(originalComponent);
+
+            await flushPromises();
+
+            wrapper.unmount();
+
+            watchCallback.mockClear();
+
+            await nextTick();
+
+            expect(watchCallback).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Error recovery:', () => {
+        it('should still apply subsequent overrides when an earlier override throws in created', async () => {
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            const wrapper = mount(originalComponent);
+
+            // Override that sets data successfully but throws in created
+            const failingOverride = convertWithSilencedWarning('originalComponent', {
+                data() {
+                    return { count: 50 };
+                },
+            });
+
+            _overridesMap.originalComponent.push(failingOverride);
+
+            await flushPromises();
+
+            expect(wrapper.find('.count').text()).toBe('50');
+
+            // Second override should still apply
+            const successOverride = convertWithSilencedWarning('originalComponent', {
+                data() {
+                    return { count: 100 };
+                },
+            });
+
+            _overridesMap.originalComponent.push(successOverride);
+
+            await flushPromises();
+
+            expect(wrapper.find('.count').text()).toBe('100');
+
+            consoleError.mockRestore();
+        });
+    });
+
+    describe('Concurrent override application:', () => {
+        it('should apply two overrides pushed in the same tick', async () => {
+            const originalComponent = defineComponent({
+                template: `
+                    <div class="count">{{ count }}</div>
+                    <div class="label">{{ label }}</div>
+                `,
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        const label = computed(() => `Value: ${count.value}`);
+                        return { public: { count, label } };
+                    }),
+            });
+
+            const wrapper = mount(originalComponent);
+
+            const overrideA = convertWithSilencedWarning('originalComponent', {
+                data() {
+                    return { count: 42 };
+                },
+            });
+
+            const overrideB = convertWithSilencedWarning('originalComponent', {
+                computed: {
+                    label() {
+                        return `Custom: ${this.count}`;
+                    },
+                },
+            });
+
+            // Push both in the same tick
+            _overridesMap.originalComponent.push(overrideA);
+            _overridesMap.originalComponent.push(overrideB);
+
+            await flushPromises();
+
+            expect(wrapper.find('.count').text()).toBe('42');
+            expect(wrapper.find('.label').text()).toBe('Custom: 42');
+        });
+    });
 });
 
 

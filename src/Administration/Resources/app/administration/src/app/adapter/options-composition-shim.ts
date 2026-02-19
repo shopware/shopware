@@ -13,7 +13,6 @@
 
 import {
     ref,
-    reactive,
     computed,
     watch,
     isRef,
@@ -181,6 +180,39 @@ function resolveInject(injectConfig: ComponentConfig['inject']): Record<string, 
 }
 
 /**
+ * Merges two inject configurations (array or object form) into a single normalized object.
+ * Existing (component-level) entries win on conflict, matching Vue's merge strategy.
+ */
+function mergeInjectConfigs(
+    existing: ComponentConfig['inject'],
+    incoming: ComponentConfig['inject'],
+): Record<string, any> {
+    const normalized: Record<string, any> = {};
+
+    if (Array.isArray(existing)) {
+        existing.forEach((key: string) => { normalized[key] = key; });
+    } else if (existing && typeof existing === 'object') {
+        Object.assign(normalized, existing);
+    }
+
+    if (Array.isArray(incoming)) {
+        incoming.forEach((key: string) => {
+            if (!Object.prototype.hasOwnProperty.call(normalized, key)) {
+                normalized[key] = key;
+            }
+        });
+    } else if (incoming && typeof incoming === 'object') {
+        Object.entries(incoming as Record<string, any>).forEach(([key, val]) => {
+            if (!Object.prototype.hasOwnProperty.call(normalized, key)) {
+                normalized[key] = val;
+            }
+        });
+    }
+
+    return normalized;
+}
+
+/**
  * Merges mixins into the component configuration
  */
 function mergeMixins(config: ComponentConfig): MergedConfig {
@@ -225,6 +257,10 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
 
             if (mixin.watch) {
                 merged.watch = { ...mixin.watch, ...merged.watch };
+            }
+
+            if (mixin.inject) {
+                merged.inject = mergeInjectConfigs(merged.inject, mixin.inject);
             }
         });
     }
@@ -274,9 +310,14 @@ function convertMethods(
 }
 
 /**
- * Creates a proxy that maps `this` access to previousState refs
+ * Creates a proxy that maps `this` access to previousState refs.
+ * Captures the current component instance at creation time so that
+ * Vue instance properties ($emit, $t, $route, etc.) remain available
+ * even when accessed outside the setup() context (e.g. in event handlers).
  */
 function createThisProxy(previousState: any, props: any, localState: any, injectedValues: Record<string, any> = {}): any {
+    const componentInstance = getCurrentInstance();
+
     return new Proxy(
         {},
         {
@@ -301,8 +342,16 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
                     };
                 }
 
+                // Forward Vue instance properties ($emit, $t, $tc, $route, $router, $refs, $nextTick, etc.)
+                if (prop.startsWith('$')) {
+                    if (componentInstance?.proxy && prop in componentInstance.proxy) {
+                        return (componentInstance.proxy as any)[prop];
+                    }
+                    return undefined;
+                }
+
                 // Check local state first (data, computed, methods from override)
-                if (localState[prop] !== undefined) {
+                if (prop in localState) {
                     return unwrapRef(localState[prop]);
                 }
 
@@ -312,16 +361,16 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
                 }
 
                 // Check props
-                if (props[prop] !== undefined) {
+                if (Object.prototype.hasOwnProperty.call(props, prop)) {
                     return props[prop];
                 }
 
                 // Check previousState (from Composition API)
-                if (previousState[prop] !== undefined) {
+                if (prop in previousState) {
                     return unwrapRef(previousState[prop]);
                 }
 
-                if (!prop.startsWith('_') && !prop.startsWith('$')) {
+                if (!prop.startsWith('_')) {
                     console.warn(
                         `[Options API Shim] Property "${prop}" not found in component state. ` +
                             `This may indicate accessing private/unexposed state.`,
@@ -335,7 +384,7 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
                     return false;
                 }
 
-                if (localState[prop] !== undefined) {
+                if (prop in localState) {
                     if (isRef(localState[prop])) {
                         localState[prop].value = value;
                         return true;
@@ -344,7 +393,7 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
                     return true;
                 }
 
-                if (previousState[prop] !== undefined) {
+                if (prop in previousState) {
                     if (isRef(previousState[prop])) {
                         previousState[prop].value = value;
                         return true;
@@ -418,78 +467,66 @@ function convertData(dataFn: (() => Record<string, any>) | Record<string, any>):
         return converted;
     }
 
-    Object.entries(data).forEach(
-        ([
-            key,
-            value,
-        ]: [
-            string,
-            any,
-        ]) => {
-            // Wrap objects and arrays with reactive() before ref() so nested properties
-            // are deeply observed. Primitives are wrapped with ref() directly.
-            if (typeof value === 'object' && value !== null) {
-                converted[key] = ref(reactive(value));
-            } else {
-                converted[key] = ref(value);
-            }
-        },
-    );
+    Object.entries(data).forEach(([key, value]: [string, any]) => {
+        converted[key] = ref(value);
+    });
 
     return converted;
+}
+
+/**
+ * Registers a single watcher from an Options API watch handler definition.
+ * Handles function, object-with-options, and string-method-name forms.
+ */
+function registerSingleWatcher(source: () => any, handler: any, thisProxy: any): void {
+    if (typeof handler === 'function') {
+        watch(source, (newVal: any, oldVal: any) => {
+            handler.call(thisProxy, newVal, oldVal);
+        });
+    } else if (typeof handler === 'object' && handler.handler) {
+        const options: any = {
+            immediate: handler.immediate,
+            deep: handler.deep,
+            flush: handler.flush,
+        };
+
+        watch(
+            source,
+            (newVal: any, oldVal: any) => {
+                handler.handler.call(thisProxy, newVal, oldVal);
+            },
+            options,
+        );
+    } else if (typeof handler === 'string') {
+        watch(source, (newVal: any, oldVal: any) => {
+            if (thisProxy[handler] && typeof thisProxy[handler] === 'function') {
+                thisProxy[handler](newVal, oldVal);
+            }
+        });
+    }
 }
 
 /**
  * Sets up watchers for Options API watch configuration
  */
 function setupWatchers(watchConfig: Record<string, any>, thisProxy: any): void {
-    Object.entries(watchConfig).forEach(
-        ([
-            key,
-            handler,
-        ]: [
-            string,
-            any,
-        ]) => {
-            if (key.includes('.')) {
-                console.warn(
-                    `[Options API Shim] Dot-notation watch path "${key}" is not supported by the compatibility shim. ` +
-                        `Please migrate your watcher to Composition API.`,
-                );
-                return;
-            }
+    Object.entries(watchConfig).forEach(([key, handler]: [string, any]) => {
+        if (key.includes('.')) {
+            console.warn(
+                `[Options API Shim] Dot-notation watch path "${key}" is not supported by the compatibility shim. ` +
+                    `Please migrate your watcher to Composition API.`,
+            );
+            return;
+        }
 
-            const source = () => thisProxy[key];
+        const source = () => thisProxy[key];
 
-            if (typeof handler === 'function') {
-                // Simple function handler
-                watch(source, (newVal: any, oldVal: any) => {
-                    handler.call(thisProxy, newVal, oldVal);
-                });
-            } else if (typeof handler === 'object' && handler.handler) {
-                // Handler with options (immediate, deep, etc.)
-                const options: any = {
-                    immediate: handler.immediate,
-                    deep: handler.deep,
-                };
-
-                watch(
-                    source,
-                    (newVal: any, oldVal: any) => {
-                        handler.handler.call(thisProxy, newVal, oldVal);
-                    },
-                    options,
-                );
-            } else if (typeof handler === 'string') {
-                // String method name
-                watch(source, (newVal: any, oldVal: any) => {
-                    if (thisProxy[handler] && typeof thisProxy[handler] === 'function') {
-                        thisProxy[handler](newVal, oldVal);
-                    }
-                });
-            }
-        },
-    );
+        if (Array.isArray(handler)) {
+            handler.forEach((h) => registerSingleWatcher(source, h, thisProxy));
+        } else {
+            registerSingleWatcher(source, handler, thisProxy);
+        }
+    });
 }
 
 /**
@@ -541,8 +578,10 @@ function setupLifecycleHooks(
     });
 }
 
+const UNSUPPORTED_OPTIONS = ['components', 'directives', 'provide', 'template', 'extends', 'inheritAttrs', 'emits'] as const;
+
 /**
- * Checks for unsupported features and logs appropriate errors
+ * Checks for unsupported features and logs appropriate errors/warnings
  */
 function checkUnsupportedFeatures(componentName: string, config: ComponentConfig): void {
     if (config.render && typeof config.render === 'function') {
@@ -552,6 +591,15 @@ function checkUnsupportedFeatures(componentName: string, config: ComponentConfig
                 `Please migrate to Composition API.`,
         );
     }
+
+    UNSUPPORTED_OPTIONS.forEach((key) => {
+        if ((config as any)[key]) {
+            console.warn(
+                `[Options API Shim] "${key}" is not supported by the compatibility shim ` +
+                    `in component "${componentName}". This option will be ignored.`,
+            );
+        }
+    });
 }
 
 /**

@@ -19,7 +19,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  *
- * @phpstan-type ServiceSourceConfig array{version: string, hash: string, revision: string, zip-url: string, hash-algorithm: ?string, min-shop-supported-version: ?string}
+ * @phpstan-type ServiceSourceConfig array{version: string, hash: string, revision: string, zip-url: string, hash-algorithm: ?string, min-shop-supported-version: ?string, requirements: non-empty-list<string>}
  */
 #[Package('framework')]
 class ServiceSourceResolver implements Source

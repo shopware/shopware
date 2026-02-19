@@ -10,6 +10,7 @@ use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsConsent;
+use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
 
 /**
@@ -31,7 +32,7 @@ class PermissionsSubscriberTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testEnableServices(): void
+    public function testSyncConsentRequirementOnGrant(): void
     {
         $consent = new PermissionsConsent(
             identifier: 'test-identifier',
@@ -43,13 +44,13 @@ class PermissionsSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('start')
-            ->with($this->context);
+            ->method('syncRequirement')
+            ->with(ServiceConsentRequirement::NAME, $this->context);
 
-        $this->subscriber->startServices($event);
+        $this->subscriber->syncConsentRequirement($event);
     }
 
-    public function testDisableServices(): void
+    public function testSyncConsentRequirementOnRevoke(): void
     {
         $consent = new PermissionsConsent(
             identifier: 'test-identifier',
@@ -61,9 +62,19 @@ class PermissionsSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('stop')
-            ->with($this->context);
+            ->method('syncRequirement')
+            ->with(ServiceConsentRequirement::NAME, $this->context);
 
-        $this->subscriber->stopServices($event);
+        $this->subscriber->syncConsentRequirement($event);
+    }
+
+    public function testSubscribedEvents(): void
+    {
+        $events = PermissionsSubscriber::getSubscribedEvents();
+
+        static::assertArrayHasKey(PermissionsGrantedEvent::class, $events);
+        static::assertArrayHasKey(PermissionsRevokedEvent::class, $events);
+        static::assertSame('syncConsentRequirement', $events[PermissionsGrantedEvent::class]);
+        static::assertSame('syncConsentRequirement', $events[PermissionsRevokedEvent::class]);
     }
 }

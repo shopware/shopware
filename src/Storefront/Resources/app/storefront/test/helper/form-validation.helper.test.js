@@ -260,6 +260,50 @@ describe('form-validation', () => {
         expect(formValidation.isFormElement(form)).toBe(true);
     });
 
+    test('should set field as not required', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="name">Username</label>
+                    <input type="text" name="name" id="name" data-validation="required,email" aria-describedby="name-feedback">
+                    <div id="name-feedback" class="form-field-feedback"></div>
+                </div>
+            </form>
+        `;
+
+        const field = document.getElementById('name');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        formValidation.setFieldNotRequired(field);
+
+        expect(field.getAttribute('data-validation')).toBe('email');
+        expect(field.hasAttribute('aria-required')).toBe(false);
+    });
+
+    test('should not remove validation rules when setFieldNotRequired is called on non-required field', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" data-validation="email,minLength" aria-describedby="email-feedback">
+                    <div id="email-feedback" class="form-field-feedback"></div>
+                </div>
+            </form>
+        `;
+
+        const field = document.getElementById('email');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        formValidation.setFieldNotRequired(field);
+
+        expect(field.getAttribute('data-validation')).toBe('email,minLength');
+        expect(field.hasAttribute('aria-required')).toBe(false);
+    });
+
     test('should use custom validator', () => {
         document.body.innerHTML = `
             <form id="testForm">
@@ -509,7 +553,7 @@ describe('form-validation', () => {
             expect(result).toBe(false);
             expect(mockDispatchEvent).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    type: 'showCookieBar'
+                    type: 'showCookieBar',
                 })
             );
 
@@ -528,7 +572,7 @@ describe('form-validation', () => {
             expect(result).toBe(false);
             expect(mockDispatchEvent).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    type: 'showCookieBar'
+                    type: 'showCookieBar',
                 })
             );
 

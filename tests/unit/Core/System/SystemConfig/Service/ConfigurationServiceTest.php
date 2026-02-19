@@ -108,8 +108,14 @@ class ConfigurationServiceTest extends TestCase
         $expectedConfigWithoutValues = $this->getConfigWithoutValues();
 
         static::assertSame($expectedConfigWithoutValues, $actualConfig);
-        static::assertSame($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
-        static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            static::assertSame($expectedConfigWithoutValues[0]['cards'][0]['elements'][0], $actualConfig[0]['cards'][0]['elements'][0]);
+            static::assertSame($expectedConfigWithoutValues[0]['cards'][0]['elements'][2], $actualConfig[0]['cards'][0]['elements'][2]);
+        } else {
+            static::assertSame($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
+            static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
+        }
     }
 
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
@@ -124,33 +130,62 @@ class ConfigurationServiceTest extends TestCase
 
         $config = $this->getAppConfig();
 
-        unset($config[0]['flag']); // make card not rely on feature flag (won't be removed)
-        $config[0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            unset($config[0]['cards'][0]['flag']); // make card not rely on feature flag (won't be removed)
+            $config[0]['cards'][0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
 
-        // create new card at position 0 and make it rely on feature flag (will be removed)
-        array_unshift($config, [
-            'title' => [
-                'en-GB' => 'Advanced configuration',
-                'de-DE' => 'Grundeinstellungen',
-            ],
-            'name' => null,
-            'elements' => [],
-            'flag' => 'FEATURE_NEXT_101',
-        ]);
+            // create new card at position 0 and make it rely on feature flag (will be removed)
+            array_unshift($config[0]['cards'], [
+                'title' => [
+                    'en-GB' => 'Advanced configuration',
+                    'de-DE' => 'Grundeinstellungen',
+                ],
+                'name' => null,
+                'elements' => [],
+                'flag' => 'FEATURE_NEXT_101',
+            ]);
+        } else {
+            unset($config[0]['flag']); // make card not rely on feature flag (won't be removed)
+            $config[0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
+
+            // create new card at position 0 and make it rely on feature flag (will be removed)
+            array_unshift($config, [
+                'title' => [
+                    'en-GB' => 'Advanced configuration',
+                    'de-DE' => 'Grundeinstellungen',
+                ],
+                'name' => null,
+                'elements' => [],
+                'flag' => 'FEATURE_NEXT_101',
+            ]);
+        }
 
         $actualConfig = $this->getConfiguration($config);
 
-        static::assertIsList($actualConfig);
-        static::assertCount(1, $actualConfig);
-        static::assertIsList($actualConfig[0]['elements']);
-        static::assertCount(1, $actualConfig[0]['elements']);
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            static::assertIsList($actualConfig);
+            static::assertCount(1, $actualConfig);
+            static::assertIsList($actualConfig[0]['cards']);
+            static::assertCount(1, $actualConfig[0]['cards']);
+            static::assertIsList($actualConfig[0]['cards'][0]['elements']);
+            static::assertCount(1, $actualConfig[0]['cards'][0]['elements']);
+        } else {
+            static::assertIsList($actualConfig);
+            static::assertCount(1, $actualConfig);
+            static::assertIsList($actualConfig[0]['elements']);
+            static::assertCount(1, $actualConfig[0]['elements']);
+        }
     }
 
     public function testConfigurationNoFeatureFlag(): void
     {
         $actualConfig = $this->getConfiguration($this->getAppConfig());
 
-        static::assertEmpty($actualConfig);
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            static::assertEmpty($actualConfig[0]['cards']);
+        } else {
+            static::assertEmpty($actualConfig);
+        }
     }
 
     public function testEmptyConfigThrowsError(): void
@@ -190,8 +225,23 @@ class ConfigurationServiceTest extends TestCase
             ],
         ];
 
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $config = [
+                [
+                    'title' => null,
+                    'name' => null,
+                    'cards' => $config,
+                ],
+            ];
+        }
+
         $actualConfig = $this->getConfiguration($config);
-        static::assertSame([], $actualConfig[0]['elements']);
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            static::assertSame([], $actualConfig[0]['cards'][0]['elements']);
+        } else {
+            static::assertSame([], $actualConfig[0]['elements']);
+        }
     }
 
     public function testCacheRelevantMetadataIsExposedInElementConfig(): void
@@ -246,6 +296,16 @@ class ConfigurationServiceTest extends TestCase
             ],
         ];
 
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $config = [
+                [
+                    'title' => null,
+                    'name' => null,
+                    'cards' => $config,
+                ],
+            ];
+        }
+
         $configReader = static::createStub(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
@@ -263,9 +323,16 @@ class ConfigurationServiceTest extends TestCase
 
         $actualConfig = $service->getConfiguration('SwagExampleTest', Context::createDefaultContext());
 
-        static::assertCount(1, $actualConfig);
-        static::assertCount(1, $actualConfig[0]['elements']);
-        static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            static::assertCount(1, $actualConfig);
+            static::assertCount(1, $actualConfig[0]['cards']);
+            static::assertCount(1, $actualConfig[0]['cards'][0]['elements']);
+            static::assertSame('SwagExampleTest.email', $actualConfig[0]['cards'][0]['elements'][0]['name']);
+        } else {
+            static::assertCount(1, $actualConfig);
+            static::assertCount(1, $actualConfig[0]['elements']);
+            static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
+        }
     }
 
     public function testEnrichConfig(): void
@@ -294,12 +361,17 @@ class ConfigurationServiceTest extends TestCase
                     ],
                 ],
             ],
-            [
-                'title' => [
-                    'en-GB' => 'Foo',
-                ],
-            ],
         ];
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $config = [
+                [
+                    'title' => null,
+                    'name' => null,
+                    'cards' => $config,
+                ],
+            ];
+        }
 
         $configReader = static::createStub(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
@@ -320,10 +392,18 @@ class ConfigurationServiceTest extends TestCase
 
         $actualConfig = $service->getResolvedConfiguration('SwagExampleTest', Context::createDefaultContext());
 
-        static::assertCount(2, $actualConfig);
-        static::assertCount(1, $actualConfig[0]['elements']);
-        static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
-        static::assertSame('foo', $actualConfig[0]['elements'][0]['value']);
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            static::assertCount(1, $actualConfig);
+            static::assertCount(1, $actualConfig[0]['cards']);
+            static::assertCount(1, $actualConfig[0]['cards'][0]['elements']);
+            static::assertSame('SwagExampleTest.email', $actualConfig[0]['cards'][0]['elements'][0]['name']);
+            static::assertSame('foo', $actualConfig[0]['cards'][0]['elements'][0]['value']);
+        } else {
+            static::assertCount(1, $actualConfig);
+            static::assertCount(1, $actualConfig[0]['elements']);
+            static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
+            static::assertSame('foo', $actualConfig[0]['elements'][0]['value']);
+        }
     }
 
     public function testCheckConfigurationReturnsFalseOnXmlParsingException(): void
@@ -384,7 +464,7 @@ class ConfigurationServiceTest extends TestCase
      */
     private function getConfigWithoutValues(): array
     {
-        return [
+        $config = [
             0 => [
                 'title' => [
                     'en-GB' => 'Basic configuration',
@@ -445,6 +525,18 @@ class ConfigurationServiceTest extends TestCase
                 'flag' => 'FEATURE_NEXT_101',
             ],
         ];
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            return [
+                [
+                    'title' => null,
+                    'name' => null,
+                    'cards' => $config,
+                ],
+            ];
+        }
+
+        return $config;
     }
 
     /**
@@ -452,7 +544,7 @@ class ConfigurationServiceTest extends TestCase
      */
     private function getAppConfig(): array
     {
-        return [
+        $config = [
             [
                 'title' => [
                     'en-GB' => 'Basic configuration',
@@ -508,6 +600,18 @@ class ConfigurationServiceTest extends TestCase
                 'flag' => 'FEATURE_NEXT_101',
             ],
         ];
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            return [
+                [
+                    'title' => null,
+                    'name' => null,
+                    'cards' => $config,
+                ],
+            ];
+        }
+
+        return $config;
     }
 }
 

@@ -25,7 +25,8 @@
         }
     }
 
-    .sw-system-config__global-sales-channel-switch {
+    .sw-system-config__global-sales-channel-switch,
+    .mt-tabs {
         max-width: 60rem;
         margin: 0 auto var(--scale-size-32);
     }

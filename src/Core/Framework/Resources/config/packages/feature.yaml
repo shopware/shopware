@@ -106,3 +106,8 @@ shopware:
         major: true
         toggleable: true
         description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
+      - name: SYSTEM_CONFIG_TABS
+        default: false
+        major: true
+        toggleable: true
+        description: "Enables tabs in the system configuration. This allows to structure the system configuration into multiple tabs, which can be helpful if there are many settings."

@@ -64,6 +64,50 @@ class ConfigurationService
 
         $domain = rtrim($domain, '.') . '.';
 
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            foreach ($config as $i => $tab) {
+                foreach ($tab['cards'] ?? [] as $j => $card) {
+                    if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
+                        unset($config[$i]['cards'][$j]);
+
+                        continue;
+                    }
+
+                    foreach ($card['elements'] ?? [] as $k => $field) {
+                        $newField = ['name' => $domain . $field['name']];
+
+                        if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
+                            unset($card['elements'][$k]);
+
+                            continue;
+                        }
+
+                        if (\array_key_exists('type', $field)) {
+                            $newField['type'] = $field['type'];
+                        }
+
+                        unset($field['type'], $field['name']);
+                        $newField['config'] = $field;
+                        $card['elements'][$k] = $newField;
+                    }
+
+                    if (isset($card['elements']) && \is_array($card['elements'])) {
+                        $card['elements'] = array_values($card['elements']);
+                    }
+
+                    $config[$i]['cards'][$j] = $card;
+                }
+            }
+
+            return array_values(array_map(function (array $tab) {
+                \assert(isset($tab['cards']) && \is_array($tab['cards']));
+
+                $tab['cards'] = array_values($tab['cards']);
+
+                return $tab;
+            }, $config));
+        }
+
         foreach ($config as $i => $card) {
             if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
                 unset($config[$i]);
@@ -196,6 +240,25 @@ class ConfigurationService
      */
     private function enrichValues(array $config, ?string $salesChannelId): array
     {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            foreach ($config as &$tab) {
+                foreach ($tab['cards'] as &$card) {
+                    if (!\is_array($card['elements'] ?? false)) {
+                        continue;
+                    }
+
+                    foreach ($card['elements'] as &$element) {
+                        $element['value'] = $this->systemConfigService->get(
+                            $element['name'],
+                            $salesChannelId
+                        ) ?? $element['config']['defaultValue'] ?? '';
+                    }
+                }
+            }
+
+            return $config;
+        }
+
         foreach ($config as &$card) {
             if (!\is_array($card['elements'] ?? false)) {
                 continue;

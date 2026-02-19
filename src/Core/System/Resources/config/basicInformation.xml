@@ -1,324 +1,330 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
-    <card>
-        <title>Basic information</title>
-        <title lang="de-DE">Stammdaten</title>
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/lacknere/shopware/refs/heads/feat-system-config-tabs/src/Core/System/SystemConfig/Schema/config.xsd">
+    <tab>
+        <name>basicInfo</name>
+        <title>Basic info</title>
+        <title lang="de-DE">Basis Info</title>
 
-        <input-field>
-            <name>shopName</name>
-            <label>Shop name</label>
-            <label lang="de-DE">Shopname</label>
-            <placeholder>Enter a shop name...</placeholder>
-            <placeholder lang="de-DE">Gib den Shopnamen ein ...</placeholder>
-        </input-field>
+        <card>
+            <title>Basic information</title>
+            <title lang="de-DE">Stammdaten</title>
 
-        <input-field>
-            <name>email</name>
-            <label>Shop owner's email address</label>
-            <label lang="de-DE">Shopbetreiber-E-Mail-Adresse</label>
-            <placeholder>Enter email address...</placeholder>
-            <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>shopName</name>
+                <label>Shop name</label>
+                <label lang="de-DE">Shopname</label>
+                <placeholder>Enter a shop name...</placeholder>
+                <placeholder lang="de-DE">Gib den Shopnamen ein ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>metaAuthor</name>
-            <label>Meta Author</label>
-            <label lang="de-DE">Meta-Author</label>
-            <placeholder>Enter author's name...</placeholder>
-            <placeholder lang="de-DE">Author-Namen eingeben ...</placeholder>
-            <helpText>Enter the name that will appear as the author of the website in search results or on social
-                media. This name will be used by default for all pages on the website.
-            </helpText>
-            <helpText lang="de-DE">Hier kannst du den Namen eintragen, der als Verfasser der Webseite in den
-                Suchergebnissen oder in sozialen Netzwerken angezeigt wird. Dieser Name wird standardmäßig für alle
-                Seiten der Webseite verwendet.</helpText>
-        </input-field>
+            <input-field>
+                <name>email</name>
+                <label>Shop owner's email address</label>
+                <label lang="de-DE">Shopbetreiber-E-Mail-Adresse</label>
+                <placeholder>Enter email address...</placeholder>
+                <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
+            </input-field>
 
-        <input-field type="bool">
-            <name>familyFriendly</name>
-            <label>Family friendly shop</label>
-            <label lang="de-DE">Familienfreundlicher Shop</label>
-            <helpText>Sets meta tag "isFamilyFriendly" for search engines</helpText>
-            <helpText lang="de-DE">Setzt den Metatag "isFamilyFriendly" für Suchmaschinen</helpText>
-        </input-field>
+            <input-field>
+                <name>metaAuthor</name>
+                <label>Meta Author</label>
+                <label lang="de-DE">Meta-Author</label>
+                <placeholder>Enter author's name...</placeholder>
+                <placeholder lang="de-DE">Author-Namen eingeben ...</placeholder>
+                <helpText>Enter the name that will appear as the author of the website in search results or on social
+                    media. This name will be used by default for all pages on the website.
+                </helpText>
+                <helpText lang="de-DE">Hier kannst du den Namen eintragen, der als Verfasser der Webseite in den
+                    Suchergebnissen oder in sozialen Netzwerken angezeigt wird. Dieser Name wird standardmäßig für alle
+                    Seiten der Webseite verwendet.</helpText>
+            </input-field>
 
-        <input-field type="text-editor">
-            <name>address</name>
-            <label>Shop owner's address</label>
-            <label lang="de-DE">Shopbetreiber-Adresse</label>
-            <placeholder>Enter address...</placeholder>
-            <placeholder lang="de-DE">Adresse eingeben ...</placeholder>
-        </input-field>
+            <input-field type="bool">
+                <name>familyFriendly</name>
+                <label>Family friendly shop</label>
+                <label lang="de-DE">Familienfreundlicher Shop</label>
+                <helpText>Sets meta tag "isFamilyFriendly" for search engines</helpText>
+                <helpText lang="de-DE">Setzt den Metatag "isFamilyFriendly" für Suchmaschinen</helpText>
+            </input-field>
 
-        <input-field type="text-editor">
-            <name>bankAccount</name>
-            <label>Shop owner's banking information</label>
-            <label lang="de-DE">Shopbetreiber-Bankinformationen</label>
-            <placeholder>Enter banking information...</placeholder>
-            <placeholder lang="de-DE">Bankinformationen eingeben ...</placeholder>
-        </input-field>
-    </card>
+            <input-field type="text-editor">
+                <name>address</name>
+                <label>Shop owner's address</label>
+                <label lang="de-DE">Shopbetreiber-Adresse</label>
+                <placeholder>Enter address...</placeholder>
+                <placeholder lang="de-DE">Adresse eingeben ...</placeholder>
+            </input-field>
 
-    <card>
-        <name>companyInformation</name>
-        <flag>DOCUMENT_GENERATION_REWORK</flag>
-        <title>Company information</title>
-        <title lang="de-DE">Unternehmensinformationen</title>
-        <subtitle>This company information is used for generated documents and appears on document templates where applicable.</subtitle>
-        <subtitle lang="de-DE">Diese Unternehmensinformationen werden für generierte Dokumente verwendet und erscheinen, wo zutreffend, in Dokumentvorlagen.</subtitle>
+            <input-field type="text-editor">
+                <name>bankAccount</name>
+                <label>Shop owner's banking information</label>
+                <label lang="de-DE">Shopbetreiber-Bankinformationen</label>
+                <placeholder>Enter banking information...</placeholder>
+                <placeholder lang="de-DE">Bankinformationen eingeben ...</placeholder>
+            </input-field>
+        </card>
 
-        <component name="sw-system-config-media-upload">
-            <name>companyLogoId</name>
-            <label>Company logo</label>
-            <label lang="de-DE">Firmenlogo</label>
-        </component>
+        <card>
+            <name>companyInformation</name>
+            <flag>DOCUMENT_GENERATION_REWORK</flag>
+            <title>Company information</title>
+            <title lang="de-DE">Unternehmensinformationen</title>
+            <subtitle>This company information is used for generated documents and appears on document templates where applicable.</subtitle>
+            <subtitle lang="de-DE">Diese Unternehmensinformationen werden für generierte Dokumente verwendet und erscheinen, wo zutreffend, in Dokumentvorlagen.</subtitle>
 
-        <input-field>
-            <name>companyName</name>
-            <label>Company Name</label>
-            <label lang="de-DE">Geschäftsname</label>
-            <placeholder>Enter company name...</placeholder>
-            <placeholder lang="de-DE">Geschäftsname eingeben ...</placeholder>
-        </input-field>
+            <component name="sw-system-config-media-upload">
+                <name>companyLogoId</name>
+                <label>Company logo</label>
+                <label lang="de-DE">Firmenlogo</label>
+            </component>
 
-        <input-field>
-            <name>companyEmail</name>
-            <label>Email address</label>
-            <label lang="de-DE">E-Mail-Adresse</label>
-            <placeholder>Enter email address...</placeholder>
-            <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyName</name>
+                <label>Company Name</label>
+                <label lang="de-DE">Geschäftsname</label>
+                <placeholder>Enter company name...</placeholder>
+                <placeholder lang="de-DE">Geschäftsname eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyPhone</name>
-            <label>Phone number</label>
-            <label lang="de-DE">Telefon</label>
-            <placeholder>Enter phone number...</placeholder>
-            <placeholder lang="de-DE">Telefonnummer eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyEmail</name>
+                <label>Email address</label>
+                <label lang="de-DE">E-Mail-Adresse</label>
+                <placeholder>Enter email address...</placeholder>
+                <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyStreet</name>
-            <label>Street</label>
-            <label lang="de-DE">Straße</label>
-            <placeholder>Enter street...</placeholder>
-            <placeholder lang="de-DE">Straße eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyPhone</name>
+                <label>Phone number</label>
+                <label lang="de-DE">Telefon</label>
+                <placeholder>Enter phone number...</placeholder>
+                <placeholder lang="de-DE">Telefonnummer eingeben ...</placeholder>
+            </input-field>
 
-        <component name="sw-entity-single-select">
-            <name>companyCountryId</name>
-            <entity>country</entity>
-            <label>Country</label>
-            <label lang="de-DE">Land</label>
-            <placeholder>Select a country...</placeholder>
-            <placeholder lang="de-DE">Land auswählen ...</placeholder>
-        </component>
+            <input-field>
+                <name>companyStreet</name>
+                <label>Street</label>
+                <label lang="de-DE">Straße</label>
+                <placeholder>Enter street...</placeholder>
+                <placeholder lang="de-DE">Straße eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyZipcode</name>
-            <label>Postal code</label>
-            <label lang="de-DE">Postleitzahl</label>
-            <placeholder>Enter postal code...</placeholder>
-            <placeholder lang="de-DE">Postleitzahl eingeben ...</placeholder>
-        </input-field>
+            <component name="sw-entity-single-select">
+                <name>companyCountryId</name>
+                <entity>country</entity>
+                <label>Country</label>
+                <label lang="de-DE">Land</label>
+                <placeholder>Select a country...</placeholder>
+                <placeholder lang="de-DE">Land auswählen ...</placeholder>
+            </component>
 
-        <input-field>
-            <name>companyCity</name>
-            <label>City</label>
-            <label lang="de-DE">Stadt</label>
-            <placeholder>Enter city...</placeholder>
-            <placeholder lang="de-DE">Stadt eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyZipcode</name>
+                <label>Postal code</label>
+                <label lang="de-DE">Postleitzahl</label>
+                <placeholder>Enter postal code...</placeholder>
+                <placeholder lang="de-DE">Postleitzahl eingeben ...</placeholder>
+            </input-field>
 
-        <input-field type="url">
-            <name>companyUrl</name>
-            <label>Website</label>
-            <label lang="de-DE">Webseite</label>
-            <placeholder>Enter website...</placeholder>
-            <placeholder lang="de-DE">Webseite eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyCity</name>
+                <label>City</label>
+                <label lang="de-DE">Stadt</label>
+                <placeholder>Enter city...</placeholder>
+                <placeholder lang="de-DE">Stadt eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyTaxNumber</name>
-            <label>Tax number</label>
-            <label lang="de-DE">Steuernummer</label>
-            <placeholder>Enter tax number...</placeholder>
-            <placeholder lang="de-DE">Steuernummer eingeben ...</placeholder>
-        </input-field>
+            <input-field type="url">
+                <name>companyUrl</name>
+                <label>Website</label>
+                <label lang="de-DE">Webseite</label>
+                <placeholder>Enter website...</placeholder>
+                <placeholder lang="de-DE">Webseite eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyTaxOffice</name>
-            <label>Tax office</label>
-            <label lang="de-DE">Finanzamt</label>
-            <placeholder>Enter tax office...</placeholder>
-            <placeholder lang="de-DE">Finanzamt eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyTaxNumber</name>
+                <label>Tax number</label>
+                <label lang="de-DE">Steuernummer</label>
+                <placeholder>Enter tax number...</placeholder>
+                <placeholder lang="de-DE">Steuernummer eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyVatId</name>
-            <label>VAT-ID</label>
-            <label lang="de-DE">USt-Id</label>
-            <placeholder>Enter VAT-ID...</placeholder>
-            <placeholder lang="de-DE">USt-Id eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyTaxOffice</name>
+                <label>Tax office</label>
+                <label lang="de-DE">Finanzamt</label>
+                <placeholder>Enter tax office...</placeholder>
+                <placeholder lang="de-DE">Finanzamt eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyBankName</name>
-            <label>Bank</label>
-            <label lang="de-DE">Bank</label>
-            <placeholder>Enter bank name...</placeholder>
-            <placeholder lang="de-DE">Bankname eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyVatId</name>
+                <label>VAT-ID</label>
+                <label lang="de-DE">USt-Id</label>
+                <placeholder>Enter VAT-ID...</placeholder>
+                <placeholder lang="de-DE">USt-Id eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyBankIban</name>
-            <label>IBAN</label>
-            <label lang="de-DE">IBAN</label>
-            <placeholder>Enter IBAN...</placeholder>
-            <placeholder lang="de-DE">IBAN eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyBankName</name>
+                <label>Bank</label>
+                <label lang="de-DE">Bank</label>
+                <placeholder>Enter bank name...</placeholder>
+                <placeholder lang="de-DE">Bankname eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyBankBic</name>
-            <label>BIC</label>
-            <label lang="de-DE">BIC</label>
-            <placeholder>Enter BIC...</placeholder>
-            <placeholder lang="de-DE">BIC eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyBankIban</name>
+                <label>IBAN</label>
+                <label lang="de-DE">IBAN</label>
+                <placeholder>Enter IBAN...</placeholder>
+                <placeholder lang="de-DE">IBAN eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyPlaceOfJurisdiction</name>
-            <label>Commercial register (incl. court &amp; number)</label>
-            <label lang="de-DE">Gerichtsstand / Handelsregister-Nr.</label>
-            <placeholder>Enter place of jurisdiction...</placeholder>
-            <placeholder lang="de-DE">Gerichtsstand eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyBankBic</name>
+                <label>BIC</label>
+                <label lang="de-DE">BIC</label>
+                <placeholder>Enter BIC...</placeholder>
+                <placeholder lang="de-DE">BIC eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyPlaceOfFulfillment</name>
-            <label>Place of fulfillment</label>
-            <label lang="de-DE">Erfüllungsort</label>
-            <placeholder>Enter place of fulfillment...</placeholder>
-            <placeholder lang="de-DE">Erfüllungsort eingeben ...</placeholder>
-        </input-field>
+            <input-field>
+                <name>companyPlaceOfJurisdiction</name>
+                <label>Commercial register (incl. court &amp; number)</label>
+                <label lang="de-DE">Gerichtsstand / Handelsregister-Nr.</label>
+                <placeholder>Enter place of jurisdiction...</placeholder>
+                <placeholder lang="de-DE">Gerichtsstand eingeben ...</placeholder>
+            </input-field>
 
-        <input-field>
-            <name>companyExecutiveDirector</name>
-            <label>Business executive</label>
-            <label lang="de-DE">Geschäftsführer</label>
-            <placeholder>Enter business executive...</placeholder>
-            <placeholder lang="de-DE">Geschäftsführer eingeben ...</placeholder>
-        </input-field>
-    </card>
+            <input-field>
+                <name>companyPlaceOfFulfillment</name>
+                <label>Place of fulfillment</label>
+                <label lang="de-DE">Erfüllungsort</label>
+                <placeholder>Enter place of fulfillment...</placeholder>
+                <placeholder lang="de-DE">Erfüllungsort eingeben ...</placeholder>
+            </input-field>
 
-    <card>
-        <title>Shop pages</title>
-        <title lang="de-DE">Shopseiten</title>
+            <input-field>
+                <name>companyExecutiveDirector</name>
+                <label>Business executive</label>
+                <label lang="de-DE">Geschäftsführer</label>
+                <placeholder>Enter business executive...</placeholder>
+                <placeholder lang="de-DE">Geschäftsführer eingeben ...</placeholder>
+            </input-field>
+        </card>
 
-        <component name="sw-cms-page-select">
-            <name>tosPage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Layout for GTC pages</label>
-            <label lang="de-DE">Shopseiten-Layout für AGB-Seiten</label>
-            <placeholder>Assign layout...</placeholder>
-            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-        </component>
+        <card>
+            <title>Shop pages</title>
+            <title lang="de-DE">Shopseiten</title>
 
-        <component name="sw-cms-page-select">
-            <name>revocationPage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Layout for revocation notices</label>
-            <label lang="de-DE">Shopseiten-Layout für Widerrufsbelehrungen</label>
-            <placeholder>Assign layout...</placeholder>
-            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>tosPage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Layout for GTC pages</label>
+                <label lang="de-DE">Shopseiten-Layout für AGB-Seiten</label>
+                <placeholder>Assign layout...</placeholder>
+                <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+            </component>
 
-        <component name="sw-cms-page-select">
-            <name>shippingPaymentInfoPage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Layout for payment and shipping information</label>
-            <label lang="de-DE">Shopseiten-Layout für Versand- und Zahlungsarten</label>
-            <placeholder>Assign layout...</placeholder>
-            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>revocationPage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Layout for revocation notices</label>
+                <label lang="de-DE">Shopseiten-Layout für Widerrufsbelehrungen</label>
+                <placeholder>Assign layout...</placeholder>
+                <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+            </component>
 
-        <component name="sw-cms-page-select">
-            <name>privacyPage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Layout for privacy pages</label>
-            <label lang="de-DE">Shopseiten-Layout für Datenschutz-Seiten</label>
-            <placeholder>Assign layout...</placeholder>
-            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>shippingPaymentInfoPage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Layout for payment and shipping information</label>
+                <label lang="de-DE">Shopseiten-Layout für Versand- und Zahlungsarten</label>
+                <placeholder>Assign layout...</placeholder>
+                <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+            </component>
 
-        <component name="sw-cms-page-select">
-            <name>imprintPage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Layout for an imprint</label>
-            <label lang="de-DE">Shopseiten-Layout für ein Impressum</label>
-            <placeholder>Select layout</placeholder>
-            <placeholder lang="de-DE">Layout auswählen</placeholder>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>privacyPage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Layout for privacy pages</label>
+                <label lang="de-DE">Shopseiten-Layout für Datenschutz-Seiten</label>
+                <placeholder>Assign layout...</placeholder>
+                <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+            </component>
 
-        <component name="sw-cms-page-select">
-            <name>http404Page</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Layout for 404 pages</label>
-            <label lang="de-DE">Shopseiten-Layout für 404-Seiten</label>
-            <placeholder>Assign layout...</placeholder>
-            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>imprintPage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Layout for an imprint</label>
+                <label lang="de-DE">Shopseiten-Layout für ein Impressum</label>
+                <placeholder>Select layout</placeholder>
+                <placeholder lang="de-DE">Layout auswählen</placeholder>
+            </component>
 
-        <component name="sw-cms-page-select">
-            <name>maintenancePage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Shop page layout for maintenance pages</label>
-            <label lang="de-DE">Shopseiten-Layout für Wartungsseiten</label>
-            <placeholder>Select layout</placeholder>
-            <placeholder lang="de-DE">Layout auswählen</placeholder>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>http404Page</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Layout for 404 pages</label>
+                <label lang="de-DE">Shopseiten-Layout für 404-Seiten</label>
+                <placeholder>Assign layout...</placeholder>
+                <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+            </component>
 
-        <component name="sw-cms-page-select">
-            <name>contactPage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Shop page layout for contact pages</label>
-            <label lang="de-DE">Shopseiten-Layout für Kontaktseiten</label>
-            <placeholder>Assign layout...</placeholder>
-            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>maintenancePage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Shop page layout for maintenance pages</label>
+                <label lang="de-DE">Shopseiten-Layout für Wartungsseiten</label>
+                <placeholder>Select layout</placeholder>
+                <placeholder lang="de-DE">Layout auswählen</placeholder>
+            </component>
 
-        <component name="sw-cms-page-select">
-            <name>revocationRequestPage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Shop page layout for revocation request</label>
-            <label lang="de-DE">Shopseiten-Layout für Widerrufsantrag Seite</label>
-            <placeholder>Assign layout...</placeholder>
-            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-            <helpText>To make the page accessible, you must activate the option "Show Revoke a contract button in footer"</helpText>
-            <helpText lang="de-DE">Um die Seite erreichbar zu machen, musst du den Punkt "Button Vertrag widerrufen im Footer anzeigen" aktivieren.</helpText>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>contactPage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Shop page layout for contact pages</label>
+                <label lang="de-DE">Shopseiten-Layout für Kontaktseiten</label>
+                <placeholder>Assign layout...</placeholder>
+                <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+            </component>
 
-        <component name="sw-cms-page-select">
-            <name>newsletterPage</name>
-            <entity>cms_page</entity>
-            <pageType>page</pageType>
-            <label>Shop page layout for newsletter pages</label>
-            <label lang="de-DE">Shopseiten-Layout für Newsletterseiten</label>
-            <placeholder>Assign layout...</placeholder>
-            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-        </component>
+            <component name="sw-cms-page-select">
+                <name>revocationRequestPage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Shop page layout for revocation request</label>
+                <label lang="de-DE">Shopseiten-Layout für Widerrufsantrag Seite</label>
+                <placeholder>Assign layout...</placeholder>
+                <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+                <helpText>To make the page accessible, you must activate the option "Show Revoke a contract button in footer"</helpText>
+                <helpText lang="de-DE">Um die Seite erreichbar zu machen, musst du den Punkt "Button Vertrag widerrufen im Footer anzeigen" aktivieren.</helpText>
+            </component>
 
-    </card>
+            <component name="sw-cms-page-select">
+                <name>newsletterPage</name>
+                <entity>cms_page</entity>
+                <pageType>page</pageType>
+                <label>Shop page layout for newsletter pages</label>
+                <label lang="de-DE">Shopseiten-Layout für Newsletterseiten</label>
+                <placeholder>Assign layout...</placeholder>
+                <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+            </component>
+
+        </card>
+    </tab>
 
     <card>
         <title>Legal and compliance</title>

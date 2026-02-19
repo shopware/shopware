@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -48,7 +49,7 @@ class ConfigReaderTest extends TestCase
      */
     private function getExpectedConfig(): array
     {
-        return [
+        $config = [
             [
                 'title' => [
                     'en-GB' => 'Basic configuration',
@@ -177,5 +178,17 @@ class ConfigReaderTest extends TestCase
                 ],
             ],
         ];
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            return [
+                [
+                    'title' => null,
+                    'name' => null,
+                    'cards' => $config,
+                ],
+            ];
+        }
+
+        return $config;
     }
 }

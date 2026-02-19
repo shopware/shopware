@@ -29,7 +29,10 @@ const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['systemConfigApiService'],
+    inject: [
+        'feature',
+        'systemConfigApiService',
+    ],
 
     emits: [
         'loading-changed',
@@ -68,11 +71,12 @@ export default {
         return {
             currentSalesChannelId: this.salesChannelId,
             isLoading: false,
-            config: {},
+            config: [],
             actualConfigData: {},
             initialConfigData: {},
             salesChannelModel: null,
             hasCssFields: false,
+            activeTab: null,
         };
     },
 
@@ -92,6 +96,38 @@ export default {
                 'checkbox',
                 'colorpicker',
             ];
+        },
+
+        showGlobalSalesChannelSwitch() {
+            if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
+                return this.showTabs || this.config.at(0)?.cards.length > 1;
+            }
+
+            return this.config.length > 1;
+        },
+
+        showTabs() {
+            if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
+                return this.config?.length > 1;
+            }
+
+            return false;
+        },
+
+        tabItems() {
+            return this.config?.map((tab) => {
+                return {
+                    name: this.getTabName(tab),
+                    label:
+                        tab.title !== null
+                            ? this.getInlineSnippet(tab.title)
+                            : this.$t('sw-settings.system-config.tabGeneral'),
+                };
+            });
+        },
+
+        defaultTabItem() {
+            return this.config?.at(0) ? this.getTabName(this.config.at(0)) : '';
         },
     },
 
@@ -132,6 +168,10 @@ export default {
 
                 await this.readConfig();
                 await this.readAll();
+
+                if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
+                    this.activeTab = this.getTabName(this.config.at(0));
+                }
             } catch (error) {
                 if (error?.response?.data?.errors) {
                     this.createErrorNotification(error.response.data.errors);
@@ -143,7 +183,24 @@ export default {
 
         async readConfig() {
             this.config = await this.systemConfigApiService.getConfig(this.domain);
-            this.config.every((card) => {
+
+            this.config.every((item) => {
+                if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
+                    const tab = item;
+
+                    return tab?.cards.every((card) => {
+                        return card?.elements.every((field) => {
+                            if (field?.config?.css) {
+                                this.hasCssFields = true;
+                                return false;
+                            }
+                            return true;
+                        });
+                    });
+                }
+
+                const card = item;
+
                 return card?.elements.every((field) => {
                     if (field?.config?.css) {
                         this.hasCssFields = true;
@@ -481,6 +538,10 @@ export default {
             eventHandler['inheritance-restore'] = mapInheritance?.restoreInheritance;
 
             return eventHandler;
+        },
+
+        getTabName(tab) {
+            return `tab-${tab.name ?? this.config.indexOf(tab)}`;
         },
     },
 };

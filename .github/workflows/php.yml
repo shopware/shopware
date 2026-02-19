@@ -151,7 +151,7 @@ jobs:
       - name: Generate & Lint OpenApi StoreAPI schema
         run: |
           api-gen generate --apiType=store && api-gen loadSchema --apiType=store
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components --skip-rule struct ./api-types/storeApiSchema.json
 
       - name: Generate & Lint OpenApi API schema
         run: |

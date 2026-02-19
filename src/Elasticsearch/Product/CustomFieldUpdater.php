@@ -96,17 +96,17 @@ class CustomFieldUpdater implements EventSubscriberInterface
      */
     private function createFieldsInIndices(array $newCreatedFields): void
     {
-        if (\count($newCreatedFields) === 0) {
+        if ($newCreatedFields === []) {
             return;
         }
 
         $indices = $this->indexDetector->getAllUsedIndices();
-        if (\count($indices) === 0) {
+        if ($indices === []) {
             return;
         }
 
         $languageIds = $this->customFieldSetGateway->fetchLanguageIds();
-        if (\count($languageIds) === 0) {
+        if ($languageIds === []) {
             return;
         }
 
@@ -244,7 +244,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
             ['includeInSearch']
         );
 
-        if (empty($customFieldIds)) {
+        if ($customFieldIds === []) {
             return;
         }
 
@@ -270,13 +270,13 @@ class CustomFieldUpdater implements EventSubscriberInterface
             $updatedFieldIds[$key] = true;
         }
 
-        if (\count($updatedFieldIds) === 0) {
+        if ($updatedFieldIds === []) {
             return;
         }
 
         $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($updatedFieldIds));
 
-        if (\count($fieldSetIds) === 0) {
+        if ($fieldSetIds === []) {
             return;
         }
 

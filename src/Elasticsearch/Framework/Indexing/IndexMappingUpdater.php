@@ -72,7 +72,7 @@ class IndexMappingUpdater
             }
         }
 
-        if (!empty($entitiesToReindex)) {
+        if ($entitiesToReindex !== []) {
             $this->storage->set(SystemUpdateListener::CONFIG_KEY, \array_values(\array_unique($entitiesToReindex)));
         }
     }

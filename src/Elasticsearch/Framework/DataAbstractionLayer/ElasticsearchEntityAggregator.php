@@ -42,7 +42,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
                 return $this->decorated->aggregate($definition, $criteria, $context);
             }
 
-            if (\count($criteria->getAggregations()) === 0) {
+            if ($criteria->getAggregations() === []) {
                 return new AggregationResultCollection();
             }
 

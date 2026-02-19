@@ -191,7 +191,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     {
         $data = $this->fetchProducts($ids, $context);
 
-        if (empty($data)) {
+        if ($data === []) {
             return [];
         }
 
@@ -243,7 +243,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             }
 
             // no visibilities found, skip this product
-            if (empty($visibilitiesFlatten)) {
+            if ($visibilitiesFlatten === []) {
                 continue;
             }
 
@@ -563,7 +563,7 @@ SQL;
      */
     private function fetchProperties(array $propertyIds): array
     {
-        if (empty($propertyIds)) {
+        if ($propertyIds === []) {
             return [];
         }
 

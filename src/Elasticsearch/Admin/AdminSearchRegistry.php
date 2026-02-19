@@ -159,7 +159,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
             $ids = array_values(array_diff($ids, $deletedIds));
 
-            if (empty($ids) && empty($deletedIds)) {
+            if ($ids === [] && $deletedIds === []) {
                 continue;
             }
 
@@ -217,7 +217,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         foreach ($this->indexer as $indexer) {
             $ids = $event->getPrimaryKeys($indexer->getEntity());
 
-            if (!empty($ids)) {
+            if ($ids !== []) {
                 return true;
             }
         }
@@ -236,7 +236,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
-        $data = !empty($ids) ? $indexer->fetch($ids) : [];
+        $data = $ids !== [] ? $indexer->fetch($ids) : [];
         $toRemove = array_filter($ids, static fn (string $id): bool => !isset($data[$id]));
         $toRemove = array_unique(array_merge($toRemove, $message->getToRemoveIds()));
 

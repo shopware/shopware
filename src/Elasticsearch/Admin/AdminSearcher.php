@@ -64,7 +64,7 @@ class AdminSearcher
             $index[] = $query;
         }
 
-        if (empty($index)) {
+        if ($index === []) {
             return [];
         }
 

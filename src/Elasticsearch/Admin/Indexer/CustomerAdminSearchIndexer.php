@@ -79,7 +79,7 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'countryId',
         ]);
 
-        if (!empty($addresses)) {
+        if ($addresses !== []) {
             $ids = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
         }
 

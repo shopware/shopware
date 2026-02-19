@@ -117,18 +117,39 @@ class OrderRouteTest extends TestCase
         $this->orderId = $this->createOrder($this->customerId, $this->email);
 
         // Ensure primaryOrderTransactionId is set for testing purposes
+        // This is critical because getPrimaryOrderTransaction() needs this field to work correctly
         $criteria = new Criteria([$this->orderId]);
         $criteria->addAssociation('transactions');
         $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
         static::assertNotNull($order);
-        $transaction = $order->getTransactions()?->last();
-        if ($transaction && !$order->getPrimaryOrderTransaction()) {
-            $this->orderRepository->update([
-                [
-                    'id' => $this->orderId,
-                    'primaryOrderTransactionId' => $transaction->getId(),
-                ],
-            ], Context::createDefaultContext());
+        $transactions = $order->getTransactions();
+        static::assertNotNull($transactions);
+        $transaction = $transactions->last();
+        static::assertNotNull($transaction);
+
+        // Always set primaryOrderTransactionId to the first transaction to ensure consistency
+        $this->orderRepository->update([
+            [
+                'id' => $this->orderId,
+                'primaryOrderTransactionId' => $transaction->getId(),
+            ],
+        ], Context::createDefaultContext());
+
+        // Clear cache to ensure the update is reflected
+        static::getContainer()->get('cache.object')->clear();
+
+        // Verify the update was successful
+        $verifyOrder = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($verifyOrder);
+        $verifyPrimary = $verifyOrder->getPrimaryOrderTransaction();
+        if (!$verifyPrimary) {
+            // If still null, output debug info and fail
+            echo "\n=== SETUP DEBUG: primaryOrderTransactionId NOT set! ===\n";
+            echo "Order ID: {$this->orderId}\n";
+            echo "Transaction ID we tried to set: {$transaction->getId()}\n";
+            echo "getPrimaryOrderTransaction() result: NULL\n";
+            echo "====================================================\n";
+            static::fail('Failed to set primaryOrderTransactionId in setUp()');
         }
 
         $this->browser

@@ -443,6 +443,9 @@ class OrderRouteTest extends TestCase
             static::markTestSkipped('Order mail tests should be fixed without storefront');
         }
 
+        // Clear entity cache to ensure fresh data
+        static::getContainer()->get('cache.object')->clear();
+
         // Ensure the order transaction is in initial state so the test behavior is predictable
         $criteria = new Criteria([$this->orderId]);
         $criteria->addAssociation('transactions');
@@ -468,12 +471,32 @@ class OrderRouteTest extends TestCase
                     'stateId' => $initialStateId,
                 ],
             ], Context::createDefaultContext());
+
+            // Clear cache and reload to ensure state is updated
+            static::getContainer()->get('cache.object')->clear();
+
+            // Reload the order to ensure the updated state is seen by the subsequent request
+            $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+            static::assertNotNull($order);
+            $transactions = $order->getTransactions();
+            static::assertNotNull($transactions);
+            $transaction = $transactions->last();
+            static::assertNotNull($transaction);
+            static::assertSame($initialStateId, $transaction->getStateId(), 'Transaction state must be initial after update');
         }
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->mailSentEventCounter = 0;
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $this->handleMailSentEvent(...));
+
+        // Final verification: Ensure transaction is still in initial state right before the request
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($order);
+        $verifyTransaction = $order->getTransactions()?->last();
+        static::assertNotNull($verifyTransaction);
+        static::assertSame($initialStateId, $verifyTransaction->getStateId(), 'Transaction state changed unexpectedly before API request');
+        static::assertSame($this->defaultPaymentMethodId, $verifyTransaction->getPaymentMethodId(), 'Payment method changed unexpectedly before API request');
 
         $this->browser
             ->request(

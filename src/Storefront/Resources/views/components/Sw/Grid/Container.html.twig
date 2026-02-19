@@ -16,7 +16,7 @@
     justifyContent = 'start',
     centered = true,
     slots = [],
-    autoColumnsMax = false,
+    autoColumns = null,
     border = null,
     borderVariant = null,
     borderSubtle = false,
@@ -202,8 +202,8 @@
         centered: {
             true: 'centered',
         },
-        autoColumnsMax: {
-            true: 'auto-columns-max',
+        autoColumns: {
+            'max-content': 'auto-columns-max-content',
         },
         border: {
             true: 'border',
@@ -237,7 +237,7 @@
         rowsMd,
         rowsLg,
         rowsXl,
-        autoColumnsMax,
+        autoColumns,
         border,
         borderVariant,
         borderSubtle,

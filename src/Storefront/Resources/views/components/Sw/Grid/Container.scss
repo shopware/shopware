@@ -4,9 +4,6 @@
     &.centered {
         padding-left: 20px;
         padding-right: 20px;
-    }
-
-    &.centered {
         max-width: 1400px;
         margin-left: auto;
         margin-right: auto;
@@ -17,7 +14,7 @@
         grid-auto-columns: 1fr;
     }
 
-    &.auto-columns-max {
+    &.auto-columns-max-content {
         grid-auto-columns: max-content;
     }
 

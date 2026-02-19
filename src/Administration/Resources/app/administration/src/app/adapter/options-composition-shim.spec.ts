@@ -8,10 +8,9 @@ import { createExtendableSetup, _overridesMap } from 'src/app/adapter/compositio
 import {
     shouldActivateShim,
     convertOptionsApiOverrideToCompositionApi,
-    _compositionApiComponents,
 } from 'src/app/adapter/options-composition-shim';
 import { mount } from '@vue/test-utils';
-import { ref, computed, defineComponent, nextTick, reactive } from 'vue';
+import { ref, computed, defineComponent, nextTick, reactive, provide } from 'vue';
 
 /**
  * Helper: wraps convertOptionsApiOverrideToCompositionApi and silences the
@@ -34,25 +33,20 @@ describe('src/app/adapter/options-composition-shim', () => {
             delete _overridesMap[key];
         });
 
-        _compositionApiComponents.clear();
         jest.clearAllMocks();
     });
 
     describe('shouldActivateShim():', () => {
-        it('should return true when target uses Composition API and override has methods', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+        it('should return true when override has methods', () => {
+            const result = shouldActivateShim({
                 methods: { save() {} },
             });
 
             expect(result).toBe(true);
         });
 
-        it('should return true when target uses Composition API and override has computed', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+        it('should return true when override has computed', () => {
+            const result = shouldActivateShim({
                 computed: {
                     fullName() {
                         return '';
@@ -63,10 +57,8 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(result).toBe(true);
         });
 
-        it('should return true when target uses Composition API and override has data', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+        it('should return true when override has data', () => {
+            const result = shouldActivateShim({
                 data() {
                     return { count: 0 };
                 },
@@ -75,78 +67,56 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(result).toBe(true);
         });
 
-        it('should return true when target uses Composition API and override has watch', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+        it('should return true when override has watch', () => {
+            const result = shouldActivateShim({
                 watch: { count() {} },
             });
 
             expect(result).toBe(true);
         });
 
-        it('should return true when target uses Composition API and override has inject', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+        it('should return true when override has inject', () => {
+            const result = shouldActivateShim({
                 inject: ['repositoryFactory'],
             });
 
             expect(result).toBe(true);
         });
 
-        it('should return true when target uses Composition API and override has mixins', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+        it('should return true when override has mixins', () => {
+            const result = shouldActivateShim({
                 mixins: [{ methods: { foo() {} } }],
             });
 
             expect(result).toBe(true);
         });
 
-        it('should return true when target uses Composition API and override has lifecycle hooks', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+        it('should return true when override has lifecycle hooks', () => {
+            const result = shouldActivateShim({
                 mounted() {},
             });
 
             expect(result).toBe(true);
         });
 
-        it('should return true when target uses Composition API and mixin has lifecycle hooks', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+        it('should return true when mixin has lifecycle hooks', () => {
+            const result = shouldActivateShim({
                 mixins: [{ created() {} }],
             });
 
             expect(result).toBe(true);
         });
 
-        it('should return false when target does NOT use Composition API', () => {
-            const result = shouldActivateShim('sw-legacy', {
-                methods: { save() {} },
-            });
-
-            expect(result).toBe(false);
-        });
-
         it('should return false when override has no Options API patterns', () => {
-            _compositionApiComponents.add('sw-example');
-
-            const result = shouldActivateShim('sw-example', {
+            const result = shouldActivateShim({
                 name: 'sw-example',
             });
 
             expect(result).toBe(false);
         });
 
-        it('should return false when neither condition is met', () => {
-            const result = shouldActivateShim('sw-unknown', {
-                name: 'sw-unknown',
-            });
+        it('should return false for empty config', () => {
+            const result = shouldActivateShim({});
 
             expect(result).toBe(false);
         });
@@ -154,7 +124,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('convertData():', () => {
         it('should convert data() overriding an existing ref value', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: '<div><span class="msg">{{ message }}</span></div>',
@@ -185,7 +154,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert data() return values to refs', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 data() {
@@ -202,7 +170,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('convertMethods():', () => {
         it('should convert methods and bind this to proxy', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -242,7 +209,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should support this.$super() to call previous method', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -284,7 +250,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should throw error when $super references a non-existent method', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const previousState = {
                 count: ref(1),
@@ -309,7 +274,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('convertComputed():', () => {
         it('should convert getter-only computed properties', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -346,7 +310,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert getter/setter computed properties', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -394,7 +357,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow computed to access previousState values via this', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -433,7 +395,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('setupWatchers():', () => {
         it('should convert function watchers', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const watchCallback = jest.fn();
 
@@ -476,7 +437,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert object watchers with immediate option', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const watchCallback = jest.fn();
 
@@ -514,7 +474,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert string method name watchers', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const methodCallback = jest.fn();
 
@@ -562,7 +521,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('createThisProxy():', () => {
         it('should resolve this.propertyName to previousState ref values', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const previousState = {
                 count: ref(42),
@@ -587,7 +545,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow setting ref values via this.propertyName', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const previousState = {
                 count: ref(1),
@@ -608,7 +565,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should resolve props via this', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const previousState = {};
             const props = { title: 'Hello' };
@@ -627,7 +583,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should prioritize local state over previousState', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const previousState = {
                 count: ref(1),
@@ -650,7 +605,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should warn about accessing undefined properties', () => {
-            _compositionApiComponents.add('originalComponent');
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             const previousState = {};
@@ -673,7 +627,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should not warn about Vue internal properties starting with $ or _', () => {
-            _compositionApiComponents.add('originalComponent');
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             const previousState = {};
@@ -704,7 +657,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should error when setting a property not found in any state', () => {
-            _compositionApiComponents.add('originalComponent');
             const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -734,7 +686,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('mergeMixins():', () => {
         it('should merge mixin methods into override config', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -790,7 +741,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should merge mixin data into override config', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const myMixin = {
                 data() {
@@ -812,7 +762,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should merge mixin lifecycle hooks and fire them', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const createdCallback = jest.fn();
 
@@ -850,7 +799,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('setupLifecycleHooks():', () => {
         it('should fire created hook immediately during setup', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const createdCallback = jest.fn();
 
@@ -880,7 +828,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire beforeCreate hook immediately during setup', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const beforeCreateCallback = jest.fn();
 
@@ -910,7 +857,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire mounted hook after component mounts', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const mountedCallback = jest.fn();
 
@@ -942,7 +888,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire beforeUnmount and unmounted hooks on component destroy', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const beforeUnmountCallback = jest.fn();
             const unmountedCallback = jest.fn();
@@ -984,7 +929,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should provide correct this context inside lifecycle hooks', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             let capturedCount: number | undefined;
 
@@ -1014,7 +958,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire mixin hooks before component hooks (Vue merge order)', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const callOrder: string[] = [];
 
@@ -1053,7 +996,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire hooks from multiple mixins in order', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const callOrder: string[] = [];
 
@@ -1098,7 +1040,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should work together with watch and data overrides', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const createdCallback = jest.fn();
             const watchCallback = jest.fn();
@@ -1136,7 +1077,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle override with only lifecycle hooks (no methods/data)', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const mountedCallback = jest.fn();
 
@@ -1169,7 +1109,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Unsupported features:', () => {
         it('should log error for custom render() functions', () => {
-            _compositionApiComponents.add('originalComponent');
             const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -1191,7 +1130,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Deprecation warning:', () => {
         it('should log deprecation warning when shim is activated', () => {
-            _compositionApiComponents.add('originalComponent');
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
@@ -1206,7 +1144,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should include migration docs link in deprecation warning', () => {
-            _compositionApiComponents.add('originalComponent');
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
@@ -1225,7 +1162,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Full integration:', () => {
         it('should allow Options API method override on a Composition API component', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -1267,7 +1203,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow Options API computed override on a Composition API component', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -1304,7 +1239,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow Options API data override on a Composition API component', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -1339,7 +1273,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow combined methods + computed + data override', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -1397,7 +1330,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Multi-level override chains:', () => {
         it('should support core -> Plugin A -> Plugin B override chain', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -1454,7 +1386,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should support multi-level chains with data overrides', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: '<div class="msg">{{ message }}</div>',
@@ -1497,7 +1428,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should support multi-level chains with computed overrides', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: `
@@ -1550,7 +1480,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Edge cases:', () => {
         it('should handle override with only data and no existing methods', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: '<div class="name">Name: {{ name }}</div>',
@@ -1581,7 +1510,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle empty data function', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 data() {
@@ -1595,7 +1523,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle null/undefined data gracefully', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 data() {
@@ -1608,7 +1535,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle override with only computed, no methods or data', async () => {
-            _compositionApiComponents.add('originalComponent');
 
             const originalComponent = defineComponent({
                 template: '<div class="display">{{ display }}</div>',
@@ -1641,10 +1567,12 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(wrapper.find('.display').text()).toBe('Modified: 5');
         });
 
-        it('should pass through inject config', () => {
-            _compositionApiComponents.add('originalComponent');
+        it('should resolve inject internally without exposing keys in the override result', () => {
+            // Suppress all warnings (deprecation + Vue "inject outside setup" since we call
+            // the override function directly in this unit test, outside a component context).
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 inject: [
                     'repositoryFactory',
                     'acl',
@@ -1654,14 +1582,17 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const result = overrideFn({}, {});
 
-            expect(result._inject).toEqual([
-                'repositoryFactory',
-                'acl',
-            ]);
+            // Inject values are resolved internally and made available via thisProxy.
+            // They must NOT appear as keys in the override result so they don't
+            // pollute the component's reactive state via applyOverrides.
+            expect(result._inject).toBeUndefined();
+            expect(Object.keys(result)).not.toContain('repositoryFactory');
+            expect(Object.keys(result)).not.toContain('acl');
+
+            consoleWarn.mockRestore();
         });
 
         it('should handle config with no Options API patterns gracefully', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {});
 
@@ -1672,7 +1603,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle methods that return values', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const previousState = {
                 count: ref(10),
@@ -1692,7 +1622,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle methods with arguments', () => {
-            _compositionApiComponents.add('originalComponent');
 
             const previousState = {
                 count: ref(0),
@@ -1712,4 +1641,279 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(previousState.count.value).toBe(42);
         });
     });
+
+    describe('inject resolution:', () => {
+        it('should resolve array-form inject keys via this inside a lifecycle hook', async () => {
+            const serviceInstance = { value: 'injected-value' };
+            let capturedService: any = null;
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                inject: ['myService'],
+                created() {
+                    capturedService = this.myService;
+                },
+            });
+
+            // Push BEFORE mount so inject() runs inside the component's setup() context
+            // (triggered by the immediate watch in createExtendableSetup).
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent, {
+                global: { provide: { myService: serviceInstance } },
+            });
+
+            await flushPromises();
+
+            expect(capturedService).toBe(serviceInstance);
+        });
+
+        it('should resolve object-form inject with from/default fallback', async () => {
+            let capturedVal: any;
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                inject: { myVal: { from: 'nonExistentKey', default: 'fallback-value' } } as any,
+                created() {
+                    capturedVal = this.myVal;
+                },
+            });
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(overrideFn);
+
+            mount(originalComponent);
+
+            await flushPromises();
+
+            expect(capturedVal).toBe('fallback-value');
+        });
+
+        it('should not expose injected values as keys in the override result', async () => {
+            let overrideResultKeys: string[] = [];
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                inject: ['someService'],
+                created() {
+                    // capture what was actually returned in the result (not injectedValues)
+                },
+            });
+
+            // Wrap the override fn to inspect its result
+            const wrappedFn = (previousState: any, props: any, context?: any) => {
+                const result = overrideFn(previousState, props, context);
+                overrideResultKeys = Object.keys(result);
+                return result;
+            };
+
+            _overridesMap.originalComponent = reactive([]);
+            _overridesMap.originalComponent.push(wrappedFn);
+
+            mount(originalComponent, {
+                global: { provide: { someService: {} } },
+            });
+
+            await flushPromises();
+
+            expect(overrideResultKeys).not.toContain('someService');
+            expect(overrideResultKeys).not.toContain('_inject');
+        });
+    });
+
+    describe('flattenMixins() — recursive mixin resolution:', () => {
+        it('should resolve lifecycle hooks from deeply nested mixins', async () => {
+            const callOrder: string[] = [];
+
+            const deepMixin = {
+                created() {
+                    callOrder.push('deep-mixin');
+                },
+            };
+
+            const shallowMixin = {
+                mixins: [deepMixin],
+                created() {
+                    callOrder.push('shallow-mixin');
+                },
+            };
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mixins: [shallowMixin],
+                created() {
+                    callOrder.push('component');
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            // deep ancestor fires first, then shallow mixin, then component
+            expect(callOrder).toEqual(['deep-mixin', 'shallow-mixin', 'component']);
+        });
+
+        it('should make methods from deeply nested mixins accessible via this', async () => {
+            let capturedResult: string | null = null;
+
+            const deepMixin = {
+                methods: {
+                    deepMethod() {
+                        return 'from-deep-mixin';
+                    },
+                },
+            };
+
+            const shallowMixin = {
+                mixins: [deepMixin],
+            };
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                mixins: [shallowMixin],
+                created() {
+                    capturedResult = (this as any).deepMethod();
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            expect(capturedResult).toBe('from-deep-mixin');
+        });
+    });
+
+    describe('setupWatchers() — dot-notation paths:', () => {
+        it('should warn and skip dot-notation watch keys', async () => {
+            // Use a single spy that covers all console.warn calls to avoid nested-spy issues.
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const watchCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        return { public: {} };
+                    }),
+            });
+
+            mount(originalComponent);
+
+            // Call convertOptionsApiOverrideToCompositionApi directly so the deprecation
+            // warning is also captured by our single spy (filtered out below).
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
+                watch: {
+                    'user.name'(newVal: any) {
+                        watchCallback(newVal);
+                    },
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            const dotNotationWarnings = consoleWarn.mock.calls.filter(
+                (call) => typeof call[0] === 'string' && call[0].includes('Dot-notation watch path'),
+            );
+
+            expect(dotNotationWarnings).toHaveLength(1);
+            expect(dotNotationWarnings[0][0]).toContain('"user.name"');
+            expect(watchCallback).not.toHaveBeenCalled();
+
+            consoleWarn.mockRestore();
+        });
+
+        it('should still process non-dot-notation watch keys alongside dot-notation ones', async () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const flatCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const count = ref(0);
+                        return { public: { count } };
+                    }),
+            });
+
+            const wrapper = mount(originalComponent);
+
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
+                watch: {
+                    'nested.prop'(newVal: any) {},
+                    count(newVal: number) {
+                        flatCallback(newVal);
+                    },
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            // Trigger a count change to fire the valid watcher
+            _overridesMap.originalComponent.push((previousState: any) => {
+                previousState.count.value = 99;
+                return {};
+            });
+
+            await flushPromises();
+            await nextTick();
+
+            expect(flatCallback).toHaveBeenCalledWith(99);
+
+            const dotNotationWarnings = consoleWarn.mock.calls.filter(
+                (call) => typeof call[0] === 'string' && call[0].includes('Dot-notation watch path'),
+            );
+            expect(dotNotationWarnings).toHaveLength(1);
+
+            consoleWarn.mockRestore();
+            wrapper.unmount();
+        });
+    });
 });
+
+

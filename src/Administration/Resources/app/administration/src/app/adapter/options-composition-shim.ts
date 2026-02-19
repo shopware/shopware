@@ -13,10 +13,11 @@
 
 import {
     ref,
+    reactive,
     computed,
     watch,
     isRef,
-    reactive,
+    inject as vueInject,
     getCurrentInstance,
     onBeforeMount,
     onMounted,
@@ -56,28 +57,21 @@ interface MergedConfig extends ComponentConfig {
 }
 
 /**
- * Track components using Composition API
  * @private
- */
-export const _compositionApiComponents = reactive(new Set<string>());
-
-/**
- * @private
- * Detects if the shim should be activated for a component override
+ * Detects if the shim should be activated for a component override.
+ * Returns true when the override config contains Options API patterns.
+ * The caller (createExtendableSetup) already knows it is inside a Composition API component.
  *
- * @param componentName - Name of the component being overridden
  * @param overrideConfig - The override configuration object
  * @returns true if shim should activate, false otherwise
  */
-export function shouldActivateShim(componentName: string, overrideConfig: ComponentConfig): boolean {
-    const targetUsesCompositionApi = _compositionApiComponents.has(componentName);
-
+export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
     const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!(overrideConfig as any)[hook]);
     const mixinsHaveLifecycleHooks = overrideConfig.mixins?.some(
-        (mixin: any) => LIFECYCLE_HOOKS.some((hook) => !!(mixin as any)[hook]),
+        (mixin: any) => LIFECYCLE_HOOKS.some((hook) => !!mixin[hook]),
     ) ?? false;
 
-    const usesOptionsApi = !!(
+    return !!(
         overrideConfig.data ||
         overrideConfig.methods ||
         overrideConfig.computed ||
@@ -87,8 +81,6 @@ export function shouldActivateShim(componentName: string, overrideConfig: Compon
         hasLifecycleHooks ||
         mixinsHaveLifecycleHooks
     );
-
-    return targetUsesCompositionApi && usesOptionsApi;
 }
 
 /**
@@ -115,8 +107,13 @@ export function convertOptionsApiOverrideToCompositionApi(
             Object.assign(result, convertData(mergedConfig.data));
         }
 
+        // Resolve inject values from Vue's provide/inject system.
+        // This must run while we are still inside the component's setup() context
+        // (the immediate watch in createExtendableSetup guarantees this).
+        const injectedValues = resolveInject(mergedConfig.inject);
+
         // Create the this proxy (needs to be created after data but before computed/methods)
-        const thisProxy = createThisProxy(previousState, props, result);
+        const thisProxy = createThisProxy(previousState, props, result, injectedValues);
 
         if (mergedConfig.computed) {
             Object.assign(result, convertComputed(mergedConfig.computed, thisProxy));
@@ -134,12 +131,53 @@ export function convertOptionsApiOverrideToCompositionApi(
             setupLifecycleHooks(mergedConfig._lifecycleHooks, thisProxy);
         }
 
-        if (mergedConfig.inject) {
-            result._inject = mergedConfig.inject;
-        }
-
         return result;
     };
+}
+
+/**
+ * Recursively flattens a mixin and all of its nested mixins into a flat ordered array.
+ * Nested mixins are resolved depth-first so that the deepest ancestor appears first,
+ * matching Vue's own mixin merge strategy.
+ */
+function flattenMixins(mixin: ComponentConfig): ComponentConfig[] {
+    const nested = mixin.mixins ? mixin.mixins.flatMap((m) => flattenMixins(m as ComponentConfig)) : [];
+    return [...nested, mixin];
+}
+
+/**
+ * Resolves Options API inject config into a plain map of key → value.
+ * Supports all three Vue inject forms: array, object-with-string, object-with-options.
+ * Must be called during component setup() to have access to the provide/inject chain.
+ */
+function resolveInject(injectConfig: ComponentConfig['inject']): Record<string, any> {
+    const resolved: Record<string, any> = {};
+
+    if (!injectConfig) {
+        return resolved;
+    }
+
+    if (Array.isArray(injectConfig)) {
+        injectConfig.forEach((key: string) => {
+            resolved[key] = vueInject(key);
+        });
+    } else {
+        Object.entries(injectConfig as Record<string, any>).forEach(([localKey, spec]) => {
+            if (typeof spec === 'string') {
+                // { localKey: 'provideKey' }
+                resolved[localKey] = vueInject(spec);
+            } else if (spec && typeof spec === 'object') {
+                // { localKey: { from: 'provideKey', default: fallback } }
+                const from = spec.from ?? localKey;
+                const hasDefault = Object.prototype.hasOwnProperty.call(spec, 'default');
+                resolved[localKey] = hasDefault ? vueInject(from, spec.default) : vueInject(from);
+            } else {
+                resolved[localKey] = vueInject(localKey);
+            }
+        });
+    }
+
+    return resolved;
 }
 
 /**
@@ -157,7 +195,8 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
     };
 
     if (config.mixins && config.mixins.length > 0) {
-        config.mixins.forEach((mixin: ComponentConfig) => {
+        const allMixins = config.mixins.flatMap((m) => flattenMixins(m as ComponentConfig));
+        allMixins.forEach((mixin: ComponentConfig) => {
             // Collect lifecycle hooks from mixin (mixin hooks fire before component hooks)
             LIFECYCLE_HOOKS.forEach((hook: string) => {
                 if ((mixin as any)[hook]) {
@@ -237,7 +276,7 @@ function convertMethods(
 /**
  * Creates a proxy that maps `this` access to previousState refs
  */
-function createThisProxy(previousState: any, props: any, localState: any): any {
+function createThisProxy(previousState: any, props: any, localState: any, injectedValues: Record<string, any> = {}): any {
     return new Proxy(
         {},
         {
@@ -265,6 +304,11 @@ function createThisProxy(previousState: any, props: any, localState: any): any {
                 // Check local state first (data, computed, methods from override)
                 if (localState[prop] !== undefined) {
                     return unwrapRef(localState[prop]);
+                }
+
+                // Check injected values (from Options API inject config)
+                if (Object.prototype.hasOwnProperty.call(injectedValues, prop)) {
+                    return injectedValues[prop];
                 }
 
                 // Check props
@@ -382,7 +426,13 @@ function convertData(dataFn: (() => Record<string, any>) | Record<string, any>):
             string,
             any,
         ]) => {
-            converted[key] = ref(value);
+            // Wrap objects and arrays with reactive() before ref() so nested properties
+            // are deeply observed. Primitives are wrapped with ref() directly.
+            if (typeof value === 'object' && value !== null) {
+                converted[key] = ref(reactive(value));
+            } else {
+                converted[key] = ref(value);
+            }
         },
     );
 
@@ -401,6 +451,14 @@ function setupWatchers(watchConfig: Record<string, any>, thisProxy: any): void {
             string,
             any,
         ]) => {
+            if (key.includes('.')) {
+                console.warn(
+                    `[Options API Shim] Dot-notation watch path "${key}" is not supported by the compatibility shim. ` +
+                        `Please migrate your watcher to Composition API.`,
+                );
+                return;
+            }
+
             const source = () => thisProxy[key];
 
             if (typeof handler === 'function') {
@@ -492,13 +550,6 @@ function checkUnsupportedFeatures(componentName: string, config: ComponentConfig
             `[Options API Shim] Custom render() functions are not supported by the compatibility shim. ` +
                 `Component "${componentName}" will not work correctly. ` +
                 `Please migrate to Composition API.`,
-        );
-    }
-
-    if ((config as any).$refs || (config as any).$el) {
-        console.warn(
-            `[Options API Shim] $refs and $el are not available in the setup() context. ` +
-                `Component "${componentName}" may not work correctly if it relies on these.`,
         );
     }
 }

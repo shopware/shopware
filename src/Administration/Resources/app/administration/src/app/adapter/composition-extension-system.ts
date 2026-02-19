@@ -2,7 +2,7 @@ import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
 import { computed, getCurrentInstance, isReactive, isReadonly, isRef, reactive, toRefs, watch } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { SetupContext, PublicProps } from '@vue/runtime-core';
-import { _compositionApiComponents, shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from './options-composition-shim';
+import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from './options-composition-shim';
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -217,33 +217,37 @@ export function createExtendableSetup<
         }
     });
 
-    // Register this component as using Composition API for the Options API shim
-    _compositionApiComponents.add(options.name as string);
-
     if (!_overridesMap[options.name]) {
         _overridesMap[options.name] = reactive([]);
     }
 
     // Process pending overrides from the component factory override registry.
-    // This handles the case where Shopware.Component.override() was called before this
-    // component mounted (e.g. during module init). At that time, _compositionApiComponents
-    // didn't have this component yet, so the override went only to overrideRegistry.
-    // We now pull those pending overrides and route them through the Options API shim.
+    // This is the single canonical path for routing Options API overrides through the shim.
+    // Plugins always register overrides (via Shopware.Component.override()) before the Vue
+    // application mounts, so all pending overrides are present in the registry at this point.
     void (async () => {
         try {
             const overrideRegistry = Shopware?.Component?.getOverrideRegistry?.();
-            if (overrideRegistry?.has(options.name as string)) {
+            if (!overrideRegistry) {
+                // Shopware global not available (e.g. in unit tests that don't bootstrap the app)
+                return;
+            }
+
+            if (overrideRegistry.has(options.name as string)) {
                 const pendingOverrides = overrideRegistry.get(options.name as string)!;
-                for (const pendingOverride of pendingOverrides) {
-                    const resolvedConfig = await pendingOverride.config();
-                    if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(options.name as string, resolvedConfig)) {
-                        const compositionOverride = convertOptionsApiOverrideToCompositionApi(options.name as string, resolvedConfig);
-                        _overridesMap[options.name].push(compositionOverride);
-                    }
-                }
+                await Promise.all(
+                    pendingOverrides.map(async (pendingOverride) => {
+                        const resolvedConfig = await pendingOverride.config();
+                        if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(resolvedConfig)) {
+                            // eslint-disable-next-line max-len
+                            const compositionOverride = convertOptionsApiOverrideToCompositionApi(options.name as string, resolvedConfig);
+                            _overridesMap[options.name].push(compositionOverride);
+                        }
+                    }),
+                );
             }
         } catch (e) {
-            // Silently handle - Shopware global may not be available in tests
+            console.error(`[Options API Shim] Failed to process pending overrides for "${options.name as string}":`, e);
         }
     })();
 

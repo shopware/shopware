@@ -4,15 +4,14 @@
  * Integrative tests for the Options API → Composition API Override Shim.
  *
  * These tests verify the **full end-to-end flow**: a real Vue component is
- * defined with `createExtendableSetup()` and mounted directly (no factory),
- * then legacy Options API overrides are applied via `ComponentFactory.override()`.
- * The `override()` function detects the Composition API target, converts the
- * override through the shim, and pushes it into `_overridesMap`. The mounted
- * component's reactive watcher picks up the change and updates the DOM.
+ * defined with `createExtendableSetup()` and mounted directly (no factory).
+ * Legacy Options API overrides are converted via `convertOptionsApiOverrideToCompositionApi`
+ * and pushed directly into `_overridesMap`, simulating what `createExtendableSetup`
+ * does at mount time when it processes pending overrides from the override registry.
+ * The mounted component's reactive watcher picks up the change and updates the DOM.
  *
- * This proves the full integration: ComponentFactory.override() → shim detection
- * → convertOptionsApiOverrideToCompositionApi → _overridesMap → createExtendableSetup
- * watcher → DOM update.
+ * This proves the full integration: convertOptionsApiOverrideToCompositionApi
+ * → _overridesMap → createExtendableSetup watcher → DOM update.
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unused-vars, jest/prefer-to-have-length */
@@ -20,19 +19,24 @@
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
-import { _compositionApiComponents } from 'src/app/adapter/options-composition-shim';
+import { convertOptionsApiOverrideToCompositionApi } from 'src/app/adapter/options-composition-shim';
 import { mount } from '@vue/test-utils';
 import { ref, computed, reactive, defineComponent, nextTick } from 'vue';
 
 /**
- * Helper: calls ComponentFactory.override() for a legacy Options API override
- * targeting a Composition API component. The override() function detects the
- * target, converts through the shim, and pushes to _overridesMap.
- * flushPromises() waits for the async config resolution inside override().
+ * Helper: simulates the shim path that createExtendableSetup executes at mount time.
+ * In production, all overrides are registered via ComponentFactory.override() *before*
+ * the Vue app mounts, and createExtendableSetup processes them on first mount.
+ * In tests we push the converted override directly to _overridesMap so the reactive
+ * watcher in createExtendableSetup picks up the change.
  */
 async function applyOptionsOverride(componentName: string, config: any) {
     const spy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    ComponentFactory.override(componentName, config);
+    const overrideFn = convertOptionsApiOverrideToCompositionApi(componentName, config);
+    if (!_overridesMap[componentName]) {
+        _overridesMap[componentName] = reactive([]);
+    }
+    _overridesMap[componentName].push(overrideFn);
     await flushPromises();
     spy.mockRestore();
 }
@@ -47,7 +51,6 @@ describe('Options API Shim — Integrative Tests', () => {
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
 
-        _compositionApiComponents.clear();
         const entries = [...Object.keys(_overridesMap)];
         entries.forEach((key) => {
             delete _overridesMap[key];

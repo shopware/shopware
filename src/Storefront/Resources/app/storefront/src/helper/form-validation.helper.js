@@ -484,7 +484,7 @@ export default class FormValidation {
         const label = document.querySelector(`[for="${field.id}"]`);
         const requiredLabel = label.querySelector('.form-required-label');
 
-        if (validationRules) {
+        if (validationRules && validationRules.includes('required')) {
             const rules = validationRules.split(',');
             rules.splice(rules.indexOf('required'), 1);
             field.setAttribute('data-validation', rules.join(','));

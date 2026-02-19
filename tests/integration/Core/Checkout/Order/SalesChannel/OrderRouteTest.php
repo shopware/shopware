@@ -448,8 +448,16 @@ class OrderRouteTest extends TestCase
         $criteria->addAssociation('transactions');
         $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
         static::assertNotNull($order);
-        $transaction = $order->getTransactions()?->last();
+        $transactions = $order->getTransactions();
+        static::assertNotNull($transactions);
+
+        // Ensure we have exactly one transaction with the default payment method
+        // This is critical for v6.8.0.0 OFF behavior where last() must match the payment method
+        static::assertCount(1, $transactions, 'Order must have exactly one transaction for this test');
+
+        $transaction = $transactions->last();
         static::assertNotNull($transaction);
+        static::assertSame($this->defaultPaymentMethodId, $transaction->getPaymentMethodId(), 'Transaction must have the default payment method');
 
         $initialStateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE);
         if ($transaction->getStateId() !== $initialStateId) {

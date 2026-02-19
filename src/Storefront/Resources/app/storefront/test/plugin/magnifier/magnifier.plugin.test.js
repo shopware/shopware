@@ -43,6 +43,28 @@ describe('MagnifierPlugin tests', () => {
         document.body.innerHTML = '';
     });
 
+    describe('init', () => {
+        test('should not register events when zoom image container is missing (e.g. CMS pages without product context)', () => {
+            document.body.innerHTML = `
+                <div data-magnifier>
+                    <div class="js-magnifier-container">
+                        <img class="js-magnifier-image" src="#" />
+                    </div>
+                </div>
+            `;
+
+            const el = document.querySelector('[data-magnifier]');
+            const plugin = new MagnifierPlugin(el);
+
+            expect(plugin._zoomImageContainer).toBeNull();
+
+            const image = el.querySelector('.js-magnifier-image');
+            expect(() => {
+                image.dispatchEvent(new MouseEvent('mousemove'));
+            }).not.toThrow();
+        });
+    });
+
     describe('_setZoomImageSize', () => {
         test('should clamp height to window.innerHeight / 2 when computed height exceeds maxHeight', () => {
             // keepAspectRatioOnZoom: true (default), scaleZoomImage: false (default)

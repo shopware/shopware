@@ -102,6 +102,10 @@ export default class MagnifierPlugin extends Plugin {
             this._zoomImageContainer = document.querySelector(this.options.zoomImageContainerSelector);
         }
 
+        if (!this._zoomImageContainer) {
+            return;
+        }
+
         this._registerEvents();
     }
 

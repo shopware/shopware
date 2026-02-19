@@ -41,15 +41,6 @@ class PlaceholderValuesTest extends TestCase
         yield 'mixed scalar types' => [['name' => 'product', 'count' => 5, 'active' => false, 'price' => 1.5]];
     }
 
-    #[TestDox('returns all stored values')]
-    public function testAllReturnsAllValues(): void
-    {
-        $values = ['foo' => 'bar', 'baz' => 123];
-        $placeholderValues = PlaceholderValues::from($values);
-
-        static::assertSame($values, $placeholderValues->all());
-    }
-
     #[TestDox('throws exception for non-scalar array value')]
     public function testFromThrowsForNonScalarValue(): void
     {

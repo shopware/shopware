@@ -31,23 +31,37 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         static::assertSame('shipping_method', ShippingMethodLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes empty array into ShippingMethodLoaderConfig with empty associations and onlyAvailable true')]
-    public function testDecodeEmptyArrayReturnsShippingMethodLoaderConfigWithDefaults(): void
+    #[TestDox('decodes empty array into ShippingMethodLoaderConfig with onlyAvailable true by default')]
+    public function testDecodeEmptyArrayReturnsShippingMethodLoaderConfigWithOnlyAvailableDefault(): void
     {
         $result = $this->serializer->decode([]);
 
         static::assertInstanceOf(ShippingMethodLoaderConfig::class, $result);
-        static::assertSame([], $result->associations);
         static::assertTrue($result->onlyAvailable);
     }
 
-    #[TestDox('decodes array with null associations into ShippingMethodLoaderConfig with empty associations')]
-    public function testDecodeWithNullAssociationsReturnsShippingMethodLoaderConfigWithEmptyAssociations(): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('emptyOrNullAssociationsProvider')]
+    #[TestDox('decodes absent or null associations into ShippingMethodLoaderConfig with empty associations')]
+    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
     {
-        $result = $this->serializer->decode(['associations' => null]);
+        $result = $this->serializer->decode($data);
 
         static::assertInstanceOf(ShippingMethodLoaderConfig::class, $result);
         static::assertSame([], $result->associations);
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     */
+    public static function emptyOrNullAssociationsProvider(): array
+    {
+        return [
+            'absent associations key' => [[]],
+            'null associations value' => [['associations' => null]],
+        ];
     }
 
     #[TestDox('decodes array with valid associations into ShippingMethodLoaderConfig with associations')]
@@ -68,16 +82,22 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         static::assertSame([], $result->associations);
     }
 
-    #[TestDox('decodes onlyAvailable boolean value into ShippingMethodLoaderConfig')]
-    public function testDecodeWithOnlyAvailableBooleanReturnsShippingMethodLoaderConfigWithValue(): void
+    #[TestDox('decodes onlyAvailable false into ShippingMethodLoaderConfig with onlyAvailable set to false')]
+    public function testDecodeWithOnlyAvailableFalseAssignsFalse(): void
     {
-        $resultFalse = $this->serializer->decode(['onlyAvailable' => false]);
-        $resultTrue = $this->serializer->decode(['onlyAvailable' => true]);
+        $result = $this->serializer->decode(['onlyAvailable' => false]);
 
-        static::assertInstanceOf(ShippingMethodLoaderConfig::class, $resultFalse);
-        static::assertFalse($resultFalse->onlyAvailable);
-        static::assertInstanceOf(ShippingMethodLoaderConfig::class, $resultTrue);
-        static::assertTrue($resultTrue->onlyAvailable);
+        static::assertInstanceOf(ShippingMethodLoaderConfig::class, $result);
+        static::assertFalse($result->onlyAvailable);
+    }
+
+    #[TestDox('decodes onlyAvailable true into ShippingMethodLoaderConfig with onlyAvailable set to true')]
+    public function testDecodeWithOnlyAvailableTrueAssignsTrue(): void
+    {
+        $result = $this->serializer->decode(['onlyAvailable' => true]);
+
+        static::assertInstanceOf(ShippingMethodLoaderConfig::class, $result);
+        static::assertTrue($result->onlyAvailable);
     }
 
     #[TestDox('throws exception when associations value is not an array')]
@@ -179,15 +199,6 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         $this->serializer->encode($wrongConfig);
     }
 
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
-
-        $this->serializer->getDecorated();
-    }
-
     #[TestDox('round-trips a config with associations without data loss')]
     public function testDecodeAndEncodeAreInverseForConfigWithAssociations(): void
     {
@@ -219,5 +230,14 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         $encoded = $this->serializer->encode($config);
 
         static::assertSame($original, $encoded);
+    }
+
+    #[TestDox('throws DecorationPatternException when getDecorated is called')]
+    public function testGetDecoratedThrowsDecorationPatternException(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+        $this->expectExceptionMessage('The getDecorated() function of core class');
+
+        $this->serializer->getDecorated();
     }
 }

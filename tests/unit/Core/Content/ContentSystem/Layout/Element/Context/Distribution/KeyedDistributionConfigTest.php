@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
@@ -36,20 +37,35 @@ class KeyedDistributionConfigTest extends TestCase
         static::assertSame([['name' => 'Product One'], ['name' => 'Product Two']], $result);
     }
 
-    #[TestDox('returns null for consumer whose properties lack the key property')]
-    public function testDistributeReturnsNullWhenConsumerLacksKeyProperty(): void
+    /**
+     * @param array<mixed> $consumerProperties
+     */
+    #[DataProvider('absentOrNonScalarDataKeyProvider')]
+    #[TestDox('returns null when data key is absent or non-scalar')]
+    public function testDistributeReturnsNullWhenDataKeyIsAbsentOrNonScalar(array $consumerProperties): void
     {
         $config = KeyedDistributionConfig::simple();
 
         $data = ['product-1' => ['name' => 'Product One']];
 
         $consumers = [
-            ['component' => 'ProductCard', 'properties' => []],
+            ['component' => 'ProductCard', 'properties' => $consumerProperties],
         ];
 
         $result = $config->distribute($data, $consumers);
 
         static::assertSame([null], $result);
+    }
+
+    /**
+     * @return array<string, array{array<mixed>}>
+     */
+    public static function absentOrNonScalarDataKeyProvider(): array
+    {
+        return [
+            'consumer lacks key property' => [[]],
+            'data_key is non-scalar (array)' => [['data_key' => ['not-scalar']]],
+        ];
     }
 
     #[TestDox('returns null for every consumer when data is not an array')]
@@ -76,22 +92,6 @@ class KeyedDistributionConfigTest extends TestCase
 
         $consumers = [
             ['component' => 'ProductCard', 'properties' => ['data_key' => 'product-99']],
-        ];
-
-        $result = $config->distribute($data, $consumers);
-
-        static::assertSame([null], $result);
-    }
-
-    #[TestDox('returns null for consumer when data_key property value is not a string or int')]
-    public function testDistributeReturnsNullWhenDataKeyIsNotStringOrInt(): void
-    {
-        $config = KeyedDistributionConfig::simple();
-
-        $data = ['product-1' => ['name' => 'Product One']];
-
-        $consumers = [
-            ['component' => 'ProductCard', 'properties' => ['data_key' => ['not-scalar']]],
         ];
 
         $result = $config->distribute($data, $consumers);

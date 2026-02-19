@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Helper;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
@@ -24,24 +25,27 @@ class RequestDataExtractorTest extends TestCase
         $this->extractor = new RequestDataExtractor();
     }
 
-    #[TestDox('returns all scalar query params when bindings is null')]
-    public function testReturnsAllScalarParamsWhenBindingsIsNull(): void
+    /**
+     * @return iterable<string, array{array<string, ParameterBinding>|null}>
+     */
+    public static function passThroughBindingsProvider(): iterable
+    {
+        yield 'null bindings' => [null];
+        yield 'empty bindings array' => [[]];
+    }
+
+    /**
+     * @param array<string, ParameterBinding>|null $bindings
+     */
+    #[DataProvider('passThroughBindingsProvider')]
+    #[TestDox('returns all scalar query params when no effective bindings')]
+    public function testReturnsAllScalarParamsWhenNoEffectiveBindings(?array $bindings): void
     {
         $request = new Request(['page' => '1', 'sort' => 'name']);
 
-        $result = $this->extractor->extractData($request, null);
+        $result = $this->extractor->extractData($request, $bindings);
 
         static::assertSame(['page' => '1', 'sort' => 'name'], $result);
-    }
-
-    #[TestDox('returns all scalar query params when bindings is empty')]
-    public function testReturnsAllScalarParamsWhenBindingsIsEmpty(): void
-    {
-        $request = new Request(['page' => '1']);
-
-        $result = $this->extractor->extractData($request, []);
-
-        static::assertSame(['page' => '1'], $result);
     }
 
     #[TestDox('maps params to placeholder names when bindings are provided')]

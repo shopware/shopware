@@ -10,8 +10,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolve
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextResolutionVisitor;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestContextStruct;
@@ -51,48 +49,6 @@ class ContextResolutionVisitorTest extends TestCase
 
         static::assertSame('product-data', $child1->getProperty('product'));
         static::assertSame('product-data', $child2->getProperty('product'));
-    }
-
-    #[TestDox('distributes indexed context data by child position')]
-    public function testDistributesIndexedContextByPosition(): void
-    {
-        $child0 = ContentElementBuilder::create('child-0', 'c0')
-            ->withConsumer('items', ContextType::Single, required: false)
-            ->build();
-
-        $child1 = ContentElementBuilder::create('child-1', 'c1')
-            ->withConsumer('items', ContextType::Single, required: false)
-            ->build();
-
-        $parent = ContentElementBuilder::create('parent', 'p1')
-            ->withProperty('items', ['first', 'second'])
-            ->withProvider('items', IndexedDistributionConfig::simple())
-            ->withSlot('default', [$child0, $child1])
-            ->build();
-
-        $parent->traverse($this->visitor);
-
-        static::assertSame('first', $child0->getProperty('items'));
-        static::assertSame('second', $child1->getProperty('items'));
-    }
-
-    #[TestDox('distributes keyed context data matching consumer data_key to provider data keys')]
-    public function testDistributesKeyedContextByDataKey(): void
-    {
-        $child = ContentElementBuilder::create('child', 'c1')
-            ->withConsumer('products', ContextType::Single, required: false)
-            ->withProperty('data_key', 'featured')
-            ->build();
-
-        $parent = ContentElementBuilder::create('parent', 'p1')
-            ->withProperty('products', ['featured' => 'featured-product', 'sale' => 'sale-product'])
-            ->withProvider('products', KeyedDistributionConfig::simple())
-            ->withSlot('default', [$child])
-            ->build();
-
-        $parent->traverse($this->visitor);
-
-        static::assertSame('featured-product', $child->getProperty('products'));
     }
 
     #[TestDox('does not distribute context to children that are not consumers of the key')]

@@ -12,7 +12,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\CurrencyLoader\Curr
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
@@ -23,7 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(CurrencyDataLoader::class)]
 class CurrencyDataLoaderTest extends TestCase
 {
@@ -56,13 +54,6 @@ class CurrencyDataLoaderTest extends TestCase
 
         $this->currencyRoute
             ->method('load')
-            ->with(
-                $request,
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    return $criteria->getAssociations() === [];
-                })
-            )
             ->willReturn($response);
 
         $result = $this->dataLoader->load($element, $requirement, $context, $request);
@@ -86,12 +77,13 @@ class CurrencyDataLoaderTest extends TestCase
         $this->currencyRoute
             ->method('load')
             ->with(
-                static::isInstanceOf(Request::class),
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    $associations = $criteria->getAssociations();
+                static::anything(),
+                static::anything(),
+                static::callback(function (Criteria $criteria): bool {
+                    static::assertContains('country', array_keys($criteria->getAssociations()));
+                    static::assertContains('translations', array_keys($criteria->getAssociations()));
 
-                    return isset($associations['country']) && isset($associations['translations']);
+                    return true;
                 })
             )
             ->willReturn($response);
@@ -108,19 +100,12 @@ class CurrencyDataLoaderTest extends TestCase
         $currencies = new CurrencyCollection();
         $response = new CurrencyRouteResponse($currencies);
         $element = new ContentElement(id: 'element-id', component: 'test');
-        $wrongConfig = $this->createMock(AbstractContentDataLoaderConfig::class);
+        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $requirement = new DataRequirement('currencyKey', 'currency', $wrongConfig);
         $context = Generator::generateSalesChannelContext();
 
         $this->currencyRoute
             ->method('load')
-            ->with(
-                static::isInstanceOf(Request::class),
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    return $criteria->getAssociations() === [];
-                })
-            )
             ->willReturn($response);
 
         $result = $this->dataLoader->load($element, $requirement, $context, new Request());

@@ -31,22 +31,28 @@ class LanguageLoaderConfigSerializerTest extends TestCase
         static::assertSame('language', LanguageLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes empty array into LanguageLoaderConfig with empty associations')]
-    public function testDecodeEmptyArrayReturnsLanguageLoaderConfigWithEmptyAssociations(): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('emptyOrNullAssociationsProvider')]
+    #[TestDox('decodes absent or null associations into LanguageLoaderConfig with empty associations')]
+    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
     {
-        $result = $this->serializer->decode([]);
+        $result = $this->serializer->decode($data);
 
         static::assertInstanceOf(LanguageLoaderConfig::class, $result);
         static::assertSame([], $result->associations);
     }
 
-    #[TestDox('decodes array with null associations into LanguageLoaderConfig with empty associations')]
-    public function testDecodeWithNullAssociationsReturnsLanguageLoaderConfigWithEmptyAssociations(): void
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     */
+    public static function emptyOrNullAssociationsProvider(): array
     {
-        $result = $this->serializer->decode(['associations' => null]);
-
-        static::assertInstanceOf(LanguageLoaderConfig::class, $result);
-        static::assertSame([], $result->associations);
+        return [
+            'absent associations key' => [[]],
+            'null associations value' => [['associations' => null]],
+        ];
     }
 
     #[TestDox('decodes array with valid associations into LanguageLoaderConfig with associations')]

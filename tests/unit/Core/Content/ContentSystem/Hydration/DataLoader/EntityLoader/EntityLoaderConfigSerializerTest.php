@@ -30,15 +30,6 @@ class EntityLoaderConfigSerializerTest extends TestCase
         static::assertSame('entity', EntityLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
-
-        $this->serializer->getDecorated();
-    }
-
     #[TestDox('decodes valid config array with entity and property into EntityLoaderConfig')]
     public function testDecodeValidConfigReturnsEntityLoaderConfig(): void
     {
@@ -148,8 +139,12 @@ class EntityLoaderConfigSerializerTest extends TestCase
         ]);
     }
 
+    /**
+     * @param list<mixed> $associations
+     */
+    #[DataProvider('invalidAssociationEntryProvider')]
     #[TestDox('throws exception when an association entry is not a non-empty string')]
-    public function testDecodeAssociationEntryNotStringThrowsException(): void
+    public function testDecodeAssociationEntryInvalidThrowsException(array $associations): void
     {
         $this->expectException(ContentSystemException::class);
         $this->expectExceptionMessage('Field associations.0 expected non-empty string');
@@ -157,21 +152,19 @@ class EntityLoaderConfigSerializerTest extends TestCase
         $this->serializer->decode([
             'entity' => 'product',
             'property' => 'productId',
-            'associations' => [42],
+            'associations' => $associations,
         ]);
     }
 
-    #[TestDox('throws exception when an association entry is an empty string')]
-    public function testDecodeAssociationEntryEmptyStringThrowsException(): void
+    /**
+     * @return array<string, array{list<mixed>}>
+     */
+    public static function invalidAssociationEntryProvider(): array
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations.0 expected non-empty string');
-
-        $this->serializer->decode([
-            'entity' => 'product',
-            'property' => 'productId',
-            'associations' => [''],
-        ]);
+        return [
+            'integer item' => [[42]],
+            'empty string item' => [['']],
+        ];
     }
 
     #[TestDox('encodes EntityLoaderConfig without associations into array without associations key')]
@@ -242,5 +235,14 @@ class EntityLoaderConfigSerializerTest extends TestCase
         $encoded = $this->serializer->encode($config);
 
         static::assertSame($original, $encoded);
+    }
+
+    #[TestDox('throws DecorationPatternException when getDecorated is called')]
+    public function testGetDecoratedThrowsDecorationPatternException(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+        $this->expectExceptionMessage('The getDecorated() function of core class');
+
+        $this->serializer->getDecorated();
     }
 }

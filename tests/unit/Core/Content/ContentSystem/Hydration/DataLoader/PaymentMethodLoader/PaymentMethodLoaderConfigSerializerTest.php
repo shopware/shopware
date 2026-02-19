@@ -31,13 +31,12 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
         static::assertSame('payment_method', PaymentMethodLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes empty array into PaymentMethodLoaderConfig with empty associations and onlyAvailable true')]
-    public function testDecodeEmptyArrayReturnsPaymentMethodLoaderConfigWithDefaults(): void
+    #[TestDox('decodes empty array into PaymentMethodLoaderConfig with onlyAvailable true by default')]
+    public function testDecodeEmptyArrayReturnsPaymentMethodLoaderConfigWithOnlyAvailableDefault(): void
     {
         $result = $this->serializer->decode([]);
 
         static::assertInstanceOf(PaymentMethodLoaderConfig::class, $result);
-        static::assertSame([], $result->associations);
         static::assertTrue($result->onlyAvailable);
     }
 
@@ -50,16 +49,22 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
         static::assertSame(['country', 'translations'], $result->associations);
     }
 
-    #[TestDox('decodes onlyAvailable boolean value into PaymentMethodLoaderConfig')]
-    public function testDecodeWithOnlyAvailableBooleanAssignsValue(): void
+    #[TestDox('decodes onlyAvailable false into PaymentMethodLoaderConfig with onlyAvailable set to false')]
+    public function testDecodeWithOnlyAvailableFalseAssignsFalse(): void
     {
-        $resultFalse = $this->serializer->decode(['onlyAvailable' => false]);
-        $resultTrue = $this->serializer->decode(['onlyAvailable' => true]);
+        $result = $this->serializer->decode(['onlyAvailable' => false]);
 
-        static::assertInstanceOf(PaymentMethodLoaderConfig::class, $resultFalse);
-        static::assertFalse($resultFalse->onlyAvailable);
-        static::assertInstanceOf(PaymentMethodLoaderConfig::class, $resultTrue);
-        static::assertTrue($resultTrue->onlyAvailable);
+        static::assertInstanceOf(PaymentMethodLoaderConfig::class, $result);
+        static::assertFalse($result->onlyAvailable);
+    }
+
+    #[TestDox('decodes onlyAvailable true into PaymentMethodLoaderConfig with onlyAvailable set to true')]
+    public function testDecodeWithOnlyAvailableTrueAssignsTrue(): void
+    {
+        $result = $this->serializer->decode(['onlyAvailable' => true]);
+
+        static::assertInstanceOf(PaymentMethodLoaderConfig::class, $result);
+        static::assertTrue($result->onlyAvailable);
     }
 
     #[TestDox('decodes array with empty associations list into PaymentMethodLoaderConfig with empty associations')]
@@ -71,13 +76,28 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
         static::assertSame([], $result->associations);
     }
 
-    #[TestDox('decodes array with null associations into PaymentMethodLoaderConfig with empty associations')]
-    public function testDecodeWithNullAssociationsReturnsPaymentMethodLoaderConfigWithEmptyAssociations(): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('emptyOrNullAssociationsProvider')]
+    #[TestDox('decodes absent or null associations into PaymentMethodLoaderConfig with empty associations')]
+    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
     {
-        $result = $this->serializer->decode(['associations' => null]);
+        $result = $this->serializer->decode($data);
 
         static::assertInstanceOf(PaymentMethodLoaderConfig::class, $result);
         static::assertSame([], $result->associations);
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     */
+    public static function emptyOrNullAssociationsProvider(): array
+    {
+        return [
+            'absent associations key' => [[]],
+            'null associations value' => [['associations' => null]],
+        ];
     }
 
     #[TestDox('encodes default config into empty array omitting both keys')]

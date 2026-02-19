@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Cache;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
@@ -68,74 +69,37 @@ class CacheInvalidationSubscriberTest extends TestCase
         ($this->subscriber)($event);
     }
 
-    #[TestDox('invalidates product cache tag when product_content_layout assignment is written')]
-    public function testInvalidatesProductAssignmentCacheTag(): void
+    /**
+     * @return \Generator<string, array{string, string}>
+     */
+    public static function entityAssignmentProvider(): \Generator
     {
-        $assignmentId = Uuid::randomHex();
-        $productId = Uuid::randomHex();
-
-        $event = $this->createWrittenEvent('product_content_layout', $assignmentId);
-
-        $this->connection->method('fetchFirstColumn')
-            ->willReturn([$productId]);
-
-        $this->definitionRegistry->method('get')
-            ->willReturn(static::createStub(EntityDefinition::class));
-
-        $this->cacheTagResolver->method('resolve')
-            ->willReturn('product-' . $productId);
-
-        $this->cacheInvalidator->expects($this->once())
-            ->method('invalidate')
-            ->with(['product-' . $productId]);
-
-        ($this->subscriber)($event);
+        yield 'product assignment' => ['product_content_layout', 'product-'];
+        yield 'category assignment' => ['category_content_layout', 'category-route-'];
+        yield 'landing page assignment' => ['landing_page_content_layout', 'landing-page-route-'];
     }
 
-    #[TestDox('invalidates category cache tag when category_content_layout assignment is written')]
-    public function testInvalidatesCategoryAssignmentCacheTag(): void
+    #[DataProvider('entityAssignmentProvider')]
+    #[TestDox('invalidates entity assignment cache tag for $entityName')]
+    public function testInvalidatesEntityAssignmentCacheTag(string $entityName, string $tagPrefix): void
     {
         $assignmentId = Uuid::randomHex();
-        $categoryId = Uuid::randomHex();
+        $entityId = Uuid::randomHex();
 
-        $event = $this->createWrittenEvent('category_content_layout', $assignmentId);
+        $event = $this->createWrittenEvent($entityName, $assignmentId);
 
         $this->connection->method('fetchFirstColumn')
-            ->willReturn([$categoryId]);
+            ->willReturn([$entityId]);
 
         $this->definitionRegistry->method('get')
             ->willReturn(static::createStub(EntityDefinition::class));
 
         $this->cacheTagResolver->method('resolve')
-            ->willReturn('category-route-' . $categoryId);
+            ->willReturn($tagPrefix . $entityId);
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
-            ->with(['category-route-' . $categoryId]);
-
-        ($this->subscriber)($event);
-    }
-
-    #[TestDox('invalidates landing page cache tag when landing_page_content_layout assignment is written')]
-    public function testInvalidatesLandingPageAssignmentCacheTag(): void
-    {
-        $assignmentId = Uuid::randomHex();
-        $landingPageId = Uuid::randomHex();
-
-        $event = $this->createWrittenEvent('landing_page_content_layout', $assignmentId);
-
-        $this->connection->method('fetchFirstColumn')
-            ->willReturn([$landingPageId]);
-
-        $this->definitionRegistry->method('get')
-            ->willReturn(static::createStub(EntityDefinition::class));
-
-        $this->cacheTagResolver->method('resolve')
-            ->willReturn('landing-page-route-' . $landingPageId);
-
-        $this->cacheInvalidator->expects($this->once())
-            ->method('invalidate')
-            ->with(['landing-page-route-' . $landingPageId]);
+            ->with([$tagPrefix . $entityId]);
 
         ($this->subscriber)($event);
     }

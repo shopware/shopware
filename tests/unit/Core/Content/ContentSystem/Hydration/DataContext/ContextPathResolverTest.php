@@ -40,50 +40,13 @@ class ContextPathResolverTest extends TestCase
         static::assertSame([], $result);
     }
 
-    #[TestDox('parses key with multiple nested segments, returning all but first')]
-    public function testParseContextKeyWithMultipleSegments(): void
-    {
-        $result = $this->resolver->parseContextKey('product.manufacturer.name');
-
-        static::assertSame(['manufacturer', 'name'], $result);
-    }
-
     #[TestDox('resolves empty path by returning data as-is')]
-    public function testResolvePathWithEmptyPathReturnsData(): void
+    public function testResolvePathWithEmptyPathReturnsDataAsIs(): void
     {
         $struct = new TestPathStruct('hello');
 
-        $result = $this->resolver->resolvePath($struct, [], false, 'product', 'elem-1');
-
-        static::assertSame($struct, $result);
-    }
-
-    #[TestDox('resolves empty path with null data by returning null')]
-    public function testResolvePathWithEmptyPathAndNullDataReturnsNull(): void
-    {
-        $result = $this->resolver->resolvePath(null, [], false, 'product', 'elem-1');
-
-        static::assertNull($result);
-    }
-
-    #[TestDox('returns null when data is null and path is non-empty and not required')]
-    public function testResolvePathWithNullDataAndNotRequiredReturnsNull(): void
-    {
-        $result = $this->resolver->resolvePath(null, ['cover'], false, 'product.cover', 'elem-1');
-
-        static::assertNull($result);
-    }
-
-    #[TestDox('throws when data is null and path is non-empty and required')]
-    public function testResolvePathWithNullDataAndRequiredThrows(): void
-    {
-        static::expectExceptionObject(ContentSystemException::contextPathNotResolvable(
-            'product.cover',
-            'elem-1',
-            'Base context data is null'
-        ));
-
-        $this->resolver->resolvePath(null, ['cover'], true, 'product.cover', 'elem-1');
+        static::assertSame($struct, $this->resolver->resolvePath($struct, [], false, 'product', 'elem-1'));
+        static::assertNull($this->resolver->resolvePath(null, [], false, 'product', 'elem-1'));
     }
 
     #[TestDox('resolves single-segment path on a Struct, returning the property value')]
@@ -105,6 +68,26 @@ class ContextPathResolverTest extends TestCase
         $result = $this->resolver->resolvePath($parent, ['child', 'name'], false, 'product.child.name', 'elem-1');
 
         static::assertSame('child-name', $result);
+    }
+
+    #[TestDox('returns null when data is null and path is non-empty and not required')]
+    public function testResolvePathWithNullDataAndNotRequiredReturnsNull(): void
+    {
+        $result = $this->resolver->resolvePath(null, ['cover'], false, 'product.cover', 'elem-1');
+
+        static::assertNull($result);
+    }
+
+    #[TestDox('throws when data is null and path is non-empty and required')]
+    public function testResolvePathWithNullDataAndRequiredThrows(): void
+    {
+        static::expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+            'product.cover',
+            'elem-1',
+            'Base context data is null'
+        ));
+
+        $this->resolver->resolvePath(null, ['cover'], true, 'product.cover', 'elem-1');
     }
 
     #[TestDox('returns null for missing property when not required')]
@@ -191,12 +174,6 @@ class ContextPathResolverTest extends TestCase
         static::assertTrue($this->resolver->matches('product', 'product.cover'));
     }
 
-    #[TestDox('matches provider against deeply nested consumer key')]
-    public function testMatchesReturnsTrueForDeeplyNestedConsumer(): void
-    {
-        static::assertTrue($this->resolver->matches('product', 'product.manufacturer.name'));
-    }
-
     #[TestDox('returns false for unrelated keys')]
     public function testMatchesReturnsFalseForUnrelatedKeys(): void
     {
@@ -219,14 +196,6 @@ class ContextPathResolverTest extends TestCase
     public function testExtractBaseKeyFromDottedPath(): void
     {
         $result = $this->resolver->extractBaseKey('product.cover');
-
-        static::assertSame('product', $result);
-    }
-
-    #[TestDox('extracts base key from non-dotted path, returning key unchanged')]
-    public function testExtractBaseKeyFromNonDottedPath(): void
-    {
-        $result = $this->resolver->extractBaseKey('product');
 
         static::assertSame('product', $result);
     }

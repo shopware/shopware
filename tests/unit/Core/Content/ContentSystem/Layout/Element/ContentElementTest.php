@@ -36,7 +36,7 @@ class ContentElementTest extends TestCase
             ->build();
     }
 
-    #[TestDox('stores Struct value in structProperties and scalar value in nonStructProperties separately')]
+    #[TestDox('stores Struct value and scalar value separately via setProperty')]
     public function testSetProperty(): void
     {
         $struct = new TestStruct();
@@ -50,6 +50,17 @@ class ContentElementTest extends TestCase
 
         static::assertSame($struct, $properties['myStruct']);
         static::assertSame('hello', $properties['myScalar']);
+    }
+
+    #[TestDox('returns stored property values by key via getProperty')]
+    public function testGetPropertyReturnsValuesByKey(): void
+    {
+        $struct = new TestStruct();
+
+        $element = ContentElementBuilder::create('test-component')
+            ->withProperty('myStruct', $struct)
+            ->withProperty('myScalar', 'hello')
+            ->build();
 
         static::assertSame($struct, $element->getProperty('myStruct'));
         static::assertSame('hello', $element->getProperty('myScalar'));

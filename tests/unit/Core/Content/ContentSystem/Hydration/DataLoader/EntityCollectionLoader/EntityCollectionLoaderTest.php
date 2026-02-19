@@ -60,10 +60,10 @@ class EntityCollectionLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn('product-' . $productId);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -100,10 +100,10 @@ class EntityCollectionLoaderTest extends TestCase
         $cacheTagResolver->method('resolve')
             ->willReturnCallback(static fn (EntityDefinition $def, string $id) => 'product-' . $id);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -138,10 +138,10 @@ class EntityCollectionLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn(null);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -174,11 +174,11 @@ class EntityCollectionLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn('category-route-' . $categoryId);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')
             ->willThrowException(new SalesChannelRepositoryNotFoundException('category'));
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getRepository')->willReturn($plainRepo);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
@@ -220,10 +220,10 @@ class EntityCollectionLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn(null);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -262,10 +262,10 @@ class EntityCollectionLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn(null);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -364,8 +364,8 @@ class EntityCollectionLoaderTest extends TestCase
 
     private function createMinimalLoader(): EntityCollectionLoader
     {
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
 
         return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);

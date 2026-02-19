@@ -70,8 +70,8 @@ class EntityLayoutResolverTest extends TestCase
         $this->resolver->resolve($entityId, new Request(), $context, $repository, $definition);
     }
 
-    #[TestDox('findLayoutId returns layout ID string')]
-    public function testFindLayoutIdReturnsLayoutIdString(): void
+    #[TestDox('findLayoutId returns layout ID when assignment exists')]
+    public function testFindLayoutIdReturnsLayoutIdWhenAssignmentExists(): void
     {
         $layoutId = Uuid::randomHex();
         $entity = $this->createAssignmentEntity($layoutId);

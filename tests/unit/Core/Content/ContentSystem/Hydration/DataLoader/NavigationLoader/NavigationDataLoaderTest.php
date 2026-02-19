@@ -179,8 +179,8 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame($tree, $result->data);
     }
 
-    #[TestDox('uses rootId as activeId when element active property is absent or an empty string')]
-    public function testLoadUsesRootIdAsActiveIdWhenActivePropertyIsAbsentOrEmpty(): void
+    #[TestDox('uses rootId as activeId when element active property is missing')]
+    public function testLoadUsesRootIdAsActiveIdWhenActivePropertyIsMissing(): void
     {
         $rootId = Uuid::randomHex();
         $tree = new Tree(null, []);
@@ -188,7 +188,6 @@ class NavigationDataLoaderTest extends TestCase
         $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
 
-        // Missing property: element has no 'activeId' key
         $elementMissing = new ContentElement(id: Uuid::randomHex(), component: 'test');
 
         $this->navigationLoader
@@ -200,9 +199,23 @@ class NavigationDataLoaderTest extends TestCase
 
         static::assertTrue($resultMissing->hasData());
         static::assertSame($tree, $resultMissing->data);
+    }
 
-        // Empty string property: element has 'activeId' = ''
+    #[TestDox('uses rootId as activeId when element active property is an empty string')]
+    public function testLoadUsesRootIdAsActiveIdWhenActivePropertyIsEmptyString(): void
+    {
+        $rootId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'activeId');
+        $requirement = new DataRequirement('navKey', 'navigation', $config);
+        $context = Generator::generateSalesChannelContext();
+
         $elementEmpty = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => '']);
+
+        $this->navigationLoader
+            ->method('load')
+            ->with($rootId, $context, $rootId, 2)
+            ->willReturn($tree);
 
         $resultEmpty = $this->dataLoader->load($elementEmpty, $requirement, $context, new Request());
 

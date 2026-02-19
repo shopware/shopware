@@ -39,8 +39,8 @@ class ContentPageTest extends TestCase
         static::assertSame('section', $skeleton->elements[0]->component);
     }
 
-    #[TestDox('creates decomposed page separating element structure from hydrated data')]
-    public function testGetContentDecomposedPage(): void
+    #[TestDox('creates decomposed page with skeleton structure')]
+    public function testGetContentDecomposedPageProducesSkeletonStructure(): void
     {
         $root = ContentElementBuilder::create('section', 'root-1')
             ->withProperty('title', 'Hello')
@@ -52,8 +52,24 @@ class ContentPageTest extends TestCase
 
         $decomposed = $page->getContentDecomposedPage($configProvider);
 
-        static::assertSame('layout-1', $decomposed->layoutId);
         static::assertCount(1, $decomposed->skeletons);
+        static::assertSame('root-1', $decomposed->skeletons[0]->id);
+    }
+
+    #[TestDox('creates decomposed page with assignment map')]
+    public function testGetContentDecomposedPageBuildsAssignmentMap(): void
+    {
+        $root = ContentElementBuilder::create('section', 'root-1')
+            ->withProperty('title', 'Hello')
+            ->build();
+
+        $configProvider = new DataLoaderConfigSerializerProvider(new ServiceLocator([]));
+
+        $page = new ContentPage('layout-1', [$root], 'Test Layout', 'v1');
+
+        $decomposed = $page->getContentDecomposedPage($configProvider);
+
+        static::assertArrayHasKey('root-1', $decomposed->assignments);
     }
 
     #[TestDox('creates data page with hydrated data and assignments but without skeleton')]
@@ -70,5 +86,7 @@ class ContentPageTest extends TestCase
         $dataPage = $page->getContentDataPage($configProvider);
 
         static::assertSame('layout-1', $dataPage->layoutId);
+        static::assertArrayHasKey('root-1', $dataPage->assignments);
+        static::assertCount(1, $dataPage->data);
     }
 }

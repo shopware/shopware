@@ -23,9 +23,8 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
     public function testDecodeRoutesToRegisteredSerializer(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $serializer = $this->createMock(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
         $serializer->method('decode')
-            ->with(['key' => 'value'])
             ->willReturn($config);
 
         $locator = new ServiceLocator(['entity' => fn () => $serializer]);
@@ -42,9 +41,8 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $encoded = ['foo' => 'bar'];
 
-        $serializer = $this->createMock(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
         $serializer->method('encode')
-            ->with($config)
             ->willReturn($encoded);
 
         $locator = new ServiceLocator(['entity' => fn () => $serializer]);

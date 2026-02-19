@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Event\Listener\PreHydration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Event\Listener\PreHydration\PartialRenderingPreparationSubscriber;
@@ -46,23 +47,22 @@ class PartialRenderingPreparationSubscriberTest extends TestCase
         static::assertSame('target-id', $event->elements[0]->getId());
     }
 
-    #[TestDox('skips pruning when target element ID is null')]
-    public function testSkipsPruningWhenNoTargetElementId(): void
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function skippedTargetElementIdProvider(): iterable
     {
-        $element = ContentElementBuilder::create('text', 'e1')->build();
-
-        $event = EventFactory::preHydration([$element]);
-        $this->subscriber->__invoke($event);
-
-        static::assertSame([$element], $event->elements);
+        yield 'null target ID' => [null];
+        yield 'empty string target ID' => [''];
     }
 
-    #[TestDox('skips pruning when target element ID is empty string')]
-    public function testSkipsPruningWhenTargetElementIdIsEmptyString(): void
+    #[DataProvider('skippedTargetElementIdProvider')]
+    #[TestDox('skips pruning when target element ID is not set')]
+    public function testSkipsPruningWhenTargetElementIdIsNotSet(?string $targetElementId): void
     {
         $element = ContentElementBuilder::create('text', 'e1')->build();
 
-        $event = EventFactory::preHydration([$element], targetElementId: '');
+        $event = EventFactory::preHydration([$element], targetElementId: $targetElementId);
         $this->subscriber->__invoke($event);
 
         static::assertSame([$element], $event->elements);

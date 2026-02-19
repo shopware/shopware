@@ -37,17 +37,6 @@ class EntityLoaderTest extends TestCase
         static::assertSame('entity', EntityLoader::getRequirementType());
     }
 
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $loader = $this->createMinimalLoader();
-
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
-
-        $loader->getDecorated();
-    }
-
     #[TestDox('returns cached result with cache tag when entity is loaded via sales channel repository')]
     public function testLoadReturnsCachedResultViaSalesChannelRepository(): void
     {
@@ -71,10 +60,10 @@ class EntityLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn('product-' . $productId);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -108,11 +97,11 @@ class EntityLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn('category-route-' . $categoryId);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')
             ->willThrowException(new SalesChannelRepositoryNotFoundException('category'));
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getRepository')->willReturn($plainRepo);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
@@ -147,10 +136,10 @@ class EntityLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn(null);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -190,10 +179,10 @@ class EntityLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn(null);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -232,10 +221,10 @@ class EntityLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn(null);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -268,10 +257,10 @@ class EntityLoaderTest extends TestCase
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn('product-' . $productId);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -340,10 +329,10 @@ class EntityLoaderTest extends TestCase
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
 
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -354,10 +343,21 @@ class EntityLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
+    #[TestDox('throws DecorationPatternException when getDecorated is called')]
+    public function testGetDecoratedThrowsDecorationPatternException(): void
+    {
+        $loader = $this->createMinimalLoader();
+
+        $this->expectException(DecorationPatternException::class);
+        $this->expectExceptionMessage('The getDecorated() function of core class');
+
+        $loader->getDecorated();
+    }
+
     private function createMinimalLoader(): EntityLoader
     {
-        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
-        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
 
         return new EntityLoader($scDefRegistry, $defRegistry, $cacheTagResolver);

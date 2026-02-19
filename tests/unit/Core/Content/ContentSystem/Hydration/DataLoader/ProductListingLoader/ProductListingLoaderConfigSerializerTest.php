@@ -31,14 +31,13 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         static::assertSame('product_listing', ProductListingLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes empty array into ProductListingLoaderConfig with null property and empty associations')]
-    public function testDecodeEmptyArrayReturnsProductListingLoaderConfigWithDefaults(): void
+    #[TestDox('decodes empty array into ProductListingLoaderConfig with null property')]
+    public function testDecodeEmptyArrayReturnsProductListingLoaderConfigWithNullProperty(): void
     {
         $result = $this->serializer->decode([]);
 
         static::assertInstanceOf(ProductListingLoaderConfig::class, $result);
         static::assertNull($result->property);
-        static::assertSame([], $result->associations);
     }
 
     #[TestDox('decodes config with valid property into ProductListingLoaderConfig with property set')]
@@ -74,14 +73,28 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         static::assertSame(['media', 'options'], $result->associations);
     }
 
-    #[TestDox('decodes config with null associations into ProductListingLoaderConfig with empty associations')]
-    public function testDecodeWithNullAssociationsReturnsEmptyAssociations(): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('emptyOrNullAssociationsProvider')]
+    #[TestDox('decodes absent or null associations into ProductListingLoaderConfig with empty associations')]
+    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
     {
-        $result = $this->serializer->decode(['associations' => null]);
+        $result = $this->serializer->decode($data);
 
         static::assertInstanceOf(ProductListingLoaderConfig::class, $result);
-        static::assertNull($result->property);
         static::assertSame([], $result->associations);
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     */
+    public static function emptyOrNullAssociationsProvider(): array
+    {
+        return [
+            'absent associations key' => [[]],
+            'null associations value' => [['associations' => null]],
+        ];
     }
 
     /**

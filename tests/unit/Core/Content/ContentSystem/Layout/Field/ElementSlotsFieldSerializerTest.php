@@ -147,16 +147,6 @@ class ElementSlotsFieldSerializerTest extends TestCase
         );
     }
 
-    #[TestDox('decodes null to null')]
-    public function testDecodeWithNullReturnsNull(): void
-    {
-        $field = $this->createElementSlotsField();
-
-        $result = $this->serializer->decode($field, null);
-
-        static::assertNull($result);
-    }
-
     #[TestDox('decodes JSON string to SlotContent array')]
     public function testDecodeWithJsonStringReturnsSlotContentArray(): void
     {
@@ -216,6 +206,16 @@ class ElementSlotsFieldSerializerTest extends TestCase
 
         static::assertIsArray($result);
         static::assertSame([], $result);
+    }
+
+    #[TestDox('decodes null to null')]
+    public function testDecodeWithNullReturnsNull(): void
+    {
+        $field = $this->createElementSlotsField();
+
+        $result = $this->serializer->decode($field, null);
+
+        static::assertNull($result);
     }
 
     #[TestDox('throws exception when decode receives wrong field type')]

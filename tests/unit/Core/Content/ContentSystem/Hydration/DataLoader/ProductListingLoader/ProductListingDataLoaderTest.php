@@ -60,7 +60,6 @@ class ProductListingDataLoaderTest extends TestCase
         $response->method('getResult')->willReturn($listingResult);
 
         $this->listingRoute
-            ->expects($this->once())
             ->method('load')
             ->with($navigationId, $request, $context, static::isInstanceOf(Criteria::class))
             ->willReturn($response);
@@ -253,40 +252,51 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when navigationId element property is not a string or is missing')]
-    public function testLoadReturnsNotFoundWhenNavigationIdPropertyIsNotStringOrMissing(): void
+    #[TestDox('returns notFound result when navigationId element property is not a string')]
+    public function testLoadReturnsNotFoundWhenNavigationIdPropertyIsNotString(): void
     {
         $config = new ProductListingLoaderConfig(property: 'navigationId');
 
-        $elementWithIntProperty = ContentElementBuilder::create('product-listing')
+        $element = ContentElementBuilder::create('product-listing')
             ->withProperty('navigationId', 42)
             ->build();
-        $elementWithMissingProperty = ContentElementBuilder::create('product-listing')->build();
 
         $context = Generator::generateSalesChannelContext();
 
         $this->listingRoute->expects($this->never())->method('load');
 
-        $resultForInt = $this->loader->load(
-            $elementWithIntProperty,
+        $result = $this->loader->load(
+            $element,
             new DataRequirement('listing', 'product_listing', $config),
             $context,
             new Request()
         );
 
-        static::assertNull($resultForInt->data);
-        static::assertTrue($resultForInt->isCacheAware());
-        static::assertSame([], $resultForInt->getCacheTags());
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
 
-        $resultForMissing = $this->loader->load(
-            $elementWithMissingProperty,
+    #[TestDox('returns notFound result when navigationId element property is missing')]
+    public function testLoadReturnsNotFoundWhenNavigationIdPropertyIsMissing(): void
+    {
+        $config = new ProductListingLoaderConfig(property: 'navigationId');
+
+        $element = ContentElementBuilder::create('product-listing')->build();
+
+        $context = Generator::generateSalesChannelContext();
+
+        $this->listingRoute->expects($this->never())->method('load');
+
+        $result = $this->loader->load(
+            $element,
             new DataRequirement('listing', 'product_listing', $config),
             $context,
             new Request()
         );
 
-        static::assertNull($resultForMissing->data);
-        static::assertTrue($resultForMissing->isCacheAware());
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
     }
 
     #[TestDox('throws DecorationPatternException when getDecorated is called')]

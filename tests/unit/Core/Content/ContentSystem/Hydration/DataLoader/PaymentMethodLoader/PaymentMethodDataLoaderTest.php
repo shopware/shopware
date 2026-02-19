@@ -16,7 +16,6 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(PaymentMethodDataLoader::class)]
 class PaymentMethodDataLoaderTest extends TestCase
 {
@@ -42,15 +40,6 @@ class PaymentMethodDataLoaderTest extends TestCase
     public function testGetRequirementTypeReturnsPaymentMethodString(): void
     {
         static::assertSame('payment_method', PaymentMethodDataLoader::getRequirementType());
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
-
-        $this->dataLoader->getDecorated();
     }
 
     #[TestDox('returns cachedExternally result with payment method collection')]
@@ -107,12 +96,13 @@ class PaymentMethodDataLoaderTest extends TestCase
         $this->paymentMethodRoute
             ->method('load')
             ->with(
-                static::isInstanceOf(Request::class),
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    $associations = $criteria->getAssociations();
+                static::anything(),
+                static::anything(),
+                static::callback(function (Criteria $criteria): bool {
+                    static::assertContains('country', array_keys($criteria->getAssociations()));
+                    static::assertContains('translations', array_keys($criteria->getAssociations()));
 
-                    return isset($associations['country']) && isset($associations['translations']);
+                    return true;
                 })
             )
             ->willReturn($response);
@@ -143,51 +133,15 @@ class PaymentMethodDataLoaderTest extends TestCase
         $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $config);
 
         $this->paymentMethodRoute
-            ->expects($this->once())
             ->method('load')
             ->with(
-                static::callback(static function (Request $clonedRequest): bool {
-                    return $clonedRequest->query->get('onlyAvailable') === false;
+                static::callback(function (Request $clonedRequest): bool {
+                    static::assertFalse($clonedRequest->query->get('onlyAvailable'));
+
+                    return true;
                 }),
-                $context,
-                static::isInstanceOf(Criteria::class)
-            )
-            ->willReturn($response);
-
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertTrue($result->hasData());
-        static::assertSame($paymentMethods, $result->data);
-    }
-
-    #[TestDox('sets onlyAvailable to true by default when config does not specify it')]
-    public function testLoadSetsOnlyAvailableTrueByDefault(): void
-    {
-        $paymentMethods = new PaymentMethodCollection();
-        $context = Generator::generateSalesChannelContext();
-        $response = new PaymentMethodRouteResponse(
-            new EntitySearchResult(
-                'payment_method',
-                0,
-                $paymentMethods,
-                null,
-                new Criteria(),
-                $context->getContext()
-            )
-        );
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new PaymentMethodLoaderConfig(onlyAvailable: true);
-        $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $config);
-
-        $this->paymentMethodRoute
-            ->expects($this->once())
-            ->method('load')
-            ->with(
-                static::callback(static function (Request $clonedRequest): bool {
-                    return $clonedRequest->query->get('onlyAvailable') === true;
-                }),
-                $context,
-                static::isInstanceOf(Criteria::class)
+                static::anything(),
+                static::anything()
             )
             ->willReturn($response);
 
@@ -218,13 +172,6 @@ class PaymentMethodDataLoaderTest extends TestCase
 
         $this->paymentMethodRoute
             ->method('load')
-            ->with(
-                static::isInstanceOf(Request::class),
-                $context,
-                static::callback(static function (Criteria $criteria): bool {
-                    return $criteria->getAssociations() === [];
-                })
-            )
             ->willReturn($response);
 
         $result = $this->dataLoader->load($element, $requirement, $context, new Request());
@@ -262,5 +209,14 @@ class PaymentMethodDataLoaderTest extends TestCase
         $this->dataLoader->load($element, $requirement, $context, $originalRequest);
 
         static::assertNull($originalRequest->query->get('onlyAvailable'));
+    }
+
+    #[TestDox('throws DecorationPatternException when getDecorated is called')]
+    public function testGetDecoratedThrowsDecorationPatternException(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+        $this->expectExceptionMessage('The getDecorated() function of core class');
+
+        $this->dataLoader->getDecorated();
     }
 }

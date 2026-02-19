@@ -116,7 +116,7 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         $invalidField = new TranslatedField('resolutionConfig');
         $kvPair = new KeyValuePair('resolution_config', null, false);
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldType(StorageAware::class, TranslatedField::class)
         );
 
@@ -166,7 +166,7 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         $invalidField = new JsonField('resolution_config', 'resolutionConfig');
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldType(ResolutionConfigField::class, JsonField::class)
         );
 
@@ -178,7 +178,7 @@ class ResolutionConfigFieldSerializerTest extends TestCase
     {
         $field = $this->createResolutionConfigField();
 
-        $this->expectExceptionObject(
+        static::expectExceptionObject(
             ContentSystemException::invalidFieldValueType('resolution', 'array', 'integer')
         );
 
@@ -256,10 +256,9 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         };
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionRegistry
             ->method('getByEntityName')
-            ->with('product')
             ->willReturn($definition);
 
         $filterSerializer = new CriteriaFilterFieldSerializer($validator, $definitionRegistry);
@@ -314,10 +313,9 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         };
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionRegistry
             ->method('getByEntityName')
-            ->with('product')
             ->willReturn($definition);
 
         $filterSerializer = new CriteriaFilterFieldSerializer($validator, $definitionRegistry);

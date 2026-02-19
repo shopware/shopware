@@ -126,7 +126,7 @@ class ServiceLifecycle
 
         // do not update invalid releases
         if (!$this->requirementsValidator->isValidSet($latestAppInfo->requirements)) {
-            $this->logger->debug(\sprintf('Cannot install service "%s" because of invalid requirements: "%s"', $serviceEntry->name, implode(', ', $latestAppInfo->requirements)));
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of invalid requirements: "%s"', $serviceEntry->name, implode(', ', $latestAppInfo->requirements)));
 
             return false;
         }

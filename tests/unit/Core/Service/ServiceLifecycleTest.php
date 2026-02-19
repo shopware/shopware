@@ -687,7 +687,7 @@ class ServiceLifecycleTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('debug')
-            ->with('Cannot install service "MyCoolService" because of invalid requirements: "invalid_requirement"');
+            ->with('Cannot update service "MyCoolService" because of invalid requirements: "invalid_requirement"');
 
         $lifecycle = new ServiceLifecycle(
             $this->serviceRegistryClient,

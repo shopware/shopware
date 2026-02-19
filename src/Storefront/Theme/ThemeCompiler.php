@@ -105,7 +105,6 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         /**
          * New base style files.
-         * This is the new feature introduced with the new component system.
          * You can define a minimal set of styles to be loaded for the theme.
          */
         $baseStyleCopyFiles = [];

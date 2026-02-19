@@ -43,7 +43,7 @@ class RuleComparison
         return match ($operator) {
             Rule::OPERATOR_EQ => strcasecmp($ruleValue, $itemValue) === 0,
             Rule::OPERATOR_NEQ => strcasecmp($ruleValue, $itemValue) !== 0,
-            Rule::OPERATOR_EMPTY => $itemValue === '',
+            Rule::OPERATOR_EMPTY => trim($itemValue) === '',
             default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }

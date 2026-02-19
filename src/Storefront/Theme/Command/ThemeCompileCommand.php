@@ -58,7 +58,7 @@ class ThemeCompileCommand extends Command
         $onlySalesChannel = ((array) $input->getOption('only')) ?: null;
         $skipSalesChannel = ((array) $input->getOption('skip')) ?: null;
         if ($onlySalesChannel !== null && $skipSalesChannel !== null
-            && \count(array_intersect($onlySalesChannel, $skipSalesChannel)) > 0) {
+            && array_intersect($onlySalesChannel, $skipSalesChannel) !== []) {
             $this->io->error('The sales channel includes and skips contain contradicting entries:' . implode(
                 ', ',
                 array_intersect($onlySalesChannel, $skipSalesChannel)
@@ -70,7 +70,7 @@ class ThemeCompileCommand extends Command
         $onlyThemes = ((array) $input->getOption('only-themes')) ?: null;
         $skipThemes = ((array) $input->getOption('skip-themes')) ?: null;
         if ($onlyThemes !== null && $skipThemes !== null
-            && \count(array_intersect($onlyThemes, $skipThemes)) > 0) {
+            && array_intersect($onlyThemes, $skipThemes) !== []) {
             $this->io->error('The theme includes and skips contain contradicting entries:' . implode(
                 ', ',
                 array_intersect($onlyThemes, $skipThemes)

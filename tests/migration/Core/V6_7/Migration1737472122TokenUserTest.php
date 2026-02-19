@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Administration\V6_7;
+namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Migration\V6_7\Migration1737472122TokenUser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Migration\V6_7\Migration1737472122TokenUser;
 
 /**
  * @internal

@@ -19,13 +19,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -40,6 +45,8 @@ class OrderServiceTest extends TestCase
     /** @var MockObject&EntityRepository<PaymentMethodCollection> */
     private MockObject&EntityRepository $paymentMethodRepository;
 
+    private MockObject&StateMachineRegistry $stateMachineRegistry;
+
     private OrderService $orderService;
 
     protected function setUp(): void
@@ -47,7 +54,7 @@ class OrderServiceTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->cartService = $this->createMock(CartService::class);
         $this->paymentMethodRepository = $this->createMock(EntityRepository::class);
-        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
+        $this->stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
         $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $this->orderService = new OrderService(
@@ -56,7 +63,7 @@ class OrderServiceTest extends TestCase
             $eventDispatcher,
             $this->cartService,
             $this->paymentMethodRepository,
-            $stateMachineRegistry
+            $this->stateMachineRegistry
         );
     }
 
@@ -104,5 +111,86 @@ class OrderServiceTest extends TestCase
         $dataBag->set('revocation', true);
 
         $this->orderService->createOrder($dataBag, $context);
+    }
+
+    public function testOrderStateTransitionUseData(): void
+    {
+        $context = Context::createDefaultContext();
+        $orderId = Uuid::randomHex();
+        $data = new ParameterBag([
+            'stateFieldName' => 'abc',
+            'internalComment' => 'def',
+        ]);
+
+        $stateMachineStates = new StateMachineStateCollection();
+        $toPlace = new StateMachineStateEntity();
+        $stateMachineStates->set('toPlace', $toPlace);
+
+        $expectedTransition = new Transition('order', $orderId, 'cancel', 'abc', 'def');
+
+        $this->stateMachineRegistry->expects($this->once())
+            ->method('transition')
+            ->with(
+                static::equalTo($expectedTransition),
+                $context
+            )
+            ->willReturn($stateMachineStates);
+
+        $state = $this->orderService->orderStateTransition($orderId, 'cancel', $data, $context);
+        static::assertSame($toPlace, $state);
+    }
+
+    public function testOrderTransactionStateTransitionUseData(): void
+    {
+        $context = Context::createDefaultContext();
+        $orderTransactionId = Uuid::randomHex();
+        $data = new ParameterBag([
+            'stateFieldName' => 'abc',
+            'internalComment' => 'def',
+        ]);
+
+        $stateMachineStates = new StateMachineStateCollection();
+        $toPlace = new StateMachineStateEntity();
+        $stateMachineStates->set('toPlace', $toPlace);
+
+        $expectedTransition = new Transition('order_transaction', $orderTransactionId, 'cancel', 'abc', 'def');
+
+        $this->stateMachineRegistry->expects($this->once())
+            ->method('transition')
+            ->with(
+                static::equalTo($expectedTransition),
+                $context
+            )
+            ->willReturn($stateMachineStates);
+
+        $state = $this->orderService->orderTransactionStateTransition($orderTransactionId, 'cancel', $data, $context);
+        static::assertSame($toPlace, $state);
+    }
+
+    public function testOrderDeliveryStateTransitionUseData(): void
+    {
+        $context = Context::createDefaultContext();
+        $orderDeliveryId = Uuid::randomHex();
+        $data = new ParameterBag([
+            'stateFieldName' => 'abc',
+            'internalComment' => 'def',
+        ]);
+
+        $stateMachineStates = new StateMachineStateCollection();
+        $toPlace = new StateMachineStateEntity();
+        $stateMachineStates->set('toPlace', $toPlace);
+
+        $expectedTransition = new Transition('order_delivery', $orderDeliveryId, 'cancel', 'abc', 'def');
+
+        $this->stateMachineRegistry->expects($this->once())
+            ->method('transition')
+            ->with(
+                static::equalTo($expectedTransition),
+                $context
+            )
+            ->willReturn($stateMachineStates);
+
+        $state = $this->orderService->orderDeliveryStateTransition($orderDeliveryId, 'cancel', $data, $context);
+        static::assertSame($toPlace, $state);
     }
 }

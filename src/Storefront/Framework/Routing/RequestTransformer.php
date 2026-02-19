@@ -269,7 +269,7 @@ class RequestTransformer implements RequestTransformerInterface
     {
         $domains = $this->domainLoader->load();
 
-        if (empty($domains)) {
+        if ($domains === []) {
             return null;
         }
 
@@ -287,7 +287,7 @@ class RequestTransformer implements RequestTransformerInterface
         // reduce shops to which base url is the beginning of the request
         $domains = array_filter($domains, fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
 
-        if (empty($domains)) {
+        if ($domains === []) {
             return null;
         }
 
@@ -351,6 +351,6 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private function containsBaseUrl(string $seoPathInfo, string $baseUrl): bool
     {
-        return !empty($baseUrl) && mb_strpos($seoPathInfo, $baseUrl) === 0;
+        return $baseUrl !== '' && str_starts_with($seoPathInfo, $baseUrl);
     }
 }

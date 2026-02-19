@@ -27,7 +27,9 @@ class CartCompressorTest extends TestCase
         $back = $compressor->unserialize($result, $compression);
 
         static::assertSame('test', $back);
-        static::assertSame('test', unserialize($result));
+
+        /** @phpstan-ignore shopware.unserializeUsage */
+        static::assertSame('test', \unserialize($result));
     }
 
     public function testSerializeGzip(): void

@@ -1403,7 +1403,7 @@ class EntityAggregatorTest extends TestCase
             'releaseDate' => $releaseDate,
         ];
 
-        if (!empty($categories)) {
+        if ($categories !== []) {
             $data['categories'] = $categories;
         }
 

@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@popperjs/core": "2.11.8",
-    "@shopware-ag/dive": "2.2.20",
+    "@shopware-ag/dive": "2.2.29",
     "@swc/core": "1.10.14",
     "autoprefixer": "10.4.13",
     "bootstrap": "5.3.3",
@@ -55,7 +55,7 @@
     "terser-webpack-plugin": "5.3.11",
     "tiny-slider": "2.9.4",
     "typescript": "5.7.3",
-    "webpack": "5.97.1",
+    "webpack": "5.104.1",
     "webpack-cli": "6.0.1",
     "webpack-merge": "6.0.1",
     "webpackbar": "7.0.0"
@@ -89,10 +89,11 @@
     "stylelint-config-recommended-scss": "14.1.0",
     "stylelint-junit-formatter": "0.2.2",
     "stylelint-prettier": "5.0.3",
-    "webpack-dev-server": "5.2.2",
+    "webpack-dev-server": "5.2.3",
     "xml2js": "0.6.2"
   },
   "overrides": {
-    "tmp": "0.2.5"
+    "tmp": "0.2.5",
+    "qs": "6.14.2"
   }
 }

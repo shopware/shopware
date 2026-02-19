@@ -11,6 +11,21 @@ It can be found in the state machine state history modal (state change modal) on
 
 ## Core
 
+### Deprecation of implicit entity name resolution in compiler passes
+
+Relying on implicit entity name resolution via class instantiation during container compilation is deprecated and will be removed in v6.8.0.0. The following behaviors now trigger deprecation warnings:
+
+- A `shopware.entity.definition` or `shopware.sales_channel.entity.definition` service tag without an `entity` attribute.
+- An `entity` attribute that does not match the value returned by `getEntityName()`.
+
+Add the `entity` attribute to your service tags to silence the deprecation:
+
+```xml
+<service id="MyPlugin\Core\Content\MyEntity\MyEntityDefinition">
+    <tag name="shopware.entity.definition" entity="my_entity"/>
+</service>
+```
+
 ### Internal product streams
 
 A new boolean field `internal` has been added to product streams with a default value of `false`.

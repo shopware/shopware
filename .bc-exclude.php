@@ -81,5 +81,8 @@ return [
         'The parameter $stateMachineState of Shopware\\\\.*\\\\OrderTransactionCaptureEntity#setStateMachineState() changed .* Shopware\\\\.*\\\\StateMachineStateEntity|null',
 
         preg_quote('CHANGED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$internal changed default value from NULL to false', '/'),
+
+        // Was already internal in practice, annotation was missing
+        preg_quote('CHANGED: Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass was marked "@internal"', '/'),
     ],
 ];

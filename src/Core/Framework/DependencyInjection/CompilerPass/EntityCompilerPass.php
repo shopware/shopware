@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,6 +22,15 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * Wires entity definitions into the runtime system.
+ *
+ * For each `shopware.entity.definition` service, this pass adds a `compile()` call,
+ * creates an EntityRepository if none exists, registers autowiring aliases, and
+ * populates the DefinitionInstanceRegistry with entity-name-to-service-ID maps.
+ *
+ * Entity names are read from the tag's 'entity' attribute (written by EntityDefinitionTagCompilerPass).
+ */
 #[Package('framework')]
 class EntityCompilerPass implements CompilerPassInterface
 {
@@ -38,9 +48,7 @@ class EntityCompilerPass implements CompilerPassInterface
         $repositoryNameMap = [];
         $services = $container->findTaggedServiceIds('shopware.entity.definition');
 
-        $ids = array_keys($services);
-
-        foreach ($ids as $serviceId) {
+        foreach ($services as $serviceId => $tags) {
             $service = $container->getDefinition($serviceId);
 
             $service->addMethodCall('compile', [
@@ -55,16 +63,30 @@ class EntityCompilerPass implements CompilerPassInterface
                 throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'shopware.entity.definition', EntityDefinition::class);
             }
 
+            // Attribute-based entities are fully wired by AttributeEntityCompilerPass
             if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
                 continue;
             }
 
-            $instance = new $class();
+            // Entity name is on the tag (written by EntityDefinitionTagCompilerPass)
+            $entity = $tags[0]['entity'] ?? null;
+            if ($entity === null || $entity === '') {
+                /** @deprecated tag:v6.8.0 - remove else branch, keep only the throw */
+                if (Feature::isActive('v6.8.0.0')) {
+                    throw DependencyInjectionException::missingEntityTagAttribute($serviceId, 'shopware.entity.definition');
+                }
 
-            $entityNameMap[$instance->getEntityName()] = $serviceId;
-            $entity = $instance->getEntityName();
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    'Service "' . $serviceId . '" is tagged as "shopware.entity.definition" but is missing the required "entity" attribute. Add the "entity" attribute to the service tag. This will throw an exception in v6.8.0.'
+                );
 
-            $repositoryId = $instance->getEntityName() . '.repository';
+                $entity = (new $class())->getEntityName();
+            }
+
+            $entityNameMap[$entity] = $serviceId;
+
+            $repositoryId = $entity . '.repository';
 
             try {
                 $repository = $container->getDefinition($repositoryId);

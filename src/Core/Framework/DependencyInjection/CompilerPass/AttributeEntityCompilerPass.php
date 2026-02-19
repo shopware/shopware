@@ -21,6 +21,14 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * Compiles attribute-based entity definitions from classes tagged with 'shopware.entity'.
+ *
+ * For each entity class, registers service definitions (entity, translation, mapping),
+ * repositories, and sets the 'entity' attribute on tags for downstream passes.
+ *
+ * @internal
+ */
 #[Package('framework')]
 class AttributeEntityCompilerPass implements CompilerPassInterface
 {
@@ -62,7 +70,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition(AttributeEntityDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
-        $definition->addTag('shopware.entity.definition');
+        $definition->addTag('shopware.entity.definition', ['entity' => $entity]);
         $container->setDefinition($entity . '.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
@@ -103,7 +111,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition(AttributeTranslationDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
-        $definition->addTag('shopware.entity.definition');
+        $definition->addTag('shopware.entity.definition', ['entity' => $entity . '_translation']);
         $container->setDefinition($entity . '_translation.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
@@ -138,7 +146,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition(AttributeMappingDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
-        $definition->addTag('shopware.entity.definition');
+        $definition->addTag('shopware.entity.definition', ['entity' => $meta['entity_name']]);
         $container->setDefinition($meta['entity_name'] . '.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);

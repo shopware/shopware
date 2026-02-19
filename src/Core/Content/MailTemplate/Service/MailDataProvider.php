@@ -31,7 +31,7 @@ class MailDataProvider
     /**
      * @param array<string, string> $entities
      *
-     * @return array<string, Entity>
+     * @return array<string, Entity|null>
      */
     public function getTemplateData(MailTemplateEntity $mailTemplate, array $entities, Context $context): array
     {

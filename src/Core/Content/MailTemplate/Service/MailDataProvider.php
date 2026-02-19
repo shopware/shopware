@@ -37,48 +37,27 @@ class MailDataProvider
     /**
      * @param array<string, string> $entities
      *
-     * @return array<string, mixed>
+     * @return array<string, Entity>
      */
     public function getTemplateData(MailTemplateEntity $mailTemplate, array $entities, Context $context): array
     {
         $availableEntities = $mailTemplate->getMailTemplateType()?->getAvailableEntities() ?? [];
 
         // Filter entities array so only those are left which are in the mail template's available entities list
-        $entities = \array_filter(
-            $entities,
-            function (string $entityName) use ($availableEntities) {
-                return \in_array($entityName, $availableEntities, true);
-            },
-            \ARRAY_FILTER_USE_KEY
-        );
+        $entities = array_intersect_key($entities, $availableEntities);
 
         $templateData = [];
 
-        foreach ($entities as $entityName => $entityId) {
+        foreach ($entities as $key => $entityId) {
+            $entityName = $availableEntities[$key];
+
             $dataProvider = $this->dataProviders[$entityName];
 
             $data = $dataProvider->getData($entityId, $context);
 
             $templateData = array_merge(
                 $templateData,
-                [$entityName => $data]
-            );
-        }
-
-        foreach ($templateData as $key => $value) {
-            if (!$value instanceof Entity || empty($value->getInternalEntityName())) {
-                continue;
-            }
-
-            $definition = $this->definitionInstanceRegistry->getByEntityName(
-                $value->getInternalEntityName()
-            );
-
-            $templateData[$key] = $this->jsonEntityEncoder->encode(
-                new Criteria(),
-                $definition,
-                $value,
-                '/api'
+                [$key => $data]
             );
         }
 

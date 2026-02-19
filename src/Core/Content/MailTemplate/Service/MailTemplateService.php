@@ -97,7 +97,7 @@ class MailTemplateService
             new MailTemplateEntity(),
             $extension,
             [],
-            $templateData['order']['id'] ?? null,
+            $templateData['order']?->get('id') ?? null
         );
 
         return $this->mailService->send($data, $context, $templateData);

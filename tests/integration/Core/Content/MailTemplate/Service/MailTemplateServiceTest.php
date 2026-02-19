@@ -111,7 +111,7 @@ class MailTemplateServiceTest extends TestCase
     public function testPreviewNonExistingEntitiesErrorInStrictMode(): void
     {
         $id = $this->createMailTemplate(
-            ['mainOrder' => 'order'],
+            ['order' => 'order'],
             'Order ID: {{ order.id }}', // order variable is required for rendering the template
             'Order ID: {{ order.id }}',
         );
@@ -362,7 +362,7 @@ class MailTemplateServiceTest extends TestCase
         ]);
 
         $id = $this->createMailTemplate(
-            ['order' => 'order'],
+            ['mainOrder' => 'order'],
             'Order ID: {{ order.id }}',
             'Order ID: {{ order.id }}',
         );
@@ -373,11 +373,66 @@ class MailTemplateServiceTest extends TestCase
             ],
         ];
 
-        $email = $this->mailTemplateService->getTemplateDataAndSend($data, $id, ['order' => $orderId], $this->context);
+        $email = $this->mailTemplateService->getTemplateDataAndSend($data, $id, ['mainOrder' => $orderId], $this->context);
 
         static::assertInstanceOf(Email::class, $email);
         static::assertSame('Order ID: ' . $orderId, $email->getTextBody());
         static::assertSame('Order ID: ' . $orderId, $email->getHtmlBody());
+        static::assertSame('Test', $email->getSubject());
+        static::assertSame('Shopware', $email->getFrom()[0]->getName());
+        static::assertSame('Test', $email->getTo()[0]->getName());
+        static::assertSame('test@shopware.com', $email->getTo()[0]->getAddress());
+    }
+
+    public function testCanSendMultipleEntities(): void
+    {
+        $mainOrderId = Uuid::randomHex();
+        $secondOrderId = Uuid::randomHex();
+
+        $customerId = $this->createCustomer();
+        $this->createOrder($customerId, [
+            'id' => $mainOrderId,
+        ]);
+        $this->createOrder($customerId, [
+            'id' => $secondOrderId,
+        ]);
+
+        $id = $this->createMailTemplate(
+            [
+                'mainOrder' => 'order',
+                'secondaryOrder' => 'order',
+                'customer' => 'customer',
+            ],
+            'Main order ID: {{ mainOrder.id }}, Secondary order ID: {{ secondaryOrder.id }}, Customer ID: {{ customer.id }}',
+            'Main order ID: {{ mainOrder.id }}, Secondary order ID: {{ secondaryOrder.id }}, Customer ID: {{ customer.id }}',
+        );
+
+        $data = [
+            'recipients' => [
+                'test@shopware.com' => 'Test',
+            ],
+        ];
+
+        $email = $this->mailTemplateService->getTemplateDataAndSend(
+            $data,
+            $id,
+            [
+                'mainOrder' => $mainOrderId,
+                'secondaryOrder' => $secondOrderId,
+                'customer' => $customerId,
+            ],
+            $this->context
+        );
+
+        static::assertInstanceOf(Email::class, $email);
+        static::assertSame(
+            'Main order ID: ' . $mainOrderId . ', Secondary order ID: ' . $secondOrderId . ', Customer ID: ' . $customerId,
+            $email->getTextBody()
+        );
+        static::assertSame(
+            'Main order ID: ' . $mainOrderId . ', Secondary order ID: ' . $secondOrderId . ', Customer ID: ' . $customerId,
+            $email->getHtmlBody()
+        );
         static::assertSame('Test', $email->getSubject());
         static::assertSame('Shopware', $email->getFrom()[0]->getName());
         static::assertSame('Test', $email->getTo()[0]->getName());

@@ -498,6 +498,25 @@ class OrderRouteTest extends TestCase
         static::assertSame($initialStateId, $verifyTransaction->getStateId(), 'Transaction state changed unexpectedly before API request');
         static::assertSame($this->defaultPaymentMethodId, $verifyTransaction->getPaymentMethodId(), 'Payment method changed unexpectedly before API request');
 
+        // DEBUG: Output pre-request state
+        echo "\n=== DEBUG: Pre-request state ===\n";
+        echo "Feature v6.8.0.0 active: " . (Feature::isActive('v6.8.0.0') ? 'YES' : 'NO') . "\n";
+        echo "Order ID: {$this->orderId}\n";
+        echo "Transaction ID: {$verifyTransaction->getId()}\n";
+        echo "Transaction State ID: {$verifyTransaction->getStateId()}\n";
+        echo "Initial State ID: {$initialStateId}\n";
+        echo "Payment Method ID: {$verifyTransaction->getPaymentMethodId()}\n";
+        echo "Expected Payment Method: {$this->defaultPaymentMethodId}\n";
+        echo "Transaction count: " . $order->getTransactions()->count() . "\n";
+
+        // Compare primary vs last
+        $primaryTransaction = $order->getPrimaryOrderTransaction();
+        $lastTransaction = $order->getTransactions()->last();
+        echo "Primary transaction ID: " . ($primaryTransaction ? $primaryTransaction->getId() : 'NULL') . "\n";
+        echo "Last transaction ID: " . ($lastTransaction ? $lastTransaction->getId() : 'NULL') . "\n";
+        echo "Primary == Last: " . (($primaryTransaction && $lastTransaction && $primaryTransaction->getId() === $lastTransaction->getId()) ? 'YES' : 'NO') . "\n";
+        echo "================================\n";
+
         $this->browser
             ->request(
                 'POST',
@@ -516,12 +535,28 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
+        // DEBUG: Output post-request state
+        $orderAfter = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($orderAfter);
+        $transactionsAfter = $orderAfter->getTransactions();
+        echo "\n=== DEBUG: Post-request state ===\n";
+        echo "Transaction count after: " . ($transactionsAfter ? $transactionsAfter->count() : 0) . "\n";
+        echo "Mail sent counter: {$this->mailSentEventCounter}\n";
+        echo "Expected counter: " . (Feature::isActive('v6.8.0.0') ? 1 : 0) . "\n";
+        if ($transactionsAfter) {
+            foreach ($transactionsAfter as $idx => $trans) {
+                echo "Transaction {$idx}: ID={$trans->getId()}, PaymentMethod={$trans->getPaymentMethodId()}, State={$trans->getStateId()}\n";
+            }
+        }
+        echo "=================================\n";
+
         $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
         // see SetPaymentOrderRoute tryTransition()
-        // When v6.8.0.0 is OFF: uses last() → finds match → returns true → early exit → NO email
-        // When v6.8.0.0 is ON: uses getPrimaryOrderTransaction() → may not match → returns false → creates transaction → email sent
-        static::assertSame(Feature::isActive('v6.8.0.0') ? 1 : 0, $this->mailSentEventCounter, 'The "mail.sent" event execution count does not match expected behavior');
+        // With primaryOrderTransactionId set correctly, both v6.8.0.0 ON and OFF will find the correct transaction
+        // Both will match: payment method ID and transaction ID match, state is initial
+        // Both return true → early exit → NO email sent
+        static::assertSame(0, $this->mailSentEventCounter, 'Setting the same payment method should not send an email');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -629,6 +664,7 @@ class OrderRouteTest extends TestCase
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
+        $transactionId = Uuid::randomHex();
 
         $order = [
             [
@@ -644,9 +680,10 @@ class OrderRouteTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'primaryOrderTransactionId' => $transactionId,
                 'transactions' => [
                     [
-                        'id' => Uuid::randomHex(),
+                        'id' => $transactionId,
                         'paymentMethodId' => $this->defaultPaymentMethodId,
                         'amount' => [
                             'unitPrice' => 5.0,

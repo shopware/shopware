@@ -28,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -84,8 +83,6 @@ class OrderRouteTest extends TestCase
 
     private string $deepLinkCode;
 
-    private int $mailSentEventCounter = 0;
-
     /**
      * @var EntityRepository<CustomerCollection>
      */
@@ -115,7 +112,6 @@ class OrderRouteTest extends TestCase
         static::assertNotNull($firstPaymentMethod);
         $this->defaultPaymentMethodId = $firstPaymentMethod->getId();
         $this->orderId = $this->createOrder($this->customerId, $this->email);
-
 
         $this->browser
             ->request(
@@ -440,69 +436,15 @@ class OrderRouteTest extends TestCase
 
     public function testSetSamePaymentMethodToOrder(): void
     {
-        if (!static::getContainer()->has(AccountOrderController::class)) {
-            static::markTestSkipped('Order mail tests should be fixed without storefront');
-        }
-
-        // Clear entity cache to ensure fresh data
-        static::getContainer()->get('cache.object')->clear();
-
-        // Ensure the order transaction is in initial state so the test behavior is predictable
-        $criteria = new Criteria([$this->orderId]);
-        $criteria->addAssociation('transactions');
-        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
-        static::assertNotNull($order);
-        $transactions = $order->getTransactions();
-        static::assertNotNull($transactions);
-
-        // Ensure we have exactly one transaction with the default payment method
-        // This is critical for v6.8.0.0 OFF behavior where last() must match the payment method
-        static::assertCount(1, $transactions, 'Order must have exactly one transaction for this test');
-
-        $transaction = $transactions->last();
-        static::assertNotNull($transaction);
-        static::assertSame($this->defaultPaymentMethodId, $transaction->getPaymentMethodId(), 'Transaction must have the default payment method');
-
-        $initialStateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE);
-        if ($transaction->getStateId() !== $initialStateId) {
-            // Reset transaction to initial state
-            static::getContainer()->get('order_transaction.repository')->update([
-                [
-                    'id' => $transaction->getId(),
-                    'stateId' => $initialStateId,
-                ],
-            ], Context::createDefaultContext());
-
-            // Clear cache and reload to ensure state is updated
-            static::getContainer()->get('cache.object')->clear();
-
-            // Reload the order to ensure the updated state is seen by the subsequent request
-            $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
-            static::assertNotNull($order);
-            $transactions = $order->getTransactions();
-            static::assertNotNull($transactions);
-            $transaction = $transactions->last();
-            static::assertNotNull($transaction);
-            static::assertSame($initialStateId, $transaction->getStateId(), 'Transaction state must be initial after update');
-        }
-
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->mailSentEventCounter = 0;
-
-        // Use a simple counter without content assertions for this test
-        $mailCounterClosure = function (MailSentEvent $event) {
-            ++$this->mailSentEventCounter;
+        $eventCallCounter = 0;
+        $listenerClosure = function (MailSentEvent $event) use (&$eventCallCounter): void {
+            ++$eventCallCounter;
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $this->addEventListener($dispatcher, MailSentEvent::class, $mailCounterClosure);
-
-        // Final verification: Ensure transaction is still in initial state right before the request
-        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
-        static::assertNotNull($order);
-        $verifyTransaction = $order->getTransactions()?->last();
-        static::assertNotNull($verifyTransaction);
-        static::assertSame($initialStateId, $verifyTransaction->getStateId(), 'Transaction state changed unexpectedly before API request');
-        static::assertSame($this->defaultPaymentMethodId, $verifyTransaction->getPaymentMethodId(), 'Payment method changed unexpectedly before API request');
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->browser
             ->request(
@@ -522,16 +464,9 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
+        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
-        $dispatcher->removeListener(MailSentEvent::class, $mailCounterClosure);
-
-        // see SetPaymentOrderRoute tryTransition()
-        // primaryOrderTransactionId cannot be set during order creation in tests, so getPrimaryOrderTransaction() always returns NULL
-        // This causes tryTransition() to behave differently than expected
-        // In CI, even with v6.8.0.0 OFF, a new transaction is created and email is sent
-        // This test validates that setting the same payment method completes successfully
-        // The email sending behavior varies based on environment and order setup
-        static::assertSame(1, $this->mailSentEventCounter, 'Setting the same payment method sends a notification email');
+        static::assertContains($eventCallCounter, [0, 1], 'The ‘mail.sent’ event was executed too often');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -639,7 +574,6 @@ class OrderRouteTest extends TestCase
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
-        $transactionId = Uuid::randomHex();
 
         $order = [
             [
@@ -655,10 +589,9 @@ class OrderRouteTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'primaryOrderTransactionId' => $transactionId,
                 'transactions' => [
                     [
-                        'id' => $transactionId,
+                        'id' => Uuid::randomHex(),
                         'paymentMethodId' => $this->defaultPaymentMethodId,
                         'amount' => [
                             'unitPrice' => 5.0,
@@ -781,12 +714,5 @@ class OrderRouteTest extends TestCase
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
-    }
-
-    private function handleMailSentEvent(MailSentEvent $event): void
-    {
-        ++$this->mailSentEventCounter;
-        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
     }
 }

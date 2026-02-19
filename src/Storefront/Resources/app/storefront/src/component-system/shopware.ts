@@ -20,10 +20,10 @@ type InterceptionRegistryEntry = {
 
 /**
  * Global Shopware class.
- * 
+ *
  * This class is the central point for all component-system related functionality.
  * It is a singleton and can be accessed via `window.Shopware`.
- * 
+ *
  * @sw-package framework
  */
 class Shopware extends EventEmitter {
@@ -131,7 +131,6 @@ class Shopware extends EventEmitter {
         const instance = this.instanceRegistry.find(entry => entry.element === element && entry.componentName === componentName);
 
         if (!instance) {
-            console.warn(`Component instance for element not found.`, element);
             return;
         }
 
@@ -244,7 +243,7 @@ class Shopware extends EventEmitter {
         const componentInstances = this.getComponentInstances(componentName);
 
         componentInstances.forEach(instance => {
-            if (instance[methodName as keyof ShopwareComponent] && 
+            if (instance[methodName as keyof ShopwareComponent] &&
                 typeof instance[methodName as keyof ShopwareComponent] === 'function') {
                 (instance[methodName as keyof ShopwareComponent] as Function).call(instance, ...args);
             }

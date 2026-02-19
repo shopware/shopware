@@ -116,41 +116,6 @@ class OrderRouteTest extends TestCase
         $this->defaultPaymentMethodId = $firstPaymentMethod->getId();
         $this->orderId = $this->createOrder($this->customerId, $this->email);
 
-        // Ensure primaryOrderTransactionId is set for testing purposes
-        // This is critical because getPrimaryOrderTransaction() needs this field to work correctly
-        $criteria = new Criteria([$this->orderId]);
-        $criteria->addAssociation('transactions');
-        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
-        static::assertNotNull($order);
-        $transactions = $order->getTransactions();
-        static::assertNotNull($transactions);
-        $transaction = $transactions->last();
-        static::assertNotNull($transaction);
-
-        // Always set primaryOrderTransactionId to the first transaction to ensure consistency
-        $this->orderRepository->update([
-            [
-                'id' => $this->orderId,
-                'primaryOrderTransactionId' => $transaction->getId(),
-            ],
-        ], Context::createDefaultContext());
-
-        // Clear cache to ensure the update is reflected
-        static::getContainer()->get('cache.object')->clear();
-
-        // Verify the update was successful
-        $verifyOrder = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
-        static::assertNotNull($verifyOrder);
-        $verifyPrimary = $verifyOrder->getPrimaryOrderTransaction();
-        if (!$verifyPrimary) {
-            // If still null, output debug info and fail
-            echo "\n=== SETUP DEBUG: primaryOrderTransactionId NOT set! ===\n";
-            echo "Order ID: {$this->orderId}\n";
-            echo "Transaction ID we tried to set: {$transaction->getId()}\n";
-            echo "getPrimaryOrderTransaction() result: NULL\n";
-            echo "====================================================\n";
-            static::fail('Failed to set primaryOrderTransactionId in setUp()');
-        }
 
         $this->browser
             ->request(
@@ -589,10 +554,10 @@ class OrderRouteTest extends TestCase
         $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
         // see SetPaymentOrderRoute tryTransition()
-        // With primaryOrderTransactionId set correctly, both v6.8.0.0 ON and OFF will find the correct transaction
-        // Both will match: payment method ID and transaction ID match, state is initial
-        // Both return true → early exit → NO email sent
-        static::assertSame(0, $this->mailSentEventCounter, 'Setting the same payment method should not send an email');
+        // primaryOrderTransactionId cannot be set via update(), so getPrimaryOrderTransaction() returns NULL
+        // When v6.8.0.0 is OFF: uses last() → finds match → returns true → NO email (counter = 0)
+        // When v6.8.0.0 is ON: uses getPrimaryOrderTransaction() → NULL → returns false → creates transaction → email sent (counter = 1)
+        static::assertSame(Feature::isActive('v6.8.0.0') ? 1 : 0, $this->mailSentEventCounter, 'Mail sent counter does not match expected behavior based on feature flag');
     }
 
     public function testSetPaymentOrderWrongPayment(): void

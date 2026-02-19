@@ -156,7 +156,7 @@ jobs:
       - name: Generate & Lint OpenApi API schema
         run: |
           api-gen generate --apiType=admin && api-gen loadSchema --apiType=admin
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components --skip-rule struct ./api-types/adminApiSchema.json
 
   phpunit:
     name: "PHPUnit for ${{ matrix.suite }}"

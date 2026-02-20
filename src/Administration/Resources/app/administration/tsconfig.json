@@ -8,6 +8,9 @@
     "paths": {
       "src": ["src"],
       "@shopware-ag/dive/quickview": ["./node_modules/@shopware-ag/dive/build/plugins/quickview/index.d.ts"],
+      "@shopware-ag/dive/toolbox": ["./node_modules/@shopware-ag/dive/build/plugins/toolbox/index.d.ts"],
+      "@shopware-ag/dive/orbitcontroller": ["./node_modules/@shopware-ag/dive/build/plugins/orbitcontroller/index.d.ts"],
+      "@shopware-ag/dive/assetexporter": ["./node_modules/@shopware-ag/dive/build/plugins/assetexporter/index.d.ts"],
     },
     "types": [
       "vite/client",

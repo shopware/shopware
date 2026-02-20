@@ -244,6 +244,13 @@ From now on you are able to inspect your 3D models directly in the Media module 
 Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right.
 This new component is called `sw-model-viewer`.
 
+### Media Model Editor
+
+The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
+Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
+A modal will open where you can move, rotate, and scale the model.
+Click Save, and your changes are applied instantly.
+
 ## API
 
 ### Improved tagged-based cache invalidation

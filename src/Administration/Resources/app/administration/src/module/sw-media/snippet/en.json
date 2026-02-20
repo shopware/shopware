@@ -109,8 +109,14 @@
     "sw-media-save-modal": {
       "titleModal": "Save in media"
     },
-    "sw-model-viewer": {
-      "titleModal": "Model Viewer"
+    "sw-model-editor": {
+      "titleModal": "Model Editor",
+      "edit-options": {
+        "move-tooltip": "Move object",
+        "rotate-tooltip": "Rotate object",
+        "scale-tooltip": "Scale object"
+      },
+      "saveChanges": "Save changes"
     }
   },
   "sw-privileges": {

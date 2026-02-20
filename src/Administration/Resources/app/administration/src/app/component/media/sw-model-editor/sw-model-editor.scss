@@ -1,0 +1,76 @@
+@import "~scss/variables";
+
+$sw-model-editor-canvas-ui__button-size: 42px;
+$sw-model-editor-canvas-ui__orientation-size: $sw-model-editor-canvas-ui__button-size;
+$sw-model-editor-box-shadow: 0 2px 6px 0 #00000036;
+$sw-button-transition: all 0.15s ease-out;
+
+.sw-model-editor {
+    width: 100%;
+    height: 100%;
+}
+
+.sw-model-editor-content {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+.sw-model-editor-canvas-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.sw-model-editor-canvas-ui__edit-options {
+    position: absolute;
+    display: flex;
+    gap: 12px;
+    justify-content: end;
+    bottom: 16px;
+    right: 16px;
+}
+
+.sw-model-editor-canvas-ui__button-container {
+    border-radius: $sw-model-editor-canvas-ui__button-size;
+    overflow: hidden;
+    pointer-events: auto;
+    background: $color-white;
+    display: flex;
+    box-shadow: $sw-model-editor-box-shadow;
+
+    .sw-model-editor-canvas-ui__button {
+        width: $sw-model-editor-canvas-ui__button-size;
+        height: $sw-model-editor-canvas-ui__button-size;
+        background: $color-white;
+        color: $color-darkgray-200;
+        transition: $sw-button-transition;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:disabled {
+            color: $color-gray-300;
+
+            &:hover {
+                background: $color-white;
+            }
+        }
+
+        &:hover {
+            background: $color-gray-100;
+        }
+    }
+
+    &.is--active {
+        .sw-model-editor-canvas-ui__button {
+            color: $color-shopware-brand-500;
+            background: $color-shopware-brand-50;
+        }
+    }
+}

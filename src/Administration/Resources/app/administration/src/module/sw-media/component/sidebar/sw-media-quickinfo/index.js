@@ -63,7 +63,7 @@ export default {
             defaultArPlacement: 'horizontal',
             arPlacementOptions: [],
             showCoverSelectionModal: false,
-            showModelViewerModal: false,
+            showModelEditorModal: false,
         };
     },
 
@@ -420,12 +420,12 @@ export default {
             });
         },
 
-        openModelViewerModal() {
-            this.showModelViewerModal = true;
+        openModelEditorModal() {
+            this.showModelEditorModal = true;
         },
 
-        closeModelViewerModal() {
-            this.showModelViewerModal = false;
+        closeModelEditorModal() {
+            this.showModelEditorModal = false;
         },
     },
 };

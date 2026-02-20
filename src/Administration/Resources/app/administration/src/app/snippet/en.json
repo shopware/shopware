@@ -1724,6 +1724,7 @@
   },
   "sw-model-editor": {
     "titleModal": "Model Editor",
+    "open-model-editor-tooltip": "Open Model Editor",
     "edit-options": {
       "move-tooltip": "Move object",
       "rotate-tooltip": "Rotate object",

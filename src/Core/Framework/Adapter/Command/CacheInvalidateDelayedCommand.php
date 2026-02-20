@@ -29,7 +29,7 @@ class CacheInvalidateDelayedCommand extends Command
 
         $style = new SymfonyStyle($input, $output);
 
-        if (empty($tags)) {
+        if ($tags === []) {
             $style->success('No delayed cache tags found');
 
             return 0;

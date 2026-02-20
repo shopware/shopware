@@ -29,7 +29,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
     public function store(array $tags): void
     {
-        if (empty($tags)) {
+        if ($tags === []) {
             return;
         }
 
@@ -76,7 +76,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
         ($this->debug)($this, $rows);
 
-        if (empty($rows)) {
+        if ($rows === []) {
             return [];
         }
 

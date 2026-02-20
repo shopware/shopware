@@ -119,7 +119,7 @@ class CacheInvalidationSubscriber
 
         $setIds = $this->getSetIds($snippets->getIds());
 
-        if (empty($setIds)) {
+        if ($setIds === []) {
             return;
         }
 
@@ -217,7 +217,7 @@ class CacheInvalidationSubscriber
             $tags[] = CountryStateRoute::ALL_TAG;
         }
 
-        if (empty($tags)) {
+        if ($tags === []) {
             // invalidates the country-state route when a state changed or an assignment between the state and country changed
             $tags = array_map(
                 CountryStateRoute::buildName(...),
@@ -241,7 +241,7 @@ class CacheInvalidationSubscriber
             SalesChannelDefinition::ENTITY_NAME,
             ['navigationCategoryId', 'navigationCategoryDepth', 'serviceCategoryId', 'footerCategoryId']
         );
-        if (!empty($changedSalesChannelSettings)) {
+        if ($changedSalesChannelSettings !== []) {
             // if the sales channel settings changed, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
 
@@ -252,7 +252,7 @@ class CacheInvalidationSubscriber
             CategoryDefinition::ENTITY_NAME,
             ['parentId', 'afterCategoryId', 'visible', 'active']
         );
-        if (!empty($changedCategoryData)) {
+        if ($changedCategoryData !== []) {
             // if category data that has impact on navigation changes, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
 
@@ -260,7 +260,7 @@ class CacheInvalidationSubscriber
         }
 
         $deletedCategories = $event->getDeletedPrimaryKeys(CategoryDefinition::ENTITY_NAME);
-        if (!empty($deletedCategories)) {
+        if ($deletedCategories !== []) {
             // if the category is deleted, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
 
@@ -271,7 +271,7 @@ class CacheInvalidationSubscriber
             CategoryTranslationDefinition::ENTITY_NAME,
             ['name']
         );
-        if (!empty($changedCategoryTranslationData)) {
+        if ($changedCategoryTranslationData !== []) {
             // if translated category data that has impact on navigation changes, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
         }
@@ -352,7 +352,7 @@ class CacheInvalidationSubscriber
 
         $keys = array_filter(array_unique($keys));
 
-        if (empty($keys)) {
+        if ($keys === []) {
             return;
         }
 
@@ -365,7 +365,7 @@ class CacheInvalidationSubscriber
         // invalidates the product listing route, each time a manufacturer changed
         $ids = $event->getPrimaryKeys(ProductManufacturerDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -394,7 +394,7 @@ class CacheInvalidationSubscriber
         // invalidates all stream based pages and routes before the product indexer changes product_stream_mapping
         $ids = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -421,7 +421,7 @@ class CacheInvalidationSubscriber
         // invalidates the product listing route, each time a property changed
         $ids = $event->getDeletedPrimaryKeys(ProductPropertyDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -457,7 +457,7 @@ class CacheInvalidationSubscriber
     private function getChangedShippingMethods(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(ShippingMethodDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -494,7 +494,7 @@ class CacheInvalidationSubscriber
     private function getChangedPaymentMethods(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(PaymentMethodDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -531,7 +531,7 @@ class CacheInvalidationSubscriber
     private function getChangedCountries(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -569,7 +569,7 @@ class CacheInvalidationSubscriber
     private function getChangedSalutations(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(SalutationDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -582,7 +582,7 @@ class CacheInvalidationSubscriber
     private function getChangedLanguages(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(LanguageDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -621,7 +621,7 @@ class CacheInvalidationSubscriber
     {
         $ids = $event->getPrimaryKeys(CurrencyDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 

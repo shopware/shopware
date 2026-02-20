@@ -174,7 +174,7 @@ class LineItemCollection extends Collection
         // Sort all line items by their price definition priority
         krsort($lineItemsByPricePriority);
 
-        if (\count($lineItemsByPricePriority)) {
+        if ($lineItemsByPricePriority !== []) {
             $merged = array_merge(...$lineItemsByPricePriority);
             $this->elements = \array_combine(
                 \array_map($this->getKey(...), $merged),

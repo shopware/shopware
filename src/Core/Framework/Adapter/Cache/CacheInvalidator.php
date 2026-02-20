@@ -53,7 +53,7 @@ class CacheInvalidator
     {
         $tags = array_filter(array_unique($tags));
 
-        if (empty($tags)) {
+        if ($tags === []) {
             return;
         }
 
@@ -86,7 +86,7 @@ class CacheInvalidator
     {
         $tags = $this->cache->loadAndDelete();
 
-        if (empty($tags)) {
+        if ($tags === []) {
             return $tags;
         }
 

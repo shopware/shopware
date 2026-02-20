@@ -70,7 +70,7 @@ class CartScopeDiscountPackager extends DiscountPackager
             }
         }
 
-        if (\count($discountItems) === 0) {
+        if ($discountItems === []) {
             return null;
         }
 

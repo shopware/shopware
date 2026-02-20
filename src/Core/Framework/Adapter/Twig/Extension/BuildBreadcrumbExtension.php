@@ -77,7 +77,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
         }
 
         $categoryIds = array_keys($seoBreadcrumb);
-        if (empty($categoryIds)) {
+        if ($categoryIds === []) {
             return [];
         }
 

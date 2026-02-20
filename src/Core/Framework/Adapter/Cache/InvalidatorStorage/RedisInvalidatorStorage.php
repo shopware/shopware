@@ -78,7 +78,7 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
             $tags = [];
 
             $chunk = $this->redis->sPop(self::KEY, 10000);
-            while (\is_array($chunk) && !empty($chunk)) {
+            while (\is_array($chunk) && $chunk !== []) {
                 foreach ($chunk as $tag) {
                     $tags[] = (string) $tag;
                 }

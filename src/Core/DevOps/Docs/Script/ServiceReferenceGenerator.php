@@ -176,7 +176,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $scriptServices[] = $class;
         }
 
-        if (\count($scriptServices) === 0) {
+        if ($scriptServices === []) {
             throw DocsException::noScriptServicesFound();
         }
         sort($scriptServices);
@@ -461,7 +461,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 }
             }
 
-            if (\count($files) === 0) {
+            if ($files === []) {
                 throw DocsException::exampleFileNotFound(
                     $method->getName(),
                     $method->getDeclaringClass()->getName(),

@@ -69,17 +69,14 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-super-single' },
-                        () => {
-                            const count = ref(0);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-super-single' }, () => {
+                        const count = ref(0);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, increment } };
-                        },
-                    ),
+                        return { public: { count, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -107,17 +104,14 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-super-chain' },
-                        () => {
-                            const count = ref(0);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-super-chain' }, () => {
+                        const count = ref(0);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, increment } };
-                        },
-                    ),
+                        return { public: { count, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -159,18 +153,15 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-computed-getter' },
-                        () => {
-                            const count = ref(1);
-                            const doubled = computed(() => count.value * 2);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-computed-getter' }, () => {
+                        const count = ref(1);
+                        const doubled = computed(() => count.value * 2);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, doubled, increment } };
-                        },
-                    ),
+                        return { public: { count, doubled, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -201,23 +192,20 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="set-btn" @click="setAdjusted">Set to 500</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-computed-setter' },
-                        () => {
-                            const count = ref(10);
-                            const adjustedCount = computed({
-                                get: () => count.value + 5,
-                                set: (val: number) => {
-                                    count.value = val - 5;
-                                },
-                            });
-                            const setAdjusted = () => {
-                                adjustedCount.value = 200;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-computed-setter' }, () => {
+                        const count = ref(10);
+                        const adjustedCount = computed({
+                            get: () => count.value + 5,
+                            set: (val: number) => {
+                                count.value = val - 5;
+                            },
+                        });
+                        const setAdjusted = () => {
+                            adjustedCount.value = 200;
+                        };
 
-                            return { public: { count, adjustedCount, setAdjusted } };
-                        },
-                    ),
+                        return { public: { count, adjustedCount, setAdjusted } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -259,14 +247,11 @@ describe('Options API Shim — Integrative Tests', () => {
             const originalComponent = defineComponent({
                 template: '<div class="count">{{ count }}</div>',
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-data' },
-                        () => {
-                            const count = ref(1);
+                    createExtendableSetup({ props, context, name: 'comp-data' }, () => {
+                        const count = ref(1);
 
-                            return { public: { count } };
-                        },
-                    ),
+                        return { public: { count } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -289,17 +274,14 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-data-reactive' },
-                        () => {
-                            const count = ref(1);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-data-reactive' }, () => {
+                        const count = ref(1);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, increment } };
-                        },
-                    ),
+                        return { public: { count, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -329,18 +311,15 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-watch' },
-                        () => {
-                            const count = ref(0);
-                            const log = ref('init');
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-watch' }, () => {
+                        const count = ref(0);
+                        const log = ref('init');
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, log, increment } };
-                        },
-                    ),
+                        return { public: { count, log, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -372,18 +351,15 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-watch-immediate' },
-                        () => {
-                            const count = ref(0);
-                            const log = ref('init');
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-watch-immediate' }, () => {
+                        const count = ref(0);
+                        const log = ref('init');
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, log, increment } };
-                        },
-                    ),
+                        return { public: { count, log, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -420,18 +396,15 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-combined' },
-                        () => {
-                            const count = ref(0);
-                            const doubled = computed(() => count.value * 2);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-combined' }, () => {
+                        const count = ref(0);
+                        const doubled = computed(() => count.value * 2);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, doubled, increment } };
-                        },
-                    ),
+                        return { public: { count, doubled, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -472,17 +445,14 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-multi-level' },
-                        () => {
-                            const count = ref(0);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-multi-level' }, () => {
+                        const count = ref(0);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, increment } };
-                        },
-                    ),
+                        return { public: { count, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -523,17 +493,14 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-mixed-comp-first' },
-                        () => {
-                            const count = ref(0);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-mixed-comp-first' }, () => {
+                        const count = ref(0);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, increment } };
-                        },
-                    ),
+                        return { public: { count, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -568,17 +535,14 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-mixed-opts-first' },
-                        () => {
-                            const count = ref(0);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-mixed-opts-first' }, () => {
+                        const count = ref(0);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, increment } };
-                        },
-                    ),
+                        return { public: { count, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -620,18 +584,15 @@ describe('Options API Shim — Integrative Tests', () => {
                     multiplier: { type: Number, default: 1 },
                 },
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-props' },
-                        () => {
-                            const count = ref(5);
-                            const result = computed(() => count.value * props.multiplier);
-                            const applyMultiplier = () => {
-                                count.value *= props.multiplier;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-props' }, () => {
+                        const count = ref(5);
+                        const result = computed(() => count.value * props.multiplier);
+                        const applyMultiplier = () => {
+                            count.value *= props.multiplier;
+                        };
 
-                            return { public: { count, result, applyMultiplier } };
-                        },
-                    ),
+                        return { public: { count, result, applyMultiplier } };
+                    }),
             });
 
             const wrapper = mount(originalComponent, { props: { multiplier: 3 } });
@@ -676,18 +637,15 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-mixin' },
-                        () => {
-                            const count = ref(0);
-                            const bonus = ref(0);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-mixin' }, () => {
+                        const count = ref(0);
+                        const bonus = ref(0);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, bonus, increment } };
-                        },
-                    ),
+                        return { public: { count, bonus, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -721,17 +679,14 @@ describe('Options API Shim — Integrative Tests', () => {
                     <button class="inc" @click="increment">+</button>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-reactivity' },
-                        () => {
-                            const count = ref(0);
-                            const increment = () => {
-                                count.value += 1;
-                            };
+                    createExtendableSetup({ props, context, name: 'comp-reactivity' }, () => {
+                        const count = ref(0);
+                        const increment = () => {
+                            count.value += 1;
+                        };
 
-                            return { public: { count, increment } };
-                        },
-                    ),
+                        return { public: { count, increment } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);
@@ -763,15 +718,12 @@ describe('Options API Shim — Integrative Tests', () => {
                     <div class="greeting">{{ greeting }}</div>
                 `,
                 setup: (props, context) =>
-                    createExtendableSetup(
-                        { props, context, name: 'comp-twoway' },
-                        () => {
-                            const name = ref('initial');
-                            const greeting = computed(() => `Hello, ${name.value}`);
+                    createExtendableSetup({ props, context, name: 'comp-twoway' }, () => {
+                        const name = ref('initial');
+                        const greeting = computed(() => `Hello, ${name.value}`);
 
-                            return { public: { name, greeting } };
-                        },
-                    ),
+                        return { public: { name, greeting } };
+                    }),
             });
 
             const wrapper = mount(originalComponent);

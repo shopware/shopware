@@ -139,7 +139,10 @@ export function convertOptionsApiOverrideToCompositionApi(
  */
 function flattenMixins(mixin: ComponentConfig): ComponentConfig[] {
     const nested = mixin.mixins ? mixin.mixins.flatMap((m) => flattenMixins(m as ComponentConfig)) : [];
-    return [...nested, mixin];
+    return [
+        ...nested,
+        mixin,
+    ];
 }
 
 /**
@@ -159,19 +162,24 @@ function resolveInject(injectConfig: ComponentConfig['inject']): Record<string, 
             resolved[key] = vueInject(key);
         });
     } else {
-        Object.entries(injectConfig as Record<string, any>).forEach(([localKey, spec]) => {
-            if (typeof spec === 'string') {
-                // { localKey: 'provideKey' }
-                resolved[localKey] = vueInject(spec);
-            } else if (spec && typeof spec === 'object') {
-                // { localKey: { from: 'provideKey', default: fallback } }
-                const from = spec.from ?? localKey;
-                const hasDefault = Object.prototype.hasOwnProperty.call(spec, 'default');
-                resolved[localKey] = hasDefault ? vueInject(from, spec.default) : vueInject(from);
-            } else {
-                resolved[localKey] = vueInject(localKey);
-            }
-        });
+        Object.entries(injectConfig as Record<string, any>).forEach(
+            ([
+                localKey,
+                spec,
+            ]) => {
+                if (typeof spec === 'string') {
+                    // { localKey: 'provideKey' }
+                    resolved[localKey] = vueInject(spec);
+                } else if (spec && typeof spec === 'object') {
+                    // { localKey: { from: 'provideKey', default: fallback } }
+                    const from = spec.from ?? localKey;
+                    const hasDefault = Object.prototype.hasOwnProperty.call(spec, 'default');
+                    resolved[localKey] = hasDefault ? vueInject(from, spec.default) : vueInject(from);
+                } else {
+                    resolved[localKey] = vueInject(localKey);
+                }
+            },
+        );
     }
 
     return resolved;
@@ -181,14 +189,13 @@ function resolveInject(injectConfig: ComponentConfig['inject']): Record<string, 
  * Merges two inject configurations (array or object form) into a single normalized object.
  * Existing (component-level) entries win on conflict, matching Vue's merge strategy.
  */
-function mergeInjectConfigs(
-    existing: ComponentConfig['inject'],
-    incoming: ComponentConfig['inject'],
-): Record<string, any> {
+function mergeInjectConfigs(existing: ComponentConfig['inject'], incoming: ComponentConfig['inject']): Record<string, any> {
     const normalized: Record<string, any> = {};
 
     if (Array.isArray(existing)) {
-        existing.forEach((key: string) => { normalized[key] = key; });
+        existing.forEach((key: string) => {
+            normalized[key] = key;
+        });
     } else if (existing && typeof existing === 'object') {
         Object.assign(normalized, existing);
     }
@@ -200,11 +207,16 @@ function mergeInjectConfigs(
             }
         });
     } else if (incoming && typeof incoming === 'object') {
-        Object.entries(incoming as Record<string, any>).forEach(([key, val]) => {
-            if (!Object.prototype.hasOwnProperty.call(normalized, key)) {
-                normalized[key] = val;
-            }
-        });
+        Object.entries(incoming as Record<string, any>).forEach(
+            ([
+                key,
+                val,
+            ]) => {
+                if (!Object.prototype.hasOwnProperty.call(normalized, key)) {
+                    normalized[key] = val;
+                }
+            },
+        );
     }
 
     return normalized;
@@ -411,7 +423,9 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
                 }
 
                 if (Object.prototype.hasOwnProperty.call(props, prop)) {
-                    console.error(`[Options API Shim] Cannot set property "${prop}" - it is a component prop and is read-only.`);
+                    console.error(
+                        `[Options API Shim] Cannot set property "${prop}" - it is a component prop and is read-only.`,
+                    );
                     return false;
                 }
 
@@ -432,10 +446,7 @@ function unwrapRef(value: any): any {
 /**
  * Converts Options API computed properties to Composition API computed refs
  */
-function convertComputed(
-    computedDefs: Record<string, any>,
-    thisProxy: any,
-): Record<string, ComputedRef> {
+function convertComputed(computedDefs: Record<string, any>, thisProxy: any): Record<string, ComputedRef> {
     const converted: Record<string, ComputedRef> = {};
 
     Object.entries(computedDefs).forEach(
@@ -480,9 +491,17 @@ function convertData(dataFn: (() => Record<string, any>) | Record<string, any>):
         return converted;
     }
 
-    Object.entries(data).forEach(([key, value]: [string, any]) => {
-        converted[key] = ref(value);
-    });
+    Object.entries(data).forEach(
+        ([
+            key,
+            value,
+        ]: [
+            string,
+            any,
+        ]) => {
+            converted[key] = ref(value);
+        },
+    );
 
     return converted;
 }
@@ -522,30 +541,43 @@ function registerSingleWatcher(source: () => any, handler: any, thisProxy: any):
  * Sets up watchers for Options API watch configuration
  */
 function setupWatchers(watchConfig: Record<string, any>, thisProxy: any): void {
-    Object.entries(watchConfig).forEach(([key, handler]: [string, any]) => {
-        if (key.includes('.')) {
-            console.warn(
-                `[Options API Shim] Dot-notation watch path "${key}" is not supported by the compatibility shim. ` +
-                    `Please migrate your watcher to Composition API.`,
-            );
-            return;
-        }
+    Object.entries(watchConfig).forEach(
+        ([
+            key,
+            handler,
+        ]: [
+            string,
+            any,
+        ]) => {
+            if (key.includes('.')) {
+                console.warn(
+                    `[Options API Shim] Dot-notation watch path "${key}" is not supported by the compatibility shim. ` +
+                        `Please migrate your watcher to Composition API.`,
+                );
+                return;
+            }
 
-        const source = () => thisProxy[key];
+            const source = () => thisProxy[key];
 
-        if (Array.isArray(handler)) {
-            handler.forEach((h) => registerSingleWatcher(source, h, thisProxy));
-        } else {
-            registerSingleWatcher(source, handler, thisProxy);
-        }
-    });
+            if (Array.isArray(handler)) {
+                handler.forEach((h) => registerSingleWatcher(source, h, thisProxy));
+            } else {
+                registerSingleWatcher(source, handler, thisProxy);
+            }
+        },
+    );
 }
 
 /**
  * Hooks that have already executed by the time the component is mounted.
  * If the override is applied late (after setup), these are called immediately.
  */
-const ALREADY_PASSED_WHEN_MOUNTED = new Set(['beforeCreate', 'created', 'beforeMount', 'mounted']);
+const ALREADY_PASSED_WHEN_MOUNTED = new Set([
+    'beforeCreate',
+    'created',
+    'beforeMount',
+    'mounted',
+]);
 
 /**
  * Registers Options API lifecycle hooks using their Composition API equivalents.
@@ -560,37 +592,47 @@ const ALREADY_PASSED_WHEN_MOUNTED = new Set(['beforeCreate', 'created', 'beforeM
  * - Future hooks (beforeUnmount, unmounted, etc.) cannot be registered and
  *   a warning is logged.
  */
-function setupLifecycleHooks(
-    hooks: Record<string, ((...args: any[]) => void)[]>,
-    thisProxy: any,
-): void {
+function setupLifecycleHooks(hooks: Record<string, ((...args: any[]) => void)[]>, thisProxy: any): void {
     const instance = getCurrentInstance();
 
-    Object.entries(hooks).forEach(([hookName, handlers]) => {
-        const compositionHook = LIFECYCLE_HOOK_MAP[hookName];
+    Object.entries(hooks).forEach(
+        ([
+            hookName,
+            handlers,
+        ]) => {
+            const compositionHook = LIFECYCLE_HOOK_MAP[hookName];
 
-        handlers.forEach((handler) => {
-            if (compositionHook === null) {
-                handler.call(thisProxy);
-                return;
-            }
+            handlers.forEach((handler) => {
+                if (compositionHook === null) {
+                    handler.call(thisProxy);
+                    return;
+                }
 
-            if (instance) {
-                compositionHook(() => handler.call(thisProxy));
-            } else if (ALREADY_PASSED_WHEN_MOUNTED.has(hookName)) {
-                handler.call(thisProxy);
-            } else {
-                console.warn(
-                    `[Options API Shim] Lifecycle hook "${hookName}" could not be registered because ` +
-                        `the override was applied after setup(). Only beforeCreate, created, beforeMount, ` +
-                        `and mounted are supported for late-applied overrides.`,
-                );
-            }
-        });
-    });
+                if (instance) {
+                    compositionHook(() => handler.call(thisProxy));
+                } else if (ALREADY_PASSED_WHEN_MOUNTED.has(hookName)) {
+                    handler.call(thisProxy);
+                } else {
+                    console.warn(
+                        `[Options API Shim] Lifecycle hook "${hookName}" could not be registered because ` +
+                            `the override was applied after setup(). Only beforeCreate, created, beforeMount, ` +
+                            `and mounted are supported for late-applied overrides.`,
+                    );
+                }
+            });
+        },
+    );
 }
 
-const UNSUPPORTED_OPTIONS = ['components', 'directives', 'provide', 'template', 'extends', 'inheritAttrs', 'emits'] as const;
+const UNSUPPORTED_OPTIONS = [
+    'components',
+    'directives',
+    'provide',
+    'template',
+    'extends',
+    'inheritAttrs',
+    'emits',
+] as const;
 
 /**
  * Checks for unsupported features and logs appropriate errors/warnings

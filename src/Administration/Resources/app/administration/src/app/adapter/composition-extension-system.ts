@@ -240,7 +240,10 @@ export function createExtendableSetup<
                         const resolvedConfig = await pendingOverride.config();
                         if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(resolvedConfig)) {
                             // eslint-disable-next-line max-len
-                            const compositionOverride = convertOptionsApiOverrideToCompositionApi(options.name as string, resolvedConfig);
+                            const compositionOverride = convertOptionsApiOverrideToCompositionApi(
+                                options.name as string,
+                                resolvedConfig,
+                            );
                             _overridesMap[options.name].push(compositionOverride);
                         }
                     }),

@@ -5,10 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unused-vars */
 
 import { createExtendableSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
-import {
-    shouldActivateShim,
-    convertOptionsApiOverrideToCompositionApi,
-} from 'src/app/adapter/options-composition-shim';
+import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from 'src/app/adapter/options-composition-shim';
 import { mount } from '@vue/test-utils';
 import { ref, computed, defineComponent, nextTick, reactive, provide } from 'vue';
 
@@ -151,7 +148,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('convertData():', () => {
         it('should convert data() overriding an existing ref value', async () => {
-
             const originalComponent = defineComponent({
                 template: '<div><span class="msg">{{ message }}</span></div>',
                 setup: (props, context) =>
@@ -181,7 +177,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert data() return values to refs', () => {
-
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 data() {
                     return { count: 42, name: 'test' };
@@ -197,7 +192,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('convertMethods():', () => {
         it('should convert methods and bind this to proxy', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -236,7 +230,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should support this.$super() to call previous method', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -277,7 +270,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should throw error when $super references a non-existent method', () => {
-
             const previousState = {
                 count: ref(1),
                 increment: () => {},
@@ -301,7 +293,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('convertComputed():', () => {
         it('should convert getter-only computed properties', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -337,7 +328,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert getter/setter computed properties', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -384,7 +374,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow computed to access previousState values via this', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="name">Name: {{ name }}</div>
@@ -422,7 +411,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('setupWatchers():', () => {
         it('should convert function watchers', async () => {
-
             const watchCallback = jest.fn();
 
             const originalComponent = defineComponent({
@@ -464,7 +452,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert object watchers with immediate option', async () => {
-
             const watchCallback = jest.fn();
 
             const originalComponent = defineComponent({
@@ -501,7 +488,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert string method name watchers', async () => {
-
             const methodCallback = jest.fn();
 
             const originalComponent = defineComponent({
@@ -548,7 +534,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('createThisProxy():', () => {
         it('should resolve this.propertyName to previousState ref values', () => {
-
             const previousState = {
                 count: ref(42),
                 name: ref('test'),
@@ -572,7 +557,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow setting ref values via this.propertyName', () => {
-
             const previousState = {
                 count: ref(1),
             };
@@ -592,7 +576,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should resolve props via this', () => {
-
             const previousState = {};
             const props = { title: 'Hello' };
 
@@ -610,7 +593,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should prioritize local state over previousState', () => {
-
             const previousState = {
                 count: ref(1),
             };
@@ -713,7 +695,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('mergeMixins():', () => {
         it('should merge mixin methods into override config', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -768,7 +749,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should merge mixin data into override config', () => {
-
             const myMixin = {
                 data() {
                     return { mixinValue: 'from-mixin' };
@@ -789,7 +769,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should merge mixin lifecycle hooks and fire them', async () => {
-
             const createdCallback = jest.fn();
 
             const myMixin = {
@@ -826,7 +805,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('setupLifecycleHooks():', () => {
         it('should fire created hook immediately during setup', async () => {
-
             const createdCallback = jest.fn();
 
             const originalComponent = defineComponent({
@@ -855,7 +833,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire beforeCreate hook immediately during setup', async () => {
-
             const beforeCreateCallback = jest.fn();
 
             const originalComponent = defineComponent({
@@ -884,7 +861,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire mounted hook after component mounts', async () => {
-
             const mountedCallback = jest.fn();
 
             const originalComponent = defineComponent({
@@ -915,7 +891,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire beforeUnmount and unmounted hooks on component destroy', async () => {
-
             const beforeUnmountCallback = jest.fn();
             const unmountedCallback = jest.fn();
 
@@ -956,7 +931,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should provide correct this context inside lifecycle hooks', async () => {
-
             let capturedCount: number | undefined;
 
             const originalComponent = defineComponent({
@@ -985,7 +959,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire mixin hooks before component hooks (Vue merge order)', async () => {
-
             const callOrder: string[] = [];
 
             const myMixin = {
@@ -1023,7 +996,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should fire hooks from multiple mixins in order', async () => {
-
             const callOrder: string[] = [];
 
             const mixinA = {
@@ -1049,7 +1021,10 @@ describe('src/app/adapter/options-composition-shim', () => {
             mount(originalComponent);
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
-                mixins: [mixinA, mixinB],
+                mixins: [
+                    mixinA,
+                    mixinB,
+                ],
                 created() {
                     callOrder.push('component');
                 },
@@ -1067,7 +1042,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should work together with watch and data overrides', async () => {
-
             const createdCallback = jest.fn();
             const watchCallback = jest.fn();
 
@@ -1104,7 +1078,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle override with only lifecycle hooks (no methods/data)', async () => {
-
             const mountedCallback = jest.fn();
 
             const originalComponent = defineComponent({
@@ -1189,7 +1162,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Full integration:', () => {
         it('should allow Options API method override on a Composition API component', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -1230,7 +1202,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow Options API computed override on a Composition API component', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -1266,7 +1237,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow Options API data override on a Composition API component', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -1300,7 +1270,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should allow combined methods + computed + data override', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -1357,7 +1326,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Multi-level override chains:', () => {
         it('should support core -> Plugin A -> Plugin B override chain', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -1413,7 +1381,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should support multi-level chains with data overrides', async () => {
-
             const originalComponent = defineComponent({
                 template: '<div class="msg">{{ message }}</div>',
                 setup: (props, context) =>
@@ -1455,7 +1422,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should support multi-level chains with computed overrides', async () => {
-
             const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
@@ -1507,7 +1473,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Edge cases:', () => {
         it('should handle override with only data and no existing methods', async () => {
-
             const originalComponent = defineComponent({
                 template: '<div class="name">Name: {{ name }}</div>',
                 setup: (props, context) =>
@@ -1537,7 +1502,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle empty data function', () => {
-
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 data() {
                     return {};
@@ -1550,7 +1514,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle null/undefined data gracefully', () => {
-
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 data() {
                     return null as any;
@@ -1562,7 +1525,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle override with only computed, no methods or data', async () => {
-
             const originalComponent = defineComponent({
                 template: '<div class="display">{{ display }}</div>',
                 setup: (props, context) =>
@@ -1620,7 +1582,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle config with no Options API patterns gracefully', () => {
-
             const overrideFn = convertWithSilencedWarning('originalComponent', {});
 
             const result = overrideFn({}, {});
@@ -1630,7 +1591,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle methods that return values', () => {
-
             const previousState = {
                 count: ref(10),
             };
@@ -1649,7 +1609,6 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle methods with arguments', () => {
-
             const previousState = {
                 count: ref(0),
             };
@@ -1809,7 +1768,11 @@ describe('src/app/adapter/options-composition-shim', () => {
             await flushPromises();
 
             // deep ancestor fires first, then shallow mixin, then component
-            expect(callOrder).toEqual(['deep-mixin', 'shallow-mixin', 'component']);
+            expect(callOrder).toEqual([
+                'deep-mixin',
+                'shallow-mixin',
+                'component',
+            ]);
         });
 
         it('should make methods from deeply nested mixins accessible via this', async () => {
@@ -2505,5 +2468,3 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
     });
 });
-
-

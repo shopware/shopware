@@ -3292,6 +3292,4 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(() => wrapper.vm.foo()).toThrow('There was an error resolving the "$super" chain for method "foo".');
         });
     });
-
 });
-

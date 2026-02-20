@@ -3590,6 +3590,4 @@ describe('src/app/adapter/composition-extension-system', () => {
             expect(wrapper.find('.private').text()).toContain('Private: Overridden');
         });
     });
-
 });
-

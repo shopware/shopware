@@ -151,7 +151,7 @@ class CriteriaParser
         $fields = $aggregation->getFields();
 
         $path = null;
-        if (\count($fields) > 0) {
+        if ($fields !== []) {
             $path = $this->getNestedPath($definition, $fields[0]);
         }
 
@@ -233,7 +233,7 @@ class CriteriaParser
 
         // nested aggregation should have filters - we have to remap the nesting
         $mapped = $nested;
-        if (\count($bool->getQueries()) > 0 && $nested instanceof NestedAggregation) {
+        if ($bool->getQueries() !== [] && $nested instanceof NestedAggregation) {
             $real = $nested->getAggregation($nested->getName());
             if (!$real instanceof AbstractAggregation) {
                 throw ElasticsearchException::nestedAggregationParseError($aggregation->getName());
@@ -639,7 +639,7 @@ class CriteriaParser
         }
 
         $boolQuery = new BoolQuery();
-        if (!empty($nonNullValues)) {
+        if ($nonNullValues !== []) {
             $boolQuery->add(new TermsQuery($fieldName, $nonNullValues), BoolQuery::SHOULD);
         }
 
@@ -817,7 +817,7 @@ class CriteriaParser
     private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
         $bool = new BoolQuery();
-        if (\count($filter->getQueries()) === 0) {
+        if ($filter->getQueries() === []) {
             return $bool;
         }
 
@@ -968,7 +968,7 @@ class CriteriaParser
             $path[] = $field->getPropertyName();
         }
 
-        if (empty($path)) {
+        if ($path === []) {
             return null;
         }
 

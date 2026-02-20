@@ -68,7 +68,7 @@ class TestBootstrapper
         if ($this->isForceInstall() || !$this->dbExists()) {
             $this->install();
 
-            if (!empty($this->activePlugins)) {
+            if ($this->activePlugins !== []) {
                 $this->installPlugins();
             }
         } elseif ($this->forceInstallPlugins) {

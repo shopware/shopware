@@ -328,7 +328,7 @@ class Migration1661771388FixDefaultCountryStatesTranslationAreMissing extends Mi
             'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
         ]);
 
-        if (empty($missingTranslations)) {
+        if ($missingTranslations === []) {
             return;
         }
 

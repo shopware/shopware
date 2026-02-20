@@ -7,13 +7,14 @@ import {
     MtModalTrigger,
     MtModalRoot,
 } from '@shopware-ag/meteor-component-library';
+import useConsentStore from 'src/core/consent/consent.store';
 import swSettingsUsageDataConsentModal from './index';
 
 function createConsentModal(storeDataConsent, userDataConsent) {
     return mount(swSettingsUsageDataConsentModal, {
         props: {
-            initialStoreDataConsent: { value: storeDataConsent },
-            initialUserDataConsent: { value: userDataConsent },
+            storedStoreDataConsent: storeDataConsent,
+            storedUserDataConsent: userDataConsent,
         },
         global: {
             stubs: {
@@ -113,6 +114,59 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(subCardHeadings.map((heading) => heading.text())).not.toContain(
                 'sw-settings-usage-data.consent-modal.store-data.title',
             );
+        });
+    });
+
+    describe('persist consent', () => {
+        it('accepts both consents when "Share All" is clicked', async () => {
+            const consentStore = useConsentStore();
+            const acceptSpy = jest.spyOn(consentStore, 'accept');
+            acceptSpy.mockImplementation(() => Promise.resolve());
+
+            const wrapper = await createConsentModal(false, false);
+
+            const shareAllButton = wrapper.findAll('.mt-modal__footer button')[1];
+
+            await shareAllButton.trigger('click');
+
+            expect(acceptSpy).toHaveBeenCalledTimes(2);
+            expect(acceptSpy.mock.calls[0][0]).toBe('backend_data');
+            expect(acceptSpy.mock.calls[1][0]).toBe('product_analytics');
+        });
+
+        it('revokes both consents when "Share Nothing" is clicked', async () => {
+            const consentStore = useConsentStore();
+            const revokeSpy = jest.spyOn(consentStore, 'revoke');
+            revokeSpy.mockImplementation(() => Promise.resolve());
+
+            const wrapper = await createConsentModal(false, false);
+
+            const shareAllButton = wrapper.findAll('.mt-modal__footer button')[0];
+
+            await shareAllButton.trigger('click');
+
+            expect(revokeSpy).toHaveBeenCalledTimes(2);
+            expect(revokeSpy.mock.calls[0][0]).toBe('backend_data');
+            expect(revokeSpy.mock.calls[1][0]).toBe('product_analytics');
+        });
+
+        it('saves preferences as selected', async () => {
+            const consentStore = useConsentStore();
+            const acceptSpy = jest.spyOn(consentStore, 'accept');
+            const revokeSpy = jest.spyOn(consentStore, 'revoke');
+            acceptSpy.mockImplementation(() => Promise.resolve());
+            revokeSpy.mockImplementation(() => Promise.resolve());
+
+            const wrapper = await createConsentModal(true, false);
+
+            const savePreferencesButton = wrapper.find('.mt-modal__footer button');
+
+            await savePreferencesButton.trigger('click');
+
+            expect(acceptSpy).toHaveBeenCalled();
+            expect(revokeSpy).toHaveBeenCalled();
+            expect(acceptSpy.mock.calls[0][0]).toBe('backend_data');
+            expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
         });
     });
 });

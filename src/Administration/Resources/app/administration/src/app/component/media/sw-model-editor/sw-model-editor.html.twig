@@ -63,19 +63,19 @@
     <div class="sw-model-editor-sidebar">
         <div class="sw-model-editor-sidebar-content">
             <sw-vector-field
-                :value="diveModel?.position"
+                :value="currentProperties.position"
                 :label="$t('sw-media.sw-model-editor.properties.position.label')"
                 @input-change="changeModelPosition"
                 @update:value="changeModelPosition"
             />
             <sw-vector-field
-                :value="reactiveRotation"
+                :value="currentProperties.rotation"
                 :label="$t('sw-media.sw-model-editor.properties.rotation.label')"
-                @input-change="value => changeModelRotation({x: degToRad(value.x), y: degToRad(value.y), z: degToRad(value.z)})"
-                @update:value="value => changeModelRotation({x: degToRad(value.x), y: degToRad(value.y), z: degToRad(value.z)})"
+                @input-change="changeModelRotation"
+                @update:value="changeModelRotation"
             />
             <sw-vector-field
-                :value="diveModel?.scale"
+                :value="currentProperties.scale"
                 :label="$t('sw-media.sw-model-editor.properties.scale.label')"
                 @input-change="changeModelScale"
                 @update:value="changeModelScale"

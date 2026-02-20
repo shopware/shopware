@@ -348,8 +348,28 @@ export default {
             return this.salesChannelRepository.hasChanges(this.salesChannel);
         },
 
-        saveOnLanguageChange() {
-            return this.onSave();
+        async saveOnLanguageChange() {
+            this.isLoading = true;
+            this.isSaveSuccessful = false;
+
+            try {
+                await this.salesChannelRepository.save(this.salesChannel, Context.api);
+
+                this.isSaveSuccessful = true;
+                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
+            } catch (error) {
+                this.createNotificationError({
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageSaveError',
+                        {
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                        },
+                        0,
+                    ),
+                });
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         onChangeLanguage() {

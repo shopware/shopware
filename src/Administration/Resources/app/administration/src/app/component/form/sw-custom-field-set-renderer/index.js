@@ -207,7 +207,7 @@ export default {
                 return;
             }
 
-            this.customFields = this.entity.translated?.customFields ?? this.entity.customFields;
+            this.customFields = this.entity.customFields;
         },
 
         getInheritedCustomField(customFieldName) {

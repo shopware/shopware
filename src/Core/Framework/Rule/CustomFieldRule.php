@@ -96,7 +96,7 @@ class CustomFieldRule
      */
     public static function getValue(array $customFields, array $renderedField, ?SalesChannelContext $context = null): array|float|bool|int|string|null
     {
-        if (!empty($customFields) && \is_string($renderedField['name']) && \array_key_exists($renderedField['name'], $customFields)) {
+        if ($customFields !== [] && \is_string($renderedField['name']) && \array_key_exists($renderedField['name'], $customFields)) {
             $value = $customFields[$renderedField['name']];
 
             if (self::isPrice($renderedField) && $value instanceof PriceCollection) {

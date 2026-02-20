@@ -44,7 +44,7 @@ readonly class LoginConfigService
 
     public function getConfig(): ?LoginConfig
     {
-        if (\count($this->rawConfig) === 0) {
+        if ($this->rawConfig === []) {
             return null;
         }
 

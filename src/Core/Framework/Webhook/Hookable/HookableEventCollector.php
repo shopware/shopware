@@ -110,7 +110,7 @@ class HookableEventCollector implements ResetInterface
                 $reflection = new \ReflectionClass($definition::class);
                 $collection = $reflection->getAttributes(EntityAttribute::class);
 
-                if (empty($collection)) {
+                if ($collection === []) {
                     continue;
                 }
 

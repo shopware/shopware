@@ -118,7 +118,7 @@ class MediaGenerator implements DemodataGeneratorInterface
     {
         $tagAssignments = [];
 
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
             if (!empty($chosenTags)) {
@@ -160,7 +160,7 @@ class MediaGenerator implements DemodataGeneratorInterface
             );
         }
 
-        if (\count($images)) {
+        if ($images !== []) {
             return $images[array_rand($images)]->getPathname();
         }
 

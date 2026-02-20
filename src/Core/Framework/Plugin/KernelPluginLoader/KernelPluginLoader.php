@@ -112,7 +112,7 @@ abstract class KernelPluginLoader extends Bundle
         }
 
         $this->loadPluginInfos();
-        if (empty($this->pluginInfos)) {
+        if ($this->pluginInfos === []) {
             $this->initialized = true;
 
             return;

@@ -79,7 +79,7 @@ class RuleGenerator implements DemodataGeneratorInterface
 
         $ids = $this->ruleRepository->searchIds($criteria, $context->getContext());
 
-        if (!empty($ids->getIds())) {
+        if ($ids->getIds() !== []) {
             return;
         }
 

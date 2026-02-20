@@ -55,7 +55,7 @@ class TaskRegistry
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
-        if (\count($deletionPayload) > 0) {
+        if ($deletionPayload !== []) {
             $this->scheduledTaskRepository->delete($deletionPayload, $context);
         }
     }
@@ -117,7 +117,7 @@ class TaskRegistry
         }
 
         $updates = array_values(array_filter($updates));
-        if (\count($updates) > 0) {
+        if ($updates !== []) {
             $this->scheduledTaskRepository->update($updates, $context);
         }
     }

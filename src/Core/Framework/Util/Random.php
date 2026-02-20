@@ -54,12 +54,12 @@ class Random
         }
 
         // charlist is empty or not provided
-        if (empty($charlist)) {
+        if ($charlist === null || $charlist === '') {
             /** @var int<1, max> $numBytes */
             $numBytes = (int) ceil($length * 0.75);
             $bytes = static::getBytes($numBytes);
 
-            /** @var non-empty-string $result phpstan does not understand that some content of $bytes will remain */
+            /** @var non-empty-string $result PHPStan does not understand that some content of $bytes will remain */
             $result = mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
 
             return $result;

@@ -52,7 +52,7 @@ final class Package
 
         $attrs = $reflection->getAttributes(Package::class);
 
-        if (!empty($attrs)) {
+        if ($attrs !== []) {
             return $attrs[0]->getArguments()[0] ?? null;
         }
 

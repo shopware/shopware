@@ -96,7 +96,7 @@ class IndexerQueuer
      */
     private static function upsert(Connection $connection, ?string $id, array $indexerList): void
     {
-        if (empty($indexerList) && $id !== null) {
+        if ($indexerList === [] && $id !== null) {
             $connection->delete('system_config', ['id' => $id]);
 
             return;

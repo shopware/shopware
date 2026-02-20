@@ -31,7 +31,7 @@ class WriteableCheck
             $this->filesystem->checkSingleDirectoryPermissions($fullPath, true)
         );
 
-        if (empty($directories)) {
+        if ($directories === []) {
             return new ValidationResult(
                 'writeableCheck',
                 true,

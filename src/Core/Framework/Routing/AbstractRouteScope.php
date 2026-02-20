@@ -17,7 +17,7 @@ abstract class AbstractRouteScope
     {
         $basePath = explode('/', $path);
 
-        return empty($this->allowedPaths) || \in_array($basePath[1], $this->allowedPaths, true);
+        return $this->allowedPaths === [] || \in_array($basePath[1], $this->allowedPaths, true);
     }
 
     abstract public function isAllowed(Request $request): bool;

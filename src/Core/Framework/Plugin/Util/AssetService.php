@@ -172,7 +172,7 @@ class AssetService
 
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 
-        if (empty($manifest) || !isset($manifest[$bundleOrAppName])) {
+        if ($manifest === [] || !isset($manifest[$bundleOrAppName])) {
             // if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
             $this->assetFilesystem->deleteDirectory($targetDirectory);
         }

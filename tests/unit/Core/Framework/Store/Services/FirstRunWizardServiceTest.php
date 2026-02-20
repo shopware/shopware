@@ -22,11 +22,11 @@ use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
 use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
-use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\Services\TrackingEventClient;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\DomainVerificationRequestStruct;
 use Shopware\Core\Framework\Store\Struct\FrwState;
@@ -420,7 +420,7 @@ class FirstRunWizardServiceTest extends TestCase
             frwClient: $frwClient,
         );
 
-        $this->expectException(LicenseDomainVerificationException::class);
+        $this->expectExceptionObject(StoreException::licenseDomainVerificationFailure($domain));
 
         $frwService->verifyLicenseDomain($domain, $this->context);
         static::assertEmpty($systemConfigService->all());
@@ -463,8 +463,7 @@ class FirstRunWizardServiceTest extends TestCase
             frwClient: $frwClient,
         );
 
-        $this->expectException(LicenseDomainVerificationException::class);
-        $this->expectExceptionMessage(\sprintf('License host verification failed for domain "%s."', $domain));
+        $this->expectExceptionObject(StoreException::licenseDomainVerificationFailure($domain));
 
         $frwService->verifyLicenseDomain($domain, $this->context);
     }

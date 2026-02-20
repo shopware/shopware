@@ -1,0 +1,105 @@
+{% block sw_settings %}
+<sw-page
+    class="sw-settings-index"
+    :show-smart-bar="false"
+>
+    {% block sw_settings_content %}
+    <template #content>
+        <sw-card-view class="sw-settings-index__card-view">
+            {% block sw_settings_content_card_view %}
+            <div class="sw-settings__card--hero">
+                <sw-extension-component-section
+                    position-identifier="sw-settings-index"
+                />
+
+                {% block sw_settings_content_card_view_header %}
+                <div class="sw-settings__content-header">
+                    <h1 class="sw-settings__content-header-title">
+                        {{ $tc('sw-settings.index.title') }}
+                    </h1>
+
+                    <mt-search
+                        v-model="searchQuery"
+                        class="sw-settings__content-header-search"
+                        :placeholder="$t('sw-settings.index.search.placeholder')"
+                        size="small"
+                    />
+                </div>
+                {% endblock %}
+
+                {# @deprecated tag:v6.8.0 - will be removed without replacement #}
+                <mt-banner
+                    v-if="!feature.isActive('v6.8.0.0') && !hideSettingRenameBanner"
+                    class="sw-settings__content-rename-banner"
+                    variant="info"
+                    closable
+                    @close="onCloseSettingRenameBanner"
+                >
+                    <p v-html="$t('sw-settings.index.textSettingRenameBanner')"></p>
+                </mt-banner>
+
+                {% block sw_settings_content_card_content_grid %}
+                <div
+                    class="sw-settings__content-grid"
+                    position-identifier="sw-settings-index-content"
+                >
+                    <div
+                        v-for="(settingsItems, settingsGroup) in settingsGroups"
+                        :id="`sw-settings__content-group-${settingsGroup}`"
+                        :key="settingsGroup"
+                        class="sw-settings__content-group"
+                    >
+                        <span class="sw-settings__content-group-title">
+                            <sw-highlight-text
+                                :text="getGroupLabel(settingsGroup)"
+                                :search-term="searchQuery"
+                            />
+                        </span>
+
+                        <sw-settings-item
+                            v-for="settingsItem in settingsItems"
+                            :id="settingsItem.id"
+                            :key="settingsItem.name"
+                            :label="getLabel(settingsItem)"
+                            :to="getRouteConfig(settingsItem)"
+                        >
+                            <template #icon>
+                                <component
+                                    :is="settingsItem.iconComponent"
+                                    v-if="settingsItem.iconComponent"
+                                />
+
+                                <mt-icon
+                                    v-else
+                                    :name="settingsItem.icon"
+                                    size="16px"
+                                />
+                            </template>
+
+                            <template #label>
+                                <sw-highlight-text
+                                    :text="getLabel(settingsItem)"
+                                    :search-term="searchQuery"
+                                />
+                            </template>
+                        </sw-settings-item>
+                    </div>
+                </div>
+
+                <div class="sw-settings-index__empty-state">
+                    <mt-empty-state
+                        v-if="Object.keys(settingsGroups).length === 0"
+                        :description="$t('sw-settings.index.search.noResultsDescription')"
+                        :headline="$t('sw-settings.index.search.noResultsHeadline')"
+                        icon="regular-cog"
+                        centered
+                    />
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

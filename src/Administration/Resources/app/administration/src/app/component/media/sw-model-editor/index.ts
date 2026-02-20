@@ -5,9 +5,10 @@ import { type DIVEModel, DIVEMath } from '@shopware-ag/dive';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import { Toolbox } from '@shopware-ag/dive/toolbox';
 import { AssetExporter } from '@shopware-ag/dive/assetexporter';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Euler, type Vector3 } from 'three';
 import template from './sw-model-editor.html.twig';
 import './sw-model-editor.scss';
-import { Euler, Vector3 } from 'three';
 
 const { EventBus } = Shopware.Utils;
 const { Context } = Shopware;
@@ -174,7 +175,11 @@ export default Shopware.Component.wrapComponentConfig({
             this.toolbox = markRaw(new Toolbox(this.quickView.scene as any, this.quickView.orbitController as any));
             this.toolbox.enableTool('transform');
             this.toolbox.getTool('transform').setGizmoMode(this.currentEditMode);
-            this.toolbox.getTool('transform').addEventListener('object-change', (event) => this.syncProperties(event.object as DIVEModel));
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            this.toolbox.getTool('transform').addEventListener(
+                'object-change',
+                this.onObjectChange,
+            );
 
             this.diveModel = this.quickView.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
             this.saveInitialProperties(this.diveModel as DIVEModel);
@@ -185,6 +190,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async disposeQuickView(): Promise<void> {
+            if (this.toolbox) {
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                this.toolbox.getTool('transform').removeEventListener(
+                    'object-change',
+                    this.onObjectChange,
+                );
+            }
             this.toolbox?.dispose();
             await this.quickView?.dispose();
         },
@@ -213,6 +225,10 @@ export default Shopware.Component.wrapComponentConfig({
             this.toolbox?.getTool('transform').setGizmoMode(mode);
         },
 
+        onObjectChange(event: { object: unknown }): void {
+            this.syncProperties(event.object as DIVEModel);
+        },
+
         /**
          * Changes the position of the model. Will be called when the user changes the position in the UI.
          * @param position - the new position
@@ -231,7 +247,11 @@ export default Shopware.Component.wrapComponentConfig({
         changeModelRotation(rotation: { x: number; y: number; z: number }): void {
             if (!this.diveModel) return;
 
-            this.diveModel.setRotation({ x: DIVEMath.degToRad(rotation.x), y: DIVEMath.degToRad(rotation.y), z: DIVEMath.degToRad(rotation.z) });
+            this.diveModel.setRotation({
+                x: DIVEMath.degToRad(rotation.x),
+                y: DIVEMath.degToRad(rotation.y),
+                z: DIVEMath.degToRad(rotation.z),
+            });
             this.syncProperties(this.diveModel as DIVEModel);
         },
 
@@ -291,7 +311,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        /***
+        /**
          * Compare initial properties with current properties of the model.
          *
          * @param model - the current model

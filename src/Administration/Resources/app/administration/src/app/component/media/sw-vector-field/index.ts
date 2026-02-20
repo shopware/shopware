@@ -5,6 +5,7 @@ import './sw-vector-field.scss';
  * @sw-package innovation
  */
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -25,38 +26,38 @@ export default Shopware.Component.wrapComponentConfig({
     props: {
         value: {
             type: Object,
-            required: true
+            required: true,
         },
 
         linkable: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         label: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         description: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         step: {
             type: Number,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -65,8 +66,8 @@ export default Shopware.Component.wrapComponentConfig({
             currentValue: {
                 x: 0,
                 y: 0,
-                z: 0
-            }
+                z: 0,
+            },
         };
     },
 
@@ -86,10 +87,10 @@ export default Shopware.Component.wrapComponentConfig({
                 this.currentValue = {
                     x: Number(this.value.x) ?? 0,
                     y: Number(this.value.y) ?? 0,
-                    z: Number(this.value.z) ?? 0
+                    z: Number(this.value.z) ?? 0,
                 };
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -99,15 +100,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onInput(event: Event, axis: 'x' | 'y' | 'z') {
-            if (this.currentValue[axis] == Number(event)) {
+            if (this.currentValue[axis] === Number(event)) {
                 return;
             }
 
             if (this.linked && this.linkable) {
-                // Update all values except itself
-                for (const key in this.currentValue) {
+                for (const key of ['x', 'y', 'z'] as const) {
                     if (key !== axis) {
-                        this.currentValue[key as 'x' | 'y' | 'z'] = Number(event);
+                        this.currentValue[key] = Number(event);
                     }
                 }
             }
@@ -138,6 +138,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
             this.linked = !this.linked;
             this.$emit('link-change', this.linked);
-        }
-    }
+        },
+    },
 });

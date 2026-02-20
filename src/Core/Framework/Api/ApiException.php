@@ -484,4 +484,15 @@ class ApiException extends HttpException
             'Parameter `ids` is no array or empty',
         );
     }
+
+
+    public static function invalidEmail(string $email): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_INVALID_IDS_PARAMETER,
+            'Email "{{ email }}" is invalid.',
+            ['email' => $email]
+        );
+    }
 }

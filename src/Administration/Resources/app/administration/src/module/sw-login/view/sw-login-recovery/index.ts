@@ -15,6 +15,10 @@ export default Component.wrapComponentConfig({
 
     emits: ['is-loading'],
 
+    inject: [
+        'validationApiService',
+    ],
+
     data() {
         return {
             email: '',
@@ -35,7 +39,8 @@ export default Component.wrapComponentConfig({
         },
 
         isEmailValid() {
-            return email(this.email);
+            return this.validationApiService.validateEmailAddress(this.email);
+            // return email(this.email);
         },
 
         sendRecoveryMail() {

@@ -1,3 +1,5 @@
+import {response} from "express";
+
 const { types } = Shopware.Utils;
 
 /**
@@ -61,9 +63,10 @@ export function regex(value, expression) {
  * @returns {boolean}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function email(value) {
-    const emailValidation =
-        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+export async function email(value) {
+    // const validationApiService = Shopware.Application.getContainer('service').validationApiService;
+    //
+    // return validationApiService.validateEmailAddress(value);
 
-    return regex(value, emailValidation);
+    return false;
 }

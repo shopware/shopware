@@ -357,7 +357,7 @@ export default {
             }
 
             try {
-                if (this.term) {
+                if (this.term && !this.adminEsEnable) {
                     const variants = await this.productRepository.search(variantCriteria);
                     if (variants.length > 0) {
                         const parentIds = [];

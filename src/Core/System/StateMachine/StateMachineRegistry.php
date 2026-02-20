@@ -126,9 +126,9 @@ class StateMachineRegistry implements ResetInterface
                 $repository
             );
 
-            if (empty($transition->getTransitionName())) {
+            if ($transition->getTransitionName() === '') {
                 $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
-                $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
+                $transitionNames = array_map(static fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
                 throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
             }

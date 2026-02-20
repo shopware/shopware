@@ -305,7 +305,7 @@ class SystemConfigService implements ResetInterface
         }
 
         // Delete all null values
-        if (!empty($toBeDeleted)) {
+        if ($toBeDeleted !== []) {
             $qb = $this->connection
                 ->createQueryBuilder()
                 ->where('configuration_key IN (:keys)')
@@ -402,7 +402,7 @@ class SystemConfigService implements ResetInterface
             }
         }
 
-        if (empty($configKeys)) {
+        if ($configKeys === []) {
             return;
         }
 
@@ -437,7 +437,7 @@ class SystemConfigService implements ResetInterface
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         $result = $param();
@@ -454,7 +454,7 @@ class SystemConfigService implements ResetInterface
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         return [];

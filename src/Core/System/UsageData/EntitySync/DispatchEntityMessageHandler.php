@@ -169,7 +169,7 @@ final readonly class DispatchEntityMessageHandler
 
         $primaryKeys = $message->primaryKeys;
         $primaryKeyColumns = array_keys($primaryKeys[0]);
-        if (!empty($missingIdFields) && \count($primaryKeyColumns) > 1) {
+        if ($missingIdFields !== [] && \count($primaryKeyColumns) > 1) {
             self::throwUnrecoverableMessageHandlingException($message, 'Entity sync does not support composite primary keys');
         }
 
@@ -206,7 +206,7 @@ final readonly class DispatchEntityMessageHandler
             $serializedEntities[] = $serializedEntity;
         }
 
-        if (empty($serializedEntities)) {
+        if ($serializedEntities === []) {
             return;
         }
 

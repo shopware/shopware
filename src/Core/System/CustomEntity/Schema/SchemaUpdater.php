@@ -94,7 +94,7 @@ class SchemaUpdater
 
         $translated = array_filter($fields, fn (array $field) => $field['translatable'] ?? false);
 
-        if (empty($translated)) {
+        if ($translated === []) {
             return;
         }
         $languageTable = $schema->getTable('language');

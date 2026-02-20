@@ -20,7 +20,7 @@ class LanguageForeignKeyDeleteException extends ShopwareHttpException
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             Feature::deprecatedClassMessage(
-                __CLASS__,
+                self::class,
                 'v6.8.0.0',
                 RestrictDeleteViolationException::class
             )
@@ -38,7 +38,7 @@ class LanguageForeignKeyDeleteException extends ShopwareHttpException
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             Feature::deprecatedClassMessage(
-                __CLASS__,
+                self::class,
                 'v6.8.0.0',
                 RestrictDeleteViolationException::class
             )
@@ -52,7 +52,7 @@ class LanguageForeignKeyDeleteException extends ShopwareHttpException
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             Feature::deprecatedClassMessage(
-                __CLASS__,
+                self::class,
                 'v6.8.0.0',
                 RestrictDeleteViolationException::class
             )

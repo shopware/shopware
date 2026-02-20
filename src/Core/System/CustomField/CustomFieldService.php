@@ -83,7 +83,7 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
     {
         $commands = $event->getCommands();
 
-        if (empty($commands)) {
+        if ($commands === []) {
             return;
         }
 

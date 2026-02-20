@@ -139,7 +139,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             $context->getToken(),
             $parameters,
             $salesChannelId,
-            $customer && empty($context->getPermissions()) ? $customer->getId() : null
+            $customer && $context->getPermissions() === [] ? $customer->getId() : null
         );
 
         // Language was switched - Check new Domain with old context

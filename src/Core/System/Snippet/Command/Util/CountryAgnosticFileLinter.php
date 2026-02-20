@@ -78,7 +78,7 @@ class CountryAgnosticFileLinter
 
             $currentDomain = $currentFileData['domain'] ?? 'administration';
             $locale = str_replace('_', '-', $currentFileData['locale']);
-            $isBase = !$isAdminTranslationFile && !empty($currentFileData['isBase']);
+            $isBase = !$isAdminTranslationFile && ($currentFileData['isBase'] ?? '') !== '';
 
             $translationFile = new TranslationFile(
                 $file->getFilename(),
@@ -154,7 +154,7 @@ class CountryAgnosticFileLinter
 
         if ($options->dir) {
             $this->finder->in($options->dir);
-        } elseif (empty($options->extensionPaths)) {
+        } elseif ($options->extensionPaths === []) {
             $this->finder->in('src');
 
             if ($options->isAll) {
@@ -183,7 +183,7 @@ class CountryAgnosticFileLinter
             ...$apps->fmap(static fn (AppEntity $app) => $app->getPath()),
         ];
 
-        if (empty($extensionPaths)) {
+        if ($extensionPaths === []) {
             throw SnippetException::invalidExtensions($options->extensionPaths);
         }
 

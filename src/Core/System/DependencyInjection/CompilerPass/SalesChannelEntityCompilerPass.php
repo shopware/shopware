@@ -153,7 +153,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             $class = $service->getClass();
 
             if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
-                if (empty($service->getArguments())) {
+                if ($service->getArguments() === []) {
                     continue;
                 }
 

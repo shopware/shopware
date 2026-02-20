@@ -20,13 +20,35 @@ const mockSelect = jest.fn();
 const mockToolbox = jest.fn().mockImplementation(() => ({
     dispose: mockToolboxDispose,
     enableTool: mockEnableTool,
-    getTool: jest.fn().mockReturnValue({ setGizmoMode: mockSetGizmoMode }),
+    getTool: jest.fn().mockReturnValue({
+        setGizmoMode: mockSetGizmoMode,
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+    }),
     selectionState: { select: mockSelect },
 }));
 jest.mock('@shopware-ag/dive/toolbox', () => ({
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     Toolbox: (...args: unknown[]) => mockToolbox(...args),
 }));
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createMockVector3 = (x = 0, y = 0, z = 0): any => ({
+    x, y, z,
+    clone() { return createMockVector3(this.x, this.y, this.z); },
+    equals(other: { x: number; y: number; z: number }) {
+        return this.x === other.x && this.y === other.y && this.z === other.z;
+    },
+});
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createMockEuler = (x = 0, y = 0, z = 0): any => ({
+    x, y, z,
+    clone() { return createMockEuler(this.x, this.y, this.z); },
+    equals(other: { x: number; y: number; z: number }) {
+        return this.x === other.x && this.y === other.y && this.z === other.z;
+    },
+});
 
 const createMediaEntity = (overrides: Partial<EntitySchema.Entity<'media'>> = {}) => {
     return {
@@ -60,6 +82,27 @@ async function createWrapper(componentConfig: any = {}) {
                 'mt-icon': {
                     template: '<span class="mt-icon"></span>',
                 },
+                'sw-vector-field': {
+                    template: '<div class="sw-vector-field"></div>',
+                },
+                'sw-model-editor-collapse': {
+                    template: '<div class="sw-model-editor-collapse"></div>',
+                },
+                'sw-model-editor-collapse-title': {
+                    template: '<div class="sw-model-editor-collapse-title"></div>',
+                },
+                'sw-model-editor-collapse-content': {
+                    template: '<div class="sw-model-editor-collapse-content"></div>',
+                },
+                'sw-model-editor-collapse-button': {
+                    template: '<div class="sw-model-editor-collapse-button"></div>',
+                },
+                'sw-model-editor-collapse-button-icon': {
+                    template: '<div class="sw-model-editor-collapse-button-icon"></div>',
+                },
+                'sw-model-editor-collapse-button-text': {
+                    template: '<div class="sw-model-editor-collapse-button-text"></div>',
+                },
             },
             directives: {
                 tooltip: {},
@@ -76,7 +119,16 @@ describe('src/app/component/media/sw-model-editor', () => {
     const mockScene = {
         root: {
             children: [
-                { isDIVEModel: true, name: 'TestModel' },
+                {
+                    isDIVEModel: true,
+                    name: 'TestModel',
+                    position: createMockVector3(),
+                    rotation: createMockEuler(),
+                    scale: createMockVector3(1, 1, 1),
+                    setPosition: jest.fn(),
+                    setRotation: jest.fn(),
+                    setScale: jest.fn(),
+                },
             ],
         },
     };

@@ -10,7 +10,7 @@
         </div>
         <div class="sw-model-editor-canvas-ui__edit-options">
             <div
-                v-tooltip="{ message: $t('sw-media.sw-model-editor.edit-options.move-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
+                v-tooltip="{ message: $t('sw-model-editor.edit-options.move-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
                 class="sw-model-editor-canvas-ui__button-container"
                 :class="currentEditMode === 'translate' ? 'is--active' : ''"
             >
@@ -26,7 +26,7 @@
                 </button>
             </div>
             <div
-                v-tooltip="{ message: $t('sw-media.sw-model-editor.edit-options.rotate-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
+                v-tooltip="{ message: $t('sw-model-editor.edit-options.rotate-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
                 class="sw-model-editor-canvas-ui__button-container"
                 :class="currentEditMode === 'rotate' ? 'is--active' : ''"
             >
@@ -42,7 +42,7 @@
                 </button>
             </div>
             <div
-                v-tooltip="{ message: $t('sw-media.sw-model-editor.edit-options.scale-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
+                v-tooltip="{ message: $t('sw-model-editor.edit-options.scale-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
                 class="sw-model-editor-canvas-ui__button-container"
                 :class="currentEditMode === 'scale' ? 'is--active' : ''"
             >
@@ -62,24 +62,31 @@
     </div>
     <div class="sw-model-editor-sidebar">
         <div class="sw-model-editor-sidebar-content">
-            <sw-vector-field
-                :value="currentProperties.position"
-                :label="$t('sw-media.sw-model-editor.properties.position.label')"
-                @input-change="changeModelPosition"
-                @update:value="changeModelPosition"
-            />
-            <sw-vector-field
-                :value="currentProperties.rotation"
-                :label="$t('sw-media.sw-model-editor.properties.rotation.label')"
-                @input-change="changeModelRotation"
-                @update:value="changeModelRotation"
-            />
-            <sw-vector-field
-                :value="currentProperties.scale"
-                :label="$t('sw-media.sw-model-editor.properties.scale.label')"
-                @input-change="changeModelScale"
-                @update:value="changeModelScale"
-            />
+            <sw-model-editor-collapse
+                :title="$t('sw-model-editor.properties.transformation.label')"
+                :expand-on-loading="true"
+            >
+                <template #content>
+                    <sw-vector-field
+                        :value="currentProperties.position"
+                        :label="$t('sw-model-editor.properties.transformation.position.label')"
+                        @input-change="changeModelPosition"
+                        @update:value="changeModelPosition"
+                    />
+                    <sw-vector-field
+                        :value="currentProperties.rotation"
+                        :label="$t('sw-model-editor.properties.transformation.rotation.label')"
+                        @input-change="changeModelRotation"
+                        @update:value="changeModelRotation"
+                    />
+                    <sw-vector-field
+                        :value="currentProperties.scale"
+                        :label="$t('sw-model-editor.properties.transformation.scale.label')"
+                        @input-change="changeModelScale"
+                        @update:value="changeModelScale"
+                    />
+                </template>
+            </sw-model-editor-collapse>
         </div>
     </div>
 </div>

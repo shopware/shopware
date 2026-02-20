@@ -54,6 +54,7 @@ export default Shopware.Component.wrapComponentConfig({
             isRotatable: true,
             isScalable: true,
             initialProperties: {},
+            reactiveRotation: { x: 0, y: 0, z: 0 },
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
@@ -66,7 +67,8 @@ export default Shopware.Component.wrapComponentConfig({
             isTranslatable: boolean;
             isRotatable: boolean;
             isScalable: boolean;
-            initialProperties: any,
+            initialProperties: any;
+            reactiveRotation: { x: number; y: number; z: number };
         };
     },
 
@@ -156,6 +158,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.toolbox = markRaw(new Toolbox(this.quickView.scene as any, this.quickView.orbitController as any));
             this.toolbox.enableTool('transform');
             this.toolbox.getTool('transform').setGizmoMode(this.currentEditMode);
+            this.toolbox.getTool('transform').addEventListener('object-rotation-change', this.handleEulerRotation.bind(this));
 
             this.diveModel = this.quickView.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
             this.saveInitialProperties(this.diveModel);
@@ -169,14 +172,14 @@ export default Shopware.Component.wrapComponentConfig({
             await this.quickView?.dispose();
         },
 
-        // we need this wrapper because we use it in the twig template as well
+        /**
+         * Converts radians to degrees.
+         * @note We need this wrapper because we use it in the twig template as well.
+         * @param value - the value to convert in radians
+         * @returns the converted value in degrees
+         */
         radToDeg(value: number): number {
             return DIVEMath.radToDeg(value);
-        },
-
-        // we need this wrapper because we use it in the twig template as well
-        degToRad(value: number): number {
-            return DIVEMath.degToRad(value);
         },
 
         onMediaLibraryItemUpdated(mediaId: string): void {
@@ -194,57 +197,53 @@ export default Shopware.Component.wrapComponentConfig({
                 });
         },
 
+        /**
+         * Sets the gizmo mode.
+         * @param mode - the new gizmo mode
+         */
         setGizmoMode(mode: 'translate' | 'rotate' | 'scale'): void {
             this.currentEditMode = mode;
             this.toolbox?.getTool('transform').setGizmoMode(mode);
         },
 
+        /**
+         * Changes the position of the model. Will be called when the user changes the position in the UI.
+         * @param position - the new position
+         */
         changeModelPosition(position: { x: number; y: number; z: number }): void {
             if (!this.diveModel) return;
 
             this.diveModel.setPosition({ x: position.x, y: position.y, z: position.z });
         },
 
+        /**
+         * Changes the rotation of the model. Will be called when the user changes the rotation in the UI.
+         * @param rotation - the new rotation
+         */
         changeModelRotation(rotation: { x: number; y: number; z: number }): void {
             if (!this.diveModel) return;
 
             this.diveModel.setRotation({ x: rotation.x, y: rotation.y, z: rotation.z });
+            this.reactiveRotation = {
+                x: this.radToDeg(rotation.x),
+                y: this.radToDeg(rotation.y),
+                z: this.radToDeg(rotation.z),
+            };
         },
 
+        /**
+         * Changes the scale of the model. Will be called when the user changes the scale in the UI.
+         * @param scale - the new scale
+         */
         changeModelScale(scale: { x: number; y: number; z: number }): void {
             if (!this.diveModel) return;
 
             this.diveModel.setScale({ x: scale.x, y: scale.y, z: scale.z });
         },
 
-        // in this function we save all inital values we can change in the model editor to compare it on save
-        saveInitialProperties(model: DIVEModel): void {
-            this.initialProperties = {
-                position: model.position.clone(),
-                rotation: model.rotation.clone(),
-                scale: model.scale.clone(),
-            };
-        },
-
-        /***
-         * compare initial properties with current properties of modal
-         *
-         * @param model - the current model
-         * @returns true if the initial properties are equal to the current properties, false otherwise
+        /**
+         * Saves the model to the media library.
          */
-        compareInitialProperties(model: DIVEModel): boolean {
-            // compare position
-            const equalPosition = this.initialProperties.position.equals(model.position);
-
-            // compare rotation
-            const equalRotation = this.initialProperties.rotation.equals(model.rotation);
-
-            // compare scale
-            const equalScale = this.initialProperties.scale.equals(model.scale);
-
-            return equalPosition && equalRotation && equalScale;
-        },
-
         async save(): Promise<void> {
             if (!this.modelEntity) return;
             if (!this.diveModel) return;
@@ -273,6 +272,70 @@ export default Shopware.Component.wrapComponentConfig({
 
             // Emit event to trigger refresh with new URL (includes updated cache-busting timestamp)
             EventBus.emit('sw-media-library-item-updated', targetId);
+        },
+
+        /**
+         * Saves all initial values to compare it on save.
+         * @param model - the model to save the initial properties of
+         */
+        saveInitialProperties(model: DIVEModel): void {
+            this.initialProperties = {
+                position: model.position.clone(),
+                rotation: model.rotation.clone(),
+                scale: model.scale.clone(),
+            };
+            this.handleEulerRotation();
+        },
+
+        /***
+         * Compare initial properties with current properties of the model.
+         *
+         * @param model - the current model
+         * @returns true if the initial properties are equal to the current properties, false otherwise
+         */
+        compareInitialProperties(model: DIVEModel): boolean {
+            // compare position
+            const equalPosition = this.initialProperties.position.equals(model.position);
+
+            // compare rotation
+            const equalRotation = this.initialProperties.rotation.equals(model.rotation);
+
+            // compare scale
+            const equalScale = this.initialProperties.scale.equals(model.scale);
+
+            return equalPosition && equalRotation && equalScale;
+        },
+
+        /**
+         * Transforms Euler rotation into reasonable degree values for the UI.
+         */
+        handleEulerRotation(): void {
+            if (!this.diveModel) return;
+
+            const x = this.diveModel.rotation.x;
+            const y = this.diveModel.rotation.y;
+            const z = this.diveModel.rotation.z;
+
+            // XYZ Euler constrains Y to [-π/2, π/2]. Rotations beyond that produce an
+            // equivalent (x±π, π-y, z±π). Compute both in radians, convert to degrees,
+            // then pick the representation closest to the current UI state.
+            const std = {
+                x: this.radToDeg(x),
+                y: this.radToDeg(y),
+                z: this.radToDeg(z),
+            };
+
+            const alt = {
+                x: this.radToDeg(x > 0 ? x - Math.PI : x + Math.PI),
+                y: this.radToDeg(y > 0 ? Math.PI - y : -Math.PI - y),
+                z: this.radToDeg(z > 0 ? z - Math.PI : z + Math.PI),
+            };
+
+            const prev = this.reactiveRotation;
+            const distStd = Math.abs(std.x - prev.x) + Math.abs(std.y - prev.y) + Math.abs(std.z - prev.z);
+            const distAlt = Math.abs(alt.x - prev.x) + Math.abs(alt.y - prev.y) + Math.abs(alt.z - prev.z);
+
+            this.reactiveRotation = distAlt < distStd ? alt : std;
         },
     },
 });

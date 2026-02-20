@@ -288,7 +288,7 @@
                     <sw-modal
                         v-if="showModelEditorModal"
                         class="sw-model-editor-modal"
-                        :title="$tc('sw-media.sw-model-editor.titleModal')"
+                        :title="$tc('sw-model-editor.titleModal')"
                         variant="full"
                         @modal-close="closeModelEditorModal()"
                     >
@@ -304,7 +304,7 @@
                                 variant="primary"
                                 @click="$refs.modelEditorRef.save()"
                             >
-                                {{ $tc('sw-media.sw-model-editor.saveChanges') }}
+                                {{ $tc('sw-model-editor.saveChanges') }}
                             </mt-button>
                         </template>
                     </sw-modal>

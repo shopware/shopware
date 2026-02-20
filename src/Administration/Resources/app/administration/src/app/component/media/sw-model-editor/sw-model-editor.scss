@@ -6,6 +6,8 @@ $sw-model-editor-box-shadow: 0 2px 6px 0 #00000036;
 $sw-button-transition: all 0.15s ease-out;
 
 .sw-model-editor {
+    display: flex;
+    flex-direction: row;
     width: 100%;
     height: 100%;
 }
@@ -13,15 +15,27 @@ $sw-button-transition: all 0.15s ease-out;
 .sw-model-editor-content {
     position: relative;
     display: flex;
-    flex-direction: row;
-    width: 100%;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
     height: 100%;
+}
+
+.sw-model-editor-sidebar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 650px;
+    padding: 24px;
+
+    border-left: 1px solid var(--color-border-primary-default);
 }
 
 .sw-model-editor-canvas-wrapper {
     position: relative;
     display: block;
     width: 100%;
+    height: 100%;
 }
 
 .sw-model-editor-canvas-ui__edit-options {

@@ -1721,5 +1721,28 @@
   },
   "sw-context-button": {
     "ariaLabel": "Open context menu"
+  },
+  "sw-model-editor": {
+    "titleModal": "Model Editor",
+    "edit-options": {
+      "move-tooltip": "Move object",
+      "rotate-tooltip": "Rotate object",
+      "scale-tooltip": "Scale object"
+    },
+    "saveChanges": "Save changes",
+    "properties": {
+      "transformation": {
+        "label":"Transformation",
+        "position": {
+          "label": "Position"
+        },
+        "rotation": {
+          "label": "Rotation"
+        },
+        "scale": {
+          "label": "Scale"
+        }
+      }
+    }
   }
 }

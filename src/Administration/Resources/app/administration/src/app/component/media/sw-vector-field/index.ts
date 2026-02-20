@@ -84,22 +84,22 @@ export default Shopware.Component.wrapComponentConfig({
             handler() {
                 if (!this.value) return;
                 this.currentValue = {
-                    x: this.value.x ?? 0,
-                    y: this.value.y ?? 0,
-                    z: this.value.z ?? 0
+                    x: Number(this.value.x) ?? 0,
+                    y: Number(this.value.y) ?? 0,
+                    z: Number(this.value.z) ?? 0
                 };
             }
         }
     },
 
     methods: {
-        onChange(event: Event, axis: string) {
+        onChange(event: Event, axis: 'x' | 'y' | 'z') {
             this.updateCurrentValue(event, axis);
             this.$emit('update:value', this.currentValue);
         },
 
-        onInput(event: Event, axis: string) {
-            if (this.currentValue[axis] == event) {
+        onInput(event: Event, axis: 'x' | 'y' | 'z') {
+            if (this.currentValue[axis] == Number(event)) {
                 return;
             }
 
@@ -107,24 +107,24 @@ export default Shopware.Component.wrapComponentConfig({
                 // Update all values except itself
                 for (const key in this.currentValue) {
                     if (key !== axis) {
-                        this.currentValue[key] = event;
+                        this.currentValue[key as 'x' | 'y' | 'z'] = Number(event);
                     }
                 }
             }
             const newValue = { ...this.currentValue };
-            newValue[axis] = event;
+            newValue[axis] = Number(event);
             this.$emit('input-change', newValue);
         },
 
-        updateCurrentValue(event: Event, axis: string) {
+        updateCurrentValue(event: Event, axis: 'x' | 'y' | 'z') {
             if (!(this.linked && this.linkable)) {
-                this.currentValue[axis] = event;
+                this.currentValue[axis] = Number(event);
                 return;
             }
 
-            this.currentValue.x = event;
-            this.currentValue.y = event;
-            this.currentValue.z = event;
+            this.currentValue.x = Number(event);
+            this.currentValue.y = Number(event);
+            this.currentValue.z = Number(event);
         },
 
         onLinkToggle() {

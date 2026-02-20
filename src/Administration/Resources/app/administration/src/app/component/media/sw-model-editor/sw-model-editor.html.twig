@@ -69,7 +69,7 @@
                 @update:value="changeModelPosition"
             />
             <sw-vector-field
-                :value="{x: radToDeg(diveModel?.rotation.x), y: radToDeg(diveModel?.rotation.y), z: radToDeg(diveModel?.rotation.z)}"
+                :value="reactiveRotation"
                 :label="$t('sw-media.sw-model-editor.properties.rotation.label')"
                 @input-change="value => changeModelRotation({x: degToRad(value.x), y: degToRad(value.y), z: degToRad(value.z)})"
                 @update:value="value => changeModelRotation({x: degToRad(value.x), y: degToRad(value.y), z: degToRad(value.z)})"

@@ -69,7 +69,7 @@ class ShopConfigurator
                 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]);
 
-            if (!empty($defaultCountryStateTranslations)) {
+            if ($defaultCountryStateTranslations !== []) {
                 $correctDeTranslations = [
                     'DE-BW' => 'Baden-Württemberg',
                     'DE-BY' => 'Bayern',
@@ -168,7 +168,7 @@ class ShopConfigurator
             'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
         ]);
 
-        if (empty($missingTranslations)) {
+        if ($missingTranslations === []) {
             return;
         }
 

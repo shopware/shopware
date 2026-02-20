@@ -146,7 +146,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
             );
         }
 
-        if (empty($this->sequenceDelete)) {
+        if ($this->sequenceDelete === []) {
             return;
         }
 

@@ -48,7 +48,7 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
                 ['limit' => ParameterType::INTEGER]
             );
 
-            if (empty($ids)) {
+            if ($ids === []) {
                 break;
             }
 

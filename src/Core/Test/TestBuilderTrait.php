@@ -38,7 +38,7 @@ trait TestBuilderTrait
         $data = \array_merge($data, $this->_dynamic);
 
         return \array_filter($data, function ($value) {
-            if (\is_array($value) && empty($value)) {
+            if ($value === []) {
                 return false;
             }
 

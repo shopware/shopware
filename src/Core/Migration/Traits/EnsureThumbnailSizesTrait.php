@@ -34,7 +34,7 @@ trait EnsureThumbnailSizesTrait
                 return (int) $var['width'] === $thumbnailSize['width'] && (int) $var['height'] === $thumbnailSize['height'];
             });
 
-            if (\count($result) > 0) {
+            if ($result !== []) {
                 $sizes[] = reset($result)['id'];
 
                 continue;

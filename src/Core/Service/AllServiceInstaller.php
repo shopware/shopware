@@ -60,7 +60,7 @@ class AllServiceInstaller
             }
         }
 
-        if (!empty($installedServices)) {
+        if ($installedServices !== []) {
             $this->eventDispatcher->dispatch(new NewServicesInstalledEvent());
         }
 

@@ -1,0 +1,34 @@
+<div
+    :class="
+        {
+            'sw-model-editor-sidebar-objects sw-model-editor-sidebar__section sw-model-editor-sidebar__section--isEntity': true,
+            'sw-model-editor-sidebar__section--isLast': isLast
+        }
+    "
+>
+    <sw-collapse :expand-on-loading="expandOnLoading">
+        <template #header="{ expanded }">
+            <div class="sw-model-editor-sidebar-objects__section-collapse-header">
+                <h2 class="sw-model-editor-sidebar-objects__section-collapse-title">
+                    {{ summary }}
+                </h2>
+                <mt-icon
+                    v-if="expanded"
+                    name="regular-chevron-down-xs"
+                    color="#8599AD"
+                    size="12"
+                />
+                <mt-icon
+                    v-else
+                    name="regular-chevron-right-xs"
+                    color="#8599AD"
+                    size="12"
+                />
+            </div>
+
+        </template>
+        <template #content>
+            <slot name="collapseContent"></slot>
+        </template>
+    </sw-collapse>
+</div>

@@ -60,5 +60,27 @@
         </div>
 
     </div>
+    <div class="sw-model-editor-sidebar">
+        <div class="sw-model-editor-sidebar-content">
+            <sw-vector-field
+                :value="diveModel?.position"
+                :label="$t('sw-media.sw-model-editor.properties.position.label')"
+                @input-change="changeModelPosition"
+                @update:value="changeModelPosition"
+            />
+            <sw-vector-field
+                :value="{x: radToDeg(diveModel?.rotation.x), y: radToDeg(diveModel?.rotation.y), z: radToDeg(diveModel?.rotation.z)}"
+                :label="$t('sw-media.sw-model-editor.properties.rotation.label')"
+                @input-change="value => changeModelRotation({x: degToRad(value.x), y: degToRad(value.y), z: degToRad(value.z)})"
+                @update:value="value => changeModelRotation({x: degToRad(value.x), y: degToRad(value.y), z: degToRad(value.z)})"
+            />
+            <sw-vector-field
+                :value="diveModel?.scale"
+                :label="$t('sw-media.sw-model-editor.properties.scale.label')"
+                @input-change="changeModelScale"
+                @update:value="changeModelScale"
+            />
+        </div>
+    </div>
 </div>
 {% endblock %}

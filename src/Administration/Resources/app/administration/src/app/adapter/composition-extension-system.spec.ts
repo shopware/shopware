@@ -27,6 +27,7 @@ describe('src/app/adapter/composition-extension-system', () => {
             delete _overridesMap[key];
         });
 
+        // Clear all mocks
         jest.clearAllMocks();
     });
 

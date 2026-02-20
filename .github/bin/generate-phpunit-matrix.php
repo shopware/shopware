@@ -1,6 +1,6 @@
 <?php
 
-$php = ['8.2'];
+$php = ['8.5'];
 $db = ['mysql:8.0'];
 
 $nightly = $_SERVER['argv'][1] ?? false;

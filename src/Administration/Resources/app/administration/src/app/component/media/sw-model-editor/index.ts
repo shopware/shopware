@@ -17,7 +17,7 @@ type MEModelProperties = {
     position: Vector3;
     rotation: Euler;
     scale: Vector3;
-}
+};
 
 /**
  * @status ready
@@ -274,7 +274,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.diveModel) return;
 
             const isEqual = this.compareInitialProperties(this.diveModel as DIVEModel);
-            if(isEqual) return;
+            if (isEqual) return;
 
             const targetId = this.modelEntity.id;
             const fileName = this.modelEntity.fileName ?? 'model';
@@ -344,11 +344,7 @@ export default Shopware.Component.wrapComponentConfig({
             const y = model.rotation.y;
             const z = model.rotation.z;
 
-            const std: Euler = new Euler(
-                DIVEMath.radToDeg(x),
-                DIVEMath.radToDeg(y),
-                DIVEMath.radToDeg(z),
-            );
+            const std: Euler = new Euler(DIVEMath.radToDeg(x), DIVEMath.radToDeg(y), DIVEMath.radToDeg(z));
 
             const alt: Euler = new Euler(
                 DIVEMath.radToDeg(x > 0 ? x - Math.PI : x + Math.PI),

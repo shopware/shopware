@@ -49,16 +49,24 @@ interface MockEuler {
 }
 
 const createMockVector3 = (x = 0, y = 0, z = 0): MockVector3 => ({
-    x, y, z,
-    clone() { return createMockVector3(this.x, this.y, this.z); },
+    x,
+    y,
+    z,
+    clone() {
+        return createMockVector3(this.x, this.y, this.z);
+    },
     equals(other: { x: number; y: number; z: number }) {
         return this.x === other.x && this.y === other.y && this.z === other.z;
     },
 });
 
 const createMockEuler = (x = 0, y = 0, z = 0): MockEuler => ({
-    x, y, z,
-    clone() { return createMockEuler(this.x, this.y, this.z); },
+    x,
+    y,
+    z,
+    clone() {
+        return createMockEuler(this.x, this.y, this.z);
+    },
     equals(other: { x: number; y: number; z: number }) {
         return this.x === other.x && this.y === other.y && this.z === other.z;
     },

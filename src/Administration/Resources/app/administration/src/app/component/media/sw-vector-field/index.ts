@@ -105,7 +105,13 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (this.linked && this.linkable) {
-                (['x', 'y', 'z'] as const).forEach((key) => {
+                (
+                    [
+                        'x',
+                        'y',
+                        'z',
+                    ] as const
+                ).forEach((key) => {
                     if (key !== axis) {
                         this.currentValue[key] = Number(event);
                     }

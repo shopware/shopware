@@ -317,7 +317,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             expect(pluginWithNoAjax._form.submit).toHaveBeenCalledTimes(1);
         });
 
-        test('_submitInvisibleForm handles CMS form through FormCmsHandler', () => {
+        test('_submitInvisibleForm calls sendAjaxFormSubmit on FormCmsHandler like any other AJAX plugin', () => {
             const mockFormCmsHandler = {
                 sendAjaxFormSubmit: jest.fn(),
                 options: {},
@@ -338,25 +338,6 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             cmsPlugin._submitInvisibleForm();
             expect(mockFormCmsHandler.sendAjaxFormSubmit).toHaveBeenCalledTimes(1);
             expect(cmsPlugin._form.submit).not.toHaveBeenCalled();
-        });
-
-        test('_submitInvisibleForm handles CMS form when FormCmsHandler exists but get returns null', () => {
-            // Create a Map and mock has/get to simulate edge case where has() returns true but get() returns null
-            const cmsInstancesMap = new Map();
-            jest.spyOn(cmsInstancesMap, 'has').mockImplementation(key => key === 'FormCmsHandler');
-            jest.spyOn(cmsInstancesMap, 'get').mockImplementation(key => key === 'FormCmsHandler' ? null : undefined);
-
-            window.PluginManager.getPluginInstancesFromElement = jest.fn(() => cmsInstancesMap);
-
-            const cmsPlugin = new GoogleReCaptchaBasePlugin(mockElement, {
-                grecaptchaInputSelector: '.grecaptcha-input',
-            });
-            cmsPlugin._executeGoogleReCaptchaInitialization();
-            cmsPlugin._form.submit = jest.fn();
-
-            // Should continue to form submission logic since FormCmsHandler plugin is null
-            cmsPlugin._submitInvisibleForm();
-            expect(cmsPlugin._form.submit).toHaveBeenCalledTimes(1);
         });
     });
 

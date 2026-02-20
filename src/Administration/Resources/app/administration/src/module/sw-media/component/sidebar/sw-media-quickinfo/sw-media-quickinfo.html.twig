@@ -272,6 +272,7 @@
                     <div class="sw-model-viewer-wrapper">
                         <mt-button
                             v-if="!isLoading"
+                            v-tooltip="{ message: $t('sw-model-editor.open-model-editor-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
                             class="sw-model-viewer-button"
                             variant="secondary"
                             size="x-small"

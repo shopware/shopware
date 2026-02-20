@@ -33,7 +33,7 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 
 ## Removal of `/api/_info/queue.json` endpoint
 
-The deprecated `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
+The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
 </details>
 
 # Core

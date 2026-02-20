@@ -204,7 +204,7 @@ class SendMailActionTest extends TestCase
         switch ($recipients['type']) {
             case 'admin':
                 $admin = static::getContainer()->get(Connection::class)->fetchAssociative(
-                    'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
+                    'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1 ORDER BY `id` LIMIT 1'
                 );
                 static::assertIsArray($admin);
                 static::assertSame($mailService->data['recipients'], [$admin['email'] => $admin['first_name'] . ' ' . $admin['last_name']]);

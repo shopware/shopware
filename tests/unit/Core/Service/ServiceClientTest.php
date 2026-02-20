@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 use Shopware\Core\Service\ServiceClient;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
@@ -125,6 +126,7 @@ class ServiceClientTest extends TestCase
                 'app-zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
                 'app-hash-algorithm' => 'sha256',
                 'app-min-shop-supported-version' => '6.6.0.0',
+                'app-requirements' => ['service_consent'],
             ])),
         ]);
         $client = new ServiceClient(
@@ -140,5 +142,29 @@ class ServiceClientTest extends TestCase
         static::assertSame('a5b32', $appInfo->hash);
         static::assertSame('6.6.0.0-a5b32', $appInfo->revision);
         static::assertSame('https://example.com/service/lifecycle/app-zip/6.6.0.0', $appInfo->zipUrl);
+        static::assertSame(['service_consent'], $appInfo->requirements);
+    }
+
+    public function testLatestInfoUsesDefaultRequirementsWhenMissing(): void
+    {
+        $httpClient = new MockHttpClient([
+            new MockResponse((string) json_encode([
+                'app-version' => '6.6.0.0',
+                'app-hash' => 'a5b32',
+                'app-revision' => '6.6.0.0-a5b32',
+                'app-zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
+                'app-hash-algorithm' => 'sha256',
+                'app-min-shop-supported-version' => '6.6.0.0',
+            ])),
+        ]);
+        $client = new ServiceClient(
+            $httpClient,
+            '6.6.0.0',
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/app-endpoint')
+        );
+
+        $appInfo = $client->latestAppInfo();
+
+        static::assertSame([ServiceConsentRequirement::NAME], $appInfo->requirements);
     }
 }

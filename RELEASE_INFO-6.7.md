@@ -2,6 +2,11 @@
 
 ## Features
 
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
 ## API
 
 ## Core
@@ -265,6 +270,13 @@ This change helps optimize index storage size and improve search performance, es
 From now on you are able to inspect your 3D models directly in the Media module in the Administration.
 Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right.
 This new component is called `sw-model-viewer`.
+
+### Media Model Editor
+
+The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
+Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
+A modal will open where you can move, rotate, and scale the model.
+Click Save, and your changes are applied instantly.
 
 ## API
 

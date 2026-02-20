@@ -60,7 +60,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     public function update(array $ids, Context $context): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -236,7 +236,7 @@ class SearchKeywordUpdater implements ResetInterface
 
             $fields = array_filter($fields, fn (Field $field) => $field instanceof AssociationField);
 
-            if (empty($fields)) {
+            if ($fields === []) {
                 continue;
             }
 
@@ -306,7 +306,7 @@ class SearchKeywordUpdater implements ResetInterface
 
         $fields = array_filter($all, fn (array $field) => $field['language_id'] === $languageId);
 
-        if (!empty($fields)) {
+        if ($fields !== []) {
             $this->config[$languageId] = $fields;
 
             return $fields;

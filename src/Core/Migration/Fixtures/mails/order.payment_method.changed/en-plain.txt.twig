@@ -1,0 +1,10 @@
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
+We confirm that the payment method for your order has been successfully changed.
+
+Order number: {{ order.orderNumber }}
+New payment method: {{ order.transactions.last.paymentMethod.translated.name }}
+
+Your order will now be processed using the selected payment method.
+
+If you have any questions, do not hesitate to contact us.

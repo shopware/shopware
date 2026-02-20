@@ -49,7 +49,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             $term = mb_substr($term, 0, $this->searchTermMaxLength);
         }
 
-        if (empty($term)) {
+        if ($term === '') {
             throw ProductException::missingRequestParameter('search');
         }
 

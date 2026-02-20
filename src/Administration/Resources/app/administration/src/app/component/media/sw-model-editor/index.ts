@@ -54,7 +54,11 @@ export default Shopware.Component.wrapComponentConfig({
             isRotatable: true,
             isScalable: true,
             initialProperties: {},
-            reactiveRotation: { x: 0, y: 0, z: 0 },
+            currentProperties: {
+                position: { x: 0, y: 0, z: 0 },
+                rotation: { x: 0, y: 0, z: 0 },
+                scale: { x: 1, y: 1, z: 1 },
+            },
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
@@ -68,7 +72,11 @@ export default Shopware.Component.wrapComponentConfig({
             isRotatable: boolean;
             isScalable: boolean;
             initialProperties: any;
-            reactiveRotation: { x: number; y: number; z: number };
+            currentProperties: {
+                position: { x: number; y: number; z: number };
+                rotation: { x: number; y: number; z: number };
+                scale: { x: number; y: number; z: number }
+            };
         };
     },
 
@@ -158,10 +166,11 @@ export default Shopware.Component.wrapComponentConfig({
             this.toolbox = markRaw(new Toolbox(this.quickView.scene as any, this.quickView.orbitController as any));
             this.toolbox.enableTool('transform');
             this.toolbox.getTool('transform').setGizmoMode(this.currentEditMode);
-            this.toolbox.getTool('transform').addEventListener('object-rotation-change', this.handleEulerRotation.bind(this));
+            this.toolbox.getTool('transform').addEventListener('object-change', (event) => this.syncProperties(event.object as DIVEModel));
 
             this.diveModel = this.quickView.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
-            this.saveInitialProperties(this.diveModel);
+            this.saveInitialProperties(this.diveModel as DIVEModel);
+            this.syncProperties(this.diveModel as DIVEModel);
             this.toolbox.selectionState.select(this.diveModel);
 
             return Promise.resolve();
@@ -170,16 +179,6 @@ export default Shopware.Component.wrapComponentConfig({
         async disposeQuickView(): Promise<void> {
             this.toolbox?.dispose();
             await this.quickView?.dispose();
-        },
-
-        /**
-         * Converts radians to degrees.
-         * @note We need this wrapper because we use it in the twig template as well.
-         * @param value - the value to convert in radians
-         * @returns the converted value in degrees
-         */
-        radToDeg(value: number): number {
-            return DIVEMath.radToDeg(value);
         },
 
         onMediaLibraryItemUpdated(mediaId: string): void {
@@ -214,6 +213,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.diveModel) return;
 
             this.diveModel.setPosition({ x: position.x, y: position.y, z: position.z });
+            this.syncProperties(this.diveModel as DIVEModel);
         },
 
         /**
@@ -223,12 +223,8 @@ export default Shopware.Component.wrapComponentConfig({
         changeModelRotation(rotation: { x: number; y: number; z: number }): void {
             if (!this.diveModel) return;
 
-            this.diveModel.setRotation({ x: rotation.x, y: rotation.y, z: rotation.z });
-            this.reactiveRotation = {
-                x: this.radToDeg(rotation.x),
-                y: this.radToDeg(rotation.y),
-                z: this.radToDeg(rotation.z),
-            };
+            this.diveModel.setRotation({ x: DIVEMath.degToRad(rotation.x), y: DIVEMath.degToRad(rotation.y), z: DIVEMath.degToRad(rotation.z) });
+            this.syncProperties(this.diveModel as DIVEModel);
         },
 
         /**
@@ -239,6 +235,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.diveModel) return;
 
             this.diveModel.setScale({ x: scale.x, y: scale.y, z: scale.z });
+            this.syncProperties(this.diveModel as DIVEModel);
         },
 
         /**
@@ -284,7 +281,6 @@ export default Shopware.Component.wrapComponentConfig({
                 rotation: model.rotation.clone(),
                 scale: model.scale.clone(),
             };
-            this.handleEulerRotation();
         },
 
         /***
@@ -309,33 +305,40 @@ export default Shopware.Component.wrapComponentConfig({
         /**
          * Transforms Euler rotation into reasonable degree values for the UI.
          */
-        handleEulerRotation(): void {
-            if (!this.diveModel) return;
+        syncProperties(model: DIVEModel): void {
+            if (!model) return;
 
-            const x = this.diveModel.rotation.x;
-            const y = this.diveModel.rotation.y;
-            const z = this.diveModel.rotation.z;
+            // handle position
+            this.currentProperties.position = model.position.clone();
+
+            // handle rotation
+            const x = model.rotation.x;
+            const y = model.rotation.y;
+            const z = model.rotation.z;
 
             // XYZ Euler constrains Y to [-π/2, π/2]. Rotations beyond that produce an
             // equivalent (x±π, π-y, z±π). Compute both in radians, convert to degrees,
             // then pick the representation closest to the current UI state.
             const std = {
-                x: this.radToDeg(x),
-                y: this.radToDeg(y),
-                z: this.radToDeg(z),
+                x: DIVEMath.radToDeg(x),
+                y: DIVEMath.radToDeg(y),
+                z: DIVEMath.radToDeg(z),
             };
 
             const alt = {
-                x: this.radToDeg(x > 0 ? x - Math.PI : x + Math.PI),
-                y: this.radToDeg(y > 0 ? Math.PI - y : -Math.PI - y),
-                z: this.radToDeg(z > 0 ? z - Math.PI : z + Math.PI),
+                x: DIVEMath.radToDeg(x > 0 ? x - Math.PI : x + Math.PI),
+                y: DIVEMath.radToDeg(y > 0 ? Math.PI - y : -Math.PI - y),
+                z: DIVEMath.radToDeg(z > 0 ? z - Math.PI : z + Math.PI),
             };
 
-            const prev = this.reactiveRotation;
+            const prev = this.currentProperties.rotation;
             const distStd = Math.abs(std.x - prev.x) + Math.abs(std.y - prev.y) + Math.abs(std.z - prev.z);
             const distAlt = Math.abs(alt.x - prev.x) + Math.abs(alt.y - prev.y) + Math.abs(alt.z - prev.z);
 
-            this.reactiveRotation = distAlt < distStd ? alt : std;
+            this.currentProperties.rotation = distAlt < distStd ? alt : std;
+
+            // handle scale
+            this.currentProperties.scale = model.scale.clone();
         },
     },
 });

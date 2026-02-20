@@ -172,15 +172,20 @@ class FirstRunWizardService
         foreach ($this->frwClient->getRecommendationRegions($context) as $region) {
             $categories = [];
             foreach ($region['categories'] as $category) {
-                if (empty($category['name']) || empty($category['label'])) {
+                $categoryName = $category['name'] ?? '';
+                $categoryLabel = $category['label'] ?? '';
+
+                if ($categoryName === '' || $categoryLabel === '') {
                     continue;
                 }
-                $categories[] = new PluginCategoryStruct($category['name'], $category['label']);
+                $categories[] = new PluginCategoryStruct($categoryName, $categoryLabel);
             }
-            if (empty($region['name']) || empty($region['label']) || $categories === []) {
+            $regionName = $region['name'] ?? '';
+            $regionLabel = $region['label'] ?? '';
+            if ($regionName === '' || $regionLabel === '' || $categories === []) {
                 continue;
             }
-            $regions->add(new PluginRegionStruct($region['name'], $region['label'], $categories));
+            $regions->add(new PluginRegionStruct($regionName, $regionLabel, $categories));
         }
 
         return $regions;
@@ -278,14 +283,16 @@ class FirstRunWizardService
     ): array {
         $mappedExtensions = [];
         foreach ($extensions as $extension) {
-            if (empty($extension['name']) || empty($extension['localizedInfo']['name'])) {
+            $extensionName = $extension['name'] ?? '';
+            $label = $extension['localizedInfo']['name'] ?? '';
+            if ($extensionName === '' || $label === '') {
                 continue;
             }
 
             $mappedExtensions[] = (new StorePluginStruct())->assign([
-                'name' => $extension['name'],
+                'name' => $extensionName,
                 'type' => $extension['type'] ?? 'plugin',
-                'label' => $extension['localizedInfo']['name'],
+                'label' => $label,
                 'shortDescription' => $extension['localizedInfo']['shortDescription'] ?? '',
 
                 'iconPath' => $extension['iconPath'] ?? null,

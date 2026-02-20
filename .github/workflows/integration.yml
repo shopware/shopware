@@ -195,7 +195,7 @@ jobs:
 
       - name: Run PHPUnit path (Core/Framework with determined seed)
         if: ${{ matrix.test.path == 'Core/Framework' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit --random-order-seed 1771552864 -- tests/integration/${{ matrix.test.path }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit --random-order-seed 1771552864 --stop-on-error -- tests/integration/${{ matrix.test.path }}
 
       - name: Run PHPUnit path (other paths)
         if: ${{ matrix.test.path != '' && matrix.test.path != 'Core/Framework' }}

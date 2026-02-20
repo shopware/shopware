@@ -813,7 +813,7 @@ class JoinFilterTest extends TestCase
             'firstName' => 'Test',
             'lastName' => 'User',
             'email' => 'test-user-' . $this->ids->get('test-user') . '@example.com',
-            'password' => 'test',
+            'password' => 'shopware',
         ];
 
         static::getContainer()->get('user.repository')

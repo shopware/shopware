@@ -7,9 +7,17 @@ import { Toolbox } from '@shopware-ag/dive/toolbox';
 import { AssetExporter } from '@shopware-ag/dive/assetexporter';
 import template from './sw-model-editor.html.twig';
 import './sw-model-editor.scss';
+import { Euler, Vector3 } from 'three';
 
 const { EventBus } = Shopware.Utils;
 const { Context } = Shopware;
+
+type MEModelProperties = {
+    position: Vector3;
+    rotation: Euler;
+    scale: Vector3;
+}
+
 /**
  * @status ready
  * @description The <u>sw-model-editor</u> component is used to edit model objects.
@@ -53,7 +61,11 @@ export default Shopware.Component.wrapComponentConfig({
             isTranslatable: true,
             isRotatable: true,
             isScalable: true,
-            initialProperties: {},
+            initialProperties: {
+                position: { x: 0, y: 0, z: 0 },
+                rotation: { x: 0, y: 0, z: 0 },
+                scale: { x: 1, y: 1, z: 1 },
+            },
             currentProperties: {
                 position: { x: 0, y: 0, z: 0 },
                 rotation: { x: 0, y: 0, z: 0 },
@@ -71,12 +83,8 @@ export default Shopware.Component.wrapComponentConfig({
             isTranslatable: boolean;
             isRotatable: boolean;
             isScalable: boolean;
-            initialProperties: any;
-            currentProperties: {
-                position: { x: number; y: number; z: number };
-                rotation: { x: number; y: number; z: number };
-                scale: { x: number; y: number; z: number }
-            };
+            initialProperties: MEModelProperties;
+            currentProperties: MEModelProperties;
         };
     },
 
@@ -316,20 +324,17 @@ export default Shopware.Component.wrapComponentConfig({
             const y = model.rotation.y;
             const z = model.rotation.z;
 
-            // XYZ Euler constrains Y to [-π/2, π/2]. Rotations beyond that produce an
-            // equivalent (x±π, π-y, z±π). Compute both in radians, convert to degrees,
-            // then pick the representation closest to the current UI state.
-            const std = {
-                x: DIVEMath.radToDeg(x),
-                y: DIVEMath.radToDeg(y),
-                z: DIVEMath.radToDeg(z),
-            };
+            const std: Euler = new Euler(
+                DIVEMath.radToDeg(x),
+                DIVEMath.radToDeg(y),
+                DIVEMath.radToDeg(z),
+            );
 
-            const alt = {
-                x: DIVEMath.radToDeg(x > 0 ? x - Math.PI : x + Math.PI),
-                y: DIVEMath.radToDeg(y > 0 ? Math.PI - y : -Math.PI - y),
-                z: DIVEMath.radToDeg(z > 0 ? z - Math.PI : z + Math.PI),
-            };
+            const alt: Euler = new Euler(
+                DIVEMath.radToDeg(x > 0 ? x - Math.PI : x + Math.PI),
+                DIVEMath.radToDeg(y > 0 ? Math.PI - y : -Math.PI - y),
+                DIVEMath.radToDeg(z > 0 ? z - Math.PI : z + Math.PI),
+            );
 
             const prev = this.currentProperties.rotation;
             const distStd = Math.abs(std.x - prev.x) + Math.abs(std.y - prev.y) + Math.abs(std.z - prev.z);

@@ -52,8 +52,8 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         // resolve category for landing pages so navigation active state is set correctly
         if ($activeNavigationId === '') {
-            $landingPageId = $request->attributes->get('landingPageId');
-            if (\is_string($landingPageId) && Uuid::isValid($landingPageId)) {
+            $landingPageId = $request->attributes->getString('landingPageId');
+            if ($landingPageId !== '') {
                 $activeNavigationId = $this->resolveNavigationIdForLandingPage($landingPageId);
             }
         }

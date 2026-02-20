@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Consent;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -83,54 +82,5 @@ class ConsentRepository
             $actor,
             $now
         );
-    }
-
-    public function getPreviousLoggedState(
-        string $name,
-        string $identifier,
-        \DateTimeImmutable $at,
-        ?ConsentStatus $excludedStateAtTimestamp = null,
-    ): ?ConsentStatus {
-        $timestampCondition = $excludedStateAtTimestamp !== null
-            ? <<<'SQL'
-  AND (
-      `timestamp` < :at
-      OR (`timestamp` = :at AND JSON_UNQUOTE(JSON_EXTRACT(message, '$.action')) != :excludedStateAtTimestamp)
-  )
-SQL
-            :
-            'AND `timestamp` <= :at';
-
-        $sql = \sprintf(<<<'SQL'
-SELECT JSON_UNQUOTE(JSON_EXTRACT(message, '$.action')) AS action
-FROM consent_log
-WHERE consent_name = :name
-  AND JSON_UNQUOTE(JSON_EXTRACT(message, '$.identifier')) = :identifier
-%s
-ORDER BY `timestamp` DESC, id DESC
-LIMIT 1
-SQL, $timestampCondition);
-
-        $parameters = [
-            'name' => $name,
-            'identifier' => $identifier,
-            'at' => $at->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ];
-
-        if ($excludedStateAtTimestamp !== null) {
-            $parameters['excludedStateAtTimestamp'] = $excludedStateAtTimestamp->value;
-        }
-
-        try {
-            $latestAction = $this->connection->fetchOne($sql, $parameters);
-        } catch (Exception) {
-            return null;
-        }
-
-        if (!\is_string($latestAction)) {
-            return null;
-        }
-
-        return ConsentStatus::tryFrom($latestAction);
     }
 }

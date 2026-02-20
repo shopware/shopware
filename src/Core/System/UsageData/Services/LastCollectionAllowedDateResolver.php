@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Core\System\Consent\Service;
+namespace Shopware\Core\System\UsageData\Services;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 
 /**
  * @internal
@@ -18,11 +18,10 @@ final class LastCollectionAllowedDateResolver
 {
     public function __construct(
         private readonly ConsentService $consentService,
-        private readonly ConsentRepository $consentRepository,
     ) {
     }
 
-    public function getLastCollectionAllowedDate(): ?\DateTimeImmutable
+    public function getCollectUntil(): ?\DateTimeImmutable
     {
         $state = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext());
 
@@ -31,18 +30,8 @@ final class LastCollectionAllowedDateResolver
         }
 
         if ($state->status === ConsentStatus::REVOKED && $state->updatedAt !== null) {
-            $revokedAt = new \DateTimeImmutable($state->updatedAt);
-            $previousState = $this->consentRepository->getPreviousLoggedState(
-                $state->name,
-                $state->identifier,
-                $revokedAt,
-                ConsentStatus::REVOKED
-            );
-            if ($previousState !== ConsentStatus::ACCEPTED) {
-                return null;
-            }
-
-            return $revokedAt;
+            // last time the consent was revoked
+            return new \DateTimeImmutable($state->updatedAt);
         }
 
         return null;

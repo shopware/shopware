@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\System\UsageData\Subscriber\ConsentStateChangedSubscriber;
 
@@ -32,7 +33,10 @@ class ConsentStateChangedSubscriberTest extends TestCase
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects($this->once())->method('dispatchCollectEntityDataMessage');
 
-        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())->method('set')->with('core.usageData.consentState', 'accepted');
+
+        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService, $systemConfigService);
 
         $subscriber->handleConsentAcceptedEvent(new ConsentAcceptedEvent(
             BackendData::NAME,
@@ -47,7 +51,10 @@ class ConsentStateChangedSubscriberTest extends TestCase
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects($this->never())->method('dispatchCollectEntityDataMessage');
 
-        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->never())->method('set');
+
+        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService, $systemConfigService);
 
         $subscriber->handleConsentAcceptedEvent(new ConsentAcceptedEvent(
             'other-consent',
@@ -62,7 +69,10 @@ class ConsentStateChangedSubscriberTest extends TestCase
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects($this->never())->method('dispatchCollectEntityDataMessage');
 
-        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())->method('set')->with('core.usageData.consentState', 'revoked');
+
+        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService, $systemConfigService);
 
         $subscriber->handleConsentRevokedEvent(new ConsentRevokedEvent(
             BackendData::NAME,
@@ -77,7 +87,10 @@ class ConsentStateChangedSubscriberTest extends TestCase
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects($this->never())->method('dispatchCollectEntityDataMessage');
 
-        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->never())->method('set');
+
+        $subscriber = new ConsentStateChangedSubscriber($entityDispatchService, $systemConfigService);
 
         $subscriber->handleConsentRevokedEvent(new ConsentRevokedEvent(
             'other-consent',

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\System\Consent;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,12 +21,9 @@ class ConsentRepositoryTest extends TestCase
 
     private ConsentRepository $repository;
 
-    private Connection $connection;
-
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get(ConsentRepository::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testUpdateConsentState(): void
@@ -123,77 +119,6 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame(ConsentStatus::REVOKED, $result[1]->status);
     }
 
-    public function testGetPreviousLoggedStateReturnsNullWhenNoMatchingLogExists(): void
-    {
-        $this->connection->executeStatement('DELETE FROM consent_log');
-
-        static::assertNull(
-            $this->repository->getPreviousLoggedState(
-                BackendData::NAME,
-                'system',
-                new \DateTimeImmutable('2024-01-01 10:00:00.000')
-            )
-        );
-    }
-
-    public function testGetPreviousLoggedStateReturnsMostRecentStateAtOrBeforeDate(): void
-    {
-        $this->connection->executeStatement('DELETE FROM consent_log');
-
-        $this->insertConsentLog(BackendData::NAME, 'system', ConsentStatus::ACCEPTED, '2024-01-01 09:00:00.000');
-        $this->insertConsentLog(BackendData::NAME, 'system', ConsentStatus::REVOKED, '2024-01-02 09:00:00.000');
-
-        static::assertSame(
-            ConsentStatus::REVOKED,
-            $this->repository->getPreviousLoggedState(
-                BackendData::NAME,
-                'system',
-                new \DateTimeImmutable('2024-01-02 09:00:00.000')
-            )
-        );
-    }
-
-    public function testGetPreviousLoggedStateExcludesCurrentStateAtSameTimestamp(): void
-    {
-        $this->connection->executeStatement('DELETE FROM consent_log');
-
-        $this->insertConsentLog(BackendData::NAME, 'system', ConsentStatus::ACCEPTED, '2024-01-01 09:00:00.000');
-        $this->insertConsentLog(BackendData::NAME, 'system', ConsentStatus::REVOKED, '2024-01-02 09:00:00.000');
-
-        static::assertSame(
-            ConsentStatus::ACCEPTED,
-            $this->repository->getPreviousLoggedState(
-                BackendData::NAME,
-                'system',
-                new \DateTimeImmutable('2024-01-02 09:00:00.000'),
-                ConsentStatus::REVOKED
-            )
-        );
-    }
-
-    public function testGetPreviousLoggedStateReturnsNullForUnknownAction(): void
-    {
-        $this->connection->executeStatement('DELETE FROM consent_log');
-
-        $this->connection->insert('consent_log', [
-            'consent_name' => BackendData::NAME,
-            'timestamp' => '2024-01-01 09:00:00.000',
-            'message' => \json_encode([
-                'action' => 'requested',
-                'identifier' => 'system',
-                'actor' => 'actor',
-            ], \JSON_THROW_ON_ERROR),
-        ]);
-
-        static::assertNull(
-            $this->repository->getPreviousLoggedState(
-                BackendData::NAME,
-                'system',
-                new \DateTimeImmutable('2024-01-01 09:00:00.000')
-            )
-        );
-    }
-
     private function createUser(string $name): string
     {
         $userId = Uuid::randomHex();
@@ -218,18 +143,5 @@ class ConsentRepositoryTest extends TestCase
         ], Context::createDefaultContext());
 
         return $userId;
-    }
-
-    private function insertConsentLog(string $consentName, string $identifier, ConsentStatus $status, string $timestamp): void
-    {
-        $this->connection->insert('consent_log', [
-            'consent_name' => $consentName,
-            'timestamp' => $timestamp,
-            'message' => \json_encode([
-                'action' => $status->value,
-                'identifier' => $identifier,
-                'actor' => 'actor',
-            ], \JSON_THROW_ON_ERROR),
-        ]);
     }
 }

@@ -29,18 +29,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\Service\ConsentService;
-use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\EntityDispatcher;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
+use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
@@ -82,7 +81,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             new UsageDataAllowListService(),
             $connection,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider
         );
 
@@ -136,7 +135,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connection,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider
         );
 
@@ -191,7 +190,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connection,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider
         );
 
@@ -277,7 +276,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connectionMock,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider
         );
 
@@ -390,7 +389,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connectionMock,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider
         );
 
@@ -457,7 +456,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connection,
             $this->createMock(EntityDispatcher::class),
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider
         );
 
@@ -504,7 +503,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             new UsageDataAllowListService(),
             $this->createMock(Connection::class),
             $this->createMock(EntityDispatcher::class),
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider,
         );
 
@@ -611,7 +610,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connection,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider
         );
 
@@ -734,7 +733,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connectionMock,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService, $this->createMock(ConsentRepository::class)),
+            new LastCollectionAllowedDateResolver($consentService),
             $shopIdProvider
         );
 

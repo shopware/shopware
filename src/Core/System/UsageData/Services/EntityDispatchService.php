@@ -4,8 +4,11 @@ namespace Shopware\Core\System\UsageData\Services;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
@@ -32,6 +35,7 @@ class EntityDispatchService
         private readonly GatewayStatusService $gatewayStatusService,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly SystemConfigService $systemConfigService,
+        private readonly ConsentService $consentService,
         private readonly bool $collectionEnabled,
     ) {
     }
@@ -47,12 +51,16 @@ class EntityDispatchService
             return;
         }
 
+        if ($this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->status !== ConsentStatus::ACCEPTED) {
+            return;
+        }
+
         $this->messageBus->dispatch(new CollectEntityDataMessage($this->shopIdProvider->getShopId()));
     }
 
     public function dispatchIterateEntityMessages(CollectEntityDataMessage $message): void
     {
-        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getLastCollectionAllowedDate();
+        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getCollectUntil();
         if (!$lastCollectionAllowedDate) {
             return;
         }

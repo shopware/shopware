@@ -111,7 +111,7 @@ class DispatchEntitiesQueryBuilder
         return $this;
     }
 
-    public function withLastCollectionAllowedDateConstraint(DispatchEntityMessage $message, \DateTimeInterface $lastCollectionAllowedDate): self
+    public function withCollectUntilConstraint(DispatchEntityMessage $message, \DateTimeInterface $collectUntil): self
     {
         $escapedUpdatedAtColumnName = EntityDefinitionQueryHelper::escape('updated_at');
 
@@ -119,19 +119,19 @@ class DispatchEntitiesQueryBuilder
             $this->queryBuilder->andWhere(
                 CompositeExpression::or(
                     $this->queryBuilder->expr()->isNull($escapedUpdatedAtColumnName),
-                    $this->queryBuilder->expr()->lte($escapedUpdatedAtColumnName, ':lastCollectionAllowedDate'),
+                    $this->queryBuilder->expr()->lte($escapedUpdatedAtColumnName, ':collectUntil'),
                 )
             );
 
-            $this->queryBuilder->setParameter('lastCollectionAllowedDate', $lastCollectionAllowedDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+            $this->queryBuilder->setParameter('collectUntil', $collectUntil->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         }
 
         if ($message->operation === Operation::UPDATE) {
             $this->queryBuilder->andWhere(
-                $this->queryBuilder->expr()->lte($escapedUpdatedAtColumnName, ':lastCollectionAllowedDate')
+                $this->queryBuilder->expr()->lte($escapedUpdatedAtColumnName, ':collectUntil')
             );
 
-            $this->queryBuilder->setParameter('lastCollectionAllowedDate', $lastCollectionAllowedDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+            $this->queryBuilder->setParameter('collectUntil', $collectUntil->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         }
 
         return $this;

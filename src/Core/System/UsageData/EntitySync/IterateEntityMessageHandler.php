@@ -5,8 +5,8 @@ namespace Shopware\Core\System\UsageData\EntitySync;
 use Doctrine\DBAL\ConnectionException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
+use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -40,7 +40,7 @@ final readonly class IterateEntityMessageHandler
             ));
         }
 
-        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getLastCollectionAllowedDate();
+        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getCollectUntil();
         if ($lastCollectionAllowedDate === null) {
             throw new UnrecoverableMessageHandlingException(\sprintf(
                 'No collection allowed date found. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',

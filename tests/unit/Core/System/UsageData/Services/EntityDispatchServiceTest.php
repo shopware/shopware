@@ -12,13 +12,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\Service\ConsentService;
-use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
@@ -26,6 +24,7 @@ use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\System\UsageData\Services\GatewayStatusService;
+use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -68,6 +67,16 @@ class EntityDispatchServiceTest extends TestCase
 
     public function testItDispatchesCollectEntityDataMessage(): void
     {
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->method('getConsentState')->willReturn(new ConsentState(
+            BackendData::NAME,
+            'system',
+            'system',
+            ConsentStatus::ACCEPTED,
+            'user-123',
+            '2026-02-26'
+        ));
+
         $messageBus = new CollectingMessageBus();
 
         $entityDispatchService = new EntityDispatchService(
@@ -84,6 +93,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $consentService,
             true,
         );
 
@@ -92,6 +102,44 @@ class EntityDispatchServiceTest extends TestCase
         $messages = $messageBus->getMessages();
         static::assertCount(1, $messages);
         static::assertEquals(new CollectEntityDataMessage('current-shop-id'), $messages[0]->getMessage());
+    }
+
+    public function testItDoesNotDispatchesCollectEntityDataMessageIfConsentIsNotGiven(): void
+    {
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->method('getConsentState')->willReturn(new ConsentState(
+            BackendData::NAME,
+            'system',
+            'system',
+            ConsentStatus::REVOKED,
+            'user-123',
+            '2026-02-26'
+        ));
+
+        $messageBus = new CollectingMessageBus();
+
+        $entityDispatchService = new EntityDispatchService(
+            new EntityDefinitionService(
+                [
+                    $this->registry->get(ProductDefinition::class),
+                    $this->registry->get(SalesChannelDefinition::class),
+                ],
+                new UsageDataAllowListService(),
+            ),
+            new ArrayKeyValueStorage(),
+            $messageBus,
+            $this->createLastCollectionAllowedDateResolver($this->createConsentService(true, null)),
+            $this->createGatewayStatusService(true),
+            $this->shopIdProvider,
+            new StaticSystemConfigService([]),
+            $consentService,
+            true,
+        );
+
+        $entityDispatchService->dispatchCollectEntityDataMessage();
+
+        $messages = $messageBus->getMessages();
+        static::assertCount(0, $messages);
     }
 
     public function testItDoesNotDispatchesCollectEntityDataMessageIfCollectionIsDisabled(): void
@@ -112,6 +160,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             false,
         );
 
@@ -141,6 +190,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -194,6 +244,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             $systemConfigService,
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -238,6 +289,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -282,6 +334,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -326,6 +379,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -371,6 +425,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
         $storedScLastRunDatetime = new \DateTimeImmutable($lastScRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT));
@@ -414,6 +469,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(false),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -433,6 +489,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -458,6 +515,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -483,6 +541,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(false),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -507,6 +566,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -542,6 +602,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -581,6 +642,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -660,6 +722,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            $this->createMock(ConsentService::class),
             true,
         );
 
@@ -722,10 +785,7 @@ class EntityDispatchServiceTest extends TestCase
 
     private function createLastCollectionAllowedDateResolver(ConsentService $consentService): LastCollectionAllowedDateResolver
     {
-        $consentRepository = $this->createMock(ConsentRepository::class);
-        $consentRepository->method('getPreviousLoggedState')->willReturn(ConsentStatus::ACCEPTED);
-
-        return new LastCollectionAllowedDateResolver($consentService, $consentRepository);
+        return new LastCollectionAllowedDateResolver($consentService);
     }
 
     private function createConsentState(ConsentStatus $status, ?\DateTimeImmutable $updatedAt): ConsentState

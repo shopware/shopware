@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
-use Shopware\Core\System\Consent\Service\ConsentService as ConsentSystemConsentService;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Consent\BannerService;
 use Shopware\Core\System\UsageData\UsageDataException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ConsentController extends AbstractController
 {
     public function __construct(
-        private readonly ConsentSystemConsentService $consentSystemConsentService,
+        private readonly ConsentService $consentSystemConsentService,
         private readonly BannerService $bannerService,
     ) {
     }

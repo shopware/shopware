@@ -13,8 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\Service\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
+use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
@@ -52,7 +52,7 @@ final readonly class DispatchEntityMessageHandler
             self::throwUnrecoverableMessageHandlingException($message, 'Message dispatched for old shopId');
         }
 
-        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getLastCollectionAllowedDate();
+        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getCollectUntil();
         if ($lastCollectionAllowedDate === null) {
             self::throwUnrecoverableMessageHandlingException($message, 'No collection allowed date found');
         }
@@ -184,7 +184,7 @@ final readonly class DispatchEntityMessageHandler
         $queryBuilder = (new DispatchEntitiesQueryBuilder($this->connection))
             ->forEntity($definition->getEntityName())
             ->withFields($fields)
-            ->withLastCollectionAllowedDateConstraint($message, $lastCollectionAllowedDate)
+            ->withCollectUntilConstraint($message, $lastCollectionAllowedDate)
             ->withPrimaryKeys($primaryKeys);
 
         $queryBuilder->checkLiveVersion($definition);

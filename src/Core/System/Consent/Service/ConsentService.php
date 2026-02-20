@@ -84,10 +84,7 @@ class ConsentService implements ResetInterface
     public function getConsentState(string $name, Context $context): ConsentState
     {
         $consent = $this->getConsentDefinition($name);
-        $scope = $this->getScope($consent);
-        $identifier = $scope->resolveIdentifier($context);
-
-        $key = $consent->getName() . ':' . $consent->getScopeName() . ':' . $identifier;
+        $key = $this->key($consent, $context);
 
         $states = $this->fetchStates($context);
         if (isset($states[$key])) {
@@ -97,7 +94,7 @@ class ConsentService implements ResetInterface
         return new ConsentState(
             name: $consent->getName(),
             scopeName: $consent->getScopeName(),
-            identifier: $identifier,
+            identifier: $this->getScope($consent)->resolveIdentifier($context),
             status: ConsentStatus::UNSET,
             actor: null,
             updatedAt: null,

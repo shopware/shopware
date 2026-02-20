@@ -37,10 +37,6 @@ parameters:
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
-        # Compatibility traits for Redis can be removed, once we are requiring Redis 6.0.0
-        - src/Core/Test/Stub/Redis/RedisCompatibility.php
-        - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
-
     universalObjectCratesClasses:
         - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
 
@@ -176,9 +172,9 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
                 - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
 
-        - # those private methods are called from the trait "RedisCompatibility"
-            identifier: method.unused
-            path: src/Core/Test/Stub/Redis/RedisStub.php
+        - # PHPdocs are inherited from https://github.com/JetBrains/phpstorm-stubs/tree/master/redis and should be updated there
+            identifier: missingType.iterableValue
+            path: src/Core/Test/Stub/Redis
 
         - # It is checked before if the entity supports custom fields, but it is not possible for PHPStan to recognize this
             message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'

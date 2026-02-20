@@ -94,7 +94,7 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
         if (this._isCmsForm()) {
             const formCmsHandlerPlugin = this.formPluginInstances.get('FormCmsHandler');
             if (formCmsHandlerPlugin) {
-                formCmsHandlerPlugin._submitForm();
+                formCmsHandlerPlugin.sendAjaxFormSubmit();
                 return;
             }
         }

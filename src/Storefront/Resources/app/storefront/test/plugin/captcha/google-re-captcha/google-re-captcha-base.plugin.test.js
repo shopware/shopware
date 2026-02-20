@@ -319,7 +319,8 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
 
         test('_submitInvisibleForm handles CMS form through FormCmsHandler', () => {
             const mockFormCmsHandler = {
-                _submitForm: jest.fn(),
+                sendAjaxFormSubmit: jest.fn(),
+                options: {},
             };
 
             const cmsInstancesMap = new Map([
@@ -335,7 +336,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             cmsPlugin._form.submit = jest.fn();
 
             cmsPlugin._submitInvisibleForm();
-            expect(mockFormCmsHandler._submitForm).toHaveBeenCalledTimes(1);
+            expect(mockFormCmsHandler.sendAjaxFormSubmit).toHaveBeenCalledTimes(1);
             expect(cmsPlugin._form.submit).not.toHaveBeenCalled();
         });
 

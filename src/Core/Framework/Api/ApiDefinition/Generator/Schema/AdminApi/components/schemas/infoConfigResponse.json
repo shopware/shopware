@@ -29,7 +29,8 @@
               },
               "enableQueueStatsWorker": {
                 "type": "boolean",
-                "description": "Whether the queue statistics worker is enabled."
+                "description": "Whether the queue statistics worker is enabled. Deprecated: This property will be removed in v6.8.0. The increment-based message queue statistics are deprecated.",
+                "deprecated": true
               },
               "enableNotificationWorker": {
                 "type": "boolean",

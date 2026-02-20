@@ -106,7 +106,6 @@
     "/_info/me",
     "/_info/open-api-schema.json",
     "/_info/ping",
-    "/_info/queue.json",
     "/_info/rule-config",
     "/_info/stoplightio.html",
     "/_proxy-order/{salesChannelId}",

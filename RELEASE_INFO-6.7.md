@@ -11,6 +11,33 @@ It can be found in the state machine state history modal (state change modal) on
 
 ## Core
 
+### Deprecation of increment-based message queue statistics
+
+The increment-based message queue statistics system is deprecated and will be removed in v6.8.0.0.
+
+**What's changing:**
+- The Administration notification center will no longer show indexing progress notifications (e.g., "X products will be indexed")
+- API endpoint `GET /api/_info/queue.json` is deprecated - use `GET /api/_info/message-stats.json` instead
+
+**Deprecated configuration options:**
+- `shopware.admin_worker.enable_queue_stats_worker`
+- `shopware.increment.message_queue`
+
+**Deprecated code:**
+- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant
+- Increment-based handling in `MessageQueueStatsSubscriber::onMessageHandled()`
+
+**Why?**
+The increment-based statistics were often inaccurate due to hardcoded multipliers and missing decrements in edge cases. The replacement functionality was introduced in https://github.com/shopware/shopware/pull/8698
+
+**Immediate disable:**
+To disable the deprecated functionality before v6.8.0.0:
+```yaml
+shopware:
+    admin_worker:
+        enable_queue_stats_worker: false
+```
+
 ### Internal product streams
 
 A new boolean field `internal` has been added to product streams with a default value of `false`.

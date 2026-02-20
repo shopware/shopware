@@ -236,6 +236,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(true)
                 ->end()
                 ->booleanNode('enable_queue_stats_worker')
+                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. The increment-based message queue statistics will be removed, please use "shopware.messenger.stats.enabled" as alternative.')
                     ->defaultValue(true)
                 ->end()
                 ->booleanNode('enable_notification_worker')

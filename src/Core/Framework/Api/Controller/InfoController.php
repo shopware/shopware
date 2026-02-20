@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -89,9 +90,16 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Route will be removed. Use /api/_info/message-stats.json instead.
+     */
     #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
     public function queue(): JsonResponse
     {
+        if (Feature::isActive('v6.8.0.0')) { // avoiding polluting logs, as our code still calling this endpoint
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', '\Shopware\Core\Framework\Api\Controller\InfoController::messageStats'));
+        }
+
         try {
             $gateway = $this->incrementGatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
         } catch (IncrementGatewayNotFoundException) {
@@ -178,17 +186,22 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
     public function config(Context $context, Request $request): JsonResponse
     {
+        $adminWorker = [
+            'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
+            'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
+            'transports' => $this->params->get('shopware.admin_worker.transports'),
+        ];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
+        }
+
         return new JsonResponse([
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
             'appUrl' => (string) EnvironmentHelper::getVariable('APP_URL'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
-            'adminWorker' => [
-                'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
-                'enableQueueStatsWorker' => $this->params->get('shopware.admin_worker.enable_queue_stats_worker'),
-                'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
-                'transports' => $this->params->get('shopware.admin_worker.transports'),
-            ],
+            'adminWorker' => $adminWorker,
             'bundles' => $this->getBundles(),
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),

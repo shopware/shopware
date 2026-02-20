@@ -24,7 +24,6 @@
                   "versionRevision": "98fcdbeab238fbef3b47bc258340124a1dba4852",
                   "adminWorker": {
                     "enableAdminWorker": true,
-                    "enableQueueStatsWorker": true,
                     "enableNotificationWorker": true,
                     "transports": [
                       "async",

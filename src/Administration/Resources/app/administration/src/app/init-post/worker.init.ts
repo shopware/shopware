@@ -29,10 +29,12 @@ let enabledNotification = false;
 export default function initializeWorker() {
     const loginService = Shopware.Service('loginService');
     const context = Shopware.Context.app;
-    const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
     const configService = Shopware.Service('configService');
 
-    registerThumbnailMiddleware(workerNotificationFactory);
+    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+        const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
+        registerThumbnailMiddleware(workerNotificationFactory);
+    }
 
     function getConfig() {
         return configService.getConfig().then((response) => {
@@ -48,8 +50,9 @@ export default function initializeWorker() {
                 },
             );
 
-            // Enable worker notification listener regardless of the config
-            enableWorkerNotificationListener(loginService, Shopware.Context.api);
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                enableWorkerNotificationListener(loginService, Shopware.Context.api);
+            }
 
             // Enable worker notification listener regardless of the config
             if (!enabledNotification) {
@@ -162,6 +165,9 @@ function getWorker(): SharedWorker {
     return worker;
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
+ */
 function enableWorkerNotificationListener(loginService: LoginService, context: ContextStore['api']) {
     let workerNotificationListener = new WorkerNotificationListener(context);
 
@@ -202,6 +208,9 @@ function enableNotificationWorker(loginService: LoginService) {
     enabledNotification = true;
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
+ */
 function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) {
     const ids = {};
     factory.register('DalIndexingMessage', {
@@ -434,6 +443,9 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     return true;
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
+ */
 function messageQueueNotification(
     key: string,
     ids: {

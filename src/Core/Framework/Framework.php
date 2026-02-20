@@ -35,6 +35,7 @@ use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -42,6 +43,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
  * @internal
@@ -57,6 +59,27 @@ class Framework extends Bundle
     public function getContainerExtension(): Extension
     {
         return new FrameworkExtension();
+    }
+
+    public function configureRoutes(RoutingConfigurator $routes, string $environment): void
+    {
+        $confDir = $this->getPath() . '/Resources/config';
+
+        if (!\is_dir($confDir)) {
+            return;
+        }
+
+        // Load all standard routes (excluding test directory)
+        $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
+        $routes->import($confDir . '/{routes}_' . $environment . Kernel::CONFIG_EXTS, 'glob');
+
+        // Only load test routes in test environment
+        if ($environment === 'test') {
+            $routes->import($confDir . '/{routes}/test/*' . Kernel::CONFIG_EXTS, 'glob');
+        }
+
+        // Load environment-specific routes
+        $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
     }
 
     /**

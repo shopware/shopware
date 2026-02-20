@@ -802,10 +802,25 @@ class JoinFilterTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
-        $userId = static::getContainer()->get(Connection::class)
-            ->fetchOne('SELECT LOWER(HEX(id)) FROM `user`');
+        // Create a dedicated test user instead of selecting an arbitrary existing one
+        // This ensures clean transaction rollback and avoids side effects
+        $localeId = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM locale WHERE code = "en-GB"');
 
-        self::$ids->set('user-id', $userId);
+        $testUser = [
+            'id' => self::$ids->create('test-user'),
+            'localeId' => $localeId,
+            'username' => 'test-user-' . self::$ids->get('test-user'),
+            'firstName' => 'Test',
+            'lastName' => 'User',
+            'email' => 'test-user-' . self::$ids->get('test-user') . '@example.com',
+            'password' => 'test',
+        ];
+
+        static::getContainer()->get('user.repository')
+            ->create([$testUser], Context::createDefaultContext());
+
+        self::$ids->set('user-id', self::$ids->get('test-user'));
 
         $media = [
             ['id' => self::$ids->create('with-avatar')],
@@ -816,7 +831,7 @@ class JoinFilterTest extends TestCase
             ->create($media, Context::createDefaultContext());
 
         $avatar = [
-            'id' => $userId,
+            'id' => self::$ids->get('user-id'),
             'avatarId' => self::$ids->get('with-avatar'),
         ];
 

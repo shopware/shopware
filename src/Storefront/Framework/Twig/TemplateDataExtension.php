@@ -48,7 +48,20 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
 
         // check attribute bag for path parameter first (category routes), fallback to other request parameters (product routes)
-        $activeNavigationId = (string) ($request->attributes->get('navigationId') ?? RequestParamHelper::get($request, 'navigationId', $context->getSalesChannel()->getNavigationCategoryId()));
+        $activeNavigationId = (string) ($request->attributes->get('navigationId') ?? RequestParamHelper::get($request, 'navigationId', ''));
+
+        // resolve category for landing pages so navigation active state is set correctly
+        if ($activeNavigationId === '') {
+            $landingPageId = $request->attributes->getString('landingPageId');
+            if ($landingPageId !== '') {
+                $activeNavigationId = $this->resolveNavigationIdForLandingPage($landingPageId);
+            }
+        }
+
+        // fallback to root category (Home) if no navigation context could be resolved
+        if ($activeNavigationId === '') {
+            $activeNavigationId = $context->getSalesChannel()->getNavigationCategoryId();
+        }
         $navigationPathIdList = $this->getNavigationPath($activeNavigationId, $context);
         $navigationInfo = new NavigationInfo(
             $activeNavigationId,
@@ -100,6 +113,23 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         );
 
         return $min ?: AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
+    }
+
+    private function resolveNavigationIdForLandingPage(string $landingPageId): string
+    {
+        $categoryId = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(ct.category_id))
+             FROM category_translation ct
+             WHERE ct.link_type = :linkType
+               AND ct.internal_link = :landingPageId
+             LIMIT 1',
+            [
+                'linkType' => 'landing_page',
+                'landingPageId' => Uuid::fromHexToBytes($landingPageId),
+            ]
+        );
+
+        return $categoryId ?: '';
     }
 
     /**

@@ -116,7 +116,18 @@
         "rotate-tooltip": "Rotate object",
         "scale-tooltip": "Scale object"
       },
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "properties": {
+        "position": {
+          "label": "Position"
+        },
+        "rotation": {
+          "label": "Rotation"
+        },
+        "scale": {
+          "label": "Scale"
+        }
+      }
     }
   },
   "sw-privileges": {

@@ -175,9 +175,9 @@ export default Shopware.Component.wrapComponentConfig({
             this.toolbox = markRaw(new Toolbox(this.quickView.scene as any, this.quickView.orbitController as any));
             this.toolbox.enableTool('transform');
             this.toolbox.getTool('transform').setGizmoMode(this.currentEditMode);
-            // eslint-disable-next-line @typescript-eslint/unbound-method
             this.toolbox.getTool('transform').addEventListener(
                 'object-change',
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 this.onObjectChange,
             );
 
@@ -191,9 +191,9 @@ export default Shopware.Component.wrapComponentConfig({
 
         async disposeQuickView(): Promise<void> {
             if (this.toolbox) {
-                // eslint-disable-next-line @typescript-eslint/unbound-method
                 this.toolbox.getTool('transform').removeEventListener(
                     'object-change',
+                    // eslint-disable-next-line @typescript-eslint/unbound-method
                     this.onObjectChange,
                 );
             }

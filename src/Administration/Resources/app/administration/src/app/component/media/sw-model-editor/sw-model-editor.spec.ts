@@ -32,8 +32,23 @@ jest.mock('@shopware-ag/dive/toolbox', () => ({
     Toolbox: (...args: unknown[]) => mockToolbox(...args),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const createMockVector3 = (x = 0, y = 0, z = 0): any => ({
+interface MockVector3 {
+    x: number;
+    y: number;
+    z: number;
+    clone(): MockVector3;
+    equals(other: { x: number; y: number; z: number }): boolean;
+}
+
+interface MockEuler {
+    x: number;
+    y: number;
+    z: number;
+    clone(): MockEuler;
+    equals(other: { x: number; y: number; z: number }): boolean;
+}
+
+const createMockVector3 = (x = 0, y = 0, z = 0): MockVector3 => ({
     x, y, z,
     clone() { return createMockVector3(this.x, this.y, this.z); },
     equals(other: { x: number; y: number; z: number }) {
@@ -41,8 +56,7 @@ const createMockVector3 = (x = 0, y = 0, z = 0): any => ({
     },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const createMockEuler = (x = 0, y = 0, z = 0): any => ({
+const createMockEuler = (x = 0, y = 0, z = 0): MockEuler => ({
     x, y, z,
     clone() { return createMockEuler(this.x, this.y, this.z); },
     equals(other: { x: number; y: number; z: number }) {

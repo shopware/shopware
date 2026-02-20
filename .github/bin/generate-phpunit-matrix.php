@@ -14,6 +14,7 @@ $matrix = [
     'fail-fast' => false,
     'matrix' => [
         'test' => [
+            ['path' => 'Core/Framework'], //debug testsuite
             ['path' => 'Core/Checkout'],
             ['path' => 'Core/Content'],
             ['testsuite' => 'core-framework-batch1'],

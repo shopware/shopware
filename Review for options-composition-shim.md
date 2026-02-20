@@ -1,281 +1,368 @@
-# Code Review: Options API to Composition API Override Shim
+# Code Review: Options API → Composition API Override Shim
 
 **Files reviewed:**
-
-- `src/app/adapter/options-composition-shim.ts` (main implementation)
-- `src/app/adapter/composition-extension-system.ts` (consumer / integration point)
-- `src/app/adapter/options-composition-shim.spec.ts` (unit tests)
-- `src/app/adapter/options-composition-shim.integrative.spec.ts` (integration tests)
-
-**Reviewer note:** This review is meant to be constructive. The shim tackles a genuinely hard problem -- bridging two fundamentally different Vue paradigms at runtime -- and the solution works. The feedback below is intended to help the author grow, not to discourage.
+- `src/app/adapter/options-composition-shim.ts`
+- `src/app/adapter/options-composition-shim.spec.ts`
+- `src/app/adapter/options-composition-shim.integrative.spec.ts`
+- `src/app/adapter/composition-extension-system.ts` (consumer)
 
 ---
 
-## What is done well
+## What is Good
 
-### 1. Clear problem decomposition
+### Clear scope and intent
+The module header accurately describes the purpose: a *compatibility layer*, not a permanent API. The `@experimental` tag and the deprecation warning in `logDeprecationWarning()` both point users toward `overrideComponentSetup()`. The docs URL in the deprecation message is a good touch.
 
-The file is split into small, focused functions (`convertData`, `convertMethods`, `convertComputed`, `setupWatchers`, `setupLifecycleHooks`, `mergeMixins`, `resolveInject`, `createThisProxy`). Each function handles exactly one aspect of the Options API. This makes the code easy to navigate, test in isolation, and maintain.
+### Test coverage
+Both test files are exceptional. The unit spec covers every conversion path (data, computed, methods, watch, lifecycle hooks, mixins, inject) including edge cases (null data, undefined props, dot-notation watchers, array-form watch handlers, late-applied overrides). The integrative spec proves the full end-to-end chain: factory override → `_overridesMap` → `createExtendableSetup` watcher → DOM update. Coverage of mixed Composition API + Options API override chains is particularly valuable.
 
-### 2. Thorough JSDoc and inline comments
+### Mixin merge order is correct
+`flattenMixins()` implements Vue's depth-first resolution correctly: ancestors fire before descendants, and mixins fire before the component itself. The `mergeMixins()` function accumulates hooks in that order, which matches Vue 3's own strategy.
 
-Nearly every function has a description explaining *why* it exists, not just *what* it does. The lifecycle hook map, the `ALREADY_PASSED_WHEN_MOUNTED` set, and the mixin merge order all have comments that explain the reasoning. This is good practice, especially for a compatibility layer where the "why" is non-obvious.
+### Inject resolution is properly timed
+The comment in `convertOptionsApiOverrideToCompositionApi()` that explains *why* `resolveInject()` must run inside setup() context is important and accurate. Deferring this call even one tick would break it. The injection is correctly kept out of the returned result object so it does not pollute `applyOverrides` with non-reactive entries.
 
-### 3. Correct mixin merge order
+### Late-applied overrides are handled gracefully
+`setupLifecycleHooks()` correctly distinguishes between "override applied during setup" and "override applied after setup returned". The fallback path for `ALREADY_PASSED_WHEN_MOUNTED` avoids silently dropping hooks that a plugin developer expects to have executed.
 
-The `mergeMixins` function and `flattenMixins` correctly implement Vue's depth-first mixin resolution: deepest ancestor first, component hooks last. This is a subtle detail that many implementations get wrong. The tests in `flattenMixins() -- recursive mixin resolution` verify this explicitly.
+### `$super` chains through multiple override layers
+The `$super` mechanism in the proxy `get` trap works correctly across multiple stacked overrides because `previousState` is a snapshot passed in at the time the override function runs. Each layer gets its own `previousState` pointing to the layer below it.
 
-### 4. Comprehensive test coverage
+### Property lookup priority in `createThisProxy`
+The resolution order — local state → injected values → props → previousState — is consistent with how Vue Options API resolves `this` access, and it matches user expectations for an override context. Capturing `getCurrentInstance()` at proxy creation time (rather than on every property access) is correct and avoids timing issues.
 
-The test suite covers unit tests, integration tests with real mounted components, multi-level override chains, edge cases (empty data, null returns), and even mixed Composition API + Options API override chains. The `convertWithSilencedWarning` helper and `applyOptionsOverride` helper show good testing patterns. Test descriptions are readable and well-structured.
-
-### 5. Thoughtful deprecation strategy
-
-The shim activates silently with a console warning and a link to migration docs. This is the right approach for a compatibility layer: it works today while nudging developers toward the correct long-term solution.
-
-### 6. Inject resolution handles all three Vue forms
-
-Array form, object-with-string form, and object-with-options form (`{ from, default }`) are all handled correctly. This is important because real-world Shopware plugins use all three.
-
-### 7. Clean integration point
-
-The `shouldActivateShim` function is a clean, side-effect-free check that lets the caller (`createExtendableSetup`) decide whether to activate the shim. This separation of detection from conversion is good design.
+### Unsupported feature detection
+`checkUnsupportedFeatures()` covering `render`, `components`, `directives`, `provide`, `template`, `extends`, `inheritAttrs`, and `emits` ensures developers get actionable errors instead of silent no-ops. Using `console.error` for `render()` (fatal) vs `console.warn` for the others (ignorable) is the right severity distinction.
 
 ---
 
-## Issues and suggestions
+## Issues and Suggestions
 
-### Critical
+### 1. Dead code in `shouldActivateShim()` — `mixinsHaveLifecycleHooks` is never reachable
 
-#### 1. Missing Vue instance properties in `thisProxy` (`$emit`, `$tc`, `$route`, `$router`, `$refs`, `$nextTick`)
+**Severity: Low — correctness unaffected, but misleading**
 
-The proxy only resolves `$super` as a special property. All other `$`-prefixed and `_`-prefixed properties silently return `undefined` (lines 324-329). However, existing Shopware Options API overrides *heavily* rely on `this.$emit()`, `this.$tc()`, `this.$t()`, `this.$route`, `this.$router`, `this.$refs`, and `this.$nextTick`. A quick search shows hundreds of usages across `src/module/`.
+```ts
+// Current code
+const mixinsHaveLifecycleHooks = overrideConfig.mixins?.some(
+    (mixin: any) => LIFECYCLE_HOOKS.some((hook) => !!mixin[hook]),
+) ?? false;
 
-When any of these overrides are applied to a Composition API component via this shim, they will get `undefined` instead of the expected instance property, causing silent failures or runtime crashes.
+return !!(
+    overrideConfig.data ||
+    overrideConfig.methods ||
+    overrideConfig.computed ||
+    overrideConfig.watch ||
+    overrideConfig.mixins ||       // ← short-circuits here if mixins is any truthy value
+    overrideConfig.inject ||
+    hasLifecycleHooks ||
+    mixinsHaveLifecycleHooks       // ← this line can never affect the result
+);
+```
 
-**Suggestion:** Retrieve the current component instance via `getCurrentInstance()` inside `createThisProxy` and forward `$`-prefixed property access to it:
+Because `||` short-circuits, `mixinsHaveLifecycleHooks` is only evaluated when `overrideConfig.mixins` is falsy. But if `mixins` is falsy (undefined/null), there are no mixins, so `mixinsHaveLifecycleHooks` is always `false` in that branch. The variable can never change the return value. Remove it.
 
-```typescript
-if (prop.startsWith('$') && prop !== '$super') {
-    const instance = getCurrentInstance();
-    if (instance?.proxy && prop in instance.proxy) {
-        return (instance.proxy as any)[prop];
+**Additionally**: an empty array `mixins: []` is truthy in JavaScript, so a config with `mixins: []` activates the shim unnecessarily.
+
+```ts
+// Suggested fix
+export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
+    const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!(overrideConfig as any)[hook]);
+
+    return !!(
+        overrideConfig.data ||
+        overrideConfig.methods ||
+        overrideConfig.computed ||
+        overrideConfig.watch ||
+        (overrideConfig.mixins && overrideConfig.mixins.length > 0) ||
+        overrideConfig.inject ||
+        hasLifecycleHooks
+    );
+}
+```
+
+---
+
+### 2. `mergeMixins()` calls the accumulated data function on every mixin iteration
+
+**Severity: Medium — potential for unintended side effects and wasted work**
+
+```ts
+// Current code — inside the allMixins.forEach loop
+const existingDataValue =
+    merged.data && typeof merged.data === 'function'
+        ? (merged.data as () => any)()   // ← called once per mixin
+        : (merged.data ?? {});
+```
+
+After the first mixin is processed, `merged.data` becomes a closure that calls the original data function plus the mixin's data function. On the second mixin iteration, that entire accumulated closure is called again to produce `existingDataValue`. With N mixins, the original `config.data()` is called N times total. If `data()` has side effects (logging, counters, async work), this breaks expectations silently.
+
+The fix is to separate the **accumulation phase** from the **evaluation phase**: gather all data factories first, then produce a single merged factory that calls each one exactly once.
+
+```ts
+// Suggested approach
+const allDataFns: Array<() => Record<string, any>> = [];
+
+// Collect mixin data functions in merge order
+allMixins.forEach((mixin) => {
+    if (mixin.data) {
+        allDataFns.push(typeof mixin.data === 'function' ? mixin.data as () => any : () => mixin.data);
     }
+});
+
+// Add the component's own data last (component wins on key conflict)
+if (config.data) {
+    allDataFns.push(typeof config.data === 'function' ? config.data as () => any : () => config.data);
+}
+
+if (allDataFns.length > 0) {
+    merged.data = () =>
+        allDataFns.reduce((acc, fn) => ({ ...acc, ...fn() }), {} as Record<string, any>);
 }
 ```
 
-This is arguably the most impactful gap in the shim, because it affects every override that uses translations, routing, or event emission.
+This ensures each factory is called exactly once, and component-level keys win over mixin-level keys (last spread wins).
 
-#### 2. Race condition with `void (async () => { ... })()`
+---
 
-In `composition-extension-system.ts` (line 228), pending overrides from the component factory are processed inside an immediately-invoked async function whose promise is explicitly discarded with `void`. This means:
+### 3. `context` parameter in the returned function's signature is declared but never used
 
-- The component renders **before** overrides are applied, causing a visible flash of un-overridden content.
-- If `pendingOverride.config()` rejects, the error is caught and logged, but the component stays in an inconsistent state with partial overrides applied.
-- The `Promise.all` inside means one failing override config can prevent all overrides from being applied (depending on rejection order).
+**Severity: Low — misleading API surface**
 
-This is not strictly in the shim file itself, but it directly affects how the shim integrates with the rest of the system and should be addressed together.
+```ts
+// Current signature
+export function convertOptionsApiOverrideToCompositionApi(
+    componentName: string,
+    optionsConfig: ComponentConfig,
+): (previousState: any, props: any, context?: any) => any {
 
-**Suggestion:** Process overrides synchronously where possible, or at least await the result before returning the setup state. If async is truly required, consider a loading/suspense boundary.
+    return (previousState: any, props: any) => {  // ← context not in closure params
+        // ...
+    };
+}
+```
 
-#### 3. `ref(reactive(value))` double-wrapping in `convertData`
+The outer function signature advertises `context` as a parameter. The inner returned function also doesn't use `context` — the proxy delegates Vue instance properties via `getCurrentInstance()`, not via a setup context argument. This is correct behavior, but the signature misleads callers into thinking context is forwarded.
 
-Line 432: `converted[key] = ref(reactive(value))` wraps objects in `reactive()` then wraps that in `ref()`. Vue's `ref()` already applies `reactive()` to objects internally (via `toReactive()`). Double-wrapping creates an extra reactive proxy layer that can lead to subtle bugs:
+Either remove `context?` from the return type signature, or add a JSDoc note explaining why it is accepted but not used (for compatibility with `_overridesMap`'s function signature).
 
-- `isRef(convertedValue)` returns `true`, but `convertedValue.value` is a `Reactive<T>` instead of a plain `T`
-- Identity checks (`===`) between the inner reactive and outer ref's `.value` may behave unexpectedly
-- `toRaw()` needs to be called twice to get the plain value
+---
 
-**Suggestion:** Use `ref(value)` directly. Vue handles deep reactivity automatically:
+### 4. `ALREADY_PASSED_WHEN_MOUNTED` name does not communicate its purpose clearly
 
-```typescript
-converted[key] = ref(value);
+**Severity: Low — readability**
+
+```ts
+const ALREADY_PASSED_WHEN_MOUNTED = new Set(['beforeCreate', 'created', 'beforeMount', 'mounted']);
+```
+
+The name suggests these hooks happen at mount time, but the semantic is different: *when a late override is applied, these are the hooks that have already been called and therefore should be invoked immediately to simulate their execution*. A developer reading this for the first time has to read the surrounding code to understand the intent.
+
+A clearer name:
+
+```ts
+/** When an override is applied after setup() has returned, these hooks have already fired.
+ *  We call them immediately to preserve their expected side effects. */
+const INVOKE_IMMEDIATELY_WHEN_LATE = new Set(['beforeCreate', 'created', 'beforeMount', 'mounted']);
 ```
 
 ---
 
-### Important
+### 5. `registerSingleWatcher()` spreads `undefined` into watch options
 
-#### 4. Mixin `inject` is not merged
+**Severity: Low — fragile, mildly surprising to inspect**
 
-The `mergeMixins` function merges `data`, `methods`, `computed`, `watch`, and lifecycle hooks from mixins, but completely ignores `inject`. If a mixin declares `inject: ['repositoryFactory']`, the override will not resolve those injected values. Since `inject` is extremely common in Shopware mixins (e.g., the `notification` mixin, `repositoryFactory`, `acl`), this is a real-world gap.
-
-**Suggestion:** Add inject merging to `mergeMixins`:
-
-```typescript
-if (mixin.inject) {
-    merged.inject = mergeInjectConfigs(merged.inject, mixin.inject);
-}
-```
-
-#### 5. `thisProxy` uses `!== undefined` instead of `hasOwnProperty` / `in`
-
-Throughout the proxy's `get` and `set` handlers, the check `localState[prop] !== undefined` is used. This means a property that is explicitly set to `undefined` will be skipped, falling through to the next layer (injected values, props, previous state). This violates the principle of least surprise.
-
-For example, if an override's `data()` returns `{ selectedId: undefined }`, the proxy would look through to `previousState.selectedId` instead of returning the local `undefined`.
-
-**Suggestion:** Use `Object.prototype.hasOwnProperty.call(localState, prop)` or `prop in localState` instead.
-
-#### 6. Watchers don't support the `flush` option
-
-The `setupWatchers` function only passes `immediate` and `deep` to Vue's `watch()`. The `flush` option (`'pre'`, `'post'`, `'sync'`) is silently dropped. While `flush` is less commonly used, it matters when watchers need to access updated DOM (`flush: 'post'`) or need synchronous execution (`flush: 'sync'`).
-
-**Suggestion:** Forward `flush` alongside the other options:
-
-```typescript
+```ts
 const options: any = {
-    immediate: handler.immediate,
-    deep: handler.deep,
-    flush: handler.flush,
+    immediate: handler.immediate,  // may be undefined
+    deep: handler.deep,            // may be undefined
+    flush: handler.flush,          // may be undefined
 };
 ```
 
-#### 7. Watch arrays are not supported
+When these properties are `undefined`, they are still set as explicit keys on the object. Vue handles `undefined` watch options correctly, but passing an object with explicit `undefined` values is subtly different from omitting the keys. It can also confuse object inspection and may break stricter argument validators in the future.
 
-Vue's Options API allows an array of handlers for a single watch key:
-
-```javascript
-watch: {
-    count: [
-        function handler1(val) { /* ... */ },
-        { handler(val) { /* ... */ }, immediate: true }
-    ]
-}
+```ts
+// Suggested fix
+const options: WatchOptions = {};
+if (handler.immediate !== undefined) options.immediate = handler.immediate;
+if (handler.deep !== undefined) options.deep = handler.deep;
+if (handler.flush !== undefined) options.flush = handler.flush;
 ```
-
-The current implementation doesn't handle this form. It would fall through all the type checks and silently do nothing.
-
-**Suggestion:** Add an `Array.isArray(handler)` branch that iterates and registers each handler.
-
-#### 8. `checkUnsupportedFeatures` only checks `render`
-
-The function warns about custom `render()` functions, but many other Options API features are also unsupported and would silently fail:
-
-- `components` (local component registration)
-- `directives` (local directive registration)
-- `provide` (providing values to children)
-- `template` (template string override)
-- `extends` (component inheritance)
-- `inheritAttrs`
-- `emits` (emit validation)
-
-An override using any of these would activate the shim (because it likely also has `methods` or `data`), but these features would be silently ignored.
-
-**Suggestion:** Extend `checkUnsupportedFeatures` with a list of known unsupported keys and warn for each one found.
 
 ---
 
-### Minor / Code quality
+### 6. Setting a prop via `this` produces a misleading error message
 
-#### 9. Blanket ESLint disable at file top
+**Severity: Low — confusing DX for override authors**
 
-Line 12 disables six TypeScript ESLint rules for the entire file:
+In `createThisProxy()`, the `get` trap has an explicit check for props:
 
-```typescript
+```ts
+if (Object.prototype.hasOwnProperty.call(props, prop)) {
+    return props[prop];
+}
+```
+
+But the `set` trap does not. If an override method writes `this.someComponentProp = value`, the proxy walks through `localState` and `previousState`, finds nothing, and logs:
+
+```
+[Options API Shim] Cannot set property "someComponentProp" - property not found in component state
+```
+
+The error is technically correct but misses that the property *was* found — in props. Props are intentionally read-only, and the error should say so:
+
+```ts
+// In the set trap, add before the final error:
+if (Object.prototype.hasOwnProperty.call(props, prop)) {
+    console.error(
+        `[Options API Shim] Cannot set property "${prop}" - it is a component prop and is read-only.`,
+    );
+    return false;
+}
+```
+
+---
+
+### 7. `extends` is silently swallowed when it is the only Options API pattern
+
+**Severity: Low — silent failure**
+
+`UNSUPPORTED_OPTIONS` includes `extends`, so `checkUnsupportedFeatures()` would warn about it. However, `checkUnsupportedFeatures()` is only called from inside `convertOptionsApiOverrideToCompositionApi()`, which itself is only called when `shouldActivateShim()` returns `true`. 
+
+If an override config has *only* `extends: SomeBase` (and nothing else), `shouldActivateShim()` returns `false`, the shim never activates, `checkUnsupportedFeatures()` is never called, and the `extends` option is silently dropped with no warning. The developer sees no errors and no effect.
+
+Add `extends` to the `shouldActivateShim` detection — not to *support* it, but to ensure `checkUnsupportedFeatures()` gets the chance to warn about it:
+
+```ts
+return !!(
+    overrideConfig.data ||
+    overrideConfig.methods ||
+    overrideConfig.computed ||
+    overrideConfig.watch ||
+    (overrideConfig.mixins && overrideConfig.mixins.length > 0) ||
+    overrideConfig.inject ||
+    (overrideConfig as any).extends ||  // ← trigger shim to emit the unsupported warning
+    hasLifecycleHooks
+);
+```
+
+---
+
+### 8. `data()` is called without `this` — an undocumented limitation
+
+**Severity: Low — limitation worth documenting**
+
+In Options API, `data()` receives the component instance as `this`, allowing it to reference `this.$options`, props, or injected values. The shim calls `data()` without any `this` binding:
+
+```ts
+// convertData()
+const data = typeof dataFn === 'function' ? dataFn() : dataFn;
+```
+
+And in `mergeMixins()` similarly:
+```ts
+const mixinData = typeof mixin.data === 'function' ? (mixin.data as () => any)() : mixin.data;
+```
+
+This is an inherent limitation — the shim converts data *before* `thisProxy` is created. An override author who writes:
+
+```js
+data() {
+    return { greeting: `Hello, ${this.name}` }; // 'this' is undefined
+}
+```
+
+will get a confusing runtime error or wrong behavior with no explanation.
+
+Add a JSDoc note to `convertData()` and a comment near the call site in `convertOptionsApiOverrideToCompositionApi()`:
+
+```ts
+/**
+ * Converts Options API data() to Composition API refs.
+ *
+ * NOTE: data() is called without a `this` context. Options API patterns that reference
+ * `this` inside data() (e.g. to access props or inject values) are not supported.
+ * Use a method or computed property for that logic instead.
+ */
+function convertData(...) { ... }
+```
+
+---
+
+### 9. File-level ESLint disable for seven rules
+
+**Severity: Very Low — style concern**
+
+```ts
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return,
    @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call,
    @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, max-len */
 ```
 
-While some `any` usage is inevitable in a dynamic bridge like this, disabling *all* type-safety rules for the entire file removes the safety net. This makes it easy for future changes to introduce type errors that go unnoticed.
+Disabling all of these at the file level hides where the actual unsafe operations occur. For a compatibility shim this is somewhat unavoidable — the nature of the bridge is inherently `any`-heavy — but per-line or per-function disables at the genuinely unsafe spots would make it clear to the next developer *why* a particular line is unsafe and whether it can be improved later.
 
-**Suggestion:** Remove the blanket disable and add targeted `// eslint-disable-next-line` comments only where truly needed. For the proxy internals and `this`-binding code, `any` is unavoidable. For functions like `resolveInject`, `convertData`, and `shouldActivateShim`, proper typing is achievable.
+If the `any` usage is accepted as a permanent trade-off for this file, that's fine, but a comment at the top of the disable block explaining the rationale would help:
 
-#### 10. `$super` throws for non-existent methods but not for non-existent computed
-
-The `$super` implementation (lines 290-301) throws an `Error` when a method is not found in `previousState`. However, for computed properties (refs), it returns the value silently. This inconsistency is confusing: if someone calls `this.$super('nonExistentComputed')`, they get an error, but if they call `this.$super('existingComputed')` it returns the value -- there's no way to distinguish "call the super method" from "read the super computed".
-
-**Suggestion:** Consider making `$super` return an object with explicit `call()` and `get()` methods, or at minimum document the current behavior clearly.
-
-#### 11. Proxy `set` handler returns `false` in strict mode
-
-In ES modules (which this file is), strict mode is always active. When a Proxy `set` handler returns `false`, JavaScript throws a `TypeError`. The code at lines 352-358 returns `false` for unknown properties, which will throw. The test at line 659 catches this with a try/catch, but the actual error behavior differs from what the `console.error` message suggests (the error is logged, then a TypeError is also thrown).
-
-**Suggestion:** Either return `true` after logging the error (to suppress the TypeError) and rely only on the `console.error` for diagnostics, or document that setting unknown properties throws.
-
-#### 12. `convertMethods` has an unnecessary function wrapper
-
-```typescript
-converted[name] = function (this: any, ...args: any[]) {
-    return method.call(thisProxy, ...args);
-};
+```ts
+// This shim bridges dynamically-typed Options API configs to Composition API.
+// The widespread 'any' is intentional and unavoidable at this bridge layer.
+/* eslint-disable @typescript-eslint/no-explicit-any, ... */
 ```
-
-The outer function captures `this` but never uses it -- the method is always called with `thisProxy` as context. This is functionally fine but misleading. An arrow function would be clearer about the intent:
-
-```typescript
-converted[name] = (...args: any[]) => method.call(thisProxy, ...args);
-```
-
-#### 13. `mergeMixins` eagerly evaluates data functions on every iteration
-
-Lines 210-215 evaluate `merged.data()` on every mixin iteration to merge data:
-
-```typescript
-const existingDataValue = merged.data && typeof merged.data === 'function'
-    ? (merged.data as () => any)()
-    : (merged.data ?? {});
-```
-
-If data functions have side effects (logging, ID generation, etc.), they will execute multiple times during the merge. Vue itself merges data lazily. While side effects in `data()` are an anti-pattern, the shim should match Vue's behavior.
-
-**Suggestion:** Collect all data sources and merge them in a single pass at the end, inside one wrapper function.
-
-#### 14. No watcher cleanup mechanism
-
-Watchers created via `setupWatchers` are never explicitly stopped. Vue automatically cleans up watchers created during `setup()`, but the shim's watchers might be created outside that context (via the async override flow). In that case, they would leak.
-
-**Suggestion:** Collect the `WatchStopHandle` values returned by `watch()` and provide a way to stop them, or ensure watchers are always created within the component's setup scope.
 
 ---
 
-## Test suite observations
+### 10. `convertMethods()` formatting makes the function harder to read than it needs to be
 
-### What's good
+**Severity: Very Low — style**
 
-- The test suite is well-structured with clear `describe` blocks per feature
-- Both unit tests (calling `overrideFn` directly) and integration tests (mounting real components) exist
-- Edge cases are covered (empty data, null data, undefined properties)
-- Multi-level override chains are tested
-- The `convertWithSilencedWarning` helper keeps tests clean
+The parameter destructuring in `convertMethods` and `convertComputed` is spread across many lines unnecessarily:
 
-### Gaps to address
+```ts
+// Current
+Object.entries(methods).forEach(
+    ([
+        name,
+        method,
+    ]: [
+        string,
+        (...args: any[]) => any,
+    ]) => {
+        converted[name] = function (this: any, ...args: any[]) {
+            return method.call(thisProxy, ...args);
+        };
+    },
+);
+```
 
-- **No tests for `$emit`, `$tc`, `$t`, `$route`, `$router`** -- These are the most commonly used instance properties in Shopware overrides and are not tested because they're not implemented (see issue 1).
-- **No tests for mixin inject** -- Because inject merging from mixins is missing (see issue 4).
-- **No tests for component unmount cleanup** -- Do watchers and lifecycle hooks properly clean up?
-- **No tests for concurrent override application** -- What happens when two overrides are applied simultaneously?
-- **No tests for error recovery** -- If one override throws, does the next override still work?
-- **No tests for deeply nested reactive data** -- e.g., `data() { return { user: { address: { city: 'Berlin' } } } }` -- does deep reactivity propagate correctly with the `ref(reactive(value))` wrapping?
+The `function (this: any, ...)` wrapper with an unused `this` annotation can also be simplified to an arrow function since `this` is not actually used inside the wrapper — `thisProxy` is always the target:
+
+```ts
+// Suggested
+Object.entries(methods).forEach(([name, method]) => {
+    converted[name] = (...args: any[]) => method.call(thisProxy, ...args);
+});
+```
+
+Same pattern applies to `convertComputed`.
 
 ---
 
-## Architectural observation
+## Summary Table
 
-The shim is marked `@experimental stableVersion:v6.8.0`. Before stabilizing, consider whether the shim's scope is correct. Right now it handles `data`, `methods`, `computed`, `watch`, `mixins`, `inject`, and lifecycle hooks. But a real-world Options API override in Shopware often also uses:
+| # | Area | Severity | Kind |
+|---|------|----------|------|
+| 1 | `shouldActivateShim`: dead code + empty array false positive | Low | Correctness |
+| 2 | `mergeMixins`: data function called N times per mixin | **Medium** | Correctness / Stability |
+| 3 | Unused `context` param in returned function signature | Low | Clarity |
+| 4 | `ALREADY_PASSED_WHEN_MOUNTED` name unclear | Low | Readability |
+| 5 | Watch options object includes `undefined` keys | Low | Stability |
+| 6 | Misleading error when setting a prop via `this` | Low | DX / Clarity |
+| 7 | `extends`-only config silently dropped without warning | Low | Correctness |
+| 8 | `data()` called without `this` — undocumented limitation | Low | Documentation |
+| 9 | File-level ESLint disable block lacks rationale comment | Very Low | Readability |
+| 10 | `convertMethods`/`convertComputed` verbose formatting | Very Low | Readability |
 
-- `this.$emit()` for event communication
-- `this.$tc()` / `this.$t()` for translations
-- `this.$route` / `this.$router` for navigation
-- `this.$refs` for DOM access
-- `this.$nextTick()` for post-render work
-- `provide` for dependency injection downward
-- `components` for local component registration
+**Priority order for fixing**: #2 (correctness risk) → #1 (dead code + false positive) → #6 and #7 (confusing DX) → the rest.
 
-Without support for these, the shim will work for simple overrides but fail for the majority of real plugin overrides that exist in the Shopware ecosystem. I'd recommend auditing a sample of existing plugin overrides to determine how many would actually work with the current shim before marking it stable.
-
----
-
-## Summary
-
-| Category | Verdict |
-|---|---|
-| **Architecture & design** | Good decomposition, clean integration point |
-| **Correctness** | Works for the supported subset, but missing critical Vue instance properties |
-| **Reactivity** | Mostly correct, minor concern with `ref(reactive())` double-wrapping |
-| **Mixin support** | Good lifecycle/method/computed merge, missing inject merge |
-| **Type safety** | Weak -- blanket ESLint disable removes all guardrails |
-| **Test coverage** | Strong for happy paths, gaps in error handling and real-world instance properties |
-| **Documentation** | Good inline docs, deprecation warning with migration link |
-
-The foundation is solid. The critical gap is the missing Vue instance property forwarding (`$emit`, `$tc`, `$route`, etc.), which will affect most real-world Shopware plugin overrides. Addressing that and the mixin inject merging would significantly improve the shim's practical coverage.
+The overall architecture is sound. The shim does exactly what it needs to do as a transition bridge, the test coverage is excellent, and the limitations are handled gracefully rather than silently. The issues above are refinements, not structural problems.

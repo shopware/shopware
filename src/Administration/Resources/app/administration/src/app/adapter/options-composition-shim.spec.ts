@@ -120,6 +120,33 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             expect(result).toBe(false);
         });
+
+        it('should return false for an empty mixins array', () => {
+            const result = shouldActivateShim({
+                mixins: [],
+            });
+
+            expect(result).toBe(false);
+        });
+
+        it('should return true and emit unsupported warning when override only has extends', () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            const baseComponent = { methods: { foo() {} } };
+            const result = shouldActivateShim({ extends: baseComponent } as any);
+
+            expect(result).toBe(true);
+
+            // Activating the shim path triggers checkUnsupportedFeatures, which warns about extends
+            convertOptionsApiOverrideToCompositionApi('originalComponent', { extends: baseComponent } as any);
+
+            const extendsWarnings = consoleWarn.mock.calls.filter(
+                (call) => typeof call[0] === 'string' && call[0].includes('"extends" is not supported'),
+            );
+            expect(extendsWarnings).toHaveLength(1);
+
+            consoleWarn.mockRestore();
+        });
     });
 
     describe('convertData():', () => {

@@ -28,7 +28,7 @@ import {
     onDeactivated,
     onErrorCaptured,
 } from 'vue';
-import type { Ref, ComputedRef } from 'vue';
+import type { Ref, ComputedRef, WatchOptions } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 
 /**
@@ -66,19 +66,17 @@ interface MergedConfig extends ComponentConfig {
  */
 export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
     const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!(overrideConfig as any)[hook]);
-    const mixinsHaveLifecycleHooks = overrideConfig.mixins?.some(
-        (mixin: any) => LIFECYCLE_HOOKS.some((hook) => !!mixin[hook]),
-    ) ?? false;
 
     return !!(
         overrideConfig.data ||
         overrideConfig.methods ||
         overrideConfig.computed ||
         overrideConfig.watch ||
-        overrideConfig.mixins ||
+        (overrideConfig.mixins && overrideConfig.mixins.length > 0) ||
         overrideConfig.inject ||
-        hasLifecycleHooks ||
-        mixinsHaveLifecycleHooks
+        // Include extends so checkUnsupportedFeatures() can emit its warning
+        (overrideConfig as any).extends ||
+        hasLifecycleHooks
     );
 }
 
@@ -217,9 +215,12 @@ function mergeInjectConfigs(
  */
 function mergeMixins(config: ComponentConfig): MergedConfig {
     const lifecycleHooks: Record<string, ((...args: any[]) => void)[]> = {};
+    // Collect data factories in merge order so each is called exactly once.
+    // Mixin factories are pushed first (deepest ancestor first via flattenMixins),
+    // then the component's own factory last — so component keys win on conflict.
+    const allDataFns: Array<() => Record<string, any>> = [];
 
     const merged: MergedConfig = {
-        data: config.data,
         methods: { ...config.methods },
         computed: { ...config.computed },
         watch: { ...config.watch },
@@ -239,12 +240,9 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
                 }
             });
 
-            const existingDataValue =
-                merged.data && typeof merged.data === 'function' ? (merged.data as () => any)() : (merged.data ?? {});
-
+            // Collect the mixin's data factory without calling it yet
             if (mixin.data) {
-                const mixinData = typeof mixin.data === 'function' ? (mixin.data as () => any)() : mixin.data;
-                merged.data = () => ({ ...mixinData, ...existingDataValue });
+                allDataFns.push(typeof mixin.data === 'function' ? (mixin.data as () => any) : () => mixin.data);
             }
 
             if (mixin.methods) {
@@ -263,6 +261,16 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
                 merged.inject = mergeInjectConfigs(merged.inject, mixin.inject);
             }
         });
+    }
+
+    // Add the component's own data factory last so its keys win over mixin keys
+    if (config.data) {
+        allDataFns.push(typeof config.data === 'function' ? (config.data as () => any) : () => config.data);
+    }
+
+    // Produce a single merged factory that calls each original factory exactly once
+    if (allDataFns.length > 0) {
+        merged.data = () => allDataFns.reduce<Record<string, any>>((acc, fn) => ({ ...acc, ...fn() }), {});
     }
 
     // Component's own hooks go last (after mixin hooks), matching Vue's merge strategy
@@ -402,6 +410,11 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
                     return false;
                 }
 
+                if (Object.prototype.hasOwnProperty.call(props, prop)) {
+                    console.error(`[Options API Shim] Cannot set property "${prop}" - it is a component prop and is read-only.`);
+                    return false;
+                }
+
                 console.error(`[Options API Shim] Cannot set property "${prop}" - property not found in component state`);
                 return false;
             },
@@ -484,11 +497,10 @@ function registerSingleWatcher(source: () => any, handler: any, thisProxy: any):
             handler.call(thisProxy, newVal, oldVal);
         });
     } else if (typeof handler === 'object' && handler.handler) {
-        const options: any = {
-            immediate: handler.immediate,
-            deep: handler.deep,
-            flush: handler.flush,
-        };
+        const options: WatchOptions = {};
+        if (handler.immediate !== undefined) options.immediate = handler.immediate;
+        if (handler.deep !== undefined) options.deep = handler.deep;
+        if (handler.flush !== undefined) options.flush = handler.flush;
 
         watch(
             source,

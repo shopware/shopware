@@ -83,9 +83,9 @@ class InfoControllerTest extends TestCase
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => true,
-                'enableQueueStatsWorker' => true,
                 'enableNotificationWorker' => true,
                 'transports' => ['async', 'low_priority'],
+                'enableQueueStatsWorker' => true,
             ],
             'bundles' => [],
             'settings' => [

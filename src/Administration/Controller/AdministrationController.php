@@ -139,7 +139,11 @@ class AdministrationController extends AbstractController
         $response->setPublic();
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
-        $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
+
+        if (!$this->firstRunWizardService->frwShouldRun()) {
+            $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
+        }
+
         $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
 
         return $response;

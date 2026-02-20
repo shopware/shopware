@@ -424,4 +424,47 @@ class MediaExceptionTest extends TestCase
         static::assertSame('The parameter "coverMediaId" is invalid.', $exception->getMessage());
         static::assertSame(['parameter' => $parameterName], $exception->getParameters());
     }
+
+    public function testPresignedUploadDisabled(): void
+    {
+        $exception = MediaException::presignedUploadDisabled();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_DISABLED, $exception->getErrorCode());
+        static::assertSame('Presigned upload is disabled.', $exception->getMessage());
+    }
+
+    public function testPresignedUploadNotSupported(): void
+    {
+        $exception = MediaException::presignedUploadNotSupported();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Presigned upload is not supported. S3 filesystem must be configured.', $exception->getMessage());
+    }
+
+    public function testPresignedUploadInvalidConfiguration(): void
+    {
+        $message = 'Missing required option "bucket"';
+
+        $exception = MediaException::presignedUploadInvalidConfiguration($message);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION, $exception->getErrorCode());
+        static::assertSame('Invalid presigned upload configuration: Missing required option "bucket"', $exception->getMessage());
+        static::assertSame(['message' => $message], $exception->getParameters());
+    }
+
+    public function testPresignedUploadFailed(): void
+    {
+        $previousException = new \RuntimeException('S3 connection failed');
+
+        $exception = MediaException::presignedUploadFailed($previousException);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_FAILED, $exception->getErrorCode());
+        static::assertSame('Failed to generate presigned URL: S3 connection failed', $exception->getMessage());
+        static::assertSame(['message' => 'S3 connection failed'], $exception->getParameters());
+        static::assertSame($previousException, $exception->getPrevious());
+    }
 }

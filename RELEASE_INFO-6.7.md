@@ -2,9 +2,41 @@
 
 ## Features
 
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
 ## API
 
 ## Core
+
+### Deprecation of increment-based message queue statistics
+
+The increment-based message queue statistics system is deprecated and will be removed in v6.8.0.0.
+
+**What's changing:**
+- The Administration notification center will no longer show indexing progress notifications (e.g., "X products will be indexed")
+- API endpoint `GET /api/_info/queue.json` is deprecated - use `GET /api/_info/message-stats.json` instead
+
+**Deprecated configuration options:**
+- `shopware.admin_worker.enable_queue_stats_worker`
+- `shopware.increment.message_queue`
+
+**Deprecated code:**
+- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant
+- Increment-based handling in `MessageQueueStatsSubscriber::onMessageHandled()`
+
+**Why?**
+The increment-based statistics were often inaccurate due to hardcoded multipliers and missing decrements in edge cases. The replacement functionality was introduced in https://github.com/shopware/shopware/pull/8698
+
+**Immediate disable:**
+To disable the deprecated functionality before v6.8.0.0:
+```yaml
+shopware:
+    admin_worker:
+        enable_queue_stats_worker: false
+```
 
 ### Internal product streams
 
@@ -31,6 +63,10 @@ The migration generator previously used a fixed format: `fk.<table-name>.<column
 Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
 
 Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
+
+### CategoryIndexer selective indexing optimization
+
+The `CategoryIndexer` now skips tree/child-count updaters when `parentId` hasn't changed, and breadcrumb updater when `name` hasn't changed. All updaters still run for `INSERT` and `DELETE` operations.
 
 ### Updated `doctrine/dbal` dependency
 
@@ -147,6 +183,19 @@ Custom headers defined in app flow action configurations are now correctly sent 
 
 ## Hosting & Configuration
 
+### Deprecated HTTP cache reverse proxy configuration
+
+The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:
+
+- `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+- `shopware.http_cache.reverse_proxy.ban_method`
+- `shopware.http_cache.reverse_proxy.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_method`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
+  - `shopware.http_cache.reverse_proxy.purge_all.urls`
+
+If you are currently using any of these options, you can safely remove them from your configuration.
 ### Configurable Elasticsearch shard and replica counts
 
 The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
@@ -221,6 +270,13 @@ This change helps optimize index storage size and improve search performance, es
 From now on you are able to inspect your 3D models directly in the Media module in the Administration.
 Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right.
 This new component is called `sw-model-viewer`.
+
+### Media Model Editor
+
+The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
+Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
+A modal will open where you can move, rotate, and scale the model.
+Click Save, and your changes are applied instantly.
 
 ## API
 

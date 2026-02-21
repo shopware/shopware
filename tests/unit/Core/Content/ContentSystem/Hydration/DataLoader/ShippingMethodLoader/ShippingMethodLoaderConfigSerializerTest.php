@@ -54,14 +54,12 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function emptyOrNullAssociationsProvider(): array
+    public static function emptyOrNullAssociationsProvider(): iterable
     {
-        return [
-            'absent associations key' => [[]],
-            'null associations value' => [['associations' => null]],
-        ];
+        yield 'absent associations key' => [[]];
+        yield 'null associations value' => [['associations' => null]];
     }
 
     #[TestDox('decodes array with valid associations into ShippingMethodLoaderConfig with associations')]
@@ -123,14 +121,12 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidAssociationItemProvider(): array
+    public static function invalidAssociationItemProvider(): iterable
     {
-        return [
-            'association item is null (non-string triggers type error)' => [['associations' => [null]]],
-            'association item is an empty string (empty string triggers format error)' => [['associations' => ['']]],
-        ];
+        yield 'association item is null (non-string triggers type error)' => [['associations' => [null]]];
+        yield 'association item is an empty string (empty string triggers format error)' => [['associations' => ['']]];
     }
 
     #[TestDox('throws exception when onlyAvailable value is not a boolean')]

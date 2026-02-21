@@ -90,14 +90,12 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function emptyOrNullAssociationsProvider(): array
+    public static function emptyOrNullAssociationsProvider(): iterable
     {
-        return [
-            'absent associations key' => [[]],
-            'null associations value' => [['associations' => null]],
-        ];
+        yield 'absent associations key' => [[]];
+        yield 'null associations value' => [['associations' => null]];
     }
 
     #[TestDox('encodes default config into empty array omitting both keys')]
@@ -198,14 +196,12 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidAssociationItemProvider(): array
+    public static function invalidAssociationItemProvider(): iterable
     {
-        return [
-            'non-string item (null) triggers type error' => [['associations' => [null]]],
-            'empty string item triggers empty check' => [['associations' => ['']]],
-        ];
+        yield 'non-string item (null) triggers type error' => [['associations' => [null]]];
+        yield 'empty string item triggers empty check' => [['associations' => ['']]];
     }
 
     #[TestDox('throws exception when onlyAvailable value is not a boolean')]

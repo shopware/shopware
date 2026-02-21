@@ -51,9 +51,30 @@ class ShippingMethodDataLoaderTest extends TestCase
         $config = new ShippingMethodLoaderConfig();
         $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
-        $request = new Request();
+
+        $this->shippingMethodRoute->method('load')->willReturn($response);
+
+        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+
+        static::assertTrue($result->hasData());
+        static::assertSame($shippingMethods, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('sets onlyAvailable true on cloned request when using default config')]
+    public function testLoadSetsOnlyAvailableTrueByDefaultOnClonedRequest(): void
+    {
+        $shippingMethods = new ShippingMethodCollection();
+        $response = $this->createShippingMethodRouteResponse($shippingMethods);
+
+        $element = new ContentElement(id: 'element-id', component: 'test');
+        $config = new ShippingMethodLoaderConfig();
+        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
+        $context = Generator::generateSalesChannelContext();
 
         $this->shippingMethodRoute
+            ->expects($this->atLeastOnce())
             ->method('load')
             ->with(
                 static::callback(function (Request $clonedRequest): bool {
@@ -66,12 +87,7 @@ class ShippingMethodDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, $request);
-
-        static::assertTrue($result->hasData());
-        static::assertSame($shippingMethods, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        $this->dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('adds associations from ShippingMethodLoaderConfig to criteria')]
@@ -86,6 +102,7 @@ class ShippingMethodDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $this->shippingMethodRoute
+            ->expects($this->once())
             ->method('load')
             ->with(
                 static::anything(),
@@ -99,10 +116,7 @@ class ShippingMethodDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertTrue($result->hasData());
-        static::assertSame($shippingMethods, $result->data);
+        $this->dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('sets onlyAvailable false on cloned request when config has onlyAvailable false')]
@@ -118,6 +132,7 @@ class ShippingMethodDataLoaderTest extends TestCase
         $originalRequest = new Request();
 
         $this->shippingMethodRoute
+            ->expects($this->once())
             ->method('load')
             ->with(
                 static::callback(function (Request $clonedRequest) use ($originalRequest): bool {
@@ -131,10 +146,7 @@ class ShippingMethodDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, $originalRequest);
-
-        static::assertTrue($result->hasData());
-        static::assertSame($shippingMethods, $result->data);
+        $this->dataLoader->load($element, $requirement, $context, $originalRequest);
     }
 
     #[TestDox('loads shipping methods without associations and defaults onlyAvailable to true when config is not a ShippingMethodLoaderConfig instance')]

@@ -87,14 +87,12 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function emptyOrNullAssociationsProvider(): array
+    public static function emptyOrNullAssociationsProvider(): iterable
     {
-        return [
-            'absent associations key' => [[]],
-            'null associations value' => [['associations' => null]],
-        ];
+        yield 'absent associations key' => [[]];
+        yield 'null associations value' => [['associations' => null]];
     }
 
     /**
@@ -111,14 +109,12 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidPropertyProvider(): array
+    public static function invalidPropertyProvider(): iterable
     {
-        return [
-            'property is empty string' => [['property' => '']],
-            'property is non-string (integer)' => [['property' => 42]],
-        ];
+        yield 'property is empty string' => [['property' => '']];
+        yield 'property is non-string (integer)' => [['property' => 42]];
     }
 
     /**
@@ -135,13 +131,11 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidAssociationsProvider(): array
+    public static function invalidAssociationsProvider(): iterable
     {
-        return [
-            'associations is non-array (string)' => [['associations' => 'manufacturer']],
-        ];
+        yield 'associations is non-array (string)' => [['associations' => 'manufacturer']];
     }
 
     /**
@@ -158,23 +152,21 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>, string}>
+     * @return iterable<string, array{array<string, mixed>, string}>
      */
-    public static function invalidAssociationItemProvider(): array
+    public static function invalidAssociationItemProvider(): iterable
     {
-        return [
-            'first item is empty string' => [
-                ['associations' => ['']],
-                'Field associations.0 expected non-empty string',
-            ],
-            'second item is empty string' => [
-                ['associations' => ['manufacturer', '']],
-                'Field associations.1 expected non-empty string',
-            ],
-            'first item is non-string (integer)' => [
-                ['associations' => [42]],
-                'Field associations.0 expected non-empty string',
-            ],
+        yield 'first item is empty string' => [
+            ['associations' => ['']],
+            'Field associations.0 expected non-empty string',
+        ];
+        yield 'second item is empty string' => [
+            ['associations' => ['manufacturer', '']],
+            'Field associations.1 expected non-empty string',
+        ];
+        yield 'first item is non-string (integer)' => [
+            ['associations' => [42]],
+            'Field associations.0 expected non-empty string',
         ];
     }
 
@@ -240,18 +232,16 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>, string}>
+     * @return iterable<string, array{array<string, mixed>, string}>
      */
-    public static function roundTripProvider(): array
+    public static function roundTripProvider(): iterable
     {
-        return [
-            'empty config' => [[], 'empty config'],
-            'property only' => [['property' => 'categoryProperty'], 'property-only config'],
-            'associations only' => [['associations' => ['options', 'cover']], 'associations-only config'],
-            'full config' => [
-                ['property' => 'myProperty', 'associations' => ['manufacturer', 'media']],
-                'full config',
-            ],
+        yield 'empty config' => [[], 'empty config'];
+        yield 'property only' => [['property' => 'categoryProperty'], 'property-only config'];
+        yield 'associations only' => [['associations' => ['options', 'cover']], 'associations-only config'];
+        yield 'full config' => [
+            ['property' => 'myProperty', 'associations' => ['manufacturer', 'media']],
+            'full config',
         ];
     }
 

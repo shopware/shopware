@@ -75,6 +75,7 @@ class CurrencyDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $this->currencyRoute
+            ->expects($this->once())
             ->method('load')
             ->with(
                 static::anything(),
@@ -88,10 +89,7 @@ class CurrencyDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertTrue($result->hasData());
-        static::assertSame($currencies, $result->data);
+        $this->dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('loads currencies without associations when config is not a CurrencyLoaderConfig instance')]

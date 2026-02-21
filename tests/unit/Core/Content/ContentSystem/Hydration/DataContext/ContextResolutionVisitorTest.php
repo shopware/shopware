@@ -10,14 +10,12 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolve
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextResolutionVisitor;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestContextStruct;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContextResolutionVisitor::class)]
 class ContextResolutionVisitorTest extends TestCase
 {
@@ -122,28 +120,6 @@ class ContextResolutionVisitorTest extends TestCase
         static::assertSame('cover-url', $child->getProperty('product.cover'));
     }
 
-    #[TestDox('throws for required consumer when distributed data is not a Struct and path needs resolution')]
-    public function testThrowsForRequiredConsumerWhenPathNotResolvable(): void
-    {
-        $child = ContentElementBuilder::create('child', 'c1')
-            ->withConsumer('product.cover', ContextType::Single, required: true)
-            ->build();
-
-        $parent = ContentElementBuilder::create('parent', 'p1')
-            ->withProperty('product', 'not-a-struct')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withSlot('default', [$child])
-            ->build();
-
-        static::expectExceptionObject(ContentSystemException::contextPathNotResolvable(
-            'product.cover',
-            'c1',
-            'Context data is not a Struct instance'
-        ));
-
-        $parent->traverse($this->visitor);
-    }
-
     #[TestDox('sets null for optional consumer when distributed data is not a Struct')]
     public function testSetsNullForOptionalConsumerWhenPathNotResolvable(): void
     {
@@ -160,5 +136,27 @@ class ContextResolutionVisitorTest extends TestCase
         $parent->traverse($this->visitor);
 
         static::assertNull($child->getProperty('product.cover'));
+    }
+
+    #[TestDox('throws for required consumer when distributed data is not a Struct and path needs resolution')]
+    public function testThrowsForRequiredConsumerWhenPathNotResolvable(): void
+    {
+        $child = ContentElementBuilder::create('child', 'c1')
+            ->withConsumer('product.cover', ContextType::Single, required: true)
+            ->build();
+
+        $parent = ContentElementBuilder::create('parent', 'p1')
+            ->withProperty('product', 'not-a-struct')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('default', [$child])
+            ->build();
+
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+            'product.cover',
+            'c1',
+            'Context data is not a Struct instance'
+        ));
+
+        $parent->traverse($this->visitor);
     }
 }

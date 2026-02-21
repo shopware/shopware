@@ -10,13 +10,11 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolve
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(DataContextResolver::class)]
 class DataContextResolverTest extends TestCase
 {
@@ -85,7 +83,7 @@ class DataContextResolverTest extends TestCase
 
         $resolver = new DataContextResolver(new ContextPathResolver());
 
-        static::expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
             'product.name',
             'child-id',
             'Context data is not a Struct instance'

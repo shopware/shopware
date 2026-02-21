@@ -54,14 +54,12 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function emptyOrNullAssociationsProvider(): array
+    public static function emptyOrNullAssociationsProvider(): iterable
     {
-        return [
-            'absent associations key' => [[]],
-            'null associations value' => [['associations' => null]],
-        ];
+        yield 'absent associations key' => [[]];
+        yield 'null associations value' => [['associations' => null]];
     }
 
     #[TestDox('decodes array with empty associations list into CurrencyLoaderConfig with empty associations')]
@@ -163,13 +161,11 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidAssociationItemProvider(): array
+    public static function invalidAssociationItemProvider(): iterable
     {
-        return [
-            'association item is not a string' => [['associations' => [42]]],
-            'association item is an empty string' => [['associations' => ['']]],
-        ];
+        yield 'association item is not a string' => [['associations' => [42]]];
+        yield 'association item is an empty string' => [['associations' => ['']]];
     }
 }

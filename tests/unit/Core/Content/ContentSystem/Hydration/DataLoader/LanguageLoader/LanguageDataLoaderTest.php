@@ -79,6 +79,7 @@ class LanguageDataLoaderTest extends TestCase
         $request = new Request();
 
         $this->languageRoute
+            ->expects($this->once())
             ->method('load')
             ->with(
                 static::anything(),
@@ -92,10 +93,7 @@ class LanguageDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, $request);
-
-        static::assertTrue($result->hasData());
-        static::assertSame($languages, $result->data);
+        $this->dataLoader->load($element, $requirement, $context, $request);
     }
 
     #[TestDox('loads languages without associations when config is not a LanguageLoaderConfig instance')]

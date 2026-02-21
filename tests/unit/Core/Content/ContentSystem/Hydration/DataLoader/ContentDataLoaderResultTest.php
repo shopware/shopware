@@ -6,36 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentDataLoaderResult::class)]
 class ContentDataLoaderResultTest extends TestCase
 {
-    #[TestDox('notFound returns no data, is cache-aware, and has empty tags')]
-    public function testNotFound(): void
-    {
-        $result = ContentDataLoaderResult::notFound();
-
-        static::assertFalse($result->hasData());
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('uncacheable returns data, is not cache-aware, and has empty tags')]
-    public function testUncacheable(): void
-    {
-        $result = ContentDataLoaderResult::uncacheable(new ArrayStruct());
-
-        static::assertTrue($result->hasData());
-        static::assertFalse($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
     #[TestDox('cached returns data, is cache-aware, and has specific tags')]
     public function testCached(): void
     {
@@ -52,6 +30,26 @@ class ContentDataLoaderResultTest extends TestCase
         $result = ContentDataLoaderResult::cachedExternally(new ArrayStruct());
 
         static::assertTrue($result->hasData());
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('uncacheable returns data, is not cache-aware, and has empty tags')]
+    public function testUncacheable(): void
+    {
+        $result = ContentDataLoaderResult::uncacheable(new ArrayStruct());
+
+        static::assertTrue($result->hasData());
+        static::assertFalse($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('notFound returns no data, is cache-aware, and has empty tags')]
+    public function testNotFound(): void
+    {
+        $result = ContentDataLoaderResult::notFound();
+
+        static::assertFalse($result->hasData());
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }

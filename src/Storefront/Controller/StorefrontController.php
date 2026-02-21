@@ -320,7 +320,7 @@ abstract class StorefrontController extends AbstractController
         return $this->container->get(SystemConfigService::class);
     }
 
-    /*
+    /**
      * Because some email-clients try to fetch previews for links in mails,
      * they send a HEAD-request. But because Symfony is routing HEAD-requests
      * as GET-requests, a subscriber would be confirmed without clicking the link,

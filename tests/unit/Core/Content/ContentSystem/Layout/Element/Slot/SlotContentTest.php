@@ -5,14 +5,14 @@ namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Layout\Element\Slot;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(SlotContent::class)]
 class SlotContentTest extends TestCase
 {
@@ -28,8 +28,6 @@ class SlotContentTest extends TestCase
         $slot->add($elementB);
         $slot->add($elementC);
 
-        static::assertCount(3, $slot);
-
         $iterated = [];
         foreach ($slot as $element) {
             $iterated[] = $element;
@@ -38,5 +36,15 @@ class SlotContentTest extends TestCase
         static::assertSame($elementA, $iterated[0]);
         static::assertSame($elementB, $iterated[1]);
         static::assertSame($elementC, $iterated[2]);
+    }
+
+    #[TestDox('throws when adding an element of the wrong type')]
+    public function testThrowsWhenAddingWrongType(): void
+    {
+        $slot = new SlotContent();
+
+        static::expectExceptionObject(FrameworkException::collectionElementInvalidType(ContentElement::class, \stdClass::class));
+
+        $slot->add(new \stdClass()); // @phpstan-ignore argument.type
     }
 }

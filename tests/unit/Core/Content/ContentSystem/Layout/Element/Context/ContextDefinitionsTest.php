@@ -9,32 +9,44 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContextDefinitions::class)]
 class ContextDefinitionsTest extends TestCase
 {
-    #[TestDox('merges new providers into result and returns a new immutable instance')]
-    public function testWithAddedProvidersMergesResultAndIsImmutable(): void
+    #[TestDox('merges providers immutably and overwrites on key collision')]
+    public function testWithAddedProvidersMergesImmutablyAndOverwritesOnCollision(): void
     {
         $existingProvider = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
         $additionalProvider = new ContextProvider(ContextType::Collection, BroadcastDistributionConfig::simple());
+        $replacementProvider = new ContextProvider(ContextType::Collection, BroadcastDistributionConfig::simple());
 
         $original = new ContextDefinitions(
-            providers: ['product' => $existingProvider],
+            providers: ['product' => $existingProvider, 'category' => $existingProvider],
         );
 
-        $merged = $original->withAddedProviders(['category' => $additionalProvider]);
+        $merged = $original->withAddedProviders([
+            'category' => $additionalProvider,  // overwrites existing key
+            'region' => $replacementProvider,   // adds new key
+        ]);
 
         static::assertSame(
-            ['product' => $existingProvider, 'category' => $additionalProvider],
+            ['product' => $existingProvider, 'category' => $additionalProvider, 'region' => $replacementProvider],
             $merged->getAllProviders()
         );
         static::assertNotSame($original, $merged);
-        static::assertSame(['product' => $existingProvider], $original->getAllProviders());
+        static::assertSame(
+            ['product' => $existingProvider, 'category' => $existingProvider],
+            $original->getAllProviders()
+        );
+
+        $resultFromEmpty = $original->withAddedProviders([]);
+        static::assertNotSame($original, $resultFromEmpty);
+        static::assertSame(
+            ['product' => $existingProvider, 'category' => $existingProvider],
+            $resultFromEmpty->getAllProviders()
+        );
     }
 }

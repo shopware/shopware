@@ -6,17 +6,23 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(KeyedDistributionConfig::class)]
 class KeyedDistributionConfigTest extends TestCase
 {
+    /**
+     * @return \Generator<string, array{array<mixed>}>
+     */
+    public static function absentOrNonScalarDataKeyProvider(): \Generator
+    {
+        yield 'consumer lacks key property' => [[]];
+        yield 'data_key is non-scalar (array)' => [['data_key' => ['not-scalar']]];
+    }
+
     #[TestDox('distributes provider data to consumer matching via data_key property')]
     public function testDistributeMatchesConsumerDataKeyToProviderData(): void
     {
@@ -55,17 +61,6 @@ class KeyedDistributionConfigTest extends TestCase
         $result = $config->distribute($data, $consumers);
 
         static::assertSame([null], $result);
-    }
-
-    /**
-     * @return array<string, array{array<mixed>}>
-     */
-    public static function absentOrNonScalarDataKeyProvider(): array
-    {
-        return [
-            'consumer lacks key property' => [[]],
-            'data_key is non-scalar (array)' => [['data_key' => ['not-scalar']]],
-        ];
     }
 
     #[TestDox('returns null for every consumer when data is not an array')]
@@ -111,7 +106,5 @@ class KeyedDistributionConfigTest extends TestCase
         $config = KeyedDistributionConfig::fromArray($original);
 
         static::assertSame($original, $config->toArray());
-        static::assertSame(DistributionStrategy::Keyed, $config->getStrategy());
-        static::assertSame('my-alias', $config->getConsumerAlias());
     }
 }

@@ -14,14 +14,12 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(VirtualRootWrapper::class)]
 class VirtualRootWrapperTest extends TestCase
 {
@@ -35,17 +33,9 @@ class VirtualRootWrapperTest extends TestCase
     #[TestDox('returns true when specification has data requirements and elements exist')]
     public function testRequiresWrapping(): void
     {
-        $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
-        $specification = new RenderingSpecification(
-            'layout-1',
-            [$requirement],
-            PlaceholderValues::from([]),
-            new Request(),
-        );
-
         $element = ContentElementBuilder::create('Sw:Text')->build();
 
-        static::assertTrue($this->wrapper->requiresWrapping($specification, [$element]));
+        static::assertTrue($this->wrapper->requiresWrapping($this->specificationWithLanguageRequirement(), [$element]));
     }
 
     #[TestDox('returns false when specification has no data requirements')]
@@ -66,32 +56,16 @@ class VirtualRootWrapperTest extends TestCase
     #[TestDox('returns false when elements array is empty')]
     public function testRequiresWrappingNoElements(): void
     {
-        $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
-        $specification = new RenderingSpecification(
-            'layout-1',
-            [$requirement],
-            PlaceholderValues::from([]),
-            new Request(),
-        );
-
-        static::assertFalse($this->wrapper->requiresWrapping($specification, []));
+        static::assertFalse($this->wrapper->requiresWrapping($this->specificationWithLanguageRequirement(), []));
     }
 
     #[TestDox('creates virtual root with correct identity, broadcast providers, and slot contents')]
     public function testWrapCreatesVirtualRootWithBroadcastProvidersAndSlotContents(): void
     {
-        $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
-        $specification = new RenderingSpecification(
-            'layout-1',
-            [$requirement],
-            PlaceholderValues::from([]),
-            new Request(),
-        );
-
         $root1 = ContentElementBuilder::create('Sw:Text')->build();
         $root2 = ContentElementBuilder::create('Sw:Image')->build();
 
-        $virtualRoot = $this->wrapper->wrap([$root1, $root2], $specification);
+        $virtualRoot = $this->wrapper->wrap([$root1, $root2], $this->specificationWithLanguageRequirement());
 
         static::assertSame('__page_context_root__', $virtualRoot->getId());
         static::assertSame('Sw:Internal:PageContext', $virtualRoot->getComponent());
@@ -102,32 +76,43 @@ class VirtualRootWrapperTest extends TestCase
         static::assertCount(2, iterator_to_array($slots['__page_roots__']->getIterator()));
     }
 
+    #[TestDox('returns true when element is the virtual page context root')]
+    public function testIsVirtualRootReturnsTrueForVirtualRoot(): void
+    {
+        $virtualRoot = $this->wrapper->wrap(
+            [ContentElementBuilder::create('Sw:Text')->build()],
+            $this->specificationWithLanguageRequirement(),
+        );
+
+        static::assertTrue($this->wrapper->isVirtualRoot($virtualRoot));
+    }
+
+    #[TestDox('returns false when element is a regular non-virtual element')]
+    public function testIsVirtualRootReturnsFalseForRegularElement(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Text', 'some-id')->build();
+
+        static::assertFalse($this->wrapper->isVirtualRoot($element));
+    }
+
     #[TestDox('extracts original roots from a valid virtual root wrapper')]
     public function testUnwrapExtractsOriginalRoots(): void
     {
-        $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
-        $specification = new RenderingSpecification(
-            'layout-1',
-            [$requirement],
-            PlaceholderValues::from([]),
-            new Request(),
-        );
+        $root1 = ContentElementBuilder::create('Sw:Section', 'root-a')->build();
+        $root2 = ContentElementBuilder::create('Sw:Container', 'root-b')->build();
 
-        $root1 = ContentElementBuilder::create('Sw:Text')->build();
-        $root2 = ContentElementBuilder::create('Sw:Image')->build();
-
-        $virtualRoot = $this->wrapper->wrap([$root1, $root2], $specification);
+        $virtualRoot = $this->wrapper->wrap([$root1, $root2], $this->specificationWithLanguageRequirement());
         $extractedRoots = $this->wrapper->unwrap($virtualRoot);
 
         static::assertCount(2, $extractedRoots);
-        static::assertSame($root1->getId(), $extractedRoots[0]->getId());
-        static::assertSame($root2->getId(), $extractedRoots[1]->getId());
+        static::assertSame('root-a', $extractedRoots[0]->getId());
+        static::assertSame('root-b', $extractedRoots[1]->getId());
     }
 
     #[TestDox('throws when element is not the virtual root')]
     public function testUnwrapThrowsWhenElementIsNotVirtualRoot(): void
     {
-        static::expectExceptionObject(ContentSystemException::pathIntegrityViolation(
+        $this->expectExceptionObject(ContentSystemException::pathIntegrityViolation(
             'Expected virtual page context root with ID "__page_context_root__", got element with ID "some-id" and component "Sw:Text"'
         ));
 
@@ -135,10 +120,21 @@ class VirtualRootWrapperTest extends TestCase
         $this->wrapper->unwrap($regularElement);
     }
 
+    #[DataProvider('throwsWhenSlotMissingOrEmptyProvider')]
+    #[TestDox('throws when the page roots slot is missing or empty')]
+    public function testUnwrapThrowsWhenSlotIsMissingOrEmpty(
+        ContentElement $element,
+        ContentSystemException $expectedException
+    ): void {
+        $this->expectExceptionObject($expectedException);
+
+        $this->wrapper->unwrap($element);
+    }
+
     /**
      * @return \Generator<string, array{ContentElement, ContentSystemException}>
      */
-    public static function elementsWithMissingOrEmptySlotProvider(): \Generator
+    public static function throwsWhenSlotMissingOrEmptyProvider(): \Generator
     {
         $elementWithoutSlot = new ContentElement(
             '__page_context_root__',
@@ -165,37 +161,15 @@ class VirtualRootWrapperTest extends TestCase
         ];
     }
 
-    #[DataProvider('elementsWithMissingOrEmptySlotProvider')]
-    #[TestDox('throws when the page roots slot is missing or empty')]
-    public function testUnwrapThrowsWhenSlotIsMissingOrEmpty(
-        ContentElement $element,
-        ContentSystemException $expectedException
-    ): void {
-        static::expectExceptionObject($expectedException);
-
-        $this->wrapper->unwrap($element);
-    }
-
-    #[TestDox('round-trips: unwrap(wrap(roots)) returns the original roots')]
-    public function testWrapUnwrapRoundtrip(): void
+    private function specificationWithLanguageRequirement(): RenderingSpecification
     {
         $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
-        $specification = new RenderingSpecification(
+
+        return new RenderingSpecification(
             'layout-1',
             [$requirement],
             PlaceholderValues::from([]),
             new Request(),
         );
-
-        $root1 = ContentElementBuilder::create('Sw:Section', 'root-a')->build();
-        $root2 = ContentElementBuilder::create('Sw:Container', 'root-b')->build();
-        $originalRoots = [$root1, $root2];
-
-        $virtualRoot = $this->wrapper->wrap($originalRoots, $specification);
-        $restoredRoots = $this->wrapper->unwrap($virtualRoot);
-
-        static::assertCount(2, $restoredRoots);
-        static::assertSame('root-a', $restoredRoots[0]->getId());
-        static::assertSame('root-b', $restoredRoots[1]->getId());
     }
 }

@@ -8,12 +8,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(EntityCacheTagResolver::class)]
 class EntityCacheTagResolverTest extends TestCase
 {

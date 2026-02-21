@@ -6,28 +6,19 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(RenderingCacheContext::class)]
 class RenderingCacheContextTest extends TestCase
 {
-    #[TestDox('returns false for isDisabled on construction')]
-    public function testNewContextIsNotDisabled(): void
+    #[TestDox('creates context with cache enabled and no tags by default')]
+    public function testNewContextHasDefaultState(): void
     {
         $context = new RenderingCacheContext();
 
         static::assertFalse($context->isDisabled());
-    }
-
-    #[TestDox('returns empty tags on construction')]
-    public function testNewContextHasNoTags(): void
-    {
-        $context = new RenderingCacheContext();
-
         static::assertSame([], $context->getTags());
     }
 

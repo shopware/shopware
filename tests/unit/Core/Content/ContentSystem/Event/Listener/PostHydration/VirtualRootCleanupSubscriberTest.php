@@ -11,7 +11,6 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequi
 use Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EventFactory;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(VirtualRootCleanupSubscriber::class)]
 class VirtualRootCleanupSubscriberTest extends TestCase
 {

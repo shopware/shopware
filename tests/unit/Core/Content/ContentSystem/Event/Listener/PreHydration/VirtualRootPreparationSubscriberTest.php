@@ -9,14 +9,12 @@ use Shopware\Core\Content\ContentSystem\Event\Listener\PreHydration\VirtualRootP
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\LanguageLoader\LanguageLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EventFactory;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(VirtualRootPreparationSubscriber::class)]
 class VirtualRootPreparationSubscriberTest extends TestCase
 {

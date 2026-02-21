@@ -9,14 +9,12 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Event\Listener\PreHydration\RedistributeExpansionSubscriber;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EventFactory;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(RedistributeExpansionSubscriber::class)]
 class RedistributeExpansionSubscriberTest extends TestCase
 {
@@ -98,7 +96,7 @@ class RedistributeExpansionSubscriberTest extends TestCase
 
         $event = EventFactory::preHydration([$element]);
 
-        static::expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.cover'));
+        $this->expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.cover'));
 
         $this->subscriber->__invoke($event);
     }
@@ -113,7 +111,7 @@ class RedistributeExpansionSubscriberTest extends TestCase
 
         $event = EventFactory::preHydration([$element]);
 
-        static::expectExceptionObject(ContentSystemException::redistributeConflict('product'));
+        $this->expectExceptionObject(ContentSystemException::redistributeConflict('product'));
 
         $this->subscriber->__invoke($event);
     }
@@ -128,7 +126,7 @@ class RedistributeExpansionSubscriberTest extends TestCase
 
         $event = EventFactory::preHydration([$element]);
 
-        static::expectExceptionObject(ContentSystemException::propertyAliasCollision('data', 'product', 'category'));
+        $this->expectExceptionObject(ContentSystemException::propertyAliasCollision('data', 'product', 'category'));
 
         $this->subscriber->__invoke($event);
     }

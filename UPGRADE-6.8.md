@@ -492,6 +492,10 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
 
+### Removed deprecated `TemplateGroup` class
+
+The deprecated class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been removed.
+
 **Removed components:**
 
 - `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant and related `message_queue` increment

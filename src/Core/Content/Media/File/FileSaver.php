@@ -176,7 +176,7 @@ class FileSaver
                 }
             }
 
-            if (!empty($thumbnails)) {
+            if ($thumbnails !== []) {
                 foreach ($thumbnails as $thumbnailId => $thumbnailPath) {
                     $event->thumbnailWithMimeType(
                         mediaId: $media->getId(),

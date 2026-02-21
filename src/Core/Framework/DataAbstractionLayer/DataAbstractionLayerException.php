@@ -138,6 +138,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__DAL_INVALID_SYNC_OPERATION';
     public const FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD = 'FRAMEWORK__FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD';
     public const WRONG_FIELD_TYPE_FOR_EXTENSION = 'FRAMEWORK__WRONG_FIELD_TYPE_FOR_EXTENSION';
+    public const DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER = 'FRAMEWORK__DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -1199,6 +1200,15 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::WRONG_FIELD_TYPE_FOR_EXTENSION,
             'Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.',
+        );
+    }
+
+    public static function serializedFieldRequiresIndexer(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER,
+            'Serialized fields can only be written by an indexer.',
         );
     }
 }

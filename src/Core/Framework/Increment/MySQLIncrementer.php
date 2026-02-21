@@ -86,7 +86,7 @@ class MySQLIncrementer extends AbstractIncrementer
             ->setParameter('pool', $this->poolName)
             ->setParameter('cluster', $cluster);
 
-        if (!empty($keys)) {
+        if ($keys !== []) {
             $query->andWhere('`key` IN (:keys)')
                 ->setParameter('keys', $keys, ArrayParameterType::STRING);
         }

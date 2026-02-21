@@ -90,7 +90,7 @@ class ElasticsearchHelper
     {
         $ids = $criteria->getIds();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -109,7 +109,7 @@ class ElasticsearchHelper
     public function addFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $filters = $criteria->getFilters();
-        if (empty($filters)) {
+        if ($filters === []) {
             return;
         }
 
@@ -126,7 +126,7 @@ class ElasticsearchHelper
     public function addPostFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $postFilters = $criteria->getPostFilters();
-        if (empty($postFilters)) {
+        if ($postFilters === []) {
             return;
         }
 
@@ -160,7 +160,7 @@ class ElasticsearchHelper
     public function addQueries(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $queries = $criteria->getQueries();
-        if (empty($queries)) {
+        if ($queries === []) {
             return;
         }
 
@@ -197,7 +197,7 @@ class ElasticsearchHelper
     public function addAggregations(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $aggregations = $criteria->getAggregations();
-        if (empty($aggregations)) {
+        if ($aggregations === []) {
             return;
         }
 

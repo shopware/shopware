@@ -1579,7 +1579,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor.",
+            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor. Das bedeuted, dass die neue Instanz die App-Daten der alten Installation überschreibt.",
             "name": "Shop-ID beibehalten"
           },
           "reinstall-apps": {

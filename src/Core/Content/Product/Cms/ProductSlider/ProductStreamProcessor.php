@@ -129,7 +129,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         Criteria $originCriteria
     ): ProductCollection {
         $finalProductIds = $this->collectFinalProductIds($streamResult);
-        if (\count($finalProductIds) === 0) {
+        if ($finalProductIds === []) {
             return new ProductCollection();
         }
 

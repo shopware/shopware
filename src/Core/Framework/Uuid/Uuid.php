@@ -21,18 +21,18 @@ class Uuid
     private static ?UnixTimeGenerator $generator = null;
 
     /**
-     * @return non-falsy-string
+     * @return non-empty-string
      */
     public static function randomHex(): string
     {
-        /** @var non-falsy-string */
+        /** @var non-empty-string */
         return bin2hex(self::randomBytes());
     }
 
     /**
      * same as Ramsey\Uuid\UuidFactory->uuidFromBytesAndVersion without using a transfer object
      *
-     * @return non-falsy-string
+     * @return non-empty-string
      */
     public static function randomBytes(): string
     {
@@ -62,7 +62,7 @@ class Uuid
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      *
-     * @return non-falsy-string
+     * @return non-empty-string
      */
     public static function fromBytesToHex(string $bytes): string
     {
@@ -75,7 +75,7 @@ class Uuid
             throw UuidException::invalidUuid($uuid);
         }
 
-        \assert(!empty($uuid));
+        \assert($uuid !== '');
 
         return $uuid;
     }
@@ -85,7 +85,7 @@ class Uuid
      *
      * @param array<TArrayKey, string> $bytesList
      *
-     * @return array<TArrayKey, non-falsy-string>
+     * @return array<TArrayKey, non-empty-string>
      */
     public static function fromBytesToHexList(array $bytesList): array
     {
@@ -99,7 +99,7 @@ class Uuid
      *
      * @param array<TArrayKey, string> $uuids
      *
-     * @return array<TArrayKey, non-falsy-string>
+     * @return array<TArrayKey, non-empty-string>
      */
     public static function fromHexToBytesList(array $uuids): array
     {
@@ -111,7 +111,7 @@ class Uuid
     /**
      * @throws InvalidUuidException
      *
-     * @return non-falsy-string
+     * @return non-empty-string
      */
     public static function fromHexToBytes(string $uuid): string
     {

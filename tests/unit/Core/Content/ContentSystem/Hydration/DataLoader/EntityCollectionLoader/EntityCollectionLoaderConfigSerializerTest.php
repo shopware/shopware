@@ -34,8 +34,8 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         static::assertSame(EntityCollectionLoader::SOURCE, EntityCollectionLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes valid config array by delegating to EntityLoaderConfigSerializer and returns EntityLoaderConfig')]
-    public function testDecodeValidConfigDelegatesToEntityLoaderConfigSerializer(): void
+    #[TestDox('decodes valid config array into EntityLoaderConfig with entity, property, and empty associations')]
+    public function testDecodeValidConfigReturnsEntityLoaderConfig(): void
     {
         $data = [
             'entity' => 'product',
@@ -50,8 +50,8 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         static::assertSame([], $result->associations);
     }
 
-    #[TestDox('decodes config with associations by delegating to EntityLoaderConfigSerializer')]
-    public function testDecodeWithAssociationsDelegatesToEntityLoaderConfigSerializer(): void
+    #[TestDox('decodes config with associations into EntityLoaderConfig with all values set')]
+    public function testDecodeWithAssociationsReturnsEntityLoaderConfigWithAssociations(): void
     {
         $data = [
             'entity' => 'category',
@@ -67,8 +67,8 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         static::assertSame(['children', 'seoUrls'], $result->associations);
     }
 
-    #[TestDox('encodes EntityLoaderConfig by delegating to EntityLoaderConfigSerializer and returns array')]
-    public function testEncodeValidConfigDelegatesToEntityLoaderConfigSerializer(): void
+    #[TestDox('encodes EntityLoaderConfig without associations into array omitting the associations key')]
+    public function testEncodeValidConfigOmitsAssociationsKey(): void
     {
         $config = new EntityLoaderConfig('product', 'productId', []);
 
@@ -80,8 +80,8 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         static::assertArrayNotHasKey('associations', $result);
     }
 
-    #[TestDox('encodes EntityLoaderConfig with associations by delegating to EntityLoaderConfigSerializer')]
-    public function testEncodeWithAssociationsDelegatesToEntityLoaderConfigSerializer(): void
+    #[TestDox('encodes EntityLoaderConfig with associations into array including all keys')]
+    public function testEncodeWithAssociationsIncludesAllKeys(): void
     {
         $config = new EntityLoaderConfig('category', 'categoryId', ['children', 'seoUrls']);
 
@@ -95,8 +95,8 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         ], $result);
     }
 
-    #[TestDox('decode and encode are inverse operations via delegation')]
-    public function testDecodeAndEncodeAreInverseViaDelegation(): void
+    #[TestDox('decode and encode are inverse operations')]
+    public function testDecodeAndEncodeAreInverse(): void
     {
         $original = [
             'entity' => 'product',

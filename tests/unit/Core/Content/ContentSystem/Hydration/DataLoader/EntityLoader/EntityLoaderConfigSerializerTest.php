@@ -84,18 +84,16 @@ class EntityLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideMissingEntityCases(): array
+    public static function provideMissingEntityCases(): iterable
     {
-        return [
-            'missing entity key' => [['property' => 'productId']],
-            'entity is null' => [['entity' => null, 'property' => 'productId']],
-            'entity is integer' => [['entity' => 42, 'property' => 'productId']],
-            'entity is empty string' => [['entity' => '', 'property' => 'productId']],
-            'entity is boolean' => [['entity' => true, 'property' => 'productId']],
-            'entity is array' => [['entity' => ['product'], 'property' => 'productId']],
-        ];
+        yield 'missing entity key' => [['property' => 'productId']];
+        yield 'entity is null' => [['entity' => null, 'property' => 'productId']];
+        yield 'entity is integer' => [['entity' => 42, 'property' => 'productId']];
+        yield 'entity is empty string' => [['entity' => '', 'property' => 'productId']];
+        yield 'entity is boolean' => [['entity' => true, 'property' => 'productId']];
+        yield 'entity is array' => [['entity' => ['product'], 'property' => 'productId']];
     }
 
     /**
@@ -112,18 +110,16 @@ class EntityLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideMissingPropertyCases(): array
+    public static function provideMissingPropertyCases(): iterable
     {
-        return [
-            'missing property key' => [['entity' => 'product']],
-            'property is null' => [['entity' => 'product', 'property' => null]],
-            'property is integer' => [['entity' => 'product', 'property' => 42]],
-            'property is empty string' => [['entity' => 'product', 'property' => '']],
-            'property is boolean' => [['entity' => 'product', 'property' => false]],
-            'property is array' => [['entity' => 'product', 'property' => ['id']]],
-        ];
+        yield 'missing property key' => [['entity' => 'product']];
+        yield 'property is null' => [['entity' => 'product', 'property' => null]];
+        yield 'property is integer' => [['entity' => 'product', 'property' => 42]];
+        yield 'property is empty string' => [['entity' => 'product', 'property' => '']];
+        yield 'property is boolean' => [['entity' => 'product', 'property' => false]];
+        yield 'property is array' => [['entity' => 'product', 'property' => ['id']]];
     }
 
     #[TestDox('throws exception when associations is not an array')]
@@ -157,14 +153,12 @@ class EntityLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{list<mixed>}>
+     * @return iterable<string, array{list<mixed>}>
      */
-    public static function invalidAssociationEntryProvider(): array
+    public static function invalidAssociationEntryProvider(): iterable
     {
-        return [
-            'integer item' => [[42]],
-            'empty string item' => [['']],
-        ];
+        yield 'integer item' => [[42]];
+        yield 'empty string item' => [['']];
     }
 
     #[TestDox('encodes EntityLoaderConfig without associations into array without associations key')]

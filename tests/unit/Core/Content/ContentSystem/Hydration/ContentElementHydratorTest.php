@@ -14,7 +14,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentData
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
@@ -25,10 +25,19 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentElementHydrator::class)]
 class ContentElementHydratorTest extends TestCase
 {
+    private SalesChannelContext $context;
+
+    private RenderingCacheContext $cacheContext;
+
+    protected function setUp(): void
+    {
+        $this->context = Generator::generateSalesChannelContext();
+        $this->cacheContext = new RenderingCacheContext();
+    }
+
     #[TestDox('loads data for elements with requirements and sets property')]
     public function testHydrateLoadsDataForElementsWithRequirements(): void
     {
@@ -42,10 +51,7 @@ class ContentElementHydratorTest extends TestCase
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
 
-        $context = Generator::generateSalesChannelContext();
-        $cacheContext = new RenderingCacheContext();
-
-        $result = iterator_to_array($hydrator->hydrate([$element], $context, new Request(), $cacheContext), false);
+        $result = iterator_to_array($hydrator->hydrate([$element], $this->context, new Request(), $this->cacheContext), false);
 
         static::assertCount(1, $result);
         static::assertSame($struct, $element->getProperty('product'));
@@ -58,12 +64,26 @@ class ContentElementHydratorTest extends TestCase
 
         $hydrator = $this->createHydrator();
 
-        $context = Generator::generateSalesChannelContext();
-        $cacheContext = new RenderingCacheContext();
-
-        $result = iterator_to_array($hydrator->hydrate([$element], $context, new Request(), $cacheContext), false);
+        $result = iterator_to_array($hydrator->hydrate([$element], $this->context, new Request(), $this->cacheContext), false);
 
         static::assertCount(1, $result);
+    }
+
+    #[TestDox('skips setting property when loader result has no data')]
+    public function testHydrateSkipsPropertyWhenResultHasNoData(): void
+    {
+        $element = ContentElementBuilder::create('product-card')
+            ->withDataRequirement('product', 'entity', new TestLoaderConfig())
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('load')->willReturn(ContentDataLoaderResult::notFound());
+
+        $hydrator = $this->createHydrator(['entity' => $loader]);
+
+        iterator_to_array($hydrator->hydrate([$element], $this->context, new Request(), $this->cacheContext), false);
+
+        static::assertNull($element->getProperty('product'));
     }
 
     #[TestDox('resolves context after all data has been loaded')]
@@ -81,10 +101,7 @@ class ContentElementHydratorTest extends TestCase
 
         $hydrator = $this->createHydrator();
 
-        $context = Generator::generateSalesChannelContext();
-        $cacheContext = new RenderingCacheContext();
-
-        iterator_to_array($hydrator->hydrate([$element], $context, new Request(), $cacheContext), false);
+        iterator_to_array($hydrator->hydrate([$element], $this->context, new Request(), $this->cacheContext), false);
 
         static::assertSame('product-data', $child->getProperty('product'));
     }
@@ -101,12 +118,9 @@ class ContentElementHydratorTest extends TestCase
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
 
-        $context = Generator::generateSalesChannelContext();
-        $cacheContext = new RenderingCacheContext();
+        iterator_to_array($hydrator->hydrate([$element], $this->context, new Request(), $this->cacheContext), false);
 
-        iterator_to_array($hydrator->hydrate([$element], $context, new Request(), $cacheContext), false);
-
-        static::assertTrue($cacheContext->isDisabled());
+        static::assertTrue($this->cacheContext->isDisabled());
     }
 
     #[TestDox('adds cache tags from loader result to cache context')]
@@ -121,12 +135,9 @@ class ContentElementHydratorTest extends TestCase
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
 
-        $context = Generator::generateSalesChannelContext();
-        $cacheContext = new RenderingCacheContext();
+        iterator_to_array($hydrator->hydrate([$element], $this->context, new Request(), $this->cacheContext), false);
 
-        iterator_to_array($hydrator->hydrate([$element], $context, new Request(), $cacheContext), false);
-
-        static::assertSame(['product-abc', 'product-def'], $cacheContext->getTags());
+        static::assertSame(['product-abc', 'product-def'], $this->cacheContext->getTags());
     }
 
     #[TestDox('recurses into slot children for hydration')]
@@ -146,10 +157,7 @@ class ContentElementHydratorTest extends TestCase
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
 
-        $context = Generator::generateSalesChannelContext();
-        $cacheContext = new RenderingCacheContext();
-
-        iterator_to_array($hydrator->hydrate([$parent], $context, new Request(), $cacheContext), false);
+        iterator_to_array($hydrator->hydrate([$parent], $this->context, new Request(), $this->cacheContext), false);
 
         static::assertSame($childStruct, $child->getProperty('item'));
     }

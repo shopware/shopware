@@ -31,30 +31,6 @@ class LanguageLoaderConfigSerializerTest extends TestCase
         static::assertSame('language', LanguageLoaderConfigSerializer::getSource());
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    #[DataProvider('emptyOrNullAssociationsProvider')]
-    #[TestDox('decodes absent or null associations into LanguageLoaderConfig with empty associations')]
-    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
-    {
-        $result = $this->serializer->decode($data);
-
-        static::assertInstanceOf(LanguageLoaderConfig::class, $result);
-        static::assertSame([], $result->associations);
-    }
-
-    /**
-     * @return array<string, array{array<string, mixed>}>
-     */
-    public static function emptyOrNullAssociationsProvider(): array
-    {
-        return [
-            'absent associations key' => [[]],
-            'null associations value' => [['associations' => null]],
-        ];
-    }
-
     #[TestDox('decodes array with valid associations into LanguageLoaderConfig with associations')]
     public function testDecodeWithValidAssociationsReturnsLanguageLoaderConfigWithAssociations(): void
     {
@@ -71,6 +47,28 @@ class LanguageLoaderConfigSerializerTest extends TestCase
 
         static::assertInstanceOf(LanguageLoaderConfig::class, $result);
         static::assertSame([], $result->associations);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('emptyOrNullAssociationsProvider')]
+    #[TestDox('decodes absent or null associations into LanguageLoaderConfig with empty associations')]
+    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
+    {
+        $result = $this->serializer->decode($data);
+
+        static::assertInstanceOf(LanguageLoaderConfig::class, $result);
+        static::assertSame([], $result->associations);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function emptyOrNullAssociationsProvider(): iterable
+    {
+        yield 'absent associations key' => [[]];
+        yield 'null associations value' => [['associations' => null]];
     }
 
     #[TestDox('throws exception when associations value is not an array')]
@@ -96,14 +94,12 @@ class LanguageLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidAssociationItemProvider(): array
+    public static function invalidAssociationItemProvider(): iterable
     {
-        return [
-            'non-string item triggers type validation' => [['associations' => [42]]],
-            'empty string item triggers empty check' => [['associations' => ['']]],
-        ];
+        yield 'non-string item triggers type validation' => [['associations' => [42]]];
+        yield 'empty string item triggers empty check' => [['associations' => ['']]];
     }
 
     #[TestDox('encodes LanguageLoaderConfig with no associations into empty array')]

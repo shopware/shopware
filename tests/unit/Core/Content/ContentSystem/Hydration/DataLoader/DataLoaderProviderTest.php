@@ -8,13 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(DataLoaderProvider::class)]
 class DataLoaderProviderTest extends TestCase
 {
@@ -35,7 +33,7 @@ class DataLoaderProviderTest extends TestCase
         $locator = new ServiceLocator([]);
         $provider = new DataLoaderProvider($locator);
 
-        static::expectExceptionObject(ContentSystemException::dataLoaderNotRegistered('unknown_type', 'unknown', 'unknown'));
+        $this->expectExceptionObject(ContentSystemException::dataLoaderNotRegistered('unknown_type', 'unknown', 'unknown'));
 
         $provider->get('unknown_type');
     }

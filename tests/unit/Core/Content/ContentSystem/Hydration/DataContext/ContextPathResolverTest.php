@@ -4,16 +4,15 @@ namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataContext;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolver;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestPathStruct;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContextPathResolver::class)]
 class ContextPathResolverTest extends TestCase
 {
@@ -81,7 +80,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('throws when data is null and path is non-empty and required')]
     public function testResolvePathWithNullDataAndRequiredThrows(): void
     {
-        static::expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
             'product.cover',
             'elem-1',
             'Base context data is null'
@@ -105,7 +104,7 @@ class ContextPathResolverTest extends TestCase
     {
         $struct = new TestPathStruct('test');
 
-        static::expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
             'product.missing',
             'elem-1',
             'Property \'missing\' does not exist at path \'missing\''
@@ -129,7 +128,7 @@ class ContextPathResolverTest extends TestCase
     {
         $struct = new TestPathStruct(null, null, 'plain-string');
 
-        static::expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
             'product.nonStructProp.deeper',
             'elem-1',
             'Intermediate value at \'nonStructProp\' is not a Struct instance'
@@ -153,7 +152,7 @@ class ContextPathResolverTest extends TestCase
     {
         $struct = new TestPathStruct(null, null);
 
-        static::expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
             'product.child.name',
             'elem-1',
             'Intermediate value at \'child\' is null'
@@ -174,22 +173,13 @@ class ContextPathResolverTest extends TestCase
         static::assertTrue($this->resolver->matches('product', 'product.cover'));
     }
 
-    #[TestDox('returns false for unrelated keys')]
-    public function testMatchesReturnsFalseForUnrelatedKeys(): void
+    #[TestWithJson('["category","product"]')]
+    #[TestWithJson('["prod","product"]')]
+    #[TestWithJson('["product","products.cover"]')]
+    #[TestDox('returns false for non-matching key pair')]
+    public function testMatchesReturnsFalseForNonMatchingKeyPair(string $provider, string $consumer): void
     {
-        static::assertFalse($this->resolver->matches('category', 'product'));
-    }
-
-    #[TestDox('returns false when provider is a partial string match but not a dot-prefixed prefix')]
-    public function testMatchesReturnsFalseForPartialStringOverlap(): void
-    {
-        static::assertFalse($this->resolver->matches('prod', 'product'));
-    }
-
-    #[TestDox('returns false when consumer does not start with provider followed by dot')]
-    public function testMatchesReturnsFalseForSimilarButNonMatchingKeys(): void
-    {
-        static::assertFalse($this->resolver->matches('product', 'products.cover'));
+        static::assertFalse($this->resolver->matches($provider, $consumer));
     }
 
     #[TestDox('extracts base key from dotted path')]

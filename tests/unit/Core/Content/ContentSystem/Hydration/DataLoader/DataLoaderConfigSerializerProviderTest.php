@@ -9,13 +9,11 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(DataLoaderConfigSerializerProvider::class)]
 class DataLoaderConfigSerializerProviderTest extends TestCase
 {
@@ -59,7 +57,7 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
         $locator = new ServiceLocator([]);
         $provider = new DataLoaderConfigSerializerProvider($locator);
 
-        static::expectExceptionObject(ContentSystemException::configSerializerNotRegistered('unknown_source'));
+        $this->expectExceptionObject(ContentSystemException::configSerializerNotRegistered('unknown_source'));
 
         $provider->decode('unknown_source', []);
     }
@@ -71,7 +69,7 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
         $provider = new DataLoaderConfigSerializerProvider($locator);
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
 
-        static::expectExceptionObject(ContentSystemException::configSerializerNotRegistered('unknown_source'));
+        $this->expectExceptionObject(ContentSystemException::configSerializerNotRegistered('unknown_source'));
 
         $provider->encode('unknown_source', $config);
     }

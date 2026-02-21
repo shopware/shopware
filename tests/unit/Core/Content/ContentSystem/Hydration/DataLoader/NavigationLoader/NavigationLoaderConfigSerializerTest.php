@@ -104,14 +104,12 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidRootIdProvider(): array
+    public static function invalidRootIdProvider(): iterable
     {
-        return [
-            'rootId is non-string type' => [['rootId' => 42]],
-            'rootId is empty string' => [['rootId' => '']],
-        ];
+        yield 'rootId is non-string type' => [['rootId' => 42]];
+        yield 'rootId is empty string' => [['rootId' => '']];
     }
 
     /**
@@ -128,15 +126,13 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidDepthProvider(): array
+    public static function invalidDepthProvider(): iterable
     {
-        return [
-            'depth is zero (boundary)' => [['depth' => 0]],
-            'depth is negative' => [['depth' => -1]],
-            'depth is non-int type' => [['depth' => '3']],
-        ];
+        yield 'depth is zero (boundary)' => [['depth' => 0]];
+        yield 'depth is negative' => [['depth' => -1]];
+        yield 'depth is non-int type' => [['depth' => '3']];
     }
 
     /**
@@ -153,14 +149,12 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidActivePropertyProvider(): array
+    public static function invalidActivePropertyProvider(): iterable
     {
-        return [
-            'activeProperty is non-string type' => [['activeProperty' => 42]],
-            'activeProperty is empty string' => [['activeProperty' => '']],
-        ];
+        yield 'activeProperty is non-string type' => [['activeProperty' => 42]];
+        yield 'activeProperty is empty string' => [['activeProperty' => '']];
     }
 
     #[TestDox('encodes NavigationLoaderConfig with all defaults into empty array')]

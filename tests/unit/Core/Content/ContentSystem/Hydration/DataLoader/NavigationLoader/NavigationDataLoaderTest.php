@@ -14,7 +14,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\NavigationLoader\Na
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -23,7 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(NavigationDataLoader::class)]
 class NavigationDataLoaderTest extends TestCase
 {
@@ -147,6 +145,7 @@ class NavigationDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $this->navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($rootId, $context, $rootId, 5)
             ->willReturn($tree);
@@ -227,7 +226,7 @@ class NavigationDataLoaderTest extends TestCase
     public function testLoadReturnNotFoundWhenConfigIsNotNavigationLoaderConfig(): void
     {
         $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $wrongConfig = $this->createMock(AbstractContentDataLoaderConfig::class);
+        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $requirement = new DataRequirement('navKey', 'navigation', $wrongConfig);
         $context = Generator::generateSalesChannelContext();
 

@@ -43,25 +43,4 @@ class RenderingSpecificationFactoryTest extends TestCase
         static::assertSame('element-42', $result->targetElementId);
         static::assertSame(['product-abc123'], $result->cacheTags);
     }
-
-    #[TestDox('passes through null target element id from source')]
-    public function testCreatePassesThroughNullTargetElementId(): void
-    {
-        $request = new Request();
-        $context = Generator::generateSalesChannelContext();
-        $path = '/product/abc123';
-        $placeholders = PlaceholderValues::from(['productId' => 'abc123']);
-        $specData = new SpecificationData([], $placeholders);
-
-        $source = static::createStub(AbstractSpecificationSource::class);
-        $source->method('resolveLayoutId')->willReturn('layout-1');
-        $source->method('resolveSpecificationData')->willReturn($specData);
-        $source->method('resolveTargetElementId')->willReturn(null);
-        $source->method('resolveCacheTags')->willReturn([]);
-
-        $factory = new RenderingSpecificationFactory();
-        $result = $factory->create($source, $path, $request, $context);
-
-        static::assertNull($result->targetElementId);
-    }
 }

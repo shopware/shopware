@@ -9,7 +9,6 @@ use Shopware\Core\Content\ContentSystem\Adapter\Entity\HeaderContentLayout\Heade
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutEntity;
 use Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -19,7 +18,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(DomainAwareLayoutResolver::class)]
 class DomainAwareLayoutResolverTest extends TestCase
 {

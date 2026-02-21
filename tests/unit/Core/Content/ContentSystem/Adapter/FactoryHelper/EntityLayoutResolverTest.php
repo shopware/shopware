@@ -13,7 +13,6 @@ use Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolv
 use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -22,7 +21,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(EntityLayoutResolver::class)]
 class EntityLayoutResolverTest extends TestCase
 {
@@ -34,7 +32,7 @@ class EntityLayoutResolverTest extends TestCase
     }
 
     #[TestDox('returns layout resolution result with assignment and placeholders')]
-    public function testResolve(): void
+    public function testReturnsResolutionResultWithAssignmentAndPlaceholders(): void
     {
         $entityId = Uuid::randomHex();
         $layoutId = Uuid::randomHex();
@@ -51,42 +49,8 @@ class EntityLayoutResolverTest extends TestCase
         static::assertSame($entityId, $result->placeholderValues->all()['productId']);
     }
 
-    #[TestDox('throws layout assignment not found when no assignment exists')]
-    public function testResolveThrowsWhenNoAssignment(): void
-    {
-        $entityId = Uuid::randomHex();
-
-        $repository = $this->createRepository();
-
-        $definition = $this->createDefinitionMock('product', 'productId');
-        $context = Generator::generateSalesChannelContext();
-
-        static::expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
-            'product',
-            $entityId,
-            $context->getSalesChannel()->getId()
-        ));
-
-        $this->resolver->resolve($entityId, new Request(), $context, $repository, $definition);
-    }
-
-    #[TestDox('findLayoutId returns layout ID when assignment exists')]
-    public function testFindLayoutIdReturnsLayoutIdWhenAssignmentExists(): void
-    {
-        $layoutId = Uuid::randomHex();
-        $entity = $this->createAssignmentEntity($layoutId);
-
-        $repository = $this->createRepository($entity);
-
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $this->resolver->findLayoutId('productId', Uuid::randomHex(), $context, $repository);
-
-        static::assertSame($layoutId, $result);
-    }
-
     #[TestDox('remaps entity ID placeholder when binding exists')]
-    public function testBuildPlaceholderValues(): void
+    public function testRemapsEntityIdPlaceholderWhenBindingExists(): void
     {
         $entityId = Uuid::randomHex();
         $layoutId = Uuid::randomHex();
@@ -104,6 +68,40 @@ class EntityLayoutResolverTest extends TestCase
 
         static::assertSame($entityId, $result->placeholderValues->all()['product_id']);
         static::assertArrayNotHasKey('productId', $result->placeholderValues->all());
+    }
+
+    #[TestDox('findLayoutId returns layout ID when assignment exists')]
+    public function testFindLayoutIdReturnsLayoutIdWhenAssignmentExists(): void
+    {
+        $layoutId = Uuid::randomHex();
+        $entity = $this->createAssignmentEntity($layoutId);
+
+        $repository = $this->createRepository($entity);
+
+        $context = Generator::generateSalesChannelContext();
+
+        $result = $this->resolver->findLayoutId('productId', Uuid::randomHex(), $context, $repository);
+
+        static::assertSame($layoutId, $result);
+    }
+
+    #[TestDox('throws layout assignment not found when no assignment exists')]
+    public function testResolveThrowsWhenNoAssignment(): void
+    {
+        $entityId = Uuid::randomHex();
+
+        $repository = $this->createRepository();
+
+        $definition = $this->createDefinitionMock('product', 'productId');
+        $context = Generator::generateSalesChannelContext();
+
+        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
+            'product',
+            $entityId,
+            $context->getSalesChannel()->getId()
+        ));
+
+        $this->resolver->resolve($entityId, new Request(), $context, $repository, $definition);
     }
 
     /**

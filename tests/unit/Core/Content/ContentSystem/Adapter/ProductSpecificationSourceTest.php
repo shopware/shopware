@@ -10,7 +10,6 @@ use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\Prod
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Content\ContentSystem\Adapter\ProductSpecificationSource;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -19,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ProductSpecificationSource::class)]
 class ProductSpecificationSourceTest extends TestCase
 {

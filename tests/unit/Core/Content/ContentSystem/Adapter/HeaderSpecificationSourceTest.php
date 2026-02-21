@@ -13,7 +13,6 @@ use Shopware\Core\Content\ContentSystem\Adapter\HeaderSpecificationSource;
 use Shopware\Core\Content\ContentSystem\ContentSection;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -23,7 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(HeaderSpecificationSource::class)]
 class HeaderSpecificationSourceTest extends TestCase
 {

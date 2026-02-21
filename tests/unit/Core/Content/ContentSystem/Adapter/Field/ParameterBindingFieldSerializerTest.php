@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
@@ -27,7 +26,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ParameterBindingFieldSerializer::class)]
 class ParameterBindingFieldSerializerTest extends TestCase
 {
@@ -114,7 +112,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
         $invalidField = new TranslatedField('parameterBinding');
         $kvPair = new KeyValuePair('parameter_binding', null, false);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(StorageAware::class, TranslatedField::class)
         );
 
@@ -163,7 +161,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
         $invalidField = new JsonField('parameter_binding', 'parameterBinding');
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(ParameterBindingField::class, JsonField::class)
         );
 
@@ -175,7 +173,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
     {
         $field = $this->createParameterBindingField();
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType('parameter_binding', 'array', 'integer')
         );
 
@@ -298,7 +296,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
         /** @var array{placeholder?: string, resolution?: array{entity: string, match_field: string}} $data */
         $data = ['placeholder' => 'seoUrl', 'resolution' => 'not-an-array']; // @phpstan-ignore-line
 
-        $resolutionConfigSerializer = $this->createMock(ResolutionConfigFieldSerializer::class);
+        $resolutionConfigSerializer = static::createMock(ResolutionConfigFieldSerializer::class);
         $resolutionConfigSerializer->expects($this->never())->method('deserializeResolutionConfig');
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();

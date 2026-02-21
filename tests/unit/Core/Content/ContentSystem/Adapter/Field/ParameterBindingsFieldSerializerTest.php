@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -25,7 +24,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ParameterBindingsFieldSerializer::class)]
 class ParameterBindingsFieldSerializerTest extends TestCase
 {
@@ -125,7 +123,7 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $invalidField = new TranslatedField('parameterBindings');
         $kvPair = new KeyValuePair('parameter_bindings', null, false);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(StorageAware::class, TranslatedField::class)
         );
 
@@ -204,7 +202,7 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $invalidField = new JsonField('parameter_bindings', 'parameterBindings');
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(ParameterBindingsField::class, JsonField::class)
         );
 
@@ -216,7 +214,7 @@ class ParameterBindingsFieldSerializerTest extends TestCase
     {
         $field = $this->createParameterBindingsField();
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType('parameter_bindings', 'array', 'integer')
         );
 

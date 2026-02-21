@@ -7,12 +7,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentLayoutMetadataDeriver::class)]
 class ContentLayoutMetadataDeriverTest extends TestCase
 {
@@ -25,15 +23,6 @@ class ContentLayoutMetadataDeriverTest extends TestCase
         yield 'custom underscore type' => ['some_custom_type', 'someCustomTypeId'];
     }
 
-    #[DataProvider('entityIdFieldProvider')]
-    #[TestDox('derives entity ID field "$expected" from entity type "$entityType"')]
-    public function testDerivesEntityIdFieldFromEntityType(string $entityType, string $expected): void
-    {
-        $deriver = new ContentLayoutMetadataDeriver();
-
-        static::assertSame($expected, $deriver->deriveEntityIdField($entityType));
-    }
-
     /**
      * @return \Generator<string, array{string, string}>
      */
@@ -41,6 +30,15 @@ class ContentLayoutMetadataDeriverTest extends TestCase
     {
         yield 'product' => ['product', '/product/'];
         yield 'custom underscore type' => ['some_custom_type', '/some-custom-type/'];
+    }
+
+    #[DataProvider('entityIdFieldProvider')]
+    #[TestDox('derives entity ID field "$expected" from entity type "$entityType"')]
+    public function testDerivesEntityIdFieldFromEntityType(string $entityType, string $expected): void
+    {
+        $deriver = new ContentLayoutMetadataDeriver();
+
+        static::assertSame($expected, $deriver->deriveEntityIdField($entityType));
     }
 
     #[DataProvider('pathPrefixProvider')]

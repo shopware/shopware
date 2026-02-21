@@ -8,13 +8,11 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(RequestDataExtractor::class)]
 class RequestDataExtractorTest extends TestCase
 {

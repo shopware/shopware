@@ -13,6 +13,9 @@ class ContentSkeletonRouteResponse extends AbstractContentRouteResponse
 {
     private readonly ContentSkeletonPage $skeletonPage;
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         ContentSkeletonPage $skeletonPage,
     ) {

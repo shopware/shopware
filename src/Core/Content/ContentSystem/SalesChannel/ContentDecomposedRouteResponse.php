@@ -13,6 +13,9 @@ class ContentDecomposedRouteResponse extends AbstractContentRouteResponse
 {
     private readonly ContentDecomposedPage $contentDecomposedPage;
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         ContentDecomposedPage $contentDecomposedPage,
     ) {

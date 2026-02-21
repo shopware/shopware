@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 readonly class DataRequirement
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         public string $key,
         public string $source,

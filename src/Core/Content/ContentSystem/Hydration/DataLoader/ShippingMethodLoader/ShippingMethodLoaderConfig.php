@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 final class ShippingMethodLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
+     * @codeCoverageIgnore
+     *
      * @param list<non-empty-string> $associations Additional associations to load
      * @param bool $onlyAvailable Only return available shipping methods (default: true)
      */

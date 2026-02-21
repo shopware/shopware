@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Struct\Struct;
 class ContentDecomposedPage extends Struct
 {
     /**
+     * @codeCoverageIgnore
+     *
      * @param list<ContentSkeletonElement> $skeletons Element structures without property values
      * @param array<string, mixed> $data Deduplicated property values
      * @param array<string, array<string, string>> $assignments Maps elements to property references

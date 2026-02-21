@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 final class EntityLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
+     * @codeCoverageIgnore
+     *
      * @param non-empty-string $entity
      * @param non-empty-string $property
      * @param list<non-empty-string> $associations

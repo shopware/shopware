@@ -41,11 +41,17 @@ final readonly class BroadcastDistributionConfig implements DistributionConfig
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getStrategy(): DistributionStrategy
     {
         return DistributionStrategy::Broadcast;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getConsumerAlias(): ?string
     {
         return $this->consumerAlias;

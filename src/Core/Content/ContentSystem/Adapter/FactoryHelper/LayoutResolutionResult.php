@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 final readonly class LayoutResolutionResult
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         public ContentLayoutAssignmentInterface $assignment,
         public PlaceholderValues $placeholderValues

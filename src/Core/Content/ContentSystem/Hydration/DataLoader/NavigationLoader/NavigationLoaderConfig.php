@@ -23,6 +23,8 @@ final class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
     public const DEFAULT_DEPTH = 2;
 
     /**
+     * @codeCoverageIgnore
+     *
      * @param non-empty-string|null $rootId Navigation root ID or alias (main-navigation, service-navigation, footer-navigation)
      * @param positive-int $depth Navigation tree depth
      * @param non-empty-string $activeProperty Element property name to read active category ID from

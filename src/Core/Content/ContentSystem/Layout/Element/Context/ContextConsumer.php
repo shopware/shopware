@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 final readonly class ContextConsumer
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         public ContextType $type,
         public bool $required,

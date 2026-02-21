@@ -63,20 +63,6 @@ class ContextConsumersFieldSerializerTest extends TestCase
         $this->parameters = static::createStub(WriteParameterBag::class);
     }
 
-    #[TestDox('encodes null value as null')]
-    public function testEncodeWithNullYieldsNull(): void
-    {
-        $field = $this->createContextConsumersField();
-        $kvPair = new KeyValuePair('accepts_context', null, false);
-
-        $result = iterator_to_array(
-            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
-        );
-
-        static::assertArrayHasKey('accepts_context', $result);
-        static::assertNull($result['accepts_context']);
-    }
-
     #[TestDox('encodes ContextConsumer array to JSON string')]
     public function testEncodeWithContextConsumerArrayYieldsJson(): void
     {
@@ -122,6 +108,20 @@ class ContextConsumersFieldSerializerTest extends TestCase
         static::assertArrayHasKey('accepts_context', $result);
         $decoded = json_decode($result['accepts_context'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame($arrayValue, $decoded);
+    }
+
+    #[TestDox('encodes null value as null')]
+    public function testEncodeWithNullYieldsNull(): void
+    {
+        $field = $this->createContextConsumersField();
+        $kvPair = new KeyValuePair('accepts_context', null, false);
+
+        $result = iterator_to_array(
+            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
+        );
+
+        static::assertArrayHasKey('accepts_context', $result);
+        static::assertNull($result['accepts_context']);
     }
 
     #[TestDox('throws exception when encode receives wrong field type')]

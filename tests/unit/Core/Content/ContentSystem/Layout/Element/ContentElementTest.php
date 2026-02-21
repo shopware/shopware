@@ -11,7 +11,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EnterTrackingVisitor;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\OrderTrackingVisitor;
@@ -22,7 +21,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentElement::class)]
 class ContentElementTest extends TestCase
 {
@@ -37,14 +35,11 @@ class ContentElementTest extends TestCase
     }
 
     #[TestDox('stores Struct value and scalar value separately via setProperty')]
-    public function testSetProperty(): void
+    public function testSetPropertyDispatchesStructAndScalarToDifferentBuckets(): void
     {
         $struct = new TestStruct();
 
-        $element = ContentElementBuilder::create('test-component')
-            ->withProperty('myStruct', $struct)
-            ->withProperty('myScalar', 'hello')
-            ->build();
+        $element = $this->buildElementWithMixedProperties($struct);
 
         $properties = $element->getProperties();
 
@@ -57,17 +52,14 @@ class ContentElementTest extends TestCase
     {
         $struct = new TestStruct();
 
-        $element = ContentElementBuilder::create('test-component')
-            ->withProperty('myStruct', $struct)
-            ->withProperty('myScalar', 'hello')
-            ->build();
+        $element = $this->buildElementWithMixedProperties($struct);
 
         static::assertSame($struct, $element->getProperty('myStruct'));
         static::assertSame('hello', $element->getProperty('myScalar'));
     }
 
     #[TestDox('merges struct and non-struct properties into a single array')]
-    public function testGetProperties(): void
+    public function testGetPropertiesReturnsMergedStructAndNonStructMap(): void
     {
         $element = ContentElementBuilder::create('test-component')
             ->withProperty('myStruct', new TestStruct())
@@ -84,13 +76,11 @@ class ContentElementTest extends TestCase
     }
 
     #[TestDox('clears all previous struct and non-struct properties when setProperties is called')]
-    public function testSetProperties(): void
+    public function testSetPropertiesClearsExistingAndAppliesNewValues(): void
     {
         $element = ContentElementBuilder::create('test-component')
             ->withProperty('old', 'value')
             ->build();
-
-        static::assertTrue($element->hasProperty('old'));
 
         $element->setProperties(['new' => 'replacement']);
 
@@ -306,7 +296,7 @@ class ContentElementTest extends TestCase
     }
 
     #[TestDox('merges struct and non-struct properties into properties key and excludes internal arrays')]
-    public function testJsonSerialize(): void
+    public function testJsonSerializeExposesPropertiesKeyAndHidesInternalArrays(): void
     {
         $struct = new TestStruct();
 
@@ -322,6 +312,14 @@ class ContentElementTest extends TestCase
         static::assertArrayHasKey('properties', $data);
         static::assertSame($struct, $data['properties']['myStruct']);
         static::assertSame('hello', $data['properties']['title']);
+    }
+
+    private function buildElementWithMixedProperties(TestStruct $struct): ContentElement
+    {
+        return ContentElementBuilder::create('test-component')
+            ->withProperty('myStruct', $struct)
+            ->withProperty('myScalar', 'hello')
+            ->build();
     }
 
     /**

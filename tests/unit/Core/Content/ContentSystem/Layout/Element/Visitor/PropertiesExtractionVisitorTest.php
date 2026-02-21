@@ -8,7 +8,6 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestExtractorEntity;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
@@ -17,7 +16,6 @@ use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestStruct;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(PropertiesExtractionVisitor::class)]
 class PropertiesExtractionVisitorTest extends TestCase
 {
@@ -166,7 +164,7 @@ class PropertiesExtractionVisitorTest extends TestCase
         static::assertSame($obj, $data[$refId]);
     }
 
-    #[TestDox('deduplicates identical Entity and config combinations into the same ref ID')]
+    #[TestDox('stores identical Entity and config combinations as a single deduplicated entry')]
     public function testDeduplicates(): void
     {
         $entity = new TestExtractorEntity('shared-id');

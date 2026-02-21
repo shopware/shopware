@@ -7,13 +7,11 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContextDependencyAnalyzer::class)]
 class ContextDependencyAnalyzerTest extends TestCase
 {
@@ -67,5 +65,13 @@ class ContextDependencyAnalyzerTest extends TestCase
         $analyzer = new ContextDependencyAnalyzer();
 
         static::assertSame(0, $analyzer->findDataRootIndex([$root, $child]));
+    }
+
+    #[TestDox('returns zero for an empty path')]
+    public function testFindDataRootIndexReturnsZeroForEmptyPath(): void
+    {
+        $analyzer = new ContextDependencyAnalyzer();
+
+        static::assertSame(0, $analyzer->findDataRootIndex([]));
     }
 }

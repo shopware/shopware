@@ -7,15 +7,21 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(IteratorDistributionConfig::class)]
 class IteratorDistributionConfigTest extends TestCase
 {
+    /**
+     * @return \Generator<string, array{mixed}>
+     */
+    public static function nonArrayDataProvider(): \Generator
+    {
+        yield 'integer' => [42];
+    }
+
     #[TestDox('returns array values directly when data is an array')]
     public function testDistributeReturnsDataValuesDirectly(): void
     {
@@ -24,14 +30,6 @@ class IteratorDistributionConfigTest extends TestCase
         $result = $config->distribute(['a', 'b', 'c'], []);
 
         static::assertSame(['a', 'b', 'c'], $result);
-    }
-
-    /**
-     * @return \Generator<string, array{mixed}>
-     */
-    public static function nonArrayDataProvider(): \Generator
-    {
-        yield 'integer' => [42];
     }
 
     #[DataProvider('nonArrayDataProvider')]

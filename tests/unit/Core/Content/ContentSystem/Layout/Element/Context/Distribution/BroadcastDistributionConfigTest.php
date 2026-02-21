@@ -7,12 +7,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(BroadcastDistributionConfig::class)]
 class BroadcastDistributionConfigTest extends TestCase
 {

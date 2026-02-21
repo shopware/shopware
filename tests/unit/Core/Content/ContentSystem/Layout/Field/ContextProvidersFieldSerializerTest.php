@@ -141,16 +141,6 @@ class ContextProvidersFieldSerializerTest extends TestCase
         );
     }
 
-    #[TestDox('decodes null to null')]
-    public function testDecodeWithNullReturnsNull(): void
-    {
-        $field = $this->createContextProvidersField();
-
-        $result = $this->serializer->decode($field, null);
-
-        static::assertNull($result);
-    }
-
     #[TestDox('decodes JSON string to ContextProvider array for all distribution strategies')]
     public function testDecodeWithJsonStringReturnsContextProviders(): void
     {
@@ -178,6 +168,16 @@ class ContextProvidersFieldSerializerTest extends TestCase
         static::assertInstanceOf(IteratorDistributionConfig::class, $result['iter']->distributionConfig);
         static::assertInstanceOf(KeyedDistributionConfig::class, $result['keyed']->distributionConfig);
         static::assertInstanceOf(SlicedDistributionConfig::class, $result['sliced']->distributionConfig);
+    }
+
+    #[TestDox('decodes null to null')]
+    public function testDecodeWithNullReturnsNull(): void
+    {
+        $field = $this->createContextProvidersField();
+
+        $result = $this->serializer->decode($field, null);
+
+        static::assertNull($result);
     }
 
     #[TestDox('skips non-array and non-string-key entries during decode')]

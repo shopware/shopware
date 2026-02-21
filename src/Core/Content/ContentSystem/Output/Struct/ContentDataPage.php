@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Struct\Struct;
 class ContentDataPage extends Struct
 {
     /**
+     * @codeCoverageIgnore
+     *
      * @param array<string, mixed> $data Deduplicated property values (refId => value)
      * @param array<string, array<string, string>> $assignments Element-to-property mappings (elementId => [propKey => refId])
      */

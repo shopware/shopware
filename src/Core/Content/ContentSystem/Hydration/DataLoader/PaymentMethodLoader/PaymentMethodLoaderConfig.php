@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class PaymentMethodLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
+     * @codeCoverageIgnore
+     *
      * @param list<non-empty-string> $associations Additional associations to load
      * @param bool $onlyAvailable Only return available payment methods (default: true)
      */

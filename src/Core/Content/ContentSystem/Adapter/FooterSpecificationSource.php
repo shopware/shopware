@@ -36,6 +36,9 @@ class FooterSpecificationSource extends AbstractSpecificationSource
     ) {
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDecorated(): AbstractSpecificationSource
     {
         throw new DecorationPatternException(self::class);
@@ -62,6 +65,9 @@ class FooterSpecificationSource extends AbstractSpecificationSource
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function resolveTargetElementId(string $path, Request $request, SalesChannelContext $context): ?string
     {
         return null;

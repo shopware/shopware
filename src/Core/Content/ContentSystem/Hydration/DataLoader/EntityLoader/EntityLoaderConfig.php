@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class EntityLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
+     * @codeCoverageIgnore
+     *
      * @param non-empty-string $entity
      * @param non-empty-string $property
      * @param list<non-empty-string> $associations

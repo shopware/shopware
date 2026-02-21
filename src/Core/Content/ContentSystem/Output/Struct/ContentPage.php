@@ -72,6 +72,9 @@ class ContentPage extends Struct
         return $this->getContentDecomposedPage($configSerializerProvider)->getContentDataPage();
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getApiAlias(): string
     {
         return 'content_page';

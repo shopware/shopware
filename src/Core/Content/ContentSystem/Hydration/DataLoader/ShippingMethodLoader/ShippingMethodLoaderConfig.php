@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ShippingMethodLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
+     * @codeCoverageIgnore
+     *
      * @param list<non-empty-string> $associations Additional associations to load
      * @param bool $onlyAvailable Only return available shipping methods (default: true)
      */

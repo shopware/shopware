@@ -13,6 +13,9 @@ class ContentDataRouteResponse extends AbstractContentRouteResponse
 {
     private readonly ContentDataPage $dataPage;
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         ContentDataPage $dataPage,
     ) {

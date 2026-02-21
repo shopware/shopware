@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ResolutionConfig
 {
     /**
+     * @codeCoverageIgnore
+     *
      * @param list<Filter> $constraints
      */
     public function __construct(

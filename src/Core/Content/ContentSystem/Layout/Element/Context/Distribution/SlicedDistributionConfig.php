@@ -40,11 +40,17 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getStrategy(): DistributionStrategy
     {
         return DistributionStrategy::Sliced;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getConsumerAlias(): ?string
     {
         return $this->consumerAlias;

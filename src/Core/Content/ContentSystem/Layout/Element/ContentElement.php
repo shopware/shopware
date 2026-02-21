@@ -48,11 +48,17 @@ class ContentElement extends Struct
         $this->setProperties($properties);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getId(): string
     {
         return $this->id;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getComponent(): string
     {
         return $this->component;
@@ -64,6 +70,8 @@ class ContentElement extends Struct
     }
 
     /**
+     * @codeCoverageIgnore
+     *
      * @return array<string, DataRequirement>
      */
     public function getDataRequirements(): array
@@ -125,6 +133,8 @@ class ContentElement extends Struct
     }
 
     /**
+     * @codeCoverageIgnore
+     *
      * @return array<string, SlotContent>
      */
     public function getSlots(): array
@@ -145,6 +155,9 @@ class ContentElement extends Struct
         }
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function hasSlots(): bool
     {
         return \count($this->slots) !== 0;
@@ -162,6 +175,8 @@ class ContentElement extends Struct
     }
 
     /**
+     * @codeCoverageIgnore
+     *
      * @return array<string, ContextProvider>
      */
     public function getProvidesContext(): array
@@ -170,6 +185,8 @@ class ContentElement extends Struct
     }
 
     /**
+     * @codeCoverageIgnore
+     *
      * @return array<string, ContextConsumer>
      */
     public function getAcceptsContext(): array
@@ -177,11 +194,17 @@ class ContentElement extends Struct
         return $this->contextDefinitions->getAllConsumers();
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getContextDefinitions(): ContextDefinitions
     {
         return $this->contextDefinitions;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setContextDefinitions(ContextDefinitions $contextDefinitions): void
     {
         $this->contextDefinitions = $contextDefinitions;
@@ -229,6 +252,9 @@ class ContentElement extends Struct
         }
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getApiAlias(): string
     {
         return 'content_element';

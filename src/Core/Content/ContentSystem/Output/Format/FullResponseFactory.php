@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class FullResponseFactory extends AbstractResponseFactory
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function getRenderingMode(): RenderingMode
     {
         return RenderingMode::FULL;

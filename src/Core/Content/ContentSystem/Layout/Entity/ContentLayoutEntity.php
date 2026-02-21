@@ -2,6 +2,11 @@
 
 namespace Shopware\Core\Content\ContentSystem\Layout\Entity;
 
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\FooterContentLayout\FooterContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -30,6 +35,16 @@ class ContentLayoutEntity extends Entity
      * @var array<string, mixed>|null
      */
     protected ?array $schema = null;
+
+    protected ?ProductContentLayoutCollection $productContentLayouts = null;
+
+    protected ?CategoryContentLayoutCollection $categoryContentLayouts = null;
+
+    protected ?LandingPageContentLayoutCollection $landingPageContentLayouts = null;
+
+    protected ?HeaderContentLayoutCollection $headerContentLayouts = null;
+
+    protected ?FooterContentLayoutCollection $footerContentLayouts = null;
 
     public function getName(): string
     {
@@ -81,5 +96,55 @@ class ContentLayoutEntity extends Entity
     public function setSchema(?array $schema): void
     {
         $this->schema = $schema;
+    }
+
+    public function getProductContentLayouts(): ?ProductContentLayoutCollection
+    {
+        return $this->productContentLayouts;
+    }
+
+    public function setProductContentLayouts(ProductContentLayoutCollection $productContentLayouts): void
+    {
+        $this->productContentLayouts = $productContentLayouts;
+    }
+
+    public function getCategoryContentLayouts(): ?CategoryContentLayoutCollection
+    {
+        return $this->categoryContentLayouts;
+    }
+
+    public function setCategoryContentLayouts(CategoryContentLayoutCollection $categoryContentLayouts): void
+    {
+        $this->categoryContentLayouts = $categoryContentLayouts;
+    }
+
+    public function getLandingPageContentLayouts(): ?LandingPageContentLayoutCollection
+    {
+        return $this->landingPageContentLayouts;
+    }
+
+    public function setLandingPageContentLayouts(LandingPageContentLayoutCollection $landingPageContentLayouts): void
+    {
+        $this->landingPageContentLayouts = $landingPageContentLayouts;
+    }
+
+    public function getHeaderContentLayouts(): ?HeaderContentLayoutCollection
+    {
+        return $this->headerContentLayouts;
+    }
+
+    public function setHeaderContentLayouts(HeaderContentLayoutCollection $headerContentLayouts): void
+    {
+        $this->headerContentLayouts = $headerContentLayouts;
+    }
+
+    public function getFooterContentLayouts(): ?FooterContentLayoutCollection
+    {
+        return $this->footerContentLayouts;
+    }
+
+    public function setFooterContentLayouts(FooterContentLayoutCollection $footerContentLayouts): void
+    {
+        $this->footerContentLayouts = $footerContentLayouts;
     }
 }

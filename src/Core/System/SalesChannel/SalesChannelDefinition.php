@@ -13,6 +13,11 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSa
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\FooterContentLayout\FooterContentLayoutDefinition;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutDefinition;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
@@ -181,6 +186,11 @@ class SalesChannelDefinition extends EntityDefinition
             new ManyToManyAssociationField('landingPages', LandingPageDefinition::class, LandingPageSalesChannelDefinition::class, 'sales_channel_id', 'landing_page_id', 'id', 'id'),
             new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'),
             (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
+            new OneToManyAssociationField('productContentLayouts', ProductContentLayoutDefinition::class, 'sales_channel_id', 'id'),
+            new OneToManyAssociationField('categoryContentLayouts', CategoryContentLayoutDefinition::class, 'sales_channel_id', 'id'),
+            new OneToManyAssociationField('landingPageContentLayouts', LandingPageContentLayoutDefinition::class, 'sales_channel_id', 'id'),
+            new OneToManyAssociationField('headerContentLayouts', HeaderContentLayoutDefinition::class, 'sales_channel_id', 'id'),
+            new OneToManyAssociationField('footerContentLayouts', FooterContentLayoutDefinition::class, 'sales_channel_id', 'id'),
         ]);
     }
 }

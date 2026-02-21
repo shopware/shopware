@@ -8,19 +8,17 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Cache\CacheFinalizer;
 use Shopware\Core\Content\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(CacheFinalizer::class)]
 class CacheFinalizerTest extends TestCase
 {
-    #[TestDox('forwards cache tags to collector when cache is enabled')]
-    public function testFinalizeForwardsTagsToCollector(): void
+    #[TestDox('forwards cache tags to collector and does not set HTTP cache attribute when cache is enabled')]
+    public function testFinalizeWhenCacheIsEnabled(): void
     {
         $request = new Request();
         $cacheContext = new RenderingCacheContext();
@@ -29,18 +27,6 @@ class CacheFinalizerTest extends TestCase
         $collector = $this->createMock(CacheTagCollector::class);
         $collector->expects($this->once())->method('addTag')->with('tag-a', 'tag-b');
 
-        $finalizer = new CacheFinalizer($collector);
-        $finalizer->finalize($request, $cacheContext);
-    }
-
-    #[TestDox('does not set HTTP cache attribute when cache is enabled')]
-    public function testFinalizeDoesNotSetHttpCacheAttributeWhenCacheIsEnabled(): void
-    {
-        $request = new Request();
-        $cacheContext = new RenderingCacheContext();
-        $cacheContext->addTags(['tag-a', 'tag-b']);
-
-        $collector = static::createStub(CacheTagCollector::class);
         $finalizer = new CacheFinalizer($collector);
         $finalizer->finalize($request, $cacheContext);
 

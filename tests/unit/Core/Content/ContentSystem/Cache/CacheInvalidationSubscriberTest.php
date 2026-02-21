@@ -20,13 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(CacheInvalidationSubscriber::class)]
 class CacheInvalidationSubscriberTest extends TestCase
 {
@@ -104,38 +102,30 @@ class CacheInvalidationSubscriberTest extends TestCase
         ($this->subscriber)($event);
     }
 
-    #[TestDox('invalidates header section cache tags when header_content_layout is written')]
-    public function testInvalidatesHeaderSectionCacheTag(): void
+    /**
+     * @return \Generator<string, array{string, ContentSection}>
+     */
+    public static function sectionLayoutProvider(): \Generator
     {
-        $assignmentId = Uuid::randomHex();
-        $layoutId = Uuid::randomHex();
-
-        $event = $this->createWrittenEvent('header_content_layout', $assignmentId);
-
-        $this->connection->method('fetchFirstColumn')
-            ->willReturn([$layoutId]);
-
-        $this->cacheInvalidator->expects($this->once())
-            ->method('invalidate')
-            ->with(ContentSection::HEADER->buildRouteCacheTags($layoutId));
-
-        ($this->subscriber)($event);
+        yield 'header section' => ['header_content_layout', ContentSection::HEADER];
+        yield 'footer section' => ['footer_content_layout', ContentSection::FOOTER];
     }
 
-    #[TestDox('invalidates footer section cache tags when footer_content_layout is written')]
-    public function testInvalidatesFooterSectionCacheTag(): void
+    #[DataProvider('sectionLayoutProvider')]
+    #[TestDox('invalidates $section cache tags when $entityName is written')]
+    public function testInvalidatesSectionCacheTag(string $entityName, ContentSection $section): void
     {
         $assignmentId = Uuid::randomHex();
         $layoutId = Uuid::randomHex();
 
-        $event = $this->createWrittenEvent('footer_content_layout', $assignmentId);
+        $event = $this->createWrittenEvent($entityName, $assignmentId);
 
         $this->connection->method('fetchFirstColumn')
             ->willReturn([$layoutId]);
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
-            ->with(ContentSection::FOOTER->buildRouteCacheTags($layoutId));
+            ->with($section->buildRouteCacheTags($layoutId));
 
         ($this->subscriber)($event);
     }

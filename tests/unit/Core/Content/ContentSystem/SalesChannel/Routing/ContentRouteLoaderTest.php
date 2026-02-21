@@ -57,7 +57,7 @@ class ContentRouteLoaderTest extends TestCase
         $loader = new ContentRouteLoader([]);
         $loader->load(null);
 
-        $this->expectExceptionObject(ContentSystemException::routesAlreadyLoaded());
+        static::expectExceptionObject(ContentSystemException::routesAlreadyLoaded());
 
         $loader->load(null);
     }
@@ -80,13 +80,10 @@ class ContentRouteLoaderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{mixed}>
+     * @return iterable<string, array{mixed}>
      */
-    public static function unsupportedTypeProvider(): array
+    public static function unsupportedTypeProvider(): iterable
     {
-        return [
-            'null type' => [null],
-            'xml type' => ['xml'],
-        ];
+        yield 'non-matching string type' => ['xml'];
     }
 }

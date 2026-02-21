@@ -10,13 +10,11 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependency
 use Shopware\Core\Content\ContentSystem\Output\ElementTreeUtil;
 use Shopware\Core\Content\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(PartialRenderer::class)]
 class PartialRendererTest extends TestCase
 {

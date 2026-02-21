@@ -6,13 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentSkeletonElement;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentSkeletonElement::class)]
 class ContentSkeletonElementTest extends TestCase
 {
@@ -54,5 +52,13 @@ class ContentSkeletonElementTest extends TestCase
         static::assertArrayHasKey('media', $childSkeleton->slots);
         static::assertCount(1, $childSkeleton->slots['media']);
         static::assertSame('gc-1', $childSkeleton->slots['media'][0]->id);
+    }
+
+    #[TestDox('returns empty array when given an empty iterable')]
+    public function testFromElementsWithEmptyInput(): void
+    {
+        $skeletons = ContentSkeletonElement::fromElements([]);
+
+        static::assertSame([], $skeletons);
     }
 }

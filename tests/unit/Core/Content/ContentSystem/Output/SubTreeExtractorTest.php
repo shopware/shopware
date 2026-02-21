@@ -6,13 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(SubTreeExtractor::class)]
 class SubTreeExtractorTest extends TestCase
 {
@@ -24,7 +22,7 @@ class SubTreeExtractorTest extends TestCase
     }
 
     #[TestDox('returns a cloned subtree when the root element matches the target ID')]
-    public function testExtract(): void
+    public function testExtractReturnsClonedRootWhenTargetIsRootElement(): void
     {
         $id = 'root-id';
         $root = ContentElementBuilder::create('section', $id)->build();
@@ -34,16 +32,6 @@ class SubTreeExtractorTest extends TestCase
         static::assertNotNull($result);
         static::assertSame($id, $result->getId());
         static::assertNotSame($root, $result);
-    }
-
-    #[TestDox('returns null when the target element is not found in the tree')]
-    public function testExtractReturnsNullWhenElementNotFound(): void
-    {
-        $root = ContentElementBuilder::create('section', 'root-id')->build();
-
-        $result = $this->extractor->extract($root, 'missing-id');
-
-        static::assertNull($result);
     }
 
     #[TestDox('finds and returns a cloned subtree for a nested element in child slots')]
@@ -60,5 +48,15 @@ class SubTreeExtractorTest extends TestCase
         static::assertNotNull($result);
         static::assertSame($childId, $result->getId());
         static::assertNotSame($child, $result);
+    }
+
+    #[TestDox('returns null when the target element is not found in the tree')]
+    public function testExtractReturnsNullWhenElementNotFound(): void
+    {
+        $root = ContentElementBuilder::create('section', 'root-id')->build();
+
+        $result = $this->extractor->extract($root, 'missing-id');
+
+        static::assertNull($result);
     }
 }

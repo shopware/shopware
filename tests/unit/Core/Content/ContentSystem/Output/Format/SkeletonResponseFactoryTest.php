@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Output\Format\SkeletonResponseFactory;
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Content\ContentSystem\RenderingMode;
 use Shopware\Core\Content\ContentSystem\SalesChannel\ContentSkeletonRouteResponse;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
@@ -31,5 +32,13 @@ class SkeletonResponseFactoryTest extends TestCase
         static::assertCount(1, $skeletonPage->elements);
         static::assertSame('r1', $skeletonPage->elements[0]->id);
         static::assertSame('section', $skeletonPage->elements[0]->component);
+    }
+
+    #[TestDox('returns skeleton rendering mode')]
+    public function testGetRenderingModeReturnsSkeleton(): void
+    {
+        $factory = new SkeletonResponseFactory();
+
+        static::assertSame(RenderingMode::SKELETON, $factory->getRenderingMode());
     }
 }

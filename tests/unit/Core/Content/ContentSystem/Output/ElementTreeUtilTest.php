@@ -10,13 +10,11 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Output\ElementTreeUtil;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ElementTreeUtil::class)]
 class ElementTreeUtilTest extends TestCase
 {
@@ -64,8 +62,8 @@ class ElementTreeUtilTest extends TestCase
         static::assertSame([], $path);
     }
 
-    #[TestDox('returns minimal pruned tree containing only ancestors needed for context')]
-    public function testPruneToPathAndDescendants(): void
+    #[TestDox('returns a cloned target element when target has no context consumers')]
+    public function testPruneReturnsClonedTargetWhenTargetHasNoContextConsumers(): void
     {
         $targetId = 'target-id';
         $rootId = 'root-id';
@@ -88,8 +86,8 @@ class ElementTreeUtilTest extends TestCase
         static::assertFalse($pruned->hasSlots());
     }
 
-    #[TestDox('selects context-providing ancestor as data root')]
-    public function testPruneSelectsCorrectDataRoot(): void
+    #[TestDox('selects context-providing ancestor as data root and removes siblings from its slots')]
+    public function testPruneSelectsDataRootAndPrunesSiblings(): void
     {
         $targetId = 'target-id';
         $providerId = 'provider-id';
@@ -113,30 +111,6 @@ class ElementTreeUtilTest extends TestCase
 
         // Provider is the data root (doesn't consume), so pruned tree starts there
         static::assertSame($providerId, $pruned->getId());
-    }
-
-    #[TestDox('preserves slot and child structure in pruned tree')]
-    public function testPrunePreservesSlotAndChildStructure(): void
-    {
-        $targetId = 'target-id';
-        $providerId = 'provider-id';
-        $rootId = 'root-id';
-
-        $target = ContentElementBuilder::create('target-component', $targetId)
-            ->withConsumer('product', ContextType::Single)
-            ->build();
-        $sibling = ContentElementBuilder::create('sibling-component', 'sibling-id')->build();
-
-        $provider = ContentElementBuilder::create('provider-component', $providerId)
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withSlot('default', [$target, $sibling])
-            ->build();
-
-        $root = ContentElementBuilder::create('root-component', $rootId)
-            ->withSlot('default', [$provider])
-            ->build();
-
-        $pruned = $this->util->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
         // Pruned provider should contain only the target in its slot, not the sibling
         $slots = $pruned->getSlots();

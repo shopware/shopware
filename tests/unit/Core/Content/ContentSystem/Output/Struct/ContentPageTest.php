@@ -7,18 +7,16 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentPage::class)]
 class ContentPageTest extends TestCase
 {
-    #[TestDox('creates skeleton page with element structure but without hydrated property data')]
+    #[TestDox('creates skeleton page preserving layout id, element structure, and layout version')]
     public function testGetContentSkeletonPage(): void
     {
         $child = ContentElementBuilder::create('text', 'child-1')
@@ -37,56 +35,45 @@ class ContentPageTest extends TestCase
         static::assertCount(1, $skeleton->elements);
         static::assertSame('root-1', $skeleton->elements[0]->id);
         static::assertSame('section', $skeleton->elements[0]->component);
+        static::assertSame('v1', $skeleton->layoutVersion);
     }
 
-    #[TestDox('creates decomposed page with skeleton structure')]
-    public function testGetContentDecomposedPageProducesSkeletonStructure(): void
+    #[TestDox('creates decomposed page with skeleton structure and assignment map')]
+    public function testGetContentDecomposedPage(): void
     {
-        $root = ContentElementBuilder::create('section', 'root-1')
-            ->withProperty('title', 'Hello')
-            ->build();
-
-        $configProvider = new DataLoaderConfigSerializerProvider(new ServiceLocator([]));
-
-        $page = new ContentPage('layout-1', [$root], 'Test Layout', 'v1');
+        [$page, $configProvider] = $this->createPageWithConfigProvider();
 
         $decomposed = $page->getContentDecomposedPage($configProvider);
 
         static::assertCount(1, $decomposed->skeletons);
         static::assertSame('root-1', $decomposed->skeletons[0]->id);
-    }
-
-    #[TestDox('creates decomposed page with assignment map')]
-    public function testGetContentDecomposedPageBuildsAssignmentMap(): void
-    {
-        $root = ContentElementBuilder::create('section', 'root-1')
-            ->withProperty('title', 'Hello')
-            ->build();
-
-        $configProvider = new DataLoaderConfigSerializerProvider(new ServiceLocator([]));
-
-        $page = new ContentPage('layout-1', [$root], 'Test Layout', 'v1');
-
-        $decomposed = $page->getContentDecomposedPage($configProvider);
-
         static::assertArrayHasKey('root-1', $decomposed->assignments);
     }
 
     #[TestDox('creates data page with hydrated data and assignments but without skeleton')]
     public function testGetContentDataPage(): void
     {
-        $root = ContentElementBuilder::create('section', 'root-1')
-            ->withProperty('title', 'Hello')
-            ->build();
-
-        $configProvider = new DataLoaderConfigSerializerProvider(new ServiceLocator([]));
-
-        $page = new ContentPage('layout-1', [$root], 'Test Layout', 'v1');
+        [$page, $configProvider] = $this->createPageWithConfigProvider();
 
         $dataPage = $page->getContentDataPage($configProvider);
 
         static::assertSame('layout-1', $dataPage->layoutId);
         static::assertArrayHasKey('root-1', $dataPage->assignments);
         static::assertCount(1, $dataPage->data);
+    }
+
+    /**
+     * @return array{ContentPage, DataLoaderConfigSerializerProvider}
+     */
+    private function createPageWithConfigProvider(): array
+    {
+        $root = ContentElementBuilder::create('section', 'root-1')
+            ->withProperty('title', 'Hello')
+            ->build();
+
+        $configProvider = new DataLoaderConfigSerializerProvider(new ServiceLocator([]));
+        $page = new ContentPage('layout-1', [$root], 'Test Layout', 'v1');
+
+        return [$page, $configProvider];
     }
 }

@@ -6,27 +6,30 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Output\PathFinderVisitor;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(PathFinderVisitor::class)]
 class PathFinderVisitorTest extends TestCase
 {
+    #[TestDox('returns single-element path when target is the root element')]
+    public function testReturnsRootPathWhenTargetIsRoot(): void
+    {
+        $rootId = 'root-element-id';
+
+        $root = ContentElementBuilder::create('block', $rootId)->build();
+        $visitor = new PathFinderVisitor($rootId);
+        $root->traverse($visitor);
+
+        static::assertSame([$rootId], $visitor->getPath());
+    }
+
     #[TestDox('finds element and returns correct path from root')]
     public function testFindElementReturnsCorrectPath(): void
     {
         $rootId = 'root-element-id';
-
-        $rootOnly = ContentElementBuilder::create('block', $rootId)->build();
-        $rootVisitor = new PathFinderVisitor($rootId);
-        $rootOnly->traverse($rootVisitor);
-
-        static::assertSame([$rootId], $rootVisitor->getPath());
-
         $parentId = 'parent-element-id';
         $targetId = 'target-element-id';
 
@@ -38,10 +41,10 @@ class PathFinderVisitorTest extends TestCase
             ->withSlot('default', [$parent])
             ->build();
 
-        $nestedVisitor = new PathFinderVisitor($targetId);
-        $root->traverse($nestedVisitor);
+        $visitor = new PathFinderVisitor($targetId);
+        $root->traverse($visitor);
 
-        static::assertSame([$rootId, $parentId, $targetId], $nestedVisitor->getPath());
+        static::assertSame([$rootId, $parentId, $targetId], $visitor->getPath());
     }
 
     #[TestDox('returns empty path when element not found')]

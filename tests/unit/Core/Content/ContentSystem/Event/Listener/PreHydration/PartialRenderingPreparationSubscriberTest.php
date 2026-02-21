@@ -11,14 +11,12 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependency
 use Shopware\Core\Content\ContentSystem\Output\ElementTreeUtil;
 use Shopware\Core\Content\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EventFactory;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(PartialRenderingPreparationSubscriber::class)]
 class PartialRenderingPreparationSubscriberTest extends TestCase
 {

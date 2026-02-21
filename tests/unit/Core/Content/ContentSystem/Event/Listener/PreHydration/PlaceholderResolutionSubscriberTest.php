@@ -7,14 +7,12 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Event\Listener\PreHydration\PlaceholderResolutionSubscriber;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EventFactory;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(PlaceholderResolutionSubscriber::class)]
 class PlaceholderResolutionSubscriberTest extends TestCase
 {

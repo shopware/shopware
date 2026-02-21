@@ -77,6 +77,13 @@ It can be found in the state machine state history modal (state change modal) on
 ### Indexing the product's custom fields
 
 Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
+### Scheduled cleanup of expired customer recovery records
+
+A new scheduled task `customer.cleanup_customer_recovery` has been added that automatically removes expired customer recovery records from the database on a daily basis.
+
+Customer recovery records (password reset tokens) expire after 2 hours. Previously these records were never removed, causing the `customer_recovery` table to grow indefinitely. The new task deletes all records older than 48 hours in batches of 1000 rows to avoid locking issues on large installations.
+
+The task is registered as `Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTask` and handled by `Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTaskHandler`.
 
 ### Deprecation of increment-based message queue statistics
 

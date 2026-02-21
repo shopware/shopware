@@ -25,7 +25,7 @@ use Symfony\Component\DependencyInjection\Reference;
 class ContentRouteCompilerPass implements CompilerPassInterface
 {
     private const FORMAT_FULL = 'full';
-    private const SERVICE_ID_ROUTE_PATTERN = 'content_system.route.%s.%s';
+    private const SERVICE_ID_ROUTE_PATTERN = ContentRoute::class . '.%s.%s';
 
     public function process(ContainerBuilder $container): void
     {
@@ -102,6 +102,10 @@ class ContentRouteCompilerPass implements CompilerPassInterface
             PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
             PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             '_controller' => \sprintf('%s::load', $serviceId),
+            // Routes that use service IDs as controllers (not PHP class names) must set
+            // _experimental explicitly as a route default at compile time to avoid ReflectionException
+            // in ApiRoutesHaveASchemaTest::isExperimentalRoute().
+            '_experimental' => false,
         ];
 
         if (!$hasPath) {

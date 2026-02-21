@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,15 +21,20 @@ class TemplateGroup
         private readonly array $salesChannelIds,
         private array $salesChannels = []
     ) {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'without replacement as it isn\'t used anymore.'));
     }
 
     public function getLanguageId(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'without replacement as it isn\'t used anymore.'));
+
         return $this->languageId;
     }
 
     public function getTemplate(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'without replacement as it isn\'t used anymore.'));
+
         return $this->template;
     }
 
@@ -37,6 +43,8 @@ class TemplateGroup
      */
     public function getSalesChannelIds(): array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'without replacement as it isn\'t used anymore.'));
+
         return $this->salesChannelIds;
     }
 
@@ -45,6 +53,8 @@ class TemplateGroup
      */
     public function getSalesChannels(): array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'without replacement as it isn\'t used anymore.'));
+
         return $this->salesChannels;
     }
 
@@ -53,6 +63,8 @@ class TemplateGroup
      */
     public function setSalesChannels(array $salesChannels): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'without replacement as it isn\'t used anymore.'));
+
         $this->salesChannels = $salesChannels;
     }
 }

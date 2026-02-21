@@ -7,12 +7,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentSection::class)]
 class ContentSectionTest extends TestCase
 {
@@ -71,7 +69,7 @@ class ContentSectionTest extends TestCase
      */
     #[DataProvider('buildRouteCacheTagsProvider')]
     #[TestDox('returns correct cache tags for each section')]
-    public function testBuildRouteCacheTags(ContentSection $section, array $expectedTags): void
+    public function testBuildRouteCacheTagsIncludesMainTagAndSectionSpecificTag(ContentSection $section, array $expectedTags): void
     {
         static::assertSame($expectedTags, $section->buildRouteCacheTags('layout-42'));
     }

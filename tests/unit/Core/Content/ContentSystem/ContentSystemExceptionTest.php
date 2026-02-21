@@ -7,13 +7,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentSystemException::class)]
 class ContentSystemExceptionTest extends TestCase
 {

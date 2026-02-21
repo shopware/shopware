@@ -8,12 +8,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(PlaceholderValues::class)]
 class PlaceholderValuesTest extends TestCase
 {
@@ -22,7 +20,7 @@ class PlaceholderValuesTest extends TestCase
      */
     #[DataProvider('validScalarValuesProvider')]
     #[TestDox('creates instance with valid scalar values')]
-    public function testFrom(array $values): void
+    public function testFromCreatesInstancePreservingAllScalarValues(array $values): void
     {
         $placeholderValues = PlaceholderValues::from($values);
 
@@ -34,33 +32,7 @@ class PlaceholderValuesTest extends TestCase
      */
     public static function validScalarValuesProvider(): \Generator
     {
-        yield 'string value' => [['key' => 'value']];
-        yield 'int value' => [['count' => 42]];
-        yield 'bool value' => [['active' => true]];
-        yield 'float value' => [['price' => 9.99]];
         yield 'mixed scalar types' => [['name' => 'product', 'count' => 5, 'active' => false, 'price' => 1.5]];
-    }
-
-    #[TestDox('throws exception for non-scalar array value')]
-    public function testFromThrowsForNonScalarValue(): void
-    {
-        static::expectExceptionObject(
-            ContentSystemException::invalidMapValue('PlaceholderValues', 'key', 'scalar', 'array')
-        );
-
-        /** @phpstan-ignore-next-line argument.type */
-        PlaceholderValues::from(['key' => ['nested' => 'array']]);
-    }
-
-    #[TestDox('throws exception for null value')]
-    public function testFromThrowsForNullValue(): void
-    {
-        static::expectExceptionObject(
-            ContentSystemException::invalidMapValue('PlaceholderValues', 'key', 'scalar', 'null')
-        );
-
-        /** @phpstan-ignore-next-line argument.type */
-        PlaceholderValues::from(['key' => null]);
     }
 
     #[TestDox('accepts empty array and returns empty values')]
@@ -69,5 +41,28 @@ class PlaceholderValuesTest extends TestCase
         $placeholderValues = PlaceholderValues::from([]);
 
         static::assertSame([], $placeholderValues->all());
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    #[DataProvider('nonScalarValueProvider')]
+    #[TestDox('throws exception when value is not scalar')]
+    public function testFromThrowsForNonScalarValue(array $values, string $expectedType): void
+    {
+        static::expectExceptionObject(
+            ContentSystemException::invalidMapValue('PlaceholderValues', 'key', 'scalar', $expectedType)
+        );
+
+        PlaceholderValues::from($values);
+    }
+
+    /**
+     * @return \Generator<string, array{array<string, mixed>, string}>
+     */
+    public static function nonScalarValueProvider(): \Generator
+    {
+        yield 'array value' => [['key' => ['nested' => 'array']], 'array'];
+        yield 'null value' => [['key' => null], 'null'];
     }
 }

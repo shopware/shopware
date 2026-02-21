@@ -20,7 +20,6 @@ use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -32,7 +31,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ContentPipeline::class)]
 class ContentPipelineTest extends TestCase
 {

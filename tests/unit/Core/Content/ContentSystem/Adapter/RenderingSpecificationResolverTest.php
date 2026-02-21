@@ -11,14 +11,12 @@ use Shopware\Core\Content\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\SpecificationData;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(RenderingSpecificationResolver::class)]
 class RenderingSpecificationResolverTest extends TestCase
 {

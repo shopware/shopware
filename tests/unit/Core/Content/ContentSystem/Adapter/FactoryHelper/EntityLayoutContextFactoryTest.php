@@ -20,7 +20,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\Entity
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -29,7 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(EntityLayoutContextFactory::class)]
 class EntityLayoutContextFactoryTest extends TestCase
 {
@@ -94,7 +92,7 @@ class EntityLayoutContextFactoryTest extends TestCase
         $repository = $this->createRepository();
         $context = Generator::generateSalesChannelContext();
 
-        static::expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
+        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
             'product',
             $entityId,
             $context->getSalesChannel()->getId()
@@ -104,7 +102,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     }
 
     #[TestDox('resolves specification data with empty requirements when no parameter bindings are configured')]
-    public function testResolveSpecificationData(): void
+    public function testReturnsSpecificationDataWithEmptyRequirementsWhenNoBindings(): void
     {
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
@@ -132,52 +130,8 @@ class EntityLayoutContextFactoryTest extends TestCase
         static::assertSame([], $result->dataRequirements);
     }
 
-    #[TestDox('returns element ID from request query when present')]
-    public function testResolveTargetElementIdReturnsElementIdWhenPresent(): void
-    {
-        $request = new Request(['elementId' => 'elem-42']);
-
-        static::assertSame('elem-42', $this->factory->resolveTargetElementId($request));
-    }
-
-    #[TestDox('returns null when no element ID in request')]
-    public function testResolveTargetElementIdReturnsNullWhenMissing(): void
-    {
-        $request = new Request();
-
-        static::assertNull($this->factory->resolveTargetElementId($request));
-    }
-
-    #[TestDox('resolves cache tags by delegating to definition')]
-    public function testResolveCacheTagsDelegatesToDefinition(): void
-    {
-        $entityId = Uuid::randomHex();
-
-        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-        $definition->method('getCacheTags')->willReturn(['product-' . $entityId]);
-
-        $result = $this->factory->resolveCacheTags('/product/' . $entityId, $definition);
-
-        static::assertSame(['product-' . $entityId], $result);
-    }
-
-    #[TestDox('throws when path does not match expected route pattern')]
-    public function testExtractEntityIdThrowsOnInvalidPath(): void
-    {
-        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-        $definition->method('getCacheTags')->willReturn([]);
-
-        static::expectExceptionObject(ContentSystemException::invalidEntityPath(
-            'product',
-            '/completely/invalid',
-            '/product/{productId}'
-        ));
-
-        $this->factory->resolveCacheTags('/completely/invalid', $definition);
-    }
-
     #[TestDox('remaps EntityLoaderConfig property when parameter bindings define a placeholder')]
-    public function testTransformDataRequirements(): void
+    public function testRemapsEntityLoaderConfigPropertyWhenBindingIsDefined(): void
     {
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
@@ -213,7 +167,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     }
 
     #[TestDox('passes through non-entity-loader requirements unchanged when bindings are present')]
-    public function testTransformDataRequirementsPassthrough(): void
+    public function testPassesThroughNonEntityLoaderRequirementWhenBindingIsPresent(): void
     {
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
@@ -249,7 +203,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     }
 
     #[TestDox('skips remapping when binding placeholder is empty string')]
-    public function testTransformDataRequirementsEmptyBinding(): void
+    public function testSkipsRemappingWhenBindingPlaceholderIsEmpty(): void
     {
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
@@ -282,6 +236,50 @@ class EntityLayoutContextFactoryTest extends TestCase
         $config = $result->dataRequirements[0]->config;
         static::assertInstanceOf(EntityLoaderConfig::class, $config);
         static::assertSame('productId', $config->property);
+    }
+
+    #[TestDox('returns element ID from request query when present')]
+    public function testResolveTargetElementIdReturnsElementIdWhenPresent(): void
+    {
+        $request = new Request(['elementId' => 'elem-42']);
+
+        static::assertSame('elem-42', $this->factory->resolveTargetElementId($request));
+    }
+
+    #[TestDox('returns null when no element ID in request')]
+    public function testResolveTargetElementIdReturnsNullWhenMissing(): void
+    {
+        $request = new Request();
+
+        static::assertNull($this->factory->resolveTargetElementId($request));
+    }
+
+    #[TestDox('returns cache tags derived from entity ID in path')]
+    public function testResolveCacheTagsReturnsDerivedTagsFromPath(): void
+    {
+        $entityId = Uuid::randomHex();
+
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getCacheTags')->willReturn(['product-' . $entityId]);
+
+        $result = $this->factory->resolveCacheTags('/product/' . $entityId, $definition);
+
+        static::assertSame(['product-' . $entityId], $result);
+    }
+
+    #[TestDox('throws when path does not match expected route pattern')]
+    public function testResolveCacheTagsThrowsWhenPathDoesNotMatchRoutePattern(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getCacheTags')->willReturn([]);
+
+        $this->expectExceptionObject(ContentSystemException::invalidEntityPath(
+            'product',
+            '/completely/invalid',
+            '/product/{productId}'
+        ));
+
+        $this->factory->resolveCacheTags('/completely/invalid', $definition);
     }
 
     /**

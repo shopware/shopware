@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
@@ -29,7 +28,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(ResolutionConfigFieldSerializer::class)]
 class ResolutionConfigFieldSerializerTest extends TestCase
 {
@@ -116,7 +114,7 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         $invalidField = new TranslatedField('resolutionConfig');
         $kvPair = new KeyValuePair('resolution_config', null, false);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(StorageAware::class, TranslatedField::class)
         );
 
@@ -166,7 +164,7 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         $invalidField = new JsonField('resolution_config', 'resolutionConfig');
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(ResolutionConfigField::class, JsonField::class)
         );
 
@@ -178,7 +176,7 @@ class ResolutionConfigFieldSerializerTest extends TestCase
     {
         $field = $this->createResolutionConfigField();
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType('resolution', 'array', 'integer')
         );
 

@@ -7,18 +7,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(NavigationAliasResolver::class)]
 class NavigationAliasResolverTest extends TestCase
 {
-    #[DataProvider('knownAliasProvider')]
+    #[DataProvider('resolvesKnownAliasesProvider')]
     #[TestDox('resolves alias to correct category ID')]
     public function testResolvesKnownAliasesToCategoryIds(string $alias, string $expectedCategoryId): void
     {
@@ -72,7 +70,7 @@ class NavigationAliasResolverTest extends TestCase
     /**
      * @return \Generator<string, array{string, string}>
      */
-    public static function knownAliasProvider(): \Generator
+    public static function resolvesKnownAliasesProvider(): \Generator
     {
         yield 'main-navigation resolves to navigationCategoryId' => ['main-navigation', 'nav-cat-id'];
         yield 'service-navigation resolves to serviceCategoryId' => ['service-navigation', 'service-cat-id'];

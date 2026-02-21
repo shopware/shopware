@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -23,7 +22,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(CriteriaFilterListFieldSerializer::class)]
 class CriteriaFilterListFieldSerializerTest extends TestCase
 {
@@ -156,7 +154,7 @@ class CriteriaFilterListFieldSerializerTest extends TestCase
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
         $kvPair = new KeyValuePair('criteria_filters', null, false);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(CriteriaFilterListField::class, JsonField::class)
         );
 
@@ -175,7 +173,7 @@ class CriteriaFilterListFieldSerializerTest extends TestCase
         $filterSerializer = new CriteriaFilterFieldSerializer($passthroughValidator, $definitionRegistry);
         $serializer = new CriteriaFilterListFieldSerializer($passthroughValidator, $definitionRegistry, $filterSerializer);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType('criteriaFilters', 'Filter or array', 'string')
         );
 
@@ -187,7 +185,7 @@ class CriteriaFilterListFieldSerializerTest extends TestCase
     {
         $field = $this->createCriteriaFilterListField();
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::criteriaFilterFieldDecodeNotSupported()
         );
 

@@ -114,7 +114,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
         $kvPair = new KeyValuePair('criteria_filter', null, false);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(CriteriaFilterField::class, JsonField::class)
         );
 
@@ -127,7 +127,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         $field = $this->createCriteriaFilterField();
         $kvPair = new KeyValuePair('criteria_filter', 42, false);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType('criteriaFilter', 'Filter or array', 'integer')
         );
 
@@ -139,7 +139,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     {
         $field = $this->createCriteriaFilterField();
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::criteriaFilterFieldDecodeNotSupported()
         );
 
@@ -158,32 +158,19 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         static::assertSame($expected, $result);
     }
 
-    #[TestDox('deserializes equals filter array to EqualsFilter object')]
-    public function testDeserializeCriteriaFilterEqualsFilter(): void
+    /**
+     * @param array<string, mixed> $data
+     * @param class-string<Filter> $expectedClass
+     */
+    #[DataProvider('filterDeserializationProvider')]
+    #[TestDox('deserializes filter array to correct Filter object')]
+    public function testDeserializesCriteriaFilterFromArray(array $data, string $expectedClass): void
     {
         $definition = $this->createProductDefinition();
-        $data = ['type' => 'equals', 'field' => 'active', 'value' => true];
 
         $result = $this->serializer->deserializeCriteriaFilter($data, $definition);
 
-        static::assertInstanceOf(EqualsFilter::class, $result);
-    }
-
-    #[TestDox('deserializes multi filter array to MultiFilter object')]
-    public function testDeserializeCriteriaFilterMultiFilter(): void
-    {
-        $definition = $this->createProductDefinition();
-        $data = [
-            'type' => 'multi',
-            'operator' => 'AND',
-            'queries' => [
-                ['type' => 'equals', 'field' => 'active', 'value' => true],
-            ],
-        ];
-
-        $result = $this->serializer->deserializeCriteriaFilter($data, $definition);
-
-        static::assertInstanceOf(MultiFilter::class, $result);
+        static::assertInstanceOf($expectedClass, $result);
     }
 
     #[TestDox('throws when filter type is unsupported')]
@@ -217,6 +204,24 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         $this->expectExceptionMessage('Mapping failed, got 0 failure(s).');
 
         $this->serializer->deserializeCriteriaFilter($data, $definition);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, class-string<Filter>}>
+     */
+    public static function filterDeserializationProvider(): iterable
+    {
+        yield 'equals filter returns EqualsFilter' => [
+            ['type' => 'equals', 'field' => 'active', 'value' => true],
+            EqualsFilter::class,
+        ];
+
+        yield 'multi filter returns MultiFilter' => [
+            ['type' => 'multi', 'operator' => 'AND', 'queries' => [
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ]],
+            MultiFilter::class,
+        ];
     }
 
     /**

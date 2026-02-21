@@ -10,7 +10,6 @@ use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition;
 use Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Content\ContentSystem\Adapter\LandingPageSpecificationSource;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -19,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(LandingPageSpecificationSource::class)]
 class LandingPageSpecificationSourceTest extends TestCase
 {

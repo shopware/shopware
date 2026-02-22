@@ -36,6 +36,9 @@ final class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
     ) {
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDecorated(): AbstractContentDataLoaderConfig
     {
         throw new DecorationPatternException(self::class);

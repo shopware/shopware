@@ -30,12 +30,17 @@ class ContentDecomposedPage extends Struct
     ) {
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getApiAlias(): string
     {
         return 'content_decomposed_page';
     }
 
     /**
+     * @codeCoverageIgnore
+     *
      * Extracts data and assignments without skeleton structure.
      */
     public function getContentDataPage(): ContentDataPage

@@ -23,6 +23,9 @@ class ContentDataRouteResponse extends AbstractContentRouteResponse
         $this->dataPage = $dataPage;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getContentDataPage(): ContentDataPage
     {
         return $this->dataPage;

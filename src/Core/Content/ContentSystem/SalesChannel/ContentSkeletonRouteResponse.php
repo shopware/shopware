@@ -23,6 +23,9 @@ class ContentSkeletonRouteResponse extends AbstractContentRouteResponse
         $this->skeletonPage = $skeletonPage;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getContentSkeletonPage(): ContentSkeletonPage
     {
         return $this->skeletonPage;

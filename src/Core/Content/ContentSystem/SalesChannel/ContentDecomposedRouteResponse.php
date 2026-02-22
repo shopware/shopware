@@ -23,6 +23,9 @@ class ContentDecomposedRouteResponse extends AbstractContentRouteResponse
         $this->contentDecomposedPage = $contentDecomposedPage;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getContentDecomposedPage(): ContentDecomposedPage
     {
         return $this->contentDecomposedPage;

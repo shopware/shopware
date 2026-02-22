@@ -28,6 +28,9 @@ class ContentDataPage extends Struct
     ) {
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getApiAlias(): string
     {
         return 'content_data_page';

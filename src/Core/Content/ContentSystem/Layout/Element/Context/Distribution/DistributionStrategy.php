@@ -17,6 +17,8 @@ enum DistributionStrategy: string
     case Iterator = 'iterator';
 
     /**
+     * @codeCoverageIgnore
+     *
      * @return list<string>
      */
     public static function values(): array

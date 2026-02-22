@@ -23,6 +23,9 @@ class ContentRouteResponse extends AbstractContentRouteResponse
         $this->contentPage = $contentPage;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getContentPage(): ContentPage
     {
         return $this->contentPage;

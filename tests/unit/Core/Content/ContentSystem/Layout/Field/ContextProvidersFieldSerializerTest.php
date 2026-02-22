@@ -223,33 +223,6 @@ class ContextProvidersFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ContextProvider, array<string, mixed>}>
-     */
-    public static function serializeContextProviderProvider(): iterable
-    {
-        yield 'broadcast distribution config' => [
-            new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple()),
-            ['type' => 'single', 'distribution' => 'broadcast', 'consumer_alias' => null],
-        ];
-        yield 'indexed distribution config' => [
-            new ContextProvider(ContextType::Collection, IndexedDistributionConfig::simple()),
-            ['type' => 'collection', 'distribution' => 'indexed', 'consumer_alias' => null],
-        ];
-        yield 'iterator distribution config' => [
-            new ContextProvider(ContextType::Collection, IteratorDistributionConfig::simple()),
-            ['type' => 'collection', 'distribution' => 'iterator', 'consumer_alias' => null],
-        ];
-        yield 'keyed distribution config' => [
-            new ContextProvider(ContextType::Collection, KeyedDistributionConfig::simple()),
-            ['type' => 'collection', 'distribution' => 'keyed', 'key_property' => 'data_key', 'consumer_alias' => null],
-        ];
-        yield 'sliced distribution config' => [
-            new ContextProvider(ContextType::Collection, SlicedDistributionConfig::withSliceSize(5)),
-            ['type' => 'collection', 'distribution' => 'sliced', 'slice_size' => 5, 'consumer_alias' => null],
-        ];
-    }
-
-    /**
      * @param array<string, mixed> $expected
      */
     #[DataProvider('serializeContextProviderProvider')]
@@ -315,6 +288,128 @@ class ContextProvidersFieldSerializerTest extends TestCase
         static::assertInstanceOf(Type::class, $constraints[0]);
         static::assertInstanceOf(All::class, $constraints[1]);
         static::assertInstanceOf(NotBlank::class, $constraints[2]);
+    }
+
+    #[DataProvider('passesValidationForKnownDistributionProvider')]
+    #[TestDox('passes validation for known distribution type with no additional required fields')]
+    public function testValidationPassesForKnownDistributionType(
+        string $type,
+        string $distribution
+    ): void {
+        $field = $this->createContextProvidersField();
+        $constraints = $this->serializer->buildConstraints($field);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        $violations = $validator->validate(
+            ['product' => ['type' => $type, 'distribution' => $distribution]],
+            $constraints
+        );
+
+        static::assertCount(0, $violations);
+    }
+
+    #[TestDox('returns early when provider data has no distribution key')]
+    public function testValidationSkipsDistributionFieldsWhenDistributionKeyAbsent(): void
+    {
+        $field = $this->createContextProvidersField();
+        $constraints = $this->serializer->buildConstraints($field);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        $violations = $validator->validate(
+            ['product' => ['type' => 'single']],
+            $constraints
+        );
+
+        // Collection fires 1 violation (distribution is required); callback returns early without adding more
+        static::assertCount(1, $violations);
+    }
+
+    #[TestDox('returns early for unknown distribution type')]
+    public function testValidationSkipsDistributionFieldsForUnknownDistributionType(): void
+    {
+        $field = $this->createContextProvidersField();
+        $constraints = $this->serializer->buildConstraints($field);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        $violations = $validator->validate(
+            ['product' => ['type' => 'single', 'distribution' => 'unknown']],
+            $constraints
+        );
+
+        // Collection fires 1 violation (invalid Choice); callback returns early without adding more
+        static::assertCount(1, $violations);
+    }
+
+    #[TestDox('reports violations for keyed distribution missing key_property')]
+    public function testValidationReportsViolationForKeyedDistributionMissingKeyProperty(): void
+    {
+        $field = $this->createContextProvidersField();
+        $constraints = $this->serializer->buildConstraints($field);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        // Keyed distribution requires key_property — omitting it triggers validateDistributionFields violations
+        $violations = $validator->validate(
+            ['product' => ['type' => 'collection', 'distribution' => 'keyed']],
+            $constraints
+        );
+
+        static::assertGreaterThan(0, $violations->count());
+    }
+
+    #[TestDox('reports violations for sliced distribution missing slice_size')]
+    public function testValidationReportsViolationForSlicedDistributionMissingSliceSize(): void
+    {
+        $field = $this->createContextProvidersField();
+        $constraints = $this->serializer->buildConstraints($field);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        // Sliced distribution requires slice_size — omitting it triggers validateDistributionFields violations
+        $violations = $validator->validate(
+            ['items' => ['type' => 'collection', 'distribution' => 'sliced']],
+            $constraints
+        );
+
+        static::assertGreaterThan(0, $violations->count());
+    }
+
+    /**
+     * @return iterable<string, array{ContextProvider, array<string, mixed>}>
+     */
+    public static function serializeContextProviderProvider(): iterable
+    {
+        yield 'broadcast distribution config' => [
+            new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple()),
+            ['type' => 'single', 'distribution' => 'broadcast', 'consumer_alias' => null],
+        ];
+        yield 'indexed distribution config' => [
+            new ContextProvider(ContextType::Collection, IndexedDistributionConfig::simple()),
+            ['type' => 'collection', 'distribution' => 'indexed', 'consumer_alias' => null],
+        ];
+        yield 'iterator distribution config' => [
+            new ContextProvider(ContextType::Collection, IteratorDistributionConfig::simple()),
+            ['type' => 'collection', 'distribution' => 'iterator', 'consumer_alias' => null],
+        ];
+        yield 'keyed distribution config' => [
+            new ContextProvider(ContextType::Collection, KeyedDistributionConfig::simple()),
+            ['type' => 'collection', 'distribution' => 'keyed', 'key_property' => 'data_key', 'consumer_alias' => null],
+        ];
+        yield 'sliced distribution config' => [
+            new ContextProvider(ContextType::Collection, SlicedDistributionConfig::withSliceSize(5)),
+            ['type' => 'collection', 'distribution' => 'sliced', 'slice_size' => 5, 'consumer_alias' => null],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function passesValidationForKnownDistributionProvider(): iterable
+    {
+        yield 'broadcast distribution passes with no extra required fields' => ['single', 'broadcast'];
     }
 
     private function createContextProvidersField(): ContextProvidersField

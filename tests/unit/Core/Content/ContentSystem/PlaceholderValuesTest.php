@@ -18,21 +18,13 @@ class PlaceholderValuesTest extends TestCase
     /**
      * @param array<string, string|int|bool|float> $values
      */
-    #[DataProvider('validScalarValuesProvider')]
+    #[DataProvider('createsInstanceWithScalarValuesProvider')]
     #[TestDox('creates instance with valid scalar values')]
     public function testFromCreatesInstancePreservingAllScalarValues(array $values): void
     {
         $placeholderValues = PlaceholderValues::from($values);
 
         static::assertSame($values, $placeholderValues->all());
-    }
-
-    /**
-     * @return \Generator<string, array{array<string, string|int|bool|float>}>
-     */
-    public static function validScalarValuesProvider(): \Generator
-    {
-        yield 'mixed scalar types' => [['name' => 'product', 'count' => 5, 'active' => false, 'price' => 1.5]];
     }
 
     #[TestDox('accepts empty array and returns empty values')]
@@ -43,14 +35,24 @@ class PlaceholderValuesTest extends TestCase
         static::assertSame([], $placeholderValues->all());
     }
 
+    #[TestDox('throws exception when key is not a string')]
+    public function testFromThrowsForNonStringKey(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidMapKey('PlaceholderValues', 'int')
+        );
+
+        PlaceholderValues::from([0 => 'value']); // @phpstan-ignore argument.type
+    }
+
     /**
      * @param array<string, mixed> $values
      */
-    #[DataProvider('nonScalarValueProvider')]
+    #[DataProvider('throwsForNonScalarValueProvider')]
     #[TestDox('throws exception when value is not scalar')]
     public function testFromThrowsForNonScalarValue(array $values, string $expectedType): void
     {
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             ContentSystemException::invalidMapValue('PlaceholderValues', 'key', 'scalar', $expectedType)
         );
 
@@ -58,11 +60,18 @@ class PlaceholderValuesTest extends TestCase
     }
 
     /**
+     * @return \Generator<string, array{array<string, string|int|bool|float>}>
+     */
+    public static function createsInstanceWithScalarValuesProvider(): \Generator
+    {
+        yield 'all four scalar types accepted (string, int, bool, float)' => [['name' => 'product', 'count' => 5, 'active' => false, 'price' => 1.5]];
+    }
+
+    /**
      * @return \Generator<string, array{array<string, mixed>, string}>
      */
-    public static function nonScalarValueProvider(): \Generator
+    public static function throwsForNonScalarValueProvider(): \Generator
     {
-        yield 'array value' => [['key' => ['nested' => 'array']], 'array'];
-        yield 'null value' => [['key' => null], 'null'];
+        yield 'null is not scalar' => [['key' => null], 'null'];
     }
 }

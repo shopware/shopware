@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -13,65 +15,19 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\Inde
 #[CoversClass(IndexedDistributionConfig::class)]
 class IndexedDistributionConfigTest extends TestCase
 {
-    #[TestDox('assigns data to consumer at matching position')]
-    public function testDistributeAssignsDataByPosition(): void
+    /**
+     * @param list<array{component: string, properties: array<string, mixed>}> $consumers
+     * @param list<mixed> $expected
+     */
+    #[DataProvider('distributeProvider')]
+    #[TestDox('distributes indexed data: $description')]
+    public function testDistribute(string $description, mixed $data, array $consumers, array $expected): void
     {
         $config = IndexedDistributionConfig::simple();
 
-        $consumers = [
-            ['component' => 'product-box', 'properties' => []],
-            ['component' => 'product-badge', 'properties' => []],
-        ];
+        $result = $config->distribute($data, $consumers);
 
-        $result = $config->distribute(['alpha', 'beta'], $consumers);
-
-        static::assertSame('alpha', $result[0]);
-        static::assertSame('beta', $result[1]);
-    }
-
-    #[TestDox('returns null for consumers whose position exceeds the data length')]
-    public function testDistributeReturnsNullForConsumersExceedingDataLength(): void
-    {
-        $config = IndexedDistributionConfig::simple();
-
-        $consumers = [
-            ['component' => 'box', 'properties' => []],
-            ['component' => 'box', 'properties' => []],
-            ['component' => 'box', 'properties' => []],
-        ];
-
-        $result = $config->distribute(['only-one'], $consumers);
-
-        static::assertSame('only-one', $result[0]);
-        static::assertNull($result[1]);
-        static::assertNull($result[2]);
-    }
-
-    #[TestDox('returns null for all consumers when data is not an array')]
-    public function testDistributeReturnsNullForAllConsumersWhenDataIsNotArray(): void
-    {
-        $config = IndexedDistributionConfig::simple();
-
-        $consumers = [
-            ['component' => 'box', 'properties' => []],
-            ['component' => 'box', 'properties' => []],
-        ];
-
-        $result = $config->distribute('not-an-array', $consumers);
-
-        static::assertCount(2, $result);
-        static::assertNull($result[0]);
-        static::assertNull($result[1]);
-    }
-
-    #[TestDox('returns an empty array when no consumers are given')]
-    public function testDistributeWithEmptyConsumersReturnsEmptyArray(): void
-    {
-        $config = IndexedDistributionConfig::simple();
-
-        $result = $config->distribute(['item-a', 'item-b'], []);
-
-        static::assertSame([], $result);
+        static::assertSame($expected, $result);
     }
 
     #[TestDox('round-trips through fromArray and toArray without data loss')]
@@ -85,5 +41,68 @@ class IndexedDistributionConfigTest extends TestCase
         $config = IndexedDistributionConfig::fromArray($original);
 
         static::assertSame($original, $config->toArray());
+    }
+
+    #[TestDox('creates config with given alias via aliased factory')]
+    public function testAliasedFactoryCreatesConfigWithAlias(): void
+    {
+        $config = IndexedDistributionConfig::aliased('my-alias');
+
+        static::assertSame('my-alias', $config->getConsumerAlias());
+    }
+
+    #[TestDox('returns constraint mapping with consumer_alias string type constraint')]
+    public function testBuildConstraintsReturnsExpectedConstraints(): void
+    {
+        $constraints = IndexedDistributionConfig::buildConstraints();
+
+        static::assertArrayHasKey('consumer_alias', $constraints);
+        static::assertCount(1, $constraints['consumer_alias']);
+        static::assertInstanceOf(Type::class, $constraints['consumer_alias'][0]);
+        static::assertSame('string', $constraints['consumer_alias'][0]->type);
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed, list<array{component: string, properties: array<string, mixed>}>, list<mixed>}>
+     */
+    public static function distributeProvider(): iterable
+    {
+        yield 'assigns data to consumer at matching position' => [
+            'assigns data to consumer at matching position',
+            ['alpha', 'beta'],
+            [
+                ['component' => 'product-box', 'properties' => []],
+                ['component' => 'product-badge', 'properties' => []],
+            ],
+            ['alpha', 'beta'],
+        ];
+
+        yield 'returns null for consumers whose position exceeds the data length' => [
+            'returns null for consumers whose position exceeds the data length',
+            ['only-one'],
+            [
+                ['component' => 'box', 'properties' => []],
+                ['component' => 'box', 'properties' => []],
+                ['component' => 'box', 'properties' => []],
+            ],
+            ['only-one', null, null],
+        ];
+
+        yield 'returns null for all consumers when data is not an array' => [
+            'returns null for all consumers when data is not an array',
+            'not-an-array',
+            [
+                ['component' => 'box', 'properties' => []],
+                ['component' => 'box', 'properties' => []],
+            ],
+            [null, null],
+        ];
+
+        yield 'returns empty array when no consumers are given' => [
+            'returns empty array when no consumers are given',
+            ['item-a', 'item-b'],
+            [],
+            [],
+        ];
     }
 }

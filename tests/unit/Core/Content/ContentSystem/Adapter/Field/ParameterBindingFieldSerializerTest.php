@@ -12,6 +12,7 @@ use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBindin
 use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ResolutionConfig;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -91,6 +92,22 @@ class ParameterBindingFieldSerializerTest extends TestCase
 
         static::assertArrayHasKey('parameter_binding', $result);
         static::assertSame(Json::encode($arrayValue), $result['parameter_binding']);
+    }
+
+    #[TestDox('encodes array value when field is marked as required')]
+    public function testEncodeWithRequiredField(): void
+    {
+        $field = new ParameterBindingField('parameter_binding', 'parameterBinding');
+        $field->addFlags(new Required());
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $arrayValue = ['placeholder' => 'seoUrl'];
+        $kvPair = new KeyValuePair('parameter_binding', $arrayValue, false);
+
+        $result = iterator_to_array($this->serializer->encode($field, $this->existence, $kvPair, $this->parameters));
+
+        static::assertArrayHasKey('parameter_binding', $result);
+        static::assertIsString($result['parameter_binding']);
     }
 
     #[TestDox('encodes null value as null')]
@@ -180,18 +197,6 @@ class ParameterBindingFieldSerializerTest extends TestCase
         $this->serializer->decode($field, 42);
     }
 
-    #[TestDox('serializes ParameterBinding without placeholder or resolution')]
-    public function testSerializeParameterBindingWithoutPlaceholderOrResolution(): void
-    {
-        $binding = new ParameterBinding('seoUrl');
-
-        $result = $this->serializer->serializeParameterBinding($binding);
-
-        static::assertArrayNotHasKey('placeholder', $result);
-        static::assertArrayNotHasKey('resolution', $result);
-        static::assertSame([], $result);
-    }
-
     #[TestDox('serializes ParameterBinding with placeholder')]
     public function testSerializeParameterBindingWithPlaceholder(): void
     {
@@ -204,7 +209,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
         static::assertArrayNotHasKey('resolution', $result);
     }
 
-    #[TestDox('serializes ParameterBinding with resolution by delegating to ResolutionConfigFieldSerializer')]
+    #[TestDox('serializes ParameterBinding with resolution config included')]
     public function testSerializeParameterBindingWithResolution(): void
     {
         $resolution = new ResolutionConfig('product', 'productNumber');
@@ -227,6 +232,18 @@ class ParameterBindingFieldSerializerTest extends TestCase
         static::assertArrayHasKey('resolution', $result);
         static::assertSame('seoUrl', $result['placeholder']);
         static::assertSame($expectedResolutionData, $result['resolution']);
+    }
+
+    #[TestDox('serializes ParameterBinding without placeholder or resolution')]
+    public function testSerializeParameterBindingWithoutPlaceholderOrResolution(): void
+    {
+        $binding = new ParameterBinding('seoUrl');
+
+        $result = $this->serializer->serializeParameterBinding($binding);
+
+        static::assertArrayNotHasKey('placeholder', $result);
+        static::assertArrayNotHasKey('resolution', $result);
+        static::assertSame([], $result);
     }
 
     #[TestDox('deserializes array data to ParameterBinding without resolution')]
@@ -253,7 +270,7 @@ class ParameterBindingFieldSerializerTest extends TestCase
         static::assertNull($result->resolution);
     }
 
-    #[TestDox('deserializes array data with resolution by delegating to ResolutionConfigFieldSerializer')]
+    #[TestDox('deserializes array data to ParameterBinding with resolution when resolution data present')]
     public function testDeserializeParameterBindingWithResolution(): void
     {
         $expectedResolution = new ResolutionConfig('product', 'productNumber');

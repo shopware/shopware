@@ -99,54 +99,6 @@ class ElementSlotsFieldSerializerTest extends TestCase
         static::assertSame('text', $decoded['default'][0]['component']);
     }
 
-    #[TestDox('encodes null value as null')]
-    public function testEncodeWithNullYieldsNull(): void
-    {
-        $field = $this->createElementSlotsField();
-        $kvPair = new KeyValuePair('slots', null, false);
-
-        $result = iterator_to_array(
-            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
-        );
-
-        static::assertArrayHasKey('slots', $result);
-        static::assertNull($result['slots']);
-    }
-
-    #[TestDox('encodes empty slots array to JSON empty object')]
-    public function testEncodeWithEmptySlotArrayYieldsEmptyJsonObject(): void
-    {
-        $field = $this->createElementSlotsField();
-        $kvPair = new KeyValuePair('slots', [], false);
-
-        $result = iterator_to_array(
-            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
-        );
-
-        static::assertArrayHasKey('slots', $result);
-        static::assertIsString($result['slots']);
-
-        $decoded = json_decode($result['slots'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame([], $decoded);
-    }
-
-    #[TestDox('throws exception when encode receives wrong field type')]
-    public function testEncodeThrowsOnNonElementSlotsField(): void
-    {
-        $invalidField = new JsonField('slots', 'slots');
-        $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
-
-        $kvPair = new KeyValuePair('slots', null, false);
-
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldType(ElementSlotsField::class, JsonField::class)
-        );
-
-        iterator_to_array(
-            $this->serializer->encode($invalidField, $this->existence, $kvPair, $this->parameters)
-        );
-    }
-
     #[TestDox('decodes JSON string to SlotContent array')]
     public function testDecodeWithJsonStringReturnsSlotContentArray(): void
     {
@@ -197,52 +149,6 @@ class ElementSlotsFieldSerializerTest extends TestCase
         static::assertInstanceOf(SlotContent::class, $result['main']);
     }
 
-    #[TestDox('decodes empty slots to empty array')]
-    public function testDecodeWithEmptyArrayReturnsEmptyArray(): void
-    {
-        $field = $this->createElementSlotsField();
-
-        $result = $this->serializer->decode($field, []);
-
-        static::assertIsArray($result);
-        static::assertSame([], $result);
-    }
-
-    #[TestDox('decodes null to null')]
-    public function testDecodeWithNullReturnsNull(): void
-    {
-        $field = $this->createElementSlotsField();
-
-        $result = $this->serializer->decode($field, null);
-
-        static::assertNull($result);
-    }
-
-    #[TestDox('throws exception when decode receives wrong field type')]
-    public function testDecodeThrowsOnNonElementSlotsField(): void
-    {
-        $invalidField = new JsonField('slots', 'slots');
-        $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
-
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldType(ElementSlotsField::class, JsonField::class)
-        );
-
-        $this->serializer->decode($invalidField, ['some' => 'data']);
-    }
-
-    #[TestDox('throws exception when decode receives non-string non-array non-null value')]
-    public function testDecodeThrowsOnInvalidValueType(): void
-    {
-        $field = $this->createElementSlotsField();
-
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('slots', 'array', 'integer')
-        );
-
-        $this->serializer->decode($field, 42);
-    }
-
     #[TestDox('serializes slots map with SlotContent to nested array')]
     public function testSerializeSlotsWithSlotContentReturnsNestedArray(): void
     {
@@ -272,22 +178,29 @@ class ElementSlotsFieldSerializerTest extends TestCase
         static::assertCount(0, $result['sidebar']);
     }
 
-    #[TestDox('throws exception when serializeSlots receives non-SlotContent value')]
-    public function testSerializeSlotsThrowsOnNonSlotContentValue(): void
+    #[TestDox('passes validation when slot elements satisfy constraints')]
+    public function testBuildConstraintsValidatesElementDataUsingElementSerializer(): void
     {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType(
-                'slots[broken]',
-                SlotContent::class,
-                'string'
-            )
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+
+        $elementSerializer = static::createStub(ContentElementFieldSerializer::class);
+        $elementSerializer->method('buildConstraints')->willReturn([new Type('array')]);
+
+        $serializer = new ElementSlotsFieldSerializer($validator, $definitionRegistry, $elementSerializer);
+        $field = $this->createElementSlotsField();
+        $constraints = $serializer->buildConstraints($field);
+
+        // Slots map: array<string, list<ContentElementData>> — All constraint iterates over slot values
+        $violations = $validator->validate(
+            ['default' => [['id' => 'elem1', 'component' => 'text', 'properties' => []]]],
+            $constraints
         );
 
-        // @phpstan-ignore-next-line intentional wrong type for test
-        $this->serializer->serializeSlots(['broken' => 'not-a-slot-content']);
+        static::assertCount(0, $violations);
     }
 
-    #[TestDox('returns Type array, All with Callback constraints without Required flag')]
+    #[TestDox('returns two-level constraints for slot and element validation without Required flag')]
     public function testBuildConstraintsWithoutRequiredFlagReturnsExpectedStructure(): void
     {
         $field = $this->createElementSlotsField();
@@ -306,7 +219,7 @@ class ElementSlotsFieldSerializerTest extends TestCase
         static::assertInstanceOf(Callback::class, $allConstraint->constraints[1]);
     }
 
-    #[TestDox('appends NotBlank constraint when field has Required flag')]
+    #[TestDox('adds mandatory field constraint when field has Required flag')]
     public function testBuildConstraintsWithRequiredFlagAddsNotBlank(): void
     {
         $field = $this->createElementSlotsFieldWithRequired();
@@ -317,6 +230,171 @@ class ElementSlotsFieldSerializerTest extends TestCase
         static::assertInstanceOf(Type::class, $constraints[0]);
         static::assertInstanceOf(All::class, $constraints[1]);
         static::assertInstanceOf(NotBlank::class, $constraints[2]);
+    }
+
+    #[TestDox('encodes null value as null')]
+    public function testEncodeWithNullYieldsNull(): void
+    {
+        $field = $this->createElementSlotsField();
+        $kvPair = new KeyValuePair('slots', null, false);
+
+        $result = iterator_to_array(
+            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
+        );
+
+        static::assertArrayHasKey('slots', $result);
+        static::assertNull($result['slots']);
+    }
+
+    #[TestDox('encodes empty slots array to JSON empty object')]
+    public function testEncodeWithEmptySlotArrayYieldsEmptyJsonObject(): void
+    {
+        $field = $this->createElementSlotsField();
+        $kvPair = new KeyValuePair('slots', [], false);
+
+        $result = iterator_to_array(
+            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)
+        );
+
+        static::assertArrayHasKey('slots', $result);
+        static::assertIsString($result['slots']);
+
+        $decoded = json_decode($result['slots'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([], $decoded);
+    }
+
+    #[TestDox('decodes empty slots to empty array')]
+    public function testDecodeWithEmptyArrayReturnsEmptyArray(): void
+    {
+        $field = $this->createElementSlotsField();
+
+        $result = $this->serializer->decode($field, []);
+
+        static::assertIsArray($result);
+        static::assertSame([], $result);
+    }
+
+    #[TestDox('decodes null to null')]
+    public function testDecodeWithNullReturnsNull(): void
+    {
+        $field = $this->createElementSlotsField();
+
+        $result = $this->serializer->decode($field, null);
+
+        static::assertNull($result);
+    }
+
+    #[TestDox('decodes slots skipping non-array elements within a slot list')]
+    public function testDecodeSkipsNonArrayElementsWithinSlotList(): void
+    {
+        $field = $this->createElementSlotsField();
+
+        $decodedElement = new ContentElement('elem-1', 'text');
+        $this->elementSerializer->method('decodeElement')->willReturn($decodedElement);
+
+        // Slot list with a mix of valid array element and non-array string
+        $result = $this->serializer->decode($field, [
+            'default' => ['not-an-array', ['id' => 'elem-1', 'component' => 'text', 'properties' => []]],
+        ]);
+
+        static::assertIsArray($result);
+        static::assertArrayHasKey('default', $result);
+        // Only the valid array element is decoded; the string is skipped
+        static::assertCount(1, $result['default']);
+    }
+
+    #[TestDox('skips slot validation when slot value is not an array')]
+    public function testSkipsElementValidationWhenSlotValueIsNotArray(): void
+    {
+        $field = $this->createElementSlotsField();
+        $constraints = $this->serializer->buildConstraints($field);
+
+        // The inner Type('array') constraint produces exactly 1 violation for the string slot value.
+        // validateSlotElements returns early without adding further violations.
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $violations = $validator->validate(['default' => 'not-an-array'], $constraints);
+
+        static::assertCount(1, $violations);
+    }
+
+    #[TestDox('throws exception when encode receives wrong field type')]
+    public function testEncodeThrowsOnNonElementSlotsField(): void
+    {
+        $invalidField = new JsonField('slots', 'slots');
+        $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $kvPair = new KeyValuePair('slots', null, false);
+
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldType(ElementSlotsField::class, JsonField::class)
+        );
+
+        iterator_to_array(
+            $this->serializer->encode($invalidField, $this->existence, $kvPair, $this->parameters)
+        );
+    }
+
+    #[TestDox('throws exception when decode receives wrong field type')]
+    public function testDecodeThrowsOnNonElementSlotsField(): void
+    {
+        $invalidField = new JsonField('slots', 'slots');
+        $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldType(ElementSlotsField::class, JsonField::class)
+        );
+
+        $this->serializer->decode($invalidField, ['some' => 'data']);
+    }
+
+    #[TestDox('throws exception when decode receives non-string non-array non-null value')]
+    public function testDecodeThrowsOnInvalidValueType(): void
+    {
+        $field = $this->createElementSlotsField();
+
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('slots', 'array', 'integer')
+        );
+
+        $this->serializer->decode($field, 42);
+    }
+
+    #[TestDox('throws exception when serializeSlots receives non-SlotContent value')]
+    public function testSerializeSlotsThrowsOnNonSlotContentValue(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType(
+                'slots[broken]',
+                SlotContent::class,
+                'string'
+            )
+        );
+
+        // @phpstan-ignore-next-line intentional wrong type for test
+        $this->serializer->serializeSlots(['broken' => 'not-a-slot-content']);
+    }
+
+    #[TestDox('reports validation violations when element data is invalid')]
+    public function testReportsViolationsWhenSlotElementDataIsInvalid(): void
+    {
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+
+        // Use a constraint that will fail to simulate invalid element data
+        $elementSerializer = static::createStub(ContentElementFieldSerializer::class);
+        $elementSerializer->method('buildConstraints')->willReturn([new NotBlank()]);
+
+        $serializer = new ElementSlotsFieldSerializer($validator, $definitionRegistry, $elementSerializer);
+        $field = $this->createElementSlotsField();
+        $constraints = $serializer->buildConstraints($field);
+
+        // Slot with an empty element (NotBlank fails on empty arrays)
+        $violations = $validator->validate(
+            ['default' => [[]]],
+            $constraints
+        );
+
+        static::assertCount(1, $violations);
     }
 
     private function createElementSlotsField(): ElementSlotsField

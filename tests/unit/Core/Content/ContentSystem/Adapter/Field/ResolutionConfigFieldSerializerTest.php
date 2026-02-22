@@ -12,6 +12,7 @@ use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ResolutionConfi
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -93,6 +94,22 @@ class ResolutionConfigFieldSerializerTest extends TestCase
 
         static::assertArrayHasKey('resolution_config', $result);
         static::assertSame(Json::encode($arrayValue), $result['resolution_config']);
+    }
+
+    #[TestDox('encodes array value when field is marked as required')]
+    public function testEncodeWithRequiredField(): void
+    {
+        $field = new ResolutionConfigField('resolution_config', 'resolutionConfig');
+        $field->addFlags(new Required());
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $arrayValue = ['entity' => 'product', 'match_field' => 'id'];
+        $kvPair = new KeyValuePair('resolution_config', $arrayValue, false);
+
+        $result = iterator_to_array($this->serializer->encode($field, $this->existence, $kvPair, $this->parameters));
+
+        static::assertArrayHasKey('resolution_config', $result);
+        static::assertIsString($result['resolution_config']);
     }
 
     #[TestDox('encodes null value as null')]
@@ -215,6 +232,20 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         static::assertSame('stock', $result['constraints'][1]['field']);
     }
 
+    #[TestDox('serializes ResolutionConfig with array constraints passed through directly')]
+    public function testSerializeResolutionConfigWithArrayConstraints(): void
+    {
+        $arrayConstraint = ['type' => 'equals', 'field' => 'active', 'value' => true];
+        // @phpstan-ignore argument.type (intentionally passing array constraint to test the is_array passthrough branch)
+        $config = new ResolutionConfig('product', 'productNumber', [$arrayConstraint]);
+
+        $result = $this->serializer->serializeResolutionConfig($config);
+
+        static::assertArrayHasKey('constraints', $result);
+        static::assertCount(1, $result['constraints']);
+        static::assertSame($arrayConstraint, $result['constraints'][0]);
+    }
+
     #[TestDox('deserializes array data to ResolutionConfig without constraints')]
     public function testDeserializeResolutionConfigWithoutConstraints(): void
     {
@@ -227,40 +258,10 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         static::assertSame([], $result->constraints);
     }
 
-    #[TestDox('deserializes array data using default match_field when missing')]
-    public function testDeserializeResolutionConfigUsesDefaultMatchField(): void
-    {
-        $data = ['entity' => 'product'];
-
-        $result = $this->serializer->deserializeResolutionConfig($data);
-
-        static::assertSame('product', $result->entity);
-        static::assertSame('id', $result->matchField);
-    }
-
     #[TestDox('deserializes array data with constraints using entity definition')]
     public function testDeserializeResolutionConfigWithConstraints(): void
     {
-        $definition = new class extends EntityDefinition {
-            public function getEntityName(): string
-            {
-                return 'product';
-            }
-
-            protected function defineFields(): FieldCollection
-            {
-                return new FieldCollection([]);
-            }
-        };
-
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $definitionRegistry
-            ->method('getByEntityName')
-            ->willReturn($definition);
-
-        $filterSerializer = new CriteriaFilterFieldSerializer($validator, $definitionRegistry);
-        $serializer = new ResolutionConfigFieldSerializer($validator, $definitionRegistry, $filterSerializer);
+        $serializer = $this->createSerializerWithEntityDefinition();
 
         $data = [
             'entity' => 'product',
@@ -276,6 +277,37 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         static::assertSame('productNumber', $result->matchField);
         static::assertCount(1, $result->constraints);
         static::assertInstanceOf(EqualsFilter::class, $result->constraints[0]);
+    }
+
+    #[TestDox('deserializes array data skipping non-array constraint entries')]
+    public function testDeserializeResolutionConfigSkipsNonArrayConstraints(): void
+    {
+        $serializer = $this->createSerializerWithEntityDefinition();
+
+        $data = [
+            'entity' => 'product',
+            'match_field' => 'id',
+            'constraints' => [
+                'not-an-array',
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ],
+        ];
+
+        $result = $serializer->deserializeResolutionConfig($data);
+
+        static::assertCount(1, $result->constraints);
+        static::assertInstanceOf(EqualsFilter::class, $result->constraints[0]);
+    }
+
+    #[TestDox('deserializes array data using default match_field when missing')]
+    public function testDeserializeResolutionConfigUsesDefaultMatchField(): void
+    {
+        $data = ['entity' => 'product'];
+
+        $result = $this->serializer->deserializeResolutionConfig($data);
+
+        static::assertSame('product', $result->entity);
+        static::assertSame('id', $result->matchField);
     }
 
     #[TestDox('deserializes array data skipping constraints when entity is empty')]
@@ -295,8 +327,7 @@ class ResolutionConfigFieldSerializerTest extends TestCase
         static::assertSame([], $result->constraints);
     }
 
-    #[TestDox('deserializes array data skipping non-array constraint entries')]
-    public function testDeserializeResolutionConfigSkipsNonArrayConstraints(): void
+    private function createSerializerWithEntityDefinition(): ResolutionConfigFieldSerializer
     {
         $definition = new class extends EntityDefinition {
             public function getEntityName(): string
@@ -317,21 +348,8 @@ class ResolutionConfigFieldSerializerTest extends TestCase
             ->willReturn($definition);
 
         $filterSerializer = new CriteriaFilterFieldSerializer($validator, $definitionRegistry);
-        $serializer = new ResolutionConfigFieldSerializer($validator, $definitionRegistry, $filterSerializer);
 
-        $data = [
-            'entity' => 'product',
-            'match_field' => 'id',
-            'constraints' => [
-                'not-an-array',
-                ['type' => 'equals', 'field' => 'active', 'value' => true],
-            ],
-        ];
-
-        $result = $serializer->deserializeResolutionConfig($data);
-
-        static::assertCount(1, $result->constraints);
-        static::assertInstanceOf(EqualsFilter::class, $result->constraints[0]);
+        return new ResolutionConfigFieldSerializer($validator, $definitionRegistry, $filterSerializer);
     }
 
     private function createResolutionConfigField(): ResolutionConfigField

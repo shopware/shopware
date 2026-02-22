@@ -11,6 +11,7 @@ use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsFieldSeri
 use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -102,6 +103,22 @@ class ParameterBindingsFieldSerializerTest extends TestCase
         $decoded = json_decode($result['parameter_bindings'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('productId', $decoded['productId']['placeholder']);
         static::assertSame('rawKey', $decoded['rawKey']['placeholder']);
+    }
+
+    #[TestDox('encodes array value when field is marked as required')]
+    public function testEncodeWithRequiredField(): void
+    {
+        $field = new ParameterBindingsField('parameter_bindings', 'parameterBindings');
+        $field->addFlags(new Required());
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $arrayValue = ['seoUrl' => ['placeholder' => 'seoUrl']];
+        $kvPair = new KeyValuePair('parameter_bindings', $arrayValue, false);
+
+        $result = iterator_to_array($this->serializer->encode($field, $this->existence, $kvPair, $this->parameters));
+
+        static::assertArrayHasKey('parameter_bindings', $result);
+        static::assertIsString($result['parameter_bindings']);
     }
 
     #[TestDox('encodes null value as null')]

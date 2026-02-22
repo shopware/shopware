@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -55,25 +56,15 @@ class BroadcastDistributionConfigTest extends TestCase
         static::assertSame([], $result);
     }
 
-    #[TestDox('round-trips through fromArray and toArray without data loss')]
+    #[TestDox('serializes to array and deserializes back without data loss')]
     public function testFromArrayToArrayRoundtrip(): void
     {
         $original = BroadcastDistributionConfig::aliased('round-trip-alias');
 
         $restored = BroadcastDistributionConfig::fromArray($original->toArray());
 
+        static::assertSame('round-trip-alias', $restored->getConsumerAlias());
         static::assertSame($original->toArray(), $restored->toArray());
-    }
-
-    #[TestDox('creates config with consumer alias from array data')]
-    public function testFromArrayWithConsumerAlias(): void
-    {
-        $config = BroadcastDistributionConfig::fromArray([
-            'distribution' => 'broadcast',
-            'consumer_alias' => 'some-alias',
-        ]);
-
-        static::assertSame('some-alias', $config->getConsumerAlias());
     }
 
     #[TestDox('creates config with null alias when consumer_alias is absent from array data')]
@@ -84,5 +75,27 @@ class BroadcastDistributionConfigTest extends TestCase
         ]);
 
         static::assertNull($config->getConsumerAlias());
+    }
+
+    #[TestDox('creates config with null alias when consumer_alias is non-string in array data')]
+    public function testFromArrayWithNonStringConsumerAlias(): void
+    {
+        $config = BroadcastDistributionConfig::fromArray([
+            'distribution' => 'broadcast',
+            'consumer_alias' => 42,
+        ]);
+
+        static::assertNull($config->getConsumerAlias());
+    }
+
+    #[TestDox('returns constraint mapping with consumer_alias string type constraint')]
+    public function testBuildConstraintsReturnsExpectedConstraints(): void
+    {
+        $constraints = BroadcastDistributionConfig::buildConstraints();
+
+        static::assertArrayHasKey('consumer_alias', $constraints);
+        static::assertCount(1, $constraints['consumer_alias']);
+        static::assertInstanceOf(Type::class, $constraints['consumer_alias'][0]);
+        static::assertSame('string', $constraints['consumer_alias'][0]->type);
     }
 }

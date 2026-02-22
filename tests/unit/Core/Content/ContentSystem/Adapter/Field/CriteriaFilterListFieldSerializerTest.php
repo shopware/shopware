@@ -10,6 +10,7 @@ use Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterListField;
 use Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterListFieldSerializer;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -123,6 +124,22 @@ class CriteriaFilterListFieldSerializerTest extends TestCase
         static::assertSame(['type' => 'equals', 'field' => 'stock', 'value' => 0], $decoded[1]);
     }
 
+    #[TestDox('encodes list value when field is marked as required')]
+    public function testEncodeWithRequiredField(): void
+    {
+        $field = new CriteriaFilterListField('criteria_filters', 'criteriaFilters');
+        $field->addFlags(new Required());
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $arrayValue = [['type' => 'equals', 'field' => 'active', 'value' => true]];
+        $kvPair = new KeyValuePair('criteria_filters', $arrayValue, false);
+
+        $result = iterator_to_array($this->serializer->encode($field, $this->existence, $kvPair, $this->parameters));
+
+        static::assertArrayHasKey('criteria_filters', $result);
+        static::assertIsString($result['criteria_filters']);
+    }
+
     #[TestDox('encodes null value as null')]
     public function testEncodeWithNull(): void
     {
@@ -167,20 +184,16 @@ class CriteriaFilterListFieldSerializerTest extends TestCase
         $field = $this->createCriteriaFilterListField();
         $kvPair = new KeyValuePair('criteria_filters', ['not-an-array-or-filter'], false);
 
-        $passthroughValidator = static::createStub(ValidatorInterface::class);
-        $passthroughValidator->method('validate')->willReturn(new ConstraintViolationList());
-        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $filterSerializer = new CriteriaFilterFieldSerializer($passthroughValidator, $definitionRegistry);
-        $serializer = new CriteriaFilterListFieldSerializer($passthroughValidator, $definitionRegistry, $filterSerializer);
-
         $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType('criteriaFilters', 'Filter or array', 'string')
         );
 
-        iterator_to_array($serializer->encode($field, $this->existence, $kvPair, $this->parameters));
+        iterator_to_array(
+            $this->serializerWithPassthroughValidator->encode($field, $this->existence, $kvPair, $this->parameters)
+        );
     }
 
-    #[TestDox('decode always throws unsupported operation exception')]
+    #[TestDox('throws unsupported operation exception when decode is called')]
     public function testDecodeAlwaysThrows(): void
     {
         $field = $this->createCriteriaFilterListField();

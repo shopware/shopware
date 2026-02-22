@@ -12,7 +12,6 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EnterTrackingVisitor;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\OrderTrackingVisitor;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestStruct;
@@ -58,6 +57,14 @@ class ContentElementTest extends TestCase
         static::assertSame('hello', $element->getProperty('myScalar'));
     }
 
+    #[TestDox('returns null when property key does not exist')]
+    public function testGetPropertyReturnsNullForMissingKey(): void
+    {
+        $element = ContentElementBuilder::create('test-component')->build();
+
+        static::assertNull($element->getProperty('nonexistent'));
+    }
+
     #[TestDox('merges struct and non-struct properties into a single array')]
     public function testGetPropertiesReturnsMergedStructAndNonStructMap(): void
     {
@@ -89,17 +96,7 @@ class ContentElementTest extends TestCase
         static::assertSame('replacement', $element->getProperty('new'));
     }
 
-    /**
-     * @return \Generator<string, array{string, bool}>
-     */
-    public static function hasPropertyProvider(): \Generator
-    {
-        yield 'existing scalar property' => ['label', true];
-        yield 'existing struct property' => ['myStruct', true];
-        yield 'missing property' => ['nonexistent', false];
-    }
-
-    #[DataProvider('hasPropertyProvider')]
+    #[DataProvider('returnsCorrectBooleanForHasPropertyProvider')]
     #[TestDox('returns correct boolean for hasProperty when key is $key')]
     public function testHasPropertyReturnsTrueForExistingAndFalseForMissing(string $key, bool $expected): void
     {
@@ -160,26 +157,8 @@ class ContentElementTest extends TestCase
         static::assertSame([], $collected);
     }
 
-    #[TestDox('calls enter before children and leave after children in depth-first order')]
-    public function testTraverseCallsEnterAndLeaveInDepthFirstOrder(): void
-    {
-        $child = ContentElementBuilder::create('child')->build();
-        $parent = ContentElementBuilder::create('parent')
-            ->withSlot('default', [$child])
-            ->build();
-
-        $visitor = new OrderTrackingVisitor();
-
-        $parent->traverse($visitor);
-
-        static::assertSame(
-            ['enter:parent', 'enter:child', 'leave:child', 'leave:parent'],
-            $visitor->log
-        );
-    }
-
-    #[TestDox('visits all nested children recursively in depth-first order')]
-    public function testTraverseVisitsNestedChildrenRecursively(): void
+    #[TestDox('traverses tree depth-first calling enter before children and leave after')]
+    public function testTraverseCallsVisitorInDepthFirstOrder(): void
     {
         $grandchild = ContentElementBuilder::create('grandchild')->build();
         $child = ContentElementBuilder::create('child')
@@ -189,23 +168,14 @@ class ContentElementTest extends TestCase
             ->withSlot('default', [$child])
             ->build();
 
-        $visitor = new EnterTrackingVisitor();
+        $visitor = new OrderTrackingVisitor();
 
         $parent->traverse($visitor);
 
-        static::assertSame(['parent', 'child', 'grandchild'], $visitor->visited);
-    }
-
-    /**
-     * @return \Generator<string, array{string, string, bool}>
-     */
-    public static function acceptsContextProvider(): \Generator
-    {
-        yield 'exact key match returns true' => ['product', 'product', true];
-        yield 'prefix path match returns true' => ['product', 'product.cover', true];
-        yield 'deep prefix path match returns true' => ['product', 'product.manufacturer.name', true];
-        yield 'unrelated key returns false' => ['product', 'category', false];
-        yield 'partial prefix without dot returns false' => ['product', 'productName', false];
+        static::assertSame(
+            ['enter:parent', 'enter:child', 'enter:grandchild', 'leave:grandchild', 'leave:child', 'leave:parent'],
+            $visitor->log
+        );
     }
 
     #[DataProvider('acceptsContextProvider')]
@@ -312,6 +282,27 @@ class ContentElementTest extends TestCase
         static::assertArrayHasKey('properties', $data);
         static::assertSame($struct, $data['properties']['myStruct']);
         static::assertSame('hello', $data['properties']['title']);
+    }
+
+    /**
+     * @return \Generator<string, array{string, bool}>
+     */
+    public static function returnsCorrectBooleanForHasPropertyProvider(): \Generator
+    {
+        yield 'existing scalar property' => ['label', true];
+        yield 'existing struct property' => ['myStruct', true];
+        yield 'missing property' => ['nonexistent', false];
+    }
+
+    /**
+     * @return \Generator<string, array{string, string, bool}>
+     */
+    public static function acceptsContextProvider(): \Generator
+    {
+        yield 'exact key match returns true' => ['product', 'product', true];
+        yield 'prefix path match returns true' => ['product', 'product.cover', true];
+        yield 'unrelated key returns false' => ['product', 'category', false];
+        yield 'partial prefix without dot returns false' => ['product', 'productName', false];
     }
 
     private function buildElementWithMixedProperties(TestStruct $struct): ContentElement

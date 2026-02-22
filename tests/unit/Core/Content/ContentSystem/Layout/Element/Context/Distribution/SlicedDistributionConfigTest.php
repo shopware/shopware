@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -95,7 +97,7 @@ class SlicedDistributionConfigTest extends TestCase
         static::assertSame([], $result[1]);
     }
 
-    #[TestDox('round-trips through fromArray and toArray without data loss')]
+    #[TestDox('serializes to array and deserializes back without data loss')]
     public function testFromArrayToArrayRoundtrip(): void
     {
         $original = [
@@ -107,5 +109,22 @@ class SlicedDistributionConfigTest extends TestCase
         $config = SlicedDistributionConfig::fromArray($original);
 
         static::assertSame($original, $config->toArray());
+    }
+
+    #[TestDox('returns constraint mapping with slice_size NotBlank+Type(int) and consumer_alias Type(string) constraints')]
+    public function testBuildConstraintsReturnsExpectedConstraints(): void
+    {
+        $constraints = SlicedDistributionConfig::buildConstraints();
+
+        static::assertArrayHasKey('slice_size', $constraints);
+        static::assertCount(2, $constraints['slice_size']);
+        static::assertInstanceOf(NotBlank::class, $constraints['slice_size'][0]);
+        static::assertInstanceOf(Type::class, $constraints['slice_size'][1]);
+        static::assertSame('int', $constraints['slice_size'][1]->type);
+
+        static::assertArrayHasKey('consumer_alias', $constraints);
+        static::assertCount(1, $constraints['consumer_alias']);
+        static::assertInstanceOf(Type::class, $constraints['consumer_alias'][0]);
+        static::assertSame('string', $constraints['consumer_alias'][0]->type);
     }
 }

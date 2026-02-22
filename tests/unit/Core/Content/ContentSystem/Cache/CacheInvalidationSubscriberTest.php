@@ -40,7 +40,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $this->cacheInvalidator = static::createMock(CacheInvalidator::class);
         $this->connection = static::createStub(Connection::class);
         $this->cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
@@ -67,17 +67,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         ($this->subscriber)($event);
     }
 
-    /**
-     * @return \Generator<string, array{string, string}>
-     */
-    public static function entityAssignmentProvider(): \Generator
-    {
-        yield 'product assignment' => ['product_content_layout', 'product-'];
-        yield 'category assignment' => ['category_content_layout', 'category-route-'];
-        yield 'landing page assignment' => ['landing_page_content_layout', 'landing-page-route-'];
-    }
-
-    #[DataProvider('entityAssignmentProvider')]
+    #[DataProvider('invalidatesEntityAssignmentCacheTagProvider')]
     #[TestDox('invalidates entity assignment cache tag for $entityName')]
     public function testInvalidatesEntityAssignmentCacheTag(string $entityName, string $tagPrefix): void
     {
@@ -102,16 +92,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         ($this->subscriber)($event);
     }
 
-    /**
-     * @return \Generator<string, array{string, ContentSection}>
-     */
-    public static function sectionLayoutProvider(): \Generator
-    {
-        yield 'header section' => ['header_content_layout', ContentSection::HEADER];
-        yield 'footer section' => ['footer_content_layout', ContentSection::FOOTER];
-    }
-
-    #[DataProvider('sectionLayoutProvider')]
+    #[DataProvider('invalidatesSectionCacheTagProvider')]
     #[TestDox('invalidates $section cache tags when $entityName is written')]
     public function testInvalidatesSectionCacheTag(string $entityName, ContentSection $section): void
     {
@@ -126,31 +107,6 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with($section->buildRouteCacheTags($layoutId));
-
-        ($this->subscriber)($event);
-    }
-
-    #[TestDox('does nothing when no relevant entities are written')]
-    public function testDoesNothingWhenNoRelevantEntitiesWritten(): void
-    {
-        $event = $this->createWrittenEvent('order', Uuid::randomHex());
-
-        $this->cacheInvalidator->expects($this->never())
-            ->method('invalidate');
-
-        ($this->subscriber)($event);
-    }
-
-    #[TestDox('skips entity invalidation when no assignment IDs are found in database')]
-    public function testSkipsEntityInvalidationWhenNoAssignmentIdsFound(): void
-    {
-        $event = $this->createWrittenEvent('product_content_layout', Uuid::randomHex());
-
-        $this->connection->method('fetchFirstColumn')
-            ->willReturn([]);
-
-        $this->cacheInvalidator->expects($this->never())
-            ->method('invalidate');
 
         ($this->subscriber)($event);
     }
@@ -191,6 +147,61 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->with(['product-' . $productIdA]);
 
         ($this->subscriber)($event);
+    }
+
+    #[TestDox('skips section invalidation when no layout IDs are found in database')]
+    public function testSkipsSectionInvalidationWhenNoLayoutIdsFound(): void
+    {
+        $event = $this->createWrittenEvent('header_content_layout', Uuid::randomHex());
+
+        $this->connection->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $this->cacheInvalidator->expects($this->never())
+            ->method('invalidate');
+
+        ($this->subscriber)($event);
+    }
+
+    #[TestDox('skips cache invalidation when no relevant entities are written')]
+    public function testSkipsCacheInvalidationWhenNoRelevantEntitiesWritten(): void
+    {
+        $event = $this->createWrittenEvent('order', Uuid::randomHex());
+
+        $this->cacheInvalidator->expects($this->never())
+            ->method('invalidate');
+
+        ($this->subscriber)($event);
+    }
+
+    #[TestDox('skips entity invalidation when no assignment IDs are found in database')]
+    public function testSkipsEntityInvalidationWhenNoAssignmentIdsFound(): void
+    {
+        $event = $this->createWrittenEvent('product_content_layout', Uuid::randomHex());
+
+        $this->connection->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $this->cacheInvalidator->expects($this->never())
+            ->method('invalidate');
+
+        ($this->subscriber)($event);
+    }
+
+    /**
+     * @return \Generator<string, array{string, string}>
+     */
+    public static function invalidatesEntityAssignmentCacheTagProvider(): \Generator
+    {
+        yield 'product assignment' => ['product_content_layout', 'product-'];
+    }
+
+    /**
+     * @return \Generator<string, array{string, ContentSection}>
+     */
+    public static function invalidatesSectionCacheTagProvider(): \Generator
+    {
+        yield 'header section' => ['header_content_layout', ContentSection::HEADER];
     }
 
     private function createWrittenEvent(string $entityName, string $id): EntityWrittenContainerEvent

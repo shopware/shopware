@@ -198,12 +198,57 @@ class ElementTreeUtilTest extends TestCase
         static::assertSame($targetId, $prunedTarget->getId());
     }
 
+    #[TestDox('preserves descendant elements below the target when target has children')]
+    public function testPrunePreservesDescendantsBelowTarget(): void
+    {
+        $targetId = 'target-id';
+        $childId = 'child-id';
+        $grandChildId = 'grandchild-id';
+
+        $grandChild = ContentElementBuilder::create('leaf-component', $grandChildId)->build();
+
+        $child = ContentElementBuilder::create('inner-component', $childId)
+            ->withSlot('default', [$grandChild])
+            ->build();
+
+        $target = ContentElementBuilder::create('target-component', $targetId)
+            ->withConsumer('product', ContextType::Single)
+            ->withSlot('main', [$child])
+            ->build();
+
+        $provider = ContentElementBuilder::create('provider-component', 'provider-id')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('default', [$target])
+            ->build();
+
+        $root = ContentElementBuilder::create('root-component', 'root-id')
+            ->withSlot('default', [$provider])
+            ->build();
+
+        $pruned = $this->util->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
+
+        // Provider is data root — pruned tree starts there
+        static::assertSame('provider-id', $pruned->getId());
+
+        // Provider → target
+        $providerSlots = $pruned->getSlots();
+        static::assertArrayHasKey('default', $providerSlots);
+        $prunedTarget = $providerSlots['default']->getElements()[0];
+        static::assertSame($targetId, $prunedTarget->getId());
+
+        // Target still has its children (descendants preserved)
+        static::assertTrue($prunedTarget->hasSlots());
+        $targetSlots = $prunedTarget->getSlots();
+        static::assertArrayHasKey('main', $targetSlots);
+        static::assertSame($childId, $targetSlots['main']->getElements()[0]->getId());
+    }
+
     #[TestDox('throws element-not-found exception when target element is not in tree')]
     public function testPruneToPathAndDescendantsThrowsWhenElementNotFound(): void
     {
         $root = ContentElementBuilder::create('root-component', 'root-id')->build();
 
-        static::expectExceptionObject(ContentSystemException::elementNotFound('non-existent-id'));
+        $this->expectExceptionObject(ContentSystemException::elementNotFound('non-existent-id'));
 
         $this->util->pruneToPathAndDescendants($root, 'non-existent-id', $this->dependencyAnalyzer);
     }

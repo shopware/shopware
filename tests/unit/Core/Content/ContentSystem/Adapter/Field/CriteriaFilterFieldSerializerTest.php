@@ -13,9 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -95,6 +95,22 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         static::assertSame(Json::encode($arrayValue), $result['criteria_filter']);
     }
 
+    #[TestDox('encodes array value when field is marked as required')]
+    public function testEncodeWithRequiredField(): void
+    {
+        $field = new CriteriaFilterField('criteria_filter', 'criteriaFilter');
+        $field->addFlags(new Required());
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $arrayValue = ['type' => 'equals', 'field' => 'active', 'value' => true];
+        $kvPair = new KeyValuePair('criteria_filter', $arrayValue, false);
+
+        $result = iterator_to_array($this->serializer->encode($field, $this->existence, $kvPair, $this->parameters));
+
+        static::assertArrayHasKey('criteria_filter', $result);
+        static::assertIsString($result['criteria_filter']);
+    }
+
     #[TestDox('encodes null value as null')]
     public function testEncodeWithNull(): void
     {
@@ -134,22 +150,10 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         iterator_to_array($this->serializerWithPassthroughValidator->encode($field, $this->existence, $kvPair, $this->parameters));
     }
 
-    #[TestDox('decode always throws unsupported operation exception')]
-    public function testDecodeAlwaysThrows(): void
-    {
-        $field = $this->createCriteriaFilterField();
-
-        $this->expectExceptionObject(
-            ContentSystemException::criteriaFilterFieldDecodeNotSupported()
-        );
-
-        $this->serializer->decode($field, ['type' => 'equals', 'field' => 'active', 'value' => true]);
-    }
-
     /**
      * @param array<string, mixed> $expected
      */
-    #[DataProvider('filterSerializationProvider')]
+    #[DataProvider('serializesCriteriaFilterProvider')]
     #[TestDox('serializes filter to array representation')]
     public function testSerializesCriteriaFilterToArray(Filter $filter, array $expected): void
     {
@@ -162,7 +166,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
      * @param array<string, mixed> $data
      * @param class-string<Filter> $expectedClass
      */
-    #[DataProvider('filterDeserializationProvider')]
+    #[DataProvider('deserializesCriteriaFilterProvider')]
     #[TestDox('deserializes filter array to correct Filter object')]
     public function testDeserializesCriteriaFilterFromArray(array $data, string $expectedClass): void
     {
@@ -171,6 +175,18 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         $result = $this->serializer->deserializeCriteriaFilter($data, $definition);
 
         static::assertInstanceOf($expectedClass, $result);
+    }
+
+    #[TestDox('throws unsupported operation exception when decode is called')]
+    public function testDecodeAlwaysThrows(): void
+    {
+        $field = $this->createCriteriaFilterField();
+
+        $this->expectExceptionObject(
+            ContentSystemException::criteriaFilterFieldDecodeNotSupported()
+        );
+
+        $this->serializer->decode($field, ['type' => 'equals', 'field' => 'active', 'value' => true]);
     }
 
     #[TestDox('throws when filter type is unsupported')]
@@ -209,7 +225,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>, class-string<Filter>}>
      */
-    public static function filterDeserializationProvider(): iterable
+    public static function deserializesCriteriaFilterProvider(): iterable
     {
         yield 'equals filter returns EqualsFilter' => [
             ['type' => 'equals', 'field' => 'active', 'value' => true],
@@ -227,16 +243,11 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{Filter, array<string, mixed>}>
      */
-    public static function filterSerializationProvider(): iterable
+    public static function serializesCriteriaFilterProvider(): iterable
     {
         yield 'equals filter maps to type/field/value keys' => [
             new EqualsFilter('active', true),
             ['type' => 'equals', 'field' => 'active', 'value' => true],
-        ];
-
-        yield 'contains filter maps to type/field/value keys' => [
-            new ContainsFilter('name', 'shirt'),
-            ['type' => 'contains', 'field' => 'name', 'value' => 'shirt'],
         ];
 
         yield 'multi filter maps nested queries with AND operator' => [

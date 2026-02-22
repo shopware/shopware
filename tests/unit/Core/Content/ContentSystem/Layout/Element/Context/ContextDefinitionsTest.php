@@ -28,25 +28,36 @@ class ContextDefinitionsTest extends TestCase
         );
 
         $merged = $original->withAddedProviders([
-            'category' => $additionalProvider,  // overwrites existing key
-            'region' => $replacementProvider,   // adds new key
+            'category' => $additionalProvider,
+            'region' => $replacementProvider,
         ]);
 
+        static::assertNotSame($original, $merged);
         static::assertSame(
             ['product' => $existingProvider, 'category' => $additionalProvider, 'region' => $replacementProvider],
             $merged->getAllProviders()
         );
-        static::assertNotSame($original, $merged);
         static::assertSame(
             ['product' => $existingProvider, 'category' => $existingProvider],
             $original->getAllProviders()
         );
+    }
 
-        $resultFromEmpty = $original->withAddedProviders([]);
-        static::assertNotSame($original, $resultFromEmpty);
+    #[TestDox('returns new instance with unchanged providers when merging empty array')]
+    public function testWithAddedProvidersWithEmptyArrayReturnsNewInstanceWithUnchangedProviders(): void
+    {
+        $existingProvider = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
+
+        $original = new ContextDefinitions(
+            providers: ['product' => $existingProvider, 'category' => $existingProvider],
+        );
+
+        $result = $original->withAddedProviders([]);
+
+        static::assertNotSame($original, $result);
         static::assertSame(
             ['product' => $existingProvider, 'category' => $existingProvider],
-            $resultFromEmpty->getAllProviders()
+            $result->getAllProviders()
         );
     }
 }

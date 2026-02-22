@@ -70,23 +70,8 @@ class EntityLayoutResolverTest extends TestCase
         static::assertArrayNotHasKey('productId', $result->placeholderValues->all());
     }
 
-    #[TestDox('findLayoutId returns layout ID when assignment exists')]
-    public function testFindLayoutIdReturnsLayoutIdWhenAssignmentExists(): void
-    {
-        $layoutId = Uuid::randomHex();
-        $entity = $this->createAssignmentEntity($layoutId);
-
-        $repository = $this->createRepository($entity);
-
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $this->resolver->findLayoutId('productId', Uuid::randomHex(), $context, $repository);
-
-        static::assertSame($layoutId, $result);
-    }
-
     #[TestDox('throws layout assignment not found when no assignment exists')]
-    public function testResolveThrowsWhenNoAssignment(): void
+    public function testThrowsWhenNoAssignment(): void
     {
         $entityId = Uuid::randomHex();
 
@@ -102,6 +87,32 @@ class EntityLayoutResolverTest extends TestCase
         ));
 
         $this->resolver->resolve($entityId, new Request(), $context, $repository, $definition);
+    }
+
+    #[TestDox('returns layout ID when assignment exists')]
+    public function testReturnsLayoutIdWhenAssignmentExists(): void
+    {
+        $layoutId = Uuid::randomHex();
+        $entity = $this->createAssignmentEntity($layoutId);
+
+        $repository = $this->createRepository($entity);
+
+        $context = Generator::generateSalesChannelContext();
+
+        $result = $this->resolver->findLayoutId('productId', Uuid::randomHex(), $context, $repository);
+
+        static::assertSame($layoutId, $result);
+    }
+
+    #[TestDox('returns null when no assignment exists')]
+    public function testReturnsNullFromLayoutIdLookupWhenNoAssignment(): void
+    {
+        $repository = $this->createRepository();
+        $context = Generator::generateSalesChannelContext();
+
+        $result = $this->resolver->findLayoutId('productId', Uuid::randomHex(), $context, $repository);
+
+        static::assertNull($result);
     }
 
     /**

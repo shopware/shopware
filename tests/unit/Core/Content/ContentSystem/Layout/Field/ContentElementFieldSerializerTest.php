@@ -211,7 +211,7 @@ class ContentElementFieldSerializerTest extends TestCase
         $this->serializer->decode($invalidField, '{}');
     }
 
-    #[TestDox('decodes element with minimal fields into a ContentElement with empty defaults')]
+    #[TestDox('decodes element with minimal fields into a ContentElement with empty defaults and accessible properties')]
     public function testDecodeElementWithMinimalFieldsReturnsContentElement(): void
     {
         $minimal = $this->serializer->decodeElement([
@@ -225,11 +225,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertFalse($minimal->hasSlots());
         static::assertSame([], $minimal->getProvidesContext());
         static::assertSame([], $minimal->getAcceptsContext());
-    }
 
-    #[TestDox('decodes element with properties into a ContentElement with accessible property values')]
-    public function testDecodeElementWithPropertiesReturnsContentElementWithProperties(): void
-    {
         $withProperties = $this->serializer->decodeElement([
             'id' => 'elem-props',
             'component' => 'image',
@@ -240,7 +236,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertSame('hero image', $withProperties->getProperty('alt'));
     }
 
-    #[TestDox('decodes element with data_requirements')]
+    #[TestDox('decodes element with data_requirements into a ContentElement with mapped DataRequirement objects')]
     public function testDecodeElementWithDataRequirementsReturnsContentElementWithRequirements(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
@@ -283,8 +279,8 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertCount(2, $result->getSlots()['main']);
     }
 
-    #[TestDox('decodes element with context providers and consumers')]
-    public function testDecodeElementWithContextDefinitionsReturnsContentElementWithContext(): void
+    #[TestDox('decodes element with context providers into ContextProvider objects')]
+    public function testDecodeElementWithContextProvidersReturnsContextProviders(): void
     {
         $data = [
             'id' => 'elem-ctx',
@@ -296,6 +292,21 @@ class ContentElementFieldSerializerTest extends TestCase
                     'consumer_alias' => null,
                 ],
             ],
+        ];
+
+        $result = $this->serializer->decodeElement($data);
+
+        static::assertCount(1, $result->getProvidesContext());
+        static::assertArrayHasKey('myData', $result->getProvidesContext());
+        static::assertInstanceOf(ContextProvider::class, $result->getProvidesContext()['myData']);
+    }
+
+    #[TestDox('decodes element with context consumers into ContextConsumer objects')]
+    public function testDecodeElementWithContextConsumersReturnsContextConsumers(): void
+    {
+        $data = [
+            'id' => 'elem-ctx',
+            'component' => 'context-aware',
             'accepts_context' => [
                 'parentData' => [
                     'type' => 'single',
@@ -305,10 +316,6 @@ class ContentElementFieldSerializerTest extends TestCase
         ];
 
         $result = $this->serializer->decodeElement($data);
-
-        static::assertCount(1, $result->getProvidesContext());
-        static::assertArrayHasKey('myData', $result->getProvidesContext());
-        static::assertInstanceOf(ContextProvider::class, $result->getProvidesContext()['myData']);
 
         static::assertCount(1, $result->getAcceptsContext());
         static::assertArrayHasKey('parentData', $result->getAcceptsContext());
@@ -418,6 +425,29 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertArrayHasKey('parentData', $result['accepts_context']);
         static::assertSame('single', $result['accepts_context']['parentData']['type']);
         static::assertFalse($result['accepts_context']['parentData']['required']);
+    }
+
+    #[TestDox('serializes ContentElement property using toArray when value is object with toArray method')]
+    public function testSerializeContentElementCallsToArrayOnObjectProperties(): void
+    {
+        $objectWithToArray = new class {
+            /**
+             * @return array<string, string>
+             */
+            public function toArray(): array
+            {
+                return ['serialized' => 'value'];
+            }
+        };
+
+        $element = ContentElementBuilder::create('hero', 'elem-obj-prop')
+            ->withProperty('myObj', $objectWithToArray)
+            ->build();
+
+        $result = $this->serializer->serializeContentElement($element);
+
+        static::assertArrayHasKey('properties', $result);
+        static::assertSame(['serialized' => 'value'], $result['properties']['myObj']);
     }
 
     #[TestDox('restores ContentElement through serialize-then-decode roundtrip')]

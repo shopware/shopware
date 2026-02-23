@@ -1,3 +1,5 @@
+import { getLocationHref, navigateTo, reloadPage } from '../helper/navigation.helper';
+
 interface ContextTokenResponse {
     token: string;
     redirectUrl?: string;
@@ -51,13 +53,13 @@ export default class ContextGatewayClient {
     public navigate(tokenResponse: ContextTokenResponse, customTarget: string | null = null): ContextTokenResponse {
         // reload the page to apply context changes if no target is specified
         if (!customTarget && !tokenResponse.redirectUrl) {
-            window.location.reload();
+            reloadPage();
 
             return tokenResponse;
         }
 
         // otherwise redirect to the redirectUrl, which can be overridden by a customTarget path
-        const currentUrl = new URL(window.location.href);
+        const currentUrl = new URL(getLocationHref());
         const targetUrl = new URL(
             customTarget ?? currentUrl.pathname.replace(/^\//, '') ?? '',
             (tokenResponse.redirectUrl ?? currentUrl.href).replace(/\/$/, '') + '/',
@@ -70,7 +72,7 @@ export default class ContextGatewayClient {
             }
         });
 
-        window.location.href = targetUrl.toString().replace(/\/$/, '');
+        navigateTo(targetUrl.toString().replace(/\/$/, ''));
 
         return tokenResponse;
     }

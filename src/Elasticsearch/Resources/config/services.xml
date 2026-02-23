@@ -262,16 +262,29 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
-            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector"/>
-            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\CustomFieldSetGateway"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldSetGateway">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector"/>
+            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\CustomFieldSetGateway"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\ProductCustomFieldsUsedUpdater">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">

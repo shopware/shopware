@@ -75,7 +75,7 @@ class TwigVariableParser
 
             if ($node instanceof GetAttrExpression) {
                 $path = implode('.', $this->getVariables($node, $aliases));
-                if (!empty($path)) {
+                if ($path !== '') {
                     $variables[$path] = $path;
                 }
 

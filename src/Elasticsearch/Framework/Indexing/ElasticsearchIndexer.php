@@ -117,7 +117,7 @@ class ElasticsearchIndexer
 
         $ids = $event->iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             if (!$offset->hasNextDefinition()) {
                 return null;
             }
@@ -301,7 +301,7 @@ class ElasticsearchIndexer
      */
     private function handleEntities(array $entities = []): iterable
     {
-        if (empty($entities)) {
+        if ($entities === []) {
             return $this->registry->getDefinitionNames();
         }
 
@@ -312,7 +312,7 @@ class ElasticsearchIndexer
         $validEntities = array_intersect($entities, $registeredEntities);
         $unregisteredEntities = array_diff($entities, $registeredEntities);
 
-        if (!empty($unregisteredEntities)) {
+        if ($unregisteredEntities !== []) {
             $unregisteredEntityList = implode(', ', $unregisteredEntities);
 
             $exception = ElasticsearchException::definitionNotFound($unregisteredEntityList);

@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Framework;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
-use Shopware\Elasticsearch\Product\CustomFieldUpdater;
+use Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper;
 
 #[Package('inventory')]
 class ElasticsearchFieldBuilder
@@ -116,7 +116,7 @@ class ElasticsearchFieldBuilder
         ];
 
         foreach ($fieldMapping as $name => $type) {
-            $esType = CustomFieldUpdater::getTypeFromCustomFieldType($type);
+            $esType = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType($type);
 
             $mapping['properties'][$name] = $esType;
         }

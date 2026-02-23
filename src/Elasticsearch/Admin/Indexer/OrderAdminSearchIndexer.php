@@ -84,7 +84,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             'orderId',
         ]);
 
-        if (!empty($addresses) || !empty($orderDocuments)) {
+        if ($addresses !== [] || $orderDocuments !== []) {
             $orderIds = array_merge($orderIds, $event->getPrimaryKeys($this->getEntity()));
         }
 

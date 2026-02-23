@@ -26,7 +26,7 @@ class Migration1742897274RegistrationSalutationToggleConfig extends MigrationSte
             ['core.loginRegistration.showSalutation']
         );
 
-        if (!empty($config)) {
+        if ($config !== []) {
             return;
         }
 

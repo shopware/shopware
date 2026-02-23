@@ -82,8 +82,8 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'countryId',
         ]);
 
-        if (!empty($addresses)) {
-            $customerIds = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
+        if ($addresses !== []) {
+            $ids = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
         }
 
         $multiplePrimaryKeyWrittenEvent = $event;

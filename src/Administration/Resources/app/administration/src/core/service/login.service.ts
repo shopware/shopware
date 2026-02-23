@@ -172,19 +172,70 @@ export default function createLoginService(
 
     /**
      * Sends an AJAX request to the authentication end point and retries to refresh the token.
+     *
+     * Uses the Web Locks API to coordinate token refresh across browser tabs.
+     * Only one tab at a time will perform the actual HTTP request; other tabs
+     * wait for the lock and then check if the token was already refreshed.
      */
     function refreshToken(): Promise<AuthObject['access']> {
-        // No parallel requests - return existing promise if refresh is already in progress
+        // No parallel requests within the same tab - return existing promise
         if (refreshPromise) {
             return refreshPromise;
         }
 
-        const token = getRefreshToken();
-        if (!token || !token.length) {
+        const refreshTokenValue = getRefreshToken();
+        if (!refreshTokenValue || !refreshTokenValue.length) {
             return Promise.reject(new Error('No refresh token found.'));
         }
 
-        refreshPromise = httpClient
+        // Capture the current access token before requesting the lock,
+        // so we can detect if another tab refreshed it while we waited.
+        const accessTokenBeforeLock = getToken();
+
+        refreshPromise = new Promise<string>((resolve, reject) => {
+            void navigator.locks.request('sw-admin-token-refresh', async () => {
+                try {
+                    // Another tab may have successfully refreshed while we waited for the lock
+                    const currentAccessToken = getToken();
+                    if (currentAccessToken && currentAccessToken !== accessTokenBeforeLock) {
+                        refreshRetryCount = 0;
+                        clearLogoutTimeout();
+
+                        // Notify subscribers about the token refreshed by another tab
+                        refreshSubscribers.forEach((callback) => {
+                            callback(currentAccessToken);
+                        });
+                        refreshSubscribers.length = 0;
+                        refreshErrorSubscribers.length = 0;
+
+                        resolve(currentAccessToken);
+                        return;
+                    }
+
+                    resolve(await retryRefreshWithBackoff(refreshTokenValue));
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }).finally(() => {
+            refreshPromise = null;
+        });
+
+        return refreshPromise;
+    }
+
+    /**
+     * Performs the token refresh HTTP request with exponential backoff retry logic.
+     *
+     * On success: updates authentication, resets retry counter and notifies subscribers.
+     * On failure: retries with exponential backoff up to {@link MAX_REFRESH_RETRIES} times,
+     * then triggers an inactivity logout. Also handles multi-tab token sync and
+     * schedules a fallback logout if no valid token is present after the delay.
+     *
+     * @private
+     */
+    function retryRefreshWithBackoff(token: string): Promise<string> {
+        return httpClient
             .post<TokenResponse>(
                 '/oauth/token',
                 {
@@ -243,12 +294,7 @@ export default function createLoginService(
                 refreshErrorSubscribers.length = 0;
 
                 return Promise.reject(error);
-            })
-            .finally(() => {
-                refreshPromise = null;
             });
-
-        return refreshPromise;
     }
 
     /**
@@ -257,10 +303,7 @@ export default function createLoginService(
      * @param successCallback - Called with the new token when refresh succeeds
      * @param errorCallback - Called with the error when refresh fails
      */
-    function subscribeToTokenRefresh(
-        successCallback: (token: string) => void,
-        errorCallback: (error: Error) => void,
-    ): void {
+    function subscribeToTokenRefresh(successCallback: (token: string) => void, errorCallback: (error: Error) => void): void {
         refreshSubscribers.push(successCallback);
         refreshErrorSubscribers.push(errorCallback);
     }
@@ -317,7 +360,7 @@ export default function createLoginService(
             clearTimeout(autoRefreshTokenTimeoutId);
             autoRefreshTokenTimeoutId = undefined;
         }
-        
+
         const tokenBeforeRetry = getToken();
 
         autoRefreshTokenTimeoutId = setTimeout(() => {

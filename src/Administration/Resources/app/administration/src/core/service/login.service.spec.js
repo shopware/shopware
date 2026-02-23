@@ -31,6 +31,17 @@ let lastUserActivity = null;
 
 describe('core/service/login.service.js', () => {
     beforeAll(async () => {
+        // JSDOM does not provide navigator.locks — mock it so that
+        // the Web Locks based refresh logic works in unit tests.
+        if (!navigator.locks) {
+            Object.defineProperty(navigator, 'locks', {
+                value: {
+                    request: jest.fn((_name, callback) => callback()),
+                },
+                configurable: true,
+            });
+        }
+
         Object.defineProperty(document, 'cookie', {
             // eslint-disable-next-line func-names
             set: function (value) {

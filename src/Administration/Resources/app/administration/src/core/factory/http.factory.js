@@ -377,7 +377,6 @@ function handleErrorStates({ status, errors, error = null, data }) {
  * @returns {AxiosInstance}
  */
 function refreshTokenInterceptor(client) {
-
     const whitelist = ['/oauth/token'];
 
     client.interceptors.response.use(

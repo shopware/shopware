@@ -53,6 +53,11 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         },
         global: {
             provide: {
+                mediaPresignedUploadService: {
+                    prepareUpload: jest.fn(),
+                    uploadToPresignedUrl: jest.fn(),
+                    finalizeUpload: jest.fn(),
+                },
                 repositoryFactory: repositoryFactoryMock,
                 searchRankingService: {
                     isValidTerm: (term) => {

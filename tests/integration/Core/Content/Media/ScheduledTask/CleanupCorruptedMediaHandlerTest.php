@@ -2,16 +2,20 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\ScheduledTask;
 
+use Doctrine\DBAL\ArrayParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaHandler;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -61,7 +65,36 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
                 'fileSize' => null,
                 'mediaType' => 'image/png',
             ],
+            [
+                'id' => $this->ids->create('in-progress'),
+                'fileName' => 'in-progress-file.png',
+                'fileSize' => null,
+                'mediaType' => 'image/png',
+            ],
+            [
+                'id' => $this->ids->create('cdn-media'),
+                'path' => 'https://cdn.example.com/image.jpg',
+                'fileSize' => null,
+            ],
         ], $this->context);
+
+        $corruptedCreatedAt = (new \DateTimeImmutable())
+            ->sub(new \DateInterval('P31D'))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $connection = KernelLifecycleManager::getConnection();
+
+        $connection->executeStatement(
+            'UPDATE media SET created_at = :createdAt WHERE id IN (:ids)',
+            [
+                'createdAt' => $corruptedCreatedAt,
+                'ids' => Uuid::fromHexToBytesList([
+                    $this->ids->get('corrupted-1'),
+                    $this->ids->get('corrupted-2'),
+                ]),
+            ],
+            ['ids' => ArrayParameterType::BINARY]
+        );
     }
 
     public function testCleanupCorruptedMedia(): void
@@ -72,10 +105,14 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
             $this->ids->get('corrupted-1'),
             $this->ids->get('corrupted-2'),
             $this->ids->get('valid'),
+            $this->ids->get('in-progress'),
+            $this->ids->get('cdn-media'),
         ]), $this->context);
 
         $remainingIds = $remainingMedia->getIds();
-        static::assertCount(1, $remainingIds);
-        static::assertSame($this->ids->get('valid'), $remainingIds[0]);
+        static::assertCount(3, $remainingIds);
+        static::assertContains($this->ids->get('valid'), $remainingIds);
+        static::assertContains($this->ids->get('in-progress'), $remainingIds);
+        static::assertContains($this->ids->get('cdn-media'), $remainingIds);
     }
 }

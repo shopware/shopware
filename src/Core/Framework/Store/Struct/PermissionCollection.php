@@ -20,7 +20,7 @@ class PermissionCollection extends StoreCollection
     public function __construct(iterable $elements = [])
     {
         $elements = (array) $elements;
-        if (!empty($elements) && $this->hasNoPermissionStructElements($elements)) {
+        if ($elements !== [] && $this->hasNoPermissionStructElements($elements)) {
             /** @phpstan-ignore-next-line PHPStan does not recognize, that $elements does not contain "PermissionStruct" instances at this point, which is checked by "hasNoPermissionStructElements" method */
             $elements = $this->generatePrivileges($elements);
         }
@@ -105,6 +105,6 @@ class PermissionCollection extends StoreCollection
      */
     private function hasNoPermissionStructElements(array $elements): bool
     {
-        return empty(array_filter($elements, static fn ($element) => $element instanceof PermissionStruct));
+        return array_filter($elements, static fn ($element) => $element instanceof PermissionStruct) === [];
     }
 }

@@ -200,6 +200,16 @@ export default {
         },
 
         saveAddRestriction() {
+            this.actualRestriction.values = this.actualRestriction.values.filter((value) => {
+                return Array.isArray(value.options) && value.options.length > 0;
+            });
+
+            if (this.actualRestriction.values.length === 0) {
+                this.actualRestriction = {};
+                this.restrictionModalIsOpen = false;
+                return;
+            }
+
             if (!Array.isArray(this.product.variantRestrictions)) {
                 this.product.variantRestrictions = [];
             }

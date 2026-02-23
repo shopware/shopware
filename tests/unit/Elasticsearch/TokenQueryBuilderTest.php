@@ -575,7 +575,7 @@ class TokenQueryBuilderTest extends TestCase
             ],
         ];
 
-        if (!empty($explainPayload)) {
+        if ($explainPayload !== []) {
             $nested['nested'] = array_merge($nested['nested'], $explainPayload);
         }
 

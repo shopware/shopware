@@ -518,7 +518,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
-            <tag name="shopware.app_url_changed_resolver"/>
+            <tag name="shopware.app_url_changed_resolver" priority="-100"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy">
@@ -528,7 +528,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="event_dispatcher"/>
 
-            <tag name="shopware.app_url_changed_resolver"/>
+            <tag name="shopware.app_url_changed_resolver" priority="100"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy">
@@ -536,7 +536,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler" on-invalid="null"/>
 
-            <tag name="shopware.app_url_changed_resolver"/>
+            <tag name="shopware.app_url_changed_resolver" priority="0"/>
         </service>
 
         <!-- DELTA -->

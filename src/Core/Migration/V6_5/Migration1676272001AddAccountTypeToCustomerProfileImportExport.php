@@ -41,7 +41,7 @@ class Migration1676272001AddAccountTypeToCustomerProfileImportExport extends Mig
         $mappingFilterAccountType = array_filter($mapping, function ($mapping) {
             return $mapping['key'] === 'accountType';
         });
-        if (\count($mappingFilterAccountType)) {
+        if ($mappingFilterAccountType !== []) {
             return;
         }
 

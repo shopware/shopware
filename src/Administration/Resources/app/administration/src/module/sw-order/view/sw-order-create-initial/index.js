@@ -11,6 +11,12 @@ const { Criteria } = Data;
 export default {
     template,
 
+    data() {
+        return {
+            routeCustomerReady: false,
+        };
+    },
+
     computed: {
         customerRepository() {
             return Service('repositoryFactory').create('customer');
@@ -43,14 +49,21 @@ export default {
     methods: {
         async createdComponent() {
             const customerId = this.$route.query?.customerId;
+            const orderStore = Store.get('swOrder');
+
+            // Reset so grid never sees a stale customer (with or without customerId)
+            orderStore.$reset();
 
             if (!customerId) {
+                this.routeCustomerReady = true;
                 return;
             }
 
-            const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.customerCriteria);
-            if (customer) {
-                Store.get('swOrder').setCustomer(customer);
+            try {
+                const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.customerCriteria);
+                if (customer) orderStore.setCustomer(customer);
+            } finally {
+                this.routeCustomerReady = true;
             }
         },
 

@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\DoNotUseContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -61,6 +62,11 @@ class FkFieldSerializer extends AbstractFieldSerializer
         }
 
         if ($value === null) {
+            if ($field->is(DoNotUseContext::class)
+                && $this->requiresValidation($field, $existence, $value, $parameters)) {
+                $this->validate($this->getConstraints($field), $data, $parameters->getPath());
+            }
+
             yield $field->getStorageName() => null;
 
             return;
@@ -85,7 +91,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
 
     protected function shouldUseContext(FkField $field, bool $isRaw, mixed $value): bool
     {
-        return $isRaw && $value === null && $field->is(Required::class);
+        return $isRaw && $value === null && $field->is(Required::class) && !$field->is(DoNotUseContext::class);
     }
 
     protected function getConstraints(Field $field): array

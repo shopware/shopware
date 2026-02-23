@@ -26,6 +26,7 @@ export default {
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -337,7 +338,10 @@ export default {
                 .saveVariants(this.variantGenerationQueue)
                 .then(() => {
                     this.addOriginalConfiguratorSettings();
-                    return this.productRepository.save(this.product);
+                    return this.variantsGenerator.saveConfiguratorSettings(
+                        this.product.configuratorSettings,
+                        this.variantGenerationQueue.createQueue,
+                    );
                 })
                 .then(() => {
                     this.$emit('variations-finish-generate');
@@ -347,6 +351,15 @@ export default {
                     this.maxProgress = 0;
 
                     this.swProductDetailLoadAll();
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.actualProgress = 0;
+                    this.maxProgress = 0;
+
+                    this.createNotificationError({
+                        message: this.$t('sw-product.variations.generatedListMessageGenerateError'),
+                    });
                 });
         },
 
@@ -512,7 +525,6 @@ export default {
             this.originalConfiguratorSettings.forEach((configSetting) => {
                 this.product.configuratorSettings.add(configSetting);
             });
-
             this.calcVariantsNumber();
         },
 

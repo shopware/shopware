@@ -236,7 +236,7 @@ class CartLineItemController extends StorefrontController
 
             $data = $this->productListRoute->load($criteria, $context)->getProducts()->getIds();
 
-            if (empty($data)) {
+            if ($data === []) {
                 $this->addFlash(self::DANGER, $this->trans(
                     'error.productNotFound',
                     ['%number%' => $this->htmlSanitizer->sanitize($number, null, true)]

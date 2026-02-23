@@ -5,11 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use PHPUnit\Metadata\Api\DataProvider as DataProviderObject;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -23,8 +23,6 @@ class ErrorResponseFactoryTest extends TestCase
     public function testStackTraceForExceptionInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
-
-        /* @var JsonResponse $response */
         $response = $factory->getResponseFromException($exception, true);
 
         $data = null;
@@ -43,10 +41,10 @@ class ErrorResponseFactoryTest extends TestCase
         static::assertSame(self::class, $stack[0]['class']);
         static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
 
-        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[1]['class']);
+        static::assertSame(DataProviderObject::class, $stack[1]['class']);
         static::assertSame('dataProvidedByMethods', $stack[1]['function']);
 
-        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[2]['class']);
+        static::assertSame(DataProviderObject::class, $stack[2]['class']);
         static::assertSame('providedData', $stack[2]['function']);
     }
 
@@ -55,7 +53,6 @@ class ErrorResponseFactoryTest extends TestCase
     {
         $factory = new ErrorResponseFactory();
 
-        /* @var JsonResponse $response */
         $response = $factory->getResponseFromException(new \Exception('test'));
         $data = null;
         if ($response->getContent()) {
@@ -80,7 +77,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         yield 'exception' => [new \Exception($message)];
         yield 'http exception' => [new HttpException(500)];
-        yield 'shopware http exception' => [new PageNotFoundException($message)];
+        yield 'shopware http exception' => [new NoConfigurationException($message)];
     }
 
     public function testItTransformsRegularExceptionsToJson(): void

@@ -265,7 +265,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $ids[] = $data['value'];
         }
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -302,18 +302,16 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     {
         $baseConfig = $mainTheme->getBaseConfig();
 
-        if (\is_array($baseConfig)
-            && \array_key_exists('configInheritance', $baseConfig)
-            && \is_array($baseConfig['configInheritance'])
-            && !empty($baseConfig['configInheritance'])
-        ) {
-            return $baseConfig['configInheritance'];
+        $inheritanceConfig = $baseConfig['configInheritance'] ?? [];
+        if ($inheritanceConfig !== []) {
+            return $inheritanceConfig;
         }
 
         // For database copies (child themes), inherit config from parent theme.
         if ($baseConfig === null
             && $mainTheme->getTechnicalName() === null
-            && $mainTheme->getParentThemeId() !== null) {
+            && $mainTheme->getParentThemeId() !== null
+        ) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('id', $mainTheme->getParentThemeId()));
 
@@ -321,7 +319,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
             if ($parentTheme instanceof ThemeEntity) {
                 $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
-                if (!empty($parentConfigInheritance)) {
+                if ($parentConfigInheritance !== []) {
                     return $parentConfigInheritance;
                 }
             }

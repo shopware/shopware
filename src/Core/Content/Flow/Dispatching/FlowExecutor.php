@@ -27,6 +27,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal not intended for decoration or replacement
  *
+ * @final
+ *
  * @phpstan-import-type FlowHolder from AbstractFlowLoader
  */
 #[Package('after-sales')]
@@ -55,8 +57,6 @@ class FlowExecutor
 
     /**
      * @param array<FlowHolder> $flowHolders
-     *
-     * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
      */
     public function executeFlows(array $flowHolders, StorableFlow $event): void
     {

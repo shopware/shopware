@@ -59,7 +59,7 @@ class RemoveCustomerTagAction extends FlowAction implements DelayableAction
 
         $tagIds = array_keys($config['tagIds']);
 
-        if (empty($tagIds)) {
+        if ($tagIds === []) {
             return;
         }
 

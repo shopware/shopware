@@ -99,7 +99,7 @@ class TokenQueryBuilder
             $tokenQueries[] = $fieldQuery;
         }
 
-        if (empty($tokenQueries)) {
+        if ($tokenQueries === []) {
             return null;
         }
 
@@ -236,7 +236,7 @@ class TokenQueryBuilder
             $languageQueries[] = $languageQuery;
         }
 
-        if (empty($languageQueries)) {
+        if ($languageQueries === []) {
             return null;
         }
 

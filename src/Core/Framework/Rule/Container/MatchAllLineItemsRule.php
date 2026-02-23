@@ -51,8 +51,9 @@ class MatchAllLineItemsRule extends Container
 
         $flatItems = $this->filterAndFlatten($lineItems);
 
-        if (\count($flatItems) === 0) {
-            return false;
+        // When there are no line items of this type, the rule still passes (e.g. "none of promotion" with an empty cart).
+        if ($flatItems === []) {
+            return $this->types !== null && $this->types !== [];
         }
 
         $context = $scope->getSalesChannelContext();
@@ -98,7 +99,7 @@ class MatchAllLineItemsRule extends Container
     {
         $flat = $collection->getFlat();
 
-        if (empty($this->types)) {
+        if ($this->types === null || $this->types === []) {
             return $flat;
         }
 

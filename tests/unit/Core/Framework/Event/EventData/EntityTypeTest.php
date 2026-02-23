@@ -18,6 +18,7 @@ class EntityTypeTest extends TestCase
         $definition = CustomerDefinition::class;
 
         $expected = [
+            'nullable' => false,
             'type' => 'entity',
             'entityClass' => CustomerDefinition::class,
             'entityName' => 'customer',

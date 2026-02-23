@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Event\EventData;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\FrameworkException;
 
 /**
  * @internal
@@ -15,6 +16,7 @@ class ScalarValueTypeTest extends TestCase
     public function testToArray(): void
     {
         $expected = [
+            'nullable' => false,
             'type' => 'float',
         ];
 
@@ -23,7 +25,7 @@ class ScalarValueTypeTest extends TestCase
 
     public function testThrowExceptionOnInvalidType(): void
     {
-        static::expectException(\InvalidArgumentException::class);
+        static::expectException(FrameworkException::class);
 
         new ScalarValueType('test');
     }

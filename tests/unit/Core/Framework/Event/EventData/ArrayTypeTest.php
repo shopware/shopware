@@ -16,8 +16,10 @@ class ArrayTypeTest extends TestCase
     public function testToArray(): void
     {
         $expected = [
+            'nullable' => false,
             'type' => 'array',
             'of' => [
+                'nullable' => false,
                 'type' => 'string',
             ],
         ];

@@ -16,12 +16,15 @@ class ObjectTypeTest extends TestCase
     public function testToArray(): void
     {
         $expected = [
+            'nullable' => false,
             'type' => 'object',
             'data' => [
                 'myBool' => [
+                    'nullable' => false,
                     'type' => 'bool',
                 ],
                 'myString' => [
+                    'nullable' => false,
                     'type' => 'string',
                 ],
             ],

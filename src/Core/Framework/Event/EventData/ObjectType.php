@@ -39,7 +39,7 @@ class ObjectType extends AbstractEventDataType
         return [
             ...parent::toArray(),
             'type' => self::TYPE,
-            'data' => $this->data,
+            'data' => \array_map(fn (EventDataType $type) => $type->toArray(), $this->data),
         ];
     }
 }

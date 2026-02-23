@@ -6,7 +6,6 @@ const ignored: number[] = [
   1112030, // elliptic, low severity, devDep only (vite-plugin-node-polyfills/crypto-browserify)
   1112455, // lodash prototype pollution, moderate severity, devDep only
   1112453, // lodash-es prototype pollution, moderate severity, devDep only
-  1113371, // minimatch ReDoS, high severity, devDep only (eslint/jest), fix needs minimatch 10.x
   1113398, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
   1113399, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
   1113402, // bn.js infinite loop, moderate severity, devDep only (vite-plugin-node-polyfills/crypto-browserify)

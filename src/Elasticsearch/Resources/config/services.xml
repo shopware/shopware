@@ -401,7 +401,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator" />
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" />
-            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
             <argument>%elasticsearch.administration.search.timeout%</argument>
             <argument>%elasticsearch.administration.search.term_max_length%</argument>
             <argument>%elasticsearch.administration.search.search_type%</argument>

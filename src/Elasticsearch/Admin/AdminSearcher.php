@@ -11,14 +11,12 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
@@ -37,7 +35,6 @@ class AdminSearcher
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
         private readonly ElasticsearchHelper $esHelper,
-        private readonly CriteriaParser $parser,
         private readonly string $timeout,
         private readonly int $termMaxLength,
         private readonly string $searchType
@@ -115,7 +112,7 @@ class AdminSearcher
 
         $query = $this->paginate($query, $criteria->getLimit(), $criteria->getOffset());
 
-        $this->addQueries($definition, $criteria, $query, $context);
+        $this->esHelper->addQueries($definition, $criteria, $query, $context);
         $this->esHelper->addPostFilters($definition, $criteria, $query, $context);
         $this->esHelper->addFilters($definition, $criteria, $query, $context);
         $this->esHelper->addSortings($definition, $criteria, $query, $context);
@@ -261,25 +258,5 @@ class AdminSearcher
         }
 
         return $result;
-    }
-
-    private function addQueries(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
-    {
-        $queries = $criteria->getQueries();
-
-        if (empty($queries)) {
-            return;
-        }
-
-        foreach ($queries as $query) {
-            $parsed = $this->parser->parseFilter($query->getQuery(), $definition, $definition->getEntityName(), $context);
-
-            if ($query->getScore() && method_exists($parsed, 'addParameter')) {
-                $score = (string) $query->getScore();
-                $parsed->addParameter('boost', $score);
-            }
-
-            $search->addQuery($parsed, BoolQuery::SHOULD);
-        }
     }
 }

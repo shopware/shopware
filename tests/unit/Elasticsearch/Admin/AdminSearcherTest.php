@@ -4,30 +4,21 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use OpenSearchDSL\Query\FullText\MatchQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Constraint\IsType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
@@ -67,7 +58,6 @@ class AdminSearcherTest extends TestCase
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             $this->createMock(ElasticsearchHelper::class),
-            $this->createMock(CriteriaParser::class),
             '5s',
             20,
             'query_then_fetch',
@@ -103,7 +93,6 @@ class AdminSearcherTest extends TestCase
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             $this->createMock(ElasticsearchHelper::class),
-            $this->createMock(CriteriaParser::class),
             '1s',
             5,
             'query_then_fetch',
@@ -126,7 +115,6 @@ class AdminSearcherTest extends TestCase
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             $this->createMock(ElasticsearchHelper::class),
-            $this->createMock(CriteriaParser::class),
             '5s',
             20,
             'query_then_fetch',
@@ -176,89 +164,6 @@ class AdminSearcherTest extends TestCase
 
         static::assertNotEmpty($data['product']);
         static::assertSame(1, $data['product']['total']);
-    }
-
-    public function testSearchIdsAppliesScoreQueryBoost(): void
-    {
-        $definition = $this->createMock(EntityDefinition::class);
-        $definition->method('getEntityName')->willReturn('product');
-
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $definitionRegistry->method('getByEntityName')
-            ->with('product')
-            ->willReturn($definition);
-
-        $criteria = (new Criteria())->setLimit(10);
-        $criteria->addQuery(new ScoreQuery(new EqualsFilter('productNumber', 'SW-1000'), SearchRanking::LOW_SEARCH_RANKING));
-        $context = Context::createDefaultContext();
-
-        $matchQuery = new MatchQuery('productNumber', 'SW-1000');
-
-        $criteriaParser = $this->createMock(CriteriaParser::class);
-        $criteriaParser->expects($this->once())
-            ->method('parseFilter')
-            ->with(
-                static::callback(static function ($filter): bool {
-                    return $filter instanceof EqualsFilter
-                        && $filter->getField() === 'productNumber'
-                        && $filter->getValue() === 'SW-1000';
-                }),
-                $definition,
-                'product',
-                static::identicalTo($context)
-            )
-            ->willReturn($matchQuery);
-
-        $esHelper = $this->createMock(ElasticsearchHelper::class);
-
-        $hydrator = $this->createMock(AbstractElasticsearchSearchHydrator::class);
-        $hydrator->expects($this->once())
-            ->method('hydrate')
-            ->with($definition, $criteria, $context, new IsType('array'))
-            ->willReturn(IdSearchResult::fromIds(['c1'], $criteria, $context));
-
-        $capturedRequest = null;
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('search')
-            ->with(static::callback(function (array $request) use (&$capturedRequest): bool {
-                $capturedRequest = $request;
-
-                return true;
-            }))
-            ->willReturn([
-                'hits' => [
-                    'total' => ['value' => 1],
-                    'hits' => [],
-                ],
-            ]);
-
-        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
-
-        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($client, $definitionRegistry, $hydrator, $esHelper, $criteriaParser, $searchHelper, $criteria, $context): void {
-            $searcher = new AdminSearcher(
-                $client,
-                $this->registry,
-                $searchHelper,
-                $definitionRegistry,
-                $hydrator,
-                $esHelper,
-                $criteriaParser,
-                '5s',
-                20,
-                'query_then_fetch',
-            );
-
-            $searcher->searchIds('product', $criteria, $context);
-        });
-
-        static::assertNotNull($capturedRequest);
-        $should = $capturedRequest['body']['query']['bool']['should'] ?? [];
-        static::assertNotEmpty($should);
-        $match = $should[0]['match']['productNumber'] ?? [];
-        static::assertSame('SW-1000', $match['query']);
-        static::assertSame(SearchRanking::LOW_SEARCH_RANKING, (int) $match['boost']);
-        static::assertSame(SearchRanking::LOW_SEARCH_RANKING, (int) $matchQuery->getParameter('boost'));
     }
 
     /**

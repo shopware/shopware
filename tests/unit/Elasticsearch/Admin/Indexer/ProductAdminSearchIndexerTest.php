@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -182,12 +183,12 @@ class ProductAdminSearchIndexerTest extends TestCase
 
         static::assertNotNull($matchQuery, 'MatchQuery for textBoosted.ngram should be present');
         static::assertSame('test', $matchQuery['query']);
-        static::assertSame(10, $matchQuery['boost']);
+        static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $matchQuery['boost']);
 
         static::assertNotNull($simpleQueryStringQuery, 'SimpleQueryStringQuery for textBoosted should be present');
         static::assertSame(['textBoosted'], $simpleQueryStringQuery['fields']);
         static::assertSame('test*', $simpleQueryStringQuery['query']);
-        static::assertSame(10, $simpleQueryStringQuery['boost']);
+        static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $simpleQueryStringQuery['boost']);
         static::assertTrue($simpleQueryStringQuery['lenient']);
     }
 

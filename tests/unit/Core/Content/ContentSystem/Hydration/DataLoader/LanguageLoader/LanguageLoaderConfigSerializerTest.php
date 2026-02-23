@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataLoader\LanguageLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\LanguageLoader\LanguageLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\LanguageLoader\LanguageLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 
 /**
  * @internal
@@ -52,7 +52,8 @@ class LanguageLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[DataProvider('emptyOrNullAssociationsProvider')]
+    #[TestWithJson('[{}]', 'absent associations key')]
+    #[TestWithJson('[{"associations": null}]', 'null associations value')]
     #[TestDox('decodes absent or null associations into LanguageLoaderConfig with empty associations')]
     public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
     {
@@ -62,44 +63,34 @@ class LanguageLoaderConfigSerializerTest extends TestCase
         static::assertSame([], $result->associations);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function emptyOrNullAssociationsProvider(): iterable
-    {
-        yield 'absent associations key' => [[]];
-        yield 'null associations value' => [['associations' => null]];
-    }
-
     #[TestDox('throws exception when associations value is not an array')]
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations expected array');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+        );
 
         $this->serializer->decode(['associations' => 'locale']);
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    #[DataProvider('invalidAssociationItemProvider')]
-    #[TestDox('throws exception when an association item is invalid')]
-    public function testDecodeWithInvalidAssociationItemThrowsException(array $data): void
+    #[TestDox('throws exception when an association item is not a string')]
+    public function testDecodeWithNonStringAssociationItemThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations.');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
+        );
 
-        $this->serializer->decode($data);
+        $this->serializer->decode(['associations' => [42]]);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidAssociationItemProvider(): iterable
+    #[TestDox('throws exception when an association item is an empty string')]
+    public function testDecodeWithEmptyStringAssociationItemThrowsException(): void
     {
-        yield 'non-string item triggers type validation' => [['associations' => [42]]];
-        yield 'empty string item triggers empty check' => [['associations' => ['']]];
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+        );
+
+        $this->serializer->decode(['associations' => ['']]);
     }
 
     #[TestDox('encodes LanguageLoaderConfig with no associations into empty array')]
@@ -125,17 +116,11 @@ class LanguageLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws exception when encoding a non-LanguageLoaderConfig config instance')]
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
-        $wrongConfig = new class extends AbstractContentDataLoaderConfig {
-            public function getDecorated(): AbstractContentDataLoaderConfig
-            {
-                throw new DecorationPatternException(self::class);
-            }
-        };
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', LanguageLoaderConfig::class, TestLoaderConfig::class)
+        );
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field config expected');
-
-        $this->serializer->encode($wrongConfig);
+        $this->serializer->encode(new TestLoaderConfig());
     }
 
     #[TestDox('round-trips a config with associations without data loss')]

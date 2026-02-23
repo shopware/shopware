@@ -10,12 +10,10 @@ use Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterField;
 use Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterFieldSerializer;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -23,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EmptyProductDefinition;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -153,7 +152,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $expected
      */
-    #[DataProvider('serializesCriteriaFilterProvider')]
+    #[DataProvider('serializeCriteriaFilterProvider')]
     #[TestDox('serializes filter to array representation')]
     public function testSerializesCriteriaFilterToArray(Filter $filter, array $expected): void
     {
@@ -166,11 +165,11 @@ class CriteriaFilterFieldSerializerTest extends TestCase
      * @param array<string, mixed> $data
      * @param class-string<Filter> $expectedClass
      */
-    #[DataProvider('deserializesCriteriaFilterProvider')]
+    #[DataProvider('deserializeCriteriaFilterProvider')]
     #[TestDox('deserializes filter array to correct Filter object')]
     public function testDeserializesCriteriaFilterFromArray(array $data, string $expectedClass): void
     {
-        $definition = $this->createProductDefinition();
+        $definition = new EmptyProductDefinition();
 
         $result = $this->serializer->deserializeCriteriaFilter($data, $definition);
 
@@ -192,7 +191,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     #[TestDox('throws when filter type is unsupported')]
     public function testDeserializeCriteriaFilterThrowsOnUnsupportedFilterType(): void
     {
-        $definition = $this->createProductDefinition();
+        $definition = new EmptyProductDefinition();
         $data = ['type' => 'invalid-type'];
 
         // QueryStringParser::fromArray() throws InvalidFilterQueryException directly
@@ -206,7 +205,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     #[TestDox('throws on invalid nested filter queries')]
     public function testDeserializeCriteriaFilterThrowsOnInvalidNestedQueries(): void
     {
-        $definition = $this->createProductDefinition();
+        $definition = new EmptyProductDefinition();
         // A multi filter with an invalid nested query causes SearchRequestException via tryToThrow()
         $data = [
             'type' => 'multi',
@@ -225,7 +224,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>, class-string<Filter>}>
      */
-    public static function deserializesCriteriaFilterProvider(): iterable
+    public static function deserializeCriteriaFilterProvider(): iterable
     {
         yield 'equals filter returns EqualsFilter' => [
             ['type' => 'equals', 'field' => 'active', 'value' => true],
@@ -243,7 +242,7 @@ class CriteriaFilterFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{Filter, array<string, mixed>}>
      */
-    public static function serializesCriteriaFilterProvider(): iterable
+    public static function serializeCriteriaFilterProvider(): iterable
     {
         yield 'equals filter maps to type/field/value keys' => [
             new EqualsFilter('active', true),
@@ -277,18 +276,4 @@ class CriteriaFilterFieldSerializerTest extends TestCase
         return $field;
     }
 
-    private function createProductDefinition(): EntityDefinition
-    {
-        return new class extends EntityDefinition {
-            public function getEntityName(): string
-            {
-                return 'product';
-            }
-
-            protected function defineFields(): FieldCollection
-            {
-                return new FieldCollection([]);
-            }
-        };
-    }
 }

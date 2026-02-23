@@ -11,17 +11,16 @@ use Shopware\Core\Content\ContentSystem\Adapter\Field\ResolutionConfigFieldSeria
 use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ResolutionConfig;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\EmptyProductDefinition;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -329,17 +328,7 @@ class ResolutionConfigFieldSerializerTest extends TestCase
 
     private function createSerializerWithEntityDefinition(): ResolutionConfigFieldSerializer
     {
-        $definition = new class extends EntityDefinition {
-            public function getEntityName(): string
-            {
-                return 'product';
-            }
-
-            protected function defineFields(): FieldCollection
-            {
-                return new FieldCollection([]);
-            }
-        };
+        $definition = new EmptyProductDefinition();
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);

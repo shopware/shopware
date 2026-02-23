@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -23,6 +22,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -273,14 +273,7 @@ class EntityLoaderTest extends TestCase
     #[TestDox('returns notFound result when config is not EntityLoaderConfig instance')]
     public function testLoadReturnsNotFoundWhenConfigIsWrongType(): void
     {
-        $wrongConfig = new class extends AbstractContentDataLoaderConfig {
-            public function getDecorated(): AbstractContentDataLoaderConfig
-            {
-                throw new DecorationPatternException(self::class);
-            }
-        };
-
-        $requirement = new DataRequirement('product', 'entity', $wrongConfig);
+        $requirement = new DataRequirement('product', 'entity', new TestLoaderConfig());
         $element = ContentElementBuilder::create('product-detail')->build();
         $context = Generator::generateSalesChannelContext();
 

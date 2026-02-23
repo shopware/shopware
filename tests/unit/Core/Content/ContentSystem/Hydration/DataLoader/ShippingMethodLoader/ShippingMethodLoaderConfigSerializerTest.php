@@ -3,14 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataLoader\ShippingMethodLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ShippingMethodLoader\ShippingMethodLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ShippingMethodLoader\ShippingMethodLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 
 /**
  * @internal
@@ -40,26 +39,13 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         static::assertTrue($result->onlyAvailable);
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    #[DataProvider('emptyOrNullAssociationsProvider')]
-    #[TestDox('decodes absent or null associations into ShippingMethodLoaderConfig with empty associations')]
-    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
+    #[TestDox('decodes null associations into ShippingMethodLoaderConfig with empty associations')]
+    public function testDecodeNullAssociationsReturnsEmptyAssociations(): void
     {
-        $result = $this->serializer->decode($data);
+        $result = $this->serializer->decode(['associations' => null]);
 
         static::assertInstanceOf(ShippingMethodLoaderConfig::class, $result);
         static::assertSame([], $result->associations);
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function emptyOrNullAssociationsProvider(): iterable
-    {
-        yield 'absent associations key' => [[]];
-        yield 'null associations value' => [['associations' => null]];
     }
 
     #[TestDox('decodes array with valid associations into ShippingMethodLoaderConfig with associations')]
@@ -101,39 +87,39 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws exception when associations value is not an array')]
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations expected array');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+        );
 
         $this->serializer->decode(['associations' => 'country']);
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    #[DataProvider('invalidAssociationItemProvider')]
-    #[TestDox('throws exception when an association item is invalid')]
-    public function testDecodeWithInvalidAssociationItemThrowsException(array $data): void
+    #[TestDox('throws exception when an association item is null')]
+    public function testDecodeWithNullAssociationItemThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations.');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'NULL')
+        );
 
-        $this->serializer->decode($data);
+        $this->serializer->decode(['associations' => [null]]);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidAssociationItemProvider(): iterable
+    #[TestDox('throws exception when an association item is an empty string')]
+    public function testDecodeWithEmptyStringAssociationItemThrowsException(): void
     {
-        yield 'association item is null (non-string triggers type error)' => [['associations' => [null]]];
-        yield 'association item is an empty string (empty string triggers format error)' => [['associations' => ['']]];
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+        );
+
+        $this->serializer->decode(['associations' => ['']]);
     }
 
     #[TestDox('throws exception when onlyAvailable value is not a boolean')]
     public function testDecodeWithNonBoolOnlyAvailableThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field onlyAvailable expected bool');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('onlyAvailable', 'bool', 'string')
+        );
 
         $this->serializer->decode(['onlyAvailable' => 'yes']);
     }
@@ -146,7 +132,6 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode($config);
 
         static::assertSame([], $result);
-        static::assertArrayNotHasKey('onlyAvailable', $result);
     }
 
     #[TestDox('encodes ShippingMethodLoaderConfig with associations into array with associations key')]
@@ -177,22 +162,6 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode($config);
 
         static::assertSame(['associations' => ['country'], 'onlyAvailable' => false], $result);
-    }
-
-    #[TestDox('throws exception when encoding a non-ShippingMethodLoaderConfig config instance')]
-    public function testEncodeWithWrongConfigTypeThrowsException(): void
-    {
-        $wrongConfig = new class extends AbstractContentDataLoaderConfig {
-            public function getDecorated(): AbstractContentDataLoaderConfig
-            {
-                throw new DecorationPatternException(self::class);
-            }
-        };
-
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field config expected');
-
-        $this->serializer->encode($wrongConfig);
     }
 
     #[TestDox('round-trips a config with associations without data loss')]
@@ -226,6 +195,16 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         $encoded = $this->serializer->encode($config);
 
         static::assertSame($original, $encoded);
+    }
+
+    #[TestDox('throws exception when encoding a non-ShippingMethodLoaderConfig config instance')]
+    public function testEncodeWithWrongConfigTypeThrowsException(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', ShippingMethodLoaderConfig::class, TestLoaderConfig::class)
+        );
+
+        $this->serializer->encode(new TestLoaderConfig());
     }
 
     #[TestDox('throws DecorationPatternException when getDecorated is called')]

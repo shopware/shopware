@@ -35,11 +35,11 @@ class Privileges
      */
     public function updatePrivileges(string $appId, array $accept, array $revoke, Context $context): void
     {
-        if (\count($accept) === 0 && \count($revoke) === 0) {
+        if ($accept === [] && $revoke === []) {
             return;
         }
 
-        if (\count(array_intersect($accept, $revoke)) !== 0) {
+        if (array_intersect($accept, $revoke) !== []) {
             throw AppException::conflictingPrivilegeUpdate();
         }
 

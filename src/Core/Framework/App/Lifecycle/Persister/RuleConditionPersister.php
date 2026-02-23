@@ -80,7 +80,7 @@ class RuleConditionPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($upserts): void {
                 $this->appScriptConditionRepository->upsert($upserts, $context);
             });
@@ -130,7 +130,7 @@ class RuleConditionPersister
     {
         $ids = $toBeRemoved->getIds();
 
-        if (!empty($ids)) {
+        if ($ids !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->appScriptConditionRepository->delete($ids, $context);

@@ -62,7 +62,7 @@ class OpenApiDefinitionSchemaBuilder
     }
 
     /**
-     * @return Schema[]
+     * @return array<string, Schema>
      */
     public function getSchemaByDefinition(
         EntityDefinition $definition,
@@ -148,7 +148,7 @@ class OpenApiDefinitionSchemaBuilder
 
         $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
 
-        if (!empty($extensionAttributes)) {
+        if ($extensionAttributes !== []) {
             foreach ($extensions as $extension) {
                 if (!$extension instanceof AssociationField) {
                     continue;
@@ -186,6 +186,7 @@ class OpenApiDefinitionSchemaBuilder
         $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
         $requiredAttributes = array_values(array_unique($requiredAttributes));
 
+        $since = $definition->since();
         if (!$onlyFlat && $apiType === 'jsonapi') {
             $schema[$schemaName . 'JsonApi'] = new Schema([
                 'schema' => $schemaName . 'JsonApi',
@@ -198,15 +199,15 @@ class OpenApiDefinitionSchemaBuilder
                 ],
             ]);
 
-            if (!empty($definition->since())) {
-                $schema[$schemaName . 'JsonApi']->description = 'Added since version: ' . $definition->since();
+            if ($since !== null && $since !== '') {
+                $schema[$schemaName . 'JsonApi']->description = 'Added since version: ' . $since;
             }
 
-            if (\count($requiredAttributes)) {
+            if ($requiredAttributes !== []) {
                 $schema[$schemaName . 'JsonApi']->allOf[1]->required = $requiredAttributes;
             }
 
-            if (\count($relationships)) {
+            if ($relationships !== []) {
                 $schema[$schemaName . 'JsonApi']->allOf[1]->properties[] = new Property([
                     'property' => 'relationships',
                     'type' => 'object',
@@ -219,7 +220,7 @@ class OpenApiDefinitionSchemaBuilder
             $attributes[] = $this->getRelationShipProperty($relationship);
         }
 
-        if (!empty($extensionRelationships)) {
+        if ($extensionRelationships !== []) {
             $extensionRelationshipsProperty = new Property([
                 'property' => 'extensions',
                 'type' => 'object',
@@ -244,11 +245,11 @@ class OpenApiDefinitionSchemaBuilder
             'properties' => $attributes,
         ]);
 
-        if (!empty($definition->since())) {
-            $schema[$schemaName]->description = 'Added since version: ' . $definition->since();
+        if ($since !== null && $since !== '') {
+            $schema[$schemaName]->description = 'Added since version: ' . $since;
         }
 
-        if (\count($requiredAttributes)) {
+        if ($requiredAttributes !== []) {
             $schema[$schemaName]->required = $requiredAttributes;
         }
 
@@ -444,7 +445,7 @@ class OpenApiDefinitionSchemaBuilder
 
         $required = [];
 
-        if (!empty($jsonField->getPropertyMapping())) {
+        if ($jsonField->getPropertyMapping() !== []) {
             $definition->properties = [];
         }
 
@@ -462,7 +463,7 @@ class OpenApiDefinitionSchemaBuilder
             $definition->properties[] = $this->getPropertyByField($field);
         }
 
-        if (\count($required)) {
+        if ($required !== []) {
             $definition->required = $required;
         }
         if ($this->isWriteProtected($jsonField)) {

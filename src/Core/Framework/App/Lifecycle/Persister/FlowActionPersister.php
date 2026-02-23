@@ -58,7 +58,7 @@ class FlowActionPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $this->flowActionsRepository->upsert($upserts, $context);
         }
 
@@ -70,7 +70,7 @@ class FlowActionPersister
      */
     private function deleteOldAppFlowActions(array $ids, Context $context): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

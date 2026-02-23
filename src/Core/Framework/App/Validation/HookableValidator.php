@@ -55,11 +55,11 @@ class HookableValidator extends AbstractManifestValidator
             }
         }
 
-        if (!empty($notHookable)) {
+        if ($notHookable !== []) {
             $errors->add(new NotHookableError($notHookable));
         }
 
-        if (!empty($missingPermissions)) {
+        if ($missingPermissions !== []) {
             $errors->add(new MissingPermissionError($missingPermissions));
         }
 

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\Feature;
@@ -60,6 +61,7 @@ class ApiException extends HttpException
     public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
     public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
+    public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -209,7 +211,7 @@ class ApiException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
         return new InvalidSyncOperationException($message);
@@ -363,6 +365,16 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
             \sprintf('Failed to parse JSON file "%s": %s', $filename, $exception->getMessage()),
+        );
+    }
+
+    public static function invalidSchemaForDefinition(EntityDefinition $definition, string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_SCHEMA_FOR_DEFINITION,
+            'Invalid schema for entity "{{ entityName }}". ' . $message,
+            ['entityName' => $definition->getEntityName()]
         );
     }
 

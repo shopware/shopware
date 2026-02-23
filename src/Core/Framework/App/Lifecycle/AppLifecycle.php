@@ -428,7 +428,7 @@ class AppLifecycle extends AbstractAppLifecycle
             }
         }
 
-        if (empty($update)) {
+        if ($update === []) {
             return;
         }
 
@@ -559,7 +559,7 @@ class AppLifecycle extends AbstractAppLifecycle
             }
         }
 
-        if (\count($dataUpdate) > 0) {
+        if ($dataUpdate !== []) {
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($dataUpdate): void {
                 $this->aclRoleRepository->update($dataUpdate, $context);
             });
@@ -588,7 +588,7 @@ class AppLifecycle extends AbstractAppLifecycle
             }
         }
 
-        if (\count($dataUpdate) > 0) {
+        if ($dataUpdate !== []) {
             $this->aclRoleRepository->update($dataUpdate, $context);
         }
     }
@@ -747,24 +747,24 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $usedFeatures = [];
 
-        if (\count($manifest->getAdmin()?->getModules() ?? []) > 0) {
+        if (($manifest->getAdmin()?->getModules() ?? []) !== []) {
             // if there is no app secret but the manifest specifies modules, throw an exception in dev mode
             $usedFeatures[] = 'Admin Modules';
         }
 
-        if (\count($manifest->getPayments()?->getPaymentMethods() ?? []) > 0) {
+        if (($manifest->getPayments()?->getPaymentMethods() ?? []) !== []) {
             $usedFeatures[] = 'Payment Methods';
         }
 
-        if (\count($manifest->getTax()?->getTaxProviders() ?? []) > 0) {
+        if (($manifest->getTax()?->getTaxProviders() ?? []) !== []) {
             $usedFeatures[] = 'Tax providers';
         }
 
-        if (\count($manifest->getWebhooks()?->getWebhooks() ?? []) > 0) {
+        if (($manifest->getWebhooks()?->getWebhooks() ?? []) !== []) {
             $usedFeatures[] = 'Webhooks';
         }
 
-        if (\count($usedFeatures) > 0) {
+        if ($usedFeatures !== []) {
             throw AppException::appSecretRequiredForFeatures($app->getName(), $usedFeatures);
         }
     }

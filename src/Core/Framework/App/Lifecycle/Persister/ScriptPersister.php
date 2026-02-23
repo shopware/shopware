@@ -62,7 +62,7 @@ class ScriptPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $this->scriptRepository->upsert($upserts, $context);
         }
 
@@ -122,7 +122,7 @@ class ScriptPersister
     {
         $ids = $toBeRemoved->getIds();
 
-        if (!empty($ids)) {
+        if ($ids !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->scriptRepository->delete($ids, $context);

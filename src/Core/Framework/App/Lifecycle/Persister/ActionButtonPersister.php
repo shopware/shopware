@@ -42,7 +42,7 @@ class ActionButtonPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $this->actionButtonRepository->upsert($upserts, $context);
         }
 
@@ -53,7 +53,7 @@ class ActionButtonPersister
     {
         $ids = $toBeRemoved->getIds();
 
-        if (!empty($ids)) {
+        if ($ids !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->actionButtonRepository->delete($ids, $context);

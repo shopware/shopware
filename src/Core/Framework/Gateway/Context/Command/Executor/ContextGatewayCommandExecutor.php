@@ -65,7 +65,7 @@ class ContextGatewayCommandExecutor
 
         $response = new ContextTokenResponse($context->getToken());
 
-        if (!empty($parameters)) {
+        if ($parameters !== []) {
             $response = $this->contextSwitchRoute->switchContext(new RequestDataBag($parameters), $context);
         }
 

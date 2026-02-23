@@ -284,7 +284,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     {
         $states = $this->getSystemStates($request, $context, $cart);
 
-        if (empty($states)) {
+        if ($states === []) {
             if ($request->cookies->has(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE)) {
                 $response->headers->removeCookie(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);
                 $response->headers->clearCookie(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);

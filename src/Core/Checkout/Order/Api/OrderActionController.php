@@ -49,7 +49,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order', $orderId, $documentTypes, $skipSentDocuments);
         } else {
@@ -89,7 +89,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order_transaction', $orderTransactionId, $documentTypes, $skipSentDocuments);
         } else {
@@ -129,7 +129,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order_delivery', $orderDeliveryId, $documentTypes, $skipSentDocuments);
         } else {

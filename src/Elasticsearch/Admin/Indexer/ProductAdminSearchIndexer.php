@@ -9,6 +9,7 @@ use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -66,6 +67,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'manufacturerNumber',
             'active',
             'manufacturerId',
+            'price',
             'stock',
             'releaseDate',
         ]);
@@ -84,11 +86,15 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'salesChannelId',
         ]) : [];
 
+        $media = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductMediaDefinition::ENTITY_NAME, [
+            'mediaId',
+        ]) : [];
+
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
-        foreach (array_merge($translations, $tags, $visibilities, $categories) as $pks) {
+        foreach (array_merge($translations, $tags, $visibilities, $categories, $media) as $pks) {
             if (isset($pks['productId'])) {
                 $productIds[] = $pks['productId'];
             }
@@ -165,6 +171,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'manufacturerNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'stock' => AbstractElasticsearchDefinition::INT_FIELD,
+            'price' => ['type' => 'object', 'dynamic' => true],
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
             'updatedAt' => ElasticsearchFieldBuilder::datetime(),
@@ -173,6 +180,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'manufacturer' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
+            'media' => ElasticsearchFieldBuilder::nested(),
             'visibilities' => ElasticsearchFieldBuilder::nested([
                 'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ]),
@@ -180,6 +188,13 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         $mapping['properties'] ??= [];
         $mapping['properties'] = array_merge($mapping['properties'], $override);
+
+        $mapping['dynamic_templates'][] = [
+            'price_fields' => [
+                'path_match' => 'price.*.*',
+                'mapping' => ['type' => 'double'],
+            ],
+        ];
 
         return $mapping;
     }
@@ -283,7 +298,9 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    LOWER(HEX(product.manufacturer)) AS manufacturerId,
                    IFNULL(product.category_ids, parent.category_ids) AS categoryIds,
                    product.stock as stock,
+                   IFNULL(product.price, parent.price) AS priceRaw,
                    IFNULL(product.release_date, parent.release_date) AS releaseDate,
+                   LOWER(HEX(IFNULL(product.product_media_id, parent.product_media_id))) AS mediaId,
                    product.created_at as createdAt,
                    product.updated_at as updatedAt,
                    #visibilities#
@@ -349,6 +366,7 @@ SQL;
                 'active' => (bool) $row['active'],
                 'available' => (bool) $row['available'],
                 'stock' => (int) $row['stock'],
+                'price' => $this->parsePrice($row),
                 'type' => $row['type'] ?? null,
                 'states' => ElasticsearchIndexingUtils::parseJson($row, 'states'),
                 'manufacturer' => [
@@ -367,6 +385,7 @@ SQL;
                         '_count' => 1,
                     ], $visibility);
                 }, ElasticsearchIndexingUtils::parseJson($row, 'visibilities')),
+                'media' => isset($row['mediaId']) ? [['id' => $row['mediaId'], '_count' => 1]] : [],
                 'tags' => $this->parseTagIds($row),
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
                 'updatedAt' => $this->formatDateTime($row, 'updatedAt'),
@@ -375,5 +394,41 @@ SQL;
         }
 
         return $mapped;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array<string, array{gross: float, net: float}>|null
+     */
+    private function parsePrice(array $row): ?array
+    {
+        $raw = $row['priceRaw'] ?? null;
+
+        if (!\is_string($raw) || $raw === '') {
+            return null;
+        }
+
+        $prices = json_decode($raw, true, 512, \JSON_THROW_ON_ERROR);
+
+        if (!\is_array($prices)) {
+            return null;
+        }
+
+        $result = [];
+        foreach ($prices as $key => $priceData) {
+            if (!\is_array($priceData) || !isset($priceData['gross'])) {
+                continue;
+            }
+
+            $currencyId = \is_string($key) && str_starts_with($key, 'c') ? substr($key, 1) : $key;
+
+            $result['c_' . $currencyId] = [
+                'gross' => (float) $priceData['gross'],
+                'net' => (float) ($priceData['net'] ?? 0),
+            ];
+        }
+
+        return $result !== [] ? $result : null;
     }
 }

@@ -125,6 +125,14 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame(100, $document['stock']);
         static::assertIsArray($document['name']);
         static::assertIsArray($document['tags']);
+        static::assertSame('a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6', $document['tags'][0]['id']);
+        static::assertIsArray($document['media']);
+        static::assertCount(1, $document['media']);
+        static::assertSame('aabb11223344556677889900aabbccdd', $document['media'][0]['id']);
+        static::assertIsArray($document['price']);
+        static::assertArrayHasKey('c_b7d2554b0ce847cd82f3ac9bd1c0dfca', $document['price']);
+        static::assertSame(100.0, $document['price']['c_b7d2554b0ce847cd82f3ac9bd1c0dfca']['gross']);
+        static::assertSame(84.03, $document['price']['c_b7d2554b0ce847cd82f3ac9bd1c0dfca']['net']);
     }
 
     public function testGetUpdatedIds(): void
@@ -217,10 +225,19 @@ class ProductAdminSearchIndexerTest extends TestCase
                     'parentId' => null,
                     'sales' => 10,
                     'stock' => 100,
+                    'priceRaw' => json_encode([
+                        'cb7d2554b0ce847cd82f3ac9bd1c0dfca' => [
+                            'currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                            'gross' => 100.0,
+                            'net' => 84.03,
+                            'linked' => true,
+                        ],
+                    ]),
                     'type' => null,
                     'states' => null,
                     'manufacturerId' => 'aabbccdd11223344556677889900aabb',
                     'categoryIds' => null,
+                    'mediaId' => 'aabb11223344556677889900aabbccdd',
                     'visibilities' => null,
                     'createdAt' => '2024-01-01 00:00:00.000',
                     'updatedAt' => null,

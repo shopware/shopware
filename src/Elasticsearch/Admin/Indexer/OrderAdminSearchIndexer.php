@@ -6,13 +6,16 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,6 +25,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 
 #[Package('inventory')]
 final class OrderAdminSearchIndexer extends AbstractAdminIndexer
@@ -88,6 +92,18 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             $orderIds = array_merge($orderIds, $event->getPrimaryKeys($this->getEntity()));
         }
 
+        $transactions = $event->getPrimaryKeysWithPropertyChange(OrderTransactionDefinition::ENTITY_NAME, [
+            'stateId',
+        ]);
+
+        $deliveries = $event->getPrimaryKeysWithPropertyChange(OrderDeliveryDefinition::ENTITY_NAME, [
+            'stateId',
+        ]);
+
+        if ($addresses !== [] || $orderDocuments !== [] || $transactions !== [] || $deliveries !== []) {
+            $orderIds = array_merge($orderIds, $event->getPrimaryKeys($this->getEntity()));
+        }
+
         $multiplePrimaryKeyWrittenEvent = $event;
         $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(OrderTagDefinition::ENTITY_NAME, [
             'tagId',
@@ -111,13 +127,44 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
         $override = [
             'orderNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'amountTotal' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+            'orderDate' => ElasticsearchFieldBuilder::datetime(),
             'orderDateTime' => ElasticsearchFieldBuilder::datetime(),
             'stateId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'stateMachineState' => ElasticsearchFieldBuilder::nested(),
             'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'affiliateCode' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'campaignCode' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
             'tags' => ElasticsearchFieldBuilder::nested(),
+            'billingAddress' => ElasticsearchFieldBuilder::nested([
+                'countryId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            ]),
+            'orderCustomer' => ElasticsearchFieldBuilder::nested([
+                'customer' => ElasticsearchFieldBuilder::nested([
+                    'groupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                    'customerNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                ]),
+            ]),
+            'lineItems' => ElasticsearchFieldBuilder::nested([
+                'productId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'payload' => [
+                    'properties' => [
+                        'code' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                    ],
+                ],
+            ]),
+            'primaryOrderTransaction' => ElasticsearchFieldBuilder::nested([
+                'stateMachineState' => ElasticsearchFieldBuilder::nested(),
+                'paymentMethodId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            ]),
+            'primaryOrderDelivery' => ElasticsearchFieldBuilder::nested([
+                'stateMachineState' => ElasticsearchFieldBuilder::nested(),
+                'shippingMethodId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'shippingOrderAddress' => ElasticsearchFieldBuilder::nested([
+                    'countryId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                ]),
+            ]),
+            'documents' => ElasticsearchFieldBuilder::nested(),
         ];
 
         $mapping['properties'] ??= [];
@@ -141,8 +188,15 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
      */
     public function fetch(array $ids): array
     {
-        $data = $this->connection->fetchAllAssociative(
-            <<<'SQL'
+        $baseMapping = [
+            '#lineItems#' => SqlHelper::objectArray([
+                'id' => 'LOWER(HEX(order_line_item.id))',
+                'productId' => 'LOWER(HEX(order_line_item.product_id))',
+                'code' => 'CASE WHEN order_line_item.promotion_id IS NOT NULL THEN JSON_UNQUOTE(JSON_EXTRACT(order_line_item.payload, \'$.code\')) END',
+            ], 'lineItems'),
+        ];
+
+        $baseSql = <<<'SQL'
             SELECT LOWER(HEX(`order`.id)) as id,
                    GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
                    GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
@@ -153,7 +207,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                    GROUP_CONCAT(DISTINCT order_address.phone_number SEPARATOR " ") as phone_number,
                    GROUP_CONCAT(DISTINCT order_address.additional_address_line1 SEPARATOR " ") as additional_address_line1,
                    GROUP_CONCAT(DISTINCT order_address.additional_address_line2 SEPARATOR " ") as additional_address_line2,
-                   GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(document.config, "$.documentNumber")) SEPARATOR " ") as documentNumber,
+                   GROUP_CONCAT(DISTINCT document.document_number SEPARATOR " ") as documentNumber,
                    order_customer.first_name,
                    order_customer.last_name,
                    order_customer.email,
@@ -167,7 +221,22 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                    `order`.affiliate_code AS affiliateCode,
                    `order`.campaign_code AS campaignCode,
                    `order`.created_at as createdAt,
-                   order_delivery.tracking_codes
+                   primary_delivery.tracking_codes,
+                   GROUP_CONCAT(DISTINCT LOWER(HEX(document.id)) SEPARATOR ' ') as documentIds,
+                   LOWER(HEX(billing_address.id)) as billingAddressId,
+                   LOWER(HEX(billing_address.country_id)) as billingAddressCountryId,
+                   LOWER(HEX(order_customer.id)) as orderCustomerId,
+                   LOWER(HEX(order_customer.customer_id)) as customerId,
+                   LOWER(HEX(customer.customer_group_id)) as customerGroupId,
+                   customer.customer_number as liveCustomerNumber,
+                   #lineItems#,
+                   LOWER(HEX(primary_transaction.id)) as primaryTransactionId,
+                   LOWER(HEX(primary_transaction.state_id)) as primaryTransactionStateId,
+                   LOWER(HEX(primary_transaction.payment_method_id)) as primaryTransactionPaymentMethodId,
+                   LOWER(HEX(primary_delivery.id)) as primaryDeliveryId,
+                   LOWER(HEX(primary_delivery.state_id)) as primaryDeliveryStateId,
+                   LOWER(HEX(primary_delivery.shipping_method_id)) as primaryDeliveryShippingMethodId,
+                   LOWER(HEX(primary_delivery_address.country_id)) as primaryDeliveryCountryId
             FROM `order`
                 LEFT JOIN order_customer
                     ON `order`.id = order_customer.order_id AND `order`.version_id = order_customer.order_version_id
@@ -181,14 +250,27 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                     ON `order`.id = order_tag.order_id AND `order`.version_id = order_tag.order_version_id
                 LEFT JOIN tag
                     ON order_tag.tag_id = tag.id
-                LEFT JOIN order_delivery
-                    ON `order`.id = order_delivery.order_id AND `order`.version_id = order_delivery.order_version_id
                 LEFT JOIN document
-                    ON `order`.id = document.order_id
+                     ON `order`.id = document.order_id
+                LEFT JOIN order_address AS billing_address
+                    ON `order`.billing_address_id = billing_address.id AND `order`.billing_address_version_id = billing_address.version_id
+                LEFT JOIN customer
+                    ON order_customer.customer_id = customer.id
+                LEFT JOIN order_line_item
+                    ON `order`.id = order_line_item.order_id AND `order`.version_id = order_line_item.order_version_id
+                LEFT JOIN order_transaction AS primary_transaction
+                    ON `order`.primary_order_transaction_id = primary_transaction.id AND `order`.primary_order_transaction_version_id = primary_transaction.version_id
+                LEFT JOIN order_delivery AS primary_delivery
+                    ON `order`.primary_order_delivery_id = primary_delivery.id AND `order`.primary_order_delivery_version_id = primary_delivery.version_id
+                LEFT JOIN order_address AS primary_delivery_address
+                    ON primary_delivery.shipping_order_address_id = primary_delivery_address.id AND primary_delivery.shipping_order_address_version_id = primary_delivery_address.version_id
             WHERE `order`.id IN (:ids)
             AND `order`.version_id = :versionId
             GROUP BY `order`.id
-SQL,
+SQL;
+
+        $data = $this->connection->fetchAllAssociative(
+            str_replace(array_keys($baseMapping), array_values($baseMapping), $baseSql),
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -236,16 +318,136 @@ SQL,
                 'text' => \strtolower($text),
                 'orderNumber' => $row['order_number'] ?? null,
                 'amountTotal' => isset($row['amount_total']) ? (float) $row['amount_total'] : null,
+                'orderDate' => $this->formatDateTime($row, 'order_date_time'),
                 'orderDateTime' => $this->formatDateTime($row, 'order_date_time'),
                 'stateId' => $row['stateId'] ?? null,
+                'stateMachineState' => isset($row['stateId']) ? ['id' => $row['stateId'], '_count' => 1] : null,
                 'salesChannelId' => $row['salesChannelId'] ?? null,
                 'affiliateCode' => $row['affiliateCode'] ?? null,
                 'campaignCode' => $row['campaignCode'] ?? null,
                 'tags' => $this->parseTagIds($row),
+                'billingAddress' => $this->parseAddress($row, 'billingAddressId', 'billingAddressCountryId'),
+                'orderCustomer' => $this->parseOrderCustomer($row),
+                'lineItems' => $this->parseLineItems($row),
+                'primaryOrderTransaction' => $this->parsePrimaryOrderTransaction($row),
+                'primaryOrderDelivery' => $this->parsePrimaryOrderDelivery($row),
+                'documents' => $this->parseTagIds($row, 'documentIds'),
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
             ];
         }
 
         return $mapped;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array{id: string, _count: int, countryId: string}|null
+     */
+    private function parseAddress(array $row, string $idKey, string $countryIdKey): ?array
+    {
+        if (!isset($row[$idKey]) || $row[$idKey] === '') {
+            return null;
+        }
+
+        return [
+            'id' => $row[$idKey],
+            '_count' => 1,
+            'countryId' => $row[$countryIdKey] ?? '',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array{id: string, _count: int, customer: array{id: string, _count: int, groupId: string, customerNumber: string}|null}|null
+     */
+    private function parseOrderCustomer(array $row): ?array
+    {
+        if (!isset($row['orderCustomerId']) || $row['orderCustomerId'] === '') {
+            return null;
+        }
+
+        $customer = null;
+        if (isset($row['customerId']) && $row['customerId'] !== '') {
+            $customer = [
+                'id' => $row['customerId'],
+                '_count' => 1,
+                'groupId' => $row['customerGroupId'] ?? '',
+                'customerNumber' => $row['liveCustomerNumber'] ?? '',
+            ];
+        }
+
+        return [
+            'id' => $row['orderCustomerId'],
+            '_count' => 1,
+            'customer' => $customer,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return list<array{id: string, _count: int, productId: string, payload: array{code: string}}>
+     */
+    private function parseLineItems(array $row): array
+    {
+        return array_values(array_map(static function (array $item) {
+            return [
+                'id' => (string) ($item['id'] ?? ''),
+                '_count' => 1,
+                'productId' => (string) ($item['productId'] ?? ''),
+                'payload' => ['code' => (string) ($item['code'] ?? '')],
+            ];
+        }, ElasticsearchIndexingUtils::parseJson($row, 'lineItems')));
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array{id: string, _count: int, stateMachineState: array{id: string, _count: int}, paymentMethodId: string}|null
+     */
+    private function parsePrimaryOrderTransaction(array $row): ?array
+    {
+        if (!isset($row['primaryTransactionId']) || $row['primaryTransactionId'] === '') {
+            return null;
+        }
+
+        return [
+            'id' => $row['primaryTransactionId'],
+            '_count' => 1,
+            'stateMachineState' => [
+                'id' => $row['primaryTransactionStateId'] ?? '',
+                '_count' => 1,
+            ],
+            'paymentMethodId' => $row['primaryTransactionPaymentMethodId'] ?? '',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array{id: string, _count: int, stateMachineState: array{id: string, _count: int}, shippingMethodId: string, shippingOrderAddress: array{id: string, _count: int, countryId: string}}|null
+     */
+    private function parsePrimaryOrderDelivery(array $row): ?array
+    {
+        if (!isset($row['primaryDeliveryId']) || $row['primaryDeliveryId'] === '') {
+            return null;
+        }
+
+        return [
+            'id' => $row['primaryDeliveryId'],
+            '_count' => 1,
+            'stateMachineState' => [
+                'id' => $row['primaryDeliveryStateId'] ?? '',
+                '_count' => 1,
+            ],
+            'shippingMethodId' => $row['primaryDeliveryShippingMethodId'] ?? '',
+            'shippingOrderAddress' => [
+                'id' => $row['primaryDeliveryId'],
+                '_count' => 1,
+                'countryId' => $row['primaryDeliveryCountryId'] ?? '',
+            ],
+        ];
     }
 }

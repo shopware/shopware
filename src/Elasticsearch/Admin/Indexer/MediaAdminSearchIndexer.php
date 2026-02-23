@@ -63,6 +63,7 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
         $mediaIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
             'fileName',
             'fileExtension',
+            'fileSize',
             'path',
             'mediaFolderId',
         ]);
@@ -97,11 +98,15 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
         $override = [
             'fileName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'fileExtension' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'fileSize' => AbstractElasticsearchDefinition::INT_FIELD,
+            'path' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'private' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
             'mediaFolderId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'title' => $languageFields,
             'alt' => $languageFields,
             'mediaFolder' => ElasticsearchFieldBuilder::nested([
+                'name' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'path' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'defaultFolder' => ElasticsearchFieldBuilder::nested([
                     'entity' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 ]),
@@ -144,10 +149,12 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
                        'alt', media_translation.alt
                    )) as translatedFields,
                    media_folder.name as folderName,
+                   media_folder.path as folderPath,
                    media_default_folder.entity,
                    media.private,
                    media.file_name,
                    media.file_extension,
+                   media.file_size,
                    media.path,
                    LOWER(HEX(media.media_folder_id)) AS mediaFolderId,
                    media.created_at as createdAt
@@ -201,6 +208,14 @@ SQL,
 
             $mediaFolder = [];
 
+            if (isset($row['folderName']) && \is_string($row['folderName'])) {
+                $mediaFolder['name'] = $row['folderName'];
+            }
+
+            if (isset($row['folderPath']) && \is_string($row['folderPath'])) {
+                $mediaFolder['path'] = $row['folderPath'];
+            }
+
             if (isset($row['entity']) && \is_string($row['entity'])) {
                 $mediaFolder['defaultFolder'] = [
                     'entity' => $row['entity'],
@@ -213,6 +228,8 @@ SQL,
                 'fileName' => $row['file_name'] ?? null,
                 'private' => (bool) $row['private'],
                 'fileExtension' => $row['file_extension'] ?? null,
+                'fileSize' => isset($row['file_size']) ? (int) $row['file_size'] : null,
+                'path' => $row['path'] ?? null,
                 'mediaFolderId' => $row['mediaFolderId'] ?? null,
                 'title' => $translatedTitles,
                 'mediaFolder' => $mediaFolder,

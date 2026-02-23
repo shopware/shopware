@@ -67,6 +67,8 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'customerNumber',
             'active',
             'groupId',
+            'defaultBillingAddressId',
+            'defaultShippingAddressId',
         ]);
 
         $addresses = $event->getPrimaryKeysWithPropertyChange(CustomerAddressDefinition::ENTITY_NAME, [
@@ -119,6 +121,12 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'salutationId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'boundSalesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'requestedGroupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'defaultBillingAddress' => ElasticsearchFieldBuilder::nested([
+                'countryId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            ]),
+            'defaultShippingAddress' => ElasticsearchFieldBuilder::nested([
+                'countryId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            ]),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
             'tags' => ElasticsearchFieldBuilder::nested(),
         ];
@@ -171,6 +179,10 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
                    LOWER(HEX(customer.salutation_id)) AS salutationId,
                    LOWER(HEX(customer.bound_sales_channel_id)) AS boundSalesChannelId,
                    LOWER(HEX(customer.requested_customer_group_id)) AS requestedGroupId,
+                   LOWER(HEX(customer.default_billing_address_id)) AS defaultBillingAddressId,
+                   LOWER(HEX(default_billing_address.country_id)) AS defaultBillingAddressCountryId,
+                   LOWER(HEX(customer.default_shipping_address_id)) AS defaultShippingAddressId,
+                   LOWER(HEX(default_shipping_address.country_id)) AS defaultShippingAddressCountryId,
                    customer.created_at as createdAt
             FROM customer
                 LEFT JOIN customer_address
@@ -179,6 +191,10 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
                     ON customer_address.country_id = country.id
                 LEFT JOIN country_translation
                     ON country.id = country_translation.country_id
+                LEFT JOIN customer_address AS default_billing_address
+                    ON customer.default_billing_address_id = default_billing_address.id
+                LEFT JOIN customer_address AS default_shipping_address
+                    ON customer.default_shipping_address_id = default_shipping_address.id
                 LEFT JOIN customer_tag
                     ON customer.id = customer_tag.customer_id
                 LEFT JOIN tag
@@ -241,11 +257,31 @@ SQL,
                 'salutationId' => $row['salutationId'] ?? null,
                 'boundSalesChannelId' => $row['boundSalesChannelId'] ?? null,
                 'requestedGroupId' => $row['requestedGroupId'] ?? null,
+                'defaultBillingAddress' => $this->parseAddress($row, 'defaultBillingAddressId', 'defaultBillingAddressCountryId'),
+                'defaultShippingAddress' => $this->parseAddress($row, 'defaultShippingAddressId', 'defaultShippingAddressCountryId'),
                 'tags' => $this->parseTagIds($row),
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
             ];
         }
 
         return $mapped;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array{id: string, _count: int, countryId: string}|null
+     */
+    private function parseAddress(array $row, string $idKey, string $countryIdKey): ?array
+    {
+        if (!isset($row[$idKey]) || $row[$idKey] === '') {
+            return null;
+        }
+
+        return [
+            'id' => $row[$idKey],
+            '_count' => 1,
+            'countryId' => $row[$countryIdKey] ?? '',
+        ];
     }
 }

@@ -6,9 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTaskHandler;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -22,11 +25,14 @@ class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
 
     private Connection $connection;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->handler = static::getContainer()->get(CleanupCustomerRecoveryTaskHandler::class);
         $this->connection = static::getContainer()->get(Connection::class);
+        $this->ids = new IdsCollection();
     }
 
     public function testExpiredRecoveryIsDeleted(): void
@@ -95,46 +101,17 @@ class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
 
     private function createCustomer(): string
     {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $customerRepository = static::getContainer()->get('customer.repository');
 
-        $salutationId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM salutation LIMIT 1');
-        $paymentMethodId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM payment_method LIMIT 1');
-        $groupId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM customer_group LIMIT 1');
-        $salesChannelId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM sales_channel LIMIT 1');
-        $countryId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM country LIMIT 1');
+        $customerNumber = 'TEST-' . Uuid::randomHex();
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $customer = (new CustomerBuilder($this->ids, $customerNumber))
+            ->add('email', $customerNumber . '@example.com');
 
-        $this->connection->insert('customer', [
-            'id' => Uuid::fromHexToBytes($customerId),
-            'customer_number' => 'TEST-' . $customerId,
-            'salutation_id' => Uuid::fromHexToBytes($salutationId),
-            'first_name' => 'Test',
-            'last_name' => 'Customer',
-            'email' => $customerId . '@example.com',
-            'password' => password_hash('test1234', \PASSWORD_BCRYPT),
-            'default_billing_address_id' => Uuid::fromHexToBytes($addressId),
-            'default_shipping_address_id' => Uuid::fromHexToBytes($addressId),
-            'customer_group_id' => Uuid::fromHexToBytes($groupId),
-            'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
-            'created_at' => $now,
-        ]);
+        $customerRepository->create([$customer->build()], $context);
 
-        $this->connection->insert('customer_address', [
-            'id' => Uuid::fromHexToBytes($addressId),
-            'customer_id' => Uuid::fromHexToBytes($customerId),
-            'salutation_id' => Uuid::fromHexToBytes($salutationId),
-            'first_name' => 'Test',
-            'last_name' => 'Customer',
-            'street' => 'Test Street 1',
-            'zipcode' => '12345',
-            'city' => 'Test City',
-            'country_id' => Uuid::fromHexToBytes($countryId),
-            'created_at' => $now,
-        ]);
-
-        return $customerId;
+        return $this->ids->get($customerNumber);
     }
 
     private function createCustomerRecovery(string $customerId, \DateTime $createdAt): void

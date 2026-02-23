@@ -66,10 +66,12 @@ class ClientRepository implements ClientRepositoryInterface
             return null;
         }
 
+        $userId = $accessKey['user_id'] ?? null;
+
         return new ApiClient(
             $clientIdentifier,
             true,
-            name: $accessKey['label'] ?? Uuid::fromBytesToHex($accessKey['user_id'] ?? ''),
+            name: $userId !== null ? Uuid::fromBytesToHex($userId) : $accessKey['label'] ?? '',
             confidential: true
         );
     }
@@ -84,7 +86,7 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return array{user_id: string, secret_access_key: string}|array{id: string, label: string, active: '1', secret_access_key: string}|null
+     * @return array{user_id: string, secret_access_key: string}|array{id: string, label: string, secret_access_key: string}|null
      */
     private function getByAccessKey(string $clientIdentifier): ?array
     {
@@ -122,7 +124,7 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return array{id: string, label: string, active: '1', secret_access_key: string}|null
+     * @return array{id: string, label: string, secret_access_key: string}|null
      */
     private function getIntegrationByAccessKey(string $clientIdentifier): ?array
     {
@@ -144,6 +146,7 @@ class ClientRepository implements ClientRepositoryInterface
         if ($key['active'] === '0') {
             return null;
         }
+        unset($key['active']);
 
         return $key;
     }

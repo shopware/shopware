@@ -48,7 +48,7 @@ class CartRestorer
             $currentContext->getSalesChannelId(),
         );
 
-        if (empty($customerPayload) || !empty($customerPayload['permissions'])) {
+        if ($customerPayload === [] || !empty($customerPayload['permissions'])) {
             return $this->replaceContextToken($customerId, $currentContext, $token);
         }
 
@@ -73,7 +73,7 @@ class CartRestorer
             $customerId
         );
 
-        if (empty($customerPayload) || !empty($customerPayload['permissions']) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
+        if ($customerPayload === [] || !empty($customerPayload['permissions']) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
             return $this->replaceContextToken($customerId, $currentContext);
         }
 

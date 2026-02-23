@@ -60,7 +60,7 @@ class NoUpdatesInExecuteQueryRule implements Rule
             return $errors;
         }
 
-        if (!empty($node->args)) {
+        if ($node->args !== []) {
             $firstArg = $node->args[0];
 
             if ($firstArg instanceof Node\Arg && $firstArg->value instanceof Node\Scalar\String_) {

@@ -60,21 +60,21 @@ class HookableBusinessEvent implements Hookable
      */
     private function checkPermissionsForDataType(array $dataType, AclPrivilegeCollection $permissions): bool
     {
-        if ($dataType['type'] === ObjectType::TYPE && \is_array($dataType['data']) && !empty($dataType['data'])) {
-            foreach ($dataType['data'] as $nested) {
+        $type = $dataType['type'];
+        $data = $dataType['data'];
+        if ($type === ObjectType::TYPE && \is_array($data) && $data !== []) {
+            foreach ($data as $nested) {
                 if (!$this->checkPermissionsForDataType($nested, $permissions)) {
                     return false;
                 }
             }
         }
 
-        if ($dataType['type'] === ArrayType::TYPE && $dataType['of']) {
-            if (!$this->checkPermissionsForDataType($dataType['of'], $permissions)) {
-                return false;
-            }
+        if ($type === ArrayType::TYPE && $dataType['of'] && !$this->checkPermissionsForDataType($dataType['of'], $permissions)) {
+            return false;
         }
 
-        if ($dataType['type'] === EntityType::TYPE || $dataType['type'] === EntityCollectionType::TYPE) {
+        if ($type === EntityType::TYPE || $type === EntityCollectionType::TYPE) {
             /** @var EntityDefinition $definition */
             $definition = new $dataType['entityClass']();
             if (!$permissions->isAllowed($definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ)) {

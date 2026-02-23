@@ -1,13 +1,18 @@
 import ContextGatewayClient from '../../src/service/context-gateway-client.service';
+import * as NavigationHelper from '../../src/helper/navigation.helper';
 
 /**
  * @package framework
  */
 describe('Context gateway client service', () => {
-    beforeEach(() => {
-        delete window.location;
+    let navigateToSpy;
+    let reloadPageSpy;
+    let getLocationHrefSpy;
 
-        window.location = { href: '', reload: jest.fn() };
+    beforeEach(() => {
+        navigateToSpy = jest.spyOn(NavigationHelper, 'navigateTo').mockImplementation(() => {});
+        reloadPageSpy = jest.spyOn(NavigationHelper, 'reloadPage').mockImplementation(() => {});
+        getLocationHrefSpy = jest.spyOn(NavigationHelper, 'getLocationHref').mockReturnValue('http://localhost/');
         window['router']['frontend.gateway.context'] = 'https://example.com/gateway/context';
     });
 
@@ -44,8 +49,8 @@ describe('Context gateway client service', () => {
             body: JSON.stringify({ appName: 'test' }),
         });
 
-        expect(window.location.href).toBe('');
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(navigateToSpy).not.toHaveBeenCalled();
+        expect(reloadPageSpy).not.toHaveBeenCalled();
     });
 
     it('should handle bad requests', async () => {
@@ -117,7 +122,7 @@ describe('Context gateway client service', () => {
             current: 'https://platform.dev.localhost/checkout/register',
             redirect: undefined,
             customTarget: null,
-            expectedHref: 'https://platform.dev.localhost/checkout/register',
+            expectedHref: null,
             shouldReload: true,
         },
         {
@@ -125,7 +130,7 @@ describe('Context gateway client service', () => {
             current: 'https://platform.dev.localhost/checkout/register',
             redirect: null,
             customTarget: null,
-            expectedHref: 'https://platform.dev.localhost/checkout/register',
+            expectedHref: null,
             shouldReload: true,
         },
         {
@@ -181,7 +186,7 @@ describe('Context gateway client service', () => {
             current: 'https://platform.dev.localhost/foo',
             redirect: '',
             customTarget: '',
-            expectedHref: 'https://platform.dev.localhost/foo',
+            expectedHref: null,
             shouldReload: true,
         },
         {
@@ -193,7 +198,7 @@ describe('Context gateway client service', () => {
             shouldReload: false,
         },
     ])('$name', async ({ current, redirect, customTarget, expectedHref, shouldReload }) => {
-        window.location.href = current;
+        getLocationHrefSpy.mockReturnValue(current);
 
         global.fetch = jest.fn(() =>
             Promise.resolve({
@@ -210,10 +215,12 @@ describe('Context gateway client service', () => {
         const tokenResponse = await client.call();
         client.navigate(tokenResponse, customTarget);
 
-        expect(window.location.href).toBe(expectedHref);
-
-        shouldReload
-            ? expect(window.location.reload).toHaveBeenCalled()
-            : expect(window.location.reload).not.toHaveBeenCalled();
+        if (shouldReload) {
+            expect(reloadPageSpy).toHaveBeenCalledTimes(1);
+            expect(navigateToSpy).not.toHaveBeenCalled();
+        } else {
+            expect(navigateToSpy).toHaveBeenCalledWith(expectedHref);
+            expect(reloadPageSpy).not.toHaveBeenCalled();
+        }
     });
 });

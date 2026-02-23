@@ -1,4 +1,5 @@
 import SpatialArViewerPlugin from 'src/plugin/spatial/spatial-ar-viewer-plugin';
+import * as NavigationHelper from 'src/helper/navigation.helper';
 
 jest.mock('src/plugin/spatial/utils/spatial-dive-load-util');
 
@@ -114,22 +115,7 @@ describe('SpatialArViewerPlugin', () => {
 
         window.autostartingARView = undefined;
 
-        delete window.location;
-        window.location = {
-            ancestorOrigins: null,
-            hash: null,
-            host: 'test.com',
-            port: '80',
-            protocol: 'http:',
-            hostname: 'test.com',
-            href: 'http://test.com',
-            origin: 'http://test.com',
-            pathname: null,
-            search: '',
-            assign: null,
-            reload: null,
-            replace: null,
-        };
+        jest.spyOn(NavigationHelper, 'getLocationSearch').mockReturnValue('');
 
         SpatialArViewerPluginObject = new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'), {
             spatialArId: "1",
@@ -569,10 +555,14 @@ describe('SpatialArViewerPlugin', () => {
     });
 
     describe('autostartAr', () => {
+        function mockLocationSearch(val) {
+            jest.spyOn(NavigationHelper, 'getLocationSearch').mockReturnValue(val);
+        }
+
         beforeEach(() => {
             jest.clearAllMocks();
 
-            window.location.search = '?autostartAr=1';
+            mockLocationSearch('?autostartAr=1');
             SpatialArViewerPluginObject.spatialArId = '1';
             SpatialArViewerPluginObject.options = {...arViewerOptions};
             window.autostartingARView = null;
@@ -580,7 +570,7 @@ describe('SpatialArViewerPlugin', () => {
 
         test('should do nothing if no autostartAr param is present', () => {
             const spyShowARAutostartModal = jest.spyOn(SpatialArViewerPluginObject, 'showARAutostartModal');
-            window.location.search = '';
+            mockLocationSearch('');
 
             SpatialArViewerPluginObject.onReady();
 
@@ -590,7 +580,7 @@ describe('SpatialArViewerPlugin', () => {
 
         test('should do nothing if no spatialArId is present', () => {
             const spyShowARAutostartModal = jest.spyOn(SpatialArViewerPluginObject, 'showARAutostartModal');
-            window.location.search = '?autostartAr=1';
+            mockLocationSearch('?autostartAr=1');
             SpatialArViewerPluginObject.spatialArId = null;
 
             SpatialArViewerPluginObject.onReady();
@@ -601,7 +591,7 @@ describe('SpatialArViewerPlugin', () => {
 
         test('should do nothing if autostartAR is not equal to spatialArId', () => {
             const spyShowARAutostartModal = jest.spyOn(SpatialArViewerPluginObject, 'showARAutostartModal');
-            window.location.search = '?autostartAr=2';
+            mockLocationSearch('?autostartAr=2');
             SpatialArViewerPluginObject.spatialArId = '1';
 
             SpatialArViewerPluginObject.onReady();
@@ -612,7 +602,7 @@ describe('SpatialArViewerPlugin', () => {
 
         test('should do nothing if autostartAR is not equal to spatialArId', () => {
             const spyShowARAutostartModal = jest.spyOn(SpatialArViewerPluginObject, 'showARAutostartModal');
-            window.location.search = '?autostartAr=2';
+            mockLocationSearch('?autostartAr=2');
             SpatialArViewerPluginObject.spatialArId = '1';
 
             SpatialArViewerPluginObject.onReady();
@@ -624,7 +614,7 @@ describe('SpatialArViewerPlugin', () => {
         test('should not show autostart modal if autostartingARView is already true', () => {
             const spyShowARAutostartModal = jest.spyOn(SpatialArViewerPluginObject, 'showARAutostartModal');
 
-            window.location.search = '?autostartAr=1';
+            mockLocationSearch('?autostartAr=1');
             SpatialArViewerPluginObject.spatialArId = '1';
             window.autostartingARView = true;
 

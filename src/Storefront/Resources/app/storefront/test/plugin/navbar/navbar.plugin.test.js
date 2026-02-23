@@ -1,4 +1,6 @@
+import DeviceDetection from 'src/helper/device-detection.helper';
 import FocusHandler from 'src/helper/focus-handler.helper';
+import * as NavigationHelper from 'src/helper/navigation.helper';
 import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
 
 describe('NavbarPlugin', () => {
@@ -7,6 +9,7 @@ describe('NavbarPlugin', () => {
     let mockLink;
 
     beforeEach(() => {
+        jest.spyOn(DeviceDetection, 'isTouchDevice').mockReturnValue(false);
         // Create a mock DOM environment
         mockElement = document.createElement('div');
         mockLink = document.createElement('a');
@@ -43,23 +46,21 @@ describe('NavbarPlugin', () => {
     });
 
     test('init should omit click event for elements without a reference', () => {
-        // Create a new instance of NavbarPlugin inside the test
-        navbarPlugin = new NavbarPlugin(mockElement, {}, false);
-        mockLink.removeAttribute('href');
-        navbarPlugin._topLevelLinks = [mockLink];
+        const noHrefElement = document.createElement('div');
+        const noHrefLink = document.createElement('a');
+        noHrefLink.classList.add('main-navigation-link');
+        noHrefElement.appendChild(noHrefLink);
+        jest.spyOn(noHrefLink, 'addEventListener');
 
-        // Clear the mock history of addEventListener
-        mockLink.addEventListener.mockClear();
-
-        navbarPlugin.init();
+        navbarPlugin = new NavbarPlugin(noHrefElement);
 
         const addedEvents = {};
-        mockLink.addEventListener.mock.calls.forEach(call => {
+        noHrefLink.addEventListener.mock.calls.forEach(call => {
             addedEvents[call[0]] = call[1];
         });
 
         expect(navbarPlugin._topLevelLinks).not.toBeNull();
-        expect(mockLink.addEventListener).toHaveBeenCalledTimes(2);
+        expect(noHrefLink.addEventListener).toHaveBeenCalledTimes(2);
 
         expect(addedEvents['mouseenter']).toBeDefined();
         expect(typeof addedEvents['mouseenter']).toBe('function');
@@ -67,7 +68,7 @@ describe('NavbarPlugin', () => {
         expect(addedEvents['mouseleave']).toBeDefined();
         expect(typeof addedEvents['mouseleave']).toBe('function');
 
-        expect(addedEvents).not.toContain('click');
+        expect(addedEvents['click']).toBeUndefined();
     });
 
     test('_navigateToLinkOnClick should open in new window when target blank is set', () => {
@@ -80,8 +81,7 @@ describe('NavbarPlugin', () => {
     });
 
     test('_navigateToLinkOnClick should set window.location.href if not target _blank', () => {
-        delete window.location;
-        window.location = new URL('https://www.example.com');
+        const navigateToSpy = jest.spyOn(NavigationHelper, 'navigateTo').mockImplementation(() => {});
 
         const mockEventClick = { type: 'click', pageX: 99 };
         const mockLink = {
@@ -94,7 +94,7 @@ describe('NavbarPlugin', () => {
 
         navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
 
-        expect(window.location.href).toBe(mockLink.href);
+        expect(navigateToSpy).toHaveBeenCalledWith('https://example.com/abc');
     });
 
     test('_closeAllDropdowns should close all dropdowns', () => {

@@ -224,4 +224,69 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         static::assertInstanceOf(CalculatedTax::class, $first);
         static::assertSame('VAT 19%', $first->getLabel());
     }
+
+    public function testDecodeWithZeroListPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        $data = [
+            'unitPrice' => 100,
+            'totalPrice' => 100,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+            'listPrice' => [
+                'price' => 0,
+                'discount' => 0,
+                'percentage' => 0,
+            ],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        static::assertNull($result->getListPrice());
+    }
+
+    public function testDecodeWithValidListPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        $data = [
+            'unitPrice' => 100,
+            'totalPrice' => 100,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+            'listPrice' => [
+                'price' => 200,
+                'discount' => -100,
+                'percentage' => 50,
+            ],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        static::assertInstanceOf(ListPrice::class, $result->getListPrice());
+        static::assertSame(200.0, $result->getListPrice()->getPrice());
+    }
+
+    public function testDecodeWithoutListPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        $data = [
+            'unitPrice' => 100,
+            'totalPrice' => 100,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        static::assertNull($result->getListPrice());
+    }
 }

@@ -86,7 +86,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $listPrice = null;
-        if (isset($decoded['listPrice'])) {
+        if (isset($decoded['listPrice']) && ((float) ($decoded['listPrice']['price'] ?? 0)) > 0) {
             $listPrice = ListPrice::createFromUnitPrice(
                 (float) $decoded['unitPrice'],
                 (float) $decoded['listPrice']['price']

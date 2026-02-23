@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
@@ -85,7 +86,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         if (!$this->httpCacheEnabled) {
             // no-store attribute still has to be processed even in early return case
-            if ($request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE)) {
+            if ($this->isNoStoreRoute($request)) {
                 $this->applyPolicy($request, $response, $area, false, null);
             }
 
@@ -200,6 +201,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         // old behavior
         if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            if ($this->isNoStoreRoute($request)) {
+                $this->addNoStoreHeader($request, $response);
+
+                return;
+            }
+
             $sMaxAge = $cacheAttribute->sMaxAge ?? $this->defaultTtl;
             $response->setSharedMaxAge($sMaxAge);
 
@@ -239,7 +246,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     private function noCache(Request $request, Response $response, string $area): void
     {
         if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
-            // do nothing for backwards compatibility
+            if ($this->isNoStoreRoute($request)) {
+                $this->addNoStoreHeader($request, $response);
+            }
+
             return;
         }
         $this->applyPolicy($request, $response, $area, false, null);
@@ -346,7 +356,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      */
     private function setCurrencyCookie(Request $request, Response $response): void
     {
-        $currencyId = $request->get(SalesChannelContextService::CURRENCY_ID);
+        $currencyId = RequestParamHelper::get($request, SalesChannelContextService::CURRENCY_ID);
 
         if (!$currencyId) {
             return;
@@ -365,5 +375,23 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
         );
+    }
+
+    private function isNoStoreRoute(Request $request): bool
+    {
+        return $request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE);
+    }
+
+    private function addNoStoreHeader(Request $request, Response $response): void
+    {
+        if (!$this->isNoStoreRoute($request)) {
+            return;
+        }
+
+        $response->setMaxAge(0);
+        $response->headers->addCacheControlDirective('no-cache');
+        $response->headers->addCacheControlDirective('no-store');
+        $response->headers->addCacheControlDirective('must-revalidate');
+        $response->setExpires(new \DateTime('@0'));
     }
 }

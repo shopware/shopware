@@ -406,6 +406,41 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DataProvider('noStoreWithoutCacheReworkProvider')]
+    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
+    public function testNoStoreAppliedWithoutCacheRework(string $method, bool $withHttpCache): void
+    {
+        $request = new Request();
+        $request->setMethod($method);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
+
+        if ($withHttpCache) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+        }
+
+        $response = new Response();
+        $this->subscriber->setResponseCache($this->createResponseEvent($request, $response));
+
+        static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
+        static::assertTrue($response->headers->hasCacheControlDirective('no-cache'));
+        static::assertTrue($response->headers->hasCacheControlDirective('must-revalidate'));
+        static::assertFalse($response->isCacheable());
+    }
+
+    /**
+     * @return iterable<string, array{method: string, withHttpCache: bool}>
+     */
+    public static function noStoreWithoutCacheReworkProvider(): iterable
+    {
+        yield 'GET route with cache attribute' => ['method' => Request::METHOD_GET, 'withHttpCache' => true];
+        yield 'GET route without cache attribute' => ['method' => Request::METHOD_GET, 'withHttpCache' => false];
+        yield 'POST route' => ['method' => Request::METHOD_POST, 'withHttpCache' => false];
+    }
+
+    /**
      * @param array<string, mixed> $requestResponseOptions
      * @param array{
      *     policies?: array<string, CachePolicyConfig>,

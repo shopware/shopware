@@ -66,7 +66,6 @@ export default function createLoginService(
     const onLoginListener: (() => void)[] = [];
     const cookieStorage = cookieStorageFactory();
     let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
-    let logoutTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
     /**
      * Tracks an in-flight token refresh request so that concurrent calls
@@ -88,11 +87,6 @@ export default function createLoginService(
     // Subscriber pattern for token refresh events
     const refreshSubscribers: Array<(token: string) => void> = [];
     const refreshErrorSubscribers: Array<(error: Error) => void> = [];
-
-    // Delay in milliseconds before logging out after a failed token refresh.
-    // This gives other browser tabs time to potentially refresh the token successfully
-    // and sync it via cookie storage, preventing unnecessary logouts in multi-tab scenarios.
-    const TOKEN_SYNC_DELAY_MS = 1000;
 
     return {
         loginByUsername,
@@ -199,7 +193,6 @@ export default function createLoginService(
                     const currentAccessToken = getToken();
                     if (currentAccessToken && currentAccessToken !== accessTokenBeforeLock) {
                         refreshRetryCount = 0;
-                        clearLogoutTimeout();
 
                         // Notify subscribers about the token refreshed by another tab
                         refreshSubscribers.forEach((callback) => {
@@ -260,7 +253,6 @@ export default function createLoginService(
                 });
 
                 refreshRetryCount = 0;
-                clearLogoutTimeout();
 
                 // Notify all subscribers about successful token refresh
                 refreshSubscribers.forEach((callback) => {
@@ -281,9 +273,6 @@ export default function createLoginService(
                     const backoffMs = 2 ** refreshRetryCount * 1000;
                     scheduleRefreshRetry(backoffMs);
                 }
-
-                // Schedule logout if no token is present after delay
-                scheduleLogoutIfNoToken();
 
                 // Notify all error subscribers
                 const errorObj = error instanceof Error ? error : new Error(String(error));
@@ -313,39 +302,6 @@ export default function createLoginService(
      */
     function isRefreshing(): boolean {
         return refreshPromise !== null;
-    }
-
-    /**
-     * Clears any pending logout timeout.
-     *
-     * @private
-     */
-    function clearLogoutTimeout(): void {
-        if (logoutTimeoutId !== undefined) {
-            clearTimeout(logoutTimeoutId);
-            logoutTimeoutId = undefined;
-        }
-    }
-
-    /**
-     * Schedules a logout if no token is present after a delay.
-     * Only one timeout can be active at a time to prevent multiple queued callbacks.
-     *
-     * @private
-     */
-    function scheduleLogoutIfNoToken(): void {
-        if (logoutTimeoutId !== undefined) {
-            return;
-        }
-
-        if (!getToken()) {
-            logoutTimeoutId = setTimeout(() => {
-                logoutTimeoutId = undefined;
-                if (!getToken()) {
-                    logout();
-                }
-            }, TOKEN_SYNC_DELAY_MS);
-        }
     }
 
     /**
@@ -591,8 +547,6 @@ export default function createLoginService(
             clearTimeout(autoRefreshTokenTimeoutId);
             autoRefreshTokenTimeoutId = undefined;
         }
-
-        clearLogoutTimeout();
 
         forwardLogout(isInactivityLogout, shouldRedirect);
 

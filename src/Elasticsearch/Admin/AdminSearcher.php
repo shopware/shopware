@@ -32,12 +32,12 @@ class AdminSearcher
         private readonly Client $client,
         private readonly AdminSearchRegistry $registry,
         private readonly AdminElasticsearchHelper $adminEsHelper,
-        private readonly string $timeout,
-        private readonly int $termMaxLength,
-        private readonly string $searchType,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
-        private readonly ElasticsearchHelper $esHelper
+        private readonly ElasticsearchHelper $esHelper,
+        private readonly string $timeout,
+        private readonly int $termMaxLength,
+        private readonly string $searchType
     ) {
     }
 
@@ -112,9 +112,9 @@ class AdminSearcher
 
         $query = $this->paginate($query, $criteria->getLimit(), $criteria->getOffset());
 
+        $this->esHelper->addQueries($definition, $criteria, $query, $context);
         $this->esHelper->addPostFilters($definition, $criteria, $query, $context);
         $this->esHelper->addFilters($definition, $criteria, $query, $context);
-        $this->esHelper->addQueries($definition, $criteria, $query, $context);
         $this->esHelper->addSortings($definition, $criteria, $query, $context);
         $this->esHelper->handleIds($definition, $criteria, $query, $context);
         $this->esHelper->addAggregations($definition, $criteria, $query, $context);

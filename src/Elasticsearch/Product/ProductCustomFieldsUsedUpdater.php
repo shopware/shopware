@@ -57,7 +57,7 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
             $productSortingIds[] = $key;
         }
 
-        if (\count($productSortingIds) === 0) {
+        if ($productSortingIds === []) {
             return;
         }
 
@@ -90,7 +90,7 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
             $productStreamFilterIds[] = $key;
         }
 
-        if (\count($productStreamFilterIds) === 0) {
+        if ($productStreamFilterIds === []) {
             return;
         }
 
@@ -173,7 +173,7 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
      */
     private function fetchCustomFieldTypesByName(array $fieldNames): array
     {
-        if (\count($fieldNames) === 0) {
+        if ($fieldNames === []) {
             return [];
         }
 

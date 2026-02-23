@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -24,7 +25,7 @@ class ScalarValueType extends AbstractEventDataType
     public function __construct(string $type)
     {
         if (!\in_array($type, self::VALID_TYPES, true)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid type "%s" provided, valid ones are: %s', $type, implode(', ', self::VALID_TYPES)));
+            throw FrameworkException::invalidArgumentException(\sprintf('Invalid type "%s" provided, valid ones are: %s', $type, implode(', ', self::VALID_TYPES)));
         }
 
         $this->type = $type;

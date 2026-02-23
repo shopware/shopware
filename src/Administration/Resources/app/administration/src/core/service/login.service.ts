@@ -228,7 +228,7 @@ export default function createLoginService(
                     logout(true);
                 } else {
                     const backoffMs = 2 ** refreshRetryCount * 1000;
-                    restartAutoTokenRefresh(Date.now() + backoffMs);
+                    restartAutoTokenRefresh(Date.now() + backoffMs * 2);
                 }
 
                 // Schedule logout if no token is present after delay

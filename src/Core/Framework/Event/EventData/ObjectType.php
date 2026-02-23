@@ -5,25 +5,39 @@ namespace Shopware\Core\Framework\Event\EventData;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
-class ObjectType implements EventDataType
+class ObjectType extends AbstractEventDataType
 {
     final public const TYPE = 'object';
 
     /**
-     * @var array<string, mixed>|null
+     * @var array<string, EventDataType>
      */
-    private ?array $data = null;
+    private array $data = [];
 
     public function add(string $name, EventDataType $type): self
     {
-        $this->data[$name] = $type->toArray();
+        $this->data[$name] = $type;
 
         return $this;
+    }
+
+    public function get(string $name): ?EventDataType
+    {
+        return $this->data[$name] ?? null;
+    }
+
+    /**
+     * @return array<string, EventDataType>
+     */
+    public function getData(): array
+    {
+        return $this->data;
     }
 
     public function toArray(): array
     {
         return [
+            ...parent::toArray(),
             'type' => self::TYPE,
             'data' => $this->data,
         ];

@@ -9,6 +9,9 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
@@ -28,6 +31,13 @@ class OrderStorer extends FlowStorer
         private readonly EventDispatcherInterface $dispatcher,
         private readonly OrderProvider $orderProvider,
     ) {
+    }
+
+    public static function getStoreData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(OrderAware::ORDER_ID, new ForeignKeyType(OrderDefinition::class))
+            ->add(OrderAware::ORDER, (new EntityType(OrderDefinition::class))->setNullable());
     }
 
     public function store(FlowEventAware $event, array $stored): array

@@ -9,6 +9,9 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\ProductAware;
 use Shopware\Core\Framework\Feature;
@@ -28,6 +31,13 @@ class ProductStorer extends FlowStorer
         private readonly EventDispatcherInterface $dispatcher,
         private readonly ProductProvider $productProvider,
     ) {
+    }
+
+    public static function getStoreData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(ProductAware::PRODUCT_ID, new ForeignKeyType(ProductDefinition::class))
+            ->add(ProductAware::PRODUCT, (new EntityType(ProductDefinition::class))->setNullable());
     }
 
     public function store(FlowEventAware $event, array $stored): array

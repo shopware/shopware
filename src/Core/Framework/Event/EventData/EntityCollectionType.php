@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Event\EventData;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
-class EntityCollectionType implements EventDataType
+class EntityCollectionType extends AbstractEventDataType
 {
     final public const TYPE = 'collection';
 
@@ -13,9 +13,15 @@ class EntityCollectionType implements EventDataType
     {
     }
 
+    public function getDefinitionClass(): string
+    {
+        return $this->definitionClass;
+    }
+
     public function toArray(): array
     {
         return [
+            ...parent::toArray(),
             'type' => self::TYPE,
             'entityClass' => $this->definitionClass,
         ];

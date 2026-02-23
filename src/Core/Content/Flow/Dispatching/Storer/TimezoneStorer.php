@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
@@ -19,6 +21,12 @@ class TimezoneStorer extends FlowStorer
     public function __construct(
         private readonly RequestStack $requestStack,
     ) {
+    }
+
+    public static function getStoreData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(MailAware::TIMEZONE, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     /**

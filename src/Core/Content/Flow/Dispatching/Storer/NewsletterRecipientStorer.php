@@ -10,6 +10,9 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -28,6 +31,13 @@ class NewsletterRecipientStorer extends FlowStorer
         private readonly EventDispatcherInterface $dispatcher,
         private readonly NewsletterRecipientProvider $newsletterRecipientProvider,
     ) {
+    }
+
+    public static function getStoreData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT_ID, new ForeignKeyType(NewsletterRecipientDefinition::class))
+            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT, (new EntityType(NewsletterRecipientDefinition::class))->setNullable());
     }
 
     /**

@@ -10,6 +10,9 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -28,6 +31,13 @@ class OrderTransactionStorer extends FlowStorer
         private readonly EventDispatcherInterface $dispatcher,
         private readonly OrderTransactionProvider $orderTransactionProvider,
     ) {
+    }
+
+    public static function getStoreData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(OrderTransactionAware::ORDER_TRANSACTION_ID, new ForeignKeyType(OrderTransactionDefinition::class))
+            ->add(OrderTransactionAware::ORDER_TRANSACTION, (new EntityType(OrderTransactionDefinition::class))->setNullable());
     }
 
     /**

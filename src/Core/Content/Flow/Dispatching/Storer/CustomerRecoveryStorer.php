@@ -10,6 +10,9 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -28,6 +31,13 @@ class CustomerRecoveryStorer extends FlowStorer
         private readonly EventDispatcherInterface $dispatcher,
         private readonly CustomerRecoveryProvider $customerRecoveryProvider,
     ) {
+    }
+
+    public static function getStoreData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(CustomerRecoveryAware::CUSTOMER_RECOVERY_ID, new ForeignKeyType(CustomerRecoveryDefinition::class))
+            ->add(CustomerRecoveryAware::CUSTOMER_RECOVERY, (new EntityType(CustomerRecoveryDefinition::class))->setNullable());
     }
 
     /**

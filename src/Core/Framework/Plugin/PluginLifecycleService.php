@@ -424,7 +424,7 @@ class PluginLifecycleService
             $dependantPlugins
         );
 
-        if (\count($dependants) > 0) {
+        if ($dependants !== []) {
             throw PluginException::hasActiveDependants($plugin->getName(), $dependants);
         }
 

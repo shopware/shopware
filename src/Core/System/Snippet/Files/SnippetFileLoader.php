@@ -248,7 +248,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     {
         $excludedLocales = $this->config->excludedLocales;
 
-        if (empty($excludedLocales)) {
+        if ($excludedLocales === []) {
             return null;
         }
 

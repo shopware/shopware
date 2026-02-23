@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
@@ -92,8 +93,10 @@ class InfoControllerTest extends TestCase
         $workerConfig = $data['adminWorker'];
         static::assertArrayHasKey('enableAdminWorker', $workerConfig);
         static::assertTrue($workerConfig['enableAdminWorker']);
-        static::assertArrayHasKey('enableQueueStatsWorker', $workerConfig);
-        static::assertTrue($workerConfig['enableQueueStatsWorker']);
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertArrayHasKey('enableQueueStatsWorker', $workerConfig);
+            static::assertTrue($workerConfig['enableQueueStatsWorker']);
+        }
         static::assertArrayHasKey('enableNotificationWorker', $workerConfig);
         static::assertTrue($workerConfig['enableNotificationWorker']);
         static::assertArrayHasKey('transports', $workerConfig);

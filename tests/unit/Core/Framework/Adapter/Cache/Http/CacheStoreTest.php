@@ -16,6 +16,8 @@ use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Clock\Clock;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -258,7 +260,8 @@ class CacheStoreTest extends TestCase
         $response->headers->set('date', date('Y-m-d H:i:s'));
         $response->setSharedMaxAge(7200);
 
-        $cache = new TagAwareAdapter(new ArrayAdapter());
+        $arrayAdapter = new ArrayAdapter();
+        $cache = new TagAwareAdapter($arrayAdapter);
 
         $stateValidator = $this->createMock(CacheStateValidator::class);
         $stateValidator->expects($this->never())->method('isValid');
@@ -288,6 +291,11 @@ class CacheStoreTest extends TestCase
         // Verify the cache item was stored correctly
         $cacheItem = $cache->getItem($key);
         static::assertTrue($cacheItem->isHit());
+
+        $expiry = \Closure::bind(function (string $key): float {
+            return $this->expiries[$key];
+        }, $arrayAdapter, $arrayAdapter)($key);
+        static::assertEqualsWithDelta(microtime(true) + 7200, $expiry, 1);
 
         $cacheData = CacheCompressor::uncompress($cacheItem);
         static::assertInstanceOf(Response::class, $cacheData);

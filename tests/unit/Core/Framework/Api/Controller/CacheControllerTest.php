@@ -8,7 +8,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Controller\CacheController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 use Symfony\Component\Cache\Adapter\NullAdapter;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -27,6 +29,7 @@ class CacheControllerTest extends TestCase
             $this->createMock(CacheInvalidator::class),
             new NullAdapter(),
             $this->createMock(EntityIndexerRegistry::class),
+            null
         );
 
         $controller->clearCache();
@@ -38,13 +41,39 @@ class CacheControllerTest extends TestCase
         $cacheInvalidatorMock->expects($this->once())
             ->method('invalidateExpired');
 
+        $indexManager = $this->createMock(IndexManager::class);
+        $indexManager->expects($this->never())
+            ->method('refreshIndices');
+
         $controller = new CacheController(
             $this->createMock(CacheClearer::class),
             $cacheInvalidatorMock,
             new NullAdapter(),
             $this->createMock(EntityIndexerRegistry::class),
+            $indexManager
         );
 
-        $controller->clearDelayedCache();
+        $controller->clearDelayedCache(new Request());
+    }
+
+    public function testClearDelayedCacheWithRefreshOpenSearchParam(): void
+    {
+        $cacheInvalidatorMock = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidatorMock->expects($this->once())
+            ->method('invalidateExpired');
+
+        $indexManager = $this->createMock(IndexManager::class);
+        $indexManager->expects($this->once())
+            ->method('refreshIndices');
+
+        $controller = new CacheController(
+            $this->createMock(CacheClearer::class),
+            $cacheInvalidatorMock,
+            new NullAdapter(),
+            $this->createMock(EntityIndexerRegistry::class),
+            $indexManager
+        );
+
+        $controller->clearDelayedCache(new Request(['refreshOpenSearch' => 'true']));
     }
 }

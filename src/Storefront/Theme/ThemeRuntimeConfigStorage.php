@@ -87,6 +87,14 @@ class ThemeRuntimeConfigStorage
         ]);
     }
 
+    public function deleteByTechnicalName(string $technicalName): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM `theme_runtime_config` WHERE `technical_name` = :technicalName',
+            ['technicalName' => $technicalName]
+        );
+    }
+
     /**
      * @return array<string>
      */
@@ -129,7 +137,7 @@ class ThemeRuntimeConfigStorage
         $childThemeIds = [];
         $pendingParentIds = [$parentThemeId];
 
-        while (!empty($pendingParentIds)) {
+        while ($pendingParentIds !== []) {
             $directChildren = $this->connection->fetchFirstColumn(
                 <<<'SQL'
                     SELECT LOWER(HEX(id)) as id FROM theme WHERE parent_theme_id IN (:parentIds)

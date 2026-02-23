@@ -74,13 +74,13 @@ class TemplatePersister
         }
         $needsCacheClear = false;
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $needsCacheClear = true;
             $this->templateRepository->upsert($upserts, $context);
         }
 
         $ids = $existingTemplates->getIds();
-        if (!empty($ids)) {
+        if ($ids !== []) {
             $needsCacheClear = true;
             $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 
 /**
  * @internal
@@ -12,12 +13,18 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 readonly class AppInfo
 {
+    private const DEFAULT_REQUIREMENTS = [ServiceConsentRequirement::NAME];
+
+    /**
+     * @param non-empty-list<string> $requirements
+     */
     public function __construct(
         public string $name,
         public string $version,
         public string $hash,
         public string $revision,
         public string $zipUrl,
+        public array $requirements,
         public ?string $hashAlgorithm = null,
         public ?string $minShopwareSupportedVersion = null,
     ) {
@@ -36,7 +43,7 @@ readonly class AppInfo
             }
         }
 
-        if (!empty($missingKeys)) {
+        if ($missingKeys !== []) {
             throw ServiceException::missingAppVersionInformation(...$missingKeys);
         }
 
@@ -46,8 +53,9 @@ readonly class AppInfo
             $appInfo['app-hash'],
             $appInfo['app-revision'],
             $appInfo['app-zip-url'],
+            $appInfo['app-requirements'] ?? self::DEFAULT_REQUIREMENTS,
             $appInfo['app-hash-algorithm'],
-            $appInfo['app-min-shop-supported-version']
+            $appInfo['app-min-shop-supported-version'],
         );
     }
 
@@ -62,6 +70,7 @@ readonly class AppInfo
             $sourceConfig['hash'],
             $sourceConfig['revision'],
             $sourceConfig['zip-url'],
+            $sourceConfig['requirements'],
             $sourceConfig['hash-algorithm'] ?? null,
             $sourceConfig['min-shop-supported-version'] ?? null,
         );
@@ -79,6 +88,7 @@ readonly class AppInfo
             'zip-url' => $this->zipUrl,
             'hash-algorithm' => $this->hashAlgorithm,
             'min-shop-supported-version' => $this->minShopwareSupportedVersion,
+            'requirements' => $this->requirements,
         ];
     }
 }

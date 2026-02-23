@@ -96,9 +96,9 @@ class DocumentController extends AbstractController
     )]
     public function downloadDocuments(Request $request, Context $context): Response
     {
-        $documentIds = $request->get('documentIds', []);
+        $documentIds = $request->request->all()['documentIds'] ?? [];
 
-        if (!\is_array($documentIds) || empty($documentIds)) {
+        if (!\is_array($documentIds) || $documentIds === []) {
             throw DocumentException::invalidRequestParameter('documentIds');
         }
 

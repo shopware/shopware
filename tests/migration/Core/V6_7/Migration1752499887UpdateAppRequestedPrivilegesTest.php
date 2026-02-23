@@ -7,8 +7,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\ColumnExistsTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1752499887UpdateAppRequestedPrivileges;
 
 /**
@@ -18,8 +18,6 @@ use Shopware\Core\Migration\V6_7\Migration1752499887UpdateAppRequestedPrivileges
 #[CoversClass(Migration1752499887UpdateAppRequestedPrivileges::class)]
 class Migration1752499887UpdateAppRequestedPrivilegesTest extends TestCase
 {
-    use ColumnExistsTrait;
-
     private Connection $connection;
 
     protected function setUp(): void
@@ -40,8 +38,7 @@ class Migration1752499887UpdateAppRequestedPrivilegesTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $columns = $this->connection->createSchemaManager()->listTableColumns(AppDefinition::ENTITY_NAME);
-        $requestedPrivilegesColumn = $columns['requested_privileges'];
-        static::assertTrue($requestedPrivilegesColumn->getNotnull(), 'Column should be NOT NULL');
+        $requestedPrivilegesColumn = TableHelper::getColumnOfTable($this->connection, AppDefinition::ENTITY_NAME, 'requested_privileges');
+        static::assertTrue($requestedPrivilegesColumn->isNotNull, 'Column should be NOT NULL');
     }
 }

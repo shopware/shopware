@@ -47,7 +47,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.canvas.tabIndex = 0;
 
         if (this.dive == undefined) {
-            this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas, displayFloor: true });
+            this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
         }
 
         // @ts-ignore

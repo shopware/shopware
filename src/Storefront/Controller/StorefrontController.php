@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -120,10 +121,10 @@ abstract class StorefrontController extends AbstractController
 
     protected function createActionResponse(Request $request): Response
     {
-        if ($request->get('redirectTo') || $request->get('redirectTo') === '') {
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'redirectTo') === '') {
             $params = $this->decodeParam($request, 'redirectParameters');
 
-            $redirectTo = $request->get('redirectTo');
+            $redirectTo = RequestParamHelper::get($request, 'redirectTo');
 
             if ($redirectTo && \is_string($redirectTo)) {
                 return $this->redirectToRoute($redirectTo, $params);
@@ -132,10 +133,10 @@ abstract class StorefrontController extends AbstractController
             return $this->redirectToRoute('frontend.home.page', $params);
         }
 
-        if ($request->get('forwardTo')) {
+        if (RequestParamHelper::get($request, 'forwardTo')) {
             $params = $this->decodeParam($request, 'forwardParameters');
 
-            return $this->forwardToRoute($request->get('forwardTo'), [], $params);
+            return $this->forwardToRoute(RequestParamHelper::get($request, 'forwardTo'), [], $params);
         }
 
         return new Response();
@@ -187,7 +188,7 @@ abstract class StorefrontController extends AbstractController
      */
     protected function decodeParam(Request $request, string $param): array
     {
-        $params = $request->get($param);
+        $params = RequestParamHelper::get($request, $param);
 
         if (\is_string($params)) {
             $params = json_decode($params, true);
@@ -317,5 +318,20 @@ abstract class StorefrontController extends AbstractController
     protected function getSystemConfigService(): SystemConfigService
     {
         return $this->container->get(SystemConfigService::class);
+    }
+
+    /**
+     * Because some email-clients try to fetch previews for links in mails,
+     * they send a HEAD-request. But because Symfony is routing HEAD-requests
+     * as GET-requests, a subscriber would be confirmed without clicking the link,
+     * only by the HEAD-request.
+     * To determine if the current request is a "HEAD" request or a "GET" request, this
+     * helper method exists.
+     *
+     * Beware: $request->getMethod() or $request->getRealMethod() will both return "GET".
+     */
+    protected function isHeadRequest(): bool
+    {
+        return isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'HEAD';
     }
 }

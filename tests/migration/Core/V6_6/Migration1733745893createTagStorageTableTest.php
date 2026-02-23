@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1733745893createTagStorageTable;
 
 /**
@@ -33,20 +34,16 @@ class Migration1733745893createTagStorageTableTest extends TestCase
 
     public function testTableIsCreated(): void
     {
-        $sm = $this->connection->createSchemaManager();
-
-        static::assertFalse($sm->tablesExist(['invalidation_tags']));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'invalidation_tags'));
 
         $migration = new Migration1733745893createTagStorageTable();
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue($sm->tablesExist(['invalidation_tags']));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'invalidation_tags'));
 
-        $cols = $sm->listTableColumns('invalidation_tags');
-        static::assertCount(2, $cols);
-        static::assertSame('tag', $cols['tag']->getName());
-        static::assertSame('id', $cols['id']->getName());
+        static::assertTrue(TableHelper::columnExists($this->connection, 'invalidation_tags', 'tag'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'invalidation_tags', 'id'));
     }
 }

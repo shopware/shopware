@@ -214,6 +214,7 @@ shopware:
             #     config:
             #         url: 'redis://localhost'
 
+        # @deprecated tag:v6.8.0, will be removed
         message_queue:
             type: 'mysql'
 
@@ -554,6 +555,7 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        disable_stampede_protection: false
         twig:
             string_template_renderer_cache_dir: '%kernel.cache_dir%/twig/string-template-renderer'
         invalidation:
@@ -561,6 +563,7 @@ shopware:
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']
+            tag_invalidation_log_enabled: false
 
     twig:
         allowed_php_functions: []

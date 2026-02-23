@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -26,8 +27,8 @@ class PriceListingFilterHandler extends AbstractListingFilterHandler
             return null;
         }
 
-        $min = $request->get('min-price');
-        $max = $request->get('max-price');
+        $min = RequestParamHelper::get($request, 'min-price');
+        $max = RequestParamHelper::get($request, 'max-price');
 
         $range = [];
         if ($min !== null && $min >= 0) {
@@ -39,12 +40,12 @@ class PriceListingFilterHandler extends AbstractListingFilterHandler
 
         return new Filter(
             'price',
-            !empty($range),
+            $range !== [],
             [new StatsAggregation('price', 'product.cheapestPrice', true, true, false, false)],
             new RangeFilter('product.cheapestPrice', $range),
             [
-                'min' => (float) $request->get('min-price'),
-                'max' => (float) $request->get('max-price'),
+                'min' => (float) RequestParamHelper::get($request, 'min-price'),
+                'max' => (float) RequestParamHelper::get($request, 'max-price'),
             ]
         );
     }

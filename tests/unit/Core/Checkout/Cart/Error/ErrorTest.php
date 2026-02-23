@@ -62,7 +62,8 @@ class ErrorTest extends TestCase
 
         $serialized = serialize($error);
 
-        $unserialized = unserialize($serialized);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $unserialized = \unserialize($serialized);
         static::assertInstanceOf(ShippingMethodBlockedError::class, $unserialized);
 
         static::assertSame($id, $unserialized->getShippingMethodId());
@@ -75,7 +76,8 @@ class ErrorTest extends TestCase
     {
         $serialized = serialize($error);
 
-        $unserialized = unserialize($serialized);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $unserialized = \unserialize($serialized);
         static::assertInstanceOf($error::class, $unserialized);
 
         // Call all public methods without parameters (i.e. getters) to make sure the don't throw an exception

@@ -533,7 +533,13 @@ export default {
         initAdvancedModeSettings() {
             Shopware.Store.get('swProductDetail').advancedModeSetting = this.getAdvancedModeDefaultSetting();
 
-            this.getAdvancedModeSetting();
+            // Only load settings when editing existing product
+            if (this.productId) {
+                this.getAdvancedModeSetting();
+            } else {
+                // Reset modeSettings to default when creating a new product
+                Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
+            }
         },
 
         createUserModeSetting() {
@@ -775,7 +781,7 @@ export default {
                     Shopware.Store.get('swProductDetail').product = product;
 
                     if (this.product.parentId) {
-                        this.loadParentProduct();
+                        await this.loadParentProduct();
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }

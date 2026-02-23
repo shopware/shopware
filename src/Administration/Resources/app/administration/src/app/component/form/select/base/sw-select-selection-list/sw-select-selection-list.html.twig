@@ -76,6 +76,7 @@
                 :placeholder="showPlaceholder"
                 :value="searchTerm"
                 :aria-label="inputLabel"
+                :autocomplete="autocomplete"
                 @input="onSearchTermChange"
                 @keydown.delete="onKeyDownDelete"
                 @keydown.enter="onKeyDownEnter"

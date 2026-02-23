@@ -94,6 +94,9 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
+        // Keep documentIds available for other mail actions sharing this context (cleared in MailerTransportDecorator::send())
+        $mailExtension = clone $extension;
+
         if (!$flow->hasData(MailAware::MAIL_STRUCT) || !$flow->hasData(MailAware::SALES_CHANNEL_ID)) {
             throw new MailEventConfigurationException('Not have data from MailAware', $flow::class);
         }
@@ -126,7 +129,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
         );
 
-        if (empty($recipients)) {
+        if ($recipients === []) {
             return;
         }
 
@@ -146,7 +149,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         $data->set('attachmentsConfig', new MailAttachmentsConfig(
             $flow->getContext(),
             $mailTemplate,
-            $extension,
+            $mailExtension,
             $eventConfig,
             $flow->getData(OrderAware::ORDER_ID),
         ));
@@ -169,7 +172,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             ...$flow->data(),
         ];
 
-        $this->send($data, $flow->getContext(), $templateData, $extension, $injectedTranslator);
+        $this->send($data, $flow->getContext(), $templateData, $mailExtension, $injectedTranslator);
     }
 
     /**
@@ -250,13 +253,16 @@ class SendMailAction extends FlowAction implements DelayableAction
     private function sanitizeMailTemplateData(array $templateData): array
     {
         foreach ($templateData as $key => $value) {
-            if (!$value instanceof Entity || empty($value->getInternalEntityName())) {
+            if (!$value instanceof Entity) {
                 continue;
             }
 
-            $definition = $this->definitionInstanceRegistry->getByEntityName(
-                $value->getInternalEntityName()
-            );
+            $internalEntityName = $value->getInternalEntityName();
+            if ($internalEntityName === null || $internalEntityName === '') {
+                continue;
+            }
+
+            $definition = $this->definitionInstanceRegistry->getByEntityName($internalEntityName);
 
             $templateData[$key] = $this->jsonEntityEncoder->encode(
                 new Criteria(),
@@ -322,7 +328,7 @@ class SendMailAction extends FlowAction implements DelayableAction
 
                 return $emails;
             case self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL:
-                if (empty($contactFormData)) {
+                if ($contactFormData === []) {
                     return [];
                 }
 

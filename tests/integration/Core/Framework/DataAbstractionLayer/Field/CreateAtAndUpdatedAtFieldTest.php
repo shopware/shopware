@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\DateTimeDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RequiredUpdatedAtDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -244,5 +245,58 @@ EOF;
             $date->format('Y-m-d'),
             $entity->get('updatedAt')->format('Y-m-d')
         );
+    }
+
+    public function testUpdatedAtIsSetOnCreateWhenRequired(): void
+    {
+        $this->connection->rollBack();
+        $this->connection->executeStatement('DROP TABLE `date_time_test`');
+
+        $requiredTable = <<<EOF
+DROP TABLE IF EXISTS `required_updated_at_test`;
+CREATE TABLE IF NOT EXISTS `required_updated_at_test` (
+  `id` varbinary(16) NOT NULL,
+  `name` varchar(500) NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3) NOT NULL,
+  PRIMARY KEY `id` (`id`)
+);
+EOF;
+        $this->connection->executeStatement($requiredTable);
+
+        $definition = $this->registerDefinition(RequiredUpdatedAtDefinition::class);
+        $repository = new EntityRepository(
+            $definition,
+            static::getContainer()->get(EntityReaderInterface::class),
+            static::getContainer()->get(VersionManager::class),
+            static::getContainer()->get(EntitySearcherInterface::class),
+            static::getContainer()->get(EntityAggregatorInterface::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(EntityLoadedEventFactory::class)
+        );
+
+        $id = Uuid::randomHex();
+        $data = ['id' => $id];
+
+        $context = Context::createDefaultContext();
+        $repository->create([$data], $context);
+
+        $entities = $repository->search(new Criteria([$id]), $context);
+
+        static::assertTrue($entities->has($id));
+
+        $entity = $entities->get($id);
+        static::assertInstanceOf(ArrayEntity::class, $entity);
+        static::assertNotNull($entity->get('createdAt'));
+        static::assertNotNull($entity->get('updatedAt'));
+        static::assertInstanceOf(\DateTimeInterface::class, $entity->get('updatedAt'));
+
+        // updatedAt should be approximately equal to createdAt on creation
+        static::assertSame(
+            $entity->get('createdAt')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $entity->get('updatedAt')->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
+
+        $this->connection->executeStatement('DROP TABLE `required_updated_at_test`');
     }
 }

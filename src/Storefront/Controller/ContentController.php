@@ -27,10 +27,14 @@ class ContentController extends StorefrontController
     ) {
     }
 
+    /**
+     * Exclude api/ and store-api/ prefixes. Without this, the catch-all pattern
+     * matches Admin/Store API requests before their own routes, causing a 412 scope error.
+     */
     #[Route(
         path: '/{path}',
         name: 'frontend.content.page',
-        requirements: ['path' => '.+'],
+        requirements: ['path' => '(?!api(?:/|$)|store-api(?:/|$)).+'],
         defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: [Request::METHOD_GET],
         priority: -100

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Layout\Field;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -211,29 +212,33 @@ class ContentElementFieldSerializerTest extends TestCase
         $this->serializer->decode($invalidField, '{}');
     }
 
-    #[TestDox('decodes element with minimal fields into a ContentElement with empty defaults and accessible properties')]
-    public function testDecodeElementWithMinimalFieldsReturnsContentElement(): void
+    #[TestDox('decodes element with minimal fields into a ContentElement with empty defaults')]
+    public function testDecodeElementWithMinimalFieldsReturnsEmptyDefaults(): void
     {
-        $minimal = $this->serializer->decodeElement([
+        $result = $this->serializer->decodeElement([
             'id' => 'minimal-id',
             'component' => 'hero',
         ]);
 
-        static::assertSame('minimal-id', $minimal->getId());
-        static::assertSame('hero', $minimal->getComponent());
-        static::assertSame([], $minimal->getDataRequirements());
-        static::assertFalse($minimal->hasSlots());
-        static::assertSame([], $minimal->getProvidesContext());
-        static::assertSame([], $minimal->getAcceptsContext());
+        static::assertSame('minimal-id', $result->getId());
+        static::assertSame('hero', $result->getComponent());
+        static::assertSame([], $result->getDataRequirements());
+        static::assertFalse($result->hasSlots());
+        static::assertSame([], $result->getProvidesContext());
+        static::assertSame([], $result->getAcceptsContext());
+    }
 
-        $withProperties = $this->serializer->decodeElement([
+    #[TestDox('decodes element with properties into a ContentElement with accessible property values')]
+    public function testDecodeElementWithPropertiesReturnsAccessibleValues(): void
+    {
+        $result = $this->serializer->decodeElement([
             'id' => 'elem-props',
             'component' => 'image',
             'properties' => ['src' => '/path/to/image.png', 'alt' => 'hero image'],
         ]);
 
-        static::assertSame('/path/to/image.png', $withProperties->getProperty('src'));
-        static::assertSame('hero image', $withProperties->getProperty('alt'));
+        static::assertSame('/path/to/image.png', $result->getProperty('src'));
+        static::assertSame('hero image', $result->getProperty('alt'));
     }
 
     #[TestDox('decodes element with data_requirements into a ContentElement with mapped DataRequirement objects')]
@@ -322,28 +327,27 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertInstanceOf(ContextConsumer::class, $result->getAcceptsContext()['parentData']);
     }
 
-    #[TestDox('throws exception when decodeElement receives data without id field')]
-    public function testDecodeElementThrowsWhenIdFieldMissing(): void
+    /**
+     * @param array<string, string> $data
+     */
+    #[DataProvider('decodeElementThrowsOnMissingFieldProvider')]
+    #[TestDox('throws exception when decodeElement receives data without $missingField field')]
+    public function testDecodeElementThrowsWhenRequiredFieldMissing(array $data, string $missingField): void
     {
-        $data = ['component' => 'text'];
-
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('id', 'string', 'NULL')
+            ContentSystemException::invalidFieldValueType($missingField, 'string', 'NULL')
         );
 
         $this->serializer->decodeElement($data);
     }
 
-    #[TestDox('throws exception when decodeElement receives data without component field')]
-    public function testDecodeElementThrowsWhenComponentFieldMissing(): void
+    /**
+     * @return iterable<string, array{array<string, string>, string}>
+     */
+    public static function decodeElementThrowsOnMissingFieldProvider(): iterable
     {
-        $data = ['id' => 'elem-1'];
-
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('component', 'string', 'NULL')
-        );
-
-        $this->serializer->decodeElement($data);
+        yield 'missing id' => [['component' => 'text'], 'id'];
+        yield 'missing component' => [['id' => 'elem-1'], 'component'];
     }
 
     #[TestDox('serializes ContentElement with minimal fields to array')]
@@ -430,15 +434,7 @@ class ContentElementFieldSerializerTest extends TestCase
     #[TestDox('serializes ContentElement property using toArray when value is object with toArray method')]
     public function testSerializeContentElementCallsToArrayOnObjectProperties(): void
     {
-        $objectWithToArray = new class {
-            /**
-             * @return array<string, string>
-             */
-            public function toArray(): array
-            {
-                return ['serialized' => 'value'];
-            }
-        };
+        $objectWithToArray = new ObjectWithToArray();
 
         $element = ContentElementBuilder::create('hero', 'elem-obj-prop')
             ->withProperty('myObj', $objectWithToArray)
@@ -633,5 +629,19 @@ class ContentElementFieldSerializerTest extends TestCase
             $contextConsumersSerializer,
             $slotsSerializer
         );
+    }
+}
+
+/**
+ * @internal
+ */
+final class ObjectWithToArray
+{
+    /**
+     * @return array<string, string>
+     */
+    public function toArray(): array
+    {
+        return ['serialized' => 'value'];
     }
 }

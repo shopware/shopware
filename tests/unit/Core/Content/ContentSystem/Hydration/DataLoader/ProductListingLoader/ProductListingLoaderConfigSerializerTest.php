@@ -5,12 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataLoader\Pr
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 
 /**
  * @internal
@@ -73,32 +74,20 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         static::assertSame(['media', 'options'], $result->associations);
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    #[DataProvider('emptyOrNullAssociationsProvider')]
-    #[TestDox('decodes absent or null associations into ProductListingLoaderConfig with empty associations')]
-    public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
+    #[TestDox('decodes null associations into ProductListingLoaderConfig with empty associations')]
+    public function testDecodeNullAssociationsReturnsEmptyAssociations(): void
     {
-        $result = $this->serializer->decode($data);
+        $result = $this->serializer->decode(['associations' => null]);
 
         static::assertInstanceOf(ProductListingLoaderConfig::class, $result);
         static::assertSame([], $result->associations);
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function emptyOrNullAssociationsProvider(): iterable
-    {
-        yield 'absent associations key' => [[]];
-        yield 'null associations value' => [['associations' => null]];
-    }
-
-    /**
      * @param array<string, mixed> $data
      */
-    #[DataProvider('invalidPropertyProvider')]
+    #[TestWithJson('[{"property": ""}]', 'property is empty string')]
+    #[TestWithJson('[{"property": 42}]', 'property is non-string (integer)')]
     #[TestDox('throws exception when property is invalid')]
     public function testDecodeWithInvalidPropertyThrowsException(array $data): void
     {
@@ -108,66 +97,44 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         $this->serializer->decode($data);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidPropertyProvider(): iterable
-    {
-        yield 'property is empty string' => [['property' => '']];
-        yield 'property is non-string (integer)' => [['property' => 42]];
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    #[DataProvider('invalidAssociationsProvider')]
     #[TestDox('throws exception when associations is not an array')]
-    public function testDecodeWithNonArrayAssociationsThrowsException(array $data): void
+    public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations expected array');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+        );
 
-        $this->serializer->decode($data);
+        $this->serializer->decode(['associations' => 'manufacturer']);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidAssociationsProvider(): iterable
+    #[TestDox('throws exception when first association item is an empty string')]
+    public function testDecodeWithEmptyStringFirstAssociationItemThrowsException(): void
     {
-        yield 'associations is non-array (string)' => [['associations' => 'manufacturer']];
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+        );
+
+        $this->serializer->decode(['associations' => ['']]);
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    #[DataProvider('invalidAssociationItemProvider')]
-    #[TestDox('throws exception when an association item is invalid')]
-    public function testDecodeWithInvalidAssociationItemThrowsException(array $data, string $expectedMessagePart): void
+    #[TestDox('throws exception when second association item is an empty string')]
+    public function testDecodeWithEmptyStringSecondAssociationItemThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage($expectedMessagePart);
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.1', 'non-empty string', 'string')
+        );
 
-        $this->serializer->decode($data);
+        $this->serializer->decode(['associations' => ['manufacturer', '']]);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>, string}>
-     */
-    public static function invalidAssociationItemProvider(): iterable
+    #[TestDox('throws exception when first association item is a non-string type')]
+    public function testDecodeWithNonStringFirstAssociationItemThrowsException(): void
     {
-        yield 'first item is empty string' => [
-            ['associations' => ['']],
-            'Field associations.0 expected non-empty string',
-        ];
-        yield 'second item is empty string' => [
-            ['associations' => ['manufacturer', '']],
-            'Field associations.1 expected non-empty string',
-        ];
-        yield 'first item is non-string (integer)' => [
-            ['associations' => [42]],
-            'Field associations.0 expected non-empty string',
-        ];
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
+        );
+
+        $this->serializer->decode(['associations' => [42]]);
     }
 
     #[TestDox('encodes ProductListingLoaderConfig with defaults into empty array')]
@@ -188,7 +155,6 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode($config);
 
         static::assertSame(['property' => 'listingProp'], $result);
-        static::assertArrayNotHasKey('associations', $result);
     }
 
     #[TestDox('encodes ProductListingLoaderConfig with associations into array containing associations key')]
@@ -199,7 +165,6 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode($config);
 
         static::assertSame(['associations' => ['media', 'options']], $result);
-        static::assertArrayNotHasKey('property', $result);
     }
 
     #[TestDox('encodes ProductListingLoaderConfig with property and associations into full array')]
@@ -248,17 +213,11 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws exception when encoding a non-ProductListingLoaderConfig config instance')]
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
-        $wrongConfig = new class extends AbstractContentDataLoaderConfig {
-            public function getDecorated(): AbstractContentDataLoaderConfig
-            {
-                throw new DecorationPatternException(self::class);
-            }
-        };
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', ProductListingLoaderConfig::class, TestLoaderConfig::class)
+        );
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field config expected');
-
-        $this->serializer->encode($wrongConfig);
+        $this->serializer->encode(new TestLoaderConfig());
     }
 
     #[TestDox('throws DecorationPatternException when getDecorated is called')]

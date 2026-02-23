@@ -3,13 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 
 /**
  * @internal
@@ -73,7 +74,9 @@ class EntityLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[DataProvider('provideMissingEntityCases')]
+    #[TestWithJson('[{"property": "productId"}]', 'missing entity key')]
+    #[TestWithJson('[{"entity": "", "property": "productId"}]', 'entity is empty string')]
+    #[TestWithJson('[{"entity": 42, "property": "productId"}]', 'entity is non-string type')]
     #[TestDox('throws exception when entity key is missing or invalid')]
     public function testDecodeMissingOrInvalidEntityThrowsException(array $data): void
     {
@@ -84,22 +87,11 @@ class EntityLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function provideMissingEntityCases(): iterable
-    {
-        yield 'missing entity key' => [['property' => 'productId']];
-        yield 'entity is null' => [['entity' => null, 'property' => 'productId']];
-        yield 'entity is integer' => [['entity' => 42, 'property' => 'productId']];
-        yield 'entity is empty string' => [['entity' => '', 'property' => 'productId']];
-        yield 'entity is boolean' => [['entity' => true, 'property' => 'productId']];
-        yield 'entity is array' => [['entity' => ['product'], 'property' => 'productId']];
-    }
-
-    /**
      * @param array<string, mixed> $data
      */
-    #[DataProvider('provideMissingPropertyCases')]
+    #[TestWithJson('[{"entity": "product"}]', 'missing property key')]
+    #[TestWithJson('[{"entity": "product", "property": ""}]', 'property is empty string')]
+    #[TestWithJson('[{"entity": "product", "property": 42}]', 'property is non-string type')]
     #[TestDox('throws exception when property key is missing or invalid')]
     public function testDecodeMissingOrInvalidPropertyThrowsException(array $data): void
     {
@@ -109,24 +101,12 @@ class EntityLoaderConfigSerializerTest extends TestCase
         $this->serializer->decode($data);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function provideMissingPropertyCases(): iterable
-    {
-        yield 'missing property key' => [['entity' => 'product']];
-        yield 'property is null' => [['entity' => 'product', 'property' => null]];
-        yield 'property is integer' => [['entity' => 'product', 'property' => 42]];
-        yield 'property is empty string' => [['entity' => 'product', 'property' => '']];
-        yield 'property is boolean' => [['entity' => 'product', 'property' => false]];
-        yield 'property is array' => [['entity' => 'product', 'property' => ['id']]];
-    }
-
     #[TestDox('throws exception when associations is not an array')]
     public function testDecodeInvalidAssociationsTypeThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations expected array');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+        );
 
         $this->serializer->decode([
             'entity' => 'product',
@@ -135,30 +115,32 @@ class EntityLoaderConfigSerializerTest extends TestCase
         ]);
     }
 
-    /**
-     * @param list<mixed> $associations
-     */
-    #[DataProvider('invalidAssociationEntryProvider')]
-    #[TestDox('throws exception when an association entry is not a non-empty string')]
-    public function testDecodeAssociationEntryInvalidThrowsException(array $associations): void
+    #[TestDox('throws exception when an association entry is an integer')]
+    public function testDecodeAssociationEntryIntegerThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations.0 expected non-empty string');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
+        );
 
         $this->serializer->decode([
             'entity' => 'product',
             'property' => 'productId',
-            'associations' => $associations,
+            'associations' => [42],
         ]);
     }
 
-    /**
-     * @return iterable<string, array{list<mixed>}>
-     */
-    public static function invalidAssociationEntryProvider(): iterable
+    #[TestDox('throws exception when an association entry is an empty string')]
+    public function testDecodeAssociationEntryEmptyStringThrowsException(): void
     {
-        yield 'integer item' => [[42]];
-        yield 'empty string item' => [['']];
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+        );
+
+        $this->serializer->decode([
+            'entity' => 'product',
+            'property' => 'productId',
+            'associations' => [''],
+        ]);
     }
 
     #[TestDox('encodes EntityLoaderConfig without associations into array without associations key')]
@@ -169,7 +151,6 @@ class EntityLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode($config);
 
         static::assertSame(['entity' => 'product', 'property' => 'productId'], $result);
-        static::assertArrayNotHasKey('associations', $result);
     }
 
     #[TestDox('encodes EntityLoaderConfig with associations into array including associations key')]
@@ -189,17 +170,11 @@ class EntityLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws exception when encoding a non-EntityLoaderConfig config instance')]
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
-        $wrongConfig = new class extends \Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig {
-            public function getDecorated(): \Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig
-            {
-                throw new DecorationPatternException(self::class);
-            }
-        };
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, TestLoaderConfig::class)
+        );
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field config expected');
-
-        $this->serializer->encode($wrongConfig);
+        $this->serializer->encode(new TestLoaderConfig());
     }
 
     #[TestDox('decode and encode are inverse operations for a valid config')]

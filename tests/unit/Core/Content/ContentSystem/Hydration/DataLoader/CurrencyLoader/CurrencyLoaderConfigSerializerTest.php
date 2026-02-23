@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataLoader\CurrencyLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\CurrencyLoader\CurrencyLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\CurrencyLoader\CurrencyLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 
 /**
  * @internal
@@ -43,7 +43,8 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[DataProvider('emptyOrNullAssociationsProvider')]
+    #[TestWithJson('[{}]', 'absent associations key')]
+    #[TestWithJson('[{"associations": null}]', 'null associations value')]
     #[TestDox('decodes absent or null associations into CurrencyLoaderConfig with empty associations')]
     public function testDecodeEmptyOrNullAssociationsReturnsEmptyAssociations(array $data): void
     {
@@ -51,15 +52,6 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
 
         static::assertInstanceOf(CurrencyLoaderConfig::class, $result);
         static::assertSame([], $result->associations);
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function emptyOrNullAssociationsProvider(): iterable
-    {
-        yield 'absent associations key' => [[]];
-        yield 'null associations value' => [['associations' => null]];
     }
 
     #[TestDox('decodes array with empty associations list into CurrencyLoaderConfig with empty associations')]
@@ -74,23 +66,31 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws exception when associations value is not an array')]
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations expected array');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+        );
 
         $this->serializer->decode(['associations' => 'country']);
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    #[DataProvider('invalidAssociationItemProvider')]
-    #[TestDox('throws exception when an association item is invalid')]
-    public function testDecodeWithInvalidAssociationItemThrowsException(array $data): void
+    #[TestDox('throws exception when an association item is not a string')]
+    public function testDecodeWithNonStringAssociationItemThrowsException(): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field associations.');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
+        );
 
-        $this->serializer->decode($data);
+        $this->serializer->decode(['associations' => [42]]);
+    }
+
+    #[TestDox('throws exception when an association item is an empty string')]
+    public function testDecodeWithEmptyStringAssociationItemThrowsException(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+        );
+
+        $this->serializer->decode(['associations' => ['']]);
     }
 
     #[TestDox('encodes CurrencyLoaderConfig with associations into array with associations key')]
@@ -116,17 +116,11 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws exception when encoding a non-CurrencyLoaderConfig config instance')]
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
-        $wrongConfig = new class extends AbstractContentDataLoaderConfig {
-            public function getDecorated(): AbstractContentDataLoaderConfig
-            {
-                throw new DecorationPatternException(self::class);
-            }
-        };
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', CurrencyLoaderConfig::class, TestLoaderConfig::class)
+        );
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field config expected');
-
-        $this->serializer->encode($wrongConfig);
+        $this->serializer->encode(new TestLoaderConfig());
     }
 
     #[TestDox('round-trips a config with associations without data loss')]
@@ -158,14 +152,5 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
         $this->expectExceptionMessage('The getDecorated() function of core class');
 
         $this->serializer->getDecorated();
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidAssociationItemProvider(): iterable
-    {
-        yield 'association item is not a string' => [['associations' => [42]]];
-        yield 'association item is an empty string' => [['associations' => ['']]];
     }
 }

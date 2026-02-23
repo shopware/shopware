@@ -36,7 +36,7 @@ class EntityLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerial
         $entity = $data['entity'];
 
         if (!\array_key_exists('property', $data) || !\is_string($data['property']) || $data['property'] === '') {
-            throw ContentSystemException::invalidFieldValueType('property', 'non-empty string', \gettype($data['property']));
+            throw ContentSystemException::invalidFieldValueType('property', 'non-empty string', \gettype($data['property'] ?? null));
         }
         $property = $data['property'];
 

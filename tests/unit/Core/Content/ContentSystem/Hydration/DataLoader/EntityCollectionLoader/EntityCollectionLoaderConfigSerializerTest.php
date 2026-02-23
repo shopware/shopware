@@ -5,12 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataLoader\En
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 
 /**
  * @internal
@@ -34,68 +35,50 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         static::assertSame(EntityCollectionLoader::SOURCE, EntityCollectionLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes valid config array into EntityLoaderConfig with entity, property, and empty associations')]
-    public function testDecodeValidConfigReturnsEntityLoaderConfig(): void
+    #[TestDox('delegates decode and passes through entity, property, and associations')]
+    public function testDecodeDelegatesThroughAllFields(): void
     {
-        $data = [
+        $result = $this->serializer->decode([
             'entity' => 'product',
             'property' => 'productId',
-        ];
-
-        $result = $this->serializer->decode($data);
+        ]);
 
         static::assertInstanceOf(EntityLoaderConfig::class, $result);
         static::assertSame('product', $result->entity);
         static::assertSame('productId', $result->property);
         static::assertSame([], $result->associations);
-    }
 
-    #[TestDox('decodes config with associations into EntityLoaderConfig with all values set')]
-    public function testDecodeWithAssociationsReturnsEntityLoaderConfigWithAssociations(): void
-    {
-        $data = [
+        $resultWithAssociations = $this->serializer->decode([
             'entity' => 'category',
             'property' => 'categoryId',
             'associations' => ['children', 'seoUrls'],
-        ];
+        ]);
 
-        $result = $this->serializer->decode($data);
-
-        static::assertInstanceOf(EntityLoaderConfig::class, $result);
-        static::assertSame('category', $result->entity);
-        static::assertSame('categoryId', $result->property);
-        static::assertSame(['children', 'seoUrls'], $result->associations);
+        static::assertInstanceOf(EntityLoaderConfig::class, $resultWithAssociations);
+        static::assertSame('category', $resultWithAssociations->entity);
+        static::assertSame('categoryId', $resultWithAssociations->property);
+        static::assertSame(['children', 'seoUrls'], $resultWithAssociations->associations);
     }
 
-    #[TestDox('encodes EntityLoaderConfig without associations into array omitting the associations key')]
-    public function testEncodeValidConfigOmitsAssociationsKey(): void
+    #[TestDox('delegates encode and produces correct array for all field combinations')]
+    public function testEncodeDelegatesThroughAllFields(): void
     {
-        $config = new EntityLoaderConfig('product', 'productId', []);
+        $result = $this->serializer->encode(new EntityLoaderConfig('product', 'productId', []));
 
-        $result = $this->serializer->encode($config);
+        static::assertSame(['entity' => 'product', 'property' => 'productId'], $result);
 
-        static::assertIsArray($result);
-        static::assertSame('product', $result['entity']);
-        static::assertSame('productId', $result['property']);
-        static::assertArrayNotHasKey('associations', $result);
-    }
+        $resultWithAssociations = $this->serializer->encode(
+            new EntityLoaderConfig('category', 'categoryId', ['children', 'seoUrls'])
+        );
 
-    #[TestDox('encodes EntityLoaderConfig with associations into array including all keys')]
-    public function testEncodeWithAssociationsIncludesAllKeys(): void
-    {
-        $config = new EntityLoaderConfig('category', 'categoryId', ['children', 'seoUrls']);
-
-        $result = $this->serializer->encode($config);
-
-        static::assertIsArray($result);
         static::assertSame([
             'entity' => 'category',
             'property' => 'categoryId',
             'associations' => ['children', 'seoUrls'],
-        ], $result);
+        ], $resultWithAssociations);
     }
 
-    #[TestDox('decode and encode are inverse operations')]
+    #[TestDox('round-trips configuration through encode and decode unchanged')]
     public function testDecodeAndEncodeAreInverse(): void
     {
         $original = [
@@ -119,37 +102,33 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         $this->serializer->getDecorated();
     }
 
-    #[TestDox('decode propagates exception from delegate when entity key is missing')]
-    public function testDecodePropagatsDelegateExceptionForMissingEntity(): void
+    #[TestDox('propagates exception from delegate when entity key is missing')]
+    public function testDecodePropagatesDelegateExceptionForMissingEntity(): void
     {
-        $this->expectException(\Shopware\Core\Content\ContentSystem\ContentSystemException::class);
-        $this->expectExceptionMessage('Field entity expected non-empty string');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('entity', 'non-empty string', 'NULL')
+        );
 
         $this->serializer->decode(['property' => 'productId']);
     }
 
-    #[TestDox('decode propagates exception from delegate when property key is missing')]
+    #[TestDox('propagates exception from delegate when property key is missing')]
     public function testDecodePropagatesDelegateExceptionForMissingProperty(): void
     {
-        $this->expectException(\Shopware\Core\Content\ContentSystem\ContentSystemException::class);
-        $this->expectExceptionMessage('Field property expected non-empty string');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('property', 'non-empty string', 'NULL')
+        );
 
         $this->serializer->decode(['entity' => 'product']);
     }
 
-    #[TestDox('encode propagates exception from delegate when config type is wrong')]
+    #[TestDox('propagates exception from delegate when config type is wrong')]
     public function testEncodePropagatesDelegateExceptionForWrongConfigType(): void
     {
-        $wrongConfig = new class extends AbstractContentDataLoaderConfig {
-            public function getDecorated(): AbstractContentDataLoaderConfig
-            {
-                throw new DecorationPatternException(self::class);
-            }
-        };
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, TestLoaderConfig::class)
+        );
 
-        $this->expectException(\Shopware\Core\Content\ContentSystem\ContentSystemException::class);
-        $this->expectExceptionMessage('Field config expected');
-
-        $this->serializer->encode($wrongConfig);
+        $this->serializer->encode(new TestLoaderConfig());
     }
 }

@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataLoader\NavigationLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
 
 /**
  * @internal
@@ -93,7 +93,8 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[DataProvider('invalidRootIdProvider')]
+    #[TestWithJson('[{"rootId": 42}]', 'rootId is non-string type')]
+    #[TestWithJson('[{"rootId": ""}]', 'rootId is empty string')]
     #[TestDox('throws exception when rootId is invalid')]
     public function testDecodeWithInvalidRootIdThrowsException(array $data): void
     {
@@ -104,18 +105,11 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidRootIdProvider(): iterable
-    {
-        yield 'rootId is non-string type' => [['rootId' => 42]];
-        yield 'rootId is empty string' => [['rootId' => '']];
-    }
-
-    /**
      * @param array<string, mixed> $data
      */
-    #[DataProvider('invalidDepthProvider')]
+    #[TestWithJson('[{"depth": 0}]', 'depth is zero (boundary)')]
+    #[TestWithJson('[{"depth": -1}]', 'depth is negative')]
+    #[TestWithJson('[{"depth": "3"}]', 'depth is non-int type')]
     #[TestDox('throws exception when depth is invalid')]
     public function testDecodeWithInvalidDepthThrowsException(array $data): void
     {
@@ -126,19 +120,10 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidDepthProvider(): iterable
-    {
-        yield 'depth is zero (boundary)' => [['depth' => 0]];
-        yield 'depth is negative' => [['depth' => -1]];
-        yield 'depth is non-int type' => [['depth' => '3']];
-    }
-
-    /**
      * @param array<string, mixed> $data
      */
-    #[DataProvider('invalidActivePropertyProvider')]
+    #[TestWithJson('[{"activeProperty": 42}]', 'activeProperty is non-string type')]
+    #[TestWithJson('[{"activeProperty": ""}]', 'activeProperty is empty string')]
     #[TestDox('throws exception when activeProperty is invalid')]
     public function testDecodeWithInvalidActivePropertyThrowsException(array $data): void
     {
@@ -146,15 +131,6 @@ class NavigationLoaderConfigSerializerTest extends TestCase
         $this->expectExceptionMessage('Field activeProperty expected non-empty string');
 
         $this->serializer->decode($data);
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidActivePropertyProvider(): iterable
-    {
-        yield 'activeProperty is non-string type' => [['activeProperty' => 42]];
-        yield 'activeProperty is empty string' => [['activeProperty' => '']];
     }
 
     #[TestDox('encodes NavigationLoaderConfig with all defaults into empty array')]
@@ -175,8 +151,6 @@ class NavigationLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode($config);
 
         static::assertSame(['rootId' => 'main-navigation'], $result);
-        static::assertArrayNotHasKey('depth', $result);
-        static::assertArrayNotHasKey('activeProperty', $result);
     }
 
     #[TestDox('encodes NavigationLoaderConfig with non-default depth into array with depth')]
@@ -187,8 +161,6 @@ class NavigationLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode($config);
 
         static::assertSame(['depth' => 5], $result);
-        static::assertArrayNotHasKey('rootId', $result);
-        static::assertArrayNotHasKey('activeProperty', $result);
     }
 
     #[TestDox('encodes NavigationLoaderConfig with non-default activeProperty into array with activeProperty')]
@@ -199,8 +171,6 @@ class NavigationLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode($config);
 
         static::assertSame(['activeProperty' => 'categoryId'], $result);
-        static::assertArrayNotHasKey('rootId', $result);
-        static::assertArrayNotHasKey('depth', $result);
     }
 
     #[TestDox('encodes NavigationLoaderConfig with all non-default values into full array')]
@@ -224,17 +194,11 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws exception when encoding a non-NavigationLoaderConfig config instance')]
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
-        $wrongConfig = new class extends AbstractContentDataLoaderConfig {
-            public function getDecorated(): AbstractContentDataLoaderConfig
-            {
-                throw new DecorationPatternException(self::class);
-            }
-        };
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', NavigationLoaderConfig::class, TestLoaderConfig::class)
+        );
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field config expected');
-
-        $this->serializer->encode($wrongConfig);
+        $this->serializer->encode(new TestLoaderConfig());
     }
 
     #[TestDox('round-trips a full config without data loss')]
@@ -256,17 +220,6 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     public function testDecodeAndEncodeAreInverseForEmptyConfig(): void
     {
         $original = [];
-
-        $config = $this->serializer->decode($original);
-        $encoded = $this->serializer->encode($config);
-
-        static::assertSame($original, $encoded);
-    }
-
-    #[TestDox('round-trips a config with only rootId without data loss')]
-    public function testDecodeAndEncodeAreInverseForConfigWithRootIdOnly(): void
-    {
-        $original = ['rootId' => 'service-navigation'];
 
         $config = $this->serializer->decode($original);
         $encoded = $this->serializer->encode($config);

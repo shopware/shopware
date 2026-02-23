@@ -91,14 +91,6 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
             token: this.grecaptchaInput.value,
         });
 
-        if (this._isCmsForm()) {
-            const formCmsHandlerPlugin = this.formPluginInstances.get('FormCmsHandler');
-            if (formCmsHandlerPlugin) {
-                formCmsHandlerPlugin._submitForm();
-                return;
-            }
-        }
-
         let ajaxSubmitFound = false;
 
         for (const plugin of this.formPluginInstances.values()) {
@@ -133,17 +125,6 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
                 plugin.formSubmittedByCaptcha = true;
             }
         }
-    }
-
-    /**
-     * Checks if the form is the CMS contact form.
-     * This is used to work in association with the form CMS handler.
-     *
-     * @return {boolean}
-     * @private
-     */
-    _isCmsForm() {
-        return this.formPluginInstances.has('FormCmsHandler');
     }
 
     _isValidUrl(url) {

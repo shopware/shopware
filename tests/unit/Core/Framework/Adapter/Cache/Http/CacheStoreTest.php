@@ -256,6 +256,7 @@ class CacheStoreTest extends TestCase
         $request = new Request();
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s'));
+        $response->setSharedMaxAge(7200);
 
         $cache = new TagAwareAdapter(new ArrayAdapter());
 

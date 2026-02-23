@@ -17,6 +17,8 @@ class ConsentException extends HttpException
 
     final public const CANNOT_RESOLVE_ACTOR = 'SYSTEM__CONSENT_CANNOT_RESOLVE_ACTOR';
 
+    final public const INSUFFICIENT_PERMISSIONS = 'SYSTEM__CONSENT_INSUFFICIENT_PERMISSIONS';
+
     public static function notFound(string $name): self
     {
         return new self(
@@ -88,6 +90,22 @@ class ConsentException extends HttpException
             self::CANNOT_RESOLVE_ACTOR,
             'Cannot resolve actor with user id "{{ userId }}".',
             ['userId' => $id],
+        );
+    }
+
+    /**
+     * @param array<string> $missingPermissions
+     */
+    public static function insufficientPermissions(string $consent, array $missingPermissions): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::INSUFFICIENT_PERMISSIONS,
+            \sprintf('Missing required permission to update consent "{{ consent }}". Missing permissions: %s', implode(', ', $missingPermissions)),
+            [
+                'consent' => $consent,
+                'permission' => $missingPermissions,
+            ],
         );
     }
 }

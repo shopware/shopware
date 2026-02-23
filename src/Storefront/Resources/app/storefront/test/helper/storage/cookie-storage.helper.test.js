@@ -66,8 +66,25 @@ describe('cookie-storage.helper.js', () => {
         CookieStorageHelper.setItem('someCookie', 'value', 1);
 
         const cookies = document.cookie;
-        CookieStorageHelper.clear()
+        CookieStorageHelper.clear();
 
         expect(document.cookie).toStrictEqual(cookies);
-    })
+    });
+
+    test('it sets the cookie with a custom path from window.router', () => {
+        window.salesChannelBaseUrl = '/custom-sales-channel-path';
+
+        const cookieSpy = jest.spyOn(document, 'cookie', 'set');
+
+        const cookieName = 'path-test-cookie';
+        const cookieValue = 'path-value';
+
+        CookieStorageHelper.setItem(cookieName, cookieValue, 1);
+
+        expect(cookieSpy).toHaveBeenCalledWith(
+            expect.stringContaining('path=/custom-sales-channel-path'),
+        );
+
+        cookieSpy.mockRestore();
+    });
 });

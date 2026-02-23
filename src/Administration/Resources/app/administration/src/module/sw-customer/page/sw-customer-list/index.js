@@ -205,15 +205,6 @@ export default {
         },
     },
 
-    watch: {
-        defaultCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -287,9 +278,28 @@ export default {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.customerRepository.delete(id).then(() => {
-                this.getList();
-            });
+            return this.customerRepository
+                .delete(id)
+                .then(() => {
+                    this.getList();
+                })
+                .catch((errorResponse) => {
+                    const errors = errorResponse?.response?.data?.errors;
+
+                    if (Array.isArray(errors) && errors.length > 0) {
+                        errors.forEach((error) => {
+                            this.createNotificationError({
+                                title: error.title,
+                                message: error.detail,
+                            });
+                        });
+                    } else {
+                        this.createNotificationError({
+                            title: this.$tc('global.default.error'),
+                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        });
+                    }
+                });
         },
 
         async onChangeLanguage() {
@@ -424,9 +434,12 @@ export default {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         async onBulkEditItems() {

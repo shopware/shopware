@@ -4,6 +4,10 @@ import { execSync } from "child_process";
 // IDs of advisories to ignore
 const ignored: number[] = [
   1112030, // Elliptic Uses a Cryptographic Primitive with a Risky Implementation (low severity)
+  1112686, // ESlint, moderate severity, major update necessary
+  1112455, // lodash, moderate severity
+  1112453, // lodash-es, moderate severity
+  1113092, // axios <1, v1 already updated
 ];
 let auditRaw = "";
 

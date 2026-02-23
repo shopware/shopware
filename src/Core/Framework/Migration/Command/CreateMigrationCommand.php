@@ -111,7 +111,7 @@ class CreateMigrationCommand extends Command
     {
         $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), $pluginName) === 0);
 
-        if (\count($pluginBundles) === 0) {
+        if ($pluginBundles === []) {
             throw MigrationException::pluginNotFound($pluginName);
         }
 

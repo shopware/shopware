@@ -69,8 +69,8 @@ class WebhookManagerTest extends TestCase
 
     public function testDispatchesTwoConsecutiveEventsCorrectly(): void
     {
-        $event1 = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
-        $event2 = new class('foobar.event', ['foo' => 'bar'], ['foo' => 'bar']) extends AppFlowActionEvent {};
+        $event1 = new AppFlowActionEvent('foobar', ['x-test-header' => 'test-header-val'], ['foo' => 'bar']);
+        $event2 = new class('foobar.event', ['x-test-header' => 'test-header-val'], ['foo' => 'bar']) extends AppFlowActionEvent {};
 
         $this->eventFactory
             ->expects($this->exactly(2))
@@ -130,6 +130,7 @@ class WebhookManagerTest extends TestCase
         static::assertSame($message->getShopwareVersion(), '0.0.0');
         static::assertSame($message->getUrl(), 'https://foo.bar');
         static::assertSame($message->getWebhookId(), $webhook->id);
+        static::assertSame(['x-test-header' => 'test-header-val'], $message->getWebhookHeaders());
     }
 
     public function testWebhookSettingForLiveVersionOnlyIsIgnoredIfEventTypeDoesNotMatch(): void
@@ -313,7 +314,7 @@ class WebhookManagerTest extends TestCase
             'POST',
             $webhook->url,
             [
-                'foo' => 'bar',
+                'x-test-header' => 'test-header-val',
                 'Content-Type' => 'application/json',
                 'sw-version' => '0.0.0',
                 'sw-context-language' => [Defaults::LANGUAGE_SYSTEM],
@@ -356,7 +357,7 @@ class WebhookManagerTest extends TestCase
 
     private function prepareEvent(): AppFlowActionEvent
     {
-        $event = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
+        $event = new AppFlowActionEvent('foobar', ['x-test-header' => 'test-header-val'], ['foo' => 'bar']);
 
         $this->eventFactory
             ->expects($this->once())

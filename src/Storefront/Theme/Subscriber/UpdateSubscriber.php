@@ -88,7 +88,7 @@ class UpdateSubscriber implements EventSubscriberInterface
                 }
             }
 
-            if (!empty($failedThemes)) {
+            if ($failedThemes !== []) {
                 $event->appendPostUpdateMessage('Theme(s): ' . implode(', ', $failedThemes) . ' could not be recompiled.');
             }
         }

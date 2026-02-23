@@ -307,7 +307,7 @@ class DocumentConfiguration extends Struct
             $this->getCompanyCountry()?->getTranslation('name') ?? '',
         ];
 
-        return array_filter($parts, static fn ($part) => !empty(\trim($part)));
+        return array_filter($parts, static fn (string $part): bool => \trim($part) !== '');
     }
 
     public function getId(): string

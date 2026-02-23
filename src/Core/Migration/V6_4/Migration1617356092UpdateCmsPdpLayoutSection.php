@@ -118,7 +118,7 @@ class Migration1617356092UpdateCmsPdpLayoutSection extends MigrationStep
                 default => [],
             };
 
-            if (empty($configData)) {
+            if ($configData === []) {
                 return;
             }
 

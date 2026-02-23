@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
@@ -54,12 +55,12 @@ class AdminSearcherTest extends TestCase
             $this->client,
             $this->registry,
             $searchHelper,
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            $this->createMock(ElasticsearchHelper::class),
             '5s',
             20,
             'query_then_fetch',
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
-            $this->createMock(ElasticsearchHelper::class)
         );
     }
 
@@ -89,12 +90,12 @@ class AdminSearcherTest extends TestCase
             $this->client,
             $this->registry,
             $searchHelper,
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            $this->createMock(ElasticsearchHelper::class),
             '1s',
             5,
             'query_then_fetch',
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
-            $this->createMock(ElasticsearchHelper::class)
         );
 
         $data = $searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
@@ -111,12 +112,12 @@ class AdminSearcherTest extends TestCase
             $this->client,
             $this->registry,
             $searchHelper,
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            $this->createMock(ElasticsearchHelper::class),
             '5s',
             20,
             'query_then_fetch',
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
-            $this->createMock(ElasticsearchHelper::class)
         );
 
         $data = $searcher->search('elasticsearch', ['test'], Context::createDefaultContext());
@@ -202,7 +203,7 @@ class AdminSearcherTest extends TestCase
                                     'match' => [
                                         'textBoosted.ngram' => [
                                             'query' => $originalTerm,
-                                            'boost' => 10,
+                                            'boost' => SearchRanking::HIGH_SEARCH_RANKING,
                                         ],
                                     ],
                                 ],
@@ -210,7 +211,7 @@ class AdminSearcherTest extends TestCase
                                     'simple_query_string' => [
                                         'query' => $query,
                                         'fields' => ['textBoosted'],
-                                        'boost' => 10,
+                                        'boost' => SearchRanking::HIGH_SEARCH_RANKING,
                                         'lenient' => true,
                                     ],
                                 ],

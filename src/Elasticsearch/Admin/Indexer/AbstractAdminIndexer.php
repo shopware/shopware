@@ -11,10 +11,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 #[Package('inventory')]
 abstract class AbstractAdminIndexer
 {
+    final public const SEARCH_FIELD = [
+        'type' => 'text',
+        'fields' => [
+            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+        ],
+    ];
+
     abstract public function getDecorated(): self;
 
     abstract public function getName(): string;
@@ -67,7 +75,11 @@ abstract class AbstractAdminIndexer
      */
     public function getSupportedSearchFields(): array
     {
-        $mapping = $this->mapping([])['properties'] ?? [];
+        $mapping = $this->mapping([
+            'properties' => [
+                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD, // id is always supported
+            ],
+        ])['properties'] ?? [];
 
         if ($mapping === []) {
             return [];

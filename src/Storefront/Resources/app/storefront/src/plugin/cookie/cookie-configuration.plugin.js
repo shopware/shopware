@@ -487,7 +487,7 @@ export default class CookieConfiguration extends Plugin {
                     CookieStorage.setItem(
                         cookieData.cookie,
                         cookieData.value,
-                        cookieData.expiration || this._getDefaultCookieExpiration()
+                        cookieData.expiration || this._getDefaultCookieExpiration(),
                     );
                 }
             }
@@ -902,7 +902,7 @@ export default class CookieConfiguration extends Plugin {
             cookieGroups,
             'selected',
             selectedCookiesFromDOM,
-            data.languageId
+            data.languageId,
         );
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
@@ -1048,7 +1048,7 @@ export default class CookieConfiguration extends Plugin {
             }
             offcanvasElement.addEventListener('hidden.bs.offcanvas',
                 this._restoreFocus.bind(this),
-                { once: true }
+                { once: true },
             );
         });
     }

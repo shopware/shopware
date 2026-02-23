@@ -132,9 +132,13 @@ abstract class EntityDefinition
             return $this->fields;
         }
 
-        $fields = $this->defineFields();
+        $fields = new FieldCollection();
 
         foreach ($this->defaultFields() as $field) {
+            $fields->add($field);
+        }
+
+        foreach ($this->defineFields() as $field) {
             $fields->add($field);
         }
 
@@ -426,19 +430,10 @@ abstract class EntityDefinition
      */
     protected function defaultFields(): array
     {
-        $hasCreatedAtField = $this->defineFields()->filter(fn (Field $f) => $f instanceof CreatedAtField)->count() > 0;
-        $hasUpdatedAtField = $this->defineFields()->filter(fn (Field $f) => $f instanceof UpdatedAtField)->count() > 0;
-
-        $defaults = [];
-        if (!$hasCreatedAtField) {
-            $defaults[] = (new CreatedAtField())->addFlags(new ApiAware());
-        }
-
-        if (!$hasUpdatedAtField) {
-            $defaults[] =(new UpdatedAtField())->addFlags(new ApiAware());
-        }
-
-        return $defaults;
+        return [
+            (new CreatedAtField())->addFlags(new ApiAware()),
+            (new UpdatedAtField())->addFlags(new ApiAware()),
+        ];
     }
 
     abstract protected function defineFields(): FieldCollection;

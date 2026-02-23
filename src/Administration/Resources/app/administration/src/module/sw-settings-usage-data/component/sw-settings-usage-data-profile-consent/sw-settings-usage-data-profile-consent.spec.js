@@ -61,4 +61,26 @@ describe('module/sw-settings-usage-data/component/sw-settings-usage-data-profile
 
         expect(revokeSpy).toHaveBeenCalledWith('product_analytics');
     });
+
+    it('shows error notification if accepting consent fails', async () => {
+        const consentStore = useConsentStore();
+        consentStore.consents.product_analytics.status = 'accepted';
+
+        const notificationStore = Shopware.Store.get('notification');
+
+        const notificationSpy = jest.spyOn(notificationStore, 'createNotification');
+        const revokeSpy = jest.spyOn(consentStore, 'revoke');
+        revokeSpy.mockImplementation(() => Promise.reject());
+
+        const wrapper = await mount(SwSettingsUsageDataProfileConsent);
+        const checkBox = wrapper.getComponent(MtSwitch);
+
+        await checkBox.get('input').trigger('change');
+
+        expect(notificationSpy).toHaveBeenCalledWith({
+            variant: 'critical',
+            title: 'global.default.error',
+            message: 'sw-settings-usage-data.errors.consent-update-error',
+        });
+    });
 });

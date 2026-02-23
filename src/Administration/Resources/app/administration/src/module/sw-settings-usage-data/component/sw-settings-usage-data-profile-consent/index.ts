@@ -59,6 +59,14 @@ export default Shopware.Component.wrapComponentConfig({
                 } else {
                     await consentStore.revoke('product_analytics');
                 }
+            } catch {
+                Shopware.Store.get('notification').createNotification({
+                    variant: 'critical',
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-settings-usage-data.errors.consent-update-error', {
+                        consent: 'product_analytics',
+                    }),
+                });
             } finally {
                 this.isLoading = false;
             }

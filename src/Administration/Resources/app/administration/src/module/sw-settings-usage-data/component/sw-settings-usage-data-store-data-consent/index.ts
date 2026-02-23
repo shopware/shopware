@@ -60,6 +60,14 @@ export default Shopware.Component.wrapComponentConfig({
                 } else {
                     await consentStore.revoke('backend_data');
                 }
+            } catch {
+                Shopware.Store.get('notification').createNotification({
+                    variant: 'critical',
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-settings-usage-data.errors.consent-update-error', {
+                        consent: 'backend_data',
+                    }),
+                });
             } finally {
                 this.isLoading = false;
             }

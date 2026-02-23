@@ -31,7 +31,10 @@ function createConsentModal(storeDataConsent, userDataConsent) {
 
 describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal', () => {
     beforeEach(() => {
-        global.activeAclRoles = ['system.system_config'];
+        global.activeAclRoles = [
+            'system.system_config',
+            'user.update_profile',
+        ];
     });
 
     describe('save preferences', () => {
@@ -141,9 +144,9 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
             const wrapper = await createConsentModal(false, false);
 
-            const shareAllButton = wrapper.findAll('.mt-modal__footer button')[0];
+            const shareNothingButton = wrapper.findAll('.mt-modal__footer button')[0];
 
-            await shareAllButton.trigger('click');
+            await shareNothingButton.trigger('click');
 
             expect(revokeSpy).toHaveBeenCalledTimes(2);
             expect(revokeSpy.mock.calls[0][0]).toBe('backend_data');
@@ -167,6 +170,69 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(revokeSpy).toHaveBeenCalled();
             expect(acceptSpy.mock.calls[0][0]).toBe('backend_data');
             expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
+        });
+
+        it('does not update backend data consent if permissions are missing', async () => {
+            global.activeAclRoles = ['user.update_profile'];
+
+            const consentStore = useConsentStore();
+            const acceptSpy = jest.spyOn(consentStore, 'accept');
+            const revokeSpy = jest.spyOn(consentStore, 'revoke');
+            acceptSpy.mockImplementation(() => Promise.resolve());
+            revokeSpy.mockImplementation(() => Promise.resolve());
+
+            const wrapper = await createConsentModal(true, false);
+
+            const savePreferencesButton = wrapper.find('.mt-modal__footer button');
+
+            await savePreferencesButton.trigger('click');
+
+            expect(acceptSpy).not.toHaveBeenCalled();
+            expect(revokeSpy).toHaveBeenCalled();
+            expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
+        });
+
+        it('does not update user data consent if permissions are missing', async () => {
+            global.activeAclRoles = ['system.system_config'];
+
+            const consentStore = useConsentStore();
+            const acceptSpy = jest.spyOn(consentStore, 'accept');
+            const revokeSpy = jest.spyOn(consentStore, 'revoke');
+            acceptSpy.mockImplementation(() => Promise.resolve());
+            revokeSpy.mockImplementation(() => Promise.resolve());
+
+            const wrapper = await createConsentModal(true, false);
+
+            const savePreferencesButton = wrapper.find('.mt-modal__footer button');
+
+            await savePreferencesButton.trigger('click');
+
+            expect(acceptSpy).toHaveBeenCalled();
+            expect(revokeSpy).not.toHaveBeenCalled();
+            expect(acceptSpy.mock.calls[0][0]).toBe('backend_data');
+        });
+
+        it('shows error notification when updating consent fails', async () => {
+            const consentStore = useConsentStore();
+            const notificationStore = Shopware.Store.get('notification');
+
+            const notificationSpy = jest.spyOn(notificationStore, 'createNotification');
+            const acceptSpy = jest.spyOn(consentStore, 'accept');
+
+            acceptSpy.mockImplementation(() => Promise.reject());
+
+            const wrapper = await createConsentModal(true, false);
+
+            const savePreferencesButton = wrapper.find('.mt-modal__footer button');
+
+            await savePreferencesButton.trigger('click');
+
+            expect(acceptSpy).toHaveBeenCalled();
+            expect(notificationSpy).toHaveBeenCalledWith({
+                variant: 'critical',
+                title: 'global.default.error',
+                message: 'sw-settings-usage-data.errors.consent-update-error',
+            });
         });
     });
 });

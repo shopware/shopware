@@ -90,51 +90,59 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async savePreferences(done: () => void) {
             this.isLoading = true;
-            const consentStore = useConsentStore();
 
-            try {
-                if (this.storeDataConsent) {
-                    await consentStore.accept('backend_data');
-                } else {
-                    await consentStore.revoke('backend_data');
-                }
+            await this.updateConsents(this.storeDataConsent, this.userDataConsent);
 
-                if (this.userDataConsent) {
-                    await consentStore.accept('product_analytics');
-                } else {
-                    await consentStore.revoke('product_analytics');
-                }
-            } finally {
-                this.isLoading = false;
-                done();
-            }
+            this.isLoading = false;
+            done();
         },
 
         async shareAll(done: () => void) {
             this.sharesAll = true;
 
-            try {
-                const consentStore = useConsentStore();
+            await this.updateConsents(true, true);
 
-                await consentStore.accept('backend_data');
-                await consentStore.accept('product_analytics');
-            } finally {
-                this.sharesAll = false;
-                done();
-            }
+            this.sharesAll = false;
+            done();
         },
 
         async shareNothing(done: () => void) {
             this.revokesAll = true;
 
-            try {
-                const consentStore = useConsentStore();
+            await this.updateConsents(false, false);
 
-                await consentStore.revoke('backend_data');
-                await consentStore.revoke('product_analytics');
-            } finally {
-                this.revokesAll = false;
-                done();
+            this.revokesAll = false;
+            done();
+        },
+
+        async updateConsents(storeDataConsent: boolean, userDataConsent: boolean) {
+            if (this.acl.can('system.system_config')) {
+                await this.updateSingleConsent('backend_data', storeDataConsent);
+            }
+
+            if (this.acl.can('user.update_profile')) {
+                await this.updateSingleConsent('product_analytics', userDataConsent);
+            }
+        },
+
+        async updateSingleConsent(consent: 'backend_data' | 'product_analytics', accepted: boolean) {
+            const consentStore = useConsentStore();
+
+            try {
+                if (accepted) {
+                    await consentStore.accept(consent);
+                    return;
+                }
+
+                await consentStore.revoke(consent);
+            } catch {
+                Shopware.Store.get('notification').createNotification({
+                    variant: 'critical',
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-settings-usage-data.errors.consent-update-error', {
+                        consent,
+                    }),
+                });
             }
         },
     },

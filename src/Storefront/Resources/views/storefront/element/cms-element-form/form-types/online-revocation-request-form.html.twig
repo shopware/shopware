@@ -1,4 +1,4 @@
-{% block cms_form_ocr %}
+{% block cms_form_revocation %}
     {% set formPrefix = 'cms-form-online-revocation-request' %}
     <form action="{{ path(action) }}"
           method="post"
@@ -6,11 +6,11 @@
           data-form-cms-handler="true"
           data-form-preserver="true"
           id="{{ formPrefix }}"
-          aria-label="{{ element.config.title.value ? element.config.title.value : 'revocationRequest.headline'|trans }}">
+          aria-label="{{ element.config.title.value ? element.config.title.value : 'revocationRequest.headline'|trans|sw_sanitize }}">
 
         <div class="form-content">
             <div class="row g-2">
-                {% block cms_form_ocr_input_first_name %}
+                {% block cms_form_revocation_input_first_name %}
                     {% set firstNameFieldRequired = config('core.basicInformation.firstNameFieldRequired') == true %}
                     {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                         with {
@@ -23,7 +23,7 @@
                     } %}
                 {% endblock %}
 
-                {% block cms_form_ocr_input_last_name %}
+                {% block cms_form_revocation_input_last_name %}
                     {% set lastNameFieldRequired = config('core.basicInformation.lastNameFieldRequired') == true %}
                     {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                         with {
@@ -38,7 +38,7 @@
             </div>
 
             <div class="row g-2">
-                {% block cms_form_ocr_input_email %}
+                {% block cms_form_revocation_input_email %}
                     {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                         with {
                         fieldName: 'email',
@@ -52,7 +52,7 @@
                 {% endblock %}
             </div>
 
-            {% block cms_form_ocr_input_contract_number %}
+            {% block cms_form_revocation_input_contract_number %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'contractNumber',
@@ -64,7 +64,7 @@
             {% endblock %}
 
             <div class="row g-2">
-                {% block cms_form_ocr_comment_textarea %}
+                {% block cms_form_revocation_comment_textarea %}
                     {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
                         with {
                         rows: 5,
@@ -77,24 +77,24 @@
                 {% endblock %}
             </div>
 
-            {% block cms_form_ocr_captcha %}
+            {% block cms_form_revocation_captcha %}
                 {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { additionalClass : 'col-md-12' } %}
             {% endblock %}
 
-            {% block cms_form_ocr_privacy %}
+            {% block cms_form_revocation_privacy %}
                 {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
             {% endblock %}
 
-            {% block cms_form_ocr_required_fields_info %}
+            {% block cms_form_revocation_required_fields_info %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-info-required.html.twig' %}
             {% endblock %}
 
-            {% block cms_form_ocr_submit %}
-                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' with { submitText: 'revocationRequest.formSubmit' } %}
+            {% block cms_form_revocation_submit %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' with { submitText: 'revocationRequest.formSubmit'|sw_sanitize } %}
             {% endblock %}
         </div>
 
-        {% block cms_form_ocr_hidden_fields %}
+        {% block cms_form_revocation_hidden_fields %}
             <div class="form-hidden-fields">
                 <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ shopware.navigation.id }}">
                 <input type="hidden" id="{{ formPrefix }}-slotId" name="slotId" value="{{ element.id }}">

@@ -91,7 +91,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
     }
 
     /**
-     * @return array{receivers: array<string, string>, message?: array<string>|null}
+     * @return array{receivers: array<string, string>, message?: string}
      */
     private function getMailConfig(SalesChannelContext $context, RequestDataBag $dataBag): array
     {

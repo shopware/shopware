@@ -555,7 +555,7 @@
             "salutationUndisclosed": "Keine Angabe",
             "subject": "Betreff*",
             "subscribeToNewsletter": "Newsletter abonnieren",
-            "contractNumber": "Vertragsnummer (Bestellnummer, Abonnementnummer, ...)",
+            "contractNumber": "Vertragsnummer (Bestellnummer, Abonnementnummer, ...)*",
             "comment": "Kommentar"
           },
           "placeholder": {

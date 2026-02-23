@@ -39,7 +39,7 @@ class Migration1768545319RevocationRequestMailTemplate extends MigrationStep
             'Revocation request received',
             'Widerrufsantrag erhalten',
             'Received revocation request from customer',
-            'Widerrufsantrag von Kunden erhalten',
+            'Widerrufsantrag vom Kunden erhalten',
             '{{ salesChannel.translated.name }}',
             '{{ salesChannel.translated.name }}',
         );

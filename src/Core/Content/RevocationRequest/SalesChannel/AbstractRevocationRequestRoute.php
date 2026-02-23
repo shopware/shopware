@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('after-sales')]
 abstract class AbstractRevocationRequestRoute
 {
-    abstract public function getDecorated(): RevocationRequestRoute;
+    abstract public function getDecorated(): AbstractRevocationRequestRoute;
 
     abstract public function request(RequestDataBag $dataBag, SalesChannelContext $context): RevocationRequestRouteResponse;
 }

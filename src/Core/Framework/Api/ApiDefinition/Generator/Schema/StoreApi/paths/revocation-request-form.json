@@ -28,15 +28,15 @@
                                 "required": ["email", "contractNumber", "comment"],
                                 "properties": {
                                     "firstName": {
-                                        "description": "Firstname. This field may be required depending on the system settings.",
+                                        "description": "First name. This field may be required depending on the system settings.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Lastname. This field may be required depending on the system settings.",
+                                        "description": "Last name. This field may be required depending on the system settings.",
                                         "type": "string"
                                     },
                                     "email": {
-                                        "description": "Email address",
+                                        "description": "Email address.",
                                         "type": "string"
                                     },
                                     "contractNumber": {
@@ -44,7 +44,7 @@
                                         "type": "string"
                                     },
                                     "comment": {
-                                        "description": "The message of the revocation request form",
+                                        "description": "The message of the revocation request form.",
                                         "type": "string"
                                     },
                                     "navigationId": {
@@ -53,16 +53,16 @@
                                         "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "slotId": {
-                                        "description": "Identifier of the cms element",
+                                        "description": "Identifier of the cms element.",
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "cmsPageType": {
-                                        "description": "Type of the content management page",
+                                        "description": "Type of the content management page.",
                                         "type": "string"
                                     },
                                     "entityName": {
-                                        "description": "Entity name for slot config",
+                                        "description": "Entity name for slot config.",
                                         "type": "string"
                                     }
                                 },
@@ -73,7 +73,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Message sent successful."
+                        "description": "Message sent successfully."
                     }
                 },
                 "security": [

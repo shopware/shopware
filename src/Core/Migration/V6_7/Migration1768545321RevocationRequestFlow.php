@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Defaults;
@@ -46,7 +47,7 @@ class Migration1768545321RevocationRequestFlow extends MigrationStep
             [
                 'id' => Uuid::randomBytes(),
                 'flow_id' => $flowByteId,
-                'action_name' => 'action.mail.send',
+                'action_name' => SendMailAction::ACTION_NAME,
                 'config' => \json_encode([
                     'replyTo' => null,
                     'mailTemplateId' => Uuid::fromBytesToHex($customerMailTemplateId),
@@ -56,7 +57,7 @@ class Migration1768545321RevocationRequestFlow extends MigrationStep
                         'type' => 'revocationRequestCustomerFormMail',
                     ],
                 ], \JSON_THROW_ON_ERROR),
-                'display_group' => true,
+                'display_group' => '1',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -67,7 +68,7 @@ class Migration1768545321RevocationRequestFlow extends MigrationStep
             [
                 'id' => Uuid::randomBytes(),
                 'flow_id' => $flowByteId,
-                'action_name' => 'action.mail.send',
+                'action_name' => SendMailAction::ACTION_NAME,
                 'config' => \json_encode([
                     'replyTo' => null,
                     'mailTemplateId' => Uuid::fromBytesToHex($merchantMailTemplateId),
@@ -77,8 +78,8 @@ class Migration1768545321RevocationRequestFlow extends MigrationStep
                         'type' => 'default',
                     ],
                 ], \JSON_THROW_ON_ERROR),
-                'position' => 1, // second is 2
-                'display_group' => true,
+                'position' => 1,
+                'display_group' => '1',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

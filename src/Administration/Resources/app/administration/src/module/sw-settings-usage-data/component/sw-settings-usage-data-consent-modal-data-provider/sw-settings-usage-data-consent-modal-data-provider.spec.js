@@ -82,8 +82,8 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
                 const wrapper = await createWrapper();
                 const modal = wrapper.getComponent(SwSettingsUsageDataConsentModal);
 
-                expect(modal.props('initialStoreDataConsent')).toBe(backendDataConsent);
-                expect(modal.props('initialUserDataConsent')).toBe(userDataConsent);
+                expect(modal.props('storedStoreDataConsent')).toBe(backendDataConsent);
+                expect(modal.props('storedUserDataConsent')).toBe(userDataConsent);
             },
         );
     });

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -456,21 +457,11 @@ class AdminSearchRegistry implements EventSubscriberInterface
     {
         $properties = [
             'properties' => [
-                'id' => ['type' => 'keyword'],
-                'textBoosted' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                    ],
-                ],
-                'text' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                    ],
-                ],
-                'entityName' => ['type' => 'keyword'],
-                'parameters' => ['type' => 'keyword'],
+                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'textBoosted' => AbstractAdminIndexer::SEARCH_FIELD,
+                'text' => AbstractAdminIndexer::SEARCH_FIELD,
+                'entityName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'parameters' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ],
         ];
 

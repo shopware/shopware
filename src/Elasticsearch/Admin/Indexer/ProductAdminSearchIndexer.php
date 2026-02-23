@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -124,7 +125,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $lastPart = end($splitTerms);
 
         $ngramQuery = new MatchQuery('textBoosted.ngram', $term, [
-            'boost' => 10,
+            'boost' => SearchRanking::HIGH_SEARCH_RANKING,
         ]);
         $criteria->addQuery($ngramQuery, BoolQuery::SHOULD);
 
@@ -135,7 +136,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         $query = new SimpleQueryStringQuery($term, [
             'fields' => ['textBoosted'],
-            'boost' => 10,
+            'boost' => SearchRanking::HIGH_SEARCH_RANKING,
             'lenient' => true,
         ]);
         $criteria->addQuery($query, BoolQuery::SHOULD);
@@ -257,16 +258,16 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         $baseSql = <<<'SQL'
             SELECT LOWER(HEX(product.id)) as id,
-                   GROUP_CONCAT(DISTINCT translation.name SEPARATOR " ") as name,
+                   GROUP_CONCAT(DISTINCT IFNULL(product_main.name, product_parent.name) SEPARATOR " ") as name,
                    JSON_ARRAYAGG(JSON_OBJECT(
-                       'languageId', LOWER(HEX(translation.language_id)),
-                       'name', translation.name
+                       'languageId', LOWER(HEX(IFNULL(product_main.language_id, product_parent.language_id))),
+                       'name', IFNULL(product_main.name, product_parent.name)
                    )) as translatedNames,
                    JSON_ARRAYAGG(JSON_OBJECT(
                        'languageId', LOWER(HEX(manufacturer_translation.language_id)),
                        'name', manufacturer_translation.name
                    )) as translatedManufacturerNames,
-                   CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as customSearchKeywords,
+                   CONCAT("[", GROUP_CONCAT(IFNULL(product_main.custom_search_keywords, product_parent.custom_search_keywords)), "]") as customSearchKeywords,
                    GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
                    GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
                    IFNULL(product.active, parent.active) AS active,
@@ -287,11 +288,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             FROM product
                 LEFT JOIN product parent ON (product.parent_id = parent.id AND parent.version_id = :versionId)
                 LEFT JOIN product_visibility ON (product_visibility.product_id = product.visibilities AND product_visibility.product_version_id = product.version_id)
-                INNER JOIN product_translation AS translation
-                    ON product.id = translation.product_id AND product.version_id = translation.product_version_id
+                LEFT JOIN product_translation product_main ON product_main.product_id = product.id AND product_main.product_version_id = product.version_id
+                LEFT JOIN product_translation product_parent ON product_parent.product_id = product.parent_id AND product_parent.product_version_id = product.version_id
                 LEFT JOIN product_manufacturer_translation AS manufacturer_translation
                     ON manufacturer_translation.product_manufacturer_id = product.manufacturer
-                    AND manufacturer_translation.language_id = translation.language_id
                     AND manufacturer_translation.product_manufacturer_version_id = product.version_id
                 LEFT JOIN product_tag
                     ON product.id = product_tag.product_id AND product.version_id = product_tag.product_version_id

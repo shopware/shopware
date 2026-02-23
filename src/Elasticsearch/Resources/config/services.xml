@@ -393,12 +393,12 @@
             <argument type="service" id="admin.openSearch.client"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
-            <argument>%elasticsearch.administration.search.timeout%</argument>
-            <argument>%elasticsearch.administration.search.term_max_length%</argument>
-            <argument>%elasticsearch.administration.search.search_type%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator" />
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" />
+            <argument>%elasticsearch.administration.search.timeout%</argument>
+            <argument>%elasticsearch.administration.search.term_max_length%</argument>
+            <argument>%elasticsearch.administration.search.search_type%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchRegistry">

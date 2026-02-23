@@ -84,7 +84,7 @@ class SystemConfigController extends AbstractController
         $inherit = $request->query->getBoolean('inherit');
 
         $values = $this->systemConfig->getDomain($domain, $salesChannelId, $inherit);
-        if (empty($values)) {
+        if ($values === []) {
             $json = '{}';
         } else {
             $json = json_encode($values, \JSON_PRESERVE_ZERO_FRACTION);

@@ -82,7 +82,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
     private function handleQueue(): void
     {
         $indices = $this->connection->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
-        if (empty($indices)) {
+        if ($indices === []) {
             return;
         }
 

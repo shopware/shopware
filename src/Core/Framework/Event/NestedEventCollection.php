@@ -21,7 +21,7 @@ class NestedEventCollection extends Collection
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
         $events = [];
 

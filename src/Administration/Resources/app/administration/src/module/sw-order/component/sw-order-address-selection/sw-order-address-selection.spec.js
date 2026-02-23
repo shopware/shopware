@@ -88,6 +88,7 @@ async function createWrapper(propsData) {
                                             },
                                         },
                                         hash: 'isUnique',
+                                        getEntityName: () => 'customer_address',
                                     },
                                     {
                                         street: 'Denesik Bridge',
@@ -107,11 +108,13 @@ async function createWrapper(propsData) {
                                             },
                                         },
                                         hash: 'isDuplicate',
+                                        getEntityName: () => 'customer_address',
                                     },
                                 ]),
                             }),
                         create: () => ({
                             _isNew: true,
+                            getEntityName: () => 'customer_address',
                         }),
                     }),
                 },
@@ -140,6 +143,7 @@ async function createWrapper(propsData) {
                     },
                 },
                 hash: 'isDuplicate',
+                getEntityName: () => 'order_address',
             },
             addressId: '38e8895864a649a1b2ec806dad02ab87',
             type: 'billing',
@@ -200,7 +204,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.currentAddress).toEqual({
+        expect(wrapper.vm.currentAddress).toMatchObject({
             street: 'Denesik Bridge',
             zipcode: '05132',
             city: 'Bernierstad',

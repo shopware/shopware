@@ -2,6 +2,8 @@
  * @sw-package framework
  *
  * @module core/factory/worker-notification
+ *
+ * @deprecated tag:v6.8.0 - Factory will be removed. The increment-based message queue statistics are deprecated.
  */
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
@@ -9,7 +11,10 @@ import types from 'src/core/service/utils/types.utils';
 import type { App } from 'vue';
 import type { NotificationType } from '../../app/store/notification.store';
 
-/** @private */
+/**
+ * @private
+ * @deprecated tag:v6.8.0 - Type will be removed with increment-based message queue statistics
+ */
 export type NotificationService = {
     create: (config: NotificationType) => string;
     update: (config: NotificationType) => void;
@@ -17,6 +22,7 @@ export type NotificationService = {
 
 /**
  * @private
+ * @deprecated tag:v6.8.0 - Factory will be removed. The increment-based message queue statistics are deprecated.
  */
 export default {
     getRegistry,
@@ -53,7 +59,10 @@ function getRegistry() {
     return registry;
 }
 
-/** @private */
+/**
+ * @private
+ * @deprecated tag:v6.8.0 - Type will be removed with increment-based message queue statistics
+ */
 export type NotificationWorkerOptions = {
     name: string;
     fn: (

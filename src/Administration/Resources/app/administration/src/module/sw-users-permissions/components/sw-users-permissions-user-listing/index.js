@@ -64,6 +64,10 @@ export default {
             },
         },
 
+        userDetailRouterLink() {
+            return this.isSso ? 'sw.users.permissions.user.sso.detail' : 'sw.users.permissions.user.detail';
+        },
+
         userCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 

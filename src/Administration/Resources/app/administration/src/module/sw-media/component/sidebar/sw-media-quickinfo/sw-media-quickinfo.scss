@@ -56,14 +56,15 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
     }
 }
 
-.sw-model-viewer-modal {
+.sw-model-editor-modal {
     .sw-modal__body {
         padding: 0;
         overflow-y: hidden;
     }
 
-    .sw-model-viewer-modal-wrapper {
+    .sw-model-editor-modal-wrapper {
+        position: relative;
         width: 100%;
-        height: 800px;
+        height: 100%;
     }
 }

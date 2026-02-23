@@ -70,7 +70,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
 
             $categoryId = null;
             foreach ($categories as $currentIndex => $categoryName) {
-                if (empty($categoryName)) {
+                if ($categoryName === '') {
                     continue;
                 }
 
@@ -114,7 +114,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
             }
         }
 
-        if (!empty($newCategoriesPayload)) {
+        if ($newCategoriesPayload !== []) {
             $this->createNewCategories($newCategoriesPayload, $context);
         }
 

@@ -125,7 +125,7 @@ class ShopConfigurationController extends InstallerController
                 $session->set('SELECTED_LANGUAGES', $selectedLanguages);
 
                 // Check if user selected any languages
-                if (empty($selectedLanguages)) {
+                if ($selectedLanguages === []) {
                     // No languages selected, go directly to finish page
                     $session->remove(DatabaseConnectionInformation::class);
 

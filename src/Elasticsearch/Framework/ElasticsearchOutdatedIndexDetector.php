@@ -25,7 +25,7 @@ class ElasticsearchOutdatedIndexDetector
     {
         $allIndices = $this->getAllIndices();
 
-        if (empty($allIndices)) {
+        if ($allIndices === []) {
             return [];
         }
 

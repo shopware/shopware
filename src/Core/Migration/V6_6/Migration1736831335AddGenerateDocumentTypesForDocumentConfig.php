@@ -40,7 +40,7 @@ class Migration1736831335AddGenerateDocumentTypesForDocumentConfig extends Migra
                 ['technicalName' => ArrayParameterType::STRING],
             )->fetchAllAssociative();
 
-            if (empty($documentConfig)) {
+            if ($documentConfig === []) {
                 return;
             }
 

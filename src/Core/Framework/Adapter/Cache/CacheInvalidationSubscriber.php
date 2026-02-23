@@ -104,6 +104,10 @@ class CacheInvalidationSubscriber
         // invalidates the complete cached config immediately
         $this->cacheInvalidator->invalidate([CachedSystemConfigLoader::CACHE_TAG], true);
 
+        if ($event->silent) {
+            return;
+        }
+
         // global system config tag is used in all http caches that access system config, that should be invalidated delayed
         $this->cacheInvalidator->invalidate(['system.config-' . $event->salesChannelId]);
     }

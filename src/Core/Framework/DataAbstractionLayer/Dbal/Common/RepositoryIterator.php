@@ -78,7 +78,7 @@ class RepositoryIterator
 
         $values = $ids->getIds();
 
-        if (empty($values)) {
+        if ($values === []) {
             return null;
         }
 
@@ -111,7 +111,7 @@ class RepositoryIterator
         // increase offset for next iteration
         $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
-        if (empty($result->getIds())) {
+        if ($result->getIds() === []) {
             return null;
         }
 

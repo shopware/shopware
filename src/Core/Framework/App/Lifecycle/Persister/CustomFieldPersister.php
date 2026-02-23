@@ -69,8 +69,8 @@ class CustomFieldPersister
             }
         }
 
-        if (!$customFields || empty($customFields->getCustomFieldSets())) {
-            if (!empty($existingCustomFieldSets)) {
+        if (!$customFields || $customFields->getCustomFieldSets() === []) {
+            if ($existingCustomFieldSets !== []) {
                 $this->deleteObsoleteIds(
                     array_values($existingCustomFieldSets),
                     [],
@@ -134,19 +134,19 @@ class CustomFieldPersister
      */
     private function deleteObsoleteIds(array $obsoleteFieldSets, array $obsoleteRelations, array $obsoleteFields, Context $context): void
     {
-        if (!empty($obsoleteFieldSets)) {
+        if ($obsoleteFieldSets !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteFieldSets);
 
             $this->customFieldSetRepository->delete($ids, $context);
         }
 
-        if (!empty($obsoleteRelations)) {
+        if ($obsoleteRelations !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteRelations);
 
             $this->customFieldSetRelationRepository->delete($ids, $context);
         }
 
-        if (!empty($obsoleteFields)) {
+        if ($obsoleteFields !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteFields);
 
             $this->customFieldRepository->delete($ids, $context);

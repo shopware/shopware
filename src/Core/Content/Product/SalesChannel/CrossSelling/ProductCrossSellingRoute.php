@@ -195,7 +195,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             ProductVisibilityDefinition::VISIBILITY_LINK
         );
 
-        if (!\count($ids)) {
+        if ($ids === []) {
             return $element;
         }
 

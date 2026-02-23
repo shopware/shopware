@@ -62,8 +62,8 @@ class CmsException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CMS_PAGE_NOT_FOUND,
-            'Page with ID "{{ pageId }}" was not found.',
-            ['pageId' => $pageId]
+            self::$couldNotFindMessage,
+            ['entity' => 'page', 'field' => 'ID', 'value' => $pageId]
         );
     }
 

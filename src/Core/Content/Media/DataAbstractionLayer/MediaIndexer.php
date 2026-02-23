@@ -54,7 +54,7 @@ class MediaIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -69,7 +69,7 @@ class MediaIndexer extends EntityIndexer
 
         $updates = $event->getPrimaryKeys(MediaDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -88,7 +88,7 @@ class MediaIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

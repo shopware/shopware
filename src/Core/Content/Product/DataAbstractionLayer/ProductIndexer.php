@@ -85,7 +85,7 @@ class ProductIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -96,7 +96,7 @@ class ProductIndexer extends EntityIndexer
     {
         $ids = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -161,7 +161,7 @@ class ProductIndexer extends EntityIndexer
         }
 
         $ids = array_values(array_unique(array_filter($ids)));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

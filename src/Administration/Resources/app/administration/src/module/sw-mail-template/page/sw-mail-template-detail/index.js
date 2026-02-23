@@ -442,6 +442,8 @@ export default {
         },
 
         onClickValidateMailTemplate() {
+            this.isLoading = true;
+
             this.mailService
                 .validateMailTemplate(this.triggerEvent.class, {
                     subject: this.mailTemplate.subject ?? '',
@@ -450,15 +452,17 @@ export default {
                     contentHtml: this.mailTemplate.contentHtml ?? '',
                 })
                 .then((response) => {
-                    this.validationErrors = response
-                        .map((entry) => this.translateValidationError(entry))
-                        .sort((a, b) => {
-                            return (a.level === 'error' ? 1 : 0) - (b.level === 'error' ? 1 : 0);
-                        });
+                    this.mailPreview = '';
+                    this.mailPreview += `<h3>${this.$t(`sw-mail-template.detail.options.labelSubject`)}</h3><br/><br/>${response.subject}<br/><hr/><br/><br/>`;
+                    this.mailPreview += `<h3>${this.$t(`sw-mail-template.detail.options.labelSenderName`)}</h3><br/><br/>${response.senderName}<br/><hr/><br/><br/>`;
+                    this.mailPreview += `<h3>${this.$t(`sw-mail-template.detail.mailText.labelContentPlain`)}</h3><br/><br/>${response.contentPlain.replace(/\n/g, () => '<br/>')}<br/><hr/><br/><br/>`;
+                    this.mailPreview += `<h3>${this.$t(`sw-mail-template.detail.options.labelContentHtml`)}</h3><br/><br/>${response.contentHtml}<br/><hr/><br/><br/>`;
                 })
                 .catch((exception) => {
                     this.createNotificationError(exception.message);
                 });
+
+            this.isLoading = false;
         },
 
         translateValidationError(validationError) {

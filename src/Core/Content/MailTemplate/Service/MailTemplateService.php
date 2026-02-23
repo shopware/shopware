@@ -52,6 +52,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Twig\Environment;
+use Twig\Error\Error;
 use Twig\Error\SyntaxError;
 
 #[Package('after-sales')]
@@ -83,9 +84,15 @@ class MailTemplateService
         }
     }
 
-    public function render(string $mailTemplate, string $flowEventClass, Context $context): void
+    public function render(string $mailTemplate, string $flowEventClass, Context $context): string
     {
-        $result = $this->templateRenderer->render($mailTemplate, $this->generateTemplateData($flowEventClass), $context, false);
+        try {
+            return $this->templateRenderer->render($mailTemplate, $this->generateTemplateData($flowEventClass), $context, false);
+        } catch (Error $exception) {
+            $errorResponse = \json_encode(['message' => $exception->getRawMessage(), 'line' => $exception->getTemplateLine()]);
+            \assert(\is_string($errorResponse));
+            return $errorResponse;
+        }
     }
 
     public function generateTemplateData(string $flowEventClass): array
@@ -163,24 +170,12 @@ class MailTemplateService
             return $this->generateEntityData($dataType->getDefinitionClass(), $referenceData);
         }
 
-        if ($dataType::class === EntityType::class) {
-            return $this->generateEntityData($dataType->getDefinitionClass(), $referenceData);
-        }
-
         if ($dataType::class === ForeignKeyType::class) {
             if (!\array_key_exists($dataType->getReferenceClass() . '.id', $referenceData)) {
                 $referenceData[$dataType->getReferenceClass() . '.id'] = Uuid::randomHex();
             }
 
             return $referenceData[$dataType->getReferenceClass() . '.id'];
-        }
-
-        if ($dataType::class === MailRecipientStruct::class) {
-            return [
-                'recipients' => 'testing@shopware.com',
-                'bcc' => null,
-                'cc' => null,
-            ];
         }
 
         if ($dataType::class === ObjectType::class) {
@@ -202,7 +197,7 @@ class MailTemplateService
                 case ScalarValueType::TYPE_INT:
                     return 42;
                 case ScalarValueType::TYPE_STRING:
-                    return 'foobar';
+                    return '[some text]';
             }
         }
 

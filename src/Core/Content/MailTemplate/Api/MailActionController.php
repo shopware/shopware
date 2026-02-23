@@ -78,14 +78,13 @@ class MailActionController extends AbstractController
         $vars = $post->get('flowEventClass')::getAvailableData()
             ->add('salesChannel', new EntityType(SalesChannelDefinition::class));
 
-        $validationResponses = new MailTemplateValidationResponseCollection();
+        $renderResult = [];
 
         foreach ($post->get('mailTemplateContent') as $mailTemplateField => $content) {
-            $this->mailTemplateService->render($content, $post->get('flowEventClass'), $context);
-            $this->mailTemplateService->validateTemplate($mailTemplateField, $content, $vars, $validationResponses);
+            $renderResult[$mailTemplateField] = $this->mailTemplateService->render($content, $post->get('flowEventClass'), $context);
         }
 
-        return new JsonResponse($validationResponses, Response::HTTP_OK);
+        return new JsonResponse($renderResult, Response::HTTP_OK);
     }
 
     #[Route(

@@ -80,15 +80,7 @@ class StringTemplateRenderer
             $coreExtension->setTimezone($data['timezone']);
         }
 
-        try {
-            return $this->twig->render($name, $data);
-        } catch (Error $error) {
-            if ($error instanceof SyntaxError) {
-                throw AdapterException::invalidTemplateSyntax($error->getMessage());
-            }
-
-            throw AdapterException::renderingTemplateFailed($error->getMessage());
-        }
+        return $this->twig->render($name, $data);
     }
 
     public function enableTestMode(): void

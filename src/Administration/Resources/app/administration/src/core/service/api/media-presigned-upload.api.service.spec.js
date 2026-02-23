@@ -63,6 +63,7 @@ describe('mediaPresignedUploadService', () => {
                 mimeType: 'image/jpeg',
                 mediaFolderId: 'folder-123',
                 private: false,
+                mediaId: null,
             }),
             expect.objectContaining({ headers: expect.any(Object) }),
         );

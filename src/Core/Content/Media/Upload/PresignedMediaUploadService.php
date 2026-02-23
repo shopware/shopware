@@ -396,7 +396,7 @@ readonly class PresignedMediaUploadService
         } catch (\Throwable) {
             return null;
         } finally {
-            if (\file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }

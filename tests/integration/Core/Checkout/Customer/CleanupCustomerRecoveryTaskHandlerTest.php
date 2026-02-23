@@ -34,7 +34,7 @@ class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
         $customerId = $this->createCustomer();
 
         $expiredAt = new \DateTime();
-        $expiredAt->modify('-3 hour');
+        $expiredAt->modify('-50 hour');
         $this->createCustomerRecovery($customerId, $expiredAt);
 
         $this->handler->run();
@@ -71,7 +71,7 @@ class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
         $recentCustomerId = $this->createCustomer();
 
         $expiredAt = new \DateTime();
-        $expiredAt->modify('-3 hour');
+        $expiredAt->modify('-50 hour');
         $this->createCustomerRecovery($expiredCustomerId, $expiredAt);
 
         $recentAt = new \DateTime();
@@ -116,7 +116,6 @@ class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
             'password' => password_hash('test1234', \PASSWORD_BCRYPT),
             'default_billing_address_id' => Uuid::fromHexToBytes($addressId),
             'default_shipping_address_id' => Uuid::fromHexToBytes($addressId),
-            'default_payment_method_id' => Uuid::fromHexToBytes($paymentMethodId),
             'customer_group_id' => Uuid::fromHexToBytes($groupId),
             'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
             'created_at' => $now,

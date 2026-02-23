@@ -228,7 +228,7 @@ export default function createLoginService(
                     logout(true);
                 } else {
                     const backoffMs = 2 ** refreshRetryCount * 1000;
-                    restartAutoTokenRefresh(Date.now() + backoffMs * 2);
+                    scheduleRefreshRetry(backoffMs);
                 }
 
                 // Schedule logout if no token is present after delay
@@ -303,6 +303,25 @@ export default function createLoginService(
                 }
             }, TOKEN_SYNC_DELAY_MS);
         }
+    }
+
+    /**
+     * Schedules a token refresh retry after a given delay.
+     * Unlike {@link restartAutoTokenRefresh}, this uses the delay directly
+     * without halving it, making it suitable for exponential backoff retry logic.
+     *
+     * @private
+     */
+    function scheduleRefreshRetry(delayMs: number): void {
+        if (autoRefreshTokenTimeoutId) {
+            clearTimeout(autoRefreshTokenTimeoutId);
+            autoRefreshTokenTimeoutId = undefined;
+        }
+
+        autoRefreshTokenTimeoutId = setTimeout(() => {
+            autoRefreshTokenTimeoutId = undefined;
+            void refreshToken();
+        }, delayMs);
     }
 
     function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {

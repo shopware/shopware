@@ -1,4 +1,5 @@
 import AccountGuestAbortButtonPlugin from 'src/plugin/header/account-guest-abort-button.plugin';
+import * as NavigationHelper from 'src/helper/navigation.helper';
 
 describe('AccountGuestAbortButtonPlugin tests', () => {
     let accountGuestAbortButton = undefined;
@@ -33,17 +34,11 @@ describe('AccountGuestAbortButtonPlugin tests', () => {
             logoutEventPublished = true;
         });
 
-        // Mock window.location
-        const originalLocation = window.location;
-        delete window.location;
-        window.location = { assign: jest.fn() };
+        const assignSpy = jest.spyOn(NavigationHelper, 'assignLocation').mockImplementation(() => {});
 
         accountGuestAbortButton.el.click();
 
         expect(logoutEventPublished).toEqual(true);
-        expect(window.location.assign).toBeCalledWith(accountGuestAbortButton.el.getAttribute('href'));
-
-        // Restore original window.location
-        window.location = originalLocation;
+        expect(assignSpy).toHaveBeenCalledWith(accountGuestAbortButton.el.getAttribute('href'));
     });
 });

@@ -35,6 +35,7 @@
 /* global PluginManager */
 
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
+import { navigateTo } from 'src/helper/navigation.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas, { OffCanvasInstance } from 'src/plugin/offcanvas/offcanvas.plugin';
 import Plugin from 'src/plugin-system/plugin.class';
@@ -1025,7 +1026,7 @@ export default class CookieConfiguration extends Plugin {
      */
     _onLogin() {
         AjaxOffCanvas.close();
-        window.location.href = window.router['frontend.account.login.page'];
+        navigateTo(window.router['frontend.account.login.page']);
     }
 
     /**

@@ -1,3 +1,4 @@
+import { assignLocation } from 'src/helper/navigation.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 
 export default class AccountGuestAbortButtonPlugin extends Plugin {
@@ -17,6 +18,6 @@ export default class AccountGuestAbortButtonPlugin extends Plugin {
 
         this.$emitter.publish('guest-logout');
 
-        window.location.assign(this.el.getAttribute('href'));
+        assignLocation(this.el.getAttribute('href'));
     }
 }

@@ -1,3 +1,4 @@
+import { getLocationSearch } from 'src/helper/navigation.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 import type NativeEventEmitter from 'src/helper/emitter.helper';
@@ -144,7 +145,7 @@ export default class SpatialArViewerPlugin extends Plugin {
 
     private onReady(): void {
         this.el.classList.add('spatial-ar-ready');
-        const qrParams = new URLSearchParams(window.location.search);
+        const qrParams = new URLSearchParams(getLocationSearch());
 
         if (!qrParams.has('autostartAr') || !this.spatialArId || qrParams.get('autostartAr') !== this.spatialArId) {
             return;

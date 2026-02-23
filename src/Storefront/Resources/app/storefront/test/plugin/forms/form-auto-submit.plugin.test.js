@@ -1,4 +1,5 @@
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
+import * as NavigationHelper from 'src/helper/navigation.helper';
 
 /**
  * @package content
@@ -238,11 +239,7 @@ describe('Form auto submit plugin', () => {
     it('should update redirect parameters on form change not existing in form', () => {
         createPlugin({ changeTriggerSelectors: ['.form-unsubscribe', '.form-name'] });
 
-        Object.defineProperty(window, 'location', {
-            value: {
-                search: '?important=0&test=1',
-            },
-        });
+        jest.spyOn(NavigationHelper, 'getLocationSearch').mockReturnValue('?important=0&test=1');
 
         const emailField = document.querySelector('.form-email');
 

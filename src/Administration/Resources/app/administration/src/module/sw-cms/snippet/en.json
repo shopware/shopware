@@ -555,7 +555,7 @@
             "salutationUndisclosed": "Prefer not to disclose",
             "subject": "Subject line*",
             "subscribeToNewsletter": "Subscribe to newsletter",
-            "contractNumber": "Contract number (order number, subscription number, ...)",
+            "contractNumber": "Contract number (order number, subscription number, ...)*    ",
             "comment": "Comment"
           },
           "placeholder": {

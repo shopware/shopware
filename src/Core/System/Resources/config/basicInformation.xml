@@ -152,7 +152,7 @@
             <label lang="de-DE">Shopseiten-Layout für Widerrufsantrag Seite</label>
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
-            <helpText>To make the page accessible, you must activate the option "Show Revoke a Contract button in footer"</helpText>
+            <helpText>To make the page accessible, you must activate the option "Show Revoke a contract button in footer"</helpText>
             <helpText lang="de-DE">Um die Seite erreichbar zu machen, musst du den Punkt "Button Vertrag widerrufen im Footer anzeigen" aktivieren.</helpText>
         </component>
 
@@ -214,9 +214,9 @@
 
         <input-field type="bool">
             <name>showRevocationButton</name>
-            <label>Show "Revoke a Contract" button in footer</label>
+            <label>Show "Revoke a contract" button in footer</label>
             <label lang="de-DE">Button "Vertrag widerrufen" im Footer anzeigen</label>
-            <helpText>If active, the button "Revoke a Contract" is shown in the page footer. To show the button properly, it's also necessary to select a "Shop page layout for revocation request".</helpText>
+            <helpText>If active, the button "Revoke a contract" is shown in the page footer. To show the button properly, it's also necessary to select a "Shop page layout for revocation request".</helpText>
             <helpText lang="de-DE">Wenn aktiv, wird der Button „Vertrag widerrufen“ in der Fußzeile der Seite angezeigt. Damit der Button korrekt angezeigt wird, muss außerdem ein "Shopseiten-Layout für Widerrufsantrag Seite" ausgewählt werden.</helpText>
         </input-field>
     </card>

@@ -247,7 +247,7 @@ const missingTests = [
     'src/module/sw-cms/elements/form/component/templates/form-contact/index.js',
     'src/module/sw-cms/elements/form/component/templates/form-revocation-request/index.js',
     'src/module/sw-cms/elements/form/component/templates/form-newsletter/index.js',
-    '/src/module/sw-cms/elements/cross-selling/preview/index.js',
+    'src/module/sw-cms/elements/cross-selling/preview/index.js',
     'src/module/sw-cms/elements/image-gallery/preview/index.js',
     'src/module/sw-cms/elements/image-slider/preview/index.js',
     'src/module/sw-cms/elements/location-renderer/preview/index.ts',

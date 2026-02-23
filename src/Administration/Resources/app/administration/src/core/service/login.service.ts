@@ -317,9 +317,19 @@ export default function createLoginService(
             clearTimeout(autoRefreshTokenTimeoutId);
             autoRefreshTokenTimeoutId = undefined;
         }
+        
+        const tokenBeforeRetry = getToken();
 
         autoRefreshTokenTimeoutId = setTimeout(() => {
             autoRefreshTokenTimeoutId = undefined;
+
+            // Another tab may have already refreshed the token via cookie storage
+            const currentToken = getToken();
+            if (currentToken && currentToken !== tokenBeforeRetry) {
+                refreshRetryCount = 0;
+                return;
+            }
+
             void refreshToken();
         }, delayMs);
     }

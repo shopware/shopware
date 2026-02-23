@@ -9,9 +9,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     StorefrontHome,
     SelectProductFilterOption,
     CheckVisibilityInHome,
-    InstanceMeta,
 }) => {
-    test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
         {
@@ -212,9 +210,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
     TestDataService,
     StorefrontHome,
     CheckVisibilityInHome,
-    InstanceMeta,
 }) => {
-    test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup();
     const propertyGroupsColor: PropertyGroup[] = [color];

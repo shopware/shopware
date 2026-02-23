@@ -52,7 +52,7 @@ class RevocationRequestRouteTest extends TestCase
 
         $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
-        static::assertSame($successMessage, $result->getObject()->getIndividualSuccessMessage());
+        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
 
     public function testRequestShouldReturnCmsSlotSuccessMessage(): void
@@ -73,7 +73,7 @@ class RevocationRequestRouteTest extends TestCase
 
         $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
-        static::assertSame($successMessage, $result->getObject()->getIndividualSuccessMessage());
+        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
 
     public function testRequestWithoutSlotIdShouldReturnDefaultsMessage(): void
@@ -87,7 +87,7 @@ class RevocationRequestRouteTest extends TestCase
 
         $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
-        static::assertSame($successMessage, $result->getObject()->getIndividualSuccessMessage());
+        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
 
     public function testRequestWithoutSlotEntityShouldReturnDefaultsMessage(): void
@@ -103,7 +103,7 @@ class RevocationRequestRouteTest extends TestCase
 
         $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
-        static::assertSame($successMessage, $result->getObject()->getIndividualSuccessMessage());
+        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
 
     public function testRequestWithSlotEntityWithoutTranslationShouldReturnDefaultsMessage(): void
@@ -123,7 +123,7 @@ class RevocationRequestRouteTest extends TestCase
 
         $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
-        static::assertSame($successMessage, $result->getObject()->getIndividualSuccessMessage());
+        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
 
     public function createValidatorMock(): DataValidator&MockObject

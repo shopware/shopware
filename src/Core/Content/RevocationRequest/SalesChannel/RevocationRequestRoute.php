@@ -72,12 +72,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
         $merchantEvent = new RevocationRequestEvent($context->getContext(), $context->getSalesChannelId(), $merchantMailRecipientStruct, $dataBag);
         $this->eventDispatcher->dispatch($merchantEvent, RevocationRequestEvent::EVENT_NAME);
 
-        $responseStruct = new RevocationRequestFormRouteResponseStruct();
-        $responseStruct->assign([
-            'individualSuccessMessage' => $mailConfig['message'] ?? '',
-        ]);
-
-        return new RevocationRequestRouteResponse($responseStruct);
+        return new RevocationRequestRouteResponse($mailConfig['message'] ?? '');
     }
 
     private function validateRevocationRequestForm(DataBag $dataBag, SalesChannelContext $context): void

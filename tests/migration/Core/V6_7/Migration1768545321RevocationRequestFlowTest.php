@@ -5,9 +5,9 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1768545321RevocationRequestFlow;
 
 /**
@@ -28,32 +28,32 @@ class Migration1768545321RevocationRequestFlowTest extends TestCase
     {
         $migration = new Migration1768545321RevocationRequestFlow();
 
-        static::assertTrue($this->hasFlowEntry(RevocationRequestEvent::EVENT_NAME));
-        $this->dropFlowEntry(RevocationRequestEvent::EVENT_NAME);
+        static::assertTrue($this->hasFlowEntry());
+        $this->dropFlowEntry();
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue($this->hasFlowEntry(RevocationRequestEvent::EVENT_NAME));
+        static::assertTrue($this->hasFlowEntry());
     }
 
-    private function hasFlowEntry(string $eventName): bool
+    private function hasFlowEntry(): bool
     {
         $result = $this->connection->fetchOne(
-            'SELECT `id` FROM `flow` WHERE `event_name` = :name',
-            ['name' => $eventName]
+            'SELECT 1 FROM `flow` WHERE `id` = :flowId',
+            ['flowId' => Uuid::fromHexToBytes(Migration1768545321RevocationRequestFlow::REVOCATION_REQUEST_FLOW_ID)]
         );
 
         return !empty($result);
     }
 
-    private function dropFlowEntry(string $eventName): void
+    private function dropFlowEntry(): void
     {
         $this->connection->executeStatement(
-            'DELETE FROM `flow` WHERE `event_name` = :name',
-            ['name' => $eventName]
+            'DELETE FROM `flow` WHERE `id` = :flowId',
+            ['flowId' => Uuid::fromHexToBytes(Migration1768545321RevocationRequestFlow::REVOCATION_REQUEST_FLOW_ID)]
         );
 
-        static::assertFalse($this->hasFlowEntry(RevocationRequestEvent::EVENT_NAME));
+        static::assertFalse($this->hasFlowEntry());
     }
 }

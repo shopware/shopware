@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('after-sales')]
 class Migration1768545321RevocationRequestFlow extends MigrationStep
 {
+    final public const REVOCATION_REQUEST_FLOW_ID = '019c6fc3c6827002b7a0bc3924a077b8';
+
     public function getCreationTimestamp(): int
     {
         return 1768545321;
@@ -24,14 +26,17 @@ class Migration1768545321RevocationRequestFlow extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $flowByteId = Uuid::randomBytes();
         $customerMailTemplateId = $this->getMailTemplateId($connection, MailTemplateTypes::MAILTYPE_REVOCATION_REQUEST_CUSTOMER);
         $merchantMailTemplateId = $this->getMailTemplateId($connection, MailTemplateTypes::MAILTYPE_REVOCATION_REQUEST_MERCHANT);
+
+        if ($this->flowExists($connection)) {
+            return;
+        }
 
         $connection->insert(
             'flow',
             [
-                'id' => $flowByteId,
+                'id' => Uuid::fromHexToBytes(self::REVOCATION_REQUEST_FLOW_ID),
                 'name' => 'Online revocation request sent',
                 'event_name' => RevocationRequestEvent::EVENT_NAME,
                 'priority' => 1,
@@ -46,7 +51,7 @@ class Migration1768545321RevocationRequestFlow extends MigrationStep
             'flow_sequence',
             [
                 'id' => Uuid::randomBytes(),
-                'flow_id' => $flowByteId,
+                'flow_id' => Uuid::fromHexToBytes(self::REVOCATION_REQUEST_FLOW_ID),
                 'action_name' => SendMailAction::ACTION_NAME,
                 'config' => \json_encode([
                     'replyTo' => null,
@@ -67,7 +72,7 @@ class Migration1768545321RevocationRequestFlow extends MigrationStep
             'flow_sequence',
             [
                 'id' => Uuid::randomBytes(),
-                'flow_id' => $flowByteId,
+                'flow_id' => Uuid::fromHexToBytes(self::REVOCATION_REQUEST_FLOW_ID),
                 'action_name' => SendMailAction::ACTION_NAME,
                 'config' => \json_encode([
                     'replyTo' => null,
@@ -112,5 +117,15 @@ class Migration1768545321RevocationRequestFlow extends MigrationStep
         }
 
         return $result;
+    }
+
+    private function flowExists(Connection $connection): bool
+    {
+        $result = $connection->fetchOne(
+            'SELECT 1 FROM `flow` WHERE `id` = :flowId',
+            ['flowId' => Uuid::fromHexToBytes(self::REVOCATION_REQUEST_FLOW_ID)]
+        );
+
+        return $result !== false;
     }
 }

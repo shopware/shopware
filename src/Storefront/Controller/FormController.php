@@ -130,11 +130,10 @@ class FormController extends StorefrontController
         $response = [];
 
         try {
-            $message = $this->abstractRevocationRequestRoute->request($data->toRequestDataBag(), $context)
-                ->getResult()
+            $message = $this->abstractRevocationRequestRoute->request($data, $context)
                 ->getIndividualSuccessMessage();
 
-            if (!$message) {
+            if ($message === '') {
                 $message = $this->trans('revocationRequest.success');
             }
 

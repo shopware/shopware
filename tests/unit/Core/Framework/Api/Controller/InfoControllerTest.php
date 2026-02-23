@@ -238,6 +238,7 @@ class InfoControllerTest extends TestCase
             new Filesystem(),
             $this->shopIdProvider,
             $this->statsService,
+            null,
         );
     }
 }

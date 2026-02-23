@@ -59,6 +59,7 @@ class MediaException extends HttpException
     public const MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED';
     public const MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION';
     public const MEDIA_PRESIGNED_UPLOAD_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FAILED';
+    public const MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED';
 
     public static function cannotBanRequest(string $url, string $error, ?\Throwable $e = null): self
     {
@@ -519,6 +520,16 @@ class MediaException extends HttpException
             'Failed to generate presigned URL: {{ message }}',
             ['message' => $e->getMessage()],
             $e
+        );
+    }
+
+    public static function presignedUploadFinalizeFailed(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED,
+            'Could not verify uploaded file for media with id "{{ mediaId }}".',
+            ['mediaId' => $mediaId]
         );
     }
 }

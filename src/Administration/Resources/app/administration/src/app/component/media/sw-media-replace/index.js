@@ -34,5 +34,21 @@ export default {
         cleanUpFailure(mediaEntity, message) {
             this.createNotificationError({ message });
         },
+
+        /**
+         * Override: for replace. Emit UPLOAD_ADDED
+         */
+        handlePresignedUpload(files) {
+            const { fileReader } = Shopware.Utils;
+            const { extension } = fileReader.getNameAndExtensionFromFile(files[0]);
+
+            this.mediaService.getListenerForTag(this.uploadTag).forEach((listener) => {
+                listener(
+                    this.mediaService._createUploadEvent('media-upload-add', this.uploadTag, {
+                        data: [{ targetId: this.itemToReplace.id, extension, src: files[0] }],
+                    }),
+                );
+            });
+        },
     },
 };

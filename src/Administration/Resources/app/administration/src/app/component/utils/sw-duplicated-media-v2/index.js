@@ -20,6 +20,7 @@ export default {
     inject: [
         'repositoryFactory',
         'mediaService',
+        'mediaPresignedUploadService',
     ],
 
     data() {
@@ -36,6 +37,9 @@ export default {
     },
 
     computed: {
+        presignedSupported() {
+            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+        },
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -141,7 +145,7 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.loadDefaultOption();
             this.updatePreviewData();
 
@@ -256,6 +260,12 @@ export default {
             const { fileName } = await this.mediaService.provideName(uploadTask.fileName, uploadTask.extension);
             newTask.fileName = fileName;
 
+            if (this.presignedSupported && uploadTask.src instanceof File) {
+                const mediaId = await this.presignedUpload(newTask, newTask.targetId);
+                this.emitUploadFinished(newTask.uploadTag, mediaId);
+                return;
+            }
+
             this.mediaService.addUpload(newTask.uploadTag, newTask);
             await this.mediaService.runUploads(newTask.uploadTag);
         },
@@ -302,6 +312,19 @@ export default {
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
             const newTarget = searchResult[0];
             const oldTargetId = uploadTask.targetId;
+
+            if (this.presignedSupported && uploadTask.src instanceof File) {
+                const mediaId = await this.presignedUpload(uploadTask, newTarget.id);
+
+                const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
+                if (oldTarget && !oldTarget.hasFile) {
+                    await this.mediaRepository.delete(oldTargetId, Context.api);
+                }
+
+                this.emitUploadFinished(uploadTask.uploadTag, mediaId, mediaId !== oldTargetId ? oldTargetId : null);
+                return;
+            }
+
             uploadTask.targetId = newTarget.id;
 
             this.mediaService.addUpload(uploadTask.uploadTag, uploadTask);
@@ -314,6 +337,42 @@ export default {
             }
 
             await this.mediaRepository.get(uploadTask.targetId, Context.api);
+        },
+
+        async presignedUpload(uploadTask, mediaId) {
+            const mimeType = uploadTask.src.type || 'application/octet-stream';
+
+            const result = await this.mediaPresignedUploadService.prepareUpload({
+                fileName: uploadTask.fileName,
+                extension: uploadTask.extension,
+                mimeType,
+                mediaId,
+            });
+
+            await this.mediaPresignedUploadService.uploadToPresignedUrl(result.url, uploadTask.src, mimeType);
+
+            await this.mediaPresignedUploadService.finalizeUpload(result.mediaId, {
+                fileName: uploadTask.fileName,
+                extension: uploadTask.extension,
+                mimeType,
+                path: result.path,
+            });
+
+            return result.mediaId;
+        },
+
+        emitUploadFinished(uploadTag, targetId, originalTargetId = null) {
+            this.mediaService.getListenerForTag(uploadTag).forEach((listener) => {
+                listener(
+                    this.mediaService._createUploadEvent('media-upload-finish', uploadTag, {
+                        targetId,
+                        originalTargetId,
+                        successAmount: 1,
+                        failureAmount: 0,
+                        totalAmount: 1,
+                    }),
+                );
+            });
         },
 
         async keepFile(uploadTask) {

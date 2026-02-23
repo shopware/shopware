@@ -28,6 +28,7 @@ export default {
     inject: [
         'repositoryFactory',
         'mediaService',
+        'mediaPresignedUploadService',
         'feature',
         'fileValidationService',
     ],
@@ -251,6 +252,10 @@ export default {
         mediaNameFilter() {
             return Shopware.Filter.getByName('mediaName');
         },
+
+        presignedUploadSupported() {
+            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+        },
     },
 
     watch: {
@@ -280,6 +285,7 @@ export default {
     methods: {
         async createdComponent() {
             this.mediaService.addListener(this.uploadTag, this.handleMediaServiceUploadEvent);
+
             if (this.mediaFolderId) {
                 return;
             }
@@ -480,6 +486,10 @@ export default {
                 }
             }
 
+            if (this.presignedUploadSupported) {
+                await this.handlePresignedUpload(newMediaFiles);
+                return;
+            }
             const syncEntities = [];
 
             const uploadData = newMediaFiles.map((fileHandle) => {
@@ -498,6 +508,18 @@ export default {
 
             await this.mediaRepository.saveAll(syncEntities, Context.api);
             await this.mediaService.addUploads(this.uploadTag, uploadData);
+        },
+
+        async handlePresignedUpload(files) {
+            await this.mediaPresignedUploadService.runUploads(
+                this.uploadTag,
+                files,
+                { mediaFolderId: this.mediaFolderId, isPrivate: this.privateFilesystem },
+                {
+                    getListeners: (tag) => this.mediaService.getListenerForTag(tag),
+                    createEvent: (action, tag, payload) => this.mediaService._createUploadEvent(action, tag, payload),
+                },
+            );
         },
 
         getMediaEntityForUpload() {

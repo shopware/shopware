@@ -30,17 +30,19 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
     }
 
     /**
-     * @param array<string, mixed> $filesystemConfig
+     * @param array<string, mixed>|mixed $filesystemConfig
      */
     public static function create(
         AbstractMediaPathStrategy $mediaPathStrategy,
-        array $filesystemConfig,
+        mixed $filesystemConfig,
         LoggerInterface $logger,
         int $expirationMinutes = 5,
         bool $enabled = true,
     ): self {
-        if (!$enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
-            return new self($mediaPathStrategy, null, null, '', $logger, $expirationMinutes, $enabled);
+        $nonSupported = new self($mediaPathStrategy, null, null, '', $logger, $expirationMinutes, $enabled);
+
+        if (!$enabled || !\is_array($filesystemConfig) || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
+            return $nonSupported;
         }
 
         $s3Config = $filesystemConfig['config'] ?? [];

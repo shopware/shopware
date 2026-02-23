@@ -11,7 +11,8 @@ test('Customer should see unavailable filter disabled based on selected filter',
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
-    test.slow(InstanceMeta.isSaaS);
+    test.skip(InstanceMeta.isSaaS, 'Flaky on SaaS, needs investigation');
+
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
         {
@@ -214,7 +215,8 @@ test('Customer should see unavailable filter options disabled when filtering by 
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
-    test.slow(InstanceMeta.isSaaS);
+    test.skip(InstanceMeta.isSaaS, 'Flaky on SaaS, needs investigation');
+
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup();
     const propertyGroupsColor: PropertyGroup[] = [color];

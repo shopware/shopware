@@ -68,8 +68,21 @@ export default function createLoginService(
     let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
     let logoutTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
+    /**
+     * Tracks an in-flight token refresh request so that concurrent calls
+     * to the refresh logic can share the same promise and avoid duplicate
+     * network requests.
+     */
     let refreshPromise: Promise<string> | null = null;
+    /**
+     * Counts the number of consecutive failed token refresh attempts for
+     * the current token before giving up or triggering a logout.
+     */
     let refreshRetryCount = 0;
+    /**
+     * Maximum number of consecutive token refresh retries allowed before
+     * the refresh mechanism stops retrying.
+     */
     const MAX_REFRESH_RETRIES = 5;
 
     // Subscriber pattern for token refresh events

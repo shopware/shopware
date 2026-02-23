@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,6 +19,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[Package('checkout')]
 final class CleanupCustomerRecoveryTaskHandler extends ScheduledTaskHandler
 {
+    private const BATCH_SIZE = 1000;
+
     /**
      * @internal
      *
@@ -38,9 +41,15 @@ final class CleanupCustomerRecoveryTaskHandler extends ScheduledTaskHandler
 
         do {
             $result = $this->connection->executeStatement(
-                'DELETE FROM customer_recovery WHERE created_at <= :timestamp LIMIT 1000',
-                ['timestamp' => $threshold->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
+                'DELETE FROM customer_recovery WHERE created_at <= :timestamp LIMIT :limit',
+                [
+                    'timestamp' => $threshold->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'limit' => self::BATCH_SIZE,
+                ],
+                [
+                    'limit' => ParameterType::INTEGER,
+                ]
             );
-        } while ($result > 0);
+        } while ($result >= self::BATCH_SIZE);
     }
 }

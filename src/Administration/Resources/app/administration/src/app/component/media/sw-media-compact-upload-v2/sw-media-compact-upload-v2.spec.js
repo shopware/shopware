@@ -50,6 +50,11 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                         'sw-media-modal-v2': true,
                     },
                     provide: {
+                        mediaPresignedUploadService: {
+                            prepareUpload: jest.fn(),
+                            uploadToPresignedUrl: jest.fn(),
+                            finalizeUpload: jest.fn(),
+                        },
                         repositoryFactory: {},
                         mediaService: {
                             addListener: () => {},

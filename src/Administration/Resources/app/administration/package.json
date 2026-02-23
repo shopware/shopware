@@ -229,8 +229,7 @@
     "tmp": "0.2.5",
     "braces": "3.0.3",
     "micromatch": "4.0.8",
-    "test-exclude": "8.0.0",
-    "@sentry/node": "10.31.0",
-    "minimatch": "10.2.2"
+    "test-exclude": "7.0.1",
+    "@sentry/node": "10.31.0"
   }
 }

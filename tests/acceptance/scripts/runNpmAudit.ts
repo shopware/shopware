@@ -3,7 +3,8 @@ import { execSync } from 'child_process';
 
 // IDs of advisories to ignore
 const ignored: number[] = [
-    1112686, // ESlint, moderate severity, major update necessary
+    1113371, // minimatch ReDoS, high severity, devDep only (eslint), fix needs minimatch 10.x
+    1113398, // ajv ReDoS, moderate severity, devDep only, no fix for ajv 6.x line
 ];
 let auditRaw = '';
 

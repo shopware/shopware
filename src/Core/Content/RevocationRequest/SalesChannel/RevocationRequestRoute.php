@@ -91,7 +91,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
     }
 
     /**
-     * @return array{receivers: array<string, string>, message?: string}
+     * @return array{receivers: array<string, string>, message?: string|null}
      */
     private function getMailConfig(SalesChannelContext $context, RequestDataBag $dataBag): array
     {
@@ -110,7 +110,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
             if ($categoryEntity instanceof CategoryEntity && !empty($categoryEntity->getSlotConfig()[$slotId])) {
                 $categoryEntityConfig = $categoryEntity->getSlotConfig()[$slotId];
                 $this->addReceivers($mailConfig, $categoryEntityConfig);
-                $mailConfig['message'] = $categoryEntityConfig['confirmationText']['value'] ?? '';
+                $mailConfig['message'] = $this->getStringMessage($categoryEntityConfig['confirmationText']['value']);
             }
         }
 
@@ -127,7 +127,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
 
         $slotConfig = $slotEntity->getTranslated()['config'];
         $this->addReceivers($mailConfig, $slotConfig);
-        $mailConfig['message'] = $slotConfig['confirmationText']['value'] ?? '';
+        $mailConfig['message'] = $this->getStringMessage($slotConfig['confirmationText']['value']);
 
         if (empty($mailConfig['receivers'])) {
             return $this->createDefaultConfig($context, $mailConfig);
@@ -139,7 +139,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
     /**
      * @param array<string, mixed> $config
      *
-     * @return array{receivers: array<string>, message?: array<int, string>|null}
+     * @return array{receivers: array<string>, message?: string|null}
      */
     private function createDefaultConfig(SalesChannelContext $context, array $config): array
     {
@@ -161,5 +161,18 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
                 $mailConfig['receivers'][$receiver] = $receiver;
             }
         }
+    }
+
+    private function getStringMessage(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (\is_string($value)) {
+            return $value;
+        }
+
+        return (string) $value;
     }
 }

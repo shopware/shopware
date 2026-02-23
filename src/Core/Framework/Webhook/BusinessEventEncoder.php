@@ -72,11 +72,11 @@ class BusinessEventEncoder
 
     /**
      * @param array<string, mixed> $dataTypes
-     * @param object|array<string, mixed> $object
+     * @param FlowEventAware|array<string, mixed> $object
      *
      * @return array<string, mixed>
      */
-    private function encodeType(array $dataTypes, $object): array
+    private function encodeType(array $dataTypes, FlowEventAware|array $object): array
     {
         $data = [];
         foreach ($dataTypes as $name => $dataType) {
@@ -91,7 +91,7 @@ class BusinessEventEncoder
      *
      * @return array<string, mixed>|mixed
      */
-    private function encodeProperty(array $dataType, mixed $property)
+    private function encodeProperty(array $dataType, mixed $property): mixed
     {
         switch ($dataType['type']) {
             case ScalarValueType::TYPE_BOOL:
@@ -103,8 +103,9 @@ class BusinessEventEncoder
             case EntityCollectionType::TYPE:
                 return $this->encodeEntity($dataType, $property);
             case ObjectType::TYPE:
-                if (\is_array($dataType['data']) && !empty($dataType['data'])) {
-                    return $this->encodeType($dataType['data'], $property);
+                $data = $dataType['data'];
+                if (\is_array($data) && $data !== []) {
+                    return $this->encodeType($data, $property);
                 }
 
                 return $property;
@@ -116,11 +117,9 @@ class BusinessEventEncoder
     }
 
     /**
-     * @param object|array<string, mixed> $object
-     *
-     * @return mixed
+     * @param FlowEventAware|array<string, mixed> $object
      */
-    private function getProperty(string $propertyName, $object)
+    private function getProperty(string $propertyName, FlowEventAware|array $object): mixed
     {
         if (\is_object($object)) {
             $getter = 'get' . $propertyName;

@@ -109,7 +109,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $isGuest = $data->getBoolean('guest');
 
-        if ($data->has('accountType') && empty($data->get('accountType'))) {
+        if ($data->has('accountType') && $data->getString('accountType') === '') {
             $data->remove('accountType');
         }
 
@@ -621,13 +621,10 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string
     {
-        $urlTemplate = $this->systemConfigService->get(
+        $urlTemplate = $this->systemConfigService->getString(
             'core.loginRegistration.confirmationUrl',
             $context->getSalesChannelId()
-        );
-        if (!\is_string($urlTemplate)) {
-            $urlTemplate = '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
-        }
+        ) ?: '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
 
         $emailHash = Hasher::hash($customer->getEmail(), 'sha1');
 

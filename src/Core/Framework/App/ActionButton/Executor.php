@@ -62,7 +62,7 @@ class Executor
             $content = $this->executeHttpRequest($action, $context, $payload, $appSecret);
         }
 
-        if (empty($content)) {
+        if ($content === '') {
             return new JsonResponse();
         }
 
@@ -107,7 +107,7 @@ class Executor
 
             // InCase use only want to response without action type response
             // bypass check auth if status code is success
-            if ($statusCode >= 200 && $statusCode < 300 && empty($body)) {
+            if ($statusCode >= 200 && $statusCode < 300 && $body === '') {
                 return '';
             }
 

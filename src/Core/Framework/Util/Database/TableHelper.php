@@ -26,11 +26,6 @@ use Shopware\Core\Framework\Util\UtilException;
 #[Package('framework')]
 class TableHelper
 {
-    /**
-     * @var AbstractSchemaManager<TPlatform>|null
-     */
-    private static ?AbstractSchemaManager $schemaManager = null;
-
     private function __construct()
     {
     }
@@ -256,11 +251,6 @@ class TableHelper
         }
     }
 
-    public static function resetSchemaManager(): void
-    {
-        self::$schemaManager = null;
-    }
-
     /**
      * @throws TableHelperException
      *
@@ -268,16 +258,10 @@ class TableHelper
      */
     private static function getSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        if (self::$schemaManager !== null) {
-            return self::$schemaManager;
-        }
-
         try {
-            self::$schemaManager = $connection->createSchemaManager();
+            return $connection->createSchemaManager();
         } catch (\Throwable $e) {
             throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
-
-        return self::$schemaManager;
     }
 }

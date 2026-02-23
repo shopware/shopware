@@ -168,7 +168,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $grouping = array_shift($groupings);
 
         $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
-        if (empty($groupings)) {
+        if ($groupings === []) {
             return ['field' => $accessor];
         }
 

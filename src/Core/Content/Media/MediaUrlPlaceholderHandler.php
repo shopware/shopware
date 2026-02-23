@@ -52,7 +52,7 @@ class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
      */
     private function createMediaMapping(array $matches): array
     {
-        if (empty($matches)) {
+        if ($matches === []) {
             return [];
         }
 

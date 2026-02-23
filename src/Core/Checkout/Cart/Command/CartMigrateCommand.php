@@ -107,9 +107,7 @@ class CartMigrateCommand extends Command
         $this->io = new ShopwareStyle($input, $output);
 
         $keys = $this->redis->keys(RedisCartPersister::PREFIX . '*');
-        \assert(\is_array($keys));
-
-        if (empty($keys)) {
+        if (!\is_array($keys) || $keys === []) {
             $this->io->success('No carts found in Redis');
 
             return self::SUCCESS;
@@ -133,6 +131,7 @@ class CartMigrateCommand extends Command
                 continue;
             }
 
+            /** @phpstan-ignore shopware.unserializeUsage */
             $value = \unserialize($value);
 
             $content = $this->cartCompressor->unserialize($value['content'], (int) $value['compressed']);

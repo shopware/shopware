@@ -81,7 +81,7 @@ class SortingListingProcessor extends AbstractListingProcessor
 
     private function hasQueriesOrTerm(Criteria $criteria): bool
     {
-        return !empty($criteria->getQueries()) || $criteria->getTerm();
+        return $criteria->getQueries() !== [] || $criteria->getTerm();
     }
 
     private function getCurrentSorting(ProductSortingCollection $sortings, Request $request, string $salesChannelId): ?ProductSortingEntity

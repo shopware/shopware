@@ -11,6 +11,8 @@ use Shopware\Core\System\User\UserCollection;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Store\Services\StoreServiceTest
  */
 #[Package('checkout')]
 class StoreService
@@ -35,6 +37,17 @@ class StoreService
 
         $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $storeToken): void {
             $this->userRepository->update([['id' => $userId, 'storeToken' => $storeToken]], $context);
+        });
+    }
+
+    public function removeStoreToken(Context $context): void
+    {
+        $contextSource = $context->getSource();
+        \assert($contextSource instanceof AdminApiSource);
+        $userId = $contextSource->getUserId();
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId): void {
+            $this->userRepository->update([['id' => $userId, 'storeToken' => null]], $context);
         });
     }
 }

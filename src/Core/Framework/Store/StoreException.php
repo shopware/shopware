@@ -31,6 +31,7 @@ class StoreException extends HttpException
     public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__STORE_JWKS_NOT_FOUND';
     public const PLUGIN_NOT_A_ZIP_FILE = 'FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE';
     public const INVALID_CONTEXT_SOURCE_USER = 'FRAMEWORK__INVALID_CONTEXT_SOURCE_USER';
+    public const STORE_LICENSE_DOMAIN_VALIDATION_FAILED = 'FRAMEWORK__STORE_LICENSE_DOMAIN_VALIDATION_FAILED';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -207,6 +208,16 @@ class StoreException extends HttpException
             self::INVALID_CONTEXT_SOURCE_USER,
             '{{ contextSource }} does not have a valid user ID',
             ['contextSource' => $contextSource]
+        );
+    }
+
+    public static function licenseDomainVerificationFailure(string $domain): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::STORE_LICENSE_DOMAIN_VALIDATION_FAILED,
+            'License host verification failed for domain "{{ domain }}.',
+            ['domain' => $domain],
         );
     }
 }

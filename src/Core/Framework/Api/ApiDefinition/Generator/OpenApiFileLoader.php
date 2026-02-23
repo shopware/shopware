@@ -33,7 +33,7 @@ class OpenApiFileLoader
             'tags' => [],
         ];
 
-        if (empty($this->paths)) {
+        if ($this->paths === []) {
             return $spec;
         }
 

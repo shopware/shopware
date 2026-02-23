@@ -142,7 +142,7 @@ final class DocumentRoute extends AbstractDocumentRoute
             \ARRAY_FILTER_USE_KEY
         );
 
-        if (empty($supportedRequestedFormats)) {
+        if ($supportedRequestedFormats === []) {
             throw DocumentException::documentAcceptHeaderMimeTypesNotSupported(
                 array_values($requestedTypesMapping),
                 array_values($supportedTypesMapping)
@@ -271,7 +271,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         $requestedFileTypes = $request->getAcceptableContentTypes();
         $fileTypes = [];
 
-        if (empty($requestedFileTypes)) {
+        if ($requestedFileTypes === []) {
             return $this->getDefaultFileTypes();
         }
 

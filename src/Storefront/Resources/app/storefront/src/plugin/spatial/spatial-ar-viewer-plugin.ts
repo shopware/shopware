@@ -256,7 +256,7 @@ export default class SpatialArViewerPlugin extends Plugin {
         let qrModalTemplate;
         if (spatialArId) {
             qrModalTemplate = document.querySelector(
-                `.ar-qr-modal [data-ar-model-id='${spatialArId}']`
+                `.ar-qr-modal [data-ar-model-id='${spatialArId}']`,
             )?.closest('.ar-qr-modal') as HTMLElement | null;
         } else {
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -273,7 +273,7 @@ export default class SpatialArViewerPlugin extends Plugin {
         }
 
         const autostartArModalButton = autostartArModal.querySelector(
-            `[data-modal-open-ar-session-autostart='${spatialArId}']`
+            `[data-modal-open-ar-session-autostart='${spatialArId}']`,
         );
 
         if (!autostartArModalButton) {

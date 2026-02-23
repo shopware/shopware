@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -54,9 +51,7 @@ class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChanne
 
     public static function getAvailableData(): EventDataCollection
     {
-        return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING));
+        return new EventDataCollection();
     }
 
     public function getAddressId(): string

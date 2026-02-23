@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -66,7 +68,9 @@ class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, Shopw
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('email', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->merge(MailStorer::getStoreData())
+            ->merge(TimezoneStorer::getStoreData())
+            ->add(FlowMailVariables::EMAIL, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getMailStruct(): MailRecipientStruct

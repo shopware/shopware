@@ -4,15 +4,20 @@ namespace Shopware\Core\Content\ContactForm\Event;
 
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('discovery')]
@@ -37,7 +42,19 @@ final class ContactFormEvent extends Event implements SalesChannelAware, MailAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('contactFormData', new ObjectType());
+            ->merge(MailStorer::getStoreData())
+            ->merge(TimezoneStorer::getStoreData())
+            ->add(
+                FlowMailVariables::CONTACT_FORM_DATA,
+                (new ObjectType())
+                    ->add('salutationId', new ForeignKeyType(SalutationDefinition::class))
+                    ->add('email', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('subject', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('comment', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('firstName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('lastName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('phone', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            );
     }
 
     /**

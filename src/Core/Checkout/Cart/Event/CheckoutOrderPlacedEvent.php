@@ -3,15 +3,19 @@
 namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
-use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -53,7 +57,12 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Sales
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('order', new EntityType(OrderDefinition::class));
+            ->merge(OrderStorer::getStoreData())
+            ->merge(MailStorer::getStoreData())
+            ->merge(TimezoneStorer::getStoreData())
+            ->merge(CustomerStorer::getStoreData())
+            ->merge(CustomerGroupStorer::getStoreData())
+            ->merge(A11yRenderedDocumentStorer::getStoreData());
     }
 
     public function getContext(): Context

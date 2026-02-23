@@ -47,7 +47,7 @@ class ServerTiming implements ProfilerInterface
 
     public function onResponseEvent(ResponseEvent $event): void
     {
-        if (!empty($this->elements)) {
+        if ($this->elements !== []) {
             $response = $event->getResponse();
             $response->headers->set('Server-Timing', implode(', ', $this->elements));
         }

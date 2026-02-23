@@ -31,7 +31,7 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
                 (SELECT LOWER(HEX(`id`)) FROM `product` WHERE `parent_id` = `parent`.`id`)
         ');
 
-        if (empty($productIds)) {
+        if ($productIds === []) {
             return;
         }
 

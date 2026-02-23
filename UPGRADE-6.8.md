@@ -31,6 +31,9 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 
 The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
+## Removal of `/api/_info/queue.json` endpoint
+
+The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
 </details>
 
 # Core
@@ -485,6 +488,27 @@ The column `link` of the table `product_manufacturer` was removed.
 
 Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
 
+## Removal of increment-based message queue statistics
+
+The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
+
+**Removed components:**
+
+- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant and related `message_queue` increment
+- `shopware.admin_worker.enable_queue_stats_worker` configuration option
+- `shopware.increment.message_queue` configuration section
+- `enableQueueStatsWorker` property from `/api/_info/config` response
+
+**Migration:**
+
+If you were using `message_queue` increment - you may configure different one:
+```yaml
+shopware:
+    increment:
+        increment_name:
+          type: 'mysql'
+```
+
 </details>
 
 # Administration
@@ -748,6 +772,15 @@ Changes in `sw-mail-template-index`:
 * `listing` mixin was removed
 * `term` data property was removed
 * `onChangeLanguage` method now only calls `tabContent` ref
+
+## Removal of increment-based message queue notifications
+
+The indexing progress notifications in the Administration notification center have been removed without replacement.
+
+**Removed components:**
+
+- `WorkerNotificationListener` class and its exported constants `POLL_BACKGROUND_INTERVAL`, `POLL_FOREGROUND_INTERVAL` (`src/core/worker/worker-notification-listener.js`)
+- `enableQueueStatsWorker` property from `Shopware.Context.app.config.adminWorker`
 
 </details>
 

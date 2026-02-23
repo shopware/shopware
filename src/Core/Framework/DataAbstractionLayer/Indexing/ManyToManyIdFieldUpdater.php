@@ -37,7 +37,7 @@ class ManyToManyIdFieldUpdater
     {
         $definition = $this->registry->getByEntityName($entity);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

@@ -127,7 +127,7 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param string[] $permissions
+     * @param list<string> $permissions
      */
     public static function missingPrivileges(array $permissions): ShopwareHttpException
     {

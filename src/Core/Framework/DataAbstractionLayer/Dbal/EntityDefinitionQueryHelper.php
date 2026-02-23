@@ -336,7 +336,7 @@ class EntityDefinitionQueryHelper
             $path[] = $field->getPropertyName();
         }
 
-        if (empty($path)) {
+        if ($path === []) {
             return null;
         }
 
@@ -482,7 +482,7 @@ class EntityDefinitionQueryHelper
             fn (Field $field) => $field instanceof StorageAware
                 && $definition->getFields()->get($field->getPropertyName()) instanceof TranslatedField,
         );
-        if (!empty($partial)) {
+        if ($partial !== []) {
             $fields = $fields->filter(fn (Field $field) => isset($partial[$field->getPropertyName()]));
         }
 
@@ -596,7 +596,7 @@ class EntityDefinitionQueryHelper
         $primaryKeys = $criteria->getIds();
         $primaryKeys = array_values($primaryKeys);
 
-        if (empty($primaryKeys)) {
+        if ($primaryKeys === []) {
             return;
         }
 

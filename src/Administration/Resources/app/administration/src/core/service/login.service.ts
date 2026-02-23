@@ -207,7 +207,7 @@ export default function createLoginService(
 
                     resolve(await retryRefreshWithBackoff(refreshTokenValue));
                 } catch (error) {
-                    reject(error);
+                    reject(error instanceof Error ? error : new Error(String(error)));
                 }
             });
         }).finally(() => {
@@ -282,7 +282,7 @@ export default function createLoginService(
                 refreshSubscribers.length = 0;
                 refreshErrorSubscribers.length = 0;
 
-                return Promise.reject(error);
+                return Promise.reject(errorObj);
             });
     }
 

@@ -250,6 +250,7 @@
                     <template v-if="isInlineEdit">
                         <mt-number-field
                             v-model="item.stock"
+                            number-type="int"
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>

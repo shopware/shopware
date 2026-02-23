@@ -61,13 +61,13 @@ abstract class ZipCodeRule extends Rule
         $compareZipCode = \is_array($this->zipCodes) ? $this->zipCodes[0] : null;
 
         return match ($this->operator) {
-            Rule::OPERATOR_EQ => !empty($this->getMatches($zipCode)),
-            Rule::OPERATOR_NEQ => empty($this->getMatches($zipCode)),
+            Rule::OPERATOR_EQ => $this->getMatches($zipCode) !== [],
+            Rule::OPERATOR_NEQ => $this->getMatches($zipCode) === [],
             self::OPERATOR_GTE => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThanOrEquals((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_LTE => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThanOrEquals((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_GT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThan((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_LT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThan((float) $zipCode, (float) $compareZipCode),
-            self::OPERATOR_EMPTY => empty($zipCode),
+            self::OPERATOR_EMPTY => $zipCode === '',
             default => throw RuleException::unsupportedOperator($this->operator, self::class),
         };
     }

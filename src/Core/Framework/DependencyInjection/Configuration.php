@@ -972,7 +972,7 @@ class Configuration implements ConfigurationInterface
                             $allowedAreas = ['storefront', 'store_api'];
                             $providedAreas = array_keys($areas);
 
-                            return !empty(array_diff($providedAreas, $allowedAreas));
+                            return array_diff($providedAreas, $allowedAreas) !== [];
                         })
                         ->thenInvalid('Only "storefront" and "store_api" areas are currently supported in default_policies. Config contains unsupported area(s): %s')
                     ->end()

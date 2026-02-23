@@ -3,9 +3,9 @@ import { execSync } from "child_process";
 
 // IDs of advisories to ignore
 const ignored: number[] = [
-  1113371, // minimatch ReDoS, high severity, transitive dep from jest/glob and eslint
-  1113398, // ajv ReDoS, moderate severity, transitive dep from webpack/schema-utils
-  1113399, // ajv ReDoS, moderate severity, transitive dep from webpack/schema-utils
+  1113371, // minimatch ReDoS, high severity, devDep only (jest/glob, eslint), fix needs minimatch 10.x
+  1113398, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
+  1113399, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
 ];
 let auditRaw = "";
 

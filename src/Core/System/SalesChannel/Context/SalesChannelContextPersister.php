@@ -129,7 +129,7 @@ class SalesChannelContextPersister
 
         $data = $qb->executeQuery()->fetchAllAssociative();
 
-        if (empty($data)) {
+        if ($data === []) {
             return [];
         }
 

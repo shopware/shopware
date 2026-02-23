@@ -9,7 +9,56 @@ It can be found in the state machine state history modal (state change modal) on
 
 ## API
 
+### Deprecation of newsletter route methods
+
+The following methods are deprecated and will be removed with the next major version:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
+- `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
+
+The new methods currently return `StoreApiResponse` in the abstract classes. In the next major version, the return types will change to their explicit types:
+
+- `subscribeWithResponse()` → `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` → `SuccessResponse`
+- `unsubscribeWithResponse()` → `SuccessResponse`
+
+The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
+
+| Route | Response                                                       |
+|-------|----------------------------------------------------------------|
+| `/store-api/newsletter/subscribe` | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
+| `/store-api/newsletter/confirm` | `{"success": true}`                                            |
+| `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
+
 ## Core
+
+### Deprecation of increment-based message queue statistics
+
+The increment-based message queue statistics system is deprecated and will be removed in v6.8.0.0.
+
+**What's changing:**
+- The Administration notification center will no longer show indexing progress notifications (e.g., "X products will be indexed")
+- API endpoint `GET /api/_info/queue.json` is deprecated - use `GET /api/_info/message-stats.json` instead
+
+**Deprecated configuration options:**
+- `shopware.admin_worker.enable_queue_stats_worker`
+- `shopware.increment.message_queue`
+
+**Deprecated code:**
+- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant
+- Increment-based handling in `MessageQueueStatsSubscriber::onMessageHandled()`
+
+**Why?**
+The increment-based statistics were often inaccurate due to hardcoded multipliers and missing decrements in edge cases. The replacement functionality was introduced in https://github.com/shopware/shopware/pull/8698
+
+**Immediate disable:**
+To disable the deprecated functionality before v6.8.0.0:
+```yaml
+shopware:
+    admin_worker:
+        enable_queue_stats_worker: false
+```
 
 ### Internal product streams
 
@@ -57,6 +106,10 @@ When a mismatch is detected, the command provides a clear error message indicati
 
 When you use `#[Serialized]` field in your attribute entity you should always pass the serializer explicitly, as the default serializer does not work as expected.
 Additionally, the `SerializerField` will become internal in the next major release, as that field should be only used for attribute entities, but never directly in classic `EntityDefinitions`.
+
+### Deprecation of unused `TemplateGroup` class
+
+The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
 
 ## Administration
 
@@ -112,6 +165,10 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 **Migration:** If you relied on the previous behavior where the clearable button was hidden by default, explicitly set `:show-clearable-button="false"` on your select components.
 
 ## Storefront
+
+### `HEAD`-requests do not trigger the registration double-opt-in
+
+As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
 ### Selling and packaging information in the product detail page
 
@@ -201,6 +258,14 @@ shopware:
 
 **Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
 
+# 6.7.7.2
+
+## Core
+
+### Indexing the product's custom fields
+
+Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
+
 # 6.7.7.1
 
 ## Core
@@ -243,6 +308,13 @@ This change helps optimize index storage size and improve search performance, es
 From now on you are able to inspect your 3D models directly in the Media module in the Administration.
 Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right.
 This new component is called `sw-model-viewer`.
+
+### Media Model Editor
+
+The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
+Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
+A modal will open where you can move, rotate, and scale the model.
+Click Save, and your changes are applied instantly.
 
 ## API
 

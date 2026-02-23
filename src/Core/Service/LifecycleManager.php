@@ -144,7 +144,7 @@ class LifecycleManager
     {
         $registryServices = $this->client->getAll();
 
-        if (\count($registryServices) === 0) {
+        if ($registryServices === []) {
             // this is not safe to do if there are zero services.
             // it could be a transient error or a misconfiguration.
             return;

@@ -9,6 +9,28 @@ It can be found in the state machine state history modal (state change modal) on
 
 ## API
 
+### Deprecation of newsletter route methods
+
+The following methods are deprecated and will be removed with the next major version:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
+- `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
+
+The new methods currently return `StoreApiResponse` in the abstract classes. In the next major version, the return types will change to their explicit types:
+
+- `subscribeWithResponse()` → `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` → `SuccessResponse`
+- `unsubscribeWithResponse()` → `SuccessResponse`
+
+The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
+
+| Route | Response                                                       |
+|-------|----------------------------------------------------------------|
+| `/store-api/newsletter/subscribe` | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
+| `/store-api/newsletter/confirm` | `{"success": true}`                                            |
+| `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
+
 ## Core
 
 ### Deprecation of increment-based message queue statistics

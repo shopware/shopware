@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -66,7 +67,9 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             $eventDispatcher,
         );
 
-        $newsletterSubscribeRoute->unsubscribe($requestData, $this->salesChannelContext);
+        $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame([
             [
                 [
@@ -104,7 +107,9 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         static::expectException(NewsletterException::class);
         static::expectExceptionMessage('The email parameter is missing.');
-        $newsletterSubscribeRoute->unsubscribe($requestData, $this->salesChannelContext);
+        $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
     public function testUnsubscribeWithNotFoundEmail(): void
@@ -135,6 +140,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         static::expectException(NewsletterException::class);
         static::expectExceptionMessage('The NewsletterRecipient with the identifier "email" - test@example.com was not found.');
-        $newsletterSubscribeRoute->unsubscribe($requestData, $this->salesChannelContext);
+        $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 }

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -32,6 +33,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
@@ -98,8 +100,35 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @deprecated tag:v6.8.0
+     * Use subscribeWithResponse() instead.
+     * Starting with v6.8.0, the API route response is changing.
+     * This method will be removed.
+     */
+    public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): StoreApiResponse
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                self::class,
+                __FUNCTION__,
+                'v6.8.0.0',
+                'subscribeWithResponse()'
+            )
+        );
+
+        $response = $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new NoContentResponse();
+        }
+
+        return $response;
+    }
+
     #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
-    public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
+    public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
     {
         $doubleOptInDomain = $this->systemConfigService->getString(
             'core.newsletter.doubleOptInDomain',
@@ -147,7 +176,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             // If the user was previously subscribed but has unsubscribed now, the `getConfirmedAt()`
             // will still be set. So we need to check for the status as well.
             if ($recipient->getStatus() !== self::STATUS_OPT_OUT && $recipient->getConfirmedAt()) {
-                return new NoContentResponse();
+                return new NewsletterSubscribeRouteResponse($recipient->getStatus() ?? self::STATUS_NOT_SET);
             }
         }
 
@@ -171,7 +200,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
             $this->eventDispatcher->dispatch($event);
 
-            return new NoContentResponse();
+            return new NewsletterSubscribeRouteResponse($recipient->getStatus() ?? self::STATUS_NOT_SET);
         }
 
         $hashedEmail = Hasher::hash($data['email'], 'sha1');
@@ -180,7 +209,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
-        return new NoContentResponse();
+        return new NewsletterSubscribeRouteResponse($recipient->getStatus() ?? self::STATUS_NOT_SET);
     }
 
     /**

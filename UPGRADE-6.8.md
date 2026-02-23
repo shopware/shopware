@@ -34,6 +34,21 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 ## Removal of `/api/_info/queue.json` endpoint
 
 The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
+  
+## Newsletter route methods removed and response changed
+
+The following methods have been removed:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()`
+- `AbstractNewsletterConfirmRoute::confirm()`
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()`
+
+The following methods are now abstract and must be implemented by extensions. Their return types have been narrowed from `StoreApiResponse` to their explicit types:
+
+- `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` returns `SuccessResponse`
+- `unsubscribeWithResponse()` returns `SuccessResponse`
+  
 </details>
 
 # Core

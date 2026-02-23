@@ -330,7 +330,7 @@ class RateLimiterTest extends TestCase
                 static::assertSame(429, (int) $response['errors'][0]['status']);
                 static::assertSame(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
             } else {
-                static::assertSame(204, $this->browser->getResponse()->getStatusCode());
+                static::assertSame(200, $this->browser->getResponse()->getStatusCode());
             }
         }
     }

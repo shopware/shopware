@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -29,7 +30,8 @@ class CacheController extends AbstractController
         private readonly CacheClearer $cacheClearer,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly AdapterInterface $adapter,
-        private readonly EntityIndexerRegistry $indexerRegistry
+        private readonly EntityIndexerRegistry $indexerRegistry,
+        private readonly ?IndexManager $indexManager,
     ) {
     }
 
@@ -85,9 +87,13 @@ class CacheController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:clear:cache']],
         methods: [Request::METHOD_DELETE]
     )]
-    public function clearDelayedCache(): Response
+    public function clearDelayedCache(Request $request): Response
     {
         $this->cacheInvalidator->invalidateExpired();
+
+        if ($request->query->getBoolean('refreshOpenSearch')) {
+            $this->indexManager?->refreshIndices();
+        }
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

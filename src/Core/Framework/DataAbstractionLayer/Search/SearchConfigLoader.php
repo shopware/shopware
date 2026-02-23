@@ -54,7 +54,7 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
                 ]
             );
 
-            if (!empty($config)) {
+            if ($config !== []) {
                 return array_map(function (array $item): array {
                     return [
                         'and_logic' => $item['and_logic'],

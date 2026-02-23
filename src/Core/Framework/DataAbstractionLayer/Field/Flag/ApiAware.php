@@ -26,7 +26,7 @@ class ApiAware extends Flag
             $this->allowList[$source] = self::BASE_URLS[$source];
         }
 
-        if (empty($protectedSources)) {
+        if ($protectedSources === []) {
             $this->allowList = self::BASE_URLS;
         }
     }

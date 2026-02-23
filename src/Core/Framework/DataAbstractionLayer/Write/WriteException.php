@@ -13,7 +13,7 @@ class WriteException extends ShopwareHttpException
     private const MESSAGE = "There are {{ errorCount }} error(s) while writing data.\n\n{{ messagesString }}";
 
     /**
-     * @var \Throwable[]
+     * @var list<\Throwable>
      */
     private array $exceptions = [];
 
@@ -30,6 +30,9 @@ class WriteException extends ShopwareHttpException
         return $this;
     }
 
+    /**
+     * @return list<\Throwable>
+     */
     public function getExceptions(): array
     {
         return $this->exceptions;
@@ -40,7 +43,7 @@ class WriteException extends ShopwareHttpException
      */
     public function tryToThrow(): void
     {
-        if (\count($this->exceptions)) {
+        if ($this->exceptions !== []) {
             throw $this;
         }
     }

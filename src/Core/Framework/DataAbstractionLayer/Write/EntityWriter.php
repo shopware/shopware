@@ -211,7 +211,7 @@ class EntityWriter implements EntityWriterInterface
     private function validateSyncOperationInput(SyncOperation $operation): void
     {
         $errors = $operation->validate();
-        if (\count($errors)) {
+        if ($errors !== []) {
             throw DataAbstractionLayerException::invalidSyncOperationException(\sprintf('Invalid sync operation. %s', implode(' ', $errors)));
         }
     }
@@ -400,7 +400,7 @@ class EntityWriter implements EntityWriterInterface
         if (!$definition instanceof MappingEntityDefinition) {
             $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext(), true);
 
-            if (!empty($restrictions)) {
+            if ($restrictions !== []) {
                 throw DataAbstractionLayerException::restrictDeleteViolations($definition, $restrictions);
             }
         }

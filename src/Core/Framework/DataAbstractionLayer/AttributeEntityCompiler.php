@@ -116,7 +116,7 @@ class AttributeEntityCompiler
 
         $collection = $reflection->getAttributes(Entity::class);
 
-        if (empty($collection)) {
+        if ($collection === []) {
             return [];
         }
 
@@ -166,7 +166,7 @@ class AttributeEntityCompiler
     {
         foreach ($list as $attribute) {
             $attribute = $property->getAttributes($attribute);
-            if (!empty($attribute)) {
+            if ($attribute !== []) {
                 return $attribute[0];
             }
         }

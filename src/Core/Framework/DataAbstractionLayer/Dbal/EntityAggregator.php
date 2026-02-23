@@ -176,7 +176,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $table = $definition->getEntityName();
 
-        if (\count($scoreCriteria->getQueries()) > 0) {
+        if ($scoreCriteria->getQueries() !== []) {
             $escapedTable = EntityDefinitionQueryHelper::escape($table);
             $scoreQuery = new QueryBuilder($this->connection);
 
@@ -226,7 +226,7 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $aggregation->getField(), false);
 
-        if (\count($fields) === 0) {
+        if ($fields === []) {
             return null;
         }
 
@@ -283,7 +283,7 @@ class EntityAggregator implements EntityAggregatorInterface
         EntityDefinition $definition,
         Context $context
     ): void {
-        if (!empty($aggregation->getFilter())) {
+        if ($aggregation->getFilter() !== []) {
             $this->criteriaQueryBuilder->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_AND, $aggregation->getFilter()), $query, $context);
         }
 
@@ -541,7 +541,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 return new CountResult($aggregation->getName(), (int) $value);
 
             case $aggregation instanceof StatsAggregation:
-                if (empty($rows)) {
+                if ($rows === []) {
                     return new StatsResult($aggregation->getName(), 0, 0, 0.0, 0.0);
                 }
 
@@ -571,7 +571,7 @@ class EntityAggregator implements EntityAggregatorInterface
     ): EntityResult {
         $ids = array_filter(array_column($rows, $aggregation->getName()));
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return new EntityResult($aggregation->getName(), new EntityCollection());
         }
 
@@ -594,7 +594,7 @@ class EntityAggregator implements EntityAggregatorInterface
         array $rows,
         Context $context
     ): DateHistogramResult {
-        if (empty($rows)) {
+        if ($rows === []) {
             return new DateHistogramResult($aggregation->getName(), []);
         }
 

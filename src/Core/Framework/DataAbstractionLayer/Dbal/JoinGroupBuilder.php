@@ -139,7 +139,7 @@ class JoinGroupBuilder
     {
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $filter->getField(), false);
 
-        if (\count($fields) === 0) {
+        if ($fields === []) {
             return null;
         }
 

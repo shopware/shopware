@@ -293,7 +293,7 @@ class SqlQueryParser
         $result->resetWheres();
 
         $glue = ' ' . $query->getOperator() . ' ';
-        if (!empty($wheres)) {
+        if ($wheres !== []) {
             $result->addWhere('(' . implode($glue, $wheres) . ')');
         }
 
@@ -310,7 +310,7 @@ class SqlQueryParser
 
         $glue = ' ' . $query->getOperator() . ' ';
 
-        if (!empty($wheres)) {
+        if ($wheres !== []) {
             $result->addWhere('NOT (' . implode($glue, $wheres) . ')');
         }
 

@@ -87,7 +87,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     {
         $state = $this->getCurrentState($definition, $primaryKey, $commandQueue);
 
-        $exists = !empty($state);
+        $exists = $state !== [];
 
         $isChild = $this->isChild($definition, $data, $state, $primaryKey, $commandQueue);
 
@@ -502,7 +502,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $primaryKeys[$entity][] = $command->getPrimaryKey();
         }
 
-        if (empty($primaryKeys)) {
+        if ($primaryKeys === []) {
             return;
         }
 
@@ -567,7 +567,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             // check if current loop matches the command primary key
             $primaryKey = array_intersect($command->getPrimaryKey(), $state);
 
-            if (\count(array_diff_assoc($command->getPrimaryKey(), $primaryKey)) === 0) {
+            if (array_diff_assoc($command->getPrimaryKey(), $primaryKey) === []) {
                 return new ChangeSet($state, $command->getPayload(), $command instanceof DeleteCommand);
             }
         }

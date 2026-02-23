@@ -56,7 +56,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         $field->setPropertyMapping($this->getFields(array_keys($attributes)));
         $encoded = $this->validateMapping($field, $attributes, $parameters);
 
-        if (empty($encoded)) {
+        if ($encoded === []) {
             return;
         }
 

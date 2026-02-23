@@ -28,7 +28,7 @@ class TokenFilter extends AbstractTokenFilter
      */
     public function filter(array $tokens, Context $context): array
     {
-        if (empty($tokens)) {
+        if ($tokens === []) {
             return $tokens;
         }
 
@@ -57,7 +57,7 @@ class TokenFilter extends AbstractTokenFilter
      */
     private function excludedTermsFilter(array $tokens, array $excludedTerms): array
     {
-        if (empty($excludedTerms) || empty($tokens)) {
+        if ($excludedTerms === [] || $tokens === []) {
             return $tokens;
         }
 
@@ -82,7 +82,7 @@ class TokenFilter extends AbstractTokenFilter
         foreach ($tokens as $tag) {
             $tag = trim((string) $tag);
 
-            if (empty($tag) || mb_strlen($tag) < $minSearchTermLength) {
+            if ($tag === '' || mb_strlen($tag) < $minSearchTermLength) {
                 continue;
             }
 

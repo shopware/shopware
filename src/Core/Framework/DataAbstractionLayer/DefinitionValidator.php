@@ -593,7 +593,7 @@ class DefinitionValidator
 
         $parentDefinitionClass = $parentDefinition->getClass();
         $translationDefinitionClass = $translationDefinition->getClass();
-        if (empty($translationsAssociationFields)) {
+        if ($translationsAssociationFields === []) {
             $violations[$parentDefinitionClass] = \sprintf(
                 'The parentDefinition `%s` for `%s` should define a `TranslationsAssociationField for `%s`. The parentDefinition could be wrong too.',
                 $parentDefinitionClass,

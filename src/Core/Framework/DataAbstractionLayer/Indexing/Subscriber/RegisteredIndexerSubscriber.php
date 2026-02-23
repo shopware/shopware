@@ -49,7 +49,7 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
     {
         $queuedIndexers = $this->indexerQueuer->getIndexers();
 
-        if (empty($queuedIndexers)) {
+        if ($queuedIndexers === []) {
             return;
         }
 

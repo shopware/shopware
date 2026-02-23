@@ -108,8 +108,8 @@ class EntityReader implements EntityReaderInterface
         array $fieldsForPartialLoading,
         bool $isPartialLoading,
     ): EntityCollection {
-        $hasFilters = !empty($criteria->getFilters()) || !empty($criteria->getPostFilters());
-        $hasIds = !empty($criteria->getIds());
+        $hasFilters = $criteria->getFilters() !== [] || $criteria->getPostFilters() !== [];
+        $hasIds = $criteria->getIds() !== [];
 
         if (!$performEmptySearch && !$hasFilters && !$hasIds) {
             return $collection;
@@ -158,8 +158,8 @@ class EntityReader implements EntityReaderInterface
             $isPartialLoading,
         );
 
-        $hasIds = !empty($criteria->getIds());
-        if ($hasIds && empty($criteria->getSorting())) {
+        $hasIds = $criteria->getIds() !== [];
+        if ($hasIds && $criteria->getSorting() === []) {
             $collection->sortByIdArray($criteria->getIds());
         }
 
@@ -368,7 +368,7 @@ class EntityReader implements EntityReaderInterface
             $fieldsForPartialLoading,
         );
 
-        if (!empty($criteria->getIds())) {
+        if ($criteria->getIds() !== []) {
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
@@ -713,7 +713,8 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        if (\count($filteredIds = \array_filter($ids)) !== 0) {
+        $filteredIds = \array_filter($ids);
+        if ($filteredIds !== []) {
             $fieldCriteria->setIds($filteredIds);
         }
 
@@ -797,7 +798,7 @@ class EntityReader implements EntityReaderInterface
         // collect all ids of many-to-many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
-        if (\count($ids) !== 0) {
+        if ($ids !== []) {
             $criteria->setIds($ids);
         }
 
@@ -944,7 +945,7 @@ class EntityReader implements EntityReaderInterface
 
         $orderBy = '';
         $parts = $query->getOrderByParts();
-        if (!empty($parts)) {
+        if ($parts !== []) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
             $query->resetOrderBy();
         }
@@ -999,7 +1000,7 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        if (\count($ids) !== 0) {
+        if ($ids !== []) {
             // only read data when we have found mapped IDs
             // otherwise we would load the whole reference table
             $fieldCriteria->setIds($ids);
@@ -1251,9 +1252,9 @@ class EntityReader implements EntityReaderInterface
 
         return $fieldCriteria->getOffset() !== null
             || $fieldCriteria->getLimit() !== null
-            || !empty($fieldCriteria->getSorting())
-            || !empty($fieldCriteria->getFilters())
-            || !empty($fieldCriteria->getPostFilters())
+            || $fieldCriteria->getSorting() !== []
+            || $fieldCriteria->getFilters() !== []
+            || $fieldCriteria->getPostFilters() !== []
         ;
     }
 

@@ -159,7 +159,7 @@ class QueryStringParser
                     $values = [$values];
                 }
 
-                if (empty($values)) {
+                if ($values === []) {
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "value" for equalsAll filter does not contain any value.', $path . '/value');
                 }
 
@@ -187,7 +187,7 @@ class QueryStringParser
                     $values = [$values];
                 }
 
-                if (empty($values)) {
+                if ($values === []) {
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "value" for equalsAny filter does not contain any value.', $path . '/value');
                 }
 

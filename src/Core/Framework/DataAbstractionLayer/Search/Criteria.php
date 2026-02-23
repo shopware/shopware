@@ -194,7 +194,7 @@ class Criteria extends Struct implements \Stringable
      */
     public function hasEqualsFilter($field): bool
     {
-        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
+        return array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field) !== [];
     }
 
     /**
@@ -574,22 +574,22 @@ class Criteria extends Struct implements \Stringable
 
     public function useIdSorting(): bool
     {
-        if (empty($this->getIds())) {
+        if ($this->getIds() === []) {
             return false;
         }
 
         // manual sorting provided
-        if (!empty($this->getSorting())) {
+        if ($this->getSorting() !== []) {
             return false;
         }
 
         // result will be sorted by interpreted search term and the calculated ranking
-        if (!empty($this->getTerm())) {
+        if (($this->getTerm() ?? '') !== '') {
             return false;
         }
 
         // result will be sorted by calculated ranking
-        if (!empty($this->getQueries())) {
+        if ($this->getQueries() !== []) {
             return false;
         }
 
@@ -664,7 +664,7 @@ class Criteria extends Struct implements \Stringable
      */
     private function validateIds(array $ids): void
     {
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should not be empty');
         }
 

@@ -67,7 +67,7 @@ class IdSearchResult extends Struct
 
     public function firstId(): ?string
     {
-        if (empty($this->ids)) {
+        if ($this->ids === []) {
             return null;
         }
 

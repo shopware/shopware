@@ -248,7 +248,7 @@ class ApiController extends AbstractController
 
         // trigger acl validation
         $missing = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
-        $permissions = array_unique(array_filter(array_merge($permissions, $missing)));
+        $permissions = array_values(array_unique(array_filter(array_merge($permissions, $missing))));
 
         if (!empty($permissions)) {
             throw ApiException::missingPrivileges($permissions);
@@ -459,7 +459,7 @@ class ApiController extends AbstractController
 
             // trigger acl validation
             $nested = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
-            $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
+            $permissions = array_values(array_unique(array_filter(array_merge($permissions, $nested))));
 
             if (!empty($permissions)) {
                 throw ApiException::missingPrivileges($permissions);
@@ -594,7 +594,7 @@ class ApiController extends AbstractController
         $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 
         $nested = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
-        $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
+        $permissions = array_values(array_unique(array_filter(array_merge($permissions, $nested))));
 
         if (!empty($permissions)) {
             throw ApiException::missingPrivileges($permissions);

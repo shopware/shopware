@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -38,7 +39,7 @@ class InheritanceUpdater
     public function update(string $entity, array $ids, Context $context): void
     {
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -73,7 +74,7 @@ class InheritanceUpdater
             $flag = $association->getFlag(Inherited::class);
 
             if (!$flag instanceof Inherited) {
-                throw new \RuntimeException(\sprintf('Association %s is not marked as inherited', $definition->getEntityName() . '.' . $association->getPropertyName()));
+                throw DataAbstractionLayerException::associationNotInherited($definition->getEntityName() . '.' . $association->getPropertyName());
             }
 
             $foreignKey = $flag->getForeignKey() ?: ($definition->getEntityName() . '_id');

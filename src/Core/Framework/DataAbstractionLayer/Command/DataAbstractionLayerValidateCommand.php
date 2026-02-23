@@ -74,7 +74,7 @@ class DataAbstractionLayerValidateCommand extends Command
             );
         }
 
-        $hasErrors = \count($errors) > 0;
+        $hasErrors = $errors !== [];
         if ($asJson) {
             if ($hasErrors) {
                 $io->write(json_encode($errors, \JSON_THROW_ON_ERROR));

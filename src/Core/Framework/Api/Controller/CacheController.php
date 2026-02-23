@@ -31,6 +31,7 @@ class CacheController extends AbstractController
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly AdapterInterface $adapter,
         private readonly EntityIndexerRegistry $indexerRegistry,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only injected conditionally if ES bundle is installed) */
         private readonly ?IndexManager $indexManager,
     ) {
     }

@@ -140,6 +140,10 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 
 ## Storefront
 
+### `HEAD`-requests do not trigger the registration double-opt-in
+
+As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
 ### Selling and packaging information in the product detail page
 
 * Display the selling and packaging information with the product that has advanced pricing.

@@ -80,7 +80,6 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
-            'mt-floating-ui': true,
             'mt-switch': true,
             'sw-provide': true,
         };
@@ -143,7 +142,6 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
-            'mt-floating-ui': true,
             'mt-switch': true,
         };
     });

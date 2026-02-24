@@ -114,7 +114,7 @@ module.exports = {
             suiteName: 'Shopware 6 Unit Tests',
             outputDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
             outputName: 'administration.junit.xml',
-        }],
+        }]
     ] : [
         'default',
         '<rootDir>/test/_helper_/failedSpecFileReporter.js',

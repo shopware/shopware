@@ -17,7 +17,6 @@ async function createWrapper(additionalProps = {}) {
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
-                'mt-floating-ui': true,
             },
         },
         props: {

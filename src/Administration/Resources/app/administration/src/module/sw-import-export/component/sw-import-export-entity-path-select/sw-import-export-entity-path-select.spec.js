@@ -1137,7 +1137,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.find('.sw-import-export-entity-path-select__selection-input').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result-list .sw-popover__wrapper').classes()).toContain(
+        expect(wrapper.find('.sw-select-result-list .mt-floating-ui').classes()).toContain(
             'sw-import-export-entity-path-select__result-list',
         );
     });

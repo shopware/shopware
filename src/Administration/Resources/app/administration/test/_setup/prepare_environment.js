@@ -20,7 +20,6 @@ import {
     MtDatepicker,
     MtEmailField,
     MtEmptyState,
-    MtFloatingUi,
     MtIcon,
     MtLink,
     MtLoader,
@@ -227,6 +226,21 @@ config.global.stubs = {
     'mt-popover-deprecated': {
         template: `<div class="mt-popover-deprecated"><slot/></div>`
     },
+    'mt-floating-ui': {
+        template: `
+        <div class="mt-floating-ui">
+            <div class="mt-floating-ui__trigger">
+                <slot name="trigger" />
+            </div>
+            <div v-if="isOpened" class="mt-floating-ui__content">
+                <slot />
+            </div>
+        </div>
+        `,
+        props: {
+            isOpened: { type: Boolean, default: true },
+        },
+    },
     'mt-banner': MtBanner,
     'mt-button': MtButton,
     'mt-card': MtCard,
@@ -236,7 +250,6 @@ config.global.stubs = {
     'mt-datepicker': MtDatepicker,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
-    'mt-floating-ui': MtFloatingUi,
     'mt-icon': MtIcon,
     'mt-link': MtLink,
     'mt-loader': MtLoader,

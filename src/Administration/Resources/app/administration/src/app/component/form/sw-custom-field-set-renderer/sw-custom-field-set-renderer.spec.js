@@ -84,7 +84,6 @@ async function createWrapper(props) {
                     'sw-ai-copilot-badge': true,
                     'mt-skeleton-bar': true,
                     'sw-skeleton-bar-deprecated': true,
-                    'mt-floating-ui': true,
                     'sw-color-badge': true,
                     'sw-media-upload-v2': true,
                     'sw-pagination': true,

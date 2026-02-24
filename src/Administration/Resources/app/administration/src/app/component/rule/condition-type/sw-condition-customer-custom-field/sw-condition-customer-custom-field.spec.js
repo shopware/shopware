@@ -136,13 +136,13 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const listElements = document.body.querySelector('.sw-select-result-list__item-list').querySelectorAll('li');
+        const listElements = wrapper.findAll('.sw-select-result-list__item-list li');
 
-        expect(listElements.item(0).querySelector('.sw-select-result__result-item-text').textContent).toBe(' foo ');
-        expect(listElements.item(0).querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
+        expect(listElements.at(0).find('.sw-select-result__result-item-text').text()).toBe('foo');
+        expect(listElements.at(0).find('.sw-select-result__result-item-description').text()).toBe('bar');
 
-        expect(listElements.item(1).querySelector('.sw-select-result__result-item-text').textContent).toBe(' foo2 ');
-        expect(listElements.item(1).querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
+        expect(listElements.at(1).find('.sw-select-result__result-item-text').text()).toBe('foo2');
+        expect(listElements.at(1).find('.sw-select-result__result-item-description').text()).toBe('bar');
     });
 
     it('should set data on field change with known id', async () => {
@@ -184,7 +184,7 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li:nth-of-type(2)').click();
+        await wrapper.findAll('.sw-select-result-list__item-list li').at(1).trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('foo2');
@@ -194,13 +194,13 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li:nth-of-type(2)').click();
+        await wrapper.findAll('.sw-select-result-list__item-list li').at(1).trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li').click();
+        await wrapper.find('.sw-select-result-list__item-list li').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-single-select__selection-text').text()).toBe('global.sw-condition.operator.equals');
@@ -210,13 +210,13 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li:nth-of-type(2)').click();
+        await wrapper.findAll('.sw-select-result-list__item-list li').at(1).trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li').click();
+        await wrapper.find('.sw-select-result-list__item-list li').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-form-field-renderer input').setValue('test123');
@@ -234,7 +234,7 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await testWrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const description = document.body.querySelector('.sw-select-result__result-item-description').textContent;
+        const description = testWrapper.find('.sw-select-result__result-item-description').text();
         expect(description).toHaveLength(20);
         expect(description.endsWith('...')).toBe(true);
     });

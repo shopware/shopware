@@ -216,7 +216,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'mt-text-field': true,
                     'mt-tabs': true,
                     'sw-media-collapse': true,
-                    'mt-floating-ui': true,
                 },
                 provide: {
                     validationService: {},

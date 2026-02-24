@@ -23,7 +23,6 @@ const createMultiSelect = async (customOptions) => {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'mt-floating-ui': true,
                 'sw-color-badge': true,
             },
         },
@@ -128,6 +127,7 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
+        console.log(swMultiSelect.html());
         const entryTwo = swMultiSelect.find('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 

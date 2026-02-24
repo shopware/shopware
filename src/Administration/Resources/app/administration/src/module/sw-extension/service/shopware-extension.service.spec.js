@@ -190,13 +190,10 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
     describe('checkLogin', () => {
         let checkLoginSpy;
-        let originalCheckLogin;
 
         beforeEach(() => {
             Shopware.Store.get('shopwareExtensions').userInfo = true;
-            // Store original method and create mock
             const storeService = Shopware.Service('storeService');
-            originalCheckLogin = storeService.checkLogin.bind(storeService);
             checkLoginSpy = jest.spyOn(storeService, 'checkLogin');
         });
 

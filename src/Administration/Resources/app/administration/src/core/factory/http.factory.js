@@ -377,7 +377,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
  * @returns {AxiosInstance}
  */
 function refreshTokenInterceptor(client) {
-    const whitelist = ['/oauth/token'];
+    const allowlist = ['/oauth/token'];
 
     client.interceptors.response.use(
         (response) => {
@@ -389,7 +389,7 @@ function refreshTokenInterceptor(client) {
             const originalRequest = config;
             const resource = originalRequest.url?.replace(originalRequest.baseURL, '');
 
-            if (whitelist.includes(resource)) {
+            if (allowlist.includes(resource)) {
                 // For /oauth/token endpoint, reject immediately to avoid infinite loops
                 // This endpoint returns 400 when token is revoked (invalid_grant error)
                 return Promise.reject(error);

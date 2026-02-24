@@ -11,6 +11,10 @@ It can be found in the state machine state history modal (state change modal) on
 
 ## Core
 
+### Indexing the product's custom fields
+
+Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
+
 ### Deprecation of increment-based message queue statistics
 
 The increment-based message queue statistics system is deprecated and will be removed in v6.8.0.0.

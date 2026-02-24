@@ -247,7 +247,7 @@ class EntityRepository
 
         $ids = $this->searchIds($criteria, $context);
 
-        if (empty($ids->getIds())) {
+        if ($ids->getIds() === []) {
             /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
@@ -269,7 +269,7 @@ class EntityRepository
                 $data = $search[$element->getUniqueIdentifier()];
                 unset($data['id']);
 
-                if (empty($data)) {
+                if ($data === []) {
                     continue;
                 }
 

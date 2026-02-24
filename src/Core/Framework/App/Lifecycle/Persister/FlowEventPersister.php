@@ -47,7 +47,7 @@ class FlowEventPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $this->flowEventsRepository->upsert($upserts, $context);
         }
 
@@ -71,7 +71,7 @@ class FlowEventPersister
     {
         $ids = array_values($toBeRemoved);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

@@ -68,7 +68,7 @@ class CleanPersonalDataCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $types = array_filter(($input->getOption('all')) ? self::VALID_TYPES : [$input->getArgument('type')]);
-        if (\count($types) === 0 || \count(\array_diff($types, self::VALID_TYPES)) > 0) {
+        if ($types === [] || \array_diff($types, self::VALID_TYPES) !== []) {
             throw new \InvalidArgumentException(
                 'Please add the argument "type=guests" to remove guests without orders or the argument "type=carts" to remove canceled carts. Use --all to clean both.'
             );
@@ -89,7 +89,7 @@ class CleanPersonalDataCommand extends Command
             $context = Context::createCLIContext();
             $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
 
-            if (\count($ids) > 0) {
+            if ($ids !== []) {
                 $this->customerRepository->delete(
                     array_map(fn ($id) => ['id' => $id], $ids),
                     $context

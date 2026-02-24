@@ -275,7 +275,7 @@
                             class="sw-model-viewer-button"
                             variant="secondary"
                             size="x-small"
-                            @click="openModelViewerModal()"
+                            @click="openModelEditorModal()"
                         >
                             <mt-icon name="regular-expand-arrows" />
                         </mt-button>
@@ -284,19 +284,29 @@
                         />
                     </div>
 
-                    {% block sw_model_viewer_modal %}
+                    {% block sw_model_editor_modal %}
                     <sw-modal
-                        v-if="showModelViewerModal"
-                        class="sw-model-viewer-modal"
-                        :title="$tc('sw-media.sw-model-viewer.titleModal')"
-                        variant="x-large"
-                        @modal-close="closeModelViewerModal()"
+                        v-if="showModelEditorModal"
+                        class="sw-model-editor-modal"
+                        :title="$tc('sw-media.sw-model-editor.titleModal')"
+                        variant="full"
+                        @modal-close="closeModelEditorModal()"
                     >
-                        <div class="sw-model-viewer-modal-wrapper">
-                            <sw-model-viewer
+                        <div class="sw-model-editor-modal-wrapper">
+                            <sw-model-editor
+                                ref="modelEditorRef"
                                 :source="item"
+                                @save="onSaveComplete"
                             />
                         </div>
+                        <template #modal-footer>
+                            <mt-button
+                                variant="primary"
+                                @click="$refs.modelEditorRef.save()"
+                            >
+                                {{ $tc('sw-media.sw-model-editor.saveChanges') }}
+                            </mt-button>
+                        </template>
                     </sw-modal>
                     {% endblock %}
                 </template>

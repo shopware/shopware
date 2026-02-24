@@ -84,6 +84,8 @@ class AdministrationControllerTest extends TestCase
 
     private string $refreshTokenTtl;
 
+    private string $analyticsGatewayUrl;
+
     private IdsCollection $ids;
 
     protected function setUp(): void
@@ -100,6 +102,7 @@ class AdministrationControllerTest extends TestCase
         $this->serviceRegistryUrl = 'https://registry.services.shopware.io';
         $this->languageRepository = $this->createMock(EntityRepository::class);
         $this->refreshTokenTtl = 'P1W';
+        $this->analyticsGatewayUrl = 'https://analytics-gateway.test.com';
 
         $this->ids = new IdsCollection();
     }
@@ -133,6 +136,7 @@ class AdministrationControllerTest extends TestCase
                     'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
                     'productStreamIndexingEnabled' => true,
+                    'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
                 ]
             );
 
@@ -699,6 +703,7 @@ class AdministrationControllerTest extends TestCase
             $this->serviceRegistryUrl,
             $languageRepository ?? $this->languageRepository,
             $tokenValidator ?? $this->createMock(SymfonyBearerTokenValidator::class),
+            $this->analyticsGatewayUrl,
             $this->refreshTokenTtl,
         );
     }

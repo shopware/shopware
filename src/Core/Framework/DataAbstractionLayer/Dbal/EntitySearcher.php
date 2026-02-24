@@ -71,7 +71,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $query = $this->criteriaQueryBuilder->build($query, $definition, $criteria, $context);
 
-        if (!empty($criteria->getIds())) {
+        if ($criteria->getIds() !== []) {
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 

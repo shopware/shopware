@@ -57,14 +57,14 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
     #[Route(path: '/store-api/revocation-request-form', name: 'store-api.revocation-request.form', methods: [Request::METHOD_POST])]
     public function request(RequestDataBag $dataBag, SalesChannelContext $context): RevocationRequestRouteResponse
     {
+        if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
+            $this->rateLimiter->ensureAccepted(RateLimiter::REVOCATION_REQUEST_FORM, $request->getClientIp());
+        }
+
         EmailIdnConverter::encodeDataBag($dataBag);
         $dataBag->set('submitTime', new \DateTimeImmutable());
 
         $this->validateRevocationRequestForm($dataBag, $context);
-
-        if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
-            $this->rateLimiter->ensureAccepted(RateLimiter::REVOCATION_REQUEST_FORM, $request->getClientIp());
-        }
 
         $mailConfig = $this->getMailConfig($context, $dataBag);
 

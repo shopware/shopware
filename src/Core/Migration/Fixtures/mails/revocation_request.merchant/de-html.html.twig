@@ -12,10 +12,11 @@
         E-Mail-Adresse: {{ revocationRequestFormData.email }}
         <br/>
         Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ revocationRequestFormData.contractNumber }}
-        <br/>
-        Kommentar:<br/>
-        {{ revocationRequestFormData.comment }}
-        <br/>
+        {% if revocationRequestFormData.comment %}
+            <br/>
+            Kommentar:<br/>
+            {{ revocationRequestFormData.comment }}
+        {% endif %}
     </p>
     <p>
         Das Formular wurde am {{ revocationRequestFormData.submitTime|format_datetime('medium', 'short', locale='de-DE') }} eingereicht.

@@ -12,9 +12,11 @@
         Email address: {{ revocationRequestFormData.email }}
         <br/>
         Contract number (order number, subscription number, ...): {{ revocationRequestFormData.contractNumber }}
-        <br/>
-        Comment:<br/>
-        {{ revocationRequestFormData.comment }}
+        {% if revocationRequestFormData.comment %}
+            <br/>
+            Comment:<br/>
+            {{ revocationRequestFormData.comment }}
+        {% endif %}
     </p>
     <p>
         The form was submitted at {{ revocationRequestFormData.submitTime|format_datetime('medium', 'short', locale='en-GB') }}.

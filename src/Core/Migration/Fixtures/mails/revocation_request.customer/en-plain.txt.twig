@@ -5,6 +5,8 @@ First name: {{ revocationRequestFormData.firstName }}
 Last name: {{ revocationRequestFormData.lastName }}
 Email address: {{ revocationRequestFormData.email }}
 Contract number (order number, subscription number, ...): {{ revocationRequestFormData.contractNumber }}
+{% if revocationRequestFormData.comment %}
 Comment: {{ revocationRequestFormData.comment }}
+{% endif %}
 
 The form was submitted at {{ revocationRequestFormData.submitTime|format_datetime('medium', 'short', locale='en-GB') }}.

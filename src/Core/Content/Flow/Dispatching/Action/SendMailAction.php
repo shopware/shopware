@@ -354,7 +354,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             return [];
         }
 
-        return [$formData['email'] => ($formData['firstName'] ?? '') . ' ' . ($formData['lastName'] ?? '')];
+        return [trim($formData['email']) => trim($formData['firstName'] ?? '') . ' ' . trim($formData['lastName'] ?? '')];
     }
 
     /**

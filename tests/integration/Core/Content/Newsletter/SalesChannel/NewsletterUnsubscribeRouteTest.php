@@ -69,6 +69,10 @@ class NewsletterUnsubscribeRouteTest extends TestCase
                 ]
             );
 
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
         $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(0, $count);
     }

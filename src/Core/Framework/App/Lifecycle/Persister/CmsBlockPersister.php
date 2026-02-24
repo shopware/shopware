@@ -53,7 +53,7 @@ class CmsBlockPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $this->cmsBlockRepository->upsert($upserts, $context);
         }
 
@@ -64,7 +64,7 @@ class CmsBlockPersister
     {
         $ids = $toBeRemoved->getIds();
 
-        if (!empty($ids)) {
+        if ($ids !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->cmsBlockRepository->delete($ids, $context);

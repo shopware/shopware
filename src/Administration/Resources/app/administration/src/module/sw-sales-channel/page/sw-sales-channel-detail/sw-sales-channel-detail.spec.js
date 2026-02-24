@@ -158,11 +158,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        mockSave.mockClear();
+
         mockGet.mockClear();
 
         await wrapper.vm.saveOnLanguageChange();
-        await flushPromises();
+        await flushPromises();ƒ
 
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(mockGet).not.toHaveBeenCalled();

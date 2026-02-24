@@ -39,8 +39,15 @@
 {% endblock %}
 
 {% block page_checkout_confirm_revocation_control %}
-    {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
-    {% if page.order.lineItems.hasLineItemWithState(DOWNLOAD_STATE) %}
+    {% if feature('v6.8.0.0') %}
+        {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
+        {% set hasDownladItem = page.order.lineItems.hasLineItemWithType(DOWNLOAD_STATE) %}
+    {% else %}
+        {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+        {% set hasDownladItem = page.order.lineItems.hasLineItemWithState(DOWNLOAD_STATE) %}
+    {% endif %}
+
+    {% if hasDownladItem %}
         <br>{{ 'checkout.confirmRevocationReminder'|trans() }}
     {% endif %}
 {% endblock %}
@@ -58,8 +65,15 @@
 {% endblock %}
 
 {% block page_checkout_confirm_shipping %}
-    {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
-    {% if page.order.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+    {% if feature('v6.8.0.0') %}
+        {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_PHYSICAL') %}
+        {% set hasPhysicalItem = page.order.lineItems.hasLineItemWithType(PHYSICAL_STATE) %}
+    {% else %}
+        {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+        {% set hasPhysicalItem = page.order.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+    {% endif %}
+
+    {% if hasPhysicalItem %}
         <div class="col-sm-6 confirm-shipping">
             {% sw_include '@Storefront/storefront/page/account/order/confirm-shipping.html.twig' %}
         </div>

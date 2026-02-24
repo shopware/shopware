@@ -128,8 +128,15 @@
                     {% endblock %}
 
                     {% block page_checkout_confirm_shipping %}
-                        {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
-                        {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                        {% if feature('v6.8.0.0') %}
+                            {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_PHYSICAL') %}
+                            {% set hasPhysicalItem = page.cart.lineItems.hasLineItemWithProductType(PHYSICAL_STATE) %}
+                        {% else %}
+                            {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+                            {% set hasPhysicalItem = page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                        {% endif %}
+
+                        {% if hasPhysicalItem %}
                             <div class="col-sm-6 confirm-shipping">
                                 {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
                             </div>

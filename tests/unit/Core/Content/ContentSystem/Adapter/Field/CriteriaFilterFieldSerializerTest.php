@@ -275,5 +275,4 @@ class CriteriaFilterFieldSerializerTest extends TestCase
 
         return $field;
     }
-
 }

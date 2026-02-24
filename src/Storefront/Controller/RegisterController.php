@@ -250,6 +250,10 @@ class RegisterController extends StorefrontController
     )]
     public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response
     {
+        if ($this->isHeadRequest()) {
+            return new Response(status: Response::HTTP_NO_CONTENT);
+        }
+
         try {
             $customerId = $this->registerConfirmRoute
                 ->confirm($queryDataBag->toRequestDataBag(), $context)

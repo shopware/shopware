@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -42,13 +43,7 @@ class NewsletterController extends StorefrontController
     )]
     public function subscribeMail(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag): Response
     {
-        /*
-         * Because some email-clients try to fetch previews for links in mails, they send a HEAD-request.
-         * But because Symfony is routing HEAD-requests as GET-requests, a subscriber would be confirmed without
-         * clicking the link, only by the HEAD-request.
-         * Beware: $request->getMethod() or $request->getRealMethod() will both return "GET"
-         */
-        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'HEAD') {
+        if ($this->isHeadRequest()) {
             return new Response(status: Response::HTTP_NO_CONTENT);
         }
 
@@ -62,6 +57,12 @@ class NewsletterController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
 
             throw $throwable;
+        }
+
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'forwardTo')) {
+            $this->addFlash(self::SUCCESS, $this->trans('newsletter.subscriptionCompleted'));
+
+            return $this->createActionResponse($request);
         }
 
         $page = $this->newsletterConfirmRegisterPageLoader->load($request, $context);

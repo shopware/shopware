@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\NavigationLoa
 
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * Configuration for navigation data loader.
@@ -18,7 +17,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * @internal
  */
 #[Package('discovery')]
-final class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
+final readonly class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
 {
     public const DEFAULT_DEPTH = 2;
 
@@ -28,14 +27,9 @@ final class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
      * @param non-empty-string $activeProperty Element property name to read active category ID from
      */
     public function __construct(
-        public readonly ?string $rootId = null,
-        public readonly int $depth = self::DEFAULT_DEPTH,
-        public readonly string $activeProperty = 'activeId',
+        public ?string $rootId = null,
+        public int $depth = self::DEFAULT_DEPTH,
+        public string $activeProperty = 'activeId',
     ) {
-    }
-
-    public function getDecorated(): AbstractContentDataLoaderConfig
-    {
-        throw new DecorationPatternException(self::class);
     }
 }

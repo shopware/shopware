@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListin
 
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @phpstan-type ProductListingLoaderConfigData array{
@@ -15,20 +14,15 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * @internal
  */
 #[Package('discovery')]
-final class ProductListingLoaderConfig extends AbstractContentDataLoaderConfig
+final readonly class ProductListingLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
      * @param non-empty-string|null $property Element property name to read navigation ID from
      * @param list<non-empty-string> $associations
      */
     public function __construct(
-        public readonly ?string $property = null,
-        public readonly array $associations = []
+        public ?string $property = null,
+        public array $associations = []
     ) {
-    }
-
-    public function getDecorated(): AbstractContentDataLoaderConfig
-    {
-        throw new DecorationPatternException(self::class);
     }
 }

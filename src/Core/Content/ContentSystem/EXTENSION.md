@@ -100,15 +100,12 @@ The `source` value (`weather`) links all three components.
 **Config:**
 
 ```php
-final class WeatherLoaderConfig extends AbstractContentDataLoaderConfig
+final readonly class WeatherLoaderConfig extends AbstractContentDataLoaderConfig
 {
     public function __construct(
-        public readonly string $location,
-        public readonly string $units = 'metric',
+        public string $location,
+        public string $units = 'metric',
     ) {}
-
-    public function getDecorated(): AbstractContentDataLoaderConfig
-    { throw new DecorationPatternException(self::class); }
 }
 ```
 

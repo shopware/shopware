@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\LanguageLoade
 
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * Configuration for language data loader.
@@ -16,18 +15,13 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * @internal
  */
 #[Package('discovery')]
-final class LanguageLoaderConfig extends AbstractContentDataLoaderConfig
+final readonly class LanguageLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
      * @param list<non-empty-string> $associations Additional associations to load
      */
     public function __construct(
-        public readonly array $associations = [],
+        public array $associations = [],
     ) {
-    }
-
-    public function getDecorated(): AbstractContentDataLoaderConfig
-    {
-        throw new DecorationPatternException(self::class);
     }
 }

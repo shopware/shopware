@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Log\Package;
  * Each loader type defines its own config structure.
  */
 #[Package('discovery')]
-abstract class AbstractContentDataLoaderConfig
+abstract readonly class AbstractContentDataLoaderConfig
 {
-    abstract public function getDecorated(): AbstractContentDataLoaderConfig;
 }

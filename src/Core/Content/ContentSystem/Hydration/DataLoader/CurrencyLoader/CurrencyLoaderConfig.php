@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\CurrencyLoade
 
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * Configuration for currency data loader.
@@ -16,18 +15,13 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * @internal
  */
 #[Package('discovery')]
-final class CurrencyLoaderConfig extends AbstractContentDataLoaderConfig
+final readonly class CurrencyLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
      * @param list<non-empty-string> $associations Additional associations to load
      */
     public function __construct(
-        public readonly array $associations = [],
+        public array $associations = [],
     ) {
-    }
-
-    public function getDecorated(): AbstractContentDataLoaderConfig
-    {
-        throw new DecorationPatternException(self::class);
     }
 }

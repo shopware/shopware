@@ -35,7 +35,7 @@ class AppFlowActionProvider
 
         $appFlowActionData = $this->getAppFlowActionData($appFlowActionId);
 
-        if (empty($appFlowActionData)) {
+        if ($appFlowActionData === []) {
             return [];
         }
 

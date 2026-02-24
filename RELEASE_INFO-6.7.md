@@ -7,6 +7,10 @@ A new internal comment field was added to the state change modal which can be us
 The internal comment is only visible in the administration and not shown to customers.
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
+### Online revocation request form
+Customers can now conveniently submit revocation requests through an online form. 
+Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
 ## API
 
 ### Deprecation of newsletter route methods

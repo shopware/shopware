@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ParameterBinding
 {
     /**
-     * @codeCoverageIgnore
-     *
      * @param string $parameterName From route pattern (e.g., 'seoUrl' in /product/{seoUrl})
      * @param string|null $placeholder For template replacement (defaults to parameterName)
      * @param ResolutionConfig|null $resolution null = passthrough, non-null = entity lookup

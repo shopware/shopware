@@ -12,9 +12,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 final readonly class ContextProvider
 {
-    /**
-     * @codeCoverageIgnore
-     */
     public function __construct(
         public ContextType $type,
         public DistributionConfig $distributionConfig

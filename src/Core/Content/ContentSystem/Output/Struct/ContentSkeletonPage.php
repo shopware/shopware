@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Struct\Struct;
 class ContentSkeletonPage extends Struct
 {
     /**
-     * @codeCoverageIgnore
-     *
      * @param list<ContentSkeletonElement> $elements
      */
     public function __construct(
@@ -26,9 +24,6 @@ class ContentSkeletonPage extends Struct
     ) {
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function getApiAlias(): string
     {
         return 'content_skeleton_page';

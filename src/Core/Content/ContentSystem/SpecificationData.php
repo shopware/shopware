@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class SpecificationData
 {
     /**
-     * @codeCoverageIgnore
-     *
      * @param list<DataRequirement> $dataRequirements
      */
     public function __construct(

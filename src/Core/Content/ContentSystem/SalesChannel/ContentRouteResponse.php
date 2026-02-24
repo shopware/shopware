@@ -13,9 +13,6 @@ class ContentRouteResponse extends AbstractContentRouteResponse
 {
     private readonly ContentPage $contentPage;
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function __construct(
         ContentPage $contentPage,
     ) {
@@ -23,9 +20,6 @@ class ContentRouteResponse extends AbstractContentRouteResponse
         $this->contentPage = $contentPage;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function getContentPage(): ContentPage
     {
         return $this->contentPage;

@@ -13,9 +13,6 @@ class ContentSkeletonRouteResponse extends AbstractContentRouteResponse
 {
     private readonly ContentSkeletonPage $skeletonPage;
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function __construct(
         ContentSkeletonPage $skeletonPage,
     ) {
@@ -23,9 +20,6 @@ class ContentSkeletonRouteResponse extends AbstractContentRouteResponse
         $this->skeletonPage = $skeletonPage;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function getContentSkeletonPage(): ContentSkeletonPage
     {
         return $this->skeletonPage;

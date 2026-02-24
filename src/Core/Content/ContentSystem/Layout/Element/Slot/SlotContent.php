@@ -14,17 +14,11 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('discovery')]
 class SlotContent extends Collection
 {
-    /**
-     * @codeCoverageIgnore
-     */
     public function getApiAlias(): string
     {
         return 'content_element_slot_content';
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     protected function getExpectedClass(): string
     {
         return ContentElement::class;

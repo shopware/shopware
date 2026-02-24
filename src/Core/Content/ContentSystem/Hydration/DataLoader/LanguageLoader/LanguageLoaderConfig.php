@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class LanguageLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
-     * @codeCoverageIgnore
-     *
      * @param list<non-empty-string> $associations Additional associations to load
      */
     public function __construct(

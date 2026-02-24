@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ProductListingLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
-     * @codeCoverageIgnore
-     *
      * @param non-empty-string|null $property Element property name to read navigation ID from
      * @param list<non-empty-string> $associations
      */

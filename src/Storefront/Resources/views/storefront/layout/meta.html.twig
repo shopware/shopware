@@ -170,7 +170,6 @@
                     'frontend.account.login.page': '{{ path('frontend.account.login.page') }}',
                     };
                 window.salesChannelId = '{{ context.salesChannelId }}';
-                window.salesChannelBaseUrl = '{{ app.request.attributes.get('sw-sales-channel-base-url') }}';
                 window.currencyIsoCode = '{{ context.currency.isoCode }}';
                 window.openOffcanvasAfterAddToCart = '{{ config('core.cart.openOffcanvasAfterAddToCart') ? '1' : '0' }}';
             </script>

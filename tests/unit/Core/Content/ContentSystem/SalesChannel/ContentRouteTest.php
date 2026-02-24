@@ -38,8 +38,6 @@ class ContentRouteTest extends TestCase
 
     private ContentPipeline&Stub $contentPipeline;
 
-    private CacheFinalizer $cacheFinalizer;
-
     private ContentRoute $route;
 
     protected function setUp(): void
@@ -48,7 +46,6 @@ class ContentRouteTest extends TestCase
         $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
         $this->responseFactory = static::createStub(AbstractResponseFactory::class);
         $this->contentPipeline = static::createStub(ContentPipeline::class);
-        $this->cacheFinalizer = new CacheFinalizer($this->cacheTagCollector);
 
         $this->route = new ContentRoute(
             $this->specificationResolver,
@@ -56,7 +53,7 @@ class ContentRouteTest extends TestCase
             $this->cacheTagCollector,
             $this->responseFactory,
             $this->contentPipeline,
-            $this->cacheFinalizer,
+            new CacheFinalizer($this->cacheTagCollector),
         );
     }
 

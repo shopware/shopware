@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Adapter\CategorySpecificationSource;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -26,6 +27,7 @@ class CategorySpecificationSourceTest extends TestCase
 
     protected function setUp(): void
     {
+        /** @var StaticEntityRepository<CategoryContentLayoutCollection> $repository */
         $repository = new StaticEntityRepository([]);
         $definition = static::createStub(CategoryContentLayoutDefinition::class);
         $this->contextFactory = static::createStub(EntityLayoutContextFactory::class);

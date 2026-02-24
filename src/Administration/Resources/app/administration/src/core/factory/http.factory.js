@@ -390,12 +390,12 @@ function refreshTokenInterceptor(client) {
             const resource = originalRequest.url?.replace(originalRequest.baseURL, '');
 
             if (whitelist.includes(resource)) {
-                // For /oauth/token endspoint, reject immediately to avoid infinite loops
+                // For /oauth/token endpoint, reject immediately to avoid infinite loops
                 // This endpoint returns 400 when token is revoked (invalid_grant error)
                 return Promise.reject(error);
             }
 
-            if (status === 401 || status === 400) {
+            if (status === 401) {
                 const loginService = Shopware.Service('loginService');
 
                 loginService.refreshToken().catch(() => {

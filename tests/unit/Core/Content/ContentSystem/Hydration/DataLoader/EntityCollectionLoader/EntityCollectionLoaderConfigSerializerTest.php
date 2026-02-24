@@ -11,7 +11,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoa
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
 
 /**
  * @internal
@@ -126,9 +126,9 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
     public function testEncodePropagatesDelegateExceptionForWrongConfigType(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, TestLoaderConfig::class)
+            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, StubLoaderConfig::class)
         );
 
-        $this->serializer->encode(new TestLoaderConfig());
+        $this->serializer->encode(new StubLoaderConfig());
     }
 }

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * @internal
  */
 #[Package('discovery')]
-final class TestContextStruct extends Struct
+final class StubContextStruct extends Struct
 {
     public function __construct(
         public readonly ?string $cover = null,

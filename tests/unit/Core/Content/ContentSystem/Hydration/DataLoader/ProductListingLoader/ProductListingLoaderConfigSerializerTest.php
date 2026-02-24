@@ -11,7 +11,7 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
 
 /**
  * @internal
@@ -214,10 +214,10 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', ProductListingLoaderConfig::class, TestLoaderConfig::class)
+            ContentSystemException::invalidFieldValueType('config', ProductListingLoaderConfig::class, StubLoaderConfig::class)
         );
 
-        $this->serializer->encode(new TestLoaderConfig());
+        $this->serializer->encode(new StubLoaderConfig());
     }
 
     #[TestDox('throws DecorationPatternException when getDecorated is called')]

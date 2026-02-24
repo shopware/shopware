@@ -10,7 +10,7 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\CurrencyLoader\CurrencyLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\CurrencyLoader\CurrencyLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
 
 /**
  * @internal
@@ -117,10 +117,10 @@ class CurrencyLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', CurrencyLoaderConfig::class, TestLoaderConfig::class)
+            ContentSystemException::invalidFieldValueType('config', CurrencyLoaderConfig::class, StubLoaderConfig::class)
         );
 
-        $this->serializer->encode(new TestLoaderConfig());
+        $this->serializer->encode(new StubLoaderConfig());
     }
 
     #[TestDox('round-trips a config with associations without data loss')]

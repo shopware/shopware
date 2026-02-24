@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolver;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestPathStruct;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubPathStruct;
 
 /**
  * @internal
@@ -42,7 +42,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('resolves empty path by returning data as-is')]
     public function testResolvePathWithEmptyPathReturnsDataAsIs(): void
     {
-        $struct = new TestPathStruct('hello');
+        $struct = new StubPathStruct('hello');
 
         static::assertSame($struct, $this->resolver->resolvePath($struct, [], false, 'product', 'elem-1'));
         static::assertNull($this->resolver->resolvePath(null, [], false, 'product', 'elem-1'));
@@ -51,7 +51,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('resolves single-segment path on a Struct, returning the property value')]
     public function testResolvePathResolvesDirectStructProperty(): void
     {
-        $struct = new TestPathStruct('shopware');
+        $struct = new StubPathStruct('shopware');
 
         $result = $this->resolver->resolvePath($struct, ['name'], false, 'product.name', 'elem-1');
 
@@ -61,8 +61,8 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('resolves nested Struct path, returning deeply nested property')]
     public function testResolvePathResolvesNestedStructProperty(): void
     {
-        $child = new TestPathStruct('child-name');
-        $parent = new TestPathStruct('parent-name', $child);
+        $child = new StubPathStruct('child-name');
+        $parent = new StubPathStruct('parent-name', $child);
 
         $result = $this->resolver->resolvePath($parent, ['child', 'name'], false, 'product.child.name', 'elem-1');
 
@@ -92,7 +92,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('returns null for missing property when not required')]
     public function testResolvePathMissingPropertyNotRequiredReturnsNull(): void
     {
-        $struct = new TestPathStruct('test');
+        $struct = new StubPathStruct('test');
 
         $result = $this->resolver->resolvePath($struct, ['missing'], false, 'product.missing', 'elem-1');
 
@@ -102,7 +102,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('throws for missing property when required')]
     public function testResolvePathMissingPropertyRequiredThrows(): void
     {
-        $struct = new TestPathStruct('test');
+        $struct = new StubPathStruct('test');
 
         $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
             'product.missing',
@@ -116,7 +116,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('returns null when intermediate value is not a Struct and not required')]
     public function testResolvePathNonStructIntermediateNotRequiredReturnsNull(): void
     {
-        $struct = new TestPathStruct(null, null, 'plain-string');
+        $struct = new StubPathStruct(null, null, 'plain-string');
 
         $result = $this->resolver->resolvePath($struct, ['nonStructProp', 'deeper'], false, 'product.nonStructProp.deeper', 'elem-1');
 
@@ -126,7 +126,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('throws when intermediate value is not a Struct and required')]
     public function testResolvePathNonStructIntermediateRequiredThrows(): void
     {
-        $struct = new TestPathStruct(null, null, 'plain-string');
+        $struct = new StubPathStruct(null, null, 'plain-string');
 
         $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
             'product.nonStructProp.deeper',
@@ -140,7 +140,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('returns null when null intermediate at non-terminal step and not required')]
     public function testResolvePathNullIntermediateNotRequiredReturnsNull(): void
     {
-        $struct = new TestPathStruct(null, null);
+        $struct = new StubPathStruct(null, null);
 
         $result = $this->resolver->resolvePath($struct, ['child', 'name'], false, 'product.child.name', 'elem-1');
 
@@ -150,7 +150,7 @@ class ContextPathResolverTest extends TestCase
     #[TestDox('throws when null intermediate at non-terminal step and required')]
     public function testResolvePathNullIntermediateRequiredThrows(): void
     {
-        $struct = new TestPathStruct(null, null);
+        $struct = new StubPathStruct(null, null);
 
         $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
             'product.child.name',

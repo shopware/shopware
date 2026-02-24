@@ -9,9 +9,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestExtractorEntity;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestStruct;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubExtractorEntity;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubStruct;
 
 /**
  * @internal
@@ -72,8 +72,8 @@ class PropertiesExtractionVisitorTest extends TestCase
     #[TestDox('extracts Entity object with requirement using apiAlias, uniqueIdentifier, and config hash')]
     public function testExtractsEntity(): void
     {
-        $entity = new TestExtractorEntity('entity-abc');
-        $config = new TestLoaderConfig();
+        $entity = new StubExtractorEntity('entity-abc');
+        $config = new StubLoaderConfig();
 
         $this->configSerializerProvider->method('encode')
             ->willReturn(['type' => 'entity', 'id' => 'abc']);
@@ -97,8 +97,8 @@ class PropertiesExtractionVisitorTest extends TestCase
     #[TestDox('extracts Struct object with requirement using apiAlias, splObjectId, and config hash')]
     public function testExtractsStruct(): void
     {
-        $struct = new TestStruct();
-        $config = new TestLoaderConfig();
+        $struct = new StubStruct();
+        $config = new StubLoaderConfig();
 
         $this->configSerializerProvider->method('encode')
             ->willReturn(['type' => 'struct']);
@@ -123,7 +123,7 @@ class PropertiesExtractionVisitorTest extends TestCase
     public function testExtractsPlainObject(): void
     {
         $obj = new \stdClass();
-        $config = new TestLoaderConfig();
+        $config = new StubLoaderConfig();
 
         $this->configSerializerProvider->method('encode')
             ->willReturn(['type' => 'plain']);
@@ -167,8 +167,8 @@ class PropertiesExtractionVisitorTest extends TestCase
     #[TestDox('stores identical Entity and config combinations as a single deduplicated entry')]
     public function testDeduplicates(): void
     {
-        $entity = new TestExtractorEntity('shared-id');
-        $config = new TestLoaderConfig();
+        $entity = new StubExtractorEntity('shared-id');
+        $config = new StubLoaderConfig();
 
         $this->configSerializerProvider->method('encode')
             ->willReturn(['type' => 'entity', 'id' => 'shared']);
@@ -198,8 +198,8 @@ class PropertiesExtractionVisitorTest extends TestCase
     #[TestDox('deduplicates elements with same entity and config containing nested associative sub-arrays')]
     public function testDeduplicatesWithNestedAssociativeConfigArray(): void
     {
-        $entity = new TestExtractorEntity('entity-nested');
-        $config = new TestLoaderConfig();
+        $entity = new StubExtractorEntity('entity-nested');
+        $config = new StubLoaderConfig();
 
         // The encoded config contains both a nested associative sub-array (triggers
         // recursive canonicalizeConfig) and a list array (triggers sort branch).

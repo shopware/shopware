@@ -10,7 +10,7 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
 
 /**
  * @internal
@@ -195,10 +195,10 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', NavigationLoaderConfig::class, TestLoaderConfig::class)
+            ContentSystemException::invalidFieldValueType('config', NavigationLoaderConfig::class, StubLoaderConfig::class)
         );
 
-        $this->serializer->encode(new TestLoaderConfig());
+        $this->serializer->encode(new StubLoaderConfig());
     }
 
     #[TestDox('round-trips a full config without data loss')]

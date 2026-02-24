@@ -11,7 +11,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextResolutionV
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestContextStruct;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubContextStruct;
 
 /**
  * @internal
@@ -86,7 +86,7 @@ class ContextResolutionVisitorTest extends TestCase
     #[TestDox('resolves nested Struct property via dot notation')]
     public function testResolvesNestedStructPropertyViaDotNotation(): void
     {
-        $coverStruct = new TestContextStruct('cover-url');
+        $coverStruct = new StubContextStruct('cover-url');
 
         $child = ContentElementBuilder::create('child', 'c1')
             ->withConsumer('product.cover', ContextType::Single)

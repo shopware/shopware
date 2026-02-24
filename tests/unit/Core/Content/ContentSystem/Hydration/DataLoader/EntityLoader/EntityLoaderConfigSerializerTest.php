@@ -10,7 +10,7 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
 
 /**
  * @internal
@@ -171,10 +171,10 @@ class EntityLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, TestLoaderConfig::class)
+            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, StubLoaderConfig::class)
         );
 
-        $this->serializer->encode(new TestLoaderConfig());
+        $this->serializer->encode(new StubLoaderConfig());
     }
 
     #[TestDox('decode and encode are inverse operations for a valid config')]

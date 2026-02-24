@@ -17,8 +17,8 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\Broa
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestStruct;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubStruct;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -42,10 +42,10 @@ class ContentElementHydratorTest extends TestCase
     public function testHydrateLoadsDataForElementsWithRequirements(): void
     {
         $element = ContentElementBuilder::create('product-card')
-            ->withDataRequirement('product', 'entity', new TestLoaderConfig())
+            ->withDataRequirement('product', 'entity', new StubLoaderConfig())
             ->build();
 
-        $struct = new TestStruct();
+        $struct = new StubStruct();
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('load')->willReturn(ContentDataLoaderResult::cached($struct, 'product-abc'));
 
@@ -73,7 +73,7 @@ class ContentElementHydratorTest extends TestCase
     public function testHydrateSkipsPropertyWhenResultHasNoData(): void
     {
         $element = ContentElementBuilder::create('product-card')
-            ->withDataRequirement('product', 'entity', new TestLoaderConfig())
+            ->withDataRequirement('product', 'entity', new StubLoaderConfig())
             ->build();
 
         $loader = static::createStub(AbstractContentDataLoader::class);
@@ -110,11 +110,11 @@ class ContentElementHydratorTest extends TestCase
     public function testHydrateDisablesCacheWhenResultIsNotCacheAware(): void
     {
         $element = ContentElementBuilder::create('dynamic')
-            ->withDataRequirement('data', 'entity', new TestLoaderConfig())
+            ->withDataRequirement('data', 'entity', new StubLoaderConfig())
             ->build();
 
         $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('load')->willReturn(ContentDataLoaderResult::uncacheable(new TestStruct()));
+        $loader->method('load')->willReturn(ContentDataLoaderResult::uncacheable(new StubStruct()));
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
 
@@ -127,11 +127,11 @@ class ContentElementHydratorTest extends TestCase
     public function testHydrateAddsCacheTagsFromResult(): void
     {
         $element = ContentElementBuilder::create('product-card')
-            ->withDataRequirement('product', 'entity', new TestLoaderConfig())
+            ->withDataRequirement('product', 'entity', new StubLoaderConfig())
             ->build();
 
         $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('load')->willReturn(ContentDataLoaderResult::cached(new TestStruct(), 'product-abc', 'product-def'));
+        $loader->method('load')->willReturn(ContentDataLoaderResult::cached(new StubStruct(), 'product-abc', 'product-def'));
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
 
@@ -144,14 +144,14 @@ class ContentElementHydratorTest extends TestCase
     public function testHydrateRecursesIntoSlotChildren(): void
     {
         $child = ContentElementBuilder::create('child')
-            ->withDataRequirement('item', 'entity', new TestLoaderConfig())
+            ->withDataRequirement('item', 'entity', new StubLoaderConfig())
             ->build();
 
         $parent = ContentElementBuilder::create('parent')
             ->withSlot('content', [$child])
             ->build();
 
-        $childStruct = new TestStruct();
+        $childStruct = new StubStruct();
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('load')->willReturn(ContentDataLoaderResult::cached($childStruct));
 

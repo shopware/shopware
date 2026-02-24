@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-final class TestExtractorEntity extends Entity
+final class StubExtractorEntity extends Entity
 {
     public function __construct(string $id)
     {

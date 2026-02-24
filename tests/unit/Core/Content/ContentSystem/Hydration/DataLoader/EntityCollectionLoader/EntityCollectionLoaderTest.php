@@ -22,7 +22,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -314,7 +314,7 @@ class EntityCollectionLoaderTest extends TestCase
     #[TestDox('returns notFound result when config is not EntityLoaderConfig')]
     public function testLoadReturnsNotFoundWhenConfigIsWrongType(): void
     {
-        $requirement = new DataRequirement('products', 'entity_collection', new TestLoaderConfig());
+        $requirement = new DataRequirement('products', 'entity_collection', new StubLoaderConfig());
         $element = ContentElementBuilder::create('product-grid')->build();
         $context = Generator::generateSalesChannelContext();
 

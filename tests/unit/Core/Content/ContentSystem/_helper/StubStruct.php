@@ -9,17 +9,10 @@ use Shopware\Core\Framework\Struct\Struct;
  * @internal
  */
 #[Package('discovery')]
-final class TestPathStruct extends Struct
+final class StubStruct extends Struct
 {
-    public function __construct(
-        public readonly ?string $name = null,
-        public readonly ?self $child = null,
-        public readonly mixed $nonStructProp = null,
-    ) {
-    }
-
     public function getApiAlias(): string
     {
-        return 'test_path_struct';
+        return 'test_struct';
     }
 }

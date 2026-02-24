@@ -13,8 +13,8 @@ use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\OrderTrackingVisitor;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestLoaderConfig;
-use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\TestStruct;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubLoaderConfig;
+use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubStruct;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,14 +29,14 @@ class ContentElementTest extends TestCase
     {
         $this->element = ContentElementBuilder::create('test-component')
             ->withProperty('label', 'hello')
-            ->withProperty('myStruct', new TestStruct())
+            ->withProperty('myStruct', new StubStruct())
             ->build();
     }
 
     #[TestDox('stores Struct value and scalar value separately via setProperty')]
     public function testSetPropertyDispatchesStructAndScalarToDifferentBuckets(): void
     {
-        $struct = new TestStruct();
+        $struct = new StubStruct();
 
         $element = $this->buildElementWithMixedProperties($struct);
 
@@ -49,7 +49,7 @@ class ContentElementTest extends TestCase
     #[TestDox('returns stored property values by key via getProperty')]
     public function testGetPropertyReturnsValuesByKey(): void
     {
-        $struct = new TestStruct();
+        $struct = new StubStruct();
 
         $element = $this->buildElementWithMixedProperties($struct);
 
@@ -69,7 +69,7 @@ class ContentElementTest extends TestCase
     public function testGetPropertiesReturnsMergedStructAndNonStructMap(): void
     {
         $element = ContentElementBuilder::create('test-component')
-            ->withProperty('myStruct', new TestStruct())
+            ->withProperty('myStruct', new StubStruct())
             ->withProperty('count', 42)
             ->withProperty('label', 'title')
             ->build();
@@ -107,7 +107,7 @@ class ContentElementTest extends TestCase
     public function testRequiresDataReturnsTrueWhenRequirementsExist(): void
     {
         $element = ContentElementBuilder::create('test-component')
-            ->withDataRequirement('product', 'entity', new TestLoaderConfig())
+            ->withDataRequirement('product', 'entity', new StubLoaderConfig())
             ->build();
 
         static::assertTrue($element->requiresData());
@@ -268,7 +268,7 @@ class ContentElementTest extends TestCase
     #[TestDox('merges struct and non-struct properties into properties key and excludes internal arrays')]
     public function testJsonSerializeExposesPropertiesKeyAndHidesInternalArrays(): void
     {
-        $struct = new TestStruct();
+        $struct = new StubStruct();
 
         $element = ContentElementBuilder::create('test-component', 'test-id')
             ->withProperty('myStruct', $struct)
@@ -305,7 +305,7 @@ class ContentElementTest extends TestCase
         yield 'partial prefix without dot returns false' => ['product', 'productName', false];
     }
 
-    private function buildElementWithMixedProperties(TestStruct $struct): ContentElement
+    private function buildElementWithMixedProperties(StubStruct $struct): ContentElement
     {
         return ContentElementBuilder::create('test-component')
             ->withProperty('myStruct', $struct)

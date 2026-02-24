@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 /**
  * @internal
  */
-final class TestLoaderConfig extends AbstractContentDataLoaderConfig
+final class StubLoaderConfig extends AbstractContentDataLoaderConfig
 {
     public function getDecorated(): AbstractContentDataLoaderConfig
     {

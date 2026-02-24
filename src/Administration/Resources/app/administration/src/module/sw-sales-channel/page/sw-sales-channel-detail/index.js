@@ -297,15 +297,19 @@ export default {
             this.productComparison.invalidFileName = invalidFileName;
         },
 
-        async onSave() {
-            this.isLoading = true;
-
-            this.isSaveSuccessful = false;
+        prepareSaveData() {
             if (this.isProductComparison && !this.salesChannel.productExports.length) {
                 this.salesChannel.productExports.add(this.productExport);
             }
 
-            const analyticsId = this.updateAnalytics();
+            return this.updateAnalytics();
+        },
+
+        async onSave() {
+            this.isLoading = true;
+
+            this.isSaveSuccessful = false;
+            const analyticsId = this.prepareSaveData();
 
             try {
                 await this.salesChannelRepository.save(this.salesChannel, Context.api);
@@ -352,8 +356,14 @@ export default {
             this.isLoading = true;
             this.isSaveSuccessful = false;
 
+            const analyticsId = this.prepareSaveData();
+
             try {
                 await this.salesChannelRepository.save(this.salesChannel, Context.api);
+
+                if (analyticsId && !this.salesChannel?.analytics?.trackingId) {
+                    await this.salesChannelAnalyticsRepository.delete(analyticsId, Context.api);
+                }
 
                 this.isSaveSuccessful = true;
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');

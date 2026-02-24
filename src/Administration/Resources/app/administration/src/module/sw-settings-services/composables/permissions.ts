@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import { useShopwareServicesStore } from '../store/shopware-services.store';
 
 /**
@@ -16,7 +17,7 @@ export async function grantPermissions() {
 
     await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
 
-    window.location.reload();
+    reloadPage();
 }
 
 /**
@@ -25,5 +26,5 @@ export async function grantPermissions() {
 export async function revokePermissions() {
     await Shopware.Service('shopwareServicesService').revokePermissions();
 
-    window.location.reload();
+    reloadPage();
 }

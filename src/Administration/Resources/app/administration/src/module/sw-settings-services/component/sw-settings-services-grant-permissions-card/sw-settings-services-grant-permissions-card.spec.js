@@ -1,10 +1,13 @@
 import { mount } from '@vue/test-utils';
 import SwSettingsServicesGrantPermissionsCard from './index';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
+import { reloadPage } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
 describe('src/module/sw-settings-services/component/sw-settings-services-permissions-card', () => {
-    let originalLocation;
-
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             acceptRevision: jest.fn(() => ({
@@ -17,13 +20,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-permiss
                 },
             })),
         }));
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('has a linkt to docs page', async () => {
@@ -64,7 +60,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-permiss
 
         expect(notificationSpy).not.toHaveBeenCalled();
         expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('shows error notification if no revision is available', async () => {
@@ -89,6 +85,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-permiss
             message: 'No revision available',
         });
         expect(permissionsCard.emitted('service-permissions-granted')).toBeUndefined();
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(reloadPage).not.toHaveBeenCalled();
     });
 });

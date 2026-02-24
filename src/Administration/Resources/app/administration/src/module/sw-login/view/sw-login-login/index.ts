@@ -3,6 +3,7 @@
  */
 
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
+import { navigateTo, reloadPage } from 'src/core/helper/navigation.helper';
 import template from './sw-login-login.html.twig';
 import type { LoginConfig } from '../../../../core/service/login.service';
 
@@ -85,7 +86,7 @@ export default Component.wrapComponentConfig({
 
             this.ssoLoading = true;
             window.sessionStorage.setItem('redirectFromLogin', 'true');
-            window.location.href = this.loginConfig.url;
+            navigateTo(this.loginConfig.url);
         },
 
         loginUserWithPassword() {
@@ -131,8 +132,7 @@ export default Component.wrapComponentConfig({
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
-                    // @ts-expect-error - force reload
-                    window.location.reload(true);
+                    reloadPage();
                 }
             });
         },

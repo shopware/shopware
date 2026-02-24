@@ -4,27 +4,27 @@
 
 import initializeWindow from 'src/app/init/window.init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
+import { reloadPage, navigateTo } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+    navigateTo: jest.fn(),
+}));
 
 describe('src/app/init/window.init.ts', () => {
-    const reload = window.location.reload;
-
     beforeAll(() => {
         initializeWindow();
-        Object.defineProperty(window, 'location', {
-            value: { reload: jest.fn() },
-        });
         window.open = jest.fn();
     });
 
     afterEach(() => {
         jest.clearAllMocks();
-        window.location.reload = reload;
     });
 
     it('should handle windowReload', async () => {
         await send('windowReload');
 
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('should handle windowRedirect', async () => {
@@ -33,7 +33,7 @@ describe('src/app/init/window.init.ts', () => {
             newTab: false,
         });
 
-        expect(window.location.href).toBe('http://example.com');
+        expect(navigateTo).toHaveBeenCalledWith('http://example.com');
 
         const jsOpen = window.open;
         window.open = jest.fn();

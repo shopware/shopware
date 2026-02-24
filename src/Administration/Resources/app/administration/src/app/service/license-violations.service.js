@@ -1,3 +1,5 @@
+import { getLocationHostname } from 'src/core/helper/navigation.helper';
+
 const { Application, Store } = Shopware;
 
 /**
@@ -34,7 +36,7 @@ export default function createLicenseViolationsService(storeService) {
     };
 
     function checkForLicenseViolations() {
-        const hostname = window.location.hostname;
+        const hostname = getLocationHostname();
         const emptyViolationsResponse = Promise.resolve({
             warnings: [],
             violations: [],

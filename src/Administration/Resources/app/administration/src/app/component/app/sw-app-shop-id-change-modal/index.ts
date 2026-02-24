@@ -3,6 +3,7 @@
  */
 
 import type { ShopIdCheck, Strategy } from 'src/core/service/api/shop-id-change.service';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import template from './sw-app-shop-id-change-modal.html.twig';
 import './sw-app-shop-id-change-modal.scss';
 
@@ -88,7 +89,7 @@ export default Shopware.Component.wrapComponentConfig({
                     message: this.$t('sw-app.component.sw-app-shop-id-change-modal.success.shop-id-change-succeeded'),
                 });
 
-                window.location.reload();
+                reloadPage();
             } catch {
                 this.createNotificationError({
                     message: this.$t('sw-app.component.sw-app-shop-id-change-modal.error.shop-id-change-failed'),

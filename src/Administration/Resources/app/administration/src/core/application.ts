@@ -46,18 +46,18 @@ class ApplicationBootstrapper {
      * Provides the necessary class properties for the class to work probably
      */
     constructor(container: Bottle) {
-        const noop = (): void => {};
         this.$container = container;
 
         this.view = null;
 
         // Create an empty DI container for the core initializers & services, so we can separate the core initializers
         // and the providers
-        this.$container.service('service', noop);
-        this.$container.service('init', noop);
-        this.$container.service('factory', noop);
-        this.$container.service('init-pre', noop);
-        this.$container.service('init-post', noop);
+        class Noop {}
+        this.$container.service('service', Noop);
+        this.$container.service('init', Noop);
+        this.$container.service('factory', Noop);
+        this.$container.service('init-pre', Noop);
+        this.$container.service('init-post', Noop);
     }
 
     /**

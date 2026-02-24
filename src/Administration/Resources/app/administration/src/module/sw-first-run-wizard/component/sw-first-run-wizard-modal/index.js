@@ -1,5 +1,6 @@
 import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -291,7 +292,7 @@ export default {
 
             // reload page when new extension was activated and modal is closed
             if (this.wasNewExtensionActivated) {
-                window.location.reload();
+                reloadPage();
             }
         },
     },

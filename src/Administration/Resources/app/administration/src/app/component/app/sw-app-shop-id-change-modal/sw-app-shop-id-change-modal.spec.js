@@ -3,6 +3,11 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { reloadPage } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
 const strategies = [
     {
@@ -138,10 +143,6 @@ describe('sw-app-shop-id-change-modal', () => {
     });
 
     it('should send the selected strategy', async () => {
-        Object.defineProperty(window, 'location', {
-            value: { reload: jest.fn() },
-        });
-
         const changeShopIdMock = wrapper.vm.shopIdChangeService.changeShopId;
 
         const strategyButtons = wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy');
@@ -152,6 +153,6 @@ describe('sw-app-shop-id-change-modal', () => {
         await wrapper.get('.mt-button--primary').trigger('click');
 
         expect(changeShopIdMock.mock.calls[0][0].name).toMatch(strategies[1].name);
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 });

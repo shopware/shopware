@@ -6,6 +6,10 @@
 
 import { mount } from '@vue/test-utils';
 
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
+
 const extensionStoreActionService = {
     downloadExtension: jest.fn(() => Promise.resolve()),
     installExtension: jest.fn(() => Promise.resolve()),
@@ -32,22 +36,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-first-run-wizard-paypal-info', () => {
-    const originalWindowLocation = window.location;
-
-    beforeAll(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: originalWindowLocation,
-        });
-    });
-
     it('should download and install the PayPal plugin', async () => {
         await createWrapper();
 

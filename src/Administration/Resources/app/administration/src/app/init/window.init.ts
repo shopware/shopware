@@ -5,6 +5,7 @@
 /* Is covered by E2E tests */
 /* istanbul ignore file */
 import type { Router } from 'vue-router';
+import { navigateTo, reloadPage } from 'src/core/helper/navigation.helper';
 
 /**
  * @private
@@ -12,14 +13,14 @@ import type { Router } from 'vue-router';
 export default function initializeWindow(): void {
     // Handle incoming window requests from the ExtensionAPI
     Shopware.ExtensionAPI.handle('windowReload', () => {
-        window.location.reload();
+        reloadPage();
     });
 
     Shopware.ExtensionAPI.handle('windowRedirect', ({ newTab, url }) => {
         if (newTab) {
             window.open(url, '_blank');
         } else {
-            window.location.href = url;
+            navigateTo(url);
         }
     });
 

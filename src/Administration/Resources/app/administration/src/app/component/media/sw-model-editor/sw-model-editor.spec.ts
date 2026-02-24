@@ -1,15 +1,13 @@
 /**
  * @sw-package innovation
  */
-import type { QuickViewSettings } from '@shopware-ag/dive/quickview';
 import { mount } from '@vue/test-utils';
 
 // Mock QuickView from @shopware-ag/dive/quickview
 const mockQuickView = jest.fn();
 const mockQuickViewDispose = jest.fn();
 jest.mock('@shopware-ag/dive/quickview', () => ({
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    QuickView: (...args: QuickViewSettings[]) => mockQuickView(...args),
+    QuickView: mockQuickView,
 }));
 
 // Mock Toolbox from @shopware-ag/dive/toolbox
@@ -24,8 +22,7 @@ const mockToolbox = jest.fn().mockImplementation(() => ({
     selectionState: { select: mockSelect },
 }));
 jest.mock('@shopware-ag/dive/toolbox', () => ({
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    Toolbox: (...args: unknown[]) => mockToolbox(...args),
+    Toolbox: mockToolbox,
 }));
 
 const createMediaEntity = (overrides: Partial<EntitySchema.Entity<'media'>> = {}) => {

@@ -3,6 +3,7 @@
  */
 import type { PropType } from 'vue';
 import type { CategorizedPermissions, ServiceDescription } from '../../service/shopware-services.service';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
@@ -105,7 +106,7 @@ export default Shopware.Component.wrapComponentConfig({
                     await extensionService.deactivateExtension(this.service.name, 'app');
                 }
 
-                window.location.reload();
+                reloadPage();
             } catch (exception) {
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',

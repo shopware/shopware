@@ -4,6 +4,7 @@
 
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -152,7 +153,7 @@ export default {
                     });
                     break;
                 case actionTypeConstants.ACTION_RELOAD_DATA:
-                    window.location.reload();
+                    reloadPage();
                     break;
                 case actionTypeConstants.ACTION_OPEN_MODAL:
                     await this.getUserConfig();

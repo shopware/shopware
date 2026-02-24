@@ -1,3 +1,4 @@
+import { getLocationOrigin } from 'src/core/helper/navigation.helper';
 import type { Extension } from '../../../store/extensions.store';
 import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
@@ -131,7 +132,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         iFrameSrc(): string {
-            const urlObject = new URL(this.src, window.location.origin);
+            const urlObject = new URL(this.src, getLocationOrigin());
             urlObject.searchParams.append('location-id', this.locationId);
 
             return urlObject.toString();

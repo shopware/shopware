@@ -6,6 +6,7 @@
 import Axios from 'axios';
 import AxiosV1 from 'axios-v1';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/http-client-adapter';
 
@@ -363,7 +364,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 actions: [
                     {
                         label: 'Reload administration',
-                        method: () => window.location.reload(),
+                        method: () => reloadPage(),
                     },
                 ],
             });
@@ -413,7 +414,7 @@ function refreshTokenInterceptor(client) {
                         (err) => {
                             if (!Shopware.Application.getApplicationRoot()) {
                                 reject(err);
-                                window.location.reload();
+                                reloadPage();
                                 return;
                             }
 

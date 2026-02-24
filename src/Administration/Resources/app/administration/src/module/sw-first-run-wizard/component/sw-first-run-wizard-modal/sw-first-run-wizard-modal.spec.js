@@ -2,6 +2,11 @@
  * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
+import { reloadPage } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
 const swFirstRunWizardWelcomeButtonConfig = [
     {
@@ -116,11 +121,6 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
     beforeEach(() => {
         Shopware.Context.app.firstRunWizard = false;
-
-        Object.defineProperty(window, 'location', {
-            writable: true,
-            value: { reload: jest.fn() },
-        });
     });
 
     it('stepper has less steps with disabled extension management', async () => {
@@ -446,7 +446,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
         jest.spyOn(wrapper.vm.$router, 'push');
 
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(reloadPage).not.toHaveBeenCalled();
         expect(wrapper.vm.$router.push).not.toHaveBeenCalled();
 
         await closeButton.trigger('click');
@@ -455,7 +455,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
             name: 'sw.settings.index.system',
         });
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('should not reload after push route to settings page when getting closed and no extension was activated', async () => {
@@ -476,7 +476,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
             name: 'sw.settings.index.system',
         });
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(reloadPage).not.toHaveBeenCalled();
     });
 
     it('should contain all required frw steps', async () => {

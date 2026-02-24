@@ -1,3 +1,4 @@
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import './sw-inactivity-login.scss';
 import template from './sw-inactivity-login.html.twig';
 
@@ -145,7 +146,7 @@ export default Component.wrapComponentConfig({
             }
 
             // Reload the page to ensure all non-login initializers are executed
-            window.location.reload();
+            reloadPage();
         },
 
         onBackToLogin() {

@@ -1,3 +1,4 @@
+import { navigateTo } from 'src/core/helper/navigation.helper';
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 
@@ -231,7 +232,7 @@ export default Component.wrapComponentConfig({
         },
 
         redirectToPage(url: string) {
-            window.location.href = url;
+            navigateTo(url);
         },
     },
 });

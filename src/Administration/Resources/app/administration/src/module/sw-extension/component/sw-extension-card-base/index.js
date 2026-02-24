@@ -1,5 +1,6 @@
 import template from './sw-extension-card-base.html.twig';
 import './sw-extension-card-base.scss';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 
 const { Utils, Filter } = Shopware;
 
@@ -424,7 +425,7 @@ export default {
 
         clearCacheAndReloadPage() {
             return this.cacheApiService.clear().then(() => {
-                window.location.reload();
+                reloadPage();
             });
         },
 

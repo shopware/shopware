@@ -1,5 +1,6 @@
 import template from './sw-extension-store-landing-page.html.twig';
 import './sw-extension-store-landing-page.scss';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 
 /**
  * @sw-package checkout
@@ -45,7 +46,7 @@ export default {
                 .downloadAndActivateExtension(this.extensionName)
                 .then(() => {
                     this.activationStatus = 'success';
-                    window.location.reload();
+                    reloadPage();
                 })
                 .catch((error) => {
                     this.activationStatus = 'error';

@@ -1,6 +1,10 @@
 import { BroadcastChannel } from 'worker_threads';
 import { mount } from '@vue/test-utils';
 
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
+
 /**
  * @sw-package framework
  */
@@ -65,16 +69,9 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
 }
 
 describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
-    const original = window.location;
-
     beforeAll(() => {
         // @ts-ignore
         global.BroadcastChannel = BroadcastChannel;
-
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
     });
 
     afterEach(() => {
@@ -82,13 +79,6 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         sessionStorage.removeItem('sw-admin-previous-route_foo');
         sessionStorage.removeItem('inactivityBackground_foo');
         localStorage.removeItem('rememberMe');
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: original,
-        });
     });
 
     it('should set data:url as background image', async () => {
@@ -99,7 +89,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
         const container = wrapper.find('.sw-inactivity-login');
         expect(container.exists()).toBe(true);
-        expect(container.element.style.backgroundImage).toBe('url(data:urlFoOBaR)');
+        expect(container.element.style.backgroundImage).toBe('url("data:urlFoOBaR")');
     });
 
     it('should push to login without last known user', async () => {

@@ -2,6 +2,11 @@ import { mount } from '@vue/test-utils';
 import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesGrantPermissionsModal from './index';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
+import { reloadPage } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
 const createWrapper = async () => {
     return mount(SwSettingsServicesGrantPermissionsModal, {
@@ -18,8 +23,6 @@ const createWrapper = async () => {
 };
 
 describe('src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal', () => {
-    let originalLocation;
-
     beforeAll(() => {
         Shopware.Service().register('serviceRegistryClient', () => ({
             getCurrentRevision: jest.fn(async () => ({
@@ -40,14 +43,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         Shopware.Service().register('shopwareServicesService', () => ({
             acceptRevision: jest.fn(),
         }));
-
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('can be opened by the pinia store', async () => {
@@ -98,7 +93,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         expect(notificationSpy).not.toHaveBeenCalled();
         expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
 
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('shows error notification if no revision is available', async () => {
@@ -122,6 +117,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
             message: 'No revision available',
         });
         expect(Shopware.Service('shopwareServicesService').acceptRevision).not.toHaveBeenCalled();
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(reloadPage).not.toHaveBeenCalled();
     });
 });

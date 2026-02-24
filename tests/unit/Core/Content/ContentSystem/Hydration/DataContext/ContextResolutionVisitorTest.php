@@ -30,11 +30,11 @@ class ContextResolutionVisitorTest extends TestCase
     public function testDistributesBroadcastContextToAllDirectChildren(): void
     {
         $child1 = ContentElementBuilder::create('child-1', 'c1')
-            ->withConsumer('product', ContextType::Single, required: false)
+            ->withConsumer('product', ContextType::Single)
             ->build();
 
         $child2 = ContentElementBuilder::create('child-2', 'c2')
-            ->withConsumer('product', ContextType::Single, required: false)
+            ->withConsumer('product', ContextType::Single)
             ->build();
 
         $parent = ContentElementBuilder::create('parent', 'p1')
@@ -69,7 +69,7 @@ class ContextResolutionVisitorTest extends TestCase
     public function testAppliesPropertyAliasOnConsumer(): void
     {
         $child = ContentElementBuilder::create('child', 'c1')
-            ->withConsumer('product', ContextType::Single, required: false, propertyAlias: 'myProduct')
+            ->withConsumer('product', ContextType::Single, propertyAlias: 'myProduct')
             ->build();
 
         $parent = ContentElementBuilder::create('parent', 'p1')
@@ -83,30 +83,13 @@ class ContextResolutionVisitorTest extends TestCase
         static::assertSame('product-data', $child->getProperty('myProduct'));
     }
 
-    #[TestDox('skips distribution when provider data property is null')]
-    public function testSkipsDistributionWhenProviderDataIsNull(): void
-    {
-        $child = ContentElementBuilder::create('child', 'c1')
-            ->withConsumer('product', ContextType::Single, required: false)
-            ->build();
-
-        $parent = ContentElementBuilder::create('parent', 'p1')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withSlot('default', [$child])
-            ->build();
-
-        $parent->traverse($this->visitor);
-
-        static::assertNull($child->getProperty('product'));
-    }
-
-    #[TestDox('resolves dotted consumer path on nested Struct properties')]
-    public function testDistributeResolvesDottedConsumerPath(): void
+    #[TestDox('resolves nested Struct property via dot notation')]
+    public function testResolvesNestedStructPropertyViaDotNotation(): void
     {
         $coverStruct = new TestContextStruct('cover-url');
 
         $child = ContentElementBuilder::create('child', 'c1')
-            ->withConsumer('product.cover', ContextType::Single, required: false)
+            ->withConsumer('product.cover', ContextType::Single)
             ->build();
 
         $parent = ContentElementBuilder::create('parent', 'p1')
@@ -120,11 +103,48 @@ class ContextResolutionVisitorTest extends TestCase
         static::assertSame('cover-url', $child->getProperty('product.cover'));
     }
 
+    #[TestDox('skips non-matching consumer context keys and sets only the matching one')]
+    public function testSkipsNonMatchingConsumerContextKeys(): void
+    {
+        $child = ContentElementBuilder::create('child', 'c1')
+            ->withConsumer('product', ContextType::Single)
+            ->withConsumer('category', ContextType::Single)
+            ->build();
+
+        $parent = ContentElementBuilder::create('parent', 'p1')
+            ->withProperty('product', 'product-data')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('default', [$child])
+            ->build();
+
+        $parent->traverse($this->visitor);
+
+        static::assertSame('product-data', $child->getProperty('product'));
+        static::assertNull($child->getProperty('category'));
+    }
+
+    #[TestDox('skips distribution when provider data property is null')]
+    public function testSkipsDistributionWhenProviderDataIsNull(): void
+    {
+        $child = ContentElementBuilder::create('child', 'c1')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+
+        $parent = ContentElementBuilder::create('parent', 'p1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('default', [$child])
+            ->build();
+
+        $parent->traverse($this->visitor);
+
+        static::assertNull($child->getProperty('product'));
+    }
+
     #[TestDox('sets null for optional consumer when distributed data is not a Struct')]
     public function testSetsNullForOptionalConsumerWhenPathNotResolvable(): void
     {
         $child = ContentElementBuilder::create('child', 'c1')
-            ->withConsumer('product.cover', ContextType::Single, required: false)
+            ->withConsumer('product.cover', ContextType::Single)
             ->build();
 
         $parent = ContentElementBuilder::create('parent', 'p1')

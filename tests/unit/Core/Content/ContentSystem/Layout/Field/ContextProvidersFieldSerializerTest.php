@@ -290,7 +290,7 @@ class ContextProvidersFieldSerializerTest extends TestCase
         static::assertInstanceOf(NotBlank::class, $constraints[2]);
     }
 
-    #[DataProvider('passesValidationForKnownDistributionProvider')]
+    #[DataProvider('validationPassesForKnownDistributionTypeProvider')]
     #[TestDox('passes validation for known distribution type with no additional required fields')]
     public function testValidationPassesForKnownDistributionType(
         string $type,
@@ -341,6 +341,38 @@ class ContextProvidersFieldSerializerTest extends TestCase
 
         // Collection fires 1 violation (invalid Choice); callback returns early without adding more
         static::assertCount(1, $violations);
+    }
+
+    #[TestDox('reports violations for indexed distribution with non-string consumer_alias')]
+    public function testValidationReportsViolationForIndexedDistributionWithInvalidConsumerAlias(): void
+    {
+        $field = $this->createContextProvidersField();
+        $constraints = $this->serializer->buildConstraints($field);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        $violations = $validator->validate(
+            ['product' => ['type' => 'single', 'distribution' => 'indexed', 'consumer_alias' => 42]],
+            $constraints
+        );
+
+        static::assertGreaterThan(0, $violations->count());
+    }
+
+    #[TestDox('reports violations for iterator distribution with non-string consumer_alias')]
+    public function testValidationReportsViolationForIteratorDistributionWithInvalidConsumerAlias(): void
+    {
+        $field = $this->createContextProvidersField();
+        $constraints = $this->serializer->buildConstraints($field);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        $violations = $validator->validate(
+            ['product' => ['type' => 'collection', 'distribution' => 'iterator', 'consumer_alias' => 42]],
+            $constraints
+        );
+
+        static::assertGreaterThan(0, $violations->count());
     }
 
     #[TestDox('reports violations for keyed distribution missing key_property')]
@@ -407,9 +439,11 @@ class ContextProvidersFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{string, string}>
      */
-    public static function passesValidationForKnownDistributionProvider(): iterable
+    public static function validationPassesForKnownDistributionTypeProvider(): iterable
     {
         yield 'broadcast distribution passes with no extra required fields' => ['single', 'broadcast'];
+        yield 'indexed distribution passes with no extra required fields' => ['single', 'indexed'];
+        yield 'iterator distribution passes with no extra required fields' => ['single', 'iterator'];
     }
 
     private function createContextProvidersField(): ContextProvidersField

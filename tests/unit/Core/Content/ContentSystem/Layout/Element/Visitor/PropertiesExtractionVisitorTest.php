@@ -195,6 +195,43 @@ class PropertiesExtractionVisitorTest extends TestCase
         static::assertCount(1, $data);
     }
 
+    #[TestDox('deduplicates elements with same entity and config containing nested associative sub-arrays')]
+    public function testDeduplicatesWithNestedAssociativeConfigArray(): void
+    {
+        $entity = new TestExtractorEntity('entity-nested');
+        $config = new TestLoaderConfig();
+
+        // The encoded config contains both a nested associative sub-array (triggers
+        // recursive canonicalizeConfig) and a list array (triggers sort branch).
+        $this->configSerializerProvider->method('encode')
+            ->willReturn([
+                'filters' => ['limit' => 10, 'status' => 'active'],
+                'associations' => ['media', 'manufacturer'],
+                'type' => 'entity',
+            ]);
+
+        $element1 = ContentElementBuilder::create('card', 'elem-nested-1')
+            ->withProperty('product', $entity)
+            ->withDataRequirement('product', 'entity', $config)
+            ->build();
+
+        $element2 = ContentElementBuilder::create('card', 'elem-nested-2')
+            ->withProperty('product', $entity)
+            ->withDataRequirement('product', 'entity', $config)
+            ->build();
+
+        $this->visitor->enter($element1);
+        $this->visitor->leave($element1);
+        $this->visitor->enter($element2);
+        $this->visitor->leave($element2);
+
+        $assignments = $this->visitor->getAssignments();
+        static::assertSame($assignments['elem-nested-1']['product'], $assignments['elem-nested-2']['product']);
+
+        $data = $this->visitor->getData();
+        static::assertCount(1, $data);
+    }
+
     #[TestDox('clears properties on element after extraction')]
     public function testClearsPropertiesOnElement(): void
     {

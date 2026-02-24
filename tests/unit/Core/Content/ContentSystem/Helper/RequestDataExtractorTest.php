@@ -24,18 +24,9 @@ class RequestDataExtractorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, ParameterBinding>|null}>
-     */
-    public static function passThroughBindingsProvider(): iterable
-    {
-        yield 'null bindings' => [null];
-        yield 'empty bindings array' => [[]];
-    }
-
-    /**
      * @param array<string, ParameterBinding>|null $bindings
      */
-    #[DataProvider('passThroughBindingsProvider')]
+    #[DataProvider('returnsAllScalarParamsWhenNoEffectiveBindingsProvider')]
     #[TestDox('returns all scalar query params when no effective bindings')]
     public function testReturnsAllScalarParamsWhenNoEffectiveBindings(?array $bindings): void
     {
@@ -80,5 +71,28 @@ class RequestDataExtractorTest extends TestCase
         $result = $this->extractor->extractData($request, null);
 
         static::assertSame(['page' => '1'], $result);
+    }
+
+    #[TestDox('skips bindings whose keys are absent from the request query params')]
+    public function testSkipsBindingKeysAbsentFromRequestQueryParams(): void
+    {
+        $request = new Request(['page' => '2']);
+        $bindings = [
+            'page' => new ParameterBinding('page', 'currentPage'),
+            'sort' => new ParameterBinding('sort', 'sortOrder'),
+        ];
+
+        $result = $this->extractor->extractData($request, $bindings);
+
+        static::assertSame(['currentPage' => '2'], $result);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, ParameterBinding>|null}>
+     */
+    public static function returnsAllScalarParamsWhenNoEffectiveBindingsProvider(): iterable
+    {
+        yield 'null triggers pass-through of all scalar params' => [null];
+        yield 'empty array triggers pass-through of all scalar params' => [[]];
     }
 }

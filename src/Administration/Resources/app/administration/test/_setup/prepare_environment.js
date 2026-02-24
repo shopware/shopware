@@ -442,6 +442,8 @@ let consoleHasWarning = false;
 let errorArgs = null;
 let warnArgs = null;
 let warnTrace = null;
+let hasActiveTest = false;
+let unhandledRejectionError = null;
 const { error, warn } = console;
 
 global.console.error = (...args) => {
@@ -541,13 +543,23 @@ global.console.warn = (...args) => {
 
 // eslint-disable-next-line jest/require-top-level-describe
 beforeEach(() => {
+    hasActiveTest = true;
     consoleHasError = false;
     errorArgs = null;
+    unhandledRejectionError = null;
     global.activeFeatureFlags = [];
 });
 
 // eslint-disable-next-line jest/require-top-level-describe
 afterEach(() => {
+    hasActiveTest = false;
+
+    if (unhandledRejectionError) {
+        const rejectionError = unhandledRejectionError;
+        unhandledRejectionError = null;
+        throw rejectionError;
+    }
+
     if (consoleHasError) {
         // reset variable for next test
         consoleHasError = false;
@@ -579,6 +591,17 @@ afterEach(() => {
 });
 
 // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+    // Ignore late async rejections after a test already finished.
+    // During active tests, convert unhandled rejections into test failures in afterEach.
+    if (!hasActiveTest) {
+        return;
+    }
+
+    if (reason instanceof Error) {
+        unhandledRejectionError = reason;
+        return;
+    }
+
+    unhandledRejectionError = new Error(`Unhandled Rejection: ${String(reason)}`);
 });

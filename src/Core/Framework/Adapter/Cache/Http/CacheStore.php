@@ -186,7 +186,7 @@ class CacheStore implements StoreInterface
             $item->tag($tags);
         }
 
-        $item->expiresAt($cacheResponse->getExpires());
+        $item->expiresAfter($cacheResponse->getMaxAge());
 
         $this->eventDispatcher->dispatch(
             new HttpCacheStoreEvent($item, $tags, $request, $response)

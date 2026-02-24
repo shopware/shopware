@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Api\Event\InvalidateExpiredCacheRequestEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
-use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
@@ -31,10 +32,7 @@ class CacheController extends AbstractController
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly AdapterInterface $adapter,
         private readonly EntityIndexerRegistry $indexerRegistry,
-        /**
-         * @phpstan-ignore phpat.restrictNamespacesInCore (only injected conditionally if ES bundle is installed)
-         */
-        private readonly ?IndexManager $indexManager,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -94,9 +92,7 @@ class CacheController extends AbstractController
     {
         $this->cacheInvalidator->invalidateExpired();
 
-        if ($request->query->getBoolean('refreshOpenSearch')) {
-            $this->indexManager?->refreshIndices();
-        }
+        $this->eventDispatcher->dispatch(new InvalidateExpiredCacheRequestEvent($request));
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

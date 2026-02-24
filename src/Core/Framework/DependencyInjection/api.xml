@@ -198,7 +198,7 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexManager" on-invalid="null"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="container.service_subscriber" />
             <tag name="controller.service_arguments" />

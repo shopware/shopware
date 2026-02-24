@@ -1,6 +1,11 @@
 import { mount } from '@vue/test-utils';
 import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesRevokePermissionsModal from './index';
+import { reloadPage } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
 const createWrapper = async () => {
     return mount(SwSettingsServicesRevokePermissionsModal, {
@@ -17,19 +22,10 @@ const createWrapper = async () => {
 };
 
 describe('src/module/sw-settings-services/component/sw-settings-services-revoke-permissions-modal', () => {
-    let originalLocation;
-
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             revokePermissions: jest.fn(),
         }));
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('can be opened and closed', async () => {
@@ -72,7 +68,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
 
         expect(notificationSpy).not.toHaveBeenCalled();
         expect(Shopware.Service('shopwareServicesService').revokePermissions).toHaveBeenCalled();
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('shows notification if permissions request fails', async () => {
@@ -96,6 +92,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             message: 'Revoke Permissions failed',
         });
         expect(revokePermissionsModal.emitted('service-permissions-revoked')).toBeUndefined();
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(reloadPage).not.toHaveBeenCalled();
     });
 });

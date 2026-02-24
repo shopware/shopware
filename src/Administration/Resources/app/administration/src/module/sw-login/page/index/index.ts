@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import template from './sw-login.html.twig';
 import './sw-login.scss';
 
@@ -50,7 +51,7 @@ export default Component.wrapComponentConfig({
 
         if (refreshAfterLogout) {
             sessionStorage.removeItem('refresh-after-logout');
-            window.location.reload();
+            reloadPage();
         } else {
             this.shouldRenderDOM = true;
         }

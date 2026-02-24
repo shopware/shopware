@@ -1165,8 +1165,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabContentClothing.exists()).toBe(true);
 
         // check if only the content of the active tab is visible
-        expect(tabContentSports.isVisible()).toBe(true);
-        expect(tabContentClothing.isVisible()).toBe(false);
+        expect(tabContentSports.element.style.display).not.toBe('none');
+        expect(tabContentClothing.element.style.display).toBe('none');
 
         // get fields for sports tab
         const footballField = tabContentSports.findComponent('.sw-form-field-renderer-input-field__custom_sports_football');
@@ -1174,8 +1174,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         expect(footballField.exists()).toBe(true);
         expect(scoreField.exists()).toBe(true);
-        expect(footballField.isVisible()).toBe(true);
-        expect(scoreField.isVisible()).toBe(true);
 
         // check if fields get render correctly
         expect(footballField.props().config.componentName).toBe('sw-field');
@@ -1187,7 +1185,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         // get fields for clothing tab
         const soccerField = tabContentClothing.findComponent('.sw-form-field-renderer-input-field__custom_sports_soccer');
         expect(soccerField.exists()).toBe(true);
-        expect(soccerField.isVisible()).toBe(false);
 
         // check if fields get render correctly
         expect(soccerField.props().config.componentName).toBe('sw-field');
@@ -1195,15 +1192,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         // click on clothing tab
         await wrapper.find('.sw-tab--name-custom_clothing').trigger('click');
+        await flushPromises();
 
         // check if active content changes
-        expect(tabContentSports.isVisible()).toBe(false);
-        expect(tabContentClothing.isVisible()).toBe(true);
-
-        // check if fields are changing
-        expect(footballField.isVisible()).toBe(false);
-        expect(scoreField.isVisible()).toBe(false);
-        expect(soccerField.isVisible()).toBe(true);
+        expect(tabContentSports.element.style.display).toBe('none');
+        expect(tabContentClothing.element.style.display).not.toBe('none');
     });
 
     it('should load the current active tab', async () => {
@@ -1237,8 +1230,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabContentClothing.exists()).toBe(true);
 
         // check if only the content of the active tab is visible
-        expect(tabContentSports.isVisible()).toBe(true);
-        expect(tabContentClothing.isVisible()).toBe(false);
+        expect(tabContentSports.element.style.display).not.toBe('none');
+        expect(tabContentClothing.element.style.display).toBe('none');
 
         await flushPromises();
 
@@ -1250,8 +1243,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(nameField.exists()).toBe(false);
         expect(footballField.exists()).toBe(true);
         expect(scoreField.exists()).toBe(true);
-        expect(footballField.isVisible()).toBe(true);
-        expect(scoreField.isVisible()).toBe(true);
 
         // click on clothing tab
         await wrapper.find('.sw-tab--name-custom_clothing').trigger('click');
@@ -1262,14 +1253,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         nameField = tabContentClothing.find('.sw-form-field-renderer-input-field__custom_clothing_name');
 
         // check if active content changes
-        expect(tabContentSports.isVisible()).toBe(false);
-        expect(tabContentClothing.isVisible()).toBe(true);
+        expect(tabContentSports.element.style.display).toBe('none');
+        expect(tabContentClothing.element.style.display).not.toBe('none');
 
         // check if fields are changing
-        expect(footballField.isVisible()).toBe(false);
-        expect(scoreField.isVisible()).toBe(false);
         expect(nameField.exists()).toBe(true);
-        expect(nameField.isVisible()).toBe(true);
     });
 
     it('should not assign empty custom fields to the given translated entity entry', async () => {

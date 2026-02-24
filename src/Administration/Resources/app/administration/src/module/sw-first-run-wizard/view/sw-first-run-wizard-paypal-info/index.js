@@ -1,5 +1,6 @@
 import template from './sw-first-run-wizard-paypal-info.html.twig';
 import './sw-first-run-wizard-paypal-info.scss';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -95,7 +96,7 @@ export default {
                     });
 
                     // need a force reload, after plugin was activated
-                    window.location.reload();
+                    reloadPage();
 
                     return Promise.resolve(true);
                 })

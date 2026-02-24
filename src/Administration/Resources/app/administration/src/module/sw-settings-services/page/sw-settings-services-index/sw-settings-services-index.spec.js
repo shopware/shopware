@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import {
     MtModal,
     MtModalClose,
@@ -16,9 +17,11 @@ import SwSettingsServicesGrantPermissionsCard from '../../component/sw-settings-
 import SwSettingsServicesRevokePermissionsModal from '../../component/sw-settings-services-revoke-permissions-modal';
 import SwSettingsServicesDeactivateModal from '../../component/sw-settings-services-deactivate-modal';
 
-describe('/src/module/sw-setting-services/page/sw-settings-services-index', () => {
-    let originalLocation;
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
+describe('/src/module/sw-setting-services/page/sw-settings-services-index', () => {
     beforeAll(() => {
         Shopware.Service().register('serviceRegistryClient', () => ({
             getCurrentRevision: jest.fn(async () => ({
@@ -76,14 +79,6 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                 permissionsConsent: null,
             })),
         }));
-
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     async function mountPage() {
@@ -166,7 +161,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         await grantPermissionsCard.get('.mt-button--primary').trigger('click');
         await flushPromises();
 
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('can revoke permissions', async () => {
@@ -179,7 +174,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         await revokePermissionsModal.getComponent(MtModalAction).trigger('click');
         await flushPromises();
 
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('does not show grant permissions card if services are deactivated', async () => {

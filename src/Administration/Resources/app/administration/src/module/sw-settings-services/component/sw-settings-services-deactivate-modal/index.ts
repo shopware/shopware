@@ -1,5 +1,6 @@
 import template from './sw-settings-services-deactivate-modal.html.twig';
 import './sw-settings-services-deactivate-modal.scss';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import extractError from '../../composables/extract-error';
 
 /**
@@ -31,7 +32,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await shopwareServicesService.disableAllServices();
 
-                window.location.reload();
+                reloadPage();
             } catch (exceptionResponse) {
                 Shopware.Store.get('notification').createNotification({
                     title: this.$t('global.default.error'),

@@ -4,6 +4,11 @@
 
 import { mount } from '@vue/test-utils';
 import { location } from '@shopware-ag/meteor-admin-sdk';
+import { getLocationOrigin } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    getLocationOrigin: jest.fn(() => 'http://localhost'),
+}));
 
 let $routeMock = {
     query: {},
@@ -54,10 +59,6 @@ async function createWrapper({ props = {} } = {}) {
 
 describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     beforeEach(async () => {
-        // Reset window location search
-        delete window.location;
-        window.location = new URL('https://www.example.com');
-
         // Clear extension store
         Object.keys(Shopware.Store.get('extensions').extensionsState).forEach((key) => {
             delete Shopware.Store.get('extensions').extensionsState[key];
@@ -246,9 +247,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        window.location = new URL(
-            'https://my-great-extension.com/app/?shop-id=__SHOP_ID&shop-signature=__SIGNED__&location-id=my-great-extension-main-module&search=T-Shirt#/detail/1',
-        );
+        getLocationOrigin.mockReturnValue('https://my-great-extension.com');
+
+        window.history.replaceState({}, '', 'http://localhost/?location-id=my-great-extension-main-module');
 
         await createWrapper({
             props: {
@@ -300,9 +301,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        window.location = new URL(
-            'https://my-great-extension.com/app/?shop-id=__SHOP_ID&shop-signature=__SIGNED__&location-id=my-great-extension-other-module&search=T-Shirt#/detail/1',
-        );
+        getLocationOrigin.mockReturnValue('https://my-great-extension.com');
+
+        window.history.replaceState({}, '', 'http://localhost/?location-id=other-location-id');
 
         await createWrapper({
             props: {

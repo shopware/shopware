@@ -1,3 +1,5 @@
+import { getLocationHref } from 'src/core/helper/navigation.helper';
+
 /**
  * @sw-package framework
  *
@@ -58,7 +60,7 @@ export default {
             newLogEntry.context = {
                 component: vm?._name ?? 'Unknown component',
                 stack: err.stack ?? 'Unknown stack',
-                url: window.location.href,
+                url: getLocationHref(),
             };
 
             this.logEntryRepository.save(newLogEntry).catch((e) => Shopware.Utils.debug.error(e));

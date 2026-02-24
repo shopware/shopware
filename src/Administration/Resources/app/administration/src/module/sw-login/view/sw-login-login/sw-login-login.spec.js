@@ -4,6 +4,12 @@
 
 import { mount } from '@vue/test-utils';
 import useSystem from '../../../../app/composables/use-system';
+import { navigateTo } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+    navigateTo: jest.fn(),
+}));
 
 async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'https://sso.test') {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
@@ -92,18 +98,8 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
 }
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
-    let originalLocation;
-
     beforeAll(() => {
         useSystem().locales.value.push(navigator.language);
-
-        originalLocation = window.location;
-        delete window.location;
-        window.location = { href: '' };
-    });
-
-    afterAll(() => {
-        window.location = originalLocation;
     });
 
     it('should show a warning if the login is rate limited', async () => {
@@ -156,6 +152,6 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
     it('should redirect for SSO login', async () => {
         await createWrapper(true, false, 'https://sso.test');
 
-        expect(window.location.href).toBe('https://sso.test');
+        expect(navigateTo).toHaveBeenCalledWith('https://sso.test');
     });
 });

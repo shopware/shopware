@@ -1,28 +1,23 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { revokePermissions, grantPermissions } from './permissions';
 import { useShopwareServicesStore } from '../store/shopware-services.store';
+import { reloadPage } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
 describe('src/module/sw-settings-services/composables/permissions', () => {
-    let originalLocation;
-
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             acceptRevision: jest.fn(),
             revokePermissions: jest.fn(),
         }));
-
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
     });
 
     beforeEach(() => {
         setActivePinia(createPinia());
         useShopwareServicesStore();
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('calls shopware service and reloads', async () => {
@@ -41,7 +36,7 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
         await grantPermissions();
 
         expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('throws exception if there is no current revision', async () => {
@@ -52,6 +47,6 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
         await revokePermissions();
 
         expect(Shopware.Service('shopwareServicesService').revokePermissions).toHaveBeenCalled();
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 });

@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import SwStatus from 'src/app/component/utils/sw-status';
+import { reloadPage } from 'src/core/helper/navigation.helper';
 import {
     MtModalAction,
     MtModalRoot,
@@ -12,9 +13,11 @@ import {
 import SwSettingsServicesServiceCard from './index';
 import SwColorBadge from '../../../../app/component/utils/sw-color-badge';
 
-describe('src/module/sw-settings-services/component/sw-settings-services-service-card.ts', () => {
-    let originalWindowLocation;
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
+describe('src/module/sw-settings-services/component/sw-settings-services-service-card.ts', () => {
     beforeAll(() => {
         Shopware.Service().register('shopwareExtensionService', () => ({
             activateExtension: jest.fn(),
@@ -24,20 +27,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         Shopware.Service().register('shopwareServicesService', () => ({
             getCategorizedPermissions: jest.fn(),
         }));
-
-        originalWindowLocation = window.location;
-
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: originalWindowLocation },
-        });
     });
 
     it.each([
@@ -229,7 +218,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         await deactivateButton.trigger('click');
 
         expect(Shopware.Service('shopwareExtensionService').deactivateExtension).toHaveBeenCalledWith('service-name', 'app');
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('activates a service', async () => {
@@ -300,7 +289,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         });
 
         expect(Shopware.Service('shopwareExtensionService').activateExtension).toHaveBeenCalledWith('service-name', 'app');
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('shows permissions modal for a service', async () => {

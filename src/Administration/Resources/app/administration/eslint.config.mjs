@@ -73,7 +73,7 @@ const baseRules = {
     'sw-core-rules/require-package-annotation': ['error'],
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
-    'filename-rules/match': [2, '/^.*(?:\\.js|\\.ts|\\.html|\\.html\\.twig)$/'],
+    'filename-rules/match': [2, /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/],
     'vue/multi-word-component-names': ['error', {
         ignores: ['index.html'],
     }],
@@ -366,13 +366,15 @@ export default [
     // Test files
     {
         files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
+        ...jestPlugin.configs['flat/recommended'],
         languageOptions: {
+            ...jestPlugin.configs['flat/recommended'].languageOptions,
             globals: {
+                ...jestPlugin.configs['flat/recommended'].languageOptions?.globals,
                 ...globals.node,
                 ...globals.commonjs,
             },
         },
-        ...jestPlugin.configs['flat/recommended'],
         rules: {
             ...jestPlugin.configs['flat/recommended'].rules,
             'sw-test-rules/await-async-functions': 'error',

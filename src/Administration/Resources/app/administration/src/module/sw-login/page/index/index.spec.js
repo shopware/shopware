@@ -1,4 +1,9 @@
 import { mount } from '@vue/test-utils';
+import { reloadPage } from 'src/core/helper/navigation.helper';
+
+jest.mock('src/core/helper/navigation.helper', () => ({
+    reloadPage: jest.fn(),
+}));
 
 async function createWrapper() {
     const swLogin = await wrapTestComponent('sw-login', {
@@ -23,11 +28,6 @@ describe('src/module/sw-login/page/index/index.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-
         await flushPromises();
     });
 
@@ -46,11 +46,6 @@ describe('src/module/sw-login/page/index/index.js', () => {
     });
 
     it('should not render the component', async () => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-
         sessionStorage.setItem('refresh-after-logout', 'true');
 
         wrapper = await createWrapper();
@@ -58,25 +53,15 @@ describe('src/module/sw-login/page/index/index.js', () => {
     });
 
     it('should not trigger reload when "refresh-after-logout" storage key is not set', async () => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-
         wrapper = await createWrapper();
 
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(reloadPage).not.toHaveBeenCalled();
     });
 
     it('should trigger reload when "refresh-after-logout" storage key is set to true', async () => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-
         sessionStorage.setItem('refresh-after-logout', 'true');
         wrapper = await createWrapper();
 
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 });

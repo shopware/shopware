@@ -1,5 +1,5 @@
 <mt-modal-root
-    :is-open="showConsentModal"
+    is-open
     :closable="false"
 >
     <mt-modal
@@ -68,6 +68,7 @@
                     <mt-modal-action
                         as="mt-button"
                         variant="primary"
+                        :is-loading="isLoading"
                         @click="savePreferences"
                     >
                         {{ $t('sw-settings-usage-data.consent-modal.actions.save-preferences') }}
@@ -77,6 +78,8 @@
                     <mt-modal-action
                         as="mt-button"
                         variant="primary"
+                        :is-loading="revokesAll"
+                        :disabled="sharesAll"
                         @click="shareNothing"
                     >
                         <template #iconFront="{ size }">
@@ -91,6 +94,8 @@
                     <mt-modal-action
                         as="mt-button"
                         variant="primary"
+                        :is-loading="sharesAll"
+                        :disabled="revokesAll"
                         @click="shareAll"
                     >
                         <template #iconFront="{ size }">

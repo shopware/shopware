@@ -74,14 +74,15 @@ class EntityLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[TestWithJson('[{"property": "productId"}]', 'missing entity key')]
-    #[TestWithJson('[{"entity": "", "property": "productId"}]', 'entity is empty string')]
-    #[TestWithJson('[{"entity": 42, "property": "productId"}]', 'entity is non-string type')]
+    #[TestWithJson('[{"property": "productId"}, "NULL"]', 'missing entity key')]
+    #[TestWithJson('[{"entity": "", "property": "productId"}, "string"]', 'entity is empty string')]
+    #[TestWithJson('[{"entity": 42, "property": "productId"}, "integer"]', 'entity is non-string type')]
     #[TestDox('throws exception when entity key is missing or invalid')]
-    public function testDecodeMissingOrInvalidEntityThrowsException(array $data): void
+    public function testDecodeMissingOrInvalidEntityThrowsException(array $data, string $actualType): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field entity expected non-empty string');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('entity', 'non-empty string', $actualType)
+        );
 
         $this->serializer->decode($data);
     }
@@ -89,14 +90,15 @@ class EntityLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[TestWithJson('[{"entity": "product"}]', 'missing property key')]
-    #[TestWithJson('[{"entity": "product", "property": ""}]', 'property is empty string')]
-    #[TestWithJson('[{"entity": "product", "property": 42}]', 'property is non-string type')]
+    #[TestWithJson('[{"entity": "product"}, "NULL"]', 'missing property key')]
+    #[TestWithJson('[{"entity": "product", "property": ""}, "string"]', 'property is empty string')]
+    #[TestWithJson('[{"entity": "product", "property": 42}, "integer"]', 'property is non-string type')]
     #[TestDox('throws exception when property key is missing or invalid')]
-    public function testDecodeMissingOrInvalidPropertyThrowsException(array $data): void
+    public function testDecodeMissingOrInvalidPropertyThrowsException(array $data, string $actualType): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field property expected non-empty string');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('property', 'non-empty string', $actualType)
+        );
 
         $this->serializer->decode($data);
     }
@@ -209,8 +211,7 @@ class EntityLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws DecorationPatternException when getDecorated is called')]
     public function testGetDecoratedThrowsDecorationPatternException(): void
     {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
+        $this->expectExceptionObject(new DecorationPatternException(EntityLoaderConfigSerializer::class));
 
         $this->serializer->getDecorated();
     }

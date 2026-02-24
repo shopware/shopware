@@ -123,8 +123,7 @@ class LanguageDataLoaderTest extends TestCase
     #[TestDox('throws DecorationPatternException when getDecorated is called')]
     public function testGetDecoratedThrowsDecorationPatternException(): void
     {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
+        $this->expectExceptionObject(new DecorationPatternException(LanguageDataLoader::class));
 
         $this->dataLoader->getDecorated();
     }

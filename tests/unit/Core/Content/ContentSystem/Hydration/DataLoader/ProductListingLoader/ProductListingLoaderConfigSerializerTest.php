@@ -86,13 +86,14 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[TestWithJson('[{"property": ""}]', 'property is empty string')]
-    #[TestWithJson('[{"property": 42}]', 'property is non-string (integer)')]
+    #[TestWithJson('[{"property": ""}, "string"]', 'property is empty string')]
+    #[TestWithJson('[{"property": 42}, "integer"]', 'property is non-string type')]
     #[TestDox('throws exception when property is invalid')]
-    public function testDecodeWithInvalidPropertyThrowsException(array $data): void
+    public function testDecodeWithInvalidPropertyThrowsException(array $data, string $actualType): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field property expected non-empty string');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('property', 'non-empty string', $actualType)
+        );
 
         $this->serializer->decode($data);
     }
@@ -223,8 +224,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws DecorationPatternException when getDecorated is called')]
     public function testGetDecoratedThrowsDecorationPatternException(): void
     {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
+        $this->expectExceptionObject(new DecorationPatternException(ProductListingLoaderConfigSerializer::class));
 
         $this->serializer->getDecorated();
     }

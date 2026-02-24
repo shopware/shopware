@@ -93,13 +93,14 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[TestWithJson('[{"rootId": 42}]', 'rootId is non-string type')]
-    #[TestWithJson('[{"rootId": ""}]', 'rootId is empty string')]
+    #[TestWithJson('[{"rootId": 42}, "integer"]', 'rootId is non-string type')]
+    #[TestWithJson('[{"rootId": ""}, "string"]', 'rootId is empty string')]
     #[TestDox('throws exception when rootId is invalid')]
-    public function testDecodeWithInvalidRootIdThrowsException(array $data): void
+    public function testDecodeWithInvalidRootIdThrowsException(array $data, string $actualType): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field rootId expected non-empty string');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('rootId', 'non-empty string', $actualType)
+        );
 
         $this->serializer->decode($data);
     }
@@ -107,14 +108,15 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[TestWithJson('[{"depth": 0}]', 'depth is zero (boundary)')]
-    #[TestWithJson('[{"depth": -1}]', 'depth is negative')]
-    #[TestWithJson('[{"depth": "3"}]', 'depth is non-int type')]
+    #[TestWithJson('[{"depth": 0}, "integer"]', 'depth is zero (boundary)')]
+    #[TestWithJson('[{"depth": -1}, "integer"]', 'depth is negative')]
+    #[TestWithJson('[{"depth": "3"}, "string"]', 'depth is non-int type')]
     #[TestDox('throws exception when depth is invalid')]
-    public function testDecodeWithInvalidDepthThrowsException(array $data): void
+    public function testDecodeWithInvalidDepthThrowsException(array $data, string $actualType): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field depth expected positive int');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('depth', 'positive int', $actualType)
+        );
 
         $this->serializer->decode($data);
     }
@@ -122,13 +124,14 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    #[TestWithJson('[{"activeProperty": 42}]', 'activeProperty is non-string type')]
-    #[TestWithJson('[{"activeProperty": ""}]', 'activeProperty is empty string')]
+    #[TestWithJson('[{"activeProperty": 42}, "integer"]', 'activeProperty is non-string type')]
+    #[TestWithJson('[{"activeProperty": ""}, "string"]', 'activeProperty is empty string')]
     #[TestDox('throws exception when activeProperty is invalid')]
-    public function testDecodeWithInvalidActivePropertyThrowsException(array $data): void
+    public function testDecodeWithInvalidActivePropertyThrowsException(array $data, string $actualType): void
     {
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Field activeProperty expected non-empty string');
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('activeProperty', 'non-empty string', $actualType)
+        );
 
         $this->serializer->decode($data);
     }
@@ -230,8 +233,7 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     #[TestDox('throws DecorationPatternException when getDecorated is called')]
     public function testGetDecoratedThrowsDecorationPatternException(): void
     {
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
+        $this->expectExceptionObject(new DecorationPatternException(NavigationLoaderConfigSerializer::class));
 
         $this->serializer->getDecorated();
     }

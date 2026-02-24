@@ -341,8 +341,7 @@ class EntityLoaderTest extends TestCase
     {
         $loader = $this->createMinimalLoader();
 
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class');
+        $this->expectExceptionObject(new DecorationPatternException(EntityLoader::class));
 
         $loader->getDecorated();
     }

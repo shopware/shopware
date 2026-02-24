@@ -162,7 +162,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         mockGet.mockClear();
 
         await wrapper.vm.saveOnLanguageChange();
-        await flushPromises();ƒ
+        await flushPromises();
 
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(mockGet).not.toHaveBeenCalled();

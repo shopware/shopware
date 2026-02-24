@@ -57,6 +57,9 @@
                 "store": {
                     "$ref": "#/definitions/shopware_store"
                 },
+                "analytics": {
+                    "$ref": "#/definitions/analytics"
+                },
                 "sitemap": {
                     "$ref": "#/definitions/sitemap"
                 },
@@ -1418,6 +1421,17 @@
                 }
             },
             "title": "Shopware store"
+        },
+        "analytics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "gateway_url": {
+                    "type": "string",
+                    "description": "URL of the product analytics gateway"
+                }
+            },
+            "title": "Analytics"
         },
         "sales_channel_context": {
             "type": "object",

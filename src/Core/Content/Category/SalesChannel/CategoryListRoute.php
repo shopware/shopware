@@ -49,7 +49,7 @@ class CategoryListRoute extends AbstractCategoryListRoute
             $context->getSalesChannel()->getServiceCategoryId(),
         ]);
 
-        if (!empty($rootIds)) {
+        if ($rootIds !== []) {
             $filter = new OrFilter();
 
             foreach ($rootIds as $rootId) {

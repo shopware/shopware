@@ -274,12 +274,21 @@ return (new Config())
         $unitTestsName = [];
 
         // prepare phpunit code coverage exclude lists
-        $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
         $excludedDirs = [];
         $excludedFiles = [];
         $dom = new DOMDocument();
 
-        if ($dom->load($phpUnitConfig)) {
+        $phpUnitConfigFromPullRequest = $context->platform->pullRequest->getFiles()
+            ->matches('phpunit.xml.dist')
+            ->first();
+
+        $phpUnitConfig = $phpUnitConfigFromPullRequest?->name ?? __DIR__ . '/phpunit.xml.dist';
+        $domLoad = $phpUnitConfigFromPullRequest
+            ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
+            : $dom->load($phpUnitConfig);
+
+
+        if ($domLoad) {
             $xpath = new DOMXPath($dom);
             foreach ($xpath->query('//source/exclude/directory') as $dirDomElement) {
                 $excludedDirs[] = [
@@ -469,13 +478,10 @@ return (new Config())
             ->matches('phpunit.xml.dist')
             ->first();
 
-        if (!$phpUnitConfigFromPullRequest) {
-            $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
-            $domLoad = $dom->load($phpUnitConfig);
-        } else {
-            $phpUnitConfig = $phpUnitConfigFromPullRequest->name;
-            $domLoad = $dom->loadXML($phpUnitConfigFromPullRequest->getContent());
-        }
+        $phpUnitConfig = $phpUnitConfigFromPullRequest?->name ?? __DIR__ . '/phpunit.xml.dist';
+        $domLoad = $phpUnitConfigFromPullRequest
+            ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
+            : $dom->load($phpUnitConfig);
 
         if ($domLoad === false) {
             $context->failure(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));

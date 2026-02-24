@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import * as amplitude from '@amplitude/analytics-browser';
 import { string } from 'src/core/service/util.service';
 import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telemetry/types';
 
@@ -8,14 +9,12 @@ import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telem
  * @private
  */
 export default async function (): Promise<void> {
-    const amplitude = await import('@amplitude/analytics-browser');
-
-    Shopware.Service('loginService').addOnLogoutListener(() => {
-        amplitude.setTransport('beacon');
-    });
+    const analyticsGatewayUrl = Shopware.Store.get('context').app.analyticsGatewayUrl;
+    if (!analyticsGatewayUrl) {
+        return;
+    }
 
     let defaultLanguageName = '';
-
     try {
         defaultLanguageName = await getDefaultLanguageName();
     } catch {
@@ -53,7 +52,8 @@ export default async function (): Promise<void> {
 
     // check for consent
 
-    amplitude.init('a04bb926f471ce883bc219814fc9577', undefined, {
+    // The real key will be added by the gateway
+    amplitude.init('placeholder-apikey', undefined, {
         autocapture: false,
         serverZone: 'EU',
         appVersion: Shopware.Store.get('context').app.config.version as string,
@@ -63,7 +63,7 @@ export default async function (): Promise<void> {
             platform: false,
         },
         fetchRemoteConfig: false,
-        // serverUrl: use proxy server url here, e.g. usage-data.shopware.io/product-analytics,
+        serverUrl: `${analyticsGatewayUrl}/event`,
     });
 
     function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes>) {

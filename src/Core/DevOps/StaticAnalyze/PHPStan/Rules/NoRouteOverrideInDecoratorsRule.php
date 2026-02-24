@@ -99,7 +99,7 @@ class NoRouteOverrideInDecoratorsRule implements Rule
             return false;
         }
 
-        if (empty($service->getTags())) {
+        if ($service->getTags() === []) {
             return false;
         }
 

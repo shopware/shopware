@@ -125,7 +125,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     {
         $ids = $this->fetchChildrenIds($affected);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -135,7 +135,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (empty($media)) {
+        if ($media === []) {
             return;
         }
 
@@ -155,7 +155,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (empty($children)) {
+        if ($children === []) {
             return \array_merge($ids, $children);
         }
 

@@ -176,7 +176,7 @@ trait AdminApiTestBehaviour
             'password' => 'shopware',
         ];
 
-        if (!empty($scopes)) {
+        if ($scopes !== []) {
             $authPayload['scope'] = implode(' ', $scopes);
         }
 

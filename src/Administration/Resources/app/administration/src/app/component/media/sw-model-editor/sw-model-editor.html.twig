@@ -1,0 +1,64 @@
+{% block sw_model_editor %}
+<div class="sw-model-editor">
+    <mt-loader
+        v-if="isLoading"
+        class="sw-model-editor-loader"
+    />
+    <div class="sw-model-editor-content">
+        <div class="sw-model-editor-canvas-wrapper">
+            <canvas class="sw-model-editor-canvas"></canvas>
+        </div>
+        <div class="sw-model-editor-canvas-ui__edit-options">
+            <div
+                v-tooltip="{ message: $t('sw-media.sw-model-editor.edit-options.move-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
+                class="sw-model-editor-canvas-ui__button-container"
+                :class="currentEditMode === 'translate' ? 'is--active' : ''"
+            >
+                <button
+                    class="sw-model-editor-canvas-ui__button"
+                    :disabled="!isTranslatable"
+                    @click="setGizmoMode('translate')"
+                >
+                    <mt-icon
+                        name="regular-arrows"
+                        size="20"
+                    />
+                </button>
+            </div>
+            <div
+                v-tooltip="{ message: $t('sw-media.sw-model-editor.edit-options.rotate-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
+                class="sw-model-editor-canvas-ui__button-container"
+                :class="currentEditMode === 'rotate' ? 'is--active' : ''"
+            >
+                <button
+                    class="sw-model-editor-canvas-ui__button"
+                    :disabled="!isRotatable"
+                    @click="setGizmoMode('rotate')"
+                >
+                    <mt-icon
+                        name="regular-sync"
+                        size="20"
+                    />
+                </button>
+            </div>
+            <div
+                v-tooltip="{ message: $t('sw-media.sw-model-editor.edit-options.scale-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
+                class="sw-model-editor-canvas-ui__button-container"
+                :class="currentEditMode === 'scale' ? 'is--active' : ''"
+            >
+                <button
+                    class="sw-model-editor-canvas-ui__button"
+                    :disabled="!isScalable"
+                    @click="setGizmoMode('scale')"
+                >
+                    <mt-icon
+                        name="regular-expand-arrows"
+                        size="20"
+                    />
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -62,7 +62,7 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
     private function deleteIds(EntityRepository $repository, Criteria $criteria, Context $context): void
     {
         $ids = $repository->searchIds($criteria, $context)->getIds();
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

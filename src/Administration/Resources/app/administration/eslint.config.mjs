@@ -36,7 +36,7 @@ const filenameRulesPatched = {
                 ...rule,
                 meta: {
                     ...rule.meta,
-                    schema: rule.meta?.schema ?? [{}],
+                    schema: rule.meta?.schema ?? [{ oneOf: [{ type: 'string' }, { type: 'object' }] }],
                 },
             },
         ]),

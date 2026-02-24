@@ -2,90 +2,90 @@
 
 | Event | Description | Permissions needed | Payload
 | :--- | :--- | :--- | :--- |
-|`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
-|`checkout.customer.deleted` | Triggers if a customer gets deleted | `customer:read` | {"entity":"customer"}
-|`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer","confirmUrl":"string"}
-|`checkout.customer.double_opt_in_registration` | Triggers when a customer commits to his registration via double opt in | `customer:read` | {"entity":"customer","confirmUrl":"string"}
-|`checkout.customer.guest_register` | __EMPTY__ | `customer:read` | {"entity":"customer"}
-|`checkout.customer.login` | Triggers as soon as a customer logs in | `customer:read` | {"entity":"customer","contextToken":"string"}
-|`checkout.customer.logout` | Triggers when a customer logs out | `customer:read` | {"entity":"customer"}
-|`checkout.customer.register` | Triggers when a new customer was registered | `customer:read` | {"entity":"customer"}
-|`checkout.order.payment_method.changed` | __EMPTY__ | `order:read` `order_transaction:read` | {"entity":"order_transaction"}
-|`checkout.order.placed` | Triggers when an order is placed | `order:read` | {"entity":"order"}
-|`contact_form.send` | Triggers when a contact form is send | - | {"contactFormData":"object"}
-|`customer.group.registration.accepted` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
-|`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
-|`customer.password.changed` | __EMPTY__ | `customer:read` | {"entity":"customer","shopName":"string"}
-|`customer.recovery.request` | Triggers when a customer recovers his password | `customer_recovery:read` `customer:read` | {"entity":"customer","resetUrl":"string","shopName":"string"}
-|`mail.after.create.message` | __EMPTY__ | - | {"data":"array","message":"object"}
+|`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"mailStruct":"object","salesChannelId":"string","timezone":"string","email":"string"}
+|`checkout.customer.deleted` | Triggers if a customer gets deleted | `customer:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string"}
+|`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","confirmUrl":"string"}
+|`checkout.customer.double_opt_in_registration` | Triggers when a customer commits to his registration via double opt in | `customer:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","confirmUrl":"string"}
+|`checkout.customer.guest_register` | __EMPTY__ | `customer:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string"}
+|`checkout.customer.login` | Triggers as soon as a customer logs in | `customer:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","contextToken":"string"}
+|`checkout.customer.logout` | Triggers when a customer logs out | `customer:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string"}
+|`checkout.customer.register` | Triggers when a new customer was registered | `customer:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string"}
+|`checkout.order.payment_method.changed` | __EMPTY__ | `order:read` `customer:read` `order_transaction:read` | {"orderId":"string","order":"entity","customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","orderTransactionId":"string","orderTransaction":"entity"}
+|`checkout.order.placed` | Triggers when an order is placed | `order:read` `customer:read` `customer_group:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","customerGroupId":"string","customerGroup":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`contact_form.send` | Triggers when a contact form is send | - | {"mailStruct":"object","salesChannelId":"string","timezone":"string","contactFormData":"object"}
+|`customer.group.registration.accepted` | __EMPTY__ | `customer:read` `customer_group:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerGroupId":"string","customerGroup":"entity"}
+|`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerGroupId":"string","customerGroup":"entity"}
+|`customer.password.changed` | __EMPTY__ | `customer:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","shopName":"string"}
+|`customer.recovery.request` | Triggers when a customer recovers his password | `customer:read` `customer_recovery:read` | {"customerId":"string","customer":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerRecoveryId":"string","customerRecovery":"entity","resetUrl":"string","shopName":"string"}
+|`mail.after.create.message` | __EMPTY__ | - | {"message":"object","data":"array"}
 |`mail.before.send` | Triggers before a mail is send | - | {"data":"array","templateData":"array"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","contents":"string","recipients":"array"}
-|`newsletter.confirm` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
-|`newsletter.register` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient","url":"string"}
-|`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
-|`product_export.log` | __EMPTY__ | - | {"name":"string"}
-|`review_form.send` | Triggers when a product review form is send | `product:read` | {"reviewFormData":"object","entity":"product"}
-|`state_enter.order.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_delivery.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_delivery.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_delivery.state.returned` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_delivery.state.returned_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_delivery.state.shipped` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_delivery.state.shipped_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.authorized` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.chargeback` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.paid` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.paid_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.refunded` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.refunded_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.reminded` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction.state.unconfirmed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction_capture.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction_capture.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction_capture.state.pending` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction_capture_refund.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction_capture_refund.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction_capture_refund.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_enter.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_delivery.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_delivery.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_delivery.state.returned` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_delivery.state.returned_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_delivery.state.shipped` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_delivery.state.shipped_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.authorized` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.chargeback` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.paid` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.paid_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.refunded` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.refunded_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.reminded` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction.state.unconfirmed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction_capture.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction_capture.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction_capture.state.pending` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction_capture_refund.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction_capture_refund.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction_capture_refund.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`state_leave.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`user.recovery.request` | __EMPTY__ | `user_recovery:read` | {"entity":"user_recovery","resetUrl":"string"}
+|`newsletter.confirm` | __EMPTY__ | `newsletter_recipient:read` | {"mailStruct":"object","salesChannelId":"string","timezone":"string","newsletterRecipientId":"string","newsletterRecipient":"entity"}
+|`newsletter.register` | __EMPTY__ | `newsletter_recipient:read` | {"mailStruct":"object","salesChannelId":"string","timezone":"string","newsletterRecipientId":"string","newsletterRecipient":"entity","url":"string"}
+|`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"mailStruct":"object","salesChannelId":"string","timezone":"string","newsletterRecipientId":"string","newsletterRecipient":"entity"}
+|`product_export.log` | __EMPTY__ | - | {"mailStruct":"object","salesChannelId":"string","timezone":"string","name":"string"}
+|`review_form.send` | Triggers when a product review form is send | `product:read` `customer:read` | {"mailStruct":"object","salesChannelId":"string","timezone":"string","productId":"string","product":"entity","customerId":"string","customer":"entity","reviewFormData":"object"}
+|`state_enter.order.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order.state.completed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order.state.in_progress` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order.state.open` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_delivery.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_delivery.state.open` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_delivery.state.returned` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_delivery.state.returned_partially` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_delivery.state.shipped` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_delivery.state.shipped_partially` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.authorized` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.chargeback` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.failed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.in_progress` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.open` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.paid` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.paid_partially` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.refunded` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.refunded_partially` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.reminded` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction.state.unconfirmed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction_capture.state.completed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction_capture.state.failed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction_capture.state.pending` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction_capture_refund.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction_capture_refund.state.completed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction_capture_refund.state.failed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_enter.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order.state.completed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order.state.in_progress` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order.state.open` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_delivery.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_delivery.state.open` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_delivery.state.returned` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_delivery.state.returned_partially` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_delivery.state.shipped` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_delivery.state.shipped_partially` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.authorized` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.chargeback` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.failed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.in_progress` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.open` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.paid` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.paid_partially` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.refunded` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.refunded_partially` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.reminded` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction.state.unconfirmed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction_capture.state.completed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction_capture.state.failed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction_capture.state.pending` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction_capture_refund.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction_capture_refund.state.completed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction_capture_refund.state.failed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`state_leave.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
+|`user.recovery.request` | __EMPTY__ | `user_recovery:read` | {"userRecoveryId":"string","userRecovery":"entity","resetUrl":"string"}
 |`sales_channel.written` | Triggers when a sales_channel is written | `sales_channel:read` | {"entity":"sales_channel","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`sales_channel.deleted` | Triggers when a sales_channel is deleted | `sales_channel:read` | {"entity":"sales_channel","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`sales_channel_domain.written` | Triggers when a sales_channel_domain is written | `sales_channel_domain:read` | {"entity":"sales_channel_domain","operation":"update insert","primaryKey":"array string","payload":"array"}

@@ -2,11 +2,8 @@
 
 namespace Shopware\Core\DevOps\Docs\App;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
-use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
-use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -89,20 +86,9 @@ class HookableEventDoc
      */
     private static function parsingSimpleBusinessEventPayload(array $dataTypes): array
     {
-        $data = [];
-        foreach ($dataTypes as $name => $dataType) {
-            if ($dataType['type'] === EntityType::TYPE || $dataType['type'] === EntityCollectionType::TYPE) {
-                /** @var EntityDefinition $definition */
-                $definition = new $dataType['entityClass']();
-                $data[EntityType::TYPE] = $definition->getEntityName();
-
-                continue;
-            }
-
-            $data[$name] = $dataType['type'];
-        }
-
-        return $data;
+        return array_map(function ($dataType) {
+            return $dataType['type'];
+        }, $dataTypes);
     }
 
     /**

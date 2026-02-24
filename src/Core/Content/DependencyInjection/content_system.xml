@@ -400,13 +400,5 @@
             <argument/>
             <tag name="routing.loader"/>
         </service>
-
-        <!-- Storefront Controller -->
-        <service id="Shopware\Storefront\Controller\ContentController" public="true">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
     </services>
 </container>

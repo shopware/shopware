@@ -15,8 +15,8 @@ Shopware.Component.register('sw-settings-usage-data-general', () => import('./vi
  * @private
  */
 Shopware.Component.register(
-    'sw-settings-usage-data-consent-modal',
-    () => import('./component/sw-settings-usage-data-consent-modal'),
+    'sw-settings-usage-data-consent-modal-data-provider',
+    () => import('./component/sw-settings-usage-data-consent-modal-data-provider'),
 );
 
 /**

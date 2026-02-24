@@ -13,7 +13,7 @@
 
     <div class="sw-settings-usage-data-store-data-consent__consent">
         <sw-settings-usage-data-store-data-consent-card
-            :is-loading="isLoading"
+            :is-loading="suspended || isLoading"
             :consent="storeDataConsent"
             @update:consent="updateConsent"
         />

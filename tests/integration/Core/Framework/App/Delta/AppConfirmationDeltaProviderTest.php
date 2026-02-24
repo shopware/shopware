@@ -25,7 +25,7 @@ class AppConfirmationDeltaProviderTest extends TestCase
 
         static::assertCount(2, $deltas);
         static::assertArrayHasKey('permissions', $deltas);
-        static::assertCount(6, $deltas['permissions']);
+        static::assertCount(7, $deltas['permissions']);
         static::assertArrayHasKey('domains', $deltas);
         static::assertCount(8, $deltas['domains']);
     }

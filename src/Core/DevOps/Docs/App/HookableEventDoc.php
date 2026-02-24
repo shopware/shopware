@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\Docs\App;
 
+use Shopware\Core\DevOps\Docs\DocsException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -58,7 +59,7 @@ class HookableEventDoc
                 json_encode(HookableEventDoc::parsingSimpleEntityWrittenEvent($eventInfo[0], $eventInfo[1]), \JSON_THROW_ON_ERROR)
             );
         } catch (\JsonException) {
-            throw new \RuntimeException('Can not parsing payload for written event');
+            throw DocsException::canNotParsePayloadOfEvent('written event');
         }
     }
 
@@ -75,7 +76,7 @@ class HookableEventDoc
                 json_encode(HookableEventDoc::parsingSimpleBusinessEventPayload($event->getData()), \JSON_THROW_ON_ERROR)
             );
         } catch (\JsonException) {
-            throw new \RuntimeException('Can not parsing payload for business event');
+            throw DocsException::canNotParsePayloadOfEvent('business event');
         }
     }
 

@@ -48,8 +48,9 @@ class PermissionsDeltaProviderTest extends TestCase
 
         $diff = (new PermissionsDeltaProvider())->getReport($manifest, $app);
 
-        static::assertCount(6, $diff);
+        static::assertCount(7, $diff);
         static::assertArrayHasKey('category', $diff);
+        static::assertArrayHasKey('customer', $diff);
         static::assertArrayHasKey('custom_fields', $diff);
         static::assertArrayHasKey('order', $diff);
         static::assertArrayHasKey('product', $diff);

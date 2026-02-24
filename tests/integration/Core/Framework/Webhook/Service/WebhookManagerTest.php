@@ -266,6 +266,13 @@ class WebhookManagerTest extends TestCase
         static::assertSame([
             'data' => [
                 'payload' => [
+                    'mailStruct' => [
+                        'recipients' => [],
+                        'bcc' => null,
+                        'cc' => null,
+                    ],
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'timezone' => 'UTC',
                     'email' => 'test@example.com',
                 ],
                 'event' => CustomerBeforeLoginEvent::EVENT_NAME,
@@ -310,6 +317,13 @@ class WebhookManagerTest extends TestCase
                 [
                     'data' => [
                         'payload' => [
+                            'mailStruct' => [
+                                'recipients' => [],
+                                'bcc' => null,
+                                'cc' => null,
+                            ],
+                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                            'timezone' => 'UTC',
                             'email' => 'test@example.com',
                         ],
                         'event' => CustomerBeforeLoginEvent::EVENT_NAME,
@@ -688,6 +702,13 @@ class WebhookManagerTest extends TestCase
         static::assertSame([
             'data' => [
                 'payload' => [
+                    'mailStruct' => [
+                        'recipients' => [],
+                        'bcc' => null,
+                        'cc' => null,
+                    ],
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'timezone' => 'UTC',
                     'email' => 'test@example.com',
                 ],
                 'event' => CustomerBeforeLoginEvent::EVENT_NAME,

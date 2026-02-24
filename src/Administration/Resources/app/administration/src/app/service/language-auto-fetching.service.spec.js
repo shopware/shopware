@@ -60,10 +60,7 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
         Shopware.Store.get('context').api.languageId = 'new-language-id';
         await flushPromises();
 
-        expect(repositoryGetMock).toHaveBeenCalledWith(
-            'new-language-id',
-            expect.objectContaining({ inheritance: true }),
-        );
+        expect(repositoryGetMock).toHaveBeenCalledWith('new-language-id', expect.objectContaining({ inheritance: true }));
 
         expect(Shopware.Store.get('context').api.language).toEqual(
             expect.objectContaining({

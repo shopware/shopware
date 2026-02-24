@@ -64,13 +64,6 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.product.id)]));
-            criteria.addFilter(
-                Criteria.multi('or', [
-                    Criteria.equals('childCount', 0),
-                    Criteria.not('and', [Criteria.equals('parentId', null)]),
-                ]),
-            );
-
             criteria.addAssociation('options.group');
 
             return criteria;

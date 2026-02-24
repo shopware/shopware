@@ -29,6 +29,8 @@ final readonly class ContextDefinitions
     }
 
     /**
+     * @codeCoverageIgnore
+     *
      * @return array<string, ContextConsumer>
      */
     public function getAllConsumers(): array

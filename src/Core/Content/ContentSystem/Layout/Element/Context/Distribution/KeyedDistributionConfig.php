@@ -29,11 +29,6 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
         return new self('data_key', null);
     }
 
-    public static function withKeyProperty(string $keyProperty, ?string $consumerAlias = null): self
-    {
-        return new self($keyProperty, $consumerAlias);
-    }
-
     /**
      * @param array<string, mixed> $data
      */

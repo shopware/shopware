@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -56,6 +57,12 @@ class NewsletterController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
 
             throw $throwable;
+        }
+
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'forwardTo')) {
+            $this->addFlash(self::SUCCESS, $this->trans('newsletter.subscriptionCompleted'));
+
+            return $this->createActionResponse($request);
         }
 
         $page = $this->newsletterConfirmRegisterPageLoader->load($request, $context);

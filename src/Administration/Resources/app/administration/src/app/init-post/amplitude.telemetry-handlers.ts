@@ -58,7 +58,7 @@ export default function createTelemetryEventHandler(
 
             let eventName = `${capitalizedTagName} ${capitalizedEventName}`;
 
-            if (target.tagName === 'A') {
+            if (capitalizedTagName === 'A') {
                 eventName = 'Link Visited';
 
                 eventProperties.sw_link_href = target.getAttribute('href') ?? '';

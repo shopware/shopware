@@ -41,7 +41,7 @@ describe.skip('webpack/bundle', () => {
         if (fs.existsSync(path.resolve(projectRoot, 'public/bundles'))) {
             // delete Backup Bundle Folder
             await exec(`rm -rf ${path.resolve(projectRoot, 'public/bundles-backup')}`);
-            // backup Bundle Folder   
+            // backup Bundle Folder
             await exec(
                 `mv ${path.resolve(projectRoot, 'public/bundles')} ${path.resolve(projectRoot, 'public/bundles-backup')}`,
             );

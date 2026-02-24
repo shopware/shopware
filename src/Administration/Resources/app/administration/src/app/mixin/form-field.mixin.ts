@@ -90,7 +90,6 @@ export default Shopware.Mixin.register(
 
         methods: {
             handleRestoreInheritance() {
-
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (!this.mapInheritance?.restoreInheritance) {
                     return;
@@ -101,7 +100,6 @@ export default Shopware.Mixin.register(
             },
 
             handleRemoveInheritance() {
-
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (!this.mapInheritance?.removeInheritance) {
                     return;
@@ -111,8 +109,7 @@ export default Shopware.Mixin.register(
                 this.mapInheritance.removeInheritance();
             },
 
-            beforeDestroyComponent() {
-            },
+            beforeDestroyComponent() {},
 
             setAttributesForProps(prop: string, propValue: boolean) {
                 switch (prop) {

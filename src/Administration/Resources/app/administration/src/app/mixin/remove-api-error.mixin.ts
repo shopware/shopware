@@ -28,20 +28,17 @@ export default Shopware.Mixin.register(
                 property = $vm.$options.model.prop;
             }
 
-            $vm.$watch(
-                property,
-                function watchEventProperty() {
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    if (this.$attrs.error && this.$attrs.error.selfLink) {
-                        void Shopware.Store.get('error').removeApiError(
-                            // @ts-expect-error
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
-                            this.$attrs.error.selfLink,
-                        );
-                    }
-                },
-            );
+            $vm.$watch(property, function watchEventProperty() {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (this.$attrs.error && this.$attrs.error.selfLink) {
+                    void Shopware.Store.get('error').removeApiError(
+                        // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+                        this.$attrs.error.selfLink,
+                    );
+                }
+            });
         },
     }),
 );

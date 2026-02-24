@@ -152,7 +152,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         getSlots() {
-
             return this.$slots;
         },
 

@@ -51,7 +51,6 @@ class EntityLoaderTest extends TestCase
         $entity = $this->createEntityWithId($productId);
         $collection = new EntityCollection([$entity]);
 
-        /** @var StaticSalesChannelRepository<EntityCollection<Entity>> $scRepo */
         $scRepo = new StaticSalesChannelRepository([$collection]);
 
         $definition = static::createStub(EntityDefinition::class);
@@ -88,7 +87,6 @@ class EntityLoaderTest extends TestCase
         $entity = $this->createEntityWithId($categoryId);
         $collection = new EntityCollection([$entity]);
 
-        /** @var StaticEntityRepository<EntityCollection<Entity>> $plainRepo */
         $plainRepo = new StaticEntityRepository([$collection]);
 
         $definition = static::createStub(EntityDefinition::class);
@@ -127,7 +125,6 @@ class EntityLoaderTest extends TestCase
         $entity = $this->createEntityWithId($productId);
         $collection = new EntityCollection([$entity]);
 
-        /** @var StaticSalesChannelRepository<EntityCollection<Entity>> $scRepo */
         $scRepo = new StaticSalesChannelRepository([$collection]);
 
         $definition = static::createStub(EntityDefinition::class);
@@ -164,7 +161,6 @@ class EntityLoaderTest extends TestCase
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
 
-        /** @var StaticSalesChannelRepository<EntityCollection<Entity>> $scRepo */
         $scRepo = new StaticSalesChannelRepository([
             static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
                 $capturedCriteria = $criteria;
@@ -206,7 +202,6 @@ class EntityLoaderTest extends TestCase
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
 
-        /** @var StaticSalesChannelRepository<EntityCollection<Entity>> $scRepo */
         $scRepo = new StaticSalesChannelRepository([
             static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
                 $capturedCriteria = $criteria;
@@ -248,7 +243,6 @@ class EntityLoaderTest extends TestCase
         $entity = $this->createEntityWithId($productId);
         $collection = new EntityCollection([$entity]);
 
-        /** @var StaticSalesChannelRepository<EntityCollection<Entity>> $scRepo */
         $scRepo = new StaticSalesChannelRepository([$collection]);
 
         $definition = static::createStub(EntityDefinition::class);
@@ -314,7 +308,6 @@ class EntityLoaderTest extends TestCase
             ->build();
         $context = Generator::generateSalesChannelContext();
 
-        /** @var StaticSalesChannelRepository<EntityCollection<Entity>> $scRepo */
         $scRepo = new StaticSalesChannelRepository([new EntityCollection()]);
 
         $definition = static::createStub(EntityDefinition::class);

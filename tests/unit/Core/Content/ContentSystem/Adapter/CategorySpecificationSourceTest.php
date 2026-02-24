@@ -27,7 +27,6 @@ class CategorySpecificationSourceTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var StaticEntityRepository<CategoryContentLayoutCollection> $repository */
         $repository = new StaticEntityRepository([]);
         $definition = static::createStub(CategoryContentLayoutDefinition::class);
         $this->contextFactory = static::createStub(EntityLayoutContextFactory::class);

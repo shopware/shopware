@@ -176,6 +176,16 @@ class WebhookManagerTest extends TestCase
         static::assertSame([
             'data' => [
                 'payload' => [
+                    'customerId' => $customerId,
+                    'mailStruct' => [
+                        'recipients' => [
+                            'test@gmail.com' => 'Max Mustermann',
+                        ],
+                        'bcc' => null,
+                        'cc' => null,
+                    ],
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'timezone' => 'UTC',
                     'contextToken' => 'testToken',
                 ],
                 'event' => CustomerLoginEvent::EVENT_NAME,

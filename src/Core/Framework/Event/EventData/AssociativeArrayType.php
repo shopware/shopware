@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -11,6 +12,9 @@ class AssociativeArrayType extends AbstractEventDataType
 
     public function __construct(private readonly ScalarValueType $key, private readonly EventDataType $type)
     {
+        if ($key->getType() !== ScalarValueType::TYPE_STRING && $key->getType() !== ScalarValueType::TYPE_INT) {
+            throw FrameworkException::invalidArgumentException('The key type of an associative array must be either a string or an integer.');
+        }
     }
 
     public function getKey(): ScalarValueType

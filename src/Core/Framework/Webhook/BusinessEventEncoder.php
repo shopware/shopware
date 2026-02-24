@@ -2,18 +2,21 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
+use Shopware\Core\Framework\Event\EventData\AssociativeArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -26,7 +29,8 @@ class BusinessEventEncoder
      */
     public function __construct(
         private readonly JsonEntityEncoder $entityEncoder,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -110,6 +114,8 @@ class BusinessEventEncoder
                 return $property;
             case ArrayType::TYPE:
                 return $this->encodeArray($dataType, $property);
+            case AssociativeArrayType::TYPE:
+                return $this->encodeAssociativeArray($dataType, $property);
             default:
                 throw WebhookException::unknownEventDataType($dataType['type']);
         }
@@ -136,6 +142,10 @@ class BusinessEventEncoder
 
         if (\is_array($object) && \array_key_exists($propertyName, $object)) {
             return $object[$propertyName];
+        }
+
+        if ($propertyName === 'timezone') {
+            return $this->getTimezone();
         }
 
         throw WebhookException::invalidDataMapping($propertyName, \is_object($object) ? $object::class : 'array');
@@ -173,5 +183,39 @@ class BusinessEventEncoder
         }
 
         return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $dataType
+     * @param array<string, mixed> $property
+     *
+     * @return array<string|int,mixed>
+     */
+    private function encodeAssociativeArray(array $dataType, array $property): array
+    {
+        $data = [];
+        foreach ($property as $key => $nested) {
+            $data[$this->encodeProperty($dataType['key'], $key)] = $this->encodeProperty($dataType['of'], $nested);
+        }
+
+        return $data;
+    }
+
+    private function getTimezone(): string
+    {
+        $request = $this->requestStack->getCurrentRequest();
+
+        if (!$request) {
+            return 'UTC';
+        }
+
+        $timezone = (string) $request->cookies->get(TimezoneStorer::TIMEZONE_COOKIE);
+
+        if (!$timezone || !\in_array($timezone, timezone_identifiers_list(), true)) {
+            // Default will be UTC @see https://symfony.com/doc/current/reference/configuration/twig.html#timezone
+            return 'UTC';
+        }
+
+        return $timezone;
     }
 }

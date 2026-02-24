@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review\Event;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -63,8 +66,8 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
                     ->add('name', new ScalarValueType(ScalarValueType::TYPE_STRING))
                     ->add('lastName', new ScalarValueType(ScalarValueType::TYPE_STRING))
                     ->add('email', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('customerId', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('productId', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('customerId', new ForeignKeyType(CustomerDefinition::class))
+                    ->add('productId', new ForeignKeyType(ProductDefinition::class))
             );
     }
 

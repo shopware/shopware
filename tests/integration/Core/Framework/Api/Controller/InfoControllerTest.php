@@ -330,9 +330,26 @@ class InfoControllerTest extends TestCase
                         'nullable' => false,
                         'type' => 'object',
                         'data' => [
-                            'recipients' => [],
-                            'bcc' => [],
-                            'cc' => [],
+                            'recipients' => [
+                                'nullable' => false,
+                                'type' => 'associative_array',
+                                'of' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                                'key' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                            ],
+                            'bcc' => [
+                                'nullable' => true,
+                                'type' => 'string',
+                            ],
+                            'cc' => [
+                                'nullable' => true,
+                                'type' => 'string',
+                            ],
                         ],
                     ],
                     'salesChannelId' => [
@@ -380,9 +397,26 @@ class InfoControllerTest extends TestCase
                         'nullable' => false,
                         'type' => 'object',
                         'data' => [
-                            'recipients' => [],
-                            'bcc' => [],
-                            'cc' => [],
+                            'recipients' => [
+                                'nullable' => false,
+                                'type' => 'associative_array',
+                                'of' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                                'key' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                            ],
+                            'bcc' => [
+                                'nullable' => true,
+                                'type' => 'string',
+                            ],
+                            'cc' => [
+                                'nullable' => true,
+                                'type' => 'string',
+                            ],
                         ],
                     ],
                     'salesChannelId' => [
@@ -432,9 +466,18 @@ class InfoControllerTest extends TestCase
                             'nullable' => false,
                             'type' => 'object',
                             'data' => [
-                                'documentId' => [],
-                                'deepLinkCode' => [],
-                                'fileExtension' => [],
+                                'documentId' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                                'deepLinkCode' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                                'fileExtension' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
                             ],
                         ],
                     ],
@@ -474,9 +517,26 @@ class InfoControllerTest extends TestCase
                         'nullable' => false,
                         'type' => 'object',
                         'data' => [
-                            'recipients' => [],
-                            'bcc' => [],
-                            'cc' => [],
+                            'recipients' => [
+                                'nullable' => false,
+                                'type' => 'associative_array',
+                                'of' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                                'key' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                            ],
+                            'bcc' => [
+                                'nullable' => true,
+                                'type' => 'string',
+                            ],
+                            'cc' => [
+                                'nullable' => true,
+                                'type' => 'string',
+                            ],
                         ],
                     ],
                     'salesChannelId' => [
@@ -515,9 +575,18 @@ class InfoControllerTest extends TestCase
                             'nullable' => false,
                             'type' => 'object',
                             'data' => [
-                                'documentId' => [],
-                                'deepLinkCode' => [],
-                                'fileExtension' => [],
+                                'documentId' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                                'deepLinkCode' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
+                                'fileExtension' => [
+                                    'nullable' => false,
+                                    'type' => 'string',
+                                ],
                             ],
                         ],
                     ],

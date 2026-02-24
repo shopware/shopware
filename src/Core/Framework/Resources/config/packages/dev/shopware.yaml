@@ -1,3 +1,6 @@
+parameters:
+    env(PRODUCT_ANALYTICS_GATEWAY_URL): ''
+
 shopware:
     api:
         api_browser:

@@ -37,6 +37,7 @@ describe('context.store', () => {
             systemCurrencyId: null,
             systemCurrencyISOCode: null,
             windowId: null,
+            analyticsGatewayUrl: null,
         });
 
         expect(store.api).toEqual(

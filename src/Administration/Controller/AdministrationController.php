@@ -90,6 +90,7 @@ class AdministrationController extends AbstractController
         private readonly string $serviceRegistryUrl,
         private readonly EntityRepository $languageRepository,
         private readonly SymfonyBearerTokenValidator $tokenValidator,
+        private readonly string $analyticsGatewayUrl,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -134,6 +135,7 @@ class AdministrationController extends AbstractController
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
+            'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
         ]);
 
         $response->setPublic();

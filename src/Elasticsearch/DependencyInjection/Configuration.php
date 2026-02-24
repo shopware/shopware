@@ -68,6 +68,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('hosts')->end()
                         ->booleanNode('enabled')->end()
                         ->booleanNode('refresh_indices')->end()
+                        ->integerNode('indexing_batch_size')->defaultValue(1000)->end()
                         ->scalarNode('index_prefix')->end()
                         ->scalarNode('throw_exception')->end()
                         ->arrayNode('index_settings')->variablePrototype()->end()->end()

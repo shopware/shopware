@@ -87,6 +87,18 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexManager">
+            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Subscriber\InvalidateExpiredCacheSubscriber">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexManager"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider">
             <argument>%elasticsearch.index.mapping%</argument>
         </service>

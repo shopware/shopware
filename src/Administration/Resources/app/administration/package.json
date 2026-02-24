@@ -87,7 +87,6 @@
     "fs-extra": "11.3.0",
     "html2canvas": "1.4.1",
     "inter-ui": "3.19.3",
-    "jest-stare": "^2.5.3",
     "lodash": "4.17.21",
     "lodash-es": "4.17.21",
     "md5-es": "1.8.2",

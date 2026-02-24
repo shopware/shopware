@@ -20,8 +20,8 @@ class IndexedDistributionConfigTest extends TestCase
      * @param list<mixed> $expected
      */
     #[DataProvider('distributeProvider')]
-    #[TestDox('distributes indexed data: $description')]
-    public function testDistribute(string $description, mixed $data, array $consumers, array $expected): void
+    #[TestDox('distributes indexed data: $_dataName')]
+    public function testDistribute(mixed $data, array $consumers, array $expected): void
     {
         $config = IndexedDistributionConfig::simple();
 
@@ -63,12 +63,11 @@ class IndexedDistributionConfigTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, mixed, list<array{component: string, properties: array<string, mixed>}>, list<mixed>}>
+     * @return iterable<string, array{mixed, list<array{component: string, properties: array<string, mixed>}>, list<mixed>}>
      */
     public static function distributeProvider(): iterable
     {
         yield 'assigns data to consumer at matching position' => [
-            'assigns data to consumer at matching position',
             ['alpha', 'beta'],
             [
                 ['component' => 'product-box', 'properties' => []],
@@ -78,7 +77,6 @@ class IndexedDistributionConfigTest extends TestCase
         ];
 
         yield 'returns null for consumers whose position exceeds the data length' => [
-            'returns null for consumers whose position exceeds the data length',
             ['only-one'],
             [
                 ['component' => 'box', 'properties' => []],
@@ -89,7 +87,6 @@ class IndexedDistributionConfigTest extends TestCase
         ];
 
         yield 'returns null for all consumers when data is not an array' => [
-            'returns null for all consumers when data is not an array',
             'not-an-array',
             [
                 ['component' => 'box', 'properties' => []],
@@ -99,7 +96,6 @@ class IndexedDistributionConfigTest extends TestCase
         ];
 
         yield 'returns empty array when no consumers are given' => [
-            'returns empty array when no consumers are given',
             ['item-a', 'item-b'],
             [],
             [],

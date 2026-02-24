@@ -188,8 +188,8 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
      * @param array<string, mixed> $original
      */
     #[DataProvider('roundTripProvider')]
-    #[TestDox('round-trips $description without data loss')]
-    public function testDecodeAndEncodeAreInverse(array $original, string $description): void
+    #[TestDox('round-trips $_dataName without data loss')]
+    public function testDecodeAndEncodeAreInverse(array $original): void
     {
         $config = $this->serializer->decode($original);
         $encoded = $this->serializer->encode($config);
@@ -198,16 +198,15 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, string}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
     public static function roundTripProvider(): iterable
     {
-        yield 'empty config' => [[], 'empty config'];
-        yield 'property only' => [['property' => 'categoryProperty'], 'property-only config'];
-        yield 'associations only' => [['associations' => ['options', 'cover']], 'associations-only config'];
+        yield 'empty config' => [[]];
+        yield 'property only' => [['property' => 'categoryProperty']];
+        yield 'associations only' => [['associations' => ['options', 'cover']]];
         yield 'full config' => [
             ['property' => 'myProperty', 'associations' => ['manufacturer', 'media']],
-            'full config',
         ];
     }
 

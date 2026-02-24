@@ -332,6 +332,33 @@ export default [
         },
     },
 
+    // Twig files with known false positives or pre-existing patterns.
+    // Inline eslint-disable comments don't work in twig files due to twig-vue processor line shifting.
+    {
+        files: [
+            'src/**/sw-grouped-single-select/sw-grouped-single-select.html.twig',
+            'src/**/sw-sidebar-collapse/sw-sidebar-collapse.html.twig',
+            'src/**/sw-cms-create/sw-cms-create.html.twig',
+            'src/**/sw-mail-header-footer-create/sw-mail-header-footer-create.html.twig',
+            'src/**/sw-mail-template-create/sw-mail-template-create.html.twig',
+            'src/**/sw-property-create/sw-property-create.html.twig',
+            'src/**/sw-sales-channel-create/sw-sales-channel-create.html.twig',
+            'src/**/sw-settings-country-create/sw-settings-country-create.html.twig',
+            'src/**/sw-settings-listing-option-create/sw-settings-listing-option-create.html.twig',
+            'src/**/sw-settings-number-range-create/sw-settings-number-range-create.html.twig',
+            'src/**/sw-settings-payment-create/sw-settings-payment-create.html.twig',
+        ],
+        rules: {
+            'vue/valid-v-slot': 'off',
+        },
+    },
+    {
+        files: ['src/**/sw-sidebar-media-item/sw-sidebar-media-item.html.twig'],
+        rules: {
+            'vue/no-use-v-if-with-v-for': 'off',
+        },
+    },
+
     // Test files
     {
         files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],

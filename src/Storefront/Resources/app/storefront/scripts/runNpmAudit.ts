@@ -3,8 +3,8 @@ import { execSync } from "child_process";
 
 // IDs of advisories to ignore
 const ignored: number[] = [
-  1113398, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
-  1113399, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
+  1113428, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
+  1113429, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
 ];
 let auditRaw = "";
 

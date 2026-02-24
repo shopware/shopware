@@ -29,6 +29,9 @@ return [
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
+        // Had a typo in the internal annotation
+        preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder was marked "@internal"', '/'),
+    
         // Inherited attribute $reversed parameter removed - attribute inheritance never worked before, so no BC break
         preg_quote('REMOVED: Property Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#$reversed was removed', '/'),
         preg_quote('Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#__construct()', '/'),

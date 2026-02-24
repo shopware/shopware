@@ -213,7 +213,7 @@ class ConsentService
             }
         }
 
-        if (!empty($missingPermissions)) {
+        if ($missingPermissions !== []) {
             throw ConsentException::insufficientPermissions($consent->getName(), $missingPermissions);
         }
     }

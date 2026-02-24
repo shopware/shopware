@@ -4,18 +4,10 @@ namespace Shopware\Core\Test\Stub\Redis;
 
 class RedisMultiWrapper extends \Redis
 {
-    use RedisMultiCompatibility;
-
-    /**
-     * @param array<mixed> $results
-     */
     public function __construct(private readonly \Redis $redis, private array $results = [])
     {
     }
 
-    /**
-     * @return mixed[]
-     */
     public function exec(): array
     {
         $ret = $this->results;
@@ -24,15 +16,16 @@ class RedisMultiWrapper extends \Redis
         return $ret;
     }
 
-    /**
-     * @param array<mixed> $arguments
-     *
-     * @return RedisMultiWrapper
-     */
-    private function doCall(string $name, array $arguments)
+    public function del(array|string $key, string ...$other_keys): \Redis|int|false
     {
-        // @phpstan-ignore method.dynamicName (We allow dynamic method calls to proxy all Redis methods)
-        $this->results[] = $this->redis->$name(...$arguments);
+        $this->results[] = $this->redis->del($key, ...$other_keys);
+
+        return $this;
+    }
+
+    public function sMembers(string $key): RedisMultiWrapper
+    {
+        $this->results[] = $this->redis->sMembers($key);
 
         return $this;
     }

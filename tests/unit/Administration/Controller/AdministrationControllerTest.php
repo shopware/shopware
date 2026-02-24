@@ -77,14 +77,14 @@ class AdministrationControllerTest extends TestCase
 
     private string $serviceRegistryUrl;
 
+    private string $analyticsGatewayUrl;
+
     /**
      * @var MockObject&EntityRepository<LanguageCollection>
      */
     private MockObject&EntityRepository $languageRepository;
 
     private string $refreshTokenTtl;
-
-    private string $analyticsGatewayUrl;
 
     private IdsCollection $ids;
 

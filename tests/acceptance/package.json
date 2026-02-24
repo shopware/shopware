@@ -32,6 +32,7 @@
     "playwright-lighthouse": "4.0.0"
   },
   "overrides": {
-    "axios": "^1.13.5"
+    "axios": "^1.13.5",
+    "minimatch": "10.2.2"
   }
 }

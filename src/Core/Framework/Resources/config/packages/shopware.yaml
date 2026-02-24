@@ -1,6 +1,7 @@
 parameters:
     default_cdn_strategy: "id"
     env(APP_URL): ''
+    env(PRODUCT_ANALYTICS_GATEWAY_URL): 'https://product-analytics-gateway.services.shopware.io'
     APP_URL: "%env(string:APP_URL)%"
     env(REDIS_PREFIX): ''
 

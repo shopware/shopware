@@ -267,6 +267,10 @@ export default [
             'vuejs-accessibility': vuejsAccessibility,
         },
         rules: {
+            ...Object.fromEntries(
+                Object.entries(vuejsAccessibility.configs['flat/recommended'][1].rules)
+                    .map(([rule]) => [rule, 'warn']),
+            ),
             'no-warning-comments': ['error', { location: 'anywhere' }],
             'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                 registeredComponentsOnly: true,
@@ -431,6 +435,8 @@ export default [
             'sw-deprecation-rules/no-vue-options-api': 'off',
         },
     },
-
-    prettier,
+    {
+        ...prettier,
+        files: ['**/*.js', '**/*.ts', '**/*.tsx', '**/*.vue'],
+    },
 ];

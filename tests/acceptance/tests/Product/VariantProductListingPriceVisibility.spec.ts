@@ -11,11 +11,7 @@ test(
         StorefrontHome,
         StorefrontProductDetail,
         SalesChannelBaseConfig,
-        InstanceMeta,
     }) => {
-        await test.skip(InstanceMeta.isSaaS, 'Skipping on SaaS instances due to instability in variant creation.');
-        // TODO: https://github.com/shopware/shopware/issues/14608
-
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
             {
@@ -47,11 +43,13 @@ test(
             variantListingConfig: { displayParent: true },
         });
         const propertyGroupColor = await TestDataService.createColorPropertyGroup();
-        const propertyGroups: PropertyGroup[] = [];
-        propertyGroups.push(propertyGroupColor);
+        const propertyGroups: PropertyGroup[] = [propertyGroupColor];
         const variantProducts = await TestDataService.createVariantProducts(parentProduct, propertyGroups, {
             price: prices,
         });
+
+        await TestDataService.clearCaches();
+
         const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());

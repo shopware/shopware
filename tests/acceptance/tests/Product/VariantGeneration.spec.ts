@@ -43,10 +43,8 @@ test('Customer should be able to see a new property displayed on the product det
     TestDataService,
     StorefrontProductDetail,
     CheckVisibilityInHome,
-    InstanceMeta,
 }) => {
 
-    test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
         {
@@ -63,10 +61,15 @@ test('Customer should be able to see a new property displayed on the product det
         description: 'Color Description Manufacturer',
     });
     const parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id });
+
+    const variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
+        description: 'Variant description',
+    });
+
+    // currently CheckVisibilityInHome clears caches multiple times, it should only be needed once here
+    await TestDataService.clearCaches();
+
     await test.step('Verify property display on the product detail page', async () => {
-        const variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
-            description: 'Variant description',
-        });
         await CheckVisibilityInHome(variantProductColor.at(0).name)();
         await ShopCustomer.goesTo(StorefrontProductDetail.url(variantProductColor.at(0)));
         await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeVisible();

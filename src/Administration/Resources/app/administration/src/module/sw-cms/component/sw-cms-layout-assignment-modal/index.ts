@@ -217,7 +217,6 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        // eslint-disable-next-line consistent-return
         loadSystemConfig() {
             if (this.page.type !== 'page' || !this.acl.can('system.system_config')) {
                 return false;

@@ -24,7 +24,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         buttonProps(button: buttonProps) {
-            // eslint-disable-next-line max-len
             type buttonVariantsWithFallback =
                 | 'ghost'
                 | 'primary'

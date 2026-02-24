@@ -117,7 +117,6 @@ export default {
                 })
                 .filter((item) => item !== null);
 
-            // eslint-disable-next-line no-unused-expressions
             this.address &&
                 addresses.unshift({
                     label: this.addressLabel(this.address),

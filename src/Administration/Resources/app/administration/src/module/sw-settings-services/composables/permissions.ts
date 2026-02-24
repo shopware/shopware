@@ -3,7 +3,6 @@
  */
 import { useShopwareServicesStore } from '../store/shopware-services.store';
 
-/* eslint-disable import/prefer-default-export */
 /**
  * @private
  */
@@ -28,4 +27,3 @@ export async function revokePermissions() {
 
     window.location.reload();
 }
-/* eslint-enable import/prefer-default-export */

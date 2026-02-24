@@ -29,7 +29,7 @@ export default {
                     name: 'sw.settings.customer.group.detail',
                     params: { id: this.customerGroup.id },
                 });
-            } catch (err) {
+            } catch (_err) {
                 this.isLoading = false;
 
                 this.createNotificationError({

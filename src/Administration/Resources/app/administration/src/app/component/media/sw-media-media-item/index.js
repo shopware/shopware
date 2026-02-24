@@ -194,7 +194,7 @@ export default {
                 this.createNotificationSuccess({
                     message: this.$tc('sw-media.general.notification.urlCopied.message'),
                 });
-            } catch (err) {
+            } catch (_err) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),

@@ -66,13 +66,12 @@
                         <sw-entity-single-select
                             id="documentConfigTypes"
                             v-model:value="documentConfig.documentTypeId"
-                            name="sw-field--documentConfig-documentTypeId"
-                            @update:value="(id, type) => onChangeType(type)"
                             v-tooltip="{
                                 showDelay: 300,
                                 message: $tc('sw-settings-document.detail.disabledTypeSelect'),
                                 disabled: !documentConfig.global || !acl.can('document.editor')
                             }"
+                            name="sw-field--documentConfig-documentTypeId"
                             required
                             show-clearable-button
                             :error="documentBaseConfigDocumentTypeIdError"
@@ -81,6 +80,7 @@
                             :label="$tc('sw-settings-document.detail.labelType')"
                             class="sw-settings-document-detail__select-type"
                             :disabled="documentConfig.global || !acl.can('document.editor') || undefined"
+                            @update:value="(id, type) => onChangeType(type)"
                         />
                         {% endblock %}
 
@@ -90,19 +90,19 @@
                             v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)"
                             id="documentSalesChannel"
                             v-model:value="documentConfigSalesChannels"
-                            @update:value="(v) => documentConfigSalesChannels = v"
-                            name="sw-field--documentConfigSalesChannels"
                             v-tooltip="{
                                 showDelay: 300,
                                 message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),
                                 disabled: !!documentConfig.documentType
                             }"
+                            name="sw-field--documentConfigSalesChannels"
                             label-property="name"
                             value-property="id"
                             :options="documentConfigSalesChannelOptionsCollection"
                             :label="$tc('sw-settings-document.detail.labelSalesChannel')"
                             :disabled="!documentConfig.documentType || !acl.can('document.editor')"
                             class="sw-document-detail__select-type"
+                            @update:value="(v) => documentConfigSalesChannels = v"
                         >
                             {% block sw_document_detail_base_general_input_sales_channel_label %}
                             <template #selection-label-property="{ item }">
@@ -173,10 +173,10 @@
                         >
                             <sw-media-field
                                 :value="documentConfig.logoId"
-                                @update:value="(v) => documentConfig.logoId = v"
                                 name="sw-field--documentConfig-logoId"
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelOptionMedia')"
+                                @update:value="(v) => documentConfig.logoId = v"
                             />
                         </div>
                         {% endblock %}
@@ -215,13 +215,13 @@
                                 {% block sw_settings_document_detail_content_form_field_renderer_multi_select %}
                                 <sw-multi-select
                                     v-if="formField && formField.name === 'fileTypes'"
+                                    v-model:value="fileTypesSelected"
                                     class="sw-settings-document-detail__multi-select"
                                     :disabled="!acl.can('document.editor') || undefined"
                                     :label="formField.config.label"
                                     :options="formField.config.options"
                                     :value-property="formField.config.valueProperty"
                                     :label-property="formField.config.labelProperty"
-                                    v-model:value="fileTypesSelected"
                                     @item-remove="onRemoveDocumentType"
                                     @item-add="onAddDocumentType"
                                 />

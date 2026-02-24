@@ -698,7 +698,6 @@ export default {
             this.toBeDeletedVariantIds = [];
         },
 
-        /* eslint-disable no-unused-vars */
         onConfirmDelete() {
             this.modalLoading = true;
             this.showDeleteModal = false;

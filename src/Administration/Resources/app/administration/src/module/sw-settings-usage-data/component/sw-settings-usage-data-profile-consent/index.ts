@@ -5,10 +5,8 @@ import useConsentStore from 'src/core/consent/consent.store';
 import template from './sw-settings-usage-data-profile-consent.html.twig';
 import './sw-settings-usage-data-profile-consent.scss';
 
-/* eslint-disable max-len */
 import SwSettingsUsageDataUserDataConsentCard from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-user-data-consent-card';
 import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
-/* eslint-enable max-len */
 
 /**
  * @private

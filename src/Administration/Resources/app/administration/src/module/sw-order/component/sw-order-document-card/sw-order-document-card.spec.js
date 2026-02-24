@@ -116,7 +116,6 @@ async function createWrapper(routeName = 'sw.order.detail.details') {
                     sync: true,
                 }),
                 'sw-order-document-settings-delivery-note-modal': true,
-                // eslint-disable-next-line max-len
                 'sw-order-document-settings-invoice-modal': await wrapTestComponent(
                     'sw-order-document-settings-invoice-modal',
                     { sync: true },

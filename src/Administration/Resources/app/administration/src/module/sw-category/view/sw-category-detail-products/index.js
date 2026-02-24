@@ -132,7 +132,6 @@ export default {
             );
 
             try {
-                // eslint-disable-next-line no-new
                 new URL(this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl'));
             } catch {
                 return helpText;

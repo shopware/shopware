@@ -13,6 +13,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * with values from RenderingSpecification before hydration starts.
  *
  * @internal
+ *
+ * @final
  */
 #[AsEventListener(event: PreContentHydrationEvent::class, priority: 3000)]
 #[Package('discovery')]

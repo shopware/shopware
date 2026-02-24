@@ -19,6 +19,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * this behavior during rendering.
  *
  * @internal
+ *
+ * @final
  */
 #[AsEventListener(event: PreContentHydrationEvent::class, priority: 4000)]
 #[Package('discovery')]

@@ -14,6 +14,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * Post-hydration extraction (PartialRenderingExtractionSubscriber) removes these ancestors.
  *
  * @internal
+ *
+ * @final
  */
 #[AsEventListener(event: PreContentHydrationEvent::class, priority: 1000)]
 #[Package('discovery')]

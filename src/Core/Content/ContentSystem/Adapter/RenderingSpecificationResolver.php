@@ -10,9 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
-final class RenderingSpecificationResolver
+class RenderingSpecificationResolver
 {
     /**
      * @param iterable<AbstractSpecificationSource> $sources

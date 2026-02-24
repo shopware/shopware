@@ -13,6 +13,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * Restores original layout structure after hydration completes.
  *
  * @internal
+ *
+ * @final
  */
 #[AsEventListener(event: PostHydrationEvent::class, priority: 5000)]
 #[Package('discovery')]

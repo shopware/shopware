@@ -17,6 +17,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[AsEventListener(event: EntityWrittenContainerEvent::class)]
 #[Package('discovery')]

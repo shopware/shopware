@@ -13,6 +13,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * Virtual root removed after hydration by VirtualRootCleanupSubscriber.
  *
  * @internal
+ *
+ * @final
  */
 #[AsEventListener(event: PreContentHydrationEvent::class, priority: 5000)]
 #[Package('discovery')]

@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  * entities, null is returned, indicating the page should not be cached.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class EntityCacheTagResolver

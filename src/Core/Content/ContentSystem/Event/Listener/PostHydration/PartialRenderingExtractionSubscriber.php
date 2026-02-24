@@ -14,6 +14,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * preparation (PartialRenderingPreparationSubscriber).
  *
  * @internal
+ *
+ * @final
  */
 #[AsEventListener(event: PostHydrationEvent::class, priority: 1000)]
 #[Package('discovery')]

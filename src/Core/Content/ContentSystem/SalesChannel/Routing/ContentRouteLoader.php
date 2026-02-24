@@ -11,6 +11,8 @@ use Symfony\Component\Routing\RouteCollection;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ContentRouteLoader extends Loader

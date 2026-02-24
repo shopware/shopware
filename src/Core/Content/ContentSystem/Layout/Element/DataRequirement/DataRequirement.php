@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-readonly class DataRequirement
+final readonly class DataRequirement
 {
     public function __construct(
         public string $key,

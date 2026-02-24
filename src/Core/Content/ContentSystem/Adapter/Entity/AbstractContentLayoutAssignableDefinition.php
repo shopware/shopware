@@ -22,8 +22,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * Shared field definitions and metadata derivation for content layout assignments.
- *
- * @internal
  */
 #[Package('discovery')]
 abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinition
@@ -49,6 +47,16 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
     public function getContentLayoutEntityIdField(): string
     {
         return $this->metadataDeriver->deriveEntityIdField($this->getContentLayoutEntityType());
+    }
+
+    /**
+     * Returns the database column name for the entity ID field.
+     *
+     * @return non-empty-string
+     */
+    public function getContentLayoutEntityIdColumn(): string
+    {
+        return $this->metadataDeriver->deriveEntityIdColumn($this->getContentLayoutEntityType());
     }
 
     /**

@@ -101,6 +101,11 @@
             <tag name="shopware.route_scope"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\StorefrontContentRouteLoader">
+            <argument type="tagged_iterator" tag="content_system.assignable_entity"/>
+            <tag name="routing.loader"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <argument type="service" id="request_stack"/>
             <argument>%shopware.staging.storefront.show_banner%</argument>

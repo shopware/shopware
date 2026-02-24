@@ -12,16 +12,19 @@
         <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
             <tag name="shopware.entity.definition"/>
+            <tag name="content_system.assignable_entity"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
             <tag name="shopware.entity.definition"/>
+            <tag name="content_system.assignable_entity"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
             <tag name="shopware.entity.definition"/>
+            <tag name="content_system.assignable_entity"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutDefinition">
@@ -401,12 +404,5 @@
             <tag name="routing.loader"/>
         </service>
 
-        <!-- Storefront Controller -->
-        <service id="Shopware\Storefront\Controller\ContentController" public="true">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
     </services>
 </container>

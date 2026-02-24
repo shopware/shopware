@@ -35,6 +35,16 @@ class ContentLayoutMetadataDeriver
     }
 
     /**
+     * Derives the database column name from entity type.
+     *
+     * @return non-empty-string
+     */
+    public function deriveEntityIdColumn(string $entityType): string
+    {
+        return u($entityType)->snake()->toString() . '_id';
+    }
+
+    /**
      * Creates route placeholder pattern for entity ID field.
      */
     public function deriveRoutePattern(string $entityIdField): string

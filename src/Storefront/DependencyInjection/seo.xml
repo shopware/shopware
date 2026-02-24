@@ -28,5 +28,43 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlUpdater"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!-- Content System SEO Descriptors -->
+        <service id="content_system_seo.descriptor.product" class="Shopware\Storefront\Framework\Seo\ContentSystem\ContentSeoRouteDescriptor">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition"/>
+            <argument>frontend.detail.page</argument>
+            <tag name="content_system.seo_descriptor"/>
+        </service>
+
+        <service id="content_system_seo.descriptor.category" class="Shopware\Storefront\Framework\Seo\ContentSystem\ContentSeoRouteDescriptor">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition"/>
+            <argument>frontend.navigation.page</argument>
+            <tag name="content_system.seo_descriptor"/>
+        </service>
+
+        <service id="content_system_seo.descriptor.landing_page" class="Shopware\Storefront\Framework\Seo\ContentSystem\ContentSeoRouteDescriptor">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition"/>
+            <argument>frontend.landing.page</argument>
+            <tag name="content_system.seo_descriptor"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\ContentSystem\ContentSeoRouteRegistry">
+            <argument type="tagged_iterator" tag="content_system.seo_descriptor"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\ContentSystem\ContentAwareSeoUrlGenerator"
+                 decorates="Shopware\Core\Content\Seo\SeoUrlGenerator">
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\ContentSystem\ContentAwareSeoUrlGenerator.inner"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\ContentSystem\ContentSeoRouteRegistry"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\ContentSystem\ContentLayoutAssignmentSeoUrlSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlUpdater"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\ContentSystem\ContentSeoRouteRegistry"/>
+            <tag name="kernel.event_listener"/>
+        </service>
     </services>
 </container>

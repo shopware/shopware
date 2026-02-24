@@ -47,14 +47,28 @@ module.exports = {
 
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
-    testRunner: 'jest-jasmine2',
+    // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
     testEnvironment: 'jsdom',
+
+    // Worker configuration - prevent OOM kills while maximizing parallelism
+    // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
+    workerIdleMemoryLimit: '1GB',
     // Full CPU parallelism can cause worker OOM kills in constrained CI/Docker runners.
-    maxWorkers: process.env.JEST_MAX_WORKERS || (isDocker ? '35%' : (isCi ? '50%' : '50%')),
+    maxWorkers: process.env.JEST_MAX_WORKERS || (isDocker ? '100%' : '50%'),
     testTimeout: process.env.JEST_TEST_TIMEOUT ? Number(process.env.JEST_TEST_TIMEOUT) : (isCi || isDocker ? 10000 : 5000),
     collectCoverage: isCi,
     clearMocks: true,
-    moduleFileExtensions: ['js', 'ts'],
+    restoreMocks: true,
+    moduleFileExtensions: ['js', 'ts', 'vue', 'json'],
+
+    // Performance optimizations
+    // Skip node_modules transformation where possible (already handled by transformIgnorePatterns)
+    // Cache transformed files aggressively
+    cache: true,
+    // Use native ESM where possible for faster execution
+    extensionsToTreatAsEsm: ['.ts'],
+    // Shard support for parallel CI execution (use with --shard flag)
+    // Example: npm run unit -- --shard=1/4
 
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
 

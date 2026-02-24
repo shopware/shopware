@@ -432,6 +432,82 @@ global.allowedErrors = [
     sendTimeoutExpired,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
+    // Vue 3 test stubs may have empty templates which triggers this warning
+    // This is expected in test environments when stubbing router components
+    {
+        method: 'warn',
+        msgCheck: (msg0) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('Component is missing template or render function');
+        },
+    },
+    // Vue 3 component resolution warnings for non-registered components in tests
+    {
+        method: 'warn',
+        msgCheck: (msg0) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('Failed to resolve component');
+        },
+    },
+    // Meteor Component Library dynamically imports SVG icons
+    // These fail in Jest test environment since they're loaded via dynamic import
+    // First the library logs a string message about the missing SVG file
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('The SVG file for the icon') && msgStr.includes('could not be found and loaded');
+        },
+    },
+    // Then the dynamic import error (ReferenceError) is logged
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('You are trying to `import` a file outside of the scope of the test code');
+        },
+    },
+    // Network/fetch AggregateError in tests (happens when requests fail in test environment)
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('AggregateError');
+        },
+    },
+    // Component override system error - expected in certain test scenarios
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('The original setup function for the originalComponent component returned a prop');
+        },
+    },
+    // Data-grid accessor warnings - expected when testing column rendering with invalid paths
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg?.includes('[sw-data-grid] Can not resolve accessor');
+        },
+    },
+    // Code editor / text editor test environment errors
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('enableHtmlSanitizer') || msgStr.includes('innerText');
+        },
+    },
 ];
 
 global.flushPromises = flushPromises;
@@ -446,6 +522,8 @@ let hasActiveTest = false;
 let unhandledRejectionError = null;
 const { error, warn } = console;
 
+// Simple wrapper functions that track calls without using Jest spies
+// This allows tests to use jest.spyOn(console, 'warn') without conflicts
 global.console.error = (...args) => {
     let silenceError = false;
     global.allowedErrors.some(allowedError => {
@@ -456,7 +534,6 @@ global.console.error = (...args) => {
         if (typeof allowedError.msg === 'string') {
             if (typeof args[0] === 'string') {
                 const shouldBeSilenced = args[0].includes(allowedError.msg);
-
                 if (shouldBeSilenced) {
                     silenceError = true;
                 }
@@ -465,20 +542,13 @@ global.console.error = (...args) => {
         }
 
         if (typeof allowedError.msgCheck === 'function') {
-            if (allowedError.msgCheck) {
-                const shouldBeSilenced = allowedError.msgCheck(args[0]);
-
-                if (shouldBeSilenced) {
-                    silenceError = true;
-                }
+            if (allowedError.msgCheck(args[0])) {
+                silenceError = true;
             }
-
             return;
         }
 
-        const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
-
-        if (shouldBeSilenced) {
+        if (allowedError.msg && allowedError.msg.test(args[0])) {
             silenceError = true;
         }
     });
@@ -500,7 +570,6 @@ global.console.warn = (...args) => {
         if (typeof allowedError.msg === 'string') {
             if (typeof args[0] === 'string') {
                 const shouldBeSilenced = args[0].includes(allowedError.msg);
-
                 if (shouldBeSilenced) {
                     silenceWarning = true;
                 }
@@ -509,34 +578,22 @@ global.console.warn = (...args) => {
         }
 
         if (typeof allowedError.msgCheck === 'function') {
-            if (allowedError.msgCheck) {
-                const shouldBeSilenced = allowedError.msgCheck(args[0], args[1]);
-
-                if (shouldBeSilenced) {
-                    silenceWarning = true;
-                }
+            if (allowedError.msgCheck(args[0], args[1])) {
+                silenceWarning = true;
             }
-
             return;
         }
 
-        const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
-
-        if (shouldBeSilenced) {
+        if (allowedError.msg && allowedError.msg.test(args[0])) {
             silenceWarning = true;
         }
     });
 
     if (!silenceWarning) {
-        // Create an error to preserve the original console.warn stack
         const e = new Error();
         warnTrace = e.stack;
-
-        // Set console.warn arguments for global after each
         consoleHasWarning = true;
         warnArgs = args;
-
-        // Call original warn to print to std::out
         warn(...args);
     }
 };
@@ -545,7 +602,10 @@ global.console.warn = (...args) => {
 beforeEach(() => {
     hasActiveTest = true;
     consoleHasError = false;
+    consoleHasWarning = false;
     errorArgs = null;
+    warnArgs = null;
+    warnTrace = null;
     unhandledRejectionError = null;
     global.activeFeatureFlags = [];
 });

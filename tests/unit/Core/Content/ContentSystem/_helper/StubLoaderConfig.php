@@ -3,15 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\_helper;
 
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
  */
-final class StubLoaderConfig extends AbstractContentDataLoaderConfig
+final readonly class StubLoaderConfig extends AbstractContentDataLoaderConfig
 {
-    public function getDecorated(): AbstractContentDataLoaderConfig
-    {
-        throw new DecorationPatternException(self::class);
-    }
 }

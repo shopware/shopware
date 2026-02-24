@@ -20,7 +20,6 @@ async function createWrapper() {
                     template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-text-field': {
-                    // eslint-disable-next-line max-len
                     template:
                         '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
                     props: [
@@ -32,7 +31,6 @@ async function createWrapper() {
                     ],
                 },
                 'mt-textarea': {
-                    // eslint-disable-next-line max-len
                     template:
                         '<textarea class="sw-text-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
                     props: [

@@ -46,7 +46,6 @@ class ApplicationBootstrapper {
      * Provides the necessary class properties for the class to work probably
      */
     constructor(container: Bottle) {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         const noop = (): void => {};
         this.$container = container;
 
@@ -429,12 +428,10 @@ class ApplicationBootstrapper {
      */
     createApplicationRoot(): Promise<ApplicationBootstrapper> {
         const initContainer = this.getContainer('init');
-        // eslint-disable-next-line max-len
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const router = initContainer.router.getRouterInstance();
 
         // We're in a test environment, we're not needing an application root
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (Shopware.Context.app.environment === 'testing') {
             return Promise.resolve(this);
         }
@@ -451,7 +448,6 @@ class ApplicationBootstrapper {
             this.getContainer('service'),
         );
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
 
         const loginService = this.getContainer('service').loginService;
@@ -490,7 +486,6 @@ class ApplicationBootstrapper {
     createApplicationRootError(error: unknown): void {
         console.error(error);
         const container = this.getContainer('init');
-        // eslint-disable-next-line max-len
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const router = container.router.getRouterInstance();
 
@@ -517,7 +512,6 @@ class ApplicationBootstrapper {
     /**
      * Initialize the initializers for Vite.
      */
-    // eslint-disable-next-line max-len
     private initializeInitializers(
         container: InitContainer | InitPreContainer | InitPostContainer,
         suffix: '' | '-pre' | '-post' = '',
@@ -582,7 +576,6 @@ class ApplicationBootstrapper {
         return Promise.all(this.getAsyncInitializers(loginInitializer));
     }
 
-    // eslint-disable-next-line max-len
     getAsyncInitializers(
         initializer: InitContainer | InitPostContainer | InitPreContainer | string[],
         suffix: '' | '-pre' | '-post' = '',
@@ -605,7 +598,6 @@ class ApplicationBootstrapper {
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (service?.constructor?.name === 'Promise') {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 asyncInitializers.push(service);
             }
         });
@@ -630,7 +622,6 @@ class ApplicationBootstrapper {
                 delete plugins.metadata;
             }
         } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             plugins = Shopware.Context.app.config.bundles as bundlesPluginResponse;
         }
 
@@ -661,7 +652,6 @@ class ApplicationBootstrapper {
             );
 
         // inject iFrames of plugins
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const bundles = Shopware.Context.app.config.bundles as bundlesPluginResponse;
         Object.entries(bundles).forEach(
             ([

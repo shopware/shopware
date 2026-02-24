@@ -50,7 +50,8 @@ export default Shopware.Component.wrapComponentConfig({
     created() {
         this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
             if (locationId === this.locationId) {
-                this.locationHeight = Number(height) ?? null;
+                const parsed = Number(height);
+                this.locationHeight = Number.isNaN(parsed) ? null : parsed;
             }
         });
 
@@ -170,7 +171,6 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
             this.extensionSdkService
                 .signIframeSrc(this.extension.name, this.iFrameSrc)
                 .then((response) => {
@@ -208,7 +208,6 @@ export default Shopware.Component.wrapComponentConfig({
                     }
 
                     this.signedIframeSrc = urlObject.toString();
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                 })
                 .catch(() => {});
         },

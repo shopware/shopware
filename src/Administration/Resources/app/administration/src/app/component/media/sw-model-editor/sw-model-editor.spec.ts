@@ -47,7 +47,7 @@ const mockMediaService = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function createWrapper(componentConfig: any = {}) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return mount(await wrapTestComponent('sw-model-editor', { sync: true }), {
         props: {
             source: createMediaEntity(),
@@ -535,7 +535,6 @@ describe('src/app/component/media/sw-model-editor', () => {
             const buttons = wrapper.findAll('.sw-model-editor-canvas-ui__button');
             const scaleButton = buttons[2];
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(scaleButton.attributes('disabled')).toBeDefined();
         });
 
@@ -546,7 +545,6 @@ describe('src/app/component/media/sw-model-editor', () => {
             const buttons = wrapper.findAll('.sw-model-editor-canvas-ui__button');
             const translateButton = buttons[0];
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(translateButton.attributes('disabled')).toBeUndefined();
         });
 
@@ -557,7 +555,6 @@ describe('src/app/component/media/sw-model-editor', () => {
             const buttons = wrapper.findAll('.sw-model-editor-canvas-ui__button');
             const rotateButton = buttons[1];
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(rotateButton.attributes('disabled')).toBeUndefined();
         });
     });

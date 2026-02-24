@@ -110,9 +110,7 @@ export default async function (): Promise<void> {
 
             const eventProperties: Record<string, TrackableType> = {};
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
             const capitalizedTagName = string.capitalizeString(target.tagName);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
             const capitalizedEventName = string.capitalizeString(originalEvent.type);
 
             let eventName = `${capitalizedTagName} ${capitalizedEventName}`;
@@ -126,9 +124,7 @@ export default async function (): Promise<void> {
 
             target.getAttributeNames().forEach((attributeName) => {
                 if (attributeName.startsWith('data-analytics-')) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     const propertyName = string.snakeCase(attributeName.replace('data-analytics-', 'sw_element_'));
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     eventProperties[propertyName] = target.getAttribute(attributeName);
                 }
             });

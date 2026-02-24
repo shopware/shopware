@@ -52,7 +52,6 @@ function afterSort(elements: SortElements[], property = 'afterId'): SortElements
 
     while (elements.length > 0) {
         let loop = true;
-        /* eslint-disable no-loop-func */
         elements.forEach((leaf, key) => {
             if (leaf.data[property] !== lastId) {
                 return;
@@ -65,7 +64,6 @@ function afterSort(elements: SortElements[], property = 'afterId'): SortElements
             elements.splice(key, 1);
             loop = false;
         });
-        /* eslint-enable no-loop-func */
 
         // chain is broken, continue with next element as parent
         if (loop) {

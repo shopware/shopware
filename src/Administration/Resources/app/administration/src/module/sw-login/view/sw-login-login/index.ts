@@ -204,7 +204,6 @@ export default Component.wrapComponentConfig({
             }
 
             if (error.code?.length) {
-                // eslint-disable-next-line max-len
                 const { message, title } = getErrorCode(parseInt(error.code as string, 10)) as {
                     message: string;
                     title: string;

@@ -59,7 +59,6 @@ describe('module/sw-cms/elements/location-renderer/component', () => {
             scope: expect.anything(),
             deprecated: true,
             deprecationMessage:
-                // eslint-disable-next-line max-len
                 'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
         });
 

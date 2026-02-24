@@ -68,7 +68,6 @@ export default {
 
         sortedAddresses() {
             if (this.addressSortProperty) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 return this.activeCustomer.addresses.sort((a, b) => {
                     const aValue = a[this.addressSortProperty];
                     const bValue = b[this.addressSortProperty];

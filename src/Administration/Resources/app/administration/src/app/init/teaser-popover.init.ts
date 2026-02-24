@@ -16,12 +16,10 @@ export default function initializeTeaserPopovers(): void {
         '__upsellingTeaserPopover',
         (configuration: TeaserSalesChannelConfig | TeaserPopoverConfig) => {
             if (configuration.positionId === 'sales-channel') {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 store.addSalesChannel(configuration as TeaserSalesChannelConfig);
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             store.addPopoverComponent(configuration as TeaserPopoverConfig);
         },
     );

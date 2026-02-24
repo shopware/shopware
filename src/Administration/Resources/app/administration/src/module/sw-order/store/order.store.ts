@@ -167,7 +167,6 @@ const swOrderStore = Shopware.Store.register({
             return (
                 Service('cartStoreService')
                     .createCart(salesChannelId)
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     .then((response: AxiosResponse): string => {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                         const token = response.data.token as string;

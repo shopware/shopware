@@ -1,5 +1,4 @@
 import MtTextEditorOriginal from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditor';
-// eslint-disable-next-line max-len
 import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
 import template from './mt-text-editor.html.twig';
 import './mt-text-editor.scss';

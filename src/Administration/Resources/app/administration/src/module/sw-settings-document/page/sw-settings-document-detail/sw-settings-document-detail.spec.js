@@ -193,7 +193,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
     });
 
-    // eslint-disable-next-line max-len
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithSalesChannels' },
@@ -358,7 +357,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    // eslint-disable-next-line max-len
     it('should not exist "display divergent delivery address" in general form field and company form field', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
 

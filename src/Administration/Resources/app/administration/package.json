@@ -136,6 +136,7 @@
     "@shopware-ag/eslint-config-base": "2.0.0",
     "@shopware-ag/jest-preset-sw6-admin": "6.0.4",
     "@testing-library/jest-dom": "5.17.0",
+    "@types/cli-progress": "3.11.6",
     "@types/convert-units": "2.3.12",
     "@types/debug": "4.1.12",
     "@types/eslint": "9.6.1",

@@ -31,11 +31,11 @@ exports.getCacheKey = getCacheKey;
 
 function process(src) {
     // Remove HTML comments (including unclosed ones at end of string)
-    src = src.replaceAll(/<!--[\s\S]*?(?:-->|$)/gm, '');
+    src = src.replaceAll(/<!--[\s\S]*?(?:-->|$)/g, '');
     // Remove any remaining <!-- sequences (safety measure)
     src = src.replaceAll('<!--', '');
     // Remove Twig comments (including unclosed ones)
-    src = src.replaceAll(/\{#[\s\S]*?(?:#\}|$)/gm, '');
+    src = src.replaceAll(/\{#[\s\S]*?(?:#\}|$)/g, '');
     // Remove any remaining {# sequences (safety measure)
     src = src.replaceAll('{#', '');
 

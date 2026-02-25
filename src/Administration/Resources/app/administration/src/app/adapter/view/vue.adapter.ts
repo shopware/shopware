@@ -55,6 +55,7 @@ import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromo
 import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
 import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
 import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup';
+import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
 import {
     MtDropdownMenuRoot,
     MtDropdownMenuTrigger,
@@ -484,6 +485,7 @@ export default class VueAdapter extends ViewAdapter {
             MtDropdownMenuTrigger,
             MtDropdownMenuPortal,
             MtDropdownMenuSub,
+            MtTooltip,
         } as const;
 
         const lazyMeteorComponents = {

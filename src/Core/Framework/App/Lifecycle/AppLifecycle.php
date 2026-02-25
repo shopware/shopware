@@ -21,11 +21,9 @@ use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
@@ -89,7 +87,6 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
-        private readonly FlowEventPersister $flowEventPersister,
         private readonly string $env,
         private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
@@ -265,12 +262,6 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
         });
 
-        $flowEvents = $this->getFlowEvents($app);
-
-        if ($flowEvents) {
-            $this->flowEventPersister->updateEvents($flowEvents, $id, $context, $defaultLocale);
-        }
-
         // we need an app secret to securely communicate with apps
         // therefore we only install webhooks, modules, tax providers and payment methods if we have a secret
         if ($app->getAppSecret()) {
@@ -296,17 +287,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->updateMetadata($updatePayload, $context);
 
         return $app;
-    }
-
-    private function getFlowEvents(AppEntity $app): ?Event
-    {
-        $fs = $this->sourceResolver->filesystemForApp($app);
-
-        if (!$fs->has('Resources/flow.xml')) {
-            return null;
-        }
-
-        return Event::createFromXmlFile($fs->path('Resources/flow.xml'));
     }
 
     private function getFlowActions(AppEntity $app): ?Action

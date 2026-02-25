@@ -283,7 +283,6 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
             <argument>%kernel.shopware_version%</argument>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
             <argument>%kernel.environment%</argument>
             <argument type="service" id="custom_entity.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
@@ -634,6 +633,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister">
             <argument type="service" id="app_flow_event.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.app_lifecycle.persister" priority="80"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Source\NoDatabaseSourceResolver">

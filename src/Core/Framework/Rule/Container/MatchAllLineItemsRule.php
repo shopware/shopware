@@ -43,11 +43,11 @@ class MatchAllLineItemsRule extends Container
         }
 
         if (\is_array($lineItems) && \count($lineItems) === 0) {
-            return false;
+            return $this->minimumShouldMatch === null;
         }
 
         if (!\is_array($lineItems) && $lineItems->count() === 0) {
-            return false;
+            return $this->minimumShouldMatch === null;
         }
 
         $context = $scope->getSalesChannelContext();

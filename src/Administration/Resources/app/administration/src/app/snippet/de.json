@@ -1731,7 +1731,7 @@
         "rotate-tooltip": "Objekt drehen",
         "scale-tooltip": "Objekt skalieren"
       },
-      "saveChanges": "Änderungen speichern",
+      "save": "Speichern",
       "cancel": "Abbrechen",
       "properties": {
         "transformation": {

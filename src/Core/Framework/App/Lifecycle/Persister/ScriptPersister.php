@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,7 +17,7 @@ use Shopware\Core\Framework\Script\ScriptCollection;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ScriptPersister
+class ScriptPersister implements PersisterInterface
 {
     /**
      * @param EntityRepository<ScriptCollection> $scriptRepository
@@ -27,6 +28,11 @@ class ScriptPersister
         private readonly EntityRepository $scriptRepository,
         private readonly EntityRepository $appRepository
     ) {
+    }
+
+    public function persist(AppLifecycleContext $context): void
+    {
+        $this->updateScripts($context->app->getId(), $context->context);
     }
 
     public function updateScripts(string $appId, Context $context): void

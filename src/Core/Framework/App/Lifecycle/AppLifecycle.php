@@ -20,10 +20,8 @@ use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -79,7 +77,6 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly ScriptExecutor $scriptExecutor,
         private readonly string $projectDir,
         private readonly Connection $connection,
-        private readonly FlowActionPersister $flowBuilderActionPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
@@ -247,12 +244,6 @@ class AppLifecycle extends AbstractAppLifecycle
             throw $e;
         }
 
-        $flowActions = $this->getFlowActions($app);
-
-        if ($flowActions) {
-            $this->flowBuilderActionPersister->updateActions($app, $flowActions, $context, $defaultLocale);
-        }
-
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
         $this->runPersisters(new AppLifecycleContext(
@@ -272,17 +263,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->updateMetadata($updatePayload, $context);
 
         return $app;
-    }
-
-    private function getFlowActions(AppEntity $app): ?Action
-    {
-        $fs = $this->sourceResolver->filesystemForApp($app);
-
-        if (!$fs->has('Resources/flow.xml')) {
-            return null;
-        }
-
-        return Action::createFromXmlFile($fs->path('Resources/flow.xml'));
     }
 
     /**

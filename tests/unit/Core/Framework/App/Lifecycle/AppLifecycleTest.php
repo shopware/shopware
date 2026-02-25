@@ -17,7 +17,6 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -369,7 +368,6 @@ class AppLifecycleTest extends TestCase
             $this->createMock(ScriptExecutor::class),
             __DIR__,
             $this->createMock(Connection::class),
-            $this->createMock(FlowActionPersister::class),
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(CustomEntityLifecycleService::class),
             '6.5.0.0',

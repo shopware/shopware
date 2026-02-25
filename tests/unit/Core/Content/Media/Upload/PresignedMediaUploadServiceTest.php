@@ -116,6 +116,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         static::assertSame('https://s3.example.com/presigned-url', $result['url']);
         static::assertSame('media/ab/cd/test-file.jpg', $result['path']);
         static::assertSame($expiresAt->format(\DateTimeInterface::ATOM), $result['expiresAt']);
+        static::assertFalse($result['isDuplicate']);
     }
 
     public function testPrepareWithMediaFolderId(): void

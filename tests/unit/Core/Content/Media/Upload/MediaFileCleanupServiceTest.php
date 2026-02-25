@@ -131,6 +131,10 @@ class MediaFileCleanupServiceTest extends TestCase
         $this->filesystemPublic->method('delete')
             ->willThrowException(UnableToDeleteFile::atLocation('media/ab/cd/gone.jpg'));
 
+        $this->thumbnailService->expects($this->once())
+            ->method('deleteThumbnails')
+            ->with($media);
+
         $service->removeOldMediaData($media, Context::createDefaultContext());
     }
 

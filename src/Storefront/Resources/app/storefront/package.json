@@ -10,6 +10,7 @@
     "sw"
   ],
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "development": "NODE_ENV=development webpack --config webpack.config.js",
     "hot": "NODE_ENV=development MODE=hot webpack-dev-server --config webpack.config.js",

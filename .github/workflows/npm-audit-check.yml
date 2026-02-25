@@ -10,11 +10,15 @@ on:
     paths:
       - "**/package.json"
       - "**/package-lock.json"
+      - "**/scripts/runNpmAudit.ts"
+      - ".github/bin/js/run-npm-audit.ts"
   pull_request:
     types: [opened, synchronize]
     paths:
       - "**/package.json"
       - "**/package-lock.json"
+      - "**/scripts/runNpmAudit.ts"
+      - ".github/bin/js/run-npm-audit.ts"
 
 jobs:
   check-package-completeness:
@@ -30,7 +34,7 @@ jobs:
           node-version: 24
 
       - name: Validate package.json completeness
-        run: npx esno ./.github/bin/js/package-discovery.ts validate
+        run: node ./.github/bin/js/package-discovery.ts validate
 
   check-pinned-dependencies:
     name: Check pinned dependencies
@@ -45,7 +49,7 @@ jobs:
           node-version: 24
 
       - name: Check for unpinned dependencies
-        run: npx esno ./.github/bin/js/check-pinned-dependencies.ts
+        run: node ./.github/bin/js/check-pinned-dependencies.ts
 
   generate-audit-matrix:
     name: Generate audit matrix
@@ -64,7 +68,7 @@ jobs:
       - name: Generate matrix
         id: generate-matrix
         run: |
-          matrix=$(npx esno ./.github/bin/js/package-discovery.ts matrix)
+          matrix=$(node ./.github/bin/js/package-discovery.ts matrix)
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   audit-packages:
@@ -94,5 +98,5 @@ jobs:
 
       - name: Run audit (custom script)
         if: ${{ matrix.hasCustomAuditScript }}
-        run: npx esno ./scripts/runNpmAudit.ts
+        run: node ./scripts/runNpmAudit.ts
         working-directory: ${{ matrix.workingDirectory }}

@@ -19,5 +19,17 @@ export default {
         setActiveSidebar(locationId: string) {
             Shopware.Store.get('sidebar').setActiveSidebar(locationId);
         },
+
+        toggleSidebar(locationId: string) {
+            const store = Shopware.Store.get('sidebar');
+            const sidebar = store.sidebars.find((item) => item.locationId === locationId);
+
+            if (sidebar?.active && store.closingSidebar !== locationId) {
+                store.requestCloseSidebar(locationId);
+                return;
+            }
+
+            store.setActiveSidebar(locationId);
+        },
     },
 };

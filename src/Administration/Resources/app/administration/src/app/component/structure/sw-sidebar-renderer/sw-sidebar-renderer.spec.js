@@ -97,9 +97,20 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
         expect(wrapper.find('.sw-sidebar-renderer').exists()).toBe(true);
 
+        jest.useFakeTimers();
+
         await wrapper.find('.sw-sidebar-renderer__button-close').trigger('click');
 
+        // Closing is animated: it enters the closing state first, deactivating only after.
+        expect(Shopware.Store.get('sidebar').closingSidebar).toBe('test-sidebar');
+        expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(true);
+
+        jest.advanceTimersByTime(400);
+
         expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(false);
+        expect(Shopware.Store.get('sidebar').closingSidebar).toBeNull();
+
+        jest.useRealTimers();
     });
 
     describe('resize functionality', () => {
@@ -140,7 +151,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$forceUpdate();
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('545px');
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
         });
 
@@ -162,8 +173,8 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('545px');
-            expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '545');
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
+            expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '512');
         });
 
         it('should not render handle when resizing is not allowed', async () => {
@@ -283,7 +294,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`545px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`512px`);
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
             expect(window.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function));
             expect(eventListener).toBeDefined();
@@ -293,7 +304,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${1400 - MAIN_CONTENT_MIN_SIZE}px`);
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`545px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`512px`);
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
 
             // Restore original method

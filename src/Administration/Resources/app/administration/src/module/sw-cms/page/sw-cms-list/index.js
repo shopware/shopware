@@ -197,9 +197,7 @@ export default {
     },
 
     methods: {
-        async createdComponent() {
-            Shopware.Store.get('adminMenu').collapseSidebar();
-
+        createdComponent() {
             if (this.acl.can('user_config:read')) {
                 await this.loadGridUserSettings().catch(() => {});
             }

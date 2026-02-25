@@ -24,7 +24,6 @@ use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
@@ -77,7 +76,6 @@ class AppLifecycle extends AbstractAppLifecycle
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly PermissionPersister $permissionPersister,
-        private readonly ActionButtonPersister $actionButtonPersister,
         private readonly WebhookPersister $webhookPersister,
         private readonly PaymentMethodPersister $paymentMethodPersister,
         private readonly TaxProviderPersister $taxProviderPersister,
@@ -292,7 +290,6 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $this->shippingMethodPersister->updateShippingMethods($manifest, $id, $defaultLocale, $context);
         $this->ruleConditionPersister->updateConditions($manifest, $id, $defaultLocale, $context);
-        $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
         $this->runPersisters(new AppLifecycleContext(

@@ -81,6 +81,8 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister">
             <argument type="service" id="app_action_button.repository"/>
+
+            <tag name="shopware.app_lifecycle.persister" priority="400"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister">
@@ -262,7 +264,6 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister"/>

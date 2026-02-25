@@ -4,7 +4,6 @@
   "description": "Shopware administration",
   "main": "./src/core/shopware.js",
   "types": "./types/index.d.ts",
-  "type": "module",
   "scripts": {
     "build": "export VITE_MODE=production && ts-node -T build.ts",
     "code-mods": "node code-mods.js",

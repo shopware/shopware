@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 
 interface PackageInfo {

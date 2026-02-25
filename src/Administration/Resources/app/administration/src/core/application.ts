@@ -375,7 +375,7 @@ class ApplicationBootstrapper {
      * Boot the login.
      */
     bootLogin(): Promise<void | ApplicationBootstrapper> {
-        // set force reload after successful login
+        // trigger a full page reload after successful login to rebuild the administration
         sessionStorage.setItem('sw-login-should-reload', 'true');
 
         /**

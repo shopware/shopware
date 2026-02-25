@@ -132,7 +132,7 @@ export default Component.wrapComponentConfig({
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
-                    reloadPage(true);
+                    reloadPage();
                 }
             });
         },

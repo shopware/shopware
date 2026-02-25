@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
-use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -273,10 +272,13 @@ class ThemeFileResolver
                         $errorReference = $componentBundleNamespace !== null
                             ? '@Components:' . $componentBundleNamespace
                             : '@Components';
-                        throw ThemeCompileException::bundleRelativeFileNotFound(
+                        throw ThemeException::themeCompileException(
                             $themeConfig->getTechnicalName(),
-                            $errorReference,
-                            $bundleRelative['path']
+                            \sprintf(
+                                'Unable to load file "@%s/%s". File does not exist.',
+                                $errorReference,
+                                $bundleRelative['path']
+                            )
                         );
                     }
 
@@ -301,10 +303,13 @@ class ThemeFileResolver
                         $resolvedFiles->add($resolvedFile);
                     }
                 } else {
-                    throw ThemeCompileException::bundleRelativeFileNotFound(
+                    throw ThemeException::themeCompileException(
                         $themeConfig->getTechnicalName(),
-                        $bundleRelative['bundle'],
-                        $bundleRelative['path']
+                        \sprintf(
+                            'Unable to load file "@%s/%s". File does not exist.',
+                            $bundleRelative['bundle'],
+                            $bundleRelative['path']
+                        )
                     );
                 }
                 continue;
@@ -326,10 +331,13 @@ class ThemeFileResolver
                     continue;
                 }
 
-                throw ThemeCompileException::couldNotCompileTheme(
+                throw ThemeException::themeCompileException(
                     $themeConfig->getTechnicalName(),
-                    $filepath,
-                    'Did you forget to build the theme? Try running ./bin/build-storefront.sh'
+                    \sprintf(
+                        'Unable to load file "Resources/%s". %s',
+                        $filepath,
+                        'Did you forget to build the theme? Try running ./bin/build-storefront.sh'
+                    )
                 );
             }
 

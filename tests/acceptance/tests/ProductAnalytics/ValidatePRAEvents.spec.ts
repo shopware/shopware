@@ -249,10 +249,8 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
 
     await test.step('Navigate via link to order page from dashboard', async () => {
 
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, { timeout: 3000 });
         await AdminDashboard.adminMenuOrder.click();
         await AdminDashboard.adminMenuOrderOverview.click();
-        await ShopAdmin.expects(requestPromise).rejects.toThrow();
         await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
     });
 

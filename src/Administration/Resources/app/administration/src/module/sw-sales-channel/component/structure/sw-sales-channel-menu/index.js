@@ -29,6 +29,14 @@ export default {
     },
 
     computed: {
+        adminMenuStore() {
+            return Shopware.Store.get('adminMenu');
+        },
+
+        isSidebarExpanded() {
+            return this.adminMenuStore.isExpanded;
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },

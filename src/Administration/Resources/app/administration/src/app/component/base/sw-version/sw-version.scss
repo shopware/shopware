@@ -11,7 +11,7 @@ $sw-version-font-size-info: 12px;
         @include truncate;
 
         max-width: 200px;
-        color: $color-white;
+        color: var(--color-text-primary-default);
         font-size: $font-size-s;
         font-weight: $font-weight-bold;
         margin: 0;
@@ -36,7 +36,7 @@ $sw-version-font-size-info: 12px;
         @include truncate;
 
         max-width: 200px;
-        color: $color-gray-300;
+        color: var(--color-text-secondary-default);
         font-size: $sw-version-font-size-info;
     }
 }

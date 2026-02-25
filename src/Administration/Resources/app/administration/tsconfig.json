@@ -3,7 +3,6 @@
     "target": "ES2023",
     "lib": ["ES2020", "DOM", "ES2023"],
     "module": "commonjs",
-    "rootDir": "./",
     "baseUrl": "./",
     "paths": {
       "src": ["src"],
@@ -29,7 +28,6 @@
   "include": [
     "build.ts",
     "./src/**/*",
-    "./scripts/**/*",
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
     "./build/plugins.vite.ts",

@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     minKey = 'min',
     maxKey = 'max',
@@ -9,7 +13,7 @@
  %}
 
 {% set defaultAttributes = {
-    'class': 'sw-range-filter sw-filter',
+    class: 'sw-range-filter sw-filter',
     'data-component': 'Sw:Filter:Type:RangeFilter',
 } %}
 
@@ -26,7 +30,7 @@
         <label class="sw-range-filter__min-label" for="{{ minId }}">
             {{ minLabel }} ({{ unit }})
         </label>
-        <input 
+        <input
             class="sw-range-filter__min-input form-control"
             id="{{ minId }}"
             type="number"
@@ -45,7 +49,7 @@
         <label class="sw-range-filter__max-label" for="{{ maxId }}">
             {{ maxLabel }} ({{ unit }})
         </label>
-        <input 
+        <input
             class="sw-range-filter__max-input form-control"
             id="{{ maxId }}"
             type="number"

@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     name = 'option',
     displayName = '',
@@ -6,7 +10,7 @@
 %}
 
 {% set defaultAttributes = {
-    'class': 'sw-multi-select-filter sw-filter',
+    class: 'sw-multi-select-filter sw-filter',
     'data-component': 'Sw:Filter:Type:MultiSelectFilter',
 } %}
 
@@ -47,7 +51,7 @@
                 {% if displayType == 'color' or displayType == 'media' %}
                     <span class="sw-multi-select-filter__list-item-checkmark" aria-hidden="true">
                         <twig:Sw:Icon name="checkmark" size="xs" />
-                    </span>    
+                    </span>
                 {% endif %}
                 <label class="sw-multi-select-filter__list-item-label form-check-label" for="{{ optionId }}">{{ optionName }}</label>
             </li>

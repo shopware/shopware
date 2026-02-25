@@ -1,4 +1,8 @@
-{% props 
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
     id = 'offcanvas-' ~ random(),
     backdrop = 'true',
     bodyScroll = 'true',
@@ -21,7 +25,7 @@
     <div class="offcanvas-header">
         {% block header %}
             <h5 class="offcanvas-title" id="{{ id }}-title">{{ title }}</h5>
-            <button 
+            <button
                 type="button"
                 class="btn-close"
                 data-bs-dismiss="offcanvas"

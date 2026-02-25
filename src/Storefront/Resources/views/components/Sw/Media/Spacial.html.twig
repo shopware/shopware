@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     media,
     mediaHeight = 240,
@@ -12,7 +16,7 @@
         } %}
         <canvas
             data-spatial-gallery-slider-viewer="true"
-            data-spatial-gallery-slider-viewer-options='{{ spatialGalleryViewerOptions|json_encode }}'
+            data-spatial-gallery-slider-viewer-options="{{ spatialGalleryViewerOptions|json_encode }}"
         ></canvas>
     </div>
 </div>

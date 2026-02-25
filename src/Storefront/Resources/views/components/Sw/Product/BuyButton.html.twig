@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     product = null,
     extraFormData = {},
@@ -17,8 +21,8 @@
 } %}
 
 {% set formData = {
-    'redirectTo': 'frontend.detail.page',
-    'redirectParameters': { productId: product.id }|json_encode,
+    redirectTo: 'frontend.detail.page',
+    redirectParameters: { productId: product.id }|json_encode,
     ("lineItems[#{product.id}][id]"): product.id,
     ("lineItems[#{product.id}][referencedId]"): product.id,
     ("lineItems[#{product.id}][type]"): 'product',
@@ -33,7 +37,6 @@
 {% endif %}
 
 <form {{ attributes.defaults(attributeDefaults) }}>
-
     {% block form_data_inputs %}
         {% for name, value in formData %}
             <input

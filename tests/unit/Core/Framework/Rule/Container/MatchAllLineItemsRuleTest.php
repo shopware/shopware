@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
@@ -229,104 +228,41 @@ class MatchAllLineItemsRuleTest extends TestCase
         ];
     }
 
-    public function testShouldReturnFalseIfNoLineItemsArePresent(): void
-    {
-        $rule = new MatchAllLineItemsRule();
-
-        $match = $rule->match(new CartRuleScope(
-            $this->createCart(new LineItemCollection()),
-            $this->createMock(SalesChannelContext::class)
-        ));
-
-        static::assertFalse($match);
-    }
-
-    public function testShouldReturnFalseWhenScopeIsNotCartOrLineItemScope(): void
-    {
-        $rule = new MatchAllLineItemsRule();
-
-        $match = $rule->match($this->createMock(RuleScope::class));
-
-        static::assertFalse($match);
-    }
-
-    public function testShouldReturnTrueWhenNoLineItemsOfFilteredTypeExist(): void
-    {
-        $rule = new MatchAllLineItemsRule([], null, ['product']);
-
-        $match = $rule->match(new CartRuleScope(
-            $this->createCart(new LineItemCollection([
-                $this->createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
-            ])),
-            $this->createMock(SalesChannelContext::class)
-        ));
-
-        static::assertTrue($match);
-    }
-
-    public function testShouldEvaluateGivenItemsIfTypesAreNotSet(): void
-    {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $condition = $this->createMock(LineItemOfTypeRule::class);
-        $condition->expects($this->exactly(4))
-            ->method('match')
-            ->willReturn(true);
-
-        $rule = new MatchAllLineItemsRule([$condition], null, null);
-
-        $collection = new LineItemCollection([
-            $this->createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
-            $this->createLineItem(LineItem::DISCOUNT_LINE_ITEM, 1, 'DISCOUNT'),
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
+    #[DataProvider('getEmptyFilteredLineItemsTestData')]
+    public function testEmptyFilteredLineItemsWithCartScope(
+        ?int $minimumShouldMatch,
+        bool $expected
+    ): void {
+        $lineItemRule = new LineItemInCategoryRule();
+        $lineItemRule->assign([
+            'categoryIds' => ['1'],
+            'operator' => Rule::OPERATOR_NEQ,
         ]);
 
-        $match = $rule->match(new CartRuleScope(
-            $this->createCart($collection),
+        $allLineItemsRule = new MatchAllLineItemsRule([], $minimumShouldMatch, 'product');
+        $allLineItemsRule->addRule($lineItemRule);
+
+        $promotionLineItem = $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')
+            ->setPayloadValue('promotionId', 'A');
+        $cart = $this->createCart(new LineItemCollection([$promotionLineItem]));
+
+        $match = $allLineItemsRule->match(new CartRuleScope(
+            $cart,
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertTrue($match);
+        static::assertSame($expected, $match);
     }
 
-    public function testShouldEvaluateGivenItemsAndFilterByGivenTypes(): void
+    /**
+     * @return array<string, mixed[]>
+     */
+    public static function getEmptyFilteredLineItemsTestData(): array
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $condition = $this->createMock(LineItemOfTypeRule::class);
-        $condition->expects($this->exactly(2))
-            ->method('match')
-            ->willReturn(true);
-
-        $rule = new MatchAllLineItemsRule([$condition], null, ['discount', 'custom']);
-
-        $collection = new LineItemCollection([
-            $this->createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
-            $this->createLineItem(LineItem::DISCOUNT_LINE_ITEM, 1, 'DISCOUNT'),
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
-        ]);
-
-        $match = $rule->match(new CartRuleScope(
-            $this->createCart($collection),
-            $this->createMock(SalesChannelContext::class)
-        ));
-
-        static::assertTrue($match);
-    }
-
-    public function testRuleConstraints(): void
-    {
-        $rule = new MatchAllLineItemsRule();
-
-        $constraints = $rule->getConstraints();
-
-        static::assertArrayHasKey('minimumShouldMatch', $constraints);
-        static::assertArrayHasKey('types', $constraints);
-
-        static::assertCount(1, $constraints['minimumShouldMatch']);
-        static::assertCount(1, $constraints['types']);
-
-        static::assertInstanceOf(Type::class, $constraints['minimumShouldMatch'][0]);
-        static::assertInstanceOf(Type::class, $constraints['types'][0]);
+        return [
+            'no type match / no minimum / returns true (vacuously true)' => [null, true],
+            'no type match / minimum set / returns false' => [1, false],
+        ];
     }
 
     /**

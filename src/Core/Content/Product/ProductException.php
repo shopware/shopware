@@ -15,9 +15,20 @@ class ProductException extends HttpException
     public const PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED_CODE = 'PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED';
     public const PRODUCT_INVALID_PRICE_DEFINITION_CODE = 'PRODUCT_INVALID_PRICE_DEFINITION';
     public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
+    public const PRODUCT_NOT_FOUND = 'CONTENT__PRODUCT_NOT_FOUND';
     public const SORTING_NOT_FOUND = 'PRODUCT_SORTING_NOT_FOUND';
     public const PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS = 'PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY';
     public const PRODUCT_INVALID_OPTIONS_PARAMETER = 'PRODUCT_INVALID_OPTIONS_PARAMETER';
+
+    public static function notFound(string $productId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::PRODUCT_NOT_FOUND,
+            'Product for id {{ productId }} not found.',
+            ['productId' => $productId]
+        );
+    }
 
     public static function invalidCheapestPriceFacade(string $id): self
     {

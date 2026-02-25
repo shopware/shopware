@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
@@ -351,7 +351,7 @@ class ProductDetailRouteTest extends TestCase
 
     public function testLoadProductNotFound(): void
     {
-        $this->expectException(ProductNotFoundException::class);
+        $this->expectException(ProductException::class);
 
         $this->route->load('1', new Request(), $this->context, new Criteria());
     }

@@ -70,6 +70,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="custom_field_set_relation.repository"/>
             <argument type="service" id="custom_field.repository"/>
+
+            <tag name="shopware.app_lifecycle.persister" priority="100"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister">
@@ -256,7 +258,6 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>

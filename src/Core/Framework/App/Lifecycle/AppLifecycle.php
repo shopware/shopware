@@ -25,7 +25,6 @@ use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
@@ -80,7 +79,6 @@ class AppLifecycle extends AbstractAppLifecycle
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly PermissionPersister $permissionPersister,
-        private readonly CustomFieldPersister $customFieldPersister,
         private readonly ActionButtonPersister $actionButtonPersister,
         private readonly TemplatePersister $templatePersister,
         private readonly ScriptPersister $scriptPersister,
@@ -301,7 +299,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
         $this->templatePersister->updateTemplates($manifest, $id, $context, $install);
         $this->scriptPersister->updateScripts($id, $context);
-        $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
         $this->runPersisters(new AppLifecycleContext(

@@ -398,7 +398,8 @@ class AppLifecycleTest extends TestCase
             $this->createMock(ShippingMethodPersister::class),
             $this->createMock(EntityRepository::class),
             $appSourceResolver,
-            $this->createMock(ConfigReader::class)
+            $this->createMock(ConfigReader::class),
+            [],
         );
     }
 

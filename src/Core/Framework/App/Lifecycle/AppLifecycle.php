@@ -32,6 +32,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
@@ -76,6 +77,7 @@ class AppLifecycle extends AbstractAppLifecycle
      * @param EntityRepository<IntegrationCollection> $integrationRepository
      * @param EntityRepository<AclRoleCollection> $aclRoleRepository
      * @param EntityRepository<CustomEntityCollection> $customEntityRepository
+     * @param iterable<PersisterInterface> $persisters
      */
     public function __construct(
         private readonly EntityRepository $appRepository,
@@ -110,7 +112,8 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly ShippingMethodPersister $shippingMethodPersister,
         private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
-        private readonly ConfigReader $configReader
+        private readonly ConfigReader $configReader,
+        private readonly iterable $persisters = [],
     ) {
     }
 
@@ -309,6 +312,15 @@ class AppLifecycle extends AbstractAppLifecycle
         if ($cmsExtensions) {
             $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
         }
+
+        $this->runPersisters(new AppLifecycleContext(
+            manifest: $manifest,
+            app: $app,
+            context: $context,
+            filesystem: $this->sourceResolver->filesystemForManifest($manifest),
+            defaultLocale: $defaultLocale,
+            isInstall: $install,
+        ));
 
         $updatePayload = [
             'id' => $app->getId(),
@@ -729,6 +741,13 @@ class AppLifecycle extends AbstractAppLifecycle
         $fs = $this->sourceResolver->filesystemForManifest($manifest);
 
         return $fs->has($iconPath) ? $fs->read($iconPath) : null;
+    }
+
+    private function runPersisters(AppLifecycleContext $context): void
+    {
+        foreach ($this->persisters as $persister) {
+            $persister->persist($context);
+        }
     }
 
     /**

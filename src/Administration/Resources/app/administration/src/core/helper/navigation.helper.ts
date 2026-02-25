@@ -10,7 +10,15 @@
 /**
  * @private
  */
-export function reloadPage(): void {
+export function reloadPage(forceReload = false): void {
+    if (forceReload) {
+        // Hard reload bypassing cache by navigating to the current URL with a cache-busting param
+        const url = new URL(window.location.href);
+        url.searchParams.set('_sw_reload', Date.now().toString());
+        window.location.href = url.toString();
+        return;
+    }
+
     window.location.reload();
 }
 

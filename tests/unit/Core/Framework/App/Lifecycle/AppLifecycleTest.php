@@ -21,7 +21,6 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -383,7 +382,6 @@ class AppLifecycleTest extends TestCase
             '6.5.0.0',
             $this->createMock(FlowEventPersister::class),
             'test',
-            $this->createMock(ShippingMethodPersister::class),
             $this->createMock(EntityRepository::class),
             $appSourceResolver,
             $this->createMock(ConfigReader::class),

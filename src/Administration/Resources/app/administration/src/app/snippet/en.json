@@ -1732,6 +1732,7 @@
       "scale-tooltip": "Scale object"
     },
     "saveChanges": "Save changes",
+    "cancel": "Cancel",
     "properties": {
       "transformation": {
         "label":"Transformation",

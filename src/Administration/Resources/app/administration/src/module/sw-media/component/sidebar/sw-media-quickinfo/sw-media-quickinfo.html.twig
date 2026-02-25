@@ -302,6 +302,12 @@
                         </div>
                         <template #modal-footer>
                             <mt-button
+                                variant="secondary"
+                                @click="closeModelEditorModal()"
+                            >
+                                {{ $tc('sw-model-editor.cancel') }}
+                            </mt-button>
+                            <mt-button
                                 variant="primary"
                                 @click="$refs.modelEditorRef.save()"
                             >

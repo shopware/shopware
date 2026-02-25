@@ -33,4 +33,34 @@ class ThemeCompileException extends ShopwareHttpException
     {
         return Response::HTTP_BAD_REQUEST;
     }
+
+    public static function bundleRelativeFileNotFound(
+        string $themeName,
+        string $bundleName,
+        string $filePath
+    ): self {
+        return new self(
+            $themeName,
+            \sprintf(
+                'Unable to load file "@%s/%s". File does not exist.',
+                $bundleName,
+                $filePath
+            )
+        );
+    }
+
+    public static function couldNotCompileTheme(
+        string $themeName,
+        string $filePath,
+        string $reason
+    ): self {
+        return new self(
+            $themeName,
+            \sprintf(
+                'Unable to load file "Resources/%s". %s',
+                $filePath,
+                $reason
+            )
+        );
+    }
 }

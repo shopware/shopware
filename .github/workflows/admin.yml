@@ -27,7 +27,7 @@ jobs:
           path: |
             src/Administration/Resources/app/administration/node_modules/.eslintcache
             src/Administration/Resources/app/administration/node_modules/.stylelintcache
-          key: admin-lint-${{ runner.os }}-6.6
+          key: admin-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.mjs', 'src/Administration/Resources/app/administration/.stylelintrc') }}
 
       - name: Lint
         working-directory: src/Administration/Resources/app/administration
@@ -50,8 +50,14 @@ jobs:
       JEST_MAX_WORKERS: 100%
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Generate entity schema mock
+        run: composer run framework:schema:dump
 
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4

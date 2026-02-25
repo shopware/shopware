@@ -62,11 +62,11 @@
     </div>
     <div class="sw-model-editor-sidebar">
         <div class="sw-model-editor-sidebar-content">
-            <sw-model-editor-collapse
-                :title="$t('sw-model-editor.properties.transformation.label')"
-                :expand-on-loading="true"
-            >
-                <template #content>
+            <div class="sw-model-editor-sidebar-content-item">
+                <h4 class="sw-model-editor-sidebar-content-item-header">
+                    {{ $t('sw-model-editor.properties.transformation.label') }}
+                </h4>
+                <div class="sw-model-editor-sidebar-content-item-body">
                     <sw-vector-field
                         :value="currentProperties.position"
                         :label="$t('sw-model-editor.properties.transformation.position.label')"
@@ -85,8 +85,8 @@
                         @input-change="changeModelScale"
                         @update:value="changeModelScale"
                     />
-                </template>
-            </sw-model-editor-collapse>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -46,6 +46,23 @@ $sw-button-transition: all 0.15s ease-out;
             background: #EEF6FF;
         }
     }
+
+    .sw-model-editor-sidebar-content-item {
+        border-bottom: 1px solid #d1d9e0;
+
+        .sw-model-editor-sidebar-content-item-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            padding: 16px 25px 0;
+            color: var(--color-text-primary-default);
+            margin: 0 0 var(--scale-size-20);
+            font-size: 16px;
+            font-weight: 400;
+        }
+        .sw-model-editor-sidebar-content-item-body {
+            padding: 0 25px 25px;
+        }
+    }
 }
 
 .sw-model-editor-canvas-wrapper {

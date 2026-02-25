@@ -35,9 +35,6 @@ export default {
             this.createNotificationError({ message });
         },
 
-        /**
-         * Override: for replace. Emit UPLOAD_ADDED
-         */
         handlePresignedUpload(files) {
             const { fileReader } = Shopware.Utils;
             const { extension } = fileReader.getNameAndExtensionFromFile(files[0]);

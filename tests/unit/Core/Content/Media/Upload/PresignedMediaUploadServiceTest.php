@@ -2,15 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
-use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Upload\FileMetadataResult;
+use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedUploadFinalizePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadPreparePayload;
@@ -21,8 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -39,6 +38,8 @@ class PresignedMediaUploadServiceTest extends TestCase
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
+    private AbstractMediaPathStrategy&MockObject $mediaPathStrategy;
+
     private PresignedMediaUploadService $service;
 
     protected function setUp(): void
@@ -46,15 +47,10 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->mediaRepository = $this->createMock(EntityRepository::class);
         $this->presignedUrlGenerator = $this->createMock(PresignedUrlGeneratorInterface::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
 
         $typeDetector = $this->createMock(\Shopware\Core\Content\Media\TypeDetector\TypeDetector::class);
-        $metadataLoader = $this->createMock(\Shopware\Core\Content\Media\Metadata\MetadataLoader::class);
-        $filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $filesystemPublic->method('readStream')->willThrowException(new \RuntimeException('test'));
-        $filesystemPrivate = $this->createMock(FilesystemOperator::class);
-        $thumbnailService = $this->createMock(\Shopware\Core\Content\Media\Thumbnail\ThumbnailService::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $messageBus->method('dispatch')->willReturn(new Envelope(new \stdClass()));
+        $mediaFileCleanup = $this->createMock(MediaFileCleanupService::class);
 
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             static function (object $event) {
@@ -67,14 +63,10 @@ class PresignedMediaUploadServiceTest extends TestCase
             $this->presignedUrlGenerator,
             $this->eventDispatcher,
             $typeDetector,
-            $metadataLoader,
-            $filesystemPublic,
-            $filesystemPrivate,
-            $thumbnailService,
-            $messageBus,
-            ['jpg', 'jpeg', 'png', 'gif'],
-            ['jpg', 'jpeg', 'png', 'gif'],
-            false,
+            $mediaFileCleanup,
+            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
+            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
+            $this->mediaPathStrategy,
         );
     }
 
@@ -231,6 +223,9 @@ class PresignedMediaUploadServiceTest extends TestCase
         );
         $this->mediaRepository->method('search')->willReturn($searchResult);
 
+        $this->mediaPathStrategy->method('generate')
+            ->willReturn([$mediaId => $path]);
+
         $this->presignedUrlGenerator->expects($this->once())
             ->method('verifyUpload')
             ->with($path)
@@ -242,6 +237,7 @@ class PresignedMediaUploadServiceTest extends TestCase
             ->willReturn(new FileMetadataResult(
                 size: 12345,
                 lastModified: new \DateTimeImmutable(),
+                etag: 'd41d8cd98f00b204e9800998ecf8427e',
             ));
 
         $this->mediaRepository->expects($this->once())
@@ -254,19 +250,25 @@ class PresignedMediaUploadServiceTest extends TestCase
                     static::assertSame(12345, $data[0]['fileSize']);
                     static::assertSame('test-file', $data[0]['fileName']);
                     static::assertArrayHasKey('uploadedAt', $data[0]);
+                    static::assertSame('d41d8cd98f00b204e9800998ecf8427e', $data[0]['metaData']['hash']);
+                    static::assertSame(1920, $data[0]['metaData']['width']);
+                    static::assertSame(1080, $data[0]['metaData']['height']);
+                    static::assertSame(\IMAGETYPE_JPEG, $data[0]['metaData']['type']);
 
                     return true;
                 }),
                 static::anything()
             );
 
-        $this->eventDispatcher->expects($this->exactly(2))->method('dispatch');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
             extension: 'jpg',
             mimeType: 'image/jpeg',
             path: $path,
+            width: 1920,
+            height: 1080,
         );
 
         $this->service->finalize($mediaId, $payload, $context);
@@ -293,6 +295,9 @@ class PresignedMediaUploadServiceTest extends TestCase
             $context
         );
         $this->mediaRepository->method('search')->willReturn($searchResult);
+
+        $this->mediaPathStrategy->method('generate')
+            ->willReturn([$mediaId => $path]);
 
         $this->presignedUrlGenerator->expects($this->once())
             ->method('verifyUpload')
@@ -330,6 +335,132 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->expectExceptionMessage('The parameter "path" is invalid.');
 
         $this->service->finalize('media-id', new PresignedUploadFinalizePayload(fileName: 'test', extension: 'jpg', mimeType: 'image/jpeg'), $context);
+    }
+
+    public function testFinalizeThrowsOnPathMismatch(): void
+    {
+        $context = Context::createDefaultContext();
+        $mediaId = '0189b0a1-0000-0000-0000-000000000003';
+
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setUploadedAt(new \DateTime());
+        $media->setPrivate(false);
+        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
+
+        $searchResult = new EntitySearchResult(
+            'media',
+            1,
+            new MediaCollection([$media]),
+            null,
+            new Criteria(),
+            $context
+        );
+        $this->mediaRepository->method('search')->willReturn($searchResult);
+
+        $this->mediaPathStrategy->method('generate')
+            ->willReturn([$mediaId => 'media/ab/cd/test-file.jpg']);
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Could not verify uploaded file for media');
+
+        $payload = new PresignedUploadFinalizePayload(
+            fileName: 'test-file',
+            extension: 'jpg',
+            mimeType: 'image/jpeg',
+            path: 'media/tampered/path/evil.jpg',
+        );
+
+        $this->service->finalize($mediaId, $payload, $context);
+    }
+
+    public function testFinalizeThrowsOnDisallowedExtension(): void
+    {
+        $context = Context::createDefaultContext();
+        $mediaId = '0189b0a1-0000-0000-0000-000000000004';
+
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setUploadedAt(new \DateTime());
+        $media->setPrivate(false);
+        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
+
+        $searchResult = new EntitySearchResult(
+            'media',
+            1,
+            new MediaCollection([$media]),
+            null,
+            new Criteria(),
+            $context
+        );
+        $this->mediaRepository->method('search')->willReturn($searchResult);
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('not supported');
+
+        $payload = new PresignedUploadFinalizePayload(
+            fileName: 'malicious',
+            extension: 'php',
+            mimeType: 'application/x-php',
+            path: 'media/ab/cd/malicious.php',
+        );
+
+        $this->service->finalize($mediaId, $payload, $context);
+    }
+
+    public function testFinalizeWithoutDimensionsStoresOnlyHash(): void
+    {
+        $context = Context::createDefaultContext();
+        $mediaId = '0189b0a1-0000-0000-0000-000000000005';
+        $path = 'media/ab/cd/video.mp4';
+
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setUploadedAt(new \DateTime());
+        $media->setPrivate(false);
+        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
+
+        $searchResult = new EntitySearchResult(
+            'media',
+            1,
+            new MediaCollection([$media]),
+            null,
+            new Criteria(),
+            $context
+        );
+        $this->mediaRepository->method('search')->willReturn($searchResult);
+
+        $this->mediaPathStrategy->method('generate')
+            ->willReturn([$mediaId => $path]);
+
+        $this->presignedUrlGenerator->method('verifyUpload')->willReturn(true);
+        $this->presignedUrlGenerator->method('getFileMetadata')
+            ->willReturn(new FileMetadataResult(
+                size: 50_000_000,
+                lastModified: new \DateTimeImmutable(),
+                etag: 'abc123def456',
+            ));
+
+        $this->mediaRepository->expects($this->once())
+            ->method('update')
+            ->with(
+                static::callback(function (array $data): bool {
+                    static::assertSame(50_000_000, $data[0]['fileSize']);
+                    static::assertSame(['hash' => 'abc123def456'], $data[0]['metaData']);
+
+                    return true;
+                }),
+                static::anything()
+            );
+
+        $payload = new PresignedUploadFinalizePayload(
+            fileName: 'video',
+            extension: 'mp4',
+            mimeType: 'video/mp4',
+            path: $path,
+        );
+
+        $this->service->finalize($mediaId, $payload, $context);
     }
 
     public function testIsSupportedDelegatesToGenerator(): void

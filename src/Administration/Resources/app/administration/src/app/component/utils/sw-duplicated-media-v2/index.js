@@ -145,7 +145,7 @@ export default {
     },
 
     methods: {
-        async createdComponent() {
+        createdComponent() {
             this.loadDefaultOption();
             this.updatePreviewData();
 
@@ -342,12 +342,18 @@ export default {
         async presignedUpload(uploadTask, mediaId) {
             const mimeType = uploadTask.src.type || 'application/octet-stream';
 
-            const result = await this.mediaPresignedUploadService.prepareUpload({
-                fileName: uploadTask.fileName,
-                extension: uploadTask.extension,
-                mimeType,
-                mediaId,
-            });
+            const [
+                result,
+                dimensions,
+            ] = await Promise.all([
+                this.mediaPresignedUploadService.prepareUpload({
+                    fileName: uploadTask.fileName,
+                    extension: uploadTask.extension,
+                    mimeType,
+                    mediaId,
+                }),
+                this.mediaPresignedUploadService.getImageDimensions(uploadTask.src),
+            ]);
 
             await this.mediaPresignedUploadService.uploadToPresignedUrl(result.url, uploadTask.src, mimeType);
 
@@ -356,6 +362,8 @@ export default {
                 extension: uploadTask.extension,
                 mimeType,
                 path: result.path,
+                width: dimensions?.width ?? null,
+                height: dimensions?.height ?? null,
             });
 
             return result.mediaId;

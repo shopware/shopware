@@ -6,15 +6,9 @@ import { fileReader } from 'src/core/service/util.service';
 import { UploadEvents } from './media.api.service';
 import ApiService from '../api.service';
 
-/**
- * A clean Axios instance without Shopware interceptors (auth, error handling, tracing).
- * Required for direct browser-to-S3 uploads where extra headers would break
- * the presigned URL signature.
- */
 const s3Client = Axios.create();
 
 /**
- * Gateway for presigned S3 upload endpoints
  * @class
  * @extends ApiService
  */
@@ -25,16 +19,6 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
-     * Prepare a presigned upload. For new uploads, creates a placeholder media entity.
-     * For replace, pass an existing mediaId to reuse the entity.
-     *
-     * @param {Object} params
-     * @param {string} params.fileName - File name without extension
-     * @param {string} params.extension - File extension (e.g. 'jpg')
-     * @param {string} params.mimeType - MIME type (e.g. 'image/jpeg')
-     * @param {string|null} [params.mediaFolderId=null] - Target media folder ID
-     * @param {boolean} [params.isPrivate=false] - Whether file is private
-     * @param {string|null} [params.mediaId=null] - Existing media ID (replace mode)
      * @returns {Promise<{mediaId: string, url: string, path: string, expiresAt: string}>}
      */
     prepareUpload({ fileName, extension, mimeType, mediaFolderId = null, isPrivate = false, mediaId = null }) {
@@ -59,14 +43,6 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
-     * Upload a file directly to S3 using the presigned URL.
-     * Uses a clean Axios instance to avoid Shopware interceptors that would
-     * add headers breaking the presigned URL signature.
-     *
-     * @param {string} presignedUrl - The presigned S3 URL
-     * @param {File} file - The file to upload
-     * @param {string} mimeType - The MIME type of the file
-     * @param {Function|null} [onProgress=null] - Progress callback ({loaded, total})
      * @returns {Promise<void>}
      */
     uploadToPresignedUrl(presignedUrl, file, mimeType, onProgress = null) {
@@ -85,47 +61,60 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
-     * Finalize the upload: verify the file exists in S3 and update the media entity.
-     *
-     * @param {string} mediaId - The media entity ID
-     * @param {Object} params
-     * @param {string} params.fileName - File name without extension
-     * @param {string} params.extension - File extension
-     * @param {string} params.mimeType - MIME type
-     * @param {string} params.path - The S3 path from prepareUpload response
      * @returns {Promise<{mediaId: string}>}
      */
-    finalizeUpload(mediaId, { fileName, extension, mimeType, path }) {
+    finalizeUpload(mediaId, { fileName, extension, mimeType, path, width = null, height = null }) {
+        const body = { fileName, extension, mimeType, path };
+
+        if (width !== null && height !== null) {
+            body.width = width;
+            body.height = height;
+        }
+
         return this.httpClient
-            .post(
-                `/_action/media/${mediaId}/finalize-upload`,
-                JSON.stringify({
-                    fileName,
-                    extension,
-                    mimeType,
-                    path,
-                }),
-                {
-                    headers: this.getBasicHeaders(),
-                },
-            )
+            .post(`/_action/media/${mediaId}/finalize-upload`, JSON.stringify(body), {
+                headers: this.getBasicHeaders(),
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
     }
 
     /**
-     * Orchestrate presigned uploads for multiple files: prepare, upload to S3,
-     * finalize, and emit lifecycle events.
+     * Resolves image dimensions from a File using the browser's native decoding.
+     * Returns null for non-image files.
      *
-     * @param {string} uploadTag - The upload tag for event listeners
-     * @param {File[]} files - Files to upload
-     * @param {Object} options
-     * @param {string|null} options.mediaFolderId - Target media folder ID
-     * @param {boolean} options.isPrivate - Whether files are private
-     * @param {Object} eventBridge - Bridge to the mediaService event system
-     * @param {Function} eventBridge.getListeners - Returns listeners for a tag
-     * @param {Function} eventBridge.createEvent - Creates an upload event object
+     * @returns {Promise<{width: number, height: number}|null>}
+     */
+    getImageDimensions(file) {
+        if (!file.type || !file.type.startsWith('image/')) {
+            return Promise.resolve(null);
+        }
+
+        const svgTypes = ['image/svg+xml'];
+        if (svgTypes.includes(file.type)) {
+            return Promise.resolve(null);
+        }
+
+        return new Promise((resolve) => {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+
+            img.onload = () => {
+                resolve({ width: img.naturalWidth, height: img.naturalHeight });
+                URL.revokeObjectURL(url);
+            };
+
+            img.onerror = () => {
+                resolve(null);
+                URL.revokeObjectURL(url);
+            };
+
+            img.src = url;
+        });
+    }
+
+    /**
      * @returns {Promise<void>}
      */
     runUploads(uploadTag, files, options, { getListeners, createEvent }) {
@@ -147,14 +136,25 @@ class MediaPresignedUploadApiService extends ApiService {
                 let result = null;
 
                 try {
-                    result = await this.prepareUpload({
-                        fileName,
-                        extension,
-                        mimeType,
-                        ...options,
-                    });
+                    const [
+                        prepareResult,
+                        dimensions,
+                    ] = await Promise.all([
+                        this.prepareUpload({
+                            fileName,
+                            extension,
+                            mimeType,
+                            ...options,
+                        }),
+                        this.getImageDimensions(fileHandle),
+                    ]);
 
+                    result = prepareResult;
                     mediaId = result.mediaId;
+
+                    if (result.isDuplicate) {
+                        throw this._buildDuplicateError(fileName, extension);
+                    }
 
                     emit(UploadEvents.UPLOAD_ADDED, {
                         data: [{ targetId: mediaId, src: fileHandle }],
@@ -173,6 +173,8 @@ class MediaPresignedUploadApiService extends ApiService {
                         extension,
                         mimeType,
                         path: result.path,
+                        width: dimensions?.width ?? null,
+                        height: dimensions?.height ?? null,
                     });
 
                     successCount += 1;
@@ -199,6 +201,22 @@ class MediaPresignedUploadApiService extends ApiService {
                 }
             }),
         );
+    }
+
+    _buildDuplicateError(fileName, extension) {
+        return {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            status: '400',
+                            code: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME',
+                            detail: `A file with the name "${fileName}.${extension}" already exists.`,
+                        },
+                    ],
+                },
+            },
+        };
     }
 }
 

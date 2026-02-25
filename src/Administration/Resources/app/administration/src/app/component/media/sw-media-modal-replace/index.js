@@ -42,7 +42,6 @@ export default {
 
     data() {
         return {
-            uploadTag: null,
             isUploadDataSet: false,
             newFileExtension: '',
             pendingPresignedFile: null,
@@ -79,16 +78,23 @@ export default {
             this.itemToReplace.isLoading = true;
             const previousName = this.itemToReplace.fileName;
 
-            if (this.pendingPresignedFile) {
-                await this.runPresignedReplace(this.pendingPresignedFile);
-            } else {
-                await this.mediaService.runUploads(this.itemToReplace.id);
+            try {
+                if (this.pendingPresignedFile) {
+                    await this.runPresignedReplace(this.pendingPresignedFile);
+                } else {
+                    await this.mediaService.runUploads(this.itemToReplace.id);
+                }
+
+                await this.mediaService.renameMedia(this.itemToReplace.id, previousName);
+
+                this.$emit('media-replace-modal-item-replaced');
+            } catch {
+                this.createNotificationError({
+                    message: this.$tc('global.default.notification.unspecifiedSaveErrorMessage'),
+                });
+            } finally {
+                this.itemToReplace.isLoading = false;
             }
-
-            await this.mediaService.renameMedia(this.itemToReplace.id, previousName);
-
-            this.itemToReplace.isLoading = false;
-            this.$emit('media-replace-modal-item-replaced');
         },
 
         async runPresignedReplace(fileHandle) {
@@ -96,12 +102,18 @@ export default {
             const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
             const mimeType = fileHandle.type || 'application/octet-stream';
 
-            const result = await this.mediaPresignedUploadService.prepareUpload({
-                fileName,
-                extension,
-                mimeType,
-                mediaId: this.itemToReplace.id,
-            });
+            const [
+                result,
+                dimensions,
+            ] = await Promise.all([
+                this.mediaPresignedUploadService.prepareUpload({
+                    fileName,
+                    extension,
+                    mimeType,
+                    mediaId: this.itemToReplace.id,
+                }),
+                this.mediaPresignedUploadService.getImageDimensions(fileHandle),
+            ]);
 
             await this.mediaPresignedUploadService.uploadToPresignedUrl(result.url, fileHandle, mimeType);
 
@@ -110,6 +122,8 @@ export default {
                 extension,
                 mimeType,
                 path: result.path,
+                width: dimensions?.width ?? null,
+                height: dimensions?.height ?? null,
             });
         },
     },

@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Upload;
 
-use League\Flysystem\FilesystemOperator;
-use League\Flysystem\UnableToDeleteFile;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
@@ -13,10 +12,11 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\MediaType\AudioType;
+use Shopware\Core\Content\Media\MediaType\BinaryType;
+use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
-use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
+use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -26,15 +26,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @final
  */
 #[Package('discovery')]
 readonly class PresignedMediaUploadService
@@ -51,23 +47,16 @@ readonly class PresignedMediaUploadService
         private PresignedUrlGeneratorInterface $presignedUrlGenerator,
         private EventDispatcherInterface $eventDispatcher,
         private TypeDetector $typeDetector,
-        private MetadataLoader $metadataLoader,
-        private FilesystemOperator $filesystemPublic,
-        private FilesystemOperator $filesystemPrivate,
-        private ThumbnailService $thumbnailService,
-        private MessageBusInterface $messageBus,
+        private MediaFileCleanupService $mediaFileCleanup,
         private array $allowedExtensions,
         private array $privateAllowedExtensions,
-        private bool $remoteThumbnailsEnable,
+        private AbstractMediaPathStrategy $mediaPathStrategy,
     ) {
         $this->fileNameValidator = new FileNameValidator();
     }
 
     /**
-     * Prepare a presigned upload. When payload contains a mediaId, the existing
-     * entity is used (replace mode). Otherwise a new entity is created.
-     *
-     * @return array{mediaId: string, url: string, path: string, expiresAt: string}
+     * @return array{mediaId: string, url: string, path: string, expiresAt: string, isDuplicate: bool}
      */
     public function prepare(
         PresignedUploadPreparePayload $payload,
@@ -100,7 +89,6 @@ readonly class PresignedMediaUploadService
             }
 
             $mediaId = $payload->mediaId;
-            // Replace: use new timestamp so we upload to a new path and remove the old file in finalize
             $uploadedAt = new \DateTimeImmutable();
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId, $uploadedAt): void {
                 $this->mediaRepository->update([
@@ -128,6 +116,11 @@ readonly class PresignedMediaUploadService
 
         $isReplace = $payload->mediaId !== null;
 
+        $isDuplicate = false;
+        if (!$isReplace) {
+            $isDuplicate = $this->isFileNameTaken($mediaId, $fileName, $extension, $payload->private, $context);
+        }
+
         try {
             $location = new MediaLocationStruct(
                 $mediaId,
@@ -152,13 +145,10 @@ readonly class PresignedMediaUploadService
             'url' => $result->url,
             'path' => $result->path,
             'expiresAt' => $result->expiresAt->format(\DateTimeInterface::ATOM),
+            'isDuplicate' => $isDuplicate,
         ];
     }
 
-    /**
-     * Finalize a presigned upload. Automatically detects replace mode when the
-     * media entity already has an existing file and cleans up old data.
-     */
     public function finalize(
         string $mediaId,
         PresignedUploadFinalizePayload $payload,
@@ -175,6 +165,9 @@ readonly class PresignedMediaUploadService
             throw MediaException::mediaNotFound($mediaId);
         }
 
+        $this->validateFileExtension($payload->extension, $media->isPrivate());
+        $this->validateExpectedPath($mediaId, $payload, $media);
+
         $isReplace = $media->hasFile();
 
         if (!$isReplace) {
@@ -190,22 +183,19 @@ readonly class PresignedMediaUploadService
                 $oldPath = $media->getPath();
 
                 if ($oldPath !== '' && $oldPath !== $payload->path) {
-                    $this->removeOldMediaData($media, $context);
-                } elseif (!$this->remoteThumbnailsEnable) {
-                    $this->thumbnailService->deleteThumbnails($media, $context);
+                    $this->mediaFileCleanup->removeOldMediaData($media, $context);
+                } else {
+                    $this->mediaFileCleanup->deleteThumbnails($media, $context);
                 }
             }
 
-            $metadata = $this->presignedUrlGenerator->getFileMetadata($payload->path);
-            $fileSize = $metadata !== null ? $metadata->size : 0;
+            $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($payload->path);
+            $fileSize = $s3Metadata !== null ? $s3Metadata->size : 0;
+            $fileHash = $s3Metadata?->etag;
 
-            $mediaFile = new MediaFile('', $payload->mimeType, $payload->extension, $fileSize);
-            $mediaType = $this->typeDetector->detect($mediaFile);
+            $mediaType = $this->detectMediaType($payload->mimeType, $payload->extension);
+            $metaData = $this->buildMetadata($fileHash, $payload);
 
-            $filesystem = $media->isPrivate() ? $this->filesystemPrivate : $this->filesystemPublic;
-            $metaData = $this->loadMetadataFromStorage($payload->path, $mediaFile, $mediaType, $filesystem);
-
-            // Keep the same uploadedAt used in prepare() for path generation – the file was PUT to that path
             $uploadedAt = $media->getUploadedAt() ?? new \DateTime();
 
             $data = [
@@ -227,13 +217,7 @@ readonly class PresignedMediaUploadService
             $this->eventDispatcher->dispatch(new UpdateMediaPathEvent([$mediaId]));
             $this->eventDispatcher->dispatch(new MediaUploadedEvent($mediaId, $context));
 
-            if (!$this->remoteThumbnailsEnable) {
-                $message = new GenerateThumbnailsMessage();
-                $message->setMediaIds([$mediaId]);
-                $message->setContext($context);
-
-                $this->messageBus->dispatch($message);
-            }
+            $this->mediaFileCleanup->dispatchThumbnailGeneration($mediaId, $context);
         } catch (\Throwable $e) {
             if (!$isReplace) {
                 $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId): void {
@@ -285,7 +269,7 @@ readonly class PresignedMediaUploadService
         return $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->first();
     }
 
-    private function ensureFileNameIsUnique(string $mediaId, string $fileName, string $fileExtension, bool $isPrivate, Context $context): void
+    private function isFileNameTaken(string $mediaId, string $fileName, string $fileExtension, bool $isPrivate, Context $context): bool
     {
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(
@@ -304,7 +288,35 @@ readonly class PresignedMediaUploadService
                 continue;
             }
 
+            return true;
+        }
+
+        return false;
+    }
+
+    private function ensureFileNameIsUnique(string $mediaId, string $fileName, string $fileExtension, bool $isPrivate, Context $context): void
+    {
+        if ($this->isFileNameTaken($mediaId, $fileName, $fileExtension, $isPrivate, $context)) {
             throw MediaException::duplicatedMediaFileName($fileName, $fileExtension);
+        }
+    }
+
+    private function validateExpectedPath(string $mediaId, PresignedUploadFinalizePayload $payload, MediaEntity $media): void
+    {
+        $uploadedAt = $media->getUploadedAt();
+
+        $location = new MediaLocationStruct(
+            $mediaId,
+            $payload->extension,
+            $payload->fileName,
+            $uploadedAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($uploadedAt) : $uploadedAt,
+        );
+
+        $paths = $this->mediaPathStrategy->generate([$location]);
+        $expectedPath = $paths[$mediaId] ?? null;
+
+        if ($expectedPath === null || $expectedPath !== $payload->path) {
+            throw MediaException::presignedUploadFinalizeFailed($mediaId);
         }
     }
 
@@ -324,94 +336,60 @@ readonly class PresignedMediaUploadService
         throw MediaException::fileExtensionNotSupported('', $fileExtension);
     }
 
-    private function removeOldMediaData(MediaEntity $media, Context $context): void
+    private function detectMediaType(string $mimeType, string $extension): MediaType
     {
-        if (!$media->hasFile()) {
-            return;
-        }
-
-        $filesystem = $media->isPrivate() ? $this->filesystemPrivate : $this->filesystemPublic;
+        $mediaFile = new MediaFile('', $mimeType, $extension, 0);
 
         try {
-            $filesystem->delete($media->getPath());
-        } catch (UnableToDeleteFile) {
-        }
+            return $this->typeDetector->detect($mediaFile);
+        } catch (\Throwable) {
+            // Fall back to basic type from MIME prefix.
+            $mime = explode('/', $mimeType);
 
-        if ($this->remoteThumbnailsEnable) {
-            return;
+            return match ($mime[0]) {
+                'image' => new ImageType(),
+                'video' => new VideoType(),
+                'audio' => new AudioType(),
+                default => new BinaryType(),
+            };
         }
-
-        $this->thumbnailService->deleteThumbnails($media, $context);
     }
 
     /**
-     * Load metadata (width, height, etc.) from a file on storage.
-     * Downloads to temp file because MetadataLoader uses getimagesize() and similar which need a local path.
-     *
      * @return array<string, mixed>|null
      */
-    private function loadMetadataFromStorage(
-        string $path,
-        MediaFile $mediaFile,
-        MediaType $mediaType,
-        FilesystemOperator $filesystem,
-    ): ?array {
-        $tempFile = tempnam(sys_get_temp_dir(), 'sw_media_meta');
-        if ($tempFile === false) {
-            return null;
+    private function buildMetadata(?string $fileHash, PresignedUploadFinalizePayload $payload): ?array
+    {
+        $metaData = [];
+
+        if ($fileHash !== null) {
+            $metaData['hash'] = $fileHash;
         }
 
-        try {
-            $sourceStream = $filesystem->readStream($path);
-            if (!\is_resource($sourceStream)) {
-                return null;
-            }
+        if ($payload->width !== null && $payload->height !== null) {
+            $metaData['width'] = $payload->width;
+            $metaData['height'] = $payload->height;
 
-            $destStream = $this->openTempFileForWrite($tempFile);
-            if ($destStream === null) {
-                fclose($sourceStream);
-
-                return null;
-            }
-
-            try {
-                stream_copy_to_stream($sourceStream, $destStream);
-            } finally {
-                fclose($sourceStream);
-                fclose($destStream);
-            }
-
-            // MD5 of file content – stored in metaData.hash, used for deduplication and file_hash index
-            $fileHash = Hasher::hashFile($tempFile, 'md5');
-
-            $mediaFileForMeta = new MediaFile(
-                $tempFile,
-                $mediaFile->getMimeType(),
-                $mediaFile->getFileExtension(),
-                $mediaFile->getFileSize(),
-                $fileHash,
-            );
-
-            return $this->metadataLoader->loadFromFile($mediaFileForMeta, $mediaType);
-        } catch (\Throwable) {
-            return null;
-        } finally {
-            if (\is_file($tempFile)) {
-                unlink($tempFile);
+            $imageType = $this->resolveImageType($payload->mimeType);
+            if ($imageType !== null) {
+                $metaData['type'] = $imageType;
             }
         }
+
+        return $metaData ?: null;
     }
 
-    /**
-     * @return resource|null
-     */
-    private function openTempFileForWrite(string $path)
+    private function resolveImageType(string $mimeType): ?int
     {
-        $stream = @fopen($path, 'w');
-        if ($stream === false) {
-            return null;
-        }
-
-        return $stream;
+        return match ($mimeType) {
+            'image/gif' => \IMAGETYPE_GIF,
+            'image/jpeg' => \IMAGETYPE_JPEG,
+            'image/png' => \IMAGETYPE_PNG,
+            'image/bmp', 'image/x-ms-bmp' => \IMAGETYPE_BMP,
+            'image/tiff' => \IMAGETYPE_TIFF_II,
+            'image/webp' => \IMAGETYPE_WEBP,
+            'image/avif' => \IMAGETYPE_AVIF,
+            default => null,
+        };
     }
 }

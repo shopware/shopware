@@ -105,7 +105,7 @@ describe('mediaPresignedUploadService', () => {
         );
     });
 
-    it('finalizeUpload sends correct payload', async () => {
+    it('finalizeUpload sends correct payload without dimensions', async () => {
         const service = getMediaPresignedUploadApiService();
         const postSpy = jest.spyOn(service.httpClient, 'post').mockResolvedValue({
             data: { mediaId: 'media-123' },
@@ -129,5 +129,50 @@ describe('mediaPresignedUploadService', () => {
             expect.objectContaining({ headers: expect.any(Object) }),
         );
         expect(result.mediaId).toBe('media-123');
+    });
+
+    it('finalizeUpload includes dimensions when provided', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const postSpy = jest.spyOn(service.httpClient, 'post').mockResolvedValue({
+            data: { mediaId: 'media-123' },
+        });
+
+        await service.finalizeUpload('media-123', {
+            fileName: 'test',
+            extension: 'jpg',
+            mimeType: 'image/jpeg',
+            path: 'media/ab/cd/test.jpg',
+            width: 1920,
+            height: 1080,
+        });
+
+        expect(postSpy).toHaveBeenCalledWith(
+            '/_action/media/media-123/finalize-upload',
+            JSON.stringify({
+                fileName: 'test',
+                extension: 'jpg',
+                mimeType: 'image/jpeg',
+                path: 'media/ab/cd/test.jpg',
+                width: 1920,
+                height: 1080,
+            }),
+            expect.objectContaining({ headers: expect.any(Object) }),
+        );
+    });
+
+    it('getImageDimensions returns null for non-image files', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['content'], 'doc.pdf', { type: 'application/pdf' });
+
+        const result = await service.getImageDimensions(file);
+        expect(result).toBeNull();
+    });
+
+    it('getImageDimensions returns null for SVG files', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['<svg></svg>'], 'icon.svg', { type: 'image/svg+xml' });
+
+        const result = await service.getImageDimensions(file);
+        expect(result).toBeNull();
     });
 });

@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @final
  */
 #[Package('discovery')]
 class PresignedUploadPreparePayload

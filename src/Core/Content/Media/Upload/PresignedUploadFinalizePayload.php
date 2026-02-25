@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @final
  */
 #[Package('discovery')]
 class PresignedUploadFinalizePayload
@@ -17,6 +15,8 @@ class PresignedUploadFinalizePayload
         public readonly ?string $extension = null,
         public readonly ?string $mimeType = null,
         public readonly ?string $path = null,
+        public readonly ?int $width = null,
+        public readonly ?int $height = null,
     ) {
     }
 }

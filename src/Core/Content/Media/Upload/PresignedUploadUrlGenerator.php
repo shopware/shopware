@@ -162,9 +162,15 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
             $result = $this->s3Client->headObject($request);
 
+            $etag = $result->getEtag();
+            if ($etag !== null) {
+                $etag = trim($etag, '"');
+            }
+
             return new FileMetadataResult(
                 size: $result->getContentLength() ?? 0,
                 lastModified: $result->getLastModified() ?? new \DateTimeImmutable(),
+                etag: $etag,
             );
         } catch (\Throwable $e) {
             $this->logger->warning($e->getMessage(), [

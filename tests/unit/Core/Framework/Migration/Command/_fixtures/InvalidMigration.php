@@ -5,6 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration\Command\_fixtures;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
 class InvalidMigration extends MigrationStep
 {
     public function getCreationTimestamp(): int

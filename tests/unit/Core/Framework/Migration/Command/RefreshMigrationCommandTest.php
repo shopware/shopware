@@ -4,11 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Migration\Command\CreateMigrationCommand;
 use Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -33,7 +31,7 @@ class RefreshMigrationCommandTest extends TestCase
         $command = new RefreshMigrationCommand();
         $commandTester = new CommandTester($command);
 
-        $this->expectExceptionObject(MigrationException::migrationFileDoesNotExist( __DIR__ . '/_fixtures/DoesNotExist.php'));
+        $this->expectExceptionObject(MigrationException::migrationFileDoesNotExist(__DIR__ . '/_fixtures/DoesNotExist.php'));
         $commandTester->execute(['path' => __DIR__ . '/_fixtures/DoesNotExist.php']);
     }
 
@@ -54,7 +52,7 @@ class RefreshMigrationCommandTest extends TestCase
             ->in(__DIR__ . '/_fixtures')
             ->name('Migration*.php');
 
-        $this->assertCount(1, $finder);
+        static::assertCount(1, $finder);
 
         foreach ($finder as $file => $fileInfo) {
             static::assertFileExists($file);

@@ -25,7 +25,6 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -366,7 +365,6 @@ class AppLifecycleTest extends TestCase
             $appRepository,
             $this->createMock(PermissionPersister::class),
             $this->createMock(ActionButtonPersister::class),
-            $this->createMock(TemplatePersister::class),
             $this->createMock(WebhookPersister::class),
             $this->createMock(PaymentMethodPersister::class),
             $this->createMock(TaxProviderPersister::class),

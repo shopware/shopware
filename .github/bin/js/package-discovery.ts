@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 
 interface PackageInfo {
@@ -54,7 +53,7 @@ export const EXPECTED_PACKAGE_JSON_FILES: readonly PackageInfo[] = [
   {
     path: './tests/acceptance/package.json',
     name: 'Tests Acceptance',
-    hasCustomAuditScript: true,
+    hasCustomAuditScript: true
   }
 ] as const;
 

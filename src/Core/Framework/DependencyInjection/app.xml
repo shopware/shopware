@@ -113,6 +113,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookCacheClearer"/>
+            <tag name="shopware.app_lifecycle.persister" priority="70"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
@@ -266,7 +267,6 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>

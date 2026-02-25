@@ -26,11 +26,9 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
-use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
-use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
@@ -70,7 +68,6 @@ class AppLifecycle extends AbstractAppLifecycle
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly PermissionPersister $permissionPersister,
-        private readonly WebhookPersister $webhookPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppStateService $appStateService,
@@ -256,11 +253,6 @@ class AppLifecycle extends AbstractAppLifecycle
         if ($flowActions) {
             $this->flowBuilderActionPersister->updateActions($app, $flowActions, $context, $defaultLocale);
         }
-
-        $webhooks = $this->getWebhooks($manifest, $flowActions, $id, $defaultLocale, (bool) $app->getAppSecret());
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($webhooks, $id): void {
-            $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
-        });
 
         // we need an app secret to securely communicate with apps
         // therefore we only install webhooks, modules, tax providers and payment methods if we have a secret
@@ -625,46 +617,6 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         return false;
-    }
-
-    /**
-     * @return array<array{name: string, eventName: string, url: string, appId: string, active?: bool, errorCount?: int}>
-     */
-    private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
-    {
-        $actions = [];
-
-        if ($flowActions) {
-            $actions = $flowActions->getActions()?->getActions() ?? [];
-        }
-
-        $webhooks = array_map(function ($action) use ($appId) {
-            $name = $action->getMeta()->getName();
-
-            return [
-                'name' => $name,
-                'eventName' => $name,
-                'url' => $action->getMeta()->getUrl(),
-                'appId' => $appId,
-                'active' => true,
-                'errorCount' => 0,
-            ];
-        }, $actions);
-
-        if (!$hasAppSecret) {
-            return $webhooks;
-        }
-
-        $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
-
-        return array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
-            /** @var array{name: string, event: string, url: string} $payload */
-            $payload = $webhook->toArray($defaultLocale);
-            $payload['appId'] = $appId;
-            $payload['eventName'] = $webhook->getEvent();
-
-            return $payload;
-        }, $manifestWebhooks));
     }
 
     private function getIcon(Manifest $manifest): ?string

@@ -3,7 +3,6 @@ import { execSync } from "child_process";
 
 // IDs of advisories to ignore
 const ignored: number[] = [
-  1113371, // minimatch ReDoS, high severity, devDep only, fix planned in ESLint 9 + Jest 30 update
   1113428, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
   1113429, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
 ];

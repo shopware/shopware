@@ -6,9 +6,10 @@ const ignored: number[] = [
   1112030, // elliptic, low severity, devDep only (vite-plugin-node-polyfills/crypto-browserify)
   1112455, // lodash prototype pollution, moderate severity, devDep only
   1112453, // lodash-es prototype pollution, moderate severity, devDep only
-  1113371, // minimatch ReDoS, high severity, devDep only, needs ESLint 9 migration to drop eslint-plugin-import
   1113428, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
   1113429, // ajv ReDoS, moderate severity, devDep only (webpack/schema-utils), no fix for ajv 6.x line
+  1113459, // minimatch ReDoS, high severity, devDep only (via editorconfig -> js-beautify)
+  1113465, // minimatch ReDoS, high severity, devDep only (via editorconfig -> js-beautify)
   1113402, // bn.js infinite loop, moderate severity, devDep only (vite-plugin-node-polyfills/crypto-browserify)
   1113275, // axios DoS, high severity, false positive: installed 0.30.3 is not in affected range 1.0.0-1.13.4
 ];

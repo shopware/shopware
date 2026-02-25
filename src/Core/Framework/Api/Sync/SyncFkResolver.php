@@ -39,7 +39,7 @@ class SyncFkResolver
     {
         $map = $this->collect($entity, $payload, $key);
 
-        if (empty($map)) {
+        if ($map === []) {
             return $payload;
         }
 
@@ -72,7 +72,7 @@ class SyncFkResolver
             ];
         });
 
-        if (!empty($exceptions)) {
+        if ($exceptions !== []) {
             throw ApiException::canNotResolveForeignKeysException($exceptions);
         }
 

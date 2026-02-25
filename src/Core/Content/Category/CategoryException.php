@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -15,10 +16,23 @@ class CategoryException extends HttpException
     public const SERVICE_CATEGORY_NOT_FOUND = 'CHECKOUT__SERVICE_CATEGORY_NOT_FOUND';
     public const FOOTER_CATEGORY_NOT_FOUND = 'CHECKOUT__FOOTER_CATEGORY_NOT_FOUND';
     public const AFTER_CATEGORY_NOT_FOUND = 'CONTENT__AFTER_CATEGORY_NOT_FOUND';
+    public const CMS_PAGE_NOT_FOUND = 'CONTENT__CMS_PAGE_NOT_FOUND';
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
     public static function pageNotFound(string $pageId): ShopwareHttpException
     {
-        return new PageNotFoundException($pageId);
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new PageNotFoundException($pageId);
+        }
+
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CMS_PAGE_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'page', 'field' => 'ID', 'value' => $pageId]
+        );
     }
 
     public static function categoryNotFound(string $id): ShopwareHttpException

@@ -151,7 +151,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             customer: {
                 accountType: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
             },
-            address: {},
+            address: new Entity('1', 'customer_address', {}),
         });
 
         await flushPromises();

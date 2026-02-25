@@ -171,7 +171,6 @@ export default {
                     label: this.$tc('sw-product.filters.stockFilter.label'),
                     numberType: 'int',
                     step: 1,
-                    min: 0,
                     fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
                     toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
                 },
@@ -288,15 +287,6 @@ export default {
 
         stockColorVariantFilter() {
             return Shopware.Filter.getByName('stockColorVariant');
-        },
-    },
-
-    watch: {
-        productCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
         },
     },
 
@@ -418,10 +408,12 @@ export default {
             this.getList();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {

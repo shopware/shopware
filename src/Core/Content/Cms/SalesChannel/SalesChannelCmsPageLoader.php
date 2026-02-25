@@ -125,7 +125,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 $slot->setConfig($slot->getTranslation('config'));
             }
 
-            if (empty($config)) {
+            if ($config === []) {
                 continue;
             }
 

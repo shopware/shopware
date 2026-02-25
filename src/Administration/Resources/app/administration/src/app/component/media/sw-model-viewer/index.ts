@@ -1,8 +1,11 @@
+import { markRaw } from 'vue';
+import type Repository from 'src/core/data/repository.data';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import template from './sw-model-viewer.html.twig';
 import './sw-model-viewer.scss';
 
 const { EventBus } = Shopware.Utils;
+const { Context } = Shopware;
 
 /**
  * @status ready
@@ -18,6 +21,8 @@ const { EventBus } = Shopware.Utils;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    inject: ['repositoryFactory'],
+
     props: {
         source: {
             type: Object,
@@ -31,23 +36,22 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             canvas: null,
-            canvasWrapper: null,
-            resizeObserver: null,
             isLoading: false,
             modelEntity: null,
+            quickView: null,
         } as {
             canvas: HTMLCanvasElement | null;
-            canvasWrapper: HTMLElement | null;
-            resizeObserver: ResizeObserver | null;
             isLoading: boolean;
             modelEntity: EntitySchema.Entity<'media'> | null;
+            quickView: QuickView | null;
         };
     },
 
     watch: {
-        source() {
+        async source(): Promise<void> {
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            this.initializeQuickView();
+            await this.quickView?.dispose();
+            return this.initializeQuickView();
         },
     },
 
@@ -63,6 +67,12 @@ export default Shopware.Component.wrapComponentConfig({
         this.mountedComponent();
     },
 
+    computed: {
+        mediaRepository(): Repository<'media'> {
+            return this.repositoryFactory.create('media');
+        },
+    },
+
     methods: {
         createdComponent(): void {
             // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -73,10 +83,9 @@ export default Shopware.Component.wrapComponentConfig({
             // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
 
-            if (this.resizeObserver) {
-                this.resizeObserver.disconnect();
-                this.resizeObserver = null;
-            }
+            this.disposeQuickView().catch((error) => {
+                console.error(error);
+            });
         },
 
         mountedComponent(): void {
@@ -85,56 +94,57 @@ export default Shopware.Component.wrapComponentConfig({
                 @typescript-eslint/no-unsafe-call
             */
             this.canvas = this.$el?.querySelector?.('.sw-model-viewer-canvas');
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,
-               @typescript-eslint/no-unsafe-member-access,
-               @typescript-eslint/no-unsafe-call
-           */
-            this.canvasWrapper = this.$el?.querySelector?.('.sw-model-viewer-canvas-wrapper');
-
-            this.initResizeObserver();
 
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            this.initializeQuickView();
+            this.initializeQuickView().catch((error) => {
+                console.error(error);
+            });
         },
 
-        initResizeObserver(): void {
-            if (!this.canvasWrapper) {
-                return;
+        async initializeQuickView(): Promise<void> {
+            if (!this.canvas) {
+                return Promise.reject(new Error('Canvas is missing'));
             }
 
-            this.resizeObserver = new ResizeObserver((entries) => {
-                entries.forEach((entry) => {
-                    const width = entry.contentRect.width;
-                    (entry.target as HTMLElement).style.height = `${width}px`;
-                });
-            });
-
-            this.resizeObserver.observe(this.canvasWrapper);
-        },
-
-        initializeQuickView(): void {
-            if (!this.canvas || !this.modelEntity?.url) {
-                return;
+            if (!this.modelEntity?.url) {
+                return Promise.reject(new Error('Model entity URL is missing'));
             }
 
             this.isLoading = true;
 
-            QuickView(this.modelEntity.url, {
-                canvas: this.canvas,
-            })
-                .catch((error) => {
-                    console.error(error);
+            this.quickView = markRaw(
+                await QuickView(this.modelEntity.url, {
+                    canvas: this.canvas,
                 })
-                .finally(() => {
-                    this.isLoading = false;
-                });
+                    .catch((error) => {
+                        console.error(error);
+                        return Promise.reject(error as Error);
+                    })
+                    .finally(() => {
+                        this.isLoading = false;
+                    }),
+            );
+
+            return Promise.resolve();
+        },
+
+        async disposeQuickView(): Promise<void> {
+            await this.quickView?.dispose();
         },
 
         onMediaLibraryItemUpdated(mediaId: string): void {
             if (!this.modelEntity?.id) return;
             if (this.modelEntity?.id !== mediaId) return;
 
-            this.initializeQuickView();
+            // Refetch media entity to get fresh URL with updated cache-busting timestamp
+            this.mediaRepository
+                .get(mediaId, Context.api)
+                .then((media) => {
+                    this.modelEntity = media;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         },
     },
 });

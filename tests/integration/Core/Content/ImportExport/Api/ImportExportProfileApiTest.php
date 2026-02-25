@@ -94,7 +94,7 @@ class ImportExportProfileApiTest extends TestCase
         foreach ([0, 5] as $num) {
             // Create test data.
             $data = $this->prepareImportExportProfileTestData($num);
-            if (!empty($data)) {
+            if ($data !== []) {
                 $this->repository->create(array_values($data), $this->context);
             }
 

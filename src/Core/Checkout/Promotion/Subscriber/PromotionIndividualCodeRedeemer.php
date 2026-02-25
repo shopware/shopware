@@ -70,7 +70,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             \iterator_to_array($lineItems)
         )));
 
-        if (empty($codes)) {
+        if ($codes === []) {
             return;
         }
 
@@ -81,7 +81,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
                 /** @var string $code */
                 $code = $item->getPayload()['code'] ?? '';
 
-                if ($code !== $promotion->getCode()) {
+                if (strtolower($code) !== strtolower($promotion->getCode())) {
                     continue;
                 }
 
@@ -99,7 +99,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             }
         }
 
-        if (!empty($update)) {
+        if ($update !== []) {
             $this->codesRepository->update($update, $context);
         }
     }

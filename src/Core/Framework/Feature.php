@@ -210,7 +210,7 @@ class Feature
             return;
         }
 
-        $test->markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
+        $test->markTestSkipped('Skipping feature test due to inactive flag "' . $flagName . '"');
     }
 
     public static function skipTestIfActive(string $flagName, TestCase $test): void
@@ -219,7 +219,7 @@ class Feature
             return;
         }
 
-        $test->markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
+        $test->markTestSkipped('Skipping feature test due to active flag "' . $flagName . '"');
     }
 
     public static function throwException(string $flag, string $message, bool $state = true): void

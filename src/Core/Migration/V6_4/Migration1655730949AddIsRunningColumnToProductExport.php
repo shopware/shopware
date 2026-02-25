@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,7 +20,7 @@ class Migration1655730949AddIsRunningColumnToProductExport extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'product_export', 'is_running')) {
+        if (TableHelper::columnExists($connection, 'product_export', 'is_running')) {
             return;
         }
 

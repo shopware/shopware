@@ -57,7 +57,7 @@ class Context extends Struct
 
         // Should be already a valid language chain, but we will ensure it anyway
         $languageIdChain = array_values(array_filter($languageIdChain));
-        if (empty($languageIdChain)) {
+        if ($languageIdChain === []) {
             throw FrameworkException::invalidArgumentException('Argument "languageIdChain" must not be empty');
         }
 

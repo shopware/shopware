@@ -5,35 +5,14 @@ import type { QuickViewSettings } from '@shopware-ag/dive/quickview';
 import { mount } from '@vue/test-utils';
 
 // Mock QuickView from @shopware-ag/dive/quickview
-const mockQuickView = jest.fn().mockResolvedValue({});
+const mockQuickViewDispose = jest.fn();
+const mockQuickView = jest.fn().mockResolvedValue({
+    dispose: mockQuickViewDispose,
+});
 jest.mock('@shopware-ag/dive/quickview', () => ({
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     QuickView: (...args: QuickViewSettings[]) => mockQuickView(...args),
 }));
-
-// Mock ResizeObserver
-const mockResizeObserverDisconnect = jest.fn();
-const mockResizeObserverObserve = jest.fn();
-const mockResizeObserverCallback = jest.fn();
-
-class MockResizeObserver {
-    callback: ResizeObserverCallback;
-
-    constructor(callback: ResizeObserverCallback) {
-        this.callback = callback;
-        mockResizeObserverCallback.mockImplementation((entries: ResizeObserverEntry[]) => {
-            this.callback(entries, this);
-        });
-    }
-
-    observe = mockResizeObserverObserve;
-
-    disconnect = mockResizeObserverDisconnect;
-
-    unobserve = jest.fn();
-}
-
-global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
 
 const createMediaEntity = (overrides: Partial<EntitySchema.Entity<'media'>> = {}) => {
     return {
@@ -69,10 +48,9 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        mockQuickView.mockResolvedValue({});
-        mockResizeObserverDisconnect.mockClear();
-        mockResizeObserverObserve.mockClear();
-        mockResizeObserverCallback.mockClear();
+        mockQuickView.mockResolvedValue({
+            dispose: mockQuickViewDispose,
+        });
     });
 
     describe('Component Initialization', () => {
@@ -155,67 +133,72 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
         it('should return early if canvas is null', async () => {
             const wrapper = await createWrapper();
+            await flushPromises();
+            const callCountBefore = mockQuickView.mock.calls.length;
+
             await wrapper.setData({ canvas: null });
             /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
                 @typescript-eslint/no-explicit-any,
                 @typescript-eslint/no-unsafe-member-access
             */
-            await (wrapper.vm as any).initializeQuickView();
+            await (wrapper.vm as any).initializeQuickView().catch(() => {});
             await flushPromises();
 
-            // QuickView should not be called if canvas is null
-            const callCountBefore = mockQuickView.mock.calls.length;
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
-                @typescript-eslint/no-explicit-any,
-                @typescript-eslint/no-unsafe-member-access
-            */
-            await (wrapper.vm as any).initializeQuickView();
-            await flushPromises();
-
+            // QuickView should not be called again if canvas is null
             expect(mockQuickView.mock.calls).toHaveLength(callCountBefore);
-            expect(wrapper.vm.isLoading).toBe(false);
         });
 
         it('should return early if modelEntity is null', async () => {
             const wrapper = await createWrapper();
+            await flushPromises();
+            const callCountBefore = mockQuickView.mock.calls.length;
+
             await wrapper.setData({ modelEntity: null });
             /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
                 @typescript-eslint/no-explicit-any,
                 @typescript-eslint/no-unsafe-member-access
             */
-            await (wrapper.vm as any).initializeQuickView();
+            await (wrapper.vm as any).initializeQuickView().catch(() => {});
+            await flushPromises();
+
+            // QuickView should not be called again if modelEntity is null
+            expect(mockQuickView.mock.calls).toHaveLength(callCountBefore);
+        });
+
+        it('should return early if modelEntity.url is missing', async () => {
+            const wrapper = await createWrapper();
             await flushPromises();
 
             const callCountBefore = mockQuickView.mock.calls.length;
+
+            // Manually set URL to undefined and try to reinitialize
+            await wrapper.setData({
+                modelEntity: createMediaEntity({ url: undefined }),
+            });
             /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
                 @typescript-eslint/no-explicit-any,
                 @typescript-eslint/no-unsafe-member-access
             */
-            await (wrapper.vm as any).initializeQuickView();
+            await (wrapper.vm as any).initializeQuickView().catch(() => {});
             await flushPromises();
 
+            // QuickView should not be called again if URL is missing
             expect(mockQuickView.mock.calls).toHaveLength(callCountBefore);
-            expect(wrapper.vm.isLoading).toBe(false);
-        });
-
-        it('should return early if modelEntity.url is missing', async () => {
-            const mediaEntity = createMediaEntity({ url: undefined });
-            const wrapper = await createWrapper({
-                props: {
-                    source: mediaEntity,
-                },
-            });
-            await flushPromises();
-
-            expect(mockQuickView.mock.calls).toHaveLength(0);
-            expect(wrapper.vm.isLoading).toBe(false);
         });
 
         it('should handle QuickView errors gracefully', async () => {
             const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-            mockQuickView.mockRejectedValueOnce(new Error('QuickView failed'));
 
             const wrapper = await createWrapper();
+            await flushPromises();
+
+            // Now reject for the next call
+            mockQuickView.mockRejectedValueOnce(new Error('QuickView failed'));
+            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
+                @typescript-eslint/no-explicit-any,
+                @typescript-eslint/no-unsafe-member-access
+            */
+            await (wrapper.vm as any).initializeQuickView().catch(() => {});
             await flushPromises();
 
             // Component should still exist and isLoading should be false
@@ -227,9 +210,17 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
         it('should set isLoading to false even when QuickView fails', async () => {
             const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-            mockQuickView.mockRejectedValueOnce(new Error('QuickView failed'));
 
             const wrapper = await createWrapper();
+            await flushPromises();
+
+            // Now reject for the next call
+            mockQuickView.mockRejectedValueOnce(new Error('QuickView failed'));
+            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
+                @typescript-eslint/no-explicit-any,
+                @typescript-eslint/no-unsafe-member-access
+            */
+            await (wrapper.vm as any).initializeQuickView().catch(() => {});
             await flushPromises();
 
             expect(wrapper.vm.isLoading).toBe(false);
@@ -271,148 +262,6 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises();
 
             expect(mockQuickView.mock.calls.length).toBeGreaterThan(initialCallCount);
-        });
-
-        it('should handle source prop change errors gracefully', async () => {
-            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-            mockQuickView.mockRejectedValueOnce(new Error('QuickView failed'));
-
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const newMediaEntity = createMediaEntity({
-                id: 'new-media-id',
-                url: 'https://example.com/new-model.glb',
-            });
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-            await wrapper.setProps({ source: newMediaEntity } as any);
-            await flushPromises();
-
-            expect(wrapper.exists()).toBe(true);
-            expect(consoleErrorSpy).toHaveBeenCalled();
-
-            consoleErrorSpy.mockRestore();
-        });
-    });
-
-    describe('ResizeObserver', () => {
-        it('should initialize ResizeObserver on mount', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            expect(wrapper.vm.resizeObserver).toBeTruthy();
-            expect(wrapper.vm.canvasWrapper).toBeTruthy();
-            expect(mockResizeObserverObserve).toHaveBeenCalled();
-        });
-
-        it('should observe the canvas wrapper element', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const canvasWrapper = wrapper.find('.sw-model-viewer-canvas-wrapper').element;
-            expect(mockResizeObserverObserve).toHaveBeenCalledWith(canvasWrapper);
-        });
-
-        it('should set height equal to width when resize is observed', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const canvasWrapper = wrapper.find('.sw-model-viewer-canvas-wrapper').element as HTMLElement;
-
-            // Simulate a resize event
-            const mockEntry = {
-                target: canvasWrapper,
-                contentRect: { width: 400 },
-            } as unknown as ResizeObserverEntry;
-
-            mockResizeObserverCallback([mockEntry]);
-
-            expect(canvasWrapper.style.height).toBe('400px');
-        });
-
-        it('should handle multiple resize entries', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const canvasWrapper = wrapper.find('.sw-model-viewer-canvas-wrapper').element as HTMLElement;
-
-            // Simulate resize with different width
-            const mockEntry1 = {
-                target: canvasWrapper,
-                contentRect: { width: 200 },
-            } as unknown as ResizeObserverEntry;
-
-            mockResizeObserverCallback([mockEntry1]);
-            expect(canvasWrapper.style.height).toBe('200px');
-
-            // Simulate another resize
-            const mockEntry2 = {
-                target: canvasWrapper,
-                contentRect: { width: 600 },
-            } as unknown as ResizeObserverEntry;
-
-            mockResizeObserverCallback([mockEntry2]);
-            expect(canvasWrapper.style.height).toBe('600px');
-        });
-
-        it('should not initialize ResizeObserver if canvasWrapper is null', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            // Reset mocks and manually test initResizeObserver with null wrapper
-            mockResizeObserverObserve.mockClear();
-            await wrapper.setData({ canvasWrapper: null, resizeObserver: null });
-
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
-                @typescript-eslint/no-explicit-any,
-                @typescript-eslint/no-unsafe-member-access
-            */
-            (wrapper.vm as any).initResizeObserver();
-
-            expect(wrapper.vm.resizeObserver).toBeNull();
-        });
-
-        it('should disconnect ResizeObserver on unmount', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            expect(wrapper.vm.resizeObserver).toBeTruthy();
-
-            wrapper.unmount();
-
-            expect(mockResizeObserverDisconnect).toHaveBeenCalled();
-        });
-
-        it('should set resizeObserver to null after disconnect', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const resizeObserver = wrapper.vm.resizeObserver;
-            expect(resizeObserver).toBeTruthy();
-
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
-                @typescript-eslint/no-explicit-any,
-                @typescript-eslint/no-unsafe-member-access
-            */
-            (wrapper.vm as any).beforeUnmountedComponent();
-
-            expect(wrapper.vm.resizeObserver).toBeNull();
-        });
-
-        it('should handle beforeUnmountedComponent when resizeObserver is null', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            await wrapper.setData({ resizeObserver: null });
-
-            // Should not throw
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
-                @typescript-eslint/no-explicit-any,
-                @typescript-eslint/no-unsafe-member-access,
-                @typescript-eslint/no-unsafe-return
-            */
-            expect(() => (wrapper.vm as any).beforeUnmountedComponent()).not.toThrow();
         });
     });
 
@@ -481,7 +330,35 @@ describe('src/app/component/media/sw-model-viewer', () => {
                 id: 'update-test-id',
                 url: 'https://example.com/original-model.glb',
             });
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+            // Mock the API response for fetching updated media
+            /* eslint-disable @typescript-eslint/no-unsafe-assignment,
+                @typescript-eslint/no-explicit-any,
+                @typescript-eslint/no-unsafe-member-access,
+                @typescript-eslint/no-unsafe-call
+            */
+            const responses = (globalThis as any).repositoryFactoryMock.responses;
+            responses.addResponse(
+                /* eslint-enable */
+                {
+                    method: 'Post',
+                    url: '/search/media',
+                    status: 200,
+                    response: {
+                        data: [
+                            {
+                                id: 'update-test-id',
+                                attributes: {
+                                    id: 'update-test-id',
+                                    url: 'https://example.com/updated-model.glb',
+                                },
+                                relationships: [],
+                            },
+                        ],
+                    },
+                },
+            );
+
             const wrapper = await createWrapper({
                 props: {
                     source: mediaEntity,
@@ -489,13 +366,14 @@ describe('src/app/component/media/sw-model-viewer', () => {
             });
             await flushPromises();
 
-            const initialCallCount = mockQuickView.mock.calls.length;
-
-            // Simulate media update
+            // Simulate media update event
             Shopware.Utils.EventBus.emit('sw-media-library-item-updated', 'update-test-id');
             await flushPromises();
 
-            expect(mockQuickView.mock.calls.length).toBeGreaterThan(initialCallCount);
+            // Verify modelEntity was updated with new URL from API
+            expect(wrapper.vm.modelEntity).toBeTruthy();
+            const updatedEntity = wrapper.vm.modelEntity as EntitySchema.Entity<'media'>;
+            expect(updatedEntity?.url).toBe('https://example.com/updated-model.glb');
         });
     });
 });

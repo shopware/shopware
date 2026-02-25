@@ -11,6 +11,14 @@
     />
     {% endblock %}
 
+    {% block sw_order_state_change_modal_attach_documents_internal_comment %}
+    <mt-textarea
+        v-model="internalComment"
+        :label="$tc('sw-order.stateCard.labelInternalComment')"
+        :is-loading="isLoading"
+    />
+    {% endblock %}
+
     {% block sw_order_state_change_modal_attach_documents_button_wrapper %}
     <div class="sw-order-state-change-modal-attach-documents__button-wrapper">
         <div>

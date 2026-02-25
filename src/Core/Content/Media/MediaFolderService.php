@@ -52,7 +52,7 @@ class MediaFolderService
             ];
         }
 
-        if (\count($payload) > 0) {
+        if ($payload !== []) {
             $this->mediaRepo->update($payload, $context);
         }
     }

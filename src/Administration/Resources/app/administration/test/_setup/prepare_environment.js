@@ -396,6 +396,20 @@ global.allowedErrors = [
                 msg1?.includes?.('is already registered. Please select a unique name for your component.');
         },
     },
+    /*
+     * sw-entity-listing "items" prop deprecation - only deprecated for next major v6.8.0
+     * Allow this warning during the transition period
+     */
+    {
+        method: 'warn',
+        msgCheck: (msg0) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('[Deprecation] sw-entity-listing: The "items" prop is deprecated');
+        },
+    },
 
     {
         method: 'warn',

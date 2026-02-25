@@ -101,11 +101,16 @@
                             </div>
                         {% endblock %}
 
+                        {% set offcanvasCartOptions = {
+                            autoFocus: true
+                        } %}
+
                         {% block layout_header_actions_cart %}
                             <div class="col-auto">
                                 <div
                                     class="header-cart"
                                     data-off-canvas-cart="true"
+                                    data-off-canvas-cart-options="{{ offcanvasCartOptions|json_encode }}"
                                 >
                                     <a
                                         class="btn header-cart-btn header-actions-btn"
@@ -113,7 +118,7 @@
                                         data-cart-widget="true"
                                         title="{{ 'checkout.cartTitle'|trans|striptags }}"
                                         aria-labelledby="cart-widget-aria-label"
-                                        aria-haspopup="true"
+                                        aria-haspopup="dialog"
                                     >
                                         {% sw_include '@Storefront/storefront/layout/header/actions/cart-widget.html.twig' %}
                                     </a>

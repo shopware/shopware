@@ -7,14 +7,14 @@
     "index": {
       "headlineMain": "Hello!",
       "subheadlineMain": "Welcome back.",
-      "headlineForm": "Log in to your Shopware store",
+      "headlineForm": "Log in to Shopware",
       "labelUsername": "Username",
       "labelPassword": "Password",
-      "labelKeepLoggedIn": "Stay signed in",
+      "labelKeepLoggedIn": "Stay logged in",
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
       "buttonLogin": "Log in",
-      "buttonSsoLogin": "Log in with Shopware SSO",
+      "buttonSsoLogin": "Log in with Shopware",
       "messageUnsupportedGrantType": "Authorisation grant type not supported by authorisation server.",
       "messageInvalidRequest": "Invalid request.",
       "messageInvalidClient": "Client authentication failed.",
@@ -25,7 +25,8 @@
       "messageAccessDenied": "Request denied by authorisation server.",
       "messageGeneralRequestError": "Something went wrong requesting \"{url}\".",
       "messageAuthThrottled": "Too many login attempts. Please wait {seconds} seconds before trying to log in again.",
-      "forgottenPasswordLink": "Did you forget your password?"
+      "forgottenPasswordLink": "Forgot your password?",
+      "orContinueWith": "Or continue with"
     },
     "recovery" : {
       "info": {

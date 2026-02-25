@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1763125891AddProductTypeColumn;
 
 /**
@@ -33,39 +33,28 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $table = $this->getProductTable();
-
-        static::assertTrue($table->hasColumn('type'));
-        static::assertSame('physical', $table->getColumn('type')->getDefault());
-        static::assertTrue($table->hasIndex('idx.product.type'));
+        $typeColumn = TableHelper::getColumnOfTable($this->connection, 'product', 'type');
+        static::assertSame('physical', $typeColumn->defaultValue);
+        static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.type'));
     }
 
     private function dropTypeColumnIfExists(): void
     {
-        $table = $this->getProductTable();
-
-        if ($table->hasIndex('idx.product.type')) {
+        if (TableHelper::indexExists($this->connection, 'product', 'idx.product.type')) {
             $this->connection->executeStatement('DROP INDEX `idx.product.type` ON `product`');
         }
 
-        if ($table->hasColumn('type')) {
+        if (TableHelper::columnExists($this->connection, 'product', 'type')) {
             $this->connection->executeStatement('ALTER TABLE `product` DROP COLUMN `type`');
         }
     }
 
     private function ensureStatesColumnExists(): void
     {
-        $table = $this->getProductTable();
-
-        if ($table->hasColumn('states')) {
+        if (TableHelper::columnExists($this->connection, 'product', 'states')) {
             return;
         }
 
         $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN `states` JSON NULL');
-    }
-
-    private function getProductTable(): Table
-    {
-        return $this->connection->createSchemaManager()->introspectTable('product');
     }
 }

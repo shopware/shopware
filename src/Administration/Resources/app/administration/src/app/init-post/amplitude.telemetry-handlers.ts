@@ -39,12 +39,8 @@ export default function createTelemetryEventHandler(
         },
         reset: () => {
             amplitude.track('Logout');
-
-            // we need a timeout if we want to include the click on the logout button
-            setTimeout(() => {
-                amplitude.flush();
-                amplitude.reset();
-            }, 0);
+            amplitude.flush();
+            amplitude.reset();
         },
         user_interaction: (event) => {
             const { target, originalEvent } = event.eventData;

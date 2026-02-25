@@ -21,6 +21,7 @@ export default async function (): Promise<void> {
         amplitude.setTransport('beacon');
         anonymousAmplitude.setTransport('beacon');
         anonymousAmplitude.flush();
+        anonymousAmplitude.reset();
     });
 
     let defaultLanguageName = '';

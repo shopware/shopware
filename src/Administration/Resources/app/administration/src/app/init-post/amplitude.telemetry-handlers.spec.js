@@ -47,21 +47,12 @@ describe('src/app/init-post/amplitude.telemetry-handlers.ts', () => {
         expect(amplitude.track).not.toHaveBeenCalled();
     });
 
-    it('tracks logout and flushes/resets asynchronously', () => {
-        jest.useFakeTimers();
-
+    it('tracks logout and flushes/resets immediately', () => {
         pushTelemetryEventToAmplitude(new TelemetryEvent('reset', {}));
 
         expect(amplitude.track).toHaveBeenCalledWith('Logout');
-        expect(amplitude.flush).not.toHaveBeenCalled();
-        expect(amplitude.reset).not.toHaveBeenCalled();
-
-        jest.runAllTimers();
-
         expect(amplitude.flush).toHaveBeenCalledTimes(1);
         expect(amplitude.reset).toHaveBeenCalledTimes(1);
-
-        jest.useRealTimers();
     });
 
     it('normalizes non-string route names for page change tracking', () => {

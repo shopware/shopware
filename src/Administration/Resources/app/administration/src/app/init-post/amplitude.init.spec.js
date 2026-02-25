@@ -7,6 +7,7 @@ const mockAnonymousAmplitudeClient = {
     track: jest.fn(),
     setTransport: jest.fn(),
     flush: jest.fn(),
+    reset: jest.fn(),
 };
 
 jest.mock('@amplitude/analytics-browser', () => ({
@@ -31,6 +32,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
         mockAnonymousAmplitudeClient.track.mockClear();
         mockAnonymousAmplitudeClient.setTransport.mockClear();
         mockAnonymousAmplitudeClient.flush.mockClear();
+        mockAnonymousAmplitudeClient.reset.mockClear();
 
         mockLoginService = {
             addOnLogoutListener: jest.fn(),
@@ -361,6 +363,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
             expect(mockAnonymousAmplitudeClient.setTransport).toHaveBeenCalledWith('beacon');
             expect(mockAnonymousAmplitudeClient.flush).toHaveBeenCalledTimes(1);
+            expect(mockAnonymousAmplitudeClient.reset).toHaveBeenCalledTimes(1);
         });
     });
 });

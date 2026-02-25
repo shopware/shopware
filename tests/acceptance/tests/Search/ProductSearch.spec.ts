@@ -20,16 +20,12 @@ test('Customer is able to search products in shop', { tag: ['@Search', '@Storefr
 
     await TestDataService.clearCaches();
 
-    await ShopCustomer.expects(async () => {
-        await test.step('Wait for products to be visible.', async () => {
-            await ShopCustomer.goesTo(StorefrontHome.url());
-            const productLocator1 = await StorefrontHome.getListingItemByProductName(`Bottle${productNameSuffix1}`);
-            await ShopCustomer.expects(productLocator1.productName).toBeVisible();
-            const productLocator2 = await StorefrontHome.getListingItemByProductName(`Bowl${productNameSuffix1}`);
-            await ShopCustomer.expects(productLocator2.productName).toBeVisible();
-        });
-    }).toPass({
-        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+    await test.step('Wait for products to be visible.', async () => {
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        const productLocator1 = await StorefrontHome.getListingItemByProductName(`Bottle${productNameSuffix1}`);
+        await ShopCustomer.expects(productLocator1.productName).toBeVisible();
+        const productLocator2 = await StorefrontHome.getListingItemByProductName(`Bowl${productNameSuffix1}`);
+        await ShopCustomer.expects(productLocator2.productName).toBeVisible();
     });
 
     await test.step('Customer searches with an invalid input and sees no results', async () => {

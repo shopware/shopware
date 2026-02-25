@@ -183,11 +183,15 @@ test('As a shop customer, I want to filter reviews by rating, log in and come ba
     const customer = await TestDataService.createCustomer();
     const product = await TestDataService.createBasicProduct();
 
-    await TestDataService.createProductReview(product.id, { points: 5 });
-    await TestDataService.createProductReview(product.id, { points: 5 });
-    await TestDataService.createProductReview(product.id, { points: 3 });
-    await TestDataService.createProductReview(product.id, { points: 2 });
-    await TestDataService.createProductReview(product.id, { points: 1 });
+    const promises: Promise<void>[] = [
+        TestDataService.createProductReview(product.id, { points: 5 }),
+        TestDataService.createProductReview(product.id, { points: 5 }),
+        TestDataService.createProductReview(product.id, { points: 3 }),
+        TestDataService.createProductReview(product.id, { points: 2 }),
+        TestDataService.createProductReview(product.id, { points: 1 }),
+    ];
+
+    await Promise.all(promises);
 
     await test.step('Navigate to review tab within product detail page.', async () => {
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

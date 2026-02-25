@@ -71,14 +71,10 @@ test(
         });
 
         await test.step('Testing product listing contains cheapest price @product', async () => {
-            await ShopCustomer.expects(async () => {
-                await ShopCustomer.goesTo(StorefrontHome.url());
-                await ShopCustomer.expects(
-                    StorefrontHome.productListItems.filter({ hasText: product.name }).locator('.product-price-wrapper')
-                ).toContainText(formatPrice(70.0));
-            }).toPass({
-                intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-            });
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            await ShopCustomer.expects(
+                StorefrontHome.productListItems.filter({ hasText: product.name }).locator('.product-price-wrapper')
+            ).toContainText(formatPrice(70.0));
 
             await ShopCustomer.expects(
                 StorefrontHome.productListItems.filter({ hasText: product.name }).getByText('Details')

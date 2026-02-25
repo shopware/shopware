@@ -43,6 +43,7 @@ import MtSearch from '@shopware-ag/meteor-component-library/dist/esm/MtSearch';
 import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
+import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
@@ -384,6 +385,7 @@ export default class VueAdapter extends ViewAdapter {
             MtLink,
             MtUnitField,
             MtSnackbar,
+            MtTooltip,
         } as const;
 
         const lazyMeteorComponents = {
@@ -391,6 +393,14 @@ export default class VueAdapter extends ViewAdapter {
             MtColorpicker: () => import('@shopware-ag/meteor-component-library/dist/esm/MtColorpicker'),
             MtPopover: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopover'),
             MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
+            MtActionMenu: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenu'),
+            MtActionMenuGroup: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup'),
+            MtActionMenuItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem'),
+            MtDropdownMenuRoot: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuRoot),
+            MtDropdownMenuPortal: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuPortal),
+            MtDropdownMenuTrigger: () =>
+                import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuTrigger),
+            MtDropdownMenuSub: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuSub),
         };
 
         Object.entries(meteorComponents).forEach(

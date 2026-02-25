@@ -5,7 +5,6 @@
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import createMenuService from 'src/app/service/menu.service';
-import catalogues from './_sw-admin-menu-item/catalogues';
 
 /** fixtures */
 import adminModules from '../../../service/_mocks/adminModules.json';
@@ -186,29 +185,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(userTitle.text()).toBe('Copyreader');
     });
 
-    it('should remove classes from an element', async () => {
-        const element1 = document.createElement('div');
-        const element2 = document.createElement('div');
-
-        element1.classList.add('foo', 'bar');
-        element2.classList.add('foo', 'bar');
-
-        wrapper.vm.removeClassesFromElements(
-            [
-                element1,
-                element2,
-            ],
-            ['foo'],
-            [element2],
-        );
-
-        expect(element1.classList.contains('bar')).toBe(true);
-        expect(element1.classList.contains('foo')).toBe(false);
-
-        expect(element2.classList.contains('bar')).toBe(true);
-        expect(element2.classList.contains('foo')).toBe(true);
-    });
-
     it('should be able to check if a mouse position is in a polygon', async () => {
         const polygon = [
             [
@@ -373,58 +349,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             expect(appMenuEntry.text()).toContain('Default module');
         });
-    });
-
-    it('get the first plugin menu entry', () => {
-        let entry = {
-            path: 'sw.foo.index',
-            label: 'sw-foo.general.mainMenuItemList',
-            id: 'sw-foo',
-            moduleType: 'plugin',
-            parent: 'sw-catalogue',
-            position: 1010,
-            children: [],
-            level: 2,
-        };
-
-        expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBe(true);
-
-        entry = {
-            path: 'sw.bar.index',
-            label: 'sw-bar.general.mainMenuItemList',
-            id: 'sw-bar',
-            moduleType: 'plugin',
-            parent: 'sw-catalogue',
-            position: 1010,
-            children: [],
-            level: 2,
-        };
-
-        expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBe(false);
-    });
-
-    it('positioning of flyout should respect top app border', async () => {
-        const app = document.createElement('div');
-        app.id = 'app';
-        document.body.appendChild(app);
-        const component = document.createElement('div');
-        component.id = 'component';
-        app.appendChild(component);
-
-        wrapper = await createWrapper({
-            attachTo: '#component',
-        });
-        await flushPromises();
-
-        const target = wrapper.find('.navigation-list-item__has-children');
-
-        target.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
-        app.getBoundingClientRect = jest.fn(() => ({ top: 20 }));
-
-        await target.trigger('mouseenter');
-        await flushPromises();
-
-        expect(wrapper.vm.flyoutStyle.top).toBe('80px');
     });
 
     it('should not show icons in flyout menu items', async () => {

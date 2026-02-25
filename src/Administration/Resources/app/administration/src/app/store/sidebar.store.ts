@@ -11,11 +11,15 @@ export type SidebarItemEntry = Omit<uiSidebarAdd, 'responseType'> & {
     active: boolean;
 };
 
+// Keep in sync with the close animation duration in sw-sidebar-renderer.scss.
+const CLOSE_ANIMATION_DURATION = 400;
+
 const sidebarsStore = Shopware.Store.register({
     id: 'sidebar',
 
     state: () => ({
         sidebars: [] as SidebarItemEntry[],
+        closingSidebar: null as string | null,
     }),
 
     getters: {
@@ -54,6 +58,24 @@ const sidebarsStore = Shopware.Store.register({
             sidebar.active = false;
         },
 
+        // Play the closing animation, then deactivate once it finishes.
+        requestCloseSidebar(locationId: string): void {
+            if (this.closingSidebar === locationId) {
+                return;
+            }
+
+            this.closingSidebar = locationId;
+            window.setTimeout(() => {
+                // Skip if it was reopened in the meantime.
+                if (this.closingSidebar !== locationId) {
+                    return;
+                }
+
+                this.closeSidebar(locationId);
+                this.closingSidebar = null;
+            }, CLOSE_ANIMATION_DURATION);
+        },
+
         removeSidebar(locationId: string): void {
             this.sidebars = this.sidebars.filter((sidebar) => {
                 return sidebar.locationId !== locationId;
@@ -62,6 +84,9 @@ const sidebarsStore = Shopware.Store.register({
 
         // Store API
         setActiveSidebar(locationId: string): void {
+            // cancel any pending close animation
+            this.closingSidebar = null;
+
             // reset all sidebars
             this.sidebars.forEach((sidebar) => {
                 sidebar.active = false;

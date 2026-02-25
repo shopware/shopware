@@ -216,15 +216,31 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         }
 
         const navigation = module.navigation;
-        let currentNavigationEntry = null;
 
-        navigation.forEach((item) => {
-            if (item.path === to.name) {
-                currentNavigationEntry = item;
+        const findEntryByRoute = (routeName) => navigation.find((item) => item.path === routeName) ?? null;
+
+        // The current route is itself a navigation entry (e.g. list/index pages).
+        const directEntry = findEntryByRoute(to.name);
+        if (directEntry) {
+            return directEntry;
+        }
+
+        // Sub-pages (detail, create, …) resolve to their owning entry by walking the `parentPath` chain.
+        const visited = new Set();
+        let parentPath = to.meta?.parentPath;
+
+        while (parentPath && !visited.has(parentPath)) {
+            visited.add(parentPath);
+
+            const parentEntry = findEntryByRoute(parentPath);
+            if (parentEntry) {
+                return parentEntry;
             }
-        });
 
-        return currentNavigationEntry;
+            parentPath = module.routes?.get?.(parentPath)?.meta?.parentPath;
+        }
+
+        return null;
     }
 
     /**

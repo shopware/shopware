@@ -10,7 +10,10 @@
     {% block sw_sales_channel_menu_headline %}
     <div class="sw-admin-menu__headline">
         {% block sw_sales_channel_menu_headline_text %}
-        <div class="collapsible-text sw-admin-menu__headline_text">
+        <div
+            v-if="isSidebarExpanded"
+            class="collapsible-text sw-admin-menu__headline_text"
+        >
             <router-link
                 :to="{ name: 'sw.sales.channel.list' }"
             >{{ $tc('sw-sales-channel.general.titleMenuItems') }}</router-link>
@@ -18,34 +21,50 @@
         {% endblock %}
 
         {% block sw_sales_channel_menu_headline_context_button %}
-        <sw-context-button
-            class="sw-admin-menu__headline-context-menu"
-            icon="solid-ellipsis-h"
-        >
-            {% block sw_sales_channel_menu_headline_context_button_item %}
-            <sw-context-menu-item
-                class="sw-admin-menu__headline-context-menu-manage-sales-channels"
-                :router-link="{ name: 'sw.sales.channel.list' }"
-            >
-                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
-            </sw-context-menu-item>
-            {% endblock %}
-        </sw-context-button>
-        {% endblock %}
+        <mt-dropdown-menu-root class="sw-admin-menu__headline-context-menu">
+            <mt-dropdown-menu-trigger as-child>
+                <button
+                    type="button"
+                    class="sw-admin-menu__headline-action"
+                    :aria-label="$tc('sw-sales-channel.general.manageSalesChannels')"
+                >
+                    <mt-icon
+                        name="solid-ellipsis-h-s"
+                        :size="isSidebarExpanded ? '10px' : '16px'"
+                    />
+                </button>
+            </mt-dropdown-menu-trigger>
 
-        {% block sw_sales_channel_menu_headline_action %}
-        <button
-            v-if="canCreateSalesChannels"
-            :aria-label="$tc('sw-sales-channel.general.addSalesChannel')"
-            class="sw-admin-menu__headline-action"
-            @click="openSalesChannelModal"
-        >
-            <mt-icon
-                class="sw-admin-menu__headline-icon"
-                name="regular-plus-circle-s"
-                size="16px"
-            />
-        </button>
+            <mt-dropdown-menu-portal>
+                <mt-action-menu>
+                    {% block sw_sales_channel_menu_headline_context_button_item %}
+                    <router-link
+                        v-slot="{ navigate }"
+                        :to="{ name: 'sw.sales.channel.list' }"
+                        custom
+                    >
+                        <mt-action-menu-item
+                            class="sw-admin-menu__headline-context-menu-manage-sales-channels"
+                            icon="regular-pencil-s"
+                            @click="navigate"
+                        >
+                            {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+                        </mt-action-menu-item>
+                    </router-link>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_menu_headline_action %}
+                    <mt-action-menu-item
+                        v-if="canCreateSalesChannels"
+                        icon="regular-plus-circle"
+                        @click="openSalesChannelModal"
+                    >
+                        {{ $tc('sw-sales-channel.general.addSalesChannel') }}
+                    </mt-action-menu-item>
+                    {% endblock %}
+                </mt-action-menu>
+            </mt-dropdown-menu-portal>
+        </mt-dropdown-menu-root>
         {% endblock %}
     </div>
     {% endblock %}
@@ -60,6 +79,7 @@
             <sw-admin-menu-item
                 v-for="(entry, index) in buildMenuTree"
                 :key="entry.id || index"
+                v-tooltip.right="getEntryTooltipConfig(entry)"
                 class="sw-admin-menu__sales-channel-item"
                 :entry="entry"
                 icon-size="16px"
@@ -68,14 +88,14 @@
                 <template #additional-text>
                     {% block sw_sales_channel_menu_navigation_item_additional_text %}
                     <button
-                        v-if="entry.domainLink && entry.active"
+                        v-if="entry.domainLink && entry.active && isSidebarExpanded"
                         class="sw-sales-channel-menu-domain-link"
                         :title="$tc('sw-sales-channel.general.tooltipOpenStorefront')"
                         @click.prevent="openStorefrontLink(entry.domainLink)"
                     >
                         <mt-icon
                             class="sw-sales-channel-menu-domain-link__icon"
-                            name="regular-eye-s"
+                            name="regular-eye"
                             size="16px"
                         />
                     </button>
@@ -87,6 +107,7 @@
             {% block sw_sales_channel_menu_navigation_more_items %}
             <sw-admin-menu-item
                 v-if="moreSalesChannelAvailable"
+                v-tooltip.right="getEntryTooltipConfig(moreItemsEntry)"
                 :entry="moreItemsEntry"
                 class="sw-admin-menu__sales-channel-more-items"
                 icon-size="16px"
@@ -94,23 +115,6 @@
             {% endblock %}
         </ul>
         {% endblock %}
-
-        {% block sw_sales_channel_menu_context_button_collapsed %}
-        <sw-context-button
-            class="sw-sales-channel-menu__collapsed-context-menu"
-            icon="regular-ellipsis-v"
-            aria-label="sw-sales-channel.general.manageSalesChannels"
-            icon-size="20px"
-        >
-            <sw-context-menu-item
-                class="sw-admin-menu__headline-context-menu-manage-sales-channels"
-                :router-link="{ name: 'sw.sales.channel.list' }"
-            >
-                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
-            </sw-context-menu-item>
-        </sw-context-button>
-        {% endblock %}
-
     </nav>
     {% endblock %}
 </div>

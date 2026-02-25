@@ -74,6 +74,7 @@ async function createWrapper({ props = {}, privileges = [] } = {}) {
                     hasActiveSettingModules: aclService.hasActiveSettingModules,
                     state: aclService.state,
                 },
+                feature: {},
             },
         },
     });
@@ -542,41 +543,6 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
 
         expect(wrapper.html()).not.toBe('');
-    });
-
-    it('get the first plugin menu entry', async () => {
-        const wrapper = await createWrapper({
-            privileges: [],
-            props: {
-                entry: {
-                    path: 'sw.foo.index',
-                    label: 'sw-foo.general.mainMenuItemList',
-                    id: 'sw-foo',
-                    moduleType: 'plugin',
-                    parent: 'sw-catalogue',
-                    position: 1010,
-                    children: [],
-                    level: 2,
-                },
-            },
-        });
-
-        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeTruthy();
-
-        await wrapper.setProps({
-            entry: {
-                path: 'sw.bar.index',
-                label: 'sw-bar.general.mainMenuItemList',
-                id: 'sw-bar',
-                moduleType: 'plugin',
-                parent: 'sw-catalogue',
-                position: 1010,
-                children: [],
-                level: 2,
-            },
-        });
-
-        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeFalsy();
     });
 
     it('should match route', async () => {

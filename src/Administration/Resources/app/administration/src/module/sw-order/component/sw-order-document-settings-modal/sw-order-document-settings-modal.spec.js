@@ -205,6 +205,32 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         expect(wrapper.emitted()['preview-show'][0][0].fileTypes).toEqual(['html']);
     });
 
+    it('should show XML download label when document type is zugferd_invoice', async () => {
+        await wrapper.setProps({
+            currentDocumentType: {
+                id: '5',
+                name: 'E-Invoice (ZUGFeRD)',
+                technicalName: 'zugferd_invoice',
+            },
+        });
+
+        const downloadButton = wrapper.find('.sw-order-document-settings-modal__download-button');
+        expect(downloadButton.text()).toBe('sw-order.documentModal.labelCreateDownloadXml');
+    });
+
+    it('should show PDF download label when document type is invoice', async () => {
+        await wrapper.setProps({
+            currentDocumentType: {
+                id: '1',
+                name: 'Invoice',
+                technicalName: 'invoice',
+            },
+        });
+
+        const downloadButton = wrapper.find('.sw-order-document-settings-modal__download-button');
+        expect(downloadButton.text()).toBe('sw-order.documentModal.labelCreateDownloadPdf');
+    });
+
     it('should allow any text input in the document number field', async () => {
         const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
         expect(documentNumberFieldInput.exists()).toBeTruthy();

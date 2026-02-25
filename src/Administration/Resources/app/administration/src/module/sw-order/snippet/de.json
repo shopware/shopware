@@ -437,6 +437,7 @@
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
       "labelCreateDownloadPdf": "Erstellen und PDF herunterladen",
+      "labelCreateDownloadXml": "Erstellen und XML herunterladen",
       "labelCreateSend": "Beleg erstellen und senden",
       "labelCreate": "Beleg erstellen",
       "labelCancel": "Schließen",

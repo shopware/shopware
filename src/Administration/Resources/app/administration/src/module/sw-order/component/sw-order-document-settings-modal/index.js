@@ -109,6 +109,10 @@ export default {
             return this.currentDocumentType?.technicalName?.startsWith('zugferd_') ?? false;
         },
 
+        isXmlDocument() {
+            return this.currentDocumentType?.technicalName === 'zugferd_invoice';
+        },
+
         documentNumber: {
             get() {
                 return String(this.documentConfig.documentNumber);

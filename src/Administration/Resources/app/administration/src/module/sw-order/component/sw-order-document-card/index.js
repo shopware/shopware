@@ -409,7 +409,8 @@ export default {
                 }
 
                 if (additionalAction === 'download') {
-                    this.downloadDocument(documentId, documentDeepLink);
+                    const fileType = this.currentDocumentType?.technicalName === 'zugferd_invoice' ? 'xml' : 'pdf';
+                    this.downloadDocument(documentId, documentDeepLink, fileType);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
                     criteria.addAssociation('documentType').addAssociation('documentA11yMediaFile');

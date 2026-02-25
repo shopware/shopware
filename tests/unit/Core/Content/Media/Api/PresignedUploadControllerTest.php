@@ -48,6 +48,7 @@ class PresignedUploadControllerTest extends TestCase
                 'url' => 'https://s3.example.com/presigned-url',
                 'path' => 'media/ab/cd/test-file.jpg',
                 'expiresAt' => '2026-02-10T12:00:00+00:00',
+                'isDuplicate' => false,
             ]);
 
         $response = $this->controller->prepare($payload, $context);
@@ -57,6 +58,37 @@ class PresignedUploadControllerTest extends TestCase
         $data = json_decode((string) $response->getContent(), true);
         static::assertSame('media-id-123', $data['mediaId']);
         static::assertSame('https://s3.example.com/presigned-url', $data['url']);
+        static::assertFalse($data['isDuplicate']);
+    }
+
+    public function testPrepareReturnsDuplicateFlag(): void
+    {
+        $context = Context::createDefaultContext();
+        $payload = new PresignedUploadPreparePayload(
+            fileName: 'duplicate-file',
+            extension: 'png',
+            mimeType: 'image/png',
+            mediaFolderId: 'folder-456',
+            private: false,
+        );
+
+        $this->service->expects($this->once())
+            ->method('prepare')
+            ->with($payload, $context)
+            ->willReturn([
+                'mediaId' => 'media-id-456',
+                'url' => 'https://s3.example.com/presigned-url-2',
+                'path' => 'media/ab/cd/duplicate-file.png',
+                'expiresAt' => '2026-02-10T12:00:00+00:00',
+                'isDuplicate' => true,
+            ]);
+
+        $response = $this->controller->prepare($payload, $context);
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $data = json_decode((string) $response->getContent(), true);
+        static::assertTrue($data['isDuplicate']);
     }
 
     public function testFinalizeReturnsMediaId(): void

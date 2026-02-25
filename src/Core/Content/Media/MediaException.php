@@ -526,7 +526,7 @@ class MediaException extends HttpException
     public static function presignedUploadFinalizeFailed(string $mediaId): self
     {
         return new self(
-            Response::HTTP_NOT_FOUND,
+            Response::HTTP_BAD_REQUEST,
             self::MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED,
             'Could not verify uploaded file for media with id "{{ mediaId }}".',
             ['mediaId' => $mediaId]

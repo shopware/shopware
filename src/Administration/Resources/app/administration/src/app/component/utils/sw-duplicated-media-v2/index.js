@@ -221,7 +221,7 @@ export default {
             this.suggestedName = provided.fileName;
         },
 
-        solveDuplicate() {
+        async solveDuplicate() {
             if (!this.currentTask) {
                 this.isLoading = false;
                 return;
@@ -231,17 +231,17 @@ export default {
 
             switch (this.selectedOption) {
                 case 'Rename':
-                    this.renameFile(this.currentTask);
+                    await this.renameFile(this.currentTask);
                     break;
                 case 'Replace':
-                    this.replaceFile(this.currentTask);
+                    await this.replaceFile(this.currentTask);
                     break;
                 case 'Keep':
-                    this.keepFile(this.currentTask);
+                    await this.keepFile(this.currentTask);
                     break;
                 case 'Skip':
                 default:
-                    this.skipFile(this.currentTask);
+                    await this.skipFile(this.currentTask);
                     break;
             }
 
@@ -250,7 +250,7 @@ export default {
             if (!this.currentTask || !this.isWorkingOnMultipleTasks) {
                 this.isLoading = false;
             } else {
-                this.solveDuplicate();
+                await this.solveDuplicate();
             }
         },
 
@@ -270,22 +270,22 @@ export default {
             await this.mediaService.runUploads(newTask.uploadTag);
         },
 
-        skipAll() {
+        async skipAll() {
             this.isLoading = true;
 
-            this.skipFile(this.currentTask);
+            await this.skipFile(this.currentTask);
             this.failedUploadTasks.splice(0, 1);
 
             if (!this.currentTask) {
                 this.isLoading = false;
             } else {
-                this.skipAll();
+                await this.skipAll();
             }
         },
 
-        skipCurrentFile() {
+        async skipCurrentFile() {
             this.isLoading = true;
-            this.skipFile(this.currentTask);
+            await this.skipFile(this.currentTask);
 
             this.failedUploadTasks.splice(0, 1);
             this.isLoading = false;

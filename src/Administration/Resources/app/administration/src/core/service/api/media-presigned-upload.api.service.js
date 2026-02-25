@@ -153,7 +153,7 @@ class MediaPresignedUploadApiService extends ApiService {
                     mediaId = result.mediaId;
 
                     if (result.isDuplicate) {
-                        throw this._buildDuplicateError(fileName, extension);
+                        throw this.buildDuplicateError(fileName, extension);
                     }
 
                     emit(UploadEvents.UPLOAD_ADDED, {
@@ -203,7 +203,7 @@ class MediaPresignedUploadApiService extends ApiService {
         );
     }
 
-    _buildDuplicateError(fileName, extension) {
+    buildDuplicateError(fileName, extension) {
         return {
             response: {
                 data: {

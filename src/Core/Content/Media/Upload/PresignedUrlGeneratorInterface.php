@@ -17,7 +17,5 @@ interface PresignedUrlGeneratorInterface
 
     public function isSupported(): bool;
 
-    public function verifyUpload(string $path): bool;
-
     public function getFileMetadata(string $path): ?FileMetadataResult;
 }

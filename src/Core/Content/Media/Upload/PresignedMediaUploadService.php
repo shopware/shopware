@@ -165,7 +165,7 @@ readonly class PresignedMediaUploadService
             throw MediaException::mediaNotFound($mediaId);
         }
 
-        $this->validateFileExtension($payload->extension, $media->isPrivate());
+        $this->validateFileExtension($payload->extension, $media->isPrivate(), $mediaId);
         $this->validateExpectedPath($mediaId, $payload, $media);
 
         $isReplace = $media->hasFile();
@@ -175,7 +175,9 @@ readonly class PresignedMediaUploadService
         }
 
         try {
-            if (!$this->presignedUrlGenerator->verifyUpload($payload->path)) {
+            $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($payload->path);
+
+            if ($s3Metadata === null) {
                 throw MediaException::presignedUploadFinalizeFailed($mediaId);
             }
 
@@ -189,9 +191,8 @@ readonly class PresignedMediaUploadService
                 }
             }
 
-            $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($payload->path);
-            $fileSize = $s3Metadata !== null ? $s3Metadata->size : 0;
-            $fileHash = $s3Metadata?->etag;
+            $fileSize = $s3Metadata->size;
+            $fileHash = $s3Metadata->etag;
 
             $mediaType = $this->detectMediaType($payload->mimeType, $payload->extension);
             $metaData = $this->buildMetadata($fileHash, $payload);
@@ -320,7 +321,7 @@ readonly class PresignedMediaUploadService
         }
     }
 
-    private function validateFileExtension(string $extension, bool $isPrivate): void
+    private function validateFileExtension(string $extension, bool $isPrivate, string $mediaId = ''): void
     {
         $event = new MediaFileExtensionWhitelistEvent($isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions);
         $this->eventDispatcher->dispatch($event);
@@ -333,7 +334,7 @@ readonly class PresignedMediaUploadService
             }
         }
 
-        throw MediaException::fileExtensionNotSupported('', $fileExtension);
+        throw MediaException::fileExtensionNotSupported($mediaId, $fileExtension);
     }
 
     private function detectMediaType(string $mimeType, string $extension): MediaType
@@ -369,7 +370,9 @@ readonly class PresignedMediaUploadService
         if ($payload->width !== null && $payload->height !== null) {
             $metaData['width'] = $payload->width;
             $metaData['height'] = $payload->height;
+        }
 
+        if ($payload->mimeType !== null) {
             $imageType = $this->resolveImageType($payload->mimeType);
             if ($imageType !== null) {
                 $metaData['type'] = $imageType;

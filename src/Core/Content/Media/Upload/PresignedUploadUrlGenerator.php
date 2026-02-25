@@ -124,28 +124,6 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         return $this->enabled && $this->s3Client !== null && $this->bucket !== null;
     }
 
-    public function verifyUpload(string $path): bool
-    {
-        if ($this->s3Client === null || $this->bucket === null) {
-            return false;
-        }
-
-        try {
-            $s3Key = $this->ensureRootPrefix($path);
-
-            $request = new HeadObjectRequest([
-                'Bucket' => $this->bucket,
-                'Key' => $s3Key,
-            ]);
-
-            $this->s3Client->headObject($request)->resolve();
-
-            return true;
-        } catch (\Throwable) {
-            return false;
-        }
-    }
-
     public function getFileMetadata(string $path): ?FileMetadataResult
     {
         if ($this->s3Client === null || $this->bucket === null) {

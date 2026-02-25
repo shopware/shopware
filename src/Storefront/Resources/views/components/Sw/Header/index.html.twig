@@ -11,7 +11,7 @@
         justifyContent="end"
         align="end"
         autoColumns="max-content"
-        gap="15"
+        margin="6rem"
     >
         <twig:Sw:Grid:Column :display="{ xs: false, sm: false, md: false, lg: true, xl: true, xxl: true }">
             <twig:Sw:Header:LanguageSelect :languages="header.languages" />
@@ -27,7 +27,7 @@
         justifyContent="stretch"
         alignContent="center"
         align="center"
-        gap="16"
+
     >
         <twig:Sw:Grid:Column
             justify="stretch"
@@ -54,6 +54,7 @@
                 gap="0"
                 justifyContent="end"
                 :centered="false"
+                :marginBottom="0"
                 autoColumns="max-content"
             >
 
@@ -78,6 +79,7 @@
         justify="center"
         border="bottom"
         borderVariant="secondarySubtle"
+        :paddingX="0"
     >
         {# :display="{ xs: false, sm: false, md: false, lg: true, xl: true, xxl: true }" #}
         <twig:Sw:Header:Navbar

@@ -9,7 +9,9 @@
     rowsMd = null,
     rowsLg = null,
     rowsXl = null,
-    gap = 24,
+    gap = 3,
+    rowGap = null,
+    columnGap = null,
     align = 'start',
     alignContent = 'start',
     justify = 'start',
@@ -20,7 +22,73 @@
     border = null,
     borderVariant = null,
     borderSubtle = false,
+    padding = null,
+    paddingX = null,
+    paddingY = null,
+    paddingTop = null,
+    paddingRight = null,
+    paddingBottom = null,
+    paddingLeft = null,
+    margin = null,
+    marginX = null,
+    marginY = null,
+    marginTop = null,
+    marginRight = null,
+    marginBottom = 3,
+    marginLeft = null,
 %}
+
+{#
+    "padding" Usage Example:
+
+    1. Simple: (0-5)
+    <twig:Sw:Grid:Container :padding="3" />
+    Generates simple spacer class p-3
+
+    2. With breakpoints:
+    <twig:Sw:Grid:Container :padding="{ xs: 0, sm: 2, md: 3, lg: 5, xl: 2, xxl: 1 }" />
+    Generates spacing utility classes for the classes for each breakpoint: p-xs-0 p-sm-2 p-md-3 p-lg-5 p-xl-2 p-xxl-1
+
+    3. Inline styling:
+    <twig:Sw:Grid:Container padding="1.6rem" />
+    If the value is a string, it will be used as inline style.
+    Generates inline style style="padding: 10px;"
+#}
+
+{%- macro spacingClasses(prop, classPrefix) %}
+    {%- set classes = [] -%}
+
+    {%- if prop is not null and prop is not string and prop is not iterable %}
+        {%- set classes = classes|merge(["#{classPrefix}-#{prop}"]) -%}
+    {% elseif prop is not null and prop is iterable %}
+        {%- for breakpoint, value in prop %}
+            {%- if value is not string %}
+                {%- set classes = classes|merge(["#{classPrefix}-#{breakpoint}-#{value}"]) -%}
+            {% else -%}
+                {%- set classes = classes|merge(["#{classPrefix}-#{breakpoint}-[#{value}]"]) -%}
+            {% endif -%}
+        {% endfor -%}
+    {% endif -%}
+    {# Return value #}
+    {{- classes|length > 0 ? classes|join(' ') : '' -}}
+{% endmacro -%}
+
+{%- macro spacingInlineStyle(prop, cssProp) %}
+    {%- set style = '' -%}
+
+    {%- if prop is not null and prop is string and prop is not iterable %}
+        {% if cssProp is iterable %}
+            {%- for i in cssProp %}
+                {%- set style = style ~ "#{i}: #{prop};" -%}
+            {% endfor %}
+        {% else %}
+            {%- set style = style ~ "#{cssProp}: #{prop};" -%}
+        {% endif %}
+    {% endif -%}
+
+    {# Return value #}
+    {{- style -}}
+{% endmacro -%}
 
 {% set gridCVA = cva({
     base: 'grid-container',
@@ -220,7 +288,29 @@
     }
 }) %}
 
+{%- set spacingClasses = [
+    _self.spacingClasses(padding, 'p'), 
+    _self.spacingClasses(paddingBottom, 'pb'),
+    _self.spacingClasses(paddingTop, 'pt'),
+    _self.spacingClasses(paddingRight, 'pe'),
+    _self.spacingClasses(paddingLeft, 'ps'),
+    _self.spacingClasses(paddingX, 'px'),
+    _self.spacingClasses(paddingY, 'py'),
+    _self.spacingClasses(marginBottom, 'mb'),
+    _self.spacingClasses(marginTop, 'mt'),
+    _self.spacingClasses(marginRight, 'me'),
+    _self.spacingClasses(marginLeft, 'ms'),
+    _self.spacingClasses(margin, 'm'),
+    _self.spacingClasses(marginX, 'mx'),
+    _self.spacingClasses(marginY, 'my'),
+    _self.spacingClasses(gap, 'gap'),
+    _self.spacingClasses(rowGap, 'row-gap'),
+    _self.spacingClasses(columnGap, 'column-gap'),
+]|join(' ')|trim -%}
+
+{% set gridId = 'sw-grid-container-' ~ random() %}
 {% set attributeDefaults = {
+    'id': gridId,
     'class': gridCVA.apply({
         align,
         alignContent,
@@ -241,7 +331,7 @@
         border,
         borderVariant,
         borderSubtle,
-    }),
+    }) ~ ' ' ~ spacingClasses,
 } %}
 
 {% set gridStyle = '' %}
@@ -262,7 +352,6 @@
 
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
-{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
 
 <div
     {{ attributes.defaults(attributeDefaults) }}
@@ -273,4 +362,24 @@
             <twig:Slot :name="name"></twig:Slot>
         {% endfor %}
      {% endblock %}
+
+    <style>   
+    {{ "##{gridId} {" }} 
+        {{- _self.spacingInlineStyle(margin, 'margin') -}}
+        {{- _self.spacingInlineStyle(marginX, ['margin-left', 'margin-right']) -}}
+        {{- _self.spacingInlineStyle(marginBottom, 'margin-bottom') -}}
+        {{- _self.spacingInlineStyle(marginTop, 'margin-top') -}}
+        {{- _self.spacingInlineStyle(marginLeft, 'margin-left') -}}
+        {{- _self.spacingInlineStyle(marginRight, 'margin-right') -}}
+        {{- _self.spacingInlineStyle(paddingX, ['padding-left', 'padding-right']) -}}
+        {{- _self.spacingInlineStyle(paddingY, ['padding-top', 'padding-bottom']) -}}
+        {{- _self.spacingInlineStyle(paddingTop, 'padding-top') -}}
+        {{- _self.spacingInlineStyle(paddingBottom, 'padding-bottom') -}}
+        {{- _self.spacingInlineStyle(paddingLeft, 'padding-left') -}}
+        {{- _self.spacingInlineStyle(paddingRight, 'padding-right') -}}
+        {{- _self.spacingInlineStyle(gap, 'gap') -}}
+        {{- _self.spacingInlineStyle(rowGap, 'row-gap') -}}
+        {{- _self.spacingInlineStyle(columnGap, 'column-gap') -}}
+    {{ '}' }}
+    </style>
 </div>

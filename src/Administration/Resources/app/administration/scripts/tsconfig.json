@@ -6,5 +6,11 @@
     "allowImportingTsExtensions": true,
     "types": ["node", "jest"]
   },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS",
+      "moduleResolution": "Node"
+    }
+  },
   "include": ["**/*.ts"]
 }

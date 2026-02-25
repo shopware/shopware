@@ -3,12 +3,9 @@
  * @package admin
  */
 import { ArrowFunction, CallExpression, Project, SourceFile, ts} from "ts-morph";
-import path from "node:path";
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
+import * as path from "path";
+import * as fs from "fs";
 import cliProgress from 'cli-progress';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const project = new Project({
     skipAddingFilesFromTsConfig: true,

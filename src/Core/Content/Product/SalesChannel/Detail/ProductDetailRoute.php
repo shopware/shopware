@@ -7,7 +7,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -87,7 +87,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 ->first();
 
             if (!($product instanceof SalesChannelProductEntity)) {
-                throw new ProductNotFoundException($productId);
+                throw ProductException::notFound($productId);
             }
 
             $parent = $product->getParentId() ?? $product->getId();
@@ -167,7 +167,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
         $variantListingConfig = json_decode((string) $productData['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
-        if (isset($variantListingConfig['displayParent']) && (bool) $variantListingConfig['displayParent'] === true) {
+        if (isset($variantListingConfig['displayParent']) && (bool) $variantListingConfig['displayParent'] === true && !isset($variantListingConfig['mainVariantId'])) {
             return null;
         }
 

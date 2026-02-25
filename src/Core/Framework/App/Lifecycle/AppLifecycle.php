@@ -28,7 +28,6 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
@@ -254,12 +253,6 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->flowBuilderActionPersister->updateActions($app, $flowActions, $context, $defaultLocale);
         }
 
-        // we need an app secret to securely communicate with apps
-        // therefore we only install webhooks, modules, tax providers and payment methods if we have a secret
-        if ($app->getAppSecret()) {
-            $this->updateModules($manifest, $id, $defaultLocale, $context);
-        }
-
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
         $this->runPersisters(new AppLifecycleContext(
@@ -430,35 +423,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $criteria->addFilter(new EqualsFilter('name', $name));
 
         return $this->appRepository->search($criteria, $context)->getEntities()->first();
-    }
-
-    private function updateModules(Manifest $manifest, string $id, string $defaultLocale, Context $context): void
-    {
-        $payload = [
-            'id' => $id,
-            'mainModule' => null,
-            'modules' => [],
-        ];
-
-        if ($manifest->getAdmin() !== null) {
-            if ($manifest->getAdmin()->getMainModule() !== null) {
-                $payload['mainModule'] = [
-                    'source' => $manifest->getAdmin()->getMainModule()->getSource(),
-                ];
-            }
-
-            $payload['modules'] = array_reduce(
-                $manifest->getAdmin()->getModules(),
-                static function (array $modules, Module $module) use ($defaultLocale) {
-                    $modules[] = $module->toArray($defaultLocale);
-
-                    return $modules;
-                },
-                []
-            );
-        }
-
-        $this->appRepository->update([$payload], $context);
     }
 
     private function getDefaultLocale(Context $context): string

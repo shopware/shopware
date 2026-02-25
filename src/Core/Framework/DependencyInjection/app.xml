@@ -135,6 +135,11 @@
             <tag name="shopware.app_lifecycle.persister" priority="100"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ModulePersister">
+            <argument type="service" id="app.repository"/>
+            <tag name="shopware.app_lifecycle.persister" priority="85"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
             <argument type="service" id="app_script_condition.repository"/>

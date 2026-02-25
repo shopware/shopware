@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import useConsentStore from 'src/core/consent/consent.store';
+import { trackConsentLegalLinkClicked, trackConsentOptionChanged, trackConsentRevoked } from 'src/core/consent/tracking';
 import template from './sw-settings-usage-data-store-data-consent.html.twig';
 import './sw-settings-usage-data-store-data-consent.scss';
 
@@ -57,8 +58,11 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 if (newValue) {
                     await consentStore.accept('backend_data');
+                    trackConsentOptionChanged('backend_data', 'enabled');
                 } else {
                     await consentStore.revoke('backend_data');
+                    trackConsentOptionChanged('backend_data', 'disabled');
+                    trackConsentRevoked([], ['backend_data']);
                 }
             } catch {
                 Shopware.Store.get('notification').createNotification({
@@ -71,6 +75,10 @@ export default Shopware.Component.wrapComponentConfig({
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        onLegalLinkClick(linkTarget: 'privacy_policy' | 'data_use_details') {
+            trackConsentLegalLinkClicked(linkTarget, 'setting');
         },
     },
 });

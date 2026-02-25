@@ -30,6 +30,7 @@
                 :disabled="!acl.can('category.editor')"
                 required
                 show-clearable-button
+                @update:value="onUpdateProductAssignmentType"
             />
             {% endblock %}
 

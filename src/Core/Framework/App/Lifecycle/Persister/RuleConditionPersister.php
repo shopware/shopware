@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\BoolField;
@@ -33,7 +34,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  */
 #[Package('framework')]
-class RuleConditionPersister
+class RuleConditionPersister implements PersisterInterface
 {
     private const CONDITION_SCRIPT_DIR = '/rule-conditions/';
 
@@ -46,6 +47,11 @@ class RuleConditionPersister
         private readonly EntityRepository $appScriptConditionRepository,
         private readonly EntityRepository $appRepository
     ) {
+    }
+
+    public function persist(AppLifecycleContext $context): void
+    {
+        $this->updateConditions($context->manifest, $context->app->getId(), $context->defaultLocale, $context->context);
     }
 
     public function updateConditions(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void

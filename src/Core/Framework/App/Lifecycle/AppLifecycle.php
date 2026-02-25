@@ -29,7 +29,6 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
-use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
@@ -79,7 +78,6 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly WebhookPersister $webhookPersister,
         private readonly PaymentMethodPersister $paymentMethodPersister,
         private readonly TaxProviderPersister $taxProviderPersister,
-        private readonly RuleConditionPersister $ruleConditionPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppStateService $appStateService,
@@ -289,7 +287,6 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->shippingMethodPersister->updateShippingMethods($manifest, $id, $defaultLocale, $context);
-        $this->ruleConditionPersister->updateConditions($manifest, $id, $defaultLocale, $context);
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
         $this->runPersisters(new AppLifecycleContext(

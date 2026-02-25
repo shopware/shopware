@@ -174,31 +174,15 @@ shopware:
         integrations: []
     filesystem:
         private:
-            type: "amazon-s3"
+            type: "local"
             visibility: "private"
             config:
-                bucket: "shopware-private"
-                region: "us-east-1"
-                endpoint: "http://localhost:4566"
-                root: ""
-                use_path_style_endpoint: true
-                credentials:
-                    key: "test"
-                    secret: "test"
-
+                root: "%kernel.project_dir%/files"
         public:
-            type: "amazon-s3"
+            type: "local"
             visibility: "public"
-            url: "http://localhost:4566/shopware-public"
             config:
-                bucket: "shopware-public"
-                region: "us-east-1"
-                endpoint: "http://localhost:4566"
-                root: ""
-                use_path_style_endpoint: true
-                credentials:
-                    key: "test"
-                    secret: "test"
+                root: "%kernel.project_dir%/public"
         temp:
             type: "local"
             config:

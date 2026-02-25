@@ -398,10 +398,15 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements || [];
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required', [], data.languageId);
 
-        CookieStorage.removeItem(this.options.cookiePreference);
+        // Remove all consent cookies that were just set, since we're prompting for re-consent.
+        // Only cookie-config-hash is kept because it tracks per-language consent state.
+        for (const cookieName of activeCookieNames) {
+            if (cookieName !== this.options.cookieConfigHash) {
+                CookieStorage.removeItem(cookieName);
+            }
+        }
 
-        const updatedActiveCookieNames = activeCookieNames.filter(name => name !== this.options.cookiePreference);
-        this._handleUpdateListener(updatedActiveCookieNames, inactiveCookieNames);
+        this._handleUpdateListener([], [...inactiveCookieNames, ...activeCookieNames]);
 
         this._checkAndShowCookieBarIfNeeded();
     }

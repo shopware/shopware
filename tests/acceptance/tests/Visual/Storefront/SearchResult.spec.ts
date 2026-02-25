@@ -35,6 +35,8 @@ test(
         });
         await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
 
+        await TestDataService.clearCaches();
+
         await test.step('Search with valid input and sees results and take a screenshot.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
             await CheckVisibilityInHome(product.name);

@@ -80,7 +80,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
 
         // await all setup promises to complete before proceeding, this allows the product creation to happen in parallel which should speed up the setup significantly
         await Promise.all(setupPromises);
-        // currently CheckVisibilityInHome clears caches multiple times, it should only be needed once here
+
         await TestDataService.clearCaches();
 
         await CheckVisibilityInHome(variantProductSize.at(0).name)();
@@ -269,7 +269,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
 
     // await all setup promises to complete before proceeding, this allows the product creation to happen in parallel which should speed up the setup significantly
     await Promise.all(setupPromises);
-    // currently CheckVisibilityInHome clears caches multiple times, it should only be needed once here
+
     await TestDataService.clearCaches();
 
     const products = [productWithRating1, productWithRating2];

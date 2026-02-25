@@ -66,7 +66,6 @@ test('Customer should be able to see a new property displayed on the product det
         description: 'Variant description',
     });
 
-    // currently CheckVisibilityInHome clears caches multiple times, it should only be needed once here
     await TestDataService.clearCaches();
 
     await test.step('Verify property display on the product detail page', async () => {

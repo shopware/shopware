@@ -17,10 +17,10 @@
     </style>
 </head>
 <body>
-    <div id="app"></div>
-
-    <!-- loading indicator when network is very slow and vue hasn't already loaded. The component has been copied from mt-loader -->
-    <%- pageLoadingScreen.markup %>
+    <div id="app">
+        <!-- loading indicator when network is very slow and vue hasn't already loaded. The component has been copied from mt-loader -->
+        <%- pageLoadingScreen.markup %>
+    </div>
 
     <script type="text/javascript">
         window.startApplication = () => Shopware.Application.start({

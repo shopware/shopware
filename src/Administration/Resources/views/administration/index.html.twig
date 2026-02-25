@@ -17,9 +17,9 @@
 {% endblock %}
 
 {% block administration_content %}
-    <div id="app"></div>
-
-    {{ sw_include('shared/page-loading-screen/page-loading-screen.html') }}
+    <div id="app">
+        {{ sw_include('shared/page-loading-screen/page-loading-screen.html') }}
+    </div>
 
     {% block administration_templates %}{% endblock %}
 

@@ -134,7 +134,8 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
             <argument type="service" id="app_cms_block.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+
+            <tag name="shopware.app_lifecycle.persister" priority="50"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\AppService">
@@ -263,7 +264,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>

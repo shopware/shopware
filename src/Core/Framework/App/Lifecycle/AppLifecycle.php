@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
-use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
@@ -26,7 +25,6 @@ use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
@@ -90,7 +88,6 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly PaymentMethodPersister $paymentMethodPersister,
         private readonly TaxProviderPersister $taxProviderPersister,
         private readonly RuleConditionPersister $ruleConditionPersister,
-        private readonly CmsBlockPersister $cmsBlockPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppStateService $appStateService,
@@ -307,12 +304,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
-        $cmsExtensions = $this->getCmsExtensions($app);
-
-        if ($cmsExtensions) {
-            $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
-        }
-
         $this->runPersisters(new AppLifecycleContext(
             manifest: $manifest,
             app: $app,
@@ -330,17 +321,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->updateMetadata($updatePayload, $context);
 
         return $app;
-    }
-
-    private function getCmsExtensions(AppEntity $app): ?CmsManifest
-    {
-        $fs = $this->sourceResolver->filesystemForApp($app);
-
-        if (!$fs->has('Resources/cms.xml')) {
-            return null;
-        }
-
-        return CmsManifest::createFromXmlFile($fs->path('Resources/cms.xml'));
     }
 
     private function getFlowEvents(AppEntity $app): ?Event

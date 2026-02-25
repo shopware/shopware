@@ -197,6 +197,14 @@ class CategoryBreadcrumbBuilder
 
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
+        if ($product->getMainCategories() !== null && $product->getMainCategories()->count() > 0) {
+            $mainCategory = $product->getMainCategories()->filterBySalesChannelId($context->getSalesChannelId())->first()?->getCategory();
+
+            if ($mainCategory !== null && $product->getCategoryIds() !== null && \in_array($mainCategory->getId(), $product->getCategoryIds(), true)) {
+                return $mainCategory;
+            }
+        }
+
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->setTitle('breadcrumb-builder::main-category');

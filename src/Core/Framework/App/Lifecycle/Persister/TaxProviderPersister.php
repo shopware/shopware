@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
-use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 #[Package('checkout')]
-class TaxProviderPersister
+class TaxProviderPersister implements PersisterInterface
 {
     /**
      * @internal
@@ -23,9 +23,13 @@ class TaxProviderPersister
     {
     }
 
-    public function updateTaxProviders(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
+    public function persist(AppLifecycleContext $context): void
     {
-        $tax = $manifest->getTax();
+        if (!$context->hasAppSecret()) {
+            return;
+        }
+
+        $tax = $context->manifest->getTax();
 
         if (!$tax) {
             return;
@@ -38,15 +42,16 @@ class TaxProviderPersister
         }
 
         $upserts = [];
+        $appId = $context->app->getId();
 
-        $existingTaxProviders = $this->getExistingTaxProviders($appId, $context);
+        $existingTaxProviders = $this->getExistingTaxProviders($appId, $context->context);
 
         foreach ($taxProviders as $taxProvider) {
-            $payload = $taxProvider->toArray($defaultLocale);
+            $payload = $taxProvider->toArray($context->defaultLocale);
             $payload['priority'] = (int) $payload['priority'];
             $payload['identifier'] = \sprintf(
                 'app\\%s_%s',
-                $manifest->getMetadata()->getName(),
+                $context->manifest->getMetadata()->getName(),
                 $taxProvider->getIdentifier()
             );
 
@@ -62,7 +67,7 @@ class TaxProviderPersister
             $upserts[] = $payload;
         }
 
-        $this->taxProviderRepository->upsert($upserts, $context);
+        $this->taxProviderRepository->upsert($upserts, $context->context);
     }
 
     private function getExistingTaxProviders(string $appId, Context $context): TaxProviderCollection

@@ -131,6 +131,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">
             <argument type="service" id="tax_provider.repository"/>
+            <tag name="shopware.app_lifecycle.persister" priority="100"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister">
@@ -267,7 +268,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>

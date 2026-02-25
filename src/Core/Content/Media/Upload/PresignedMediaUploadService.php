@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Upload;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
@@ -51,6 +52,7 @@ readonly class PresignedMediaUploadService
         private array $allowedExtensions,
         private array $privateAllowedExtensions,
         private AbstractMediaPathStrategy $mediaPathStrategy,
+        private LoggerInterface $logger,
     ) {
         $this->fileNameValidator = new FileNameValidator();
     }
@@ -79,7 +81,6 @@ readonly class PresignedMediaUploadService
         $mimeType = $payload->mimeType;
 
         $this->fileNameValidator->validateFileName($fileName);
-        $this->validateFileExtension($extension, $payload->private);
 
         if ($payload->mediaId !== null) {
             $media = $this->findMedia($payload->mediaId, $context);
@@ -87,6 +88,8 @@ readonly class PresignedMediaUploadService
             if ($media === null) {
                 throw MediaException::mediaNotFound($payload->mediaId);
             }
+
+            $this->validateFileExtension($extension, $media->isPrivate(), $payload->mediaId);
 
             $mediaId = $payload->mediaId;
             $uploadedAt = new \DateTimeImmutable();
@@ -96,6 +99,8 @@ readonly class PresignedMediaUploadService
                 ], $context);
             });
         } else {
+            $this->validateFileExtension($extension, $payload->private);
+
             $mediaId = Uuid::randomHex();
             $uploadedAt = new \DateTimeImmutable();
 
@@ -178,6 +183,11 @@ readonly class PresignedMediaUploadService
             $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($payload->path);
 
             if ($s3Metadata === null) {
+                $this->logger->error('Could not verify presigned upload for media "{mediaId}": file not found on storage at path "{path}"', [
+                    'mediaId' => $mediaId,
+                    'path' => $payload->path,
+                ]);
+
                 throw MediaException::presignedUploadFinalizeFailed($mediaId);
             }
 
@@ -317,6 +327,13 @@ readonly class PresignedMediaUploadService
         $expectedPath = $paths[$mediaId] ?? null;
 
         if ($expectedPath === null || $expectedPath !== $payload->path) {
+            $this->logger->error('Could not verify presigned upload for media "{mediaId}": path mismatch (expected "{expectedPath}", got "{submittedPath}")', [
+                'mediaId' => $mediaId,
+                'expectedPath' => $expectedPath,
+                'submittedPath' => $payload->path,
+                'uploadedAt' => $uploadedAt?->format(\DateTimeInterface::ATOM),
+            ]);
+
             throw MediaException::presignedUploadFinalizeFailed($mediaId);
         }
     }

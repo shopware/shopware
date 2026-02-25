@@ -50,6 +50,7 @@ class MediaFileCleanupServiceTest extends TestCase
             false,
         );
 
+        $context = Context::createDefaultContext();
         $media = new MediaEntity();
         $media->setId('media-1');
         $media->assign(['path' => 'media/ab/cd/test.jpg', 'fileName' => 'test', 'fileExtension' => 'jpg']);
@@ -61,9 +62,10 @@ class MediaFileCleanupServiceTest extends TestCase
             ->with('media/ab/cd/test.jpg');
 
         $this->thumbnailService->expects($this->once())
-            ->method('deleteThumbnails');
+            ->method('deleteThumbnails')
+            ->with($media, $context);
 
-        $service->removeOldMediaData($media, Context::createDefaultContext());
+        $service->removeOldMediaData($media, $context);
     }
 
     public function testRemoveOldMediaDataDeletesPrivateFile(): void
@@ -122,6 +124,7 @@ class MediaFileCleanupServiceTest extends TestCase
             false,
         );
 
+        $context = Context::createDefaultContext();
         $media = new MediaEntity();
         $media->setId('media-4');
         $media->assign(['path' => 'media/ab/cd/gone.jpg', 'fileName' => 'gone', 'fileExtension' => 'jpg']);
@@ -133,9 +136,9 @@ class MediaFileCleanupServiceTest extends TestCase
 
         $this->thumbnailService->expects($this->once())
             ->method('deleteThumbnails')
-            ->with($media);
+            ->with($media, $context);
 
-        $service->removeOldMediaData($media, Context::createDefaultContext());
+        $service->removeOldMediaData($media, $context);
     }
 
     public function testRemoveOldMediaDataSkipsThumbnailsWhenRemote(): void
@@ -170,14 +173,15 @@ class MediaFileCleanupServiceTest extends TestCase
             false,
         );
 
+        $context = Context::createDefaultContext();
         $media = new MediaEntity();
         $media->setId('media-6');
 
         $this->thumbnailService->expects($this->once())
             ->method('deleteThumbnails')
-            ->with($media);
+            ->with($media, $context);
 
-        $service->deleteThumbnails($media, Context::createDefaultContext());
+        $service->deleteThumbnails($media, $context);
     }
 
     public function testDeleteThumbnailsSkipsWhenRemote(): void

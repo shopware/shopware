@@ -69,6 +69,7 @@ class PresignedMediaUploadServiceTest extends TestCase
             ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
             ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
             $this->mediaPathStrategy,
+            new \Psr\Log\NullLogger(),
         );
     }
 

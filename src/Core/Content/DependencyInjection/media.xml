@@ -297,6 +297,7 @@
             <argument>%shopware.filesystem.allowed_extensions%</argument>
             <argument>%shopware.filesystem.private_allowed_extensions%</argument>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Api\PresignedUploadController" public="true">

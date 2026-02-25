@@ -19,7 +19,7 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
-     * @returns {Promise<{mediaId: string, url: string, path: string, expiresAt: string}>}
+     * @returns {Promise<{mediaId: string, url: string, path: string, expiresAt: string, isDuplicate: boolean}>}
      */
     prepareUpload({ fileName, extension, mimeType, mediaFolderId = null, isPrivate = false, mediaId = null }) {
         return this.httpClient

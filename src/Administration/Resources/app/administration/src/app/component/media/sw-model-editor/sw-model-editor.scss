@@ -30,20 +30,22 @@ $sw-button-transition: all 0.15s ease-out;
 
     .sw-vector-field__input__x {
         .mt-field__addition.is--prefix {
-            color: #C20017;
-            background: #FFF2F0;
+            color: #c20017;
+            background: #fff2f0;
         }
     }
+
     .sw-vector-field__input__y {
         .mt-field__addition.is--prefix {
-            color: #00AB26;
-            background: #E1FFE0;
+            color: #00ab26;
+            background: #e1ffe0;
         }
     }
+
     .sw-vector-field__input__z {
         .mt-field__addition.is--prefix {
-            color: #0081D4;
-            background: #EEF6FF;
+            color: #0081d4;
+            background: #eef6ff;
         }
     }
 
@@ -59,6 +61,7 @@ $sw-button-transition: all 0.15s ease-out;
             font-size: 16px;
             font-weight: 400;
         }
+
         .sw-model-editor-sidebar-content-item-body {
             padding: 0 25px 25px;
         }

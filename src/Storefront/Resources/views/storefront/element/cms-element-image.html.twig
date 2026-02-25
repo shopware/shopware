@@ -53,9 +53,16 @@
                                         {% set attributes = attributes|merge({ 'loading': 'lazy' }) %}
                                     {% endif %}
 
-                                    {% sw_thumbnails 'cms-image-thumbnails' with {
-                                        media: element.data.media
-                                    } %}
+                                    {% if displayMode == 'standard' and element.data.media.metaData.width is defined %}
+                                        {% sw_thumbnails 'cms-image-thumbnails' with {
+                                            media: element.data.media,
+                                            sizes: { default: element.data.media.metaData.width ~ 'px' }
+                                        } %}
+                                    {% else %}
+                                        {% sw_thumbnails 'cms-image-thumbnails' with {
+                                            media: element.data.media
+                                        } %}
+                                    {% endif %}
                                 {% endblock %}
                             </div>
                         {% endif %}

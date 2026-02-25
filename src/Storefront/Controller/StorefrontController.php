@@ -319,4 +319,19 @@ abstract class StorefrontController extends AbstractController
     {
         return $this->container->get(SystemConfigService::class);
     }
+
+    /**
+     * Because some email-clients try to fetch previews for links in mails,
+     * they send a HEAD-request. But because Symfony is routing HEAD-requests
+     * as GET-requests, a subscriber would be confirmed without clicking the link,
+     * only by the HEAD-request.
+     * To determine if the current request is a "HEAD" request or a "GET" request, this
+     * helper method exists.
+     *
+     * Beware: $request->getMethod() or $request->getRealMethod() will both return "GET".
+     */
+    protected function isHeadRequest(): bool
+    {
+        return isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'HEAD';
+    }
 }

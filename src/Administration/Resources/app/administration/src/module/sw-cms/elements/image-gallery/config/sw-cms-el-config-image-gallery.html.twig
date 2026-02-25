@@ -173,9 +173,7 @@
                         {% endblock %}
 
                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
-                        {# ToDo NEXT-38801 - Re-enable and fix broken vertical align #}
                         <mt-select
-                            v-if="false"
                             v-model="element.config.verticalAlign.value"
                             :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                             :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
@@ -249,7 +247,7 @@
 
                     <div class="sw-cms-el-config-image-gallery__settings-options-toggles">
                         {% block sw_cms_element_image_gallery_config_settings_zoom_toggles %}
-                            {% block sw_cms_element_image_gallery_config_settings_toggle_zoom %}
+                        {% block sw_cms_element_image_gallery_config_settings_toggle_zoom %}
                         <sw-cms-inherit-wrapper
                             field="zoom"
                             :element="element"
@@ -262,9 +260,9 @@
                                 />
                             </template>
                         </sw-cms-inherit-wrapper>
-                            {% endblock %}
+                        {% endblock %}
 
-                            {% block sw_cms_element_image_gallery_config_settings_toggle_fullscreen %}
+                        {% block sw_cms_element_image_gallery_config_settings_toggle_fullscreen %}
                         <sw-cms-inherit-wrapper
                             field="fullScreen"
                             :element="element"
@@ -277,11 +275,11 @@
                                 />
                             </template>
                         </sw-cms-inherit-wrapper>
-                            {% endblock %}
+                        {% endblock %}
                         {% endblock %}
 
                         {% block sw_cms_element_image_gallery_config_settings_aspect_ratio_magnifier_over_gallery_toggles %}
-                            {% block sw_cms_element_image_gallery_config_settings_toggle_keep_aspect_ratio_on_zoom %}
+                        {% block sw_cms_element_image_gallery_config_settings_toggle_keep_aspect_ratio_on_zoom %}
                         <sw-cms-inherit-wrapper
                             field="keepAspectRatioOnZoom"
                             :element="element"
@@ -294,9 +292,9 @@
                                 />
                             </template>
                         </sw-cms-inherit-wrapper>
-                            {% endblock %}
+                        {% endblock %}
 
-                            {% block sw_cms_element_image_gallery_config_settings_toggle_magnifier_over_gallery %}
+                        {% block sw_cms_element_image_gallery_config_settings_toggle_magnifier_over_gallery %}
                         <sw-cms-inherit-wrapper
                             field="magnifierOverGallery"
                             :element="element"
@@ -310,9 +308,9 @@
                                 />
                             </template>
                         </sw-cms-inherit-wrapper>
-                            {% endblock %}
+                        {% endblock %}
 
-                            {% block sw_cms_element_image_gallery_config_settings_use_fetch_priority_on_first_item %}
+                        {% block sw_cms_element_image_gallery_config_settings_use_fetch_priority_on_first_item %}
                         <sw-cms-inherit-wrapper
                             field="useFetchPriorityOnFirstItem"
                             :element="element"
@@ -328,7 +326,7 @@
                                 />
                             </template>
                         </sw-cms-inherit-wrapper>
-                            {% endblock %}
+                        {% endblock %}
                         {% endblock %}
                     </div>
                 </div>

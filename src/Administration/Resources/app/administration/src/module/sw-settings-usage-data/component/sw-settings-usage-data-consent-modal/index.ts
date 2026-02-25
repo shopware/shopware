@@ -2,6 +2,12 @@
  * @sw-package framework
  */
 import useConsentStore from 'src/core/consent/consent.store';
+import {
+    trackConsentDecisionMade,
+    trackConsentLegalLinkClicked,
+    trackConsentModalViewed,
+    trackConsentOptionChanged,
+} from 'src/core/consent/tracking';
 import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
 
@@ -50,6 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
             sharesAll: false,
             revokesAll: false,
             isLoading: false,
+            modalOpenedAt: 0,
         };
     },
 
@@ -63,9 +70,21 @@ export default Shopware.Component.wrapComponentConfig({
 
         this.initialUserDataConsent = this.storedUserDataConsent;
         this.userDataConsent = this.initialUserDataConsent;
+
+        this.modalOpenedAt = Date.now();
+        trackConsentModalViewed(this.visibleOptions);
     },
 
     computed: {
+        visibleOptions(): Array<'backend_data' | 'user_tracking'> {
+            return this.showStoreDataConsent
+                ? [
+                      'backend_data',
+                      'user_tracking',
+                  ]
+                : ['user_tracking'];
+        },
+
         showStoreDataConsent() {
             if (this.initialStoreDataConsent) {
                 return false;
@@ -88,10 +107,40 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        getModalTimeSpentInSeconds() {
+            return Math.round((Date.now() - this.modalOpenedAt) / 1000);
+        },
+
+        trackLegalLinkClick(linkTarget: 'privacy_policy' | 'data_use_details') {
+            trackConsentLegalLinkClicked(linkTarget, 'modal');
+        },
+
+        trackChangedOptionEventsForVisibleOptions() {
+            if (this.showStoreDataConsent && this.storeDataConsent !== this.initialStoreDataConsent) {
+                trackConsentOptionChanged('backend_data', this.storeDataConsent ? 'enabled' : 'disabled');
+            }
+
+            if (this.userDataConsent !== this.initialUserDataConsent) {
+                trackConsentOptionChanged('user_tracking', this.userDataConsent ? 'enabled' : 'disabled');
+            }
+        },
+
+        trackDecisionEventsForVisibleOptions() {
+            const timeSpentOnModal = this.getModalTimeSpentInSeconds();
+
+            if (this.showStoreDataConsent) {
+                trackConsentDecisionMade('backend_data', this.storeDataConsent ? 'accepted' : 'revoked', timeSpentOnModal);
+            }
+
+            trackConsentDecisionMade('user_tracking', this.userDataConsent ? 'accepted' : 'revoked', timeSpentOnModal);
+        },
+
         async savePreferences(done: () => void) {
             this.isLoading = true;
 
             await this.updateConsents(this.storeDataConsent, this.userDataConsent);
+            this.trackChangedOptionEventsForVisibleOptions();
+            this.trackDecisionEventsForVisibleOptions();
 
             this.isLoading = false;
             done();
@@ -100,7 +149,14 @@ export default Shopware.Component.wrapComponentConfig({
         async shareAll(done: () => void) {
             this.sharesAll = true;
 
+            if (this.showStoreDataConsent) {
+                this.storeDataConsent = true;
+            }
+            this.userDataConsent = true;
+
             await this.updateConsents(true, true);
+            this.trackChangedOptionEventsForVisibleOptions();
+            this.trackDecisionEventsForVisibleOptions();
 
             this.sharesAll = false;
             done();
@@ -109,7 +165,14 @@ export default Shopware.Component.wrapComponentConfig({
         async shareNothing(done: () => void) {
             this.revokesAll = true;
 
+            if (this.showStoreDataConsent) {
+                this.storeDataConsent = false;
+            }
+            this.userDataConsent = false;
+
             await this.updateConsents(false, false);
+            this.trackChangedOptionEventsForVisibleOptions();
+            this.trackDecisionEventsForVisibleOptions();
 
             this.revokesAll = false;
             done();

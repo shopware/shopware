@@ -118,7 +118,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <tag name="shopware.app_lifecycle.persister" priority="90"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister">
@@ -267,7 +267,6 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>

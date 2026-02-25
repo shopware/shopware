@@ -19,7 +19,6 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -361,7 +360,6 @@ class AppLifecycleTest extends TestCase
             $appRepository,
             $this->createMock(PermissionPersister::class),
             $this->createMock(WebhookPersister::class),
-            $this->createMock(PaymentMethodPersister::class),
             $this->eventDispatcher,
             $this->createMock(AppRegistrationService::class),
             $this->createMock(AppStateService::class),

@@ -26,7 +26,6 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
@@ -74,7 +73,6 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly EntityRepository $appRepository,
         private readonly PermissionPersister $permissionPersister,
         private readonly WebhookPersister $webhookPersister,
-        private readonly PaymentMethodPersister $paymentMethodPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppStateService $appStateService,
@@ -276,8 +274,6 @@ class AppLifecycle extends AbstractAppLifecycle
         // we need an app secret to securely communicate with apps
         // therefore we only install webhooks, modules, tax providers and payment methods if we have a secret
         if ($app->getAppSecret()) {
-            $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
-
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
 

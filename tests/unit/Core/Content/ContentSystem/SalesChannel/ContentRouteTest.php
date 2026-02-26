@@ -89,7 +89,7 @@ class ContentRouteTest extends TestCase
     #[TestDox('throws DecorationPatternException from getDecorated')]
     public function testGetDecoratedThrowsDecorationPatternException(): void
     {
-        static::expectExceptionObject(new DecorationPatternException(ContentRoute::class));
+        $this->expectExceptionObject(new DecorationPatternException(ContentRoute::class));
 
         $this->route->getDecorated();
     }

@@ -74,7 +74,7 @@ class PartialRendererTest extends TestCase
     {
         $root = ContentElementBuilder::create('section', 'r1')->build();
 
-        static::expectExceptionObject(ContentSystemException::elementNotFound('missing-id'));
+        $this->expectExceptionObject(ContentSystemException::elementNotFound('missing-id'));
 
         $this->renderer->extractTarget([$root], 'missing-id');
     }

@@ -105,7 +105,7 @@ class ContentPipelineTest extends TestCase
         $pipeline = new ContentPipeline($repository, $this->hydrator, $this->eventDispatcher);
         $specification = new RenderingSpecification($layoutId, [], PlaceholderValues::from([]), new Request());
 
-        static::expectExceptionObject(ContentSystemException::layoutNotFound($layoutId));
+        $this->expectExceptionObject(ContentSystemException::layoutNotFound($layoutId));
 
         $pipeline->load($specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
     }

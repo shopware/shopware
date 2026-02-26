@@ -86,7 +86,7 @@ class RenderingSpecificationResolverTest extends TestCase
 
         $resolver = new RenderingSpecificationResolver([$source], $factory);
 
-        static::expectExceptionObject(ContentSystemException::noFactoryCanHandle($path));
+        $this->expectExceptionObject(ContentSystemException::noFactoryCanHandle($path));
 
         $resolver->resolve($path, $request, $context);
     }

@@ -100,7 +100,7 @@ class HeaderSpecificationSourceTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        static::expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
+        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
             'header',
             '',
             $context->getSalesChannel()->getId()

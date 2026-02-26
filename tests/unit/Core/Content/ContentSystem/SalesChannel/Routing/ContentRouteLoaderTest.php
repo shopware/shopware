@@ -57,7 +57,7 @@ class ContentRouteLoaderTest extends TestCase
         $loader = new ContentRouteLoader([]);
         $loader->load(null);
 
-        static::expectExceptionObject(ContentSystemException::routesAlreadyLoaded());
+        $this->expectExceptionObject(ContentSystemException::routesAlreadyLoaded());
 
         $loader->load(null);
     }

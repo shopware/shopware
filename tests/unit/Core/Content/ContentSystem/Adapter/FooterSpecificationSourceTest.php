@@ -100,7 +100,7 @@ class FooterSpecificationSourceTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        static::expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
+        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
             'footer',
             '',
             $context->getSalesChannel()->getId()

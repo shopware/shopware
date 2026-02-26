@@ -33,7 +33,7 @@ use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Asset\UrlPackage;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,8 +52,6 @@ class InfoControllerTest extends TestCase
 
     private StatsService&MockObject $statsService;
 
-    private Connection&MockObject $connectionMock;
-
     private MigrationInfo&MockObject $migrationInfo;
 
     private EventDispatcher $eventDispatcher;
@@ -63,6 +61,7 @@ class InfoControllerTest extends TestCase
         parent::setUp();
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->statsService = $this->createMock(StatsService::class);
+        $this->migrationInfo = $this->createMock(MigrationInfo::class);
         $this->eventDispatcher = new EventDispatcher();
     }
 
@@ -74,7 +73,7 @@ class InfoControllerTest extends TestCase
 
         $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
-        $content = $this->createInstance()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
@@ -155,7 +154,7 @@ class InfoControllerTest extends TestCase
             ->method('getShopId')
             ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('current-shop-id'), new FingerprintComparisonResult([], [], 75)));
 
-        $content = $this->createInstance()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
@@ -169,7 +168,7 @@ class InfoControllerTest extends TestCase
             $event->addConfig('foo', 'bar');
         });
 
-        $content = $this->createInstance()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
@@ -186,7 +185,7 @@ class InfoControllerTest extends TestCase
                 new MessageStatsEntity(1, new \DateTime(), 1.00, new MessageTypeStatsCollection())
             )
         );
-        $content = $this->createInstance()->messageStats()->getContent();
+        $content = $this->createController()->messageStats()->getContent();
         static::assertIsString($content);
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
@@ -200,15 +199,13 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNull(): void
     {
-        $this->createInstance();
-
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
 
-        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('settings', $data);
         static::assertArrayHasKey('firstMigrationDate', $data['settings']);
@@ -217,15 +214,13 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNullAgain(): void
     {
-        $this->createInstance();
-
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
 
-        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('settings', $data);
         static::assertArrayHasKey('firstMigrationDate', $data['settings']);
@@ -234,63 +229,60 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsFirstMigrationDateFromMigrationInfo(): void
     {
-        $this->createInstance();
-
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn('2020-01-01T00:00:00.123+00:00');
 
-        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('settings', $data);
         static::assertArrayHasKey('firstMigrationDate', $data['settings']);
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
     }
 
-    private function createInstance(): InfoController
+    private function createController(): InfoController
     {
+        $parameterBag = new ParameterBag([
+            'shopware.html_sanitizer.enabled' => true,
+            'shopware.filesystem.private_allowed_extensions' => false,
+            'shopware.admin_worker.transports' => ['slow'],
+            'shopware.admin_worker.enable_notification_worker' => true,
+            'shopware.admin_worker.enable_queue_stats_worker' => true,
+            'shopware.admin_worker.enable_admin_worker' => true,
+            'kernel.shopware_version' => '6.6.9999999-dev',
+            'kernel.shopware_version_revision' => 'PHPUnit',
+            'shopware.media.enable_url_upload_feature' => true,
+            'shopware.staging.administration.show_banner' => false,
+            'shopware.deployment.runtime_extension_management' => true,
+        ]);
+
         $kernel = new StubKernel([
             new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
         ]);
 
-        $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
-        $this->routerMock = $this->createMock(RouterInterface::class);
-        $this->inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]);
-        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->connectionMock = $this->createMock(Connection::class);
-        $this->migrationInfo = $this->createMock(MigrationInfo::class);
-
-        $parameterBagMock->method('get')
-            ->willReturnMap([
-                ['shopware.html_sanitizer.enabled', true],
-                ['shopware.filesystem.private_allowed_extensions', false],
-                ['shopware.admin_worker.transports', ['slow']],
-                ['shopware.admin_worker.enable_notification_worker', true],
-                ['shopware.admin_worker.enable_queue_stats_worker', true],
-                ['shopware.admin_worker.enable_admin_worker', true],
-                ['kernel.shopware_version', '6.6.9999999-dev'],
-                ['kernel.shopware_version_revision', 'PHPUnit'],
-                ['shopware.media.enable_url_upload_feature', true],
-            ]);
-
+        $routerMock = $this->createMock(RouterInterface::class);
         $routerMock->method('generate')
-            ->with(
-                'administration.plugin.index',
-                [
-                    'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
-                ]
-            )
+            ->with('administration.plugin.index', [
+                'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
+            ])
             ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
+
+        $viteAccessor = new ViteFileAccessorDecorator(
+            [],
+            $this->createMock(UrlPackage::class),
+            $kernel,
+            new Filesystem(),
+        );
 
         return new InfoController(
             $this->createMock(DefinitionService::class),
-            $parameterBagMock,
+            $parameterBag,
             $kernel,
             $this->createMock(BusinessEventCollector::class),
             $this->createMock(IncrementGatewayRegistry::class),
-            $this->connectionMock,
+            $this->createMock(Connection::class),
             $this->migrationInfo,
             $this->createMock(AppUrlVerifier::class),
             $routerMock,
@@ -298,12 +290,7 @@ class InfoControllerTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(ApiRouteInfoResolver::class),
             StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]),
-            new ViteFileAccessorDecorator(
-                [],
-                $this->createMock(UrlPackage::class),
-                $kernel,
-                new Filesystem(),
-            ),
+            $viteAccessor,
             new Filesystem(),
             $this->shopIdProvider,
             $this->statsService,

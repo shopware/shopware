@@ -219,12 +219,7 @@ class CategoryBreadcrumbBuilder
                 $this->getSalesChannelFilter($context->getSalesChannel(), 'category.path'),
             ]));
 
-        $considerInheritance = $context->considerInheritance();
-        $context->getContext()->setConsiderInheritance(true);
-
-        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
-
-        $context->getContext()->setConsiderInheritance($considerInheritance);
+        $product = $context->getContext()->enableInheritance(fn (): ?ProductEntity => $this->productRepository->search($criteria, $context)->first());
 
         if (!$product instanceof ProductEntity || !$product->getMainCategories() instanceof MainCategoryCollection) {
             return null;

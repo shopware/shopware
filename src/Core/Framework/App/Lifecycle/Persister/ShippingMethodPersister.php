@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
 class ShippingMethodPersister implements PersisterInterface

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
 class FlowEventPersister implements PersisterInterface

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
+/**
+ * @internal only for use by the app-system
+ */
 #[Package('checkout')]
 class TaxProviderPersister implements PersisterInterface
 {

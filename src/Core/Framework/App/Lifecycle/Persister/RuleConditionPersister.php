@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
 class RuleConditionPersister implements PersisterInterface

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
 class CmsBlockPersister implements PersisterInterface

@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
+ * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Lifecycle\FlowActionPersisterTest
+ *
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
 class FlowActionPersister implements PersisterInterface

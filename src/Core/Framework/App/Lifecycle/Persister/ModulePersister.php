@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
 class ModulePersister implements PersisterInterface

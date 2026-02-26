@@ -139,15 +139,11 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             <<<'SQL'
             SELECT LOWER(HEX(media.id)) as id,
-                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
-                   GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
-                   GROUP_CONCAT(DISTINCT media_translation.alt SEPARATOR " ") as alt,
-                   GROUP_CONCAT(DISTINCT media_translation.title SEPARATOR " ") as title,
-                   JSON_ARRAYAGG(JSON_OBJECT(
-                       'languageId', LOWER(HEX(media_translation.language_id)),
-                       'title', media_translation.title,
-                       'alt', media_translation.alt
-                   )) as translatedFields,
+                   tag_agg.tags as tags,
+                   tag_agg.tagIds as tagIds,
+                   translation_agg.alt as alt,
+                   translation_agg.title as title,
+                   translation_agg.translatedFields as translatedFields,
                    media_folder.name as folderName,
                    media_folder.path as folderPath,
                    media_default_folder.entity,
@@ -159,18 +155,36 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
                    LOWER(HEX(media.media_folder_id)) AS mediaFolderId,
                    media.created_at as createdAt
             FROM media
-                LEFT JOIN media_translation
-                    ON media.id = media_translation.media_id
+                LEFT JOIN (
+                    SELECT media_translation.media_id,
+                           GROUP_CONCAT(DISTINCT media_translation.alt ORDER BY NULL SEPARATOR ' ') as alt,
+                           GROUP_CONCAT(DISTINCT media_translation.title ORDER BY NULL SEPARATOR ' ') as title,
+                           JSON_ARRAYAGG(JSON_OBJECT(
+                               'languageId', LOWER(HEX(media_translation.language_id)),
+                               'title', media_translation.title,
+                               'alt', media_translation.alt
+                           )) as translatedFields
+                    FROM media_translation
+                    WHERE media_translation.media_id IN (:ids)
+                    GROUP BY media_translation.media_id
+                ) as translation_agg
+                    ON media.id = translation_agg.media_id
                 LEFT JOIN media_folder
                     ON media.media_folder_id = media_folder.id
                 LEFT JOIN media_default_folder
                     ON media_folder.default_folder_id = media_default_folder.id
-                LEFT JOIN media_tag
-                    ON media.id = media_tag.media_id
-                LEFT JOIN tag
-                    ON media_tag.tag_id = tag.id
+                LEFT JOIN (
+                    SELECT media_tag.media_id,
+                           GROUP_CONCAT(DISTINCT tag.name ORDER BY NULL SEPARATOR ' ') as tags,
+                           GROUP_CONCAT(LOWER(HEX(tag.id)) ORDER BY NULL SEPARATOR ' ') as tagIds
+                    FROM media_tag
+                    LEFT JOIN tag
+                        ON media_tag.tag_id = tag.id
+                    WHERE media_tag.media_id IN (:ids)
+                    GROUP BY media_tag.media_id
+                ) as tag_agg
+                    ON media.id = tag_agg.media_id
             WHERE media.id IN (:ids)
-            GROUP BY media.id
 SQL,
             [
                 'ids' => Uuid::fromHexToBytesList($ids),

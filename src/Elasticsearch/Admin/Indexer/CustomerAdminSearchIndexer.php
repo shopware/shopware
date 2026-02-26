@@ -155,18 +155,18 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             <<<'SQL'
             SELECT LOWER(HEX(customer.id)) as id,
-                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
-                   GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
-                   GROUP_CONCAT(DISTINCT country_translation.name SEPARATOR " ") as country,
-                   GROUP_CONCAT(DISTINCT customer_address.first_name SEPARATOR " ") as address_first_name,
-                   GROUP_CONCAT(DISTINCT customer_address.last_name SEPARATOR " ") as address_last_name,
-                   GROUP_CONCAT(DISTINCT customer_address.company SEPARATOR " ") as address_company,
-                   GROUP_CONCAT(DISTINCT customer_address.city SEPARATOR " ") as city,
-                   GROUP_CONCAT(DISTINCT customer_address.street SEPARATOR " ") as street,
-                   GROUP_CONCAT(DISTINCT customer_address.zipcode SEPARATOR " ") as zipcode,
-                   GROUP_CONCAT(DISTINCT customer_address.phone_number SEPARATOR " ") as phone_number,
-                   GROUP_CONCAT(DISTINCT customer_address.additional_address_line1 SEPARATOR " ") as additional_address_line1,
-                   GROUP_CONCAT(DISTINCT customer_address.additional_address_line2 SEPARATOR " ") as additional_address_line2,
+                   tag_agg.tags as tags,
+                   tag_agg.tagIds as tagIds,
+                   address_agg.country as country,
+                   address_agg.address_first_name as address_first_name,
+                   address_agg.address_last_name as address_last_name,
+                   address_agg.address_company as address_company,
+                   address_agg.city as city,
+                   address_agg.street as street,
+                   address_agg.zipcode as zipcode,
+                   address_agg.phone_number as phone_number,
+                   address_agg.additional_address_line1 as additional_address_line1,
+                   address_agg.additional_address_line2 as additional_address_line2,
                    customer.first_name,
                    customer.last_name,
                    customer.email,
@@ -185,22 +185,43 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
                    LOWER(HEX(default_shipping_address.country_id)) AS defaultShippingAddressCountryId,
                    customer.created_at as createdAt
             FROM customer
-                LEFT JOIN customer_address
-                    ON customer_address.customer_id = customer.id
-                LEFT JOIN country
-                    ON customer_address.country_id = country.id
-                LEFT JOIN country_translation
-                    ON country.id = country_translation.country_id
+                LEFT JOIN (
+                    SELECT customer_address.customer_id,
+                           GROUP_CONCAT(DISTINCT country_translation.name ORDER BY NULL SEPARATOR ' ') as country,
+                           GROUP_CONCAT(DISTINCT customer_address.first_name ORDER BY NULL SEPARATOR ' ') as address_first_name,
+                           GROUP_CONCAT(DISTINCT customer_address.last_name ORDER BY NULL SEPARATOR ' ') as address_last_name,
+                           GROUP_CONCAT(DISTINCT customer_address.company ORDER BY NULL SEPARATOR ' ') as address_company,
+                           GROUP_CONCAT(DISTINCT customer_address.city ORDER BY NULL SEPARATOR ' ') as city,
+                           GROUP_CONCAT(DISTINCT customer_address.street ORDER BY NULL SEPARATOR ' ') as street,
+                           GROUP_CONCAT(DISTINCT customer_address.zipcode ORDER BY NULL SEPARATOR ' ') as zipcode,
+                           GROUP_CONCAT(DISTINCT customer_address.phone_number ORDER BY NULL SEPARATOR ' ') as phone_number,
+                           GROUP_CONCAT(DISTINCT customer_address.additional_address_line1 ORDER BY NULL SEPARATOR ' ') as additional_address_line1,
+                           GROUP_CONCAT(DISTINCT customer_address.additional_address_line2 ORDER BY NULL SEPARATOR ' ') as additional_address_line2
+                    FROM customer_address
+                    LEFT JOIN country
+                        ON customer_address.country_id = country.id
+                    LEFT JOIN country_translation
+                        ON country.id = country_translation.country_id
+                    WHERE customer_address.customer_id IN (:ids)
+                    GROUP BY customer_address.customer_id
+                ) as address_agg
+                    ON address_agg.customer_id = customer.id
                 LEFT JOIN customer_address AS default_billing_address
                     ON customer.default_billing_address_id = default_billing_address.id
                 LEFT JOIN customer_address AS default_shipping_address
                     ON customer.default_shipping_address_id = default_shipping_address.id
-                LEFT JOIN customer_tag
-                    ON customer.id = customer_tag.customer_id
-                LEFT JOIN tag
-                    ON customer_tag.tag_id = tag.id
+                LEFT JOIN (
+                    SELECT customer_tag.customer_id,
+                           GROUP_CONCAT(DISTINCT tag.name ORDER BY NULL SEPARATOR ' ') as tags,
+                           GROUP_CONCAT(LOWER(HEX(tag.id)) ORDER BY NULL SEPARATOR ' ') as tagIds
+                    FROM customer_tag
+                    LEFT JOIN tag
+                        ON customer_tag.tag_id = tag.id
+                    WHERE customer_tag.customer_id IN (:ids)
+                    GROUP BY customer_tag.customer_id
+                ) as tag_agg
+                    ON tag_agg.customer_id = customer.id
             WHERE customer.id IN (:ids)
-            GROUP BY customer.id
 SQL,
             [
                 'ids' => Uuid::fromHexToBytesList($ids),

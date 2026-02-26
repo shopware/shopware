@@ -19,7 +19,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -266,26 +265,51 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
      */
     private function advancedFetch(array $ids): array
     {
-        $baseMapping = [
-            '#visibilities#' => SqlHelper::objectArray([
-                'salesChannelId' => 'LOWER(HEX(product_visibility.sales_channel_id))',
-            ], 'visibilities'),
-        ];
+        if ($ids === []) {
+            return [];
+        }
 
-        $baseSql = <<<'SQL'
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $binaryIds = Uuid::fromHexToBytesList($ids);
+
+        $baseRows = $this->fetchProductBaseRows($binaryIds, $versionId);
+
+        if ($baseRows === []) {
+            return [];
+        }
+
+        $productIds = $this->collectHexColumnValues($baseRows, 'id');
+        $parentIds = $this->collectHexColumnValues($baseRows, 'parentId');
+        $translationIds = array_values(array_unique(array_merge($productIds, $parentIds)));
+        $translationsByProductId = $this->fetchTranslationsByProductIds($translationIds, $versionId);
+
+        $manufacturerIds = $this->collectHexColumnValues($baseRows, 'manufacturerId');
+        $manufacturerById = $this->fetchManufacturerTranslationsByIds($manufacturerIds, $versionId);
+
+        $tagsByProductId = $this->fetchTagsByProductIds($binaryIds, $versionId);
+
+        $visibilityIds = $this->collectHexColumnValues($baseRows, 'visibilitiesId');
+        $visibilitiesByProductId = $this->fetchVisibilitiesByIds($visibilityIds, $versionId);
+
+        return $this->mapAdvancedRows(
+            $baseRows,
+            $translationsByProductId,
+            $manufacturerById,
+            $tagsByProductId,
+            $visibilitiesByProductId
+        );
+    }
+
+    /**
+     * @param list<string> $binaryIds
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function fetchProductBaseRows(array $binaryIds, string $versionId): array
+    {
+        return $this->connection->fetchAllAssociative(
+            <<<'SQL'
             SELECT LOWER(HEX(product.id)) as id,
-                   GROUP_CONCAT(DISTINCT IFNULL(product_main.name, product_parent.name) SEPARATOR " ") as name,
-                   JSON_ARRAYAGG(JSON_OBJECT(
-                       'languageId', LOWER(HEX(IFNULL(product_main.language_id, product_parent.language_id))),
-                       'name', IFNULL(product_main.name, product_parent.name)
-                   )) as translatedNames,
-                   JSON_ARRAYAGG(JSON_OBJECT(
-                       'languageId', LOWER(HEX(manufacturer_translation.language_id)),
-                       'name', manufacturer_translation.name
-                   )) as translatedManufacturerNames,
-                   CONCAT("[", GROUP_CONCAT(IFNULL(product_main.custom_search_keywords, product_parent.custom_search_keywords)), "]") as customSearchKeywords,
-                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
-                   GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
                    IFNULL(product.active, parent.active) AS active,
                    product.available AS available,
                    LOWER(HEX(product.parent_id)) as parentId,
@@ -296,97 +320,261 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    product.type as type,
                    product.states as states,
                    LOWER(HEX(product.manufacturer)) AS manufacturerId,
+                   LOWER(HEX(product.visibilities)) AS visibilitiesId,
                    IFNULL(product.category_ids, parent.category_ids) AS categoryIds,
                    product.stock as stock,
                    IFNULL(product.price, parent.price) AS priceRaw,
                    IFNULL(product.release_date, parent.release_date) AS releaseDate,
-                   LOWER(HEX(IFNULL(product.product_media_id, parent.product_media_id))) AS mediaId,
+                   LOWER(HEX(product.cover)) AS mediaId,
                    product.created_at as createdAt,
-                   product.updated_at as updatedAt,
-                   #visibilities#
+                   product.updated_at as updatedAt
             FROM product
-                LEFT JOIN product parent ON (product.parent_id = parent.id AND parent.version_id = :versionId)
-                LEFT JOIN product_visibility ON (product_visibility.product_id = product.visibilities AND product_visibility.product_version_id = product.version_id)
-                LEFT JOIN product_translation product_main ON product_main.product_id = product.id AND product_main.product_version_id = product.version_id
-                LEFT JOIN product_translation product_parent ON product_parent.product_id = product.parent_id AND product_parent.product_version_id = product.version_id
-                LEFT JOIN product_manufacturer_translation AS manufacturer_translation
-                    ON manufacturer_translation.product_manufacturer_id = product.manufacturer
-                    AND manufacturer_translation.product_manufacturer_version_id = product.version_id
-                LEFT JOIN product_tag
-                    ON product.id = product_tag.product_id AND product.version_id = product_tag.product_version_id
-                LEFT JOIN tag
-                    ON product_tag.tag_id = tag.id
+                LEFT JOIN product parent
+                    ON product.parent_id = parent.id
+                    AND parent.version_id = :versionId
             WHERE product.id IN (:ids)
             AND product.version_id = :versionId
-            GROUP BY product.id
-SQL;
+SQL,
+            ['ids' => $binaryIds, 'versionId' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
 
-        $data = $this->connection->fetchAllAssociative(
-            str_replace(array_keys($baseMapping), array_values($baseMapping), $baseSql),
-            [
-                'ids' => Uuid::fromHexToBytesList($ids),
-                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ],
-            [
-                'ids' => ArrayParameterType::BINARY,
-            ]
+    /**
+     * @param list<string> $translationIds
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function fetchTranslationsByProductIds(array $translationIds, string $versionId): array
+    {
+        if ($translationIds === []) {
+            return [];
+        }
+
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+            SELECT LOWER(HEX(product_translation.product_id)) as id,
+                   GROUP_CONCAT(DISTINCT product_translation.name ORDER BY NULL SEPARATOR ' ') as name,
+                   CONCAT(
+                       '[',
+                       IFNULL(
+                           GROUP_CONCAT(
+                               CASE
+                                   WHEN product_translation.name IS NOT NULL THEN JSON_OBJECT(
+                                       'languageId', LOWER(HEX(product_translation.language_id)),
+                                       'name', product_translation.name
+                                   )
+                               END
+                               ORDER BY NULL
+                           ),
+                           ''
+                       ),
+                       ']'
+                   ) as translatedNames,
+                   CONCAT('[', IFNULL(GROUP_CONCAT(product_translation.custom_search_keywords ORDER BY NULL), ''), ']') as customSearchKeywords
+            FROM product_translation
+            WHERE product_translation.product_id IN (:ids)
+            AND product_translation.product_version_id = :versionId
+            AND (
+                product_translation.name IS NOT NULL
+                OR product_translation.custom_search_keywords IS NOT NULL
+            )
+            GROUP BY product_translation.product_id, product_translation.product_version_id
+SQL,
+            ['ids' => Uuid::fromHexToBytesList($translationIds), 'versionId' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
         );
 
-        $mapped = [];
-        foreach ($data as $row) {
-            $textBoosted = $row['name'] . ' ' . $row['productNumber'];
+        return $this->indexRowsById($rows);
+    }
 
-            if ($row['customSearchKeywords']) {
-                $row['customSearchKeywords'] = json_decode((string) $row['customSearchKeywords'], true, 512, \JSON_THROW_ON_ERROR);
-                $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['customSearchKeywords'])));
+    /**
+     * @param list<string> $manufacturerIds
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function fetchManufacturerTranslationsByIds(array $manufacturerIds, string $versionId): array
+    {
+        if ($manufacturerIds === []) {
+            return [];
+        }
+
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+            SELECT LOWER(HEX(product_manufacturer_translation.product_manufacturer_id)) as id,
+                   JSON_ARRAYAGG(JSON_OBJECT(
+                       'languageId', LOWER(HEX(product_manufacturer_translation.language_id)),
+                       'name', product_manufacturer_translation.name
+                   )) as translatedManufacturerNames
+            FROM product_manufacturer_translation
+            WHERE product_manufacturer_translation.product_manufacturer_id IN (:ids)
+            AND product_manufacturer_translation.product_manufacturer_version_id = :versionId
+            GROUP BY product_manufacturer_translation.product_manufacturer_id, product_manufacturer_translation.product_manufacturer_version_id
+SQL,
+            ['ids' => Uuid::fromHexToBytesList($manufacturerIds), 'versionId' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return $this->indexRowsById($rows);
+    }
+
+    /**
+     * @param list<string> $binaryIds
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function fetchTagsByProductIds(array $binaryIds, string $versionId): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+            SELECT LOWER(HEX(product_tag.product_id)) as id,
+                   GROUP_CONCAT(DISTINCT tag.name ORDER BY NULL SEPARATOR ' ') as tags,
+                   GROUP_CONCAT(LOWER(HEX(tag.id)) ORDER BY NULL SEPARATOR ' ') as tagIds
+            FROM product_tag
+                LEFT JOIN tag
+                    ON product_tag.tag_id = tag.id
+            WHERE product_tag.product_id IN (:ids)
+            AND product_tag.product_version_id = :versionId
+            GROUP BY product_tag.product_id, product_tag.product_version_id
+SQL,
+            ['ids' => $binaryIds, 'versionId' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return $this->indexRowsById($rows);
+    }
+
+    /**
+     * @param list<string> $visibilityIds
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function fetchVisibilitiesByIds(array $visibilityIds, string $versionId): array
+    {
+        if ($visibilityIds === []) {
+            return [];
+        }
+
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+            SELECT LOWER(HEX(product_visibility.product_id)) as id,
+                   CONCAT(
+                       '[',
+                       GROUP_CONCAT(
+                           DISTINCT JSON_OBJECT(
+                               'salesChannelId', LOWER(HEX(product_visibility.sales_channel_id))
+                           ) ORDER BY NULL
+                       ),
+                       ']'
+                   ) as visibilities
+            FROM product_visibility
+            WHERE product_visibility.product_id IN (:ids)
+            AND product_visibility.product_version_id = :versionId
+            GROUP BY product_visibility.product_id, product_visibility.product_version_id
+SQL,
+            ['ids' => Uuid::fromHexToBytesList($visibilityIds), 'versionId' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return $this->indexRowsById($rows);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $baseRows
+     * @param array<string, array<string, mixed>> $translationsByProductId
+     * @param array<string, array<string, mixed>> $manufacturerById
+     * @param array<string, array<string, mixed>> $tagsByProductId
+     * @param array<string, array<string, mixed>> $visibilitiesByProductId
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function mapAdvancedRows(
+        array $baseRows,
+        array $translationsByProductId,
+        array $manufacturerById,
+        array $tagsByProductId,
+        array $visibilitiesByProductId
+    ): array {
+        $mapped = [];
+        foreach ($baseRows as $row) {
+            $id = \is_string($row['id'] ?? null) ? $row['id'] : null;
+            if ($id === null) {
+                continue;
             }
 
-            $id = (string) $row['id'];
-            $translatedNames = $this->decodeTranslatedValues((string) $row['translatedNames']);
-            $translatedManufacturerNames = $this->decodeTranslatedValues((string) $row['translatedManufacturerNames']);
+            $parentId = \is_string($row['parentId'] ?? null) ? $row['parentId'] : null;
+            $manufacturerId = \is_string($row['manufacturerId'] ?? null) ? $row['manufacturerId'] : null;
+            $visibilitiesId = \is_string($row['visibilitiesId'] ?? null) ? $row['visibilitiesId'] : null;
 
-            $textRow = [
-                'tags' => $row['tags'] ?? '',
-                'id' => $id,
-            ];
+            $ownTranslation = $translationsByProductId[$id] ?? null;
+            $parentTranslation = $parentId !== null ? ($translationsByProductId[$parentId] ?? null) : null;
 
-            $text = \implode(' ', array_filter(array_unique(array_values($textRow))));
+            $name = \is_string($ownTranslation['name'] ?? null) && $ownTranslation['name'] !== ''
+                ? $ownTranslation['name']
+                : (\is_string($parentTranslation['name'] ?? null) ? $parentTranslation['name'] : '');
+            $translatedNamesEncoded = \is_string($ownTranslation['translatedNames'] ?? null) && $ownTranslation['translatedNames'] !== '[]'
+                ? $ownTranslation['translatedNames']
+                : (\is_string($parentTranslation['translatedNames'] ?? null) ? $parentTranslation['translatedNames'] : '');
+            $customSearchKeywordsEncoded = \is_string($ownTranslation['customSearchKeywords'] ?? null) && $ownTranslation['customSearchKeywords'] !== '[]'
+                ? $ownTranslation['customSearchKeywords']
+                : (\is_string($parentTranslation['customSearchKeywords'] ?? null) ? $parentTranslation['customSearchKeywords'] : '');
+            $translatedManufacturerNamesEncoded = ($manufacturerId !== null && \is_string($manufacturerById[$manufacturerId]['translatedManufacturerNames'] ?? null))
+                ? $manufacturerById[$manufacturerId]['translatedManufacturerNames']
+                : '';
+            $tags = \is_string($tagsByProductId[$id]['tags'] ?? null) ? $tagsByProductId[$id]['tags'] : '';
+            $tagIds = \is_string($tagsByProductId[$id]['tagIds'] ?? null) ? $tagsByProductId[$id]['tagIds'] : '';
+            $visibilitiesEncoded = ($visibilitiesId !== null && \is_string($visibilitiesByProductId[$visibilitiesId]['visibilities'] ?? null))
+                ? $visibilitiesByProductId[$visibilitiesId]['visibilities']
+                : '';
+
+            $textBoosted = $name . ' ' . ($row['productNumber'] ?? '');
+            if ($customSearchKeywordsEncoded !== '') {
+                $customSearchKeywords = json_decode($customSearchKeywordsEncoded, true, 512, \JSON_THROW_ON_ERROR);
+                if (\is_array($customSearchKeywords) && $customSearchKeywords !== []) {
+                    $textBoosted .= ' ' . implode(' ', array_unique(array_merge(...$customSearchKeywords)));
+                }
+            }
+
+            $translatedNames = $this->decodeTranslatedValues($translatedNamesEncoded);
+            $states = ElasticsearchIndexingUtils::parseJson(['states' => $row['states'] ?? null], 'states');
+            $categoryIds = ElasticsearchIndexingUtils::parseJson(['categoryIds' => $row['categoryIds'] ?? null], 'categoryIds');
+            $visibilities = ElasticsearchIndexingUtils::parseJson(['visibilities' => $visibilitiesEncoded], 'visibilities');
+            $parsedTagIds = $this->parseTagIds(['tagIds' => $tagIds]);
+            $price = $this->parsePrice($row);
 
             $mapped[$id] = [
                 'id' => $id,
                 'textBoosted' => \strtolower($textBoosted),
-                'text' => \strtolower($text),
+                'text' => \strtolower(trim($tags . ' ' . $id)),
                 'name' => $translatedNames,
-                'parentId' => $row['parentId'] ?? null,
-                'productNumber' => $row['productNumber'] ?? null,
-                'ean' => $row['ean'] ?? null,
-                'manufacturerNumber' => $row['manufacturerNumber'] ?? null,
-                'manufacturerId' => $row['manufacturerId'] ?? null,
+                'parentId' => $parentId,
+                'productNumber' => \is_string($row['productNumber'] ?? null) ? $row['productNumber'] : null,
+                'ean' => \is_string($row['ean'] ?? null) ? $row['ean'] : null,
+                'manufacturerNumber' => \is_string($row['manufacturerNumber'] ?? null) ? $row['manufacturerNumber'] : null,
+                'manufacturerId' => $manufacturerId,
                 'sales' => (int) $row['sales'],
                 'active' => (bool) $row['active'],
                 'available' => (bool) $row['available'],
                 'stock' => (int) $row['stock'],
-                'price' => $this->parsePrice($row),
+                'price' => $price,
                 'type' => $row['type'] ?? null,
-                'states' => ElasticsearchIndexingUtils::parseJson($row, 'states'),
-                'manufacturer' => [
-                    'id' => $row['manufacturerId'] ?? null,
-                    'name' => $translatedManufacturerNames,
-                ],
-                'categories' => array_map(function (string $categoryId) {
+                'states' => $states,
+                'manufacturer' => $manufacturerId ? [
+                    'id' => $manufacturerId,
+                    'name' => $this->decodeTranslatedValues($translatedManufacturerNamesEncoded),
+                ] : null,
+                'categories' => array_map(static function (string $categoryId): array {
                     return [
                         'id' => $categoryId,
                         'versionId' => Defaults::LIVE_VERSION,
                         '_count' => 1,
                     ];
-                }, ElasticsearchIndexingUtils::parseJson($row, 'categoryIds')),
-                'visibilities' => array_map(function (array $visibility) {
-                    return array_merge([
-                        '_count' => 1,
-                    ], $visibility);
-                }, ElasticsearchIndexingUtils::parseJson($row, 'visibilities')),
-                'media' => isset($row['mediaId']) ? [['id' => $row['mediaId'], '_count' => 1]] : [],
-                'tags' => $this->parseTagIds($row),
+                }, $categoryIds),
+                'visibilities' => array_map(static function (array $visibility): array {
+                    return array_merge(['_count' => 1], $visibility);
+                }, $visibilities),
+                'media' => \is_string($row['mediaId'] ?? null) ? [['id' => $row['mediaId'], '_count' => 1]] : [],
+                'tags' => $parsedTagIds,
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
                 'updatedAt' => $this->formatDateTime($row, 'updatedAt'),
                 'releaseDate' => $this->formatDateTime($row, 'releaseDate'),
@@ -394,6 +582,38 @@ SQL;
         }
 
         return $mapped;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return list<string>
+     */
+    private function collectHexColumnValues(array $rows, string $column): array
+    {
+        return array_values(array_unique(array_filter(
+            array_column($rows, $column),
+            static fn (mixed $value): bool => \is_string($value) && Uuid::isValid($value)
+        )));
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function indexRowsById(array $rows): array
+    {
+        $indexed = [];
+        foreach ($rows as $row) {
+            $id = \is_string($row['id'] ?? null) ? $row['id'] : null;
+            if ($id === null || !Uuid::isValid($id)) {
+                continue;
+            }
+            $indexed[$id] = $row;
+        }
+
+        return $indexed;
     }
 
     /**

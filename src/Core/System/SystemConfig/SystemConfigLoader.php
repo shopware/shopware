@@ -88,7 +88,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
     {
         $key = \array_shift($keys);
 
-        if (empty($keys)) {
+        if ($keys === []) {
             // Configs can be overwritten with sales_channel_id
             $inheritedValuePresent = \array_key_exists($key, $configValues);
             $valueConsideredEmpty = !\is_bool($value) && empty($value);

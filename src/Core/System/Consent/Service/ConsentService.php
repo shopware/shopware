@@ -228,7 +228,7 @@ class ConsentService implements ResetInterface
             }
         }
 
-        if (!empty($missingPermissions)) {
+        if ($missingPermissions !== []) {
             throw ConsentException::insufficientPermissions($consent->getName(), $missingPermissions);
         }
     }

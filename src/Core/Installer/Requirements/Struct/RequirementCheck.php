@@ -4,6 +4,7 @@ namespace Shopware\Core\Installer\Requirements\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Installer\InstallerException;
 
 /**
  * @internal
@@ -25,12 +26,12 @@ abstract class RequirementCheck extends Struct
         string $name,
         string $status
     ) {
-        if (empty($name)) {
-            throw new \RuntimeException('Empty name for RequirementCheck provided.');
+        if ($name === '') {
+            throw InstallerException::invalidRequirementCheck('Empty name for RequirementCheck provided.');
         }
 
         if (!\in_array($status, self::ALLOWED_STATUS, true)) {
-            throw new \RuntimeException(\sprintf(
+            throw InstallerException::invalidRequirementCheck(\sprintf(
                 'Invalid status for RequirementCheck, got "%s", allowed values are "%s".',
                 $status,
                 implode('", "', self::ALLOWED_STATUS)

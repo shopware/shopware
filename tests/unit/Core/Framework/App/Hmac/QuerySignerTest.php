@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Hmac;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -77,10 +78,9 @@ class QuerySignerTest extends TestCase
         static::assertSame($userId, $url['sw-user-id']);
     }
 
-    public function testUserIdIsEmptyStringWhenSourceIsNotAdminApiSource(): void
+    #[DataProvider('userIdDataProvider')]
+    public function testUserIdInSignedUri(Context $context, string $expectedUserId): void
     {
-        $context = Context::createDefaultContext();
-
         $localeProvider = $this->createMock(LocaleProvider::class);
         $localeProvider
             ->expects($this->once())
@@ -117,7 +117,7 @@ class QuerySignerTest extends TestCase
         \parse_str($signedQuery->getQuery(), $url);
 
         static::assertArrayHasKey('sw-user-id', $url);
-        static::assertSame('', $url['sw-user-id']);
+        static::assertSame($expectedUserId, $url['sw-user-id']);
     }
 
     public function testThrowsWithoutAppSecret(): void
@@ -138,5 +138,28 @@ class QuerySignerTest extends TestCase
         $this->expectExceptionMessage('App secret is missing for app Foo');
 
         $querySigner->signUri('http://app.url/?foo=bar', $app, Context::createDefaultContext());
+    }
+
+    /**
+     * @return \Generator<string, array{Context, string}>
+     */
+    public static function userIdDataProvider(): \Generator
+    {
+        $userId = Uuid::randomHex();
+
+        yield 'admin api source with user' => [
+            new Context(new AdminApiSource($userId)),
+            $userId,
+        ];
+
+        yield 'admin api source without user' => [
+            new Context(new AdminApiSource(null)),
+            '',
+        ];
+
+        yield 'non-admin api source' => [
+            Context::createDefaultContext(),
+            '',
+        ];
     }
 }

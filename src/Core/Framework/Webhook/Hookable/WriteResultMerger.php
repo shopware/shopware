@@ -46,7 +46,7 @@ class WriteResultMerger
 
         $mergedWriteResults = array_values(array_filter($mergedWriteResults));
 
-        if (empty($mergedWriteResults)) {
+        if ($mergedWriteResults === []) {
             return null;
         }
 
@@ -72,7 +72,7 @@ class WriteResultMerger
             $payload = array_merge($payload, $this->getMergeableTranslationPayload($translationResult));
         }
 
-        if (empty($payload)) {
+        if ($payload === []) {
             return null;
         }
 

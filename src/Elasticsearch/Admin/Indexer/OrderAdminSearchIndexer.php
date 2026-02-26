@@ -434,8 +434,8 @@ SQL;
             return [
                 'id' => (string) ($item['id'] ?? ''),
                 '_count' => 1,
-                'productId' => \is_string($item['productId']) ? $item['productId'] : null,
-                'payload' => ['code' => \is_string($item['code']) ? $item['code'] : null],
+                'productId' => is_string($item['productId']) ? $item['productId'] : null,
+                'payload' => ['code' => is_string($item['code']) ? $item['code'] : null],
             ];
         }, ElasticsearchIndexingUtils::parseJson($row, 'lineItems')));
     }

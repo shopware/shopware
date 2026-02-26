@@ -7,7 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -493,7 +496,7 @@ class ThemeFileResolverTest extends TestCase
                 ++$overridesCount;
             }
         }
-        static::assertEquals(1, $overridesCount, 'overrides.scss should appear only once (no duplication)');
+        static::assertSame(1, $overridesCount, 'overrides.scss should appear only once (no duplication)');
 
         // Check that overrides.scss appears before base.scss (order preservation)
         $basePosition = -1;
@@ -552,8 +555,9 @@ class ThemeFileResolverTest extends TestCase
         $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
         $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
 
-        $this->expectException(\Shopware\Storefront\Theme\Exception\ThemeException::class);
-        $this->expectExceptionMessage('NonExistentBundle');
+        $this->expectExceptionObject(
+            ThemeException::couldNotFindThemeByName('NonExistentBundle')
+        );
 
         $resolver->resolveStyleFiles($config, $configCollection, false);
     }
@@ -589,7 +593,7 @@ class ThemeFileResolverTest extends TestCase
         );
 
         // Create a test component with anonymous class extending TwigComponent
-        $testComponent = new class('/path/to/components/Sw/Alert/index.html.twig', 'Sw:Alert', 'Storefront') extends \Shopware\Storefront\Framework\Twig\Components\TwigComponent {
+        $testComponent = new class('/path/to/components/Sw/Alert/index.html.twig', 'Sw:Alert', 'Storefront') extends TwigComponent {
             public function getStylePath(): string
             {
                 return '/path/to/components/Sw/Alert/index.scss';
@@ -601,7 +605,7 @@ class ThemeFileResolverTest extends TestCase
             }
         };
 
-        $componentCollection = new \Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection([$testComponent]);
+        $componentCollection = new TwigComponentCollection([$testComponent]);
 
         $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
         $twigComponentHelper->expects($this->any())
@@ -649,7 +653,7 @@ class ThemeFileResolverTest extends TestCase
         );
 
         // Create two test components with the same path but different namespaces
-        $componentStorefront = new class('/path/to/components/Custom/Test/index.html.twig', 'Custom:Test', 'Storefront') extends \Shopware\Storefront\Framework\Twig\Components\TwigComponent {
+        $componentStorefront = new class('/path/to/components/Custom/Test/index.html.twig', 'Custom:Test', 'Storefront') extends TwigComponent {
             public function getStylePath(): string
             {
                 return '/path/to/components/Custom/Test/index.scss';
@@ -661,7 +665,7 @@ class ThemeFileResolverTest extends TestCase
             }
         };
 
-        $componentPlugin = new class('/path/to/plugin/components/Custom/Test/index.html.twig', 'Custom:Test', 'MyPlugin') extends \Shopware\Storefront\Framework\Twig\Components\TwigComponent {
+        $componentPlugin = new class('/path/to/plugin/components/Custom/Test/index.html.twig', 'Custom:Test', 'MyPlugin') extends TwigComponent {
             public function getStylePath(): string
             {
                 return '/path/to/plugin/components/Custom/Test/index.scss';
@@ -678,7 +682,7 @@ class ThemeFileResolverTest extends TestCase
             }
         };
 
-        $componentCollection = new \Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection([
+        $componentCollection = new TwigComponentCollection([
             $componentStorefront,
             $componentPlugin,
         ]);

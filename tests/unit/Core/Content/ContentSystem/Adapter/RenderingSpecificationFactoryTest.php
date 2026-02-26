@@ -43,4 +43,26 @@ class RenderingSpecificationFactoryTest extends TestCase
         static::assertSame('element-42', $result->targetElementId);
         static::assertSame(['product-abc123'], $result->cacheTags);
     }
+
+    #[TestDox('assembles specification with null target element and empty cache tags')]
+    public function testCreateAssemblesSpecificationWithNullTargetAndEmptyCacheTags(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $path = '/category/xyz';
+        $specData = new SpecificationData([], PlaceholderValues::from([]));
+
+        $source = static::createStub(AbstractSpecificationSource::class);
+        $source->method('resolveLayoutId')->willReturn('layout-2');
+        $source->method('resolveSpecificationData')->willReturn($specData);
+        $source->method('resolveTargetElementId')->willReturn(null);
+        $source->method('resolveCacheTags')->willReturn([]);
+
+        $factory = new RenderingSpecificationFactory();
+        $result = $factory->create($source, $path, $request, $context);
+
+        static::assertSame('layout-2', $result->layoutId);
+        static::assertNull($result->targetElementId);
+        static::assertSame([], $result->cacheTags);
+    }
 }

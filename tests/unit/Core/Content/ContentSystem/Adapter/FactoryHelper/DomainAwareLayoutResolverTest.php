@@ -9,6 +9,9 @@ use Shopware\Core\Content\ContentSystem\Adapter\Entity\HeaderContentLayout\Heade
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutEntity;
 use Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -28,9 +31,21 @@ class DomainAwareLayoutResolverTest extends TestCase
         $entity->setId(Uuid::randomHex());
         $entity->setContentLayoutId(Uuid::randomHex());
 
-        $repository = $this->createRepository($entity);
-
         $context = Generator::generateSalesChannelContext();
+
+        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
+        $repository = new StaticEntityRepository([
+            static function (Criteria $criteria, Context $context) use ($entity): array {
+                $filters = $criteria->getFilters();
+                static::assertCount(1, $filters);
+                static::assertInstanceOf(OrFilter::class, $filters[0]);
+
+                static::assertSame(1, $criteria->getLimit());
+                static::assertContains('contentLayout', array_keys($criteria->getAssociations()));
+
+                return [$entity];
+            },
+        ]);
 
         $resolver = new DomainAwareLayoutResolver();
         $result = $resolver->resolve($context, $repository);
@@ -45,32 +60,32 @@ class DomainAwareLayoutResolverTest extends TestCase
         $entity->setId(Uuid::randomHex());
         $entity->setContentLayoutId(Uuid::randomHex());
 
-        $repository = $this->createRepository($entity);
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
 
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getDomainId')->willReturn(null);
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
         $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
+
+        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
+        $repository = new StaticEntityRepository([
+            static function (Criteria $criteria, Context $context) use ($entity): array {
+                $filters = $criteria->getFilters();
+                static::assertCount(2, $filters);
+                static::assertInstanceOf(EqualsFilter::class, $filters[0]);
+                static::assertSame('domainId', $filters[0]->getField());
+                static::assertNull($filters[0]->getValue());
+                static::assertInstanceOf(OrFilter::class, $filters[1]);
+
+                return [$entity];
+            },
+        ]);
 
         $resolver = new DomainAwareLayoutResolver();
         $result = $resolver->resolve($context, $repository);
 
         static::assertSame($entity, $result);
-    }
-
-    #[TestDox('returns null when no assignment exists')]
-    public function testReturnsNullWhenNoAssignmentExists(): void
-    {
-        $repository = $this->createRepository();
-
-        $context = Generator::generateSalesChannelContext();
-
-        $resolver = new DomainAwareLayoutResolver();
-        $result = $resolver->resolve($context, $repository);
-
-        static::assertNull($result);
     }
 
     #[TestDox('returns most specific assignment when multiple candidates exist')]
@@ -95,6 +110,19 @@ class DomainAwareLayoutResolverTest extends TestCase
         $result = $resolver->resolve($context, $repository);
 
         static::assertSame($domainSpecific, $result);
+    }
+
+    #[TestDox('returns null when no assignment exists')]
+    public function testReturnsNullWhenNoAssignmentExists(): void
+    {
+        $repository = $this->createRepository();
+
+        $context = Generator::generateSalesChannelContext();
+
+        $resolver = new DomainAwareLayoutResolver();
+        $result = $resolver->resolve($context, $repository);
+
+        static::assertNull($result);
     }
 
     /**

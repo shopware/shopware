@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ConsentController extends AbstractController
 {
     public function __construct(
-        private readonly ConsentService $consentSystemConsentService,
+        private readonly ConsentService $consentService,
         private readonly BannerService $bannerService,
     ) {
     }
@@ -36,7 +36,7 @@ class ConsentController extends AbstractController
     {
         $userId = $this->getUserIdFromContext($context);
 
-        $consent = $this->consentSystemConsentService->getConsentState(BackendData::NAME, $context);
+        $consent = $this->consentService->getConsentState(BackendData::NAME, $context);
 
         return new JsonResponse([
             'isConsentGiven' => $consent->status === ConsentStatus::ACCEPTED,
@@ -47,7 +47,7 @@ class ConsentController extends AbstractController
     #[Route(path: '/api/usage-data/accept-consent', name: 'api.usage_data.accept_consent', methods: [Request::METHOD_POST])]
     public function acceptConsent(Context $context): Response
     {
-        $this->consentSystemConsentService->acceptConsent(BackendData::NAME, $context);
+        $this->consentService->acceptConsent(BackendData::NAME, $context);
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }
@@ -55,7 +55,7 @@ class ConsentController extends AbstractController
     #[Route(path: '/api/usage-data/revoke-consent', name: 'api.usage_data.revoke_consent', methods: [Request::METHOD_POST])]
     public function revokeConsent(Context $context): Response
     {
-        $this->consentSystemConsentService->revokeConsent(BackendData::NAME, $context);
+        $this->consentService->revokeConsent(BackendData::NAME, $context);
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\Service\ConsentService as ConsentSystemConsentService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -17,11 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 class ConsentControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-
-    protected function setUp(): void
-    {
-        $this->getContainer()->get(ConsentSystemConsentService::class)->reset();
-    }
 
     public function testConsentIsNotGivenIfConsentStateIsNotPresent(): void
     {

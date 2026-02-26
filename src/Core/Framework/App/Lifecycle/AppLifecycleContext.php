@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal only for use by the app-system
  */
 #[Package('framework')]

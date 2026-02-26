@@ -46,6 +46,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -441,6 +442,7 @@ class InfoControllerTest extends TestCase
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
+            new EventDispatcher(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -516,6 +518,7 @@ class InfoControllerTest extends TestCase
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
+            new EventDispatcher(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));

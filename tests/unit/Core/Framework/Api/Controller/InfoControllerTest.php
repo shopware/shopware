@@ -10,6 +10,7 @@ use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
@@ -26,7 +27,6 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
@@ -34,6 +34,7 @@ use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
@@ -47,14 +48,6 @@ class InfoControllerTest extends TestCase
 {
     use EnvTestBehaviour;
 
-    private InfoController $infoController;
-
-    private ParameterBagInterface&MockObject $parameterBagMock;
-
-    private RouterInterface&MockObject $routerMock;
-
-    private InAppPurchase $inAppPurchase;
-
     private ShopIdProvider&MockObject $shopIdProvider;
 
     private StatsService&MockObject $statsService;
@@ -63,10 +56,14 @@ class InfoControllerTest extends TestCase
 
     private MigrationInfo&MockObject $migrationInfo;
 
+    private EventDispatcher $eventDispatcher;
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->statsService = $this->createMock(StatsService::class);
+        $this->eventDispatcher = new EventDispatcher();
     }
 
     public function testConfig(): void
@@ -75,15 +72,12 @@ class InfoControllerTest extends TestCase
             'APP_URL' => 'https://app.url',
         ]);
 
-        $this->createInstance();
-
         $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
-        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
-        $content = $response->getContent();
+        $content = $this->createInstance()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);
         static::assertArrayHasKey('version', $data);
         static::assertSame('6.6.9999999-dev', $data['version']);
@@ -156,21 +150,32 @@ class InfoControllerTest extends TestCase
 
     public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
     {
-        $this->createInstance();
-
         $this->shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
             ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('current-shop-id'), new FingerprintComparisonResult([], [], 75)));
 
-        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
-
-        $content = $response->getContent();
+        $content = $this->createInstance()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('shopId', $data);
         static::assertSame('current-shop-id', $data['shopId']);
+    }
+
+    public function testConfigExtension(): void
+    {
+        $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, function (AdminInfoConfigEvent $event): void {
+            $event->addConfig('foo', 'bar');
+        });
+
+        $content = $this->createInstance()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('foo', $data);
+        static::assertSame('bar', $data['foo']);
     }
 
     public function testMessageStatsPreservesFloatingPointPrecision(): void
@@ -181,13 +186,10 @@ class InfoControllerTest extends TestCase
                 new MessageStatsEntity(1, new \DateTime(), 1.00, new MessageTypeStatsCollection())
             )
         );
-        $this->createInstance();
-
-        $response = $this->infoController->messageStats();
-        $content = $response->getContent();
+        $content = $this->createInstance()->messageStats()->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);
         static::assertArrayHasKey('stats', $data);
         static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
@@ -247,7 +249,7 @@ class InfoControllerTest extends TestCase
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
     }
 
-    private function createInstance(): void
+    private function createInstance(): InfoController
     {
         $kernel = new StubKernel([
             new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
@@ -260,7 +262,7 @@ class InfoControllerTest extends TestCase
         $this->connectionMock = $this->createMock(Connection::class);
         $this->migrationInfo = $this->createMock(MigrationInfo::class);
 
-        $this->parameterBagMock->method('get')
+        $parameterBagMock->method('get')
             ->willReturnMap([
                 ['shopware.html_sanitizer.enabled', true],
                 ['shopware.filesystem.private_allowed_extensions', false],
@@ -273,7 +275,7 @@ class InfoControllerTest extends TestCase
                 ['shopware.media.enable_url_upload_feature', true],
             ]);
 
-        $this->routerMock->method('generate')
+        $routerMock->method('generate')
             ->with(
                 'administration.plugin.index',
                 [
@@ -282,20 +284,20 @@ class InfoControllerTest extends TestCase
             )
             ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
 
-        $this->infoController = new InfoController(
+        return new InfoController(
             $this->createMock(DefinitionService::class),
-            $this->parameterBagMock,
+            $parameterBagMock,
             $kernel,
             $this->createMock(BusinessEventCollector::class),
             $this->createMock(IncrementGatewayRegistry::class),
             $this->connectionMock,
             $this->migrationInfo,
             $this->createMock(AppUrlVerifier::class),
-            $this->routerMock,
+            $routerMock,
             $this->createMock(FlowActionCollector::class),
             new StaticSystemConfigService(),
             $this->createMock(ApiRouteInfoResolver::class),
-            $this->inAppPurchase,
+            StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]),
             new ViteFileAccessorDecorator(
                 [],
                 $this->createMock(UrlPackage::class),
@@ -305,6 +307,7 @@ class InfoControllerTest extends TestCase
             new Filesystem(),
             $this->shopIdProvider,
             $this->statsService,
+            $this->eventDispatcher,
         );
     }
 }

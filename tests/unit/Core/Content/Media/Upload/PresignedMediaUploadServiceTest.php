@@ -259,7 +259,7 @@ class PresignedMediaUploadServiceTest extends TestCase
                 static::anything()
             );
 
-        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
+        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch');
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',

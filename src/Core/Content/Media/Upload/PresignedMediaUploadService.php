@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -226,6 +227,11 @@ readonly class PresignedMediaUploadService
             });
 
             $this->eventDispatcher->dispatch(new UpdateMediaPathEvent([$mediaId]));
+
+            $mediaPathChanged = new MediaPathChangedEvent($context);
+            $mediaPathChanged->mediaWithMimeType(mediaId: $mediaId, path: $payload->path, mimeType: $payload->mimeType);
+            $this->eventDispatcher->dispatch($mediaPathChanged);
+
             $this->eventDispatcher->dispatch(new MediaUploadedEvent($mediaId, $context));
 
             $this->mediaFileCleanup->dispatchThumbnailGeneration($mediaId, $context);

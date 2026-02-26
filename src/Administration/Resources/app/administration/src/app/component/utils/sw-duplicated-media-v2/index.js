@@ -314,14 +314,24 @@ export default {
             const oldTargetId = uploadTask.targetId;
 
             if (this.presignedSupported && uploadTask.src instanceof File) {
-                const mediaId = await this.presignedUpload(uploadTask, newTarget.id);
+                try {
+                    const mediaId = await this.presignedUpload(uploadTask, newTarget.id);
 
-                const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
-                if (oldTarget && !oldTarget.hasFile) {
-                    await this.mediaRepository.delete(oldTargetId, Context.api);
+                    const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
+                    if (oldTarget && !oldTarget.hasFile) {
+                        await this.mediaRepository.delete(oldTargetId, Context.api);
+                    }
+
+                    this.emitUploadFinished(uploadTask.uploadTag, mediaId, mediaId !== oldTargetId ? oldTargetId : null);
+                } catch (e) {
+                    const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
+                    if (oldTarget && !oldTarget.hasFile) {
+                        await this.mediaRepository.delete(oldTargetId, Context.api);
+                    }
+
+                    throw e;
                 }
 
-                this.emitUploadFinished(uploadTask.uploadTag, mediaId, mediaId !== oldTargetId ? oldTargetId : null);
                 return;
             }
 

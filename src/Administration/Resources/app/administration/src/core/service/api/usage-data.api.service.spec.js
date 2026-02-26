@@ -11,6 +11,10 @@ function getUsageDataService(client) {
 }
 
 describe('usageDataService', () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     it('has the correct name', async () => {
         const usageDataApiService = getUsageDataService(createHTTPClient());
 

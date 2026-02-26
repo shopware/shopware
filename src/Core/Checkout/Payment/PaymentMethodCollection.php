@@ -51,16 +51,30 @@ class PaymentMethodCollection extends EntityCollection
     /**
      * Sorts the selected payment method first
      * If a different default payment method is defined, it will be sorted second
-     * All other payment methods keep their respective sorting
+     * All other payment methods keep their respective sorting by position
      */
     public function sortPaymentMethodsByPreference(SalesChannelContext $context): void
     {
-        $ids = array_merge(
-            [$context->getSalesChannel()->getPaymentMethodId()],
-            $this->getIds(),
-        );
+        $activePaymentMethodId = $context->getPaymentMethod()->getId();
+        $defaultPaymentMethodId = $context->getSalesChannel()->getPaymentMethodId();
 
-        $this->sortByIdArray($ids);
+        $getPriority = static function (PaymentMethodEntity $method) use ($activePaymentMethodId, $defaultPaymentMethodId): int {
+            if ($method->getId() === $activePaymentMethodId) {
+                return 2;
+            }
+
+            if ($method->getId() === $defaultPaymentMethodId) {
+                return 1;
+            }
+
+            return 0;
+        };
+
+        $this->sort(static function (PaymentMethodEntity $a, PaymentMethodEntity $b) use ($getPriority) {
+            return $getPriority($b) <=> $getPriority($a)
+                ?: $a->getPosition() <=> $b->getPosition();
+        })
+        ;
     }
 
     public function getApiAlias(): string

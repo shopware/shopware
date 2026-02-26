@@ -41,11 +41,17 @@ final readonly class IteratorDistributionConfig implements DistributionConfig
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getStrategy(): DistributionStrategy
     {
         return DistributionStrategy::Iterator;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getConsumerAlias(): ?string
     {
         return $this->consumerAlias;

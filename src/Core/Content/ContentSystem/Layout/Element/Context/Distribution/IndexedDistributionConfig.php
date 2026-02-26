@@ -41,11 +41,17 @@ final readonly class IndexedDistributionConfig implements DistributionConfig
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getStrategy(): DistributionStrategy
     {
         return DistributionStrategy::Indexed;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getConsumerAlias(): ?string
     {
         return $this->consumerAlias;

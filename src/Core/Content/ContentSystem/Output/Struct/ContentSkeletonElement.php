@@ -39,6 +39,9 @@ class ContentSkeletonElement extends Struct
         return $result;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getApiAlias(): string
     {
         return 'content_skeleton_element';

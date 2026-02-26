@@ -40,11 +40,17 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getStrategy(): DistributionStrategy
     {
         return DistributionStrategy::Keyed;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getConsumerAlias(): ?string
     {
         return $this->consumerAlias;

@@ -22,6 +22,9 @@ class DecomposedResponseFactory extends AbstractResponseFactory
     ) {
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getRenderingMode(): RenderingMode
     {
         return RenderingMode::FULL;

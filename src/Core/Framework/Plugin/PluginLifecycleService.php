@@ -61,6 +61,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 class PluginLifecycleService
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+    final public const PLUGIN_LIFECYCLE_METHOD_ACTIVATE = 'activate';
 
     /**
      * @var array{plugin: PluginEntity, context: Context}|null
@@ -358,7 +359,7 @@ class PluginLifecycleService
             return $activateContext;
         }
 
-        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'activate');
+        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, self::PLUGIN_LIFECYCLE_METHOD_ACTIVATE);
 
         $this->eventDispatcher->dispatch(new PluginPreActivateEvent($plugin, $activateContext));
 

@@ -661,6 +661,56 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper.vm.downloadDocument.mockRestore();
     });
 
+    it('should call downloadDocument with xml fileType for zugferd_invoice', async () => {
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+
+        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
+
+        await wrapper.setData({
+            currentDocumentType: {
+                id: '5',
+                name: 'E-Invoice (ZUGFeRD)',
+                technicalName: 'zugferd_invoice',
+                translated: { name: 'E-Invoice (ZUGFeRD)' },
+            },
+            showModal: true,
+        });
+
+        await flushPromises();
+
+        await wrapper.find('.sw-order-document-settings-modal__document-number input').setValue('1000');
+        await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
+        await flushPromises();
+
+        expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'xml');
+        downloadDocumentSpy.mockRestore();
+    });
+
+    it('should call downloadDocument with pdf fileType for regular invoice', async () => {
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+
+        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
+
+        await wrapper.setData({
+            currentDocumentType: {
+                id: '1',
+                name: 'Invoice',
+                technicalName: 'invoice',
+                translated: { name: 'Invoice' },
+            },
+            showModal: true,
+        });
+
+        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
+        await flushPromises();
+
+        expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'pdf');
+        downloadDocumentSpy.mockRestore();
+    });
+
     it('should show permission tooltip message on Create document button correctly', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

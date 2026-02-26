@@ -267,14 +267,8 @@
             />
             {% endblock %}
 
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
             {% block sw_product_settings_mode %}
-            <sw-product-settings-mode
-                v-if="showAdvanceModeSetting"
-                :is-loading="isLoading"
-                :mode-settings="advancedModeSetting"
-                @settings-item-change="onChangeSettingItem"
-                @settings-change="onChangeSetting"
-            />
             {% endblock %}
         </sw-card-view>
     </template>

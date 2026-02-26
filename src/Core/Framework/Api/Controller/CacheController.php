@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Api\Event\InvalidateExpiredCacheRequestEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
@@ -29,7 +31,8 @@ class CacheController extends AbstractController
         private readonly CacheClearer $cacheClearer,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly AdapterInterface $adapter,
-        private readonly EntityIndexerRegistry $indexerRegistry
+        private readonly EntityIndexerRegistry $indexerRegistry,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -85,9 +88,11 @@ class CacheController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:clear:cache']],
         methods: [Request::METHOD_DELETE]
     )]
-    public function clearDelayedCache(): Response
+    public function clearDelayedCache(Request $request): Response
     {
         $this->cacheInvalidator->invalidateExpired();
+
+        $this->eventDispatcher->dispatch(new InvalidateExpiredCacheRequestEvent($request));
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

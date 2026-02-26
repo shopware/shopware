@@ -17,6 +17,9 @@ type LoadingProperties =
     | 'rules'
     | 'variants'
     | 'defaultFeatureSet'
+    /**
+     * @deprecated tag:v6.8.0 - Remove "advancedMode" from the list.
+     */
     | 'advancedMode';
 
 const swProductDetail = Shopware.Store.register({
@@ -44,9 +47,15 @@ const swProductDetail = Shopware.Store.register({
                 rules: false,
                 variants: false,
                 defaultFeatureSet: false,
+                /**
+                 * @deprecated tag:v6.8.0 - will be removed without replacement
+                 */
                 advancedMode: false,
             },
             localMode: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             advancedModeSetting: {} as { value?: { advancedMode: { enabled: boolean } } },
             modeSettings: [
                 'general_information',
@@ -140,10 +149,16 @@ const swProductDetail = Shopware.Store.register({
             return !!state.product?.parentId;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         showModeSetting(state): boolean {
             return !!state.product?.parentId || this.advanceModeEnabled;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         advanceModeEnabled(state): boolean {
             return !!state.advancedModeSetting.value?.advancedMode.enabled;
         },

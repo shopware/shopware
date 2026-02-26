@@ -197,13 +197,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
         }
     });
 
-    it('should show advanced mode settings', async () => {
-        Shopware.Store.get('swProductDetail').product = { parentId: '' };
-        await nextTick();
-        const contextButton = wrapper.find('.sw-product-settings-mode');
-        expect(contextButton.exists()).toBe(true);
-    });
-
     it('should show item tabs', async () => {
         await wrapper.setProps({
             productId: '1234',

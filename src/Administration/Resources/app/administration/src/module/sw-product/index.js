@@ -93,7 +93,12 @@ Shopware.Component.register(
     () => import('./component/sw-product-cross-selling-assignment'),
 );
 Shopware.Component.register('sw-product-layout-assignment', () => import('./component/sw-product-layout-assignment'));
-Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));
+/**
+ * @deprecated tag:v6.8.0 - File will be removed. No longer used.
+ */
+if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));
+}
 Shopware.Component.register('sw-product-properties', () => import('./component/sw-product-properties'));
 Shopware.Component.register('sw-product-add-properties-modal', () => import('./component/sw-product-add-properties-modal'));
 Shopware.Component.register('sw-product-detail-base', () => import('./view/sw-product-detail-base'));

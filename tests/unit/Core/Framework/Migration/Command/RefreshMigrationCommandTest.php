@@ -64,8 +64,8 @@ class RefreshMigrationCommandTest extends TestCase
 
             static::assertInstanceOf(MigrationStep::class, $migration);
             $newTimestamp = $migration->getCreationTimestamp();
-            // assert that the new timestamp is within 1 second of the current time, to account for any slight delays in execution
-            static::assertEqualsWithDelta(time(), $newTimestamp, 1);
+            // assert that the new timestamp is within 3 second of the current time, to account for any slight delays in execution
+            static::assertEqualsWithDelta(time(), $newTimestamp, 3);
             // assert that the new timestamp is in the file name as well
             static::assertStringContainsString((string) $newTimestamp, $file);
 

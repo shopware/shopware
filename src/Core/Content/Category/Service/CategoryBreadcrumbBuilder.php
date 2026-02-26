@@ -211,6 +211,7 @@ class CategoryBreadcrumbBuilder
         $criteria->setTitle('breadcrumb-builder::main-category');
         $criteria->addAssociation('mainCategories.category');
         $criteria->getAssociation('mainCategories')
+            ->setLimit(1)
             ->addFilter(new AndFilter([
                 new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
                 new EqualsFilter('category.active', true),

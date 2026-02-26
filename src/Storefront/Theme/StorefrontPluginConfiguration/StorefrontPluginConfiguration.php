@@ -122,16 +122,6 @@ class StorefrontPluginConfiguration extends Struct
         $this->scriptFiles = $scriptFiles;
     }
 
-    public function getBaseStyleFiles(): FileCollection
-    {
-        return $this->baseStyleFiles;
-    }
-
-    public function setBaseStyleFiles(FileCollection $baseStyleFiles): void
-    {
-        $this->baseStyleFiles = $baseStyleFiles;
-    }
-
     public function getStorefrontEntryFilepath(): ?string
     {
         return $this->storefrontEntryFilepath;
@@ -218,7 +208,7 @@ class StorefrontPluginConfiguration extends Struct
 
     public function hasFilesToCompile(): bool
     {
-        return \count($this->getStyleFiles()) !== 0 || \count($this->getScriptFiles()) !== 0 || \count($this->getBaseStyleFiles()) !== 0;
+        return \count($this->getStyleFiles()) !== 0 || \count($this->getScriptFiles()) !== 0;
     }
 
     /**

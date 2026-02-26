@@ -27,7 +27,6 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithNamespacedComponentRe
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
 use Symfony\Component\Filesystem\Filesystem;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 
 /**
  * @internal

@@ -16,7 +16,6 @@ class ThemeFileResolver
 {
     final public const SCRIPT_FILES = 'script';
     final public const STYLE_FILES = 'style';
-    final public const BASE_STYLE_FILES = 'baseStyles';
 
     /**
      * @internal
@@ -42,11 +41,6 @@ class ThemeFileResolver
                 $onlySourceFiles
             ),
             self::STYLE_FILES => $this->resolveStyleFiles(
-                $themeConfig,
-                $configurationCollection,
-                $onlySourceFiles
-            ),
-            self::BASE_STYLE_FILES => $this->resolveBaseStyleFiles(
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles
@@ -82,23 +76,6 @@ class ThemeFileResolver
             $configurationCollection,
             $onlySourceFiles,
             fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles(),
-            [],
-            [],
-            []
-        );
-    }
-
-    public function resolveBaseStyleFiles(
-        StorefrontPluginConfiguration $themeConfig,
-        StorefrontPluginConfigurationCollection $configurationCollection,
-        bool $onlySourceFiles
-    ): FileCollection {
-        return $this->resolve(
-            self::BASE_STYLE_FILES,
-            $themeConfig,
-            $configurationCollection,
-            $onlySourceFiles,
-            fn (StorefrontPluginConfiguration $configuration) => $configuration->getBaseStyleFiles(),
             [],
             [],
             []

@@ -103,31 +103,6 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
-        /**
-         * New base style files.
-         * You can define a minimal set of styles to be loaded for the theme.
-         */
-        $baseStyleCopyFiles = [];
-        if (Feature::isActive('STOREFRONT_COMPONENTS')) {
-            $compiledBaseStyles = $this->getCompiledStyles(
-                $this->getResolvedBaseStyleFiles($themeConfig, $configurationCollection),
-                $themeId,
-                $themeConfig,
-                $salesChannelId,
-                $context
-            );
-
-            try {
-                $baseStyleCopyFiles = $this->getStyleCopyFiles($themePrefix, $compiledBaseStyles, 'minimal.css');
-            } catch (\Throwable $e) {
-                throw ThemeException::themeCompileException(
-                    $themeConfig->getName() ?? '',
-                    'Error while trying to write base style files: ' . $e->getMessage(),
-                    $e
-                );
-            }
-        }
-
         // Individual component styles.
         $componentStyleCopyFiles = [];
         if (Feature::isActive('STOREFRONT_COMPONENTS')) {
@@ -145,7 +120,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         CopyBatch::copy(
             $this->filesystem,
             ...$styleCopyFiles,
-            ...$baseStyleCopyFiles,
             ...$componentStyleCopyFiles,
             ...$assetCopyFiles,
             ...$scriptFiles,
@@ -529,21 +503,6 @@ PHP_EOL;
     ): FileCollection {
         try {
             return $this->themeFileResolver->resolveStyleFiles($themeConfig, $configurationCollection, false);
-        } catch (\Throwable $e) {
-            throw ThemeException::themeCompileException(
-                $themeConfig->getName() ?? '',
-                'Files could not be resolved with error: ' . $e->getMessage(),
-                $e
-            );
-        }
-    }
-
-    private function getResolvedBaseStyleFiles(
-        StorefrontPluginConfiguration $themeConfig,
-        StorefrontPluginConfigurationCollection $configurationCollection,
-    ): FileCollection {
-        try {
-            return $this->themeFileResolver->resolveBaseStyleFiles($themeConfig, $configurationCollection, false);
         } catch (\Throwable $e) {
             throw ThemeException::themeCompileException(
                 $themeConfig->getName() ?? '',

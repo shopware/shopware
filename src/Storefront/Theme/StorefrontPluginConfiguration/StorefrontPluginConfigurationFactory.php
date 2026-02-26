@@ -82,14 +82,6 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             $this->resolveStyleFiles($data['style'], $config);
         }
 
-        if (\array_key_exists('style', $data) && \is_array($data['style'])) {
-            $this->resolveStyleFiles($data['style'], $config);
-        }
-
-        if (\array_key_exists('baseStyles', $data) && \is_array($data['baseStyles'])) {
-            $this->resolveBaseStyleFiles($data['baseStyles'], $config);
-        }
-
         if (\array_key_exists('script', $data) && \is_array($data['script'])) {
             $fileCollection = FileCollection::createFromArray($data['script']);
             $config->setScriptFiles($fileCollection);
@@ -250,31 +242,5 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             }
         }
         $config->setStyleFiles($fileCollection);
-    }
-
-    /**
-     * @param array<string|array<array{resolve?: array<string, string>}>> $styles
-     */
-    private function resolveBaseStyleFiles(array $styles, StorefrontPluginConfiguration $config): void
-    {
-        $fileCollection = new FileCollection();
-        foreach ($styles as $style) {
-            if (!\is_array($style)) {
-                $fileCollection->add(new File($style));
-
-                continue;
-            }
-
-            foreach ($style as $filename => $additional) {
-                if (!\array_key_exists('resolve', $additional)) {
-                    $fileCollection->add(new File($filename));
-
-                    continue;
-                }
-
-                $fileCollection->add(new File($filename, $additional['resolve'] ?? []));
-            }
-        }
-        $config->setBaseStyleFiles($fileCollection);
     }
 }

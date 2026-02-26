@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
+use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
@@ -54,6 +55,7 @@ class InfoController extends AbstractController
         private readonly BusinessEventCollector $eventCollector,
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly Connection $connection,
+        private readonly MigrationInfo $migrationInfo,
         private readonly AppUrlVerifier $appUrlVerifier,
         private readonly RouterInterface $router,
         private readonly FlowActionCollector $flowActionCollector,
@@ -207,6 +209,7 @@ class InfoController extends AbstractController
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
+                'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
                 'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),

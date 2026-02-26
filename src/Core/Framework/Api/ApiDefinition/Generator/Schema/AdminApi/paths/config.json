@@ -56,6 +56,7 @@
                     "enableUrlFeature": true,
                     "appUrlReachable": true,
                     "appsRequireAppUrl": false,
+                    "firstMigrationDate": "2025-01-01T12:00:00.000Z",
                     "private_allowed_extensions": [
                       "jpg",
                       "jpeg",

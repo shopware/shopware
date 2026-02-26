@@ -17,7 +17,7 @@ class ContentLayoutMetadataDeriverTest extends TestCase
     /**
      * @return \Generator<string, array{string, string}>
      */
-    public static function entityIdFieldProvider(): \Generator
+    public static function derivesEntityIdFieldProvider(): \Generator
     {
         yield 'product' => ['product', 'productId'];
         yield 'custom underscore type' => ['some_custom_type', 'someCustomTypeId'];
@@ -26,13 +26,13 @@ class ContentLayoutMetadataDeriverTest extends TestCase
     /**
      * @return \Generator<string, array{string, string}>
      */
-    public static function pathPrefixProvider(): \Generator
+    public static function derivesPathPrefixProvider(): \Generator
     {
         yield 'product' => ['product', '/product/'];
         yield 'custom underscore type' => ['some_custom_type', '/some-custom-type/'];
     }
 
-    #[DataProvider('entityIdFieldProvider')]
+    #[DataProvider('derivesEntityIdFieldProvider')]
     #[TestDox('derives entity ID field "$expected" from entity type "$entityType"')]
     public function testDerivesEntityIdFieldFromEntityType(string $entityType, string $expected): void
     {
@@ -41,7 +41,7 @@ class ContentLayoutMetadataDeriverTest extends TestCase
         static::assertSame($expected, $deriver->deriveEntityIdField($entityType));
     }
 
-    #[DataProvider('pathPrefixProvider')]
+    #[DataProvider('derivesPathPrefixProvider')]
     #[TestDox('derives path prefix "$expected" from entity type "$entityType"')]
     public function testDerivesPathPrefixFromEntityType(string $entityType, string $expected): void
     {

@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Event\Listener\PreHydration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\Event\Listener\PreHydration\PartialRenderingPreparationSubscriber;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
@@ -45,17 +45,9 @@ class PartialRenderingPreparationSubscriberTest extends TestCase
         static::assertSame('target-id', $event->elements[0]->getId());
     }
 
-    /**
-     * @return iterable<string, array{?string}>
-     */
-    public static function skippedTargetElementIdProvider(): iterable
-    {
-        yield 'null target ID' => [null];
-        yield 'empty string target ID' => [''];
-    }
-
-    #[DataProvider('skippedTargetElementIdProvider')]
-    #[TestDox('skips pruning when target element ID is not set')]
+    #[TestWithJson('[null]')]
+    #[TestWithJson('[""]')]
+    #[TestDox('skips pruning when target element ID is $targetElementId')]
     public function testSkipsPruningWhenTargetElementIdIsNotSet(?string $targetElementId): void
     {
         $element = ContentElementBuilder::create('text', 'e1')->build();

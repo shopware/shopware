@@ -35,7 +35,7 @@ class DomainAwareLayoutResolverTest extends TestCase
 
         /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
         $repository = new StaticEntityRepository([
-            static function (Criteria $criteria, Context $context) use ($entity): array {
+            static function (Criteria $criteria) use ($entity): array {
                 $filters = $criteria->getFilters();
                 static::assertCount(1, $filters);
                 static::assertInstanceOf(OrFilter::class, $filters[0]);
@@ -70,7 +70,7 @@ class DomainAwareLayoutResolverTest extends TestCase
 
         /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
         $repository = new StaticEntityRepository([
-            static function (Criteria $criteria, Context $context) use ($entity): array {
+            static function (Criteria $criteria) use ($entity): array {
                 $filters = $criteria->getFilters();
                 static::assertCount(2, $filters);
                 static::assertInstanceOf(EqualsFilter::class, $filters[0]);

@@ -296,14 +296,8 @@ class ContextProvidersFieldSerializerTest extends TestCase
         string $type,
         string $distribution
     ): void {
-        $field = $this->createContextProvidersField();
-        $constraints = $this->serializer->buildConstraints($field);
-
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-
-        $violations = $validator->validate(
-            ['product' => ['type' => $type, 'distribution' => $distribution]],
-            $constraints
+        $violations = $this->validateProviderData(
+            ['product' => ['type' => $type, 'distribution' => $distribution]]
         );
 
         static::assertCount(0, $violations);
@@ -312,14 +306,8 @@ class ContextProvidersFieldSerializerTest extends TestCase
     #[TestDox('returns early when provider data has no distribution key')]
     public function testValidationSkipsDistributionFieldsWhenDistributionKeyAbsent(): void
     {
-        $field = $this->createContextProvidersField();
-        $constraints = $this->serializer->buildConstraints($field);
-
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-
-        $violations = $validator->validate(
-            ['product' => ['type' => 'single']],
-            $constraints
+        $violations = $this->validateProviderData(
+            ['product' => ['type' => 'single']]
         );
 
         // Collection fires 1 violation (distribution is required); callback returns early without adding more
@@ -329,14 +317,8 @@ class ContextProvidersFieldSerializerTest extends TestCase
     #[TestDox('returns early for unknown distribution type')]
     public function testValidationSkipsDistributionFieldsForUnknownDistributionType(): void
     {
-        $field = $this->createContextProvidersField();
-        $constraints = $this->serializer->buildConstraints($field);
-
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-
-        $violations = $validator->validate(
-            ['product' => ['type' => 'single', 'distribution' => 'unknown']],
-            $constraints
+        $violations = $this->validateProviderData(
+            ['product' => ['type' => 'single', 'distribution' => 'unknown']]
         );
 
         // Collection fires 1 violation (invalid Choice); callback returns early without adding more
@@ -346,14 +328,8 @@ class ContextProvidersFieldSerializerTest extends TestCase
     #[TestDox('reports violations for indexed distribution with non-string consumer_alias')]
     public function testValidationReportsViolationForIndexedDistributionWithInvalidConsumerAlias(): void
     {
-        $field = $this->createContextProvidersField();
-        $constraints = $this->serializer->buildConstraints($field);
-
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-
-        $violations = $validator->validate(
-            ['product' => ['type' => 'single', 'distribution' => 'indexed', 'consumer_alias' => 42]],
-            $constraints
+        $violations = $this->validateProviderData(
+            ['product' => ['type' => 'single', 'distribution' => 'indexed', 'consumer_alias' => 42]]
         );
 
         static::assertGreaterThan(0, $violations->count());
@@ -362,14 +338,8 @@ class ContextProvidersFieldSerializerTest extends TestCase
     #[TestDox('reports violations for iterator distribution with non-string consumer_alias')]
     public function testValidationReportsViolationForIteratorDistributionWithInvalidConsumerAlias(): void
     {
-        $field = $this->createContextProvidersField();
-        $constraints = $this->serializer->buildConstraints($field);
-
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-
-        $violations = $validator->validate(
-            ['product' => ['type' => 'collection', 'distribution' => 'iterator', 'consumer_alias' => 42]],
-            $constraints
+        $violations = $this->validateProviderData(
+            ['product' => ['type' => 'collection', 'distribution' => 'iterator', 'consumer_alias' => 42]]
         );
 
         static::assertGreaterThan(0, $violations->count());
@@ -378,15 +348,9 @@ class ContextProvidersFieldSerializerTest extends TestCase
     #[TestDox('reports violations for keyed distribution missing key_property')]
     public function testValidationReportsViolationForKeyedDistributionMissingKeyProperty(): void
     {
-        $field = $this->createContextProvidersField();
-        $constraints = $this->serializer->buildConstraints($field);
-
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-
         // Keyed distribution requires key_property — omitting it triggers validateDistributionFields violations
-        $violations = $validator->validate(
-            ['product' => ['type' => 'collection', 'distribution' => 'keyed']],
-            $constraints
+        $violations = $this->validateProviderData(
+            ['product' => ['type' => 'collection', 'distribution' => 'keyed']]
         );
 
         static::assertGreaterThan(0, $violations->count());
@@ -395,15 +359,9 @@ class ContextProvidersFieldSerializerTest extends TestCase
     #[TestDox('reports violations for sliced distribution missing slice_size')]
     public function testValidationReportsViolationForSlicedDistributionMissingSliceSize(): void
     {
-        $field = $this->createContextProvidersField();
-        $constraints = $this->serializer->buildConstraints($field);
-
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-
         // Sliced distribution requires slice_size — omitting it triggers validateDistributionFields violations
-        $violations = $validator->validate(
-            ['items' => ['type' => 'collection', 'distribution' => 'sliced']],
-            $constraints
+        $violations = $this->validateProviderData(
+            ['items' => ['type' => 'collection', 'distribution' => 'sliced']]
         );
 
         static::assertGreaterThan(0, $violations->count());
@@ -461,5 +419,17 @@ class ContextProvidersFieldSerializerTest extends TestCase
         $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         return $field;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $data
+     */
+    private function validateProviderData(array $data): \Symfony\Component\Validator\ConstraintViolationListInterface
+    {
+        $field = $this->createContextProvidersField();
+        $constraints = $this->serializer->buildConstraints($field);
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        return $validator->validate($data, $constraints);
     }
 }

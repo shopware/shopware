@@ -57,19 +57,30 @@ class ContentRouteTest extends TestCase
         );
     }
 
-    #[TestDox('resolves specification, collects cache tags, and returns response from factory')]
-    public function testLoadResolvesSpecificationCollectsTagsAndReturnsResponse(): void
+    #[TestDox('returns content page from pipeline via response factory')]
+    public function testLoadReturnsContentPageFromPipeline(): void
     {
         $request = new Request();
-        $context = Generator::generateSalesChannelContext();
         $contentPage = new ContentPage('layout-1', [ContentElementBuilder::create('root')->build()], 'Test', null);
 
-        $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
         $this->specificationResolver->method('resolve')->willReturn(
-            new RenderingSpecification('layout-1', [], PlaceholderValues::from([]), $request, null, ['product-abc'])
+            new RenderingSpecification('layout-1', [], PlaceholderValues::from([]), $request, null, [])
         );
+        $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
         $this->contentPipeline->method('load')->willReturn($contentPage);
         $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
+
+        $result = $this->route->load('/product/abc', $request, Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(ContentRouteResponse::class, $result);
+        static::assertSame($contentPage, $result->getContentPage());
+    }
+
+    #[TestDox('collects layout and specification cache tags')]
+    public function testLoadCollectsLayoutAndSpecificationCacheTags(): void
+    {
+        $request = new Request();
+        $contentPage = new ContentPage('layout-1', [ContentElementBuilder::create('root')->build()], 'Test', null);
 
         $collectedTags = [];
         $this->cacheTagCollector->method('addTag')
@@ -77,12 +88,34 @@ class ContentRouteTest extends TestCase
                 array_push($collectedTags, ...$tags);
             });
 
-        $result = $this->route->load('/product/abc', $request, $context);
+        $this->specificationResolver->method('resolve')->willReturn(
+            new RenderingSpecification('layout-1', [], PlaceholderValues::from([]), $request, null, ['product-abc'])
+        );
+        $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
+        $this->contentPipeline->method('load')->willReturn($contentPage);
+        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
 
-        static::assertInstanceOf(ContentRouteResponse::class, $result);
-        static::assertSame($contentPage, $result->getContentPage());
+        $this->route->load('/product/abc', $request, Generator::generateSalesChannelContext());
+
         static::assertContains('content-layout-layout-1', $collectedTags);
         static::assertContains('product-abc', $collectedTags);
+    }
+
+    #[TestDox('finalizes cache context on request')]
+    public function testLoadFinalizesCacheContextOnRequest(): void
+    {
+        $request = new Request();
+        $contentPage = new ContentPage('layout-1', [ContentElementBuilder::create('root')->build()], 'Test', null);
+
+        $this->specificationResolver->method('resolve')->willReturn(
+            new RenderingSpecification('layout-1', [], PlaceholderValues::from([]), $request, null, [])
+        );
+        $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
+        $this->contentPipeline->method('load')->willReturn($contentPage);
+        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
+
+        $this->route->load('/product/abc', $request, Generator::generateSalesChannelContext());
+
         static::assertNull($request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
     }
 

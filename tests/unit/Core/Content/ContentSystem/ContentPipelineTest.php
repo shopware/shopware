@@ -47,8 +47,8 @@ class ContentPipelineTest extends TestCase
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
-    #[TestDox('dispatches pre and post hydration events and returns hydrated elements in FULL mode')]
-    public function testLoadDispatchesEventsAndReturnsHydratedElementsInFullMode(): void
+    #[TestDox('hydrates elements and dispatches lifecycle events in FULL mode')]
+    public function testLoadHydratesElementsInFullMode(): void
     {
         $layoutId = Uuid::randomHex();
         $layoutEntity = $this->createLayoutEntity($layoutId);

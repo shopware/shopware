@@ -35,8 +35,8 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         static::assertSame(EntityCollectionLoader::SOURCE, EntityCollectionLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('delegates decode and passes through entity, property, and associations')]
-    public function testDecodeDelegatesThroughAllFields(): void
+    #[TestDox('delegates decode and returns entity and property fields')]
+    public function testDecodeReturnsEntityAndPropertyFields(): void
     {
         $result = $this->serializer->decode([
             'entity' => 'product',
@@ -47,27 +47,35 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
         static::assertSame('product', $result->entity);
         static::assertSame('productId', $result->property);
         static::assertSame([], $result->associations);
+    }
 
-        $resultWithAssociations = $this->serializer->decode([
+    #[TestDox('delegates decode and passes through associations')]
+    public function testDecodePassesThroughAssociations(): void
+    {
+        $result = $this->serializer->decode([
             'entity' => 'category',
             'property' => 'categoryId',
             'associations' => ['children', 'seoUrls'],
         ]);
 
-        static::assertInstanceOf(EntityLoaderConfig::class, $resultWithAssociations);
-        static::assertSame('category', $resultWithAssociations->entity);
-        static::assertSame('categoryId', $resultWithAssociations->property);
-        static::assertSame(['children', 'seoUrls'], $resultWithAssociations->associations);
+        static::assertInstanceOf(EntityLoaderConfig::class, $result);
+        static::assertSame('category', $result->entity);
+        static::assertSame('categoryId', $result->property);
+        static::assertSame(['children', 'seoUrls'], $result->associations);
     }
 
-    #[TestDox('delegates encode and produces correct array for all field combinations')]
-    public function testEncodeDelegatesThroughAllFields(): void
+    #[TestDox('delegates encode without associations and omits associations key')]
+    public function testEncodeWithoutAssociationsOmitsKey(): void
     {
         $result = $this->serializer->encode(new EntityLoaderConfig('product', 'productId', []));
 
         static::assertSame(['entity' => 'product', 'property' => 'productId'], $result);
+    }
 
-        $resultWithAssociations = $this->serializer->encode(
+    #[TestDox('delegates encode with associations and includes associations key')]
+    public function testEncodeWithAssociationsIncludesKey(): void
+    {
+        $result = $this->serializer->encode(
             new EntityLoaderConfig('category', 'categoryId', ['children', 'seoUrls'])
         );
 
@@ -75,7 +83,7 @@ class EntityCollectionLoaderConfigSerializerTest extends TestCase
             'entity' => 'category',
             'property' => 'categoryId',
             'associations' => ['children', 'seoUrls'],
-        ], $resultWithAssociations);
+        ], $result);
     }
 
     #[TestDox('round-trips configuration through encode and decode unchanged')]

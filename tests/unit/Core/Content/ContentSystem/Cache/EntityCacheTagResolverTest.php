@@ -22,6 +22,9 @@ class EntityCacheTagResolverTest extends TestCase
     {
         yield 'product' => ['product', 'product-abc123'];
         yield 'category' => ['category', 'category-route-abc123'];
+        yield 'landing page' => ['landing_page', 'landing-page-route-abc123'];
+        yield 'cms page' => ['cms_page', 'cms-page-abc123'];
+        yield 'product stream' => ['product_stream', 'product-stream-abc123'];
     }
 
     #[DataProvider('knownEntityProvider')]

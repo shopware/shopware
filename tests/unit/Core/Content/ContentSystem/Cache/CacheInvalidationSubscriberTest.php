@@ -56,7 +56,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('invalidates layout cache tag when content_layout entity is written')]
     public function testInvalidatesLayoutCacheTagOnContentLayoutWrite(): void
     {
-        $layoutId = Uuid::randomHex();
+        $layoutId = 'layout-id';
 
         $event = $this->createWrittenEvent('content_layout', $layoutId);
 
@@ -72,7 +72,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     public function testInvalidatesEntityAssignmentCacheTag(string $entityName, string $tagPrefix): void
     {
         $assignmentId = Uuid::randomHex();
-        $entityId = Uuid::randomHex();
+        $entityId = 'entity-id';
 
         $event = $this->createWrittenEvent($entityName, $assignmentId);
 
@@ -97,7 +97,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     public function testInvalidatesSectionCacheTag(string $entityName, ContentSection $section): void
     {
         $assignmentId = Uuid::randomHex();
-        $layoutId = Uuid::randomHex();
+        $layoutId = 'layout-id';
 
         $event = $this->createWrittenEvent($entityName, $assignmentId);
 
@@ -116,8 +116,8 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $assignmentIdA = Uuid::randomHex();
         $assignmentIdB = Uuid::randomHex();
-        $productIdA = Uuid::randomHex();
-        $productIdB = Uuid::randomHex();
+        $productIdA = 'entity-a';
+        $productIdB = 'entity-b';
 
         $event = new EntityWrittenContainerEvent(
             Context::createDefaultContext(),
@@ -166,7 +166,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('skips cache invalidation when no relevant entities are written')]
     public function testSkipsCacheInvalidationWhenNoRelevantEntitiesWritten(): void
     {
-        $event = $this->createWrittenEvent('order', Uuid::randomHex());
+        $event = $this->createWrittenEvent('order', 'order-id');
 
         $this->cacheInvalidator->expects($this->never())
             ->method('invalidate');
@@ -194,6 +194,8 @@ class CacheInvalidationSubscriberTest extends TestCase
     public static function invalidatesEntityAssignmentCacheTagProvider(): \Generator
     {
         yield 'product assignment' => ['product_content_layout', 'product-'];
+        yield 'category assignment' => ['category_content_layout', 'category-route-'];
+        yield 'landing page assignment' => ['landing_page_content_layout', 'landing-page-route-'];
     }
 
     /**
@@ -202,6 +204,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     public static function invalidatesSectionCacheTagProvider(): \Generator
     {
         yield 'header section' => ['header_content_layout', ContentSection::HEADER];
+        yield 'footer section' => ['footer_content_layout', ContentSection::FOOTER];
     }
 
     private function createWrittenEvent(string $entityName, string $id): EntityWrittenContainerEvent

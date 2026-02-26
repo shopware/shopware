@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\SalesChannel\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
@@ -70,20 +69,11 @@ class ContentRouteLoaderTest extends TestCase
         static::assertTrue($loader->supports(null, 'content_system'));
     }
 
-    #[DataProvider('unsupportedTypeProvider')]
     #[TestDox('returns false for unsupported types')]
-    public function testSupportsReturnsFalseForOtherTypes(mixed $type): void
+    public function testSupportsReturnsFalseForOtherTypes(): void
     {
         $loader = new ContentRouteLoader([]);
 
-        static::assertFalse($loader->supports(null, $type));
-    }
-
-    /**
-     * @return iterable<string, array{mixed}>
-     */
-    public static function unsupportedTypeProvider(): iterable
-    {
-        yield 'non-matching string type' => ['xml'];
+        static::assertFalse($loader->supports(null, 'xml'));
     }
 }

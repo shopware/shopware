@@ -15,6 +15,13 @@ use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\ContentElementBuilder
 #[CoversClass(ContextDependencyAnalyzer::class)]
 class ContextDependencyAnalyzerTest extends TestCase
 {
+    private ContextDependencyAnalyzer $analyzer;
+
+    protected function setUp(): void
+    {
+        $this->analyzer = new ContextDependencyAnalyzer();
+    }
+
     #[TestDox('returns true when element accepts context')]
     public function testRequiresParentDataReturnsTrueWhenElementAcceptsContext(): void
     {
@@ -22,9 +29,7 @@ class ContextDependencyAnalyzerTest extends TestCase
             ->withConsumer('product', ContextType::Single)
             ->build();
 
-        $analyzer = new ContextDependencyAnalyzer();
-
-        static::assertTrue($analyzer->requiresParentData($element));
+        static::assertTrue($this->analyzer->requiresParentData($element));
     }
 
     #[TestDox('returns false when element has no consumers')]
@@ -33,9 +38,7 @@ class ContextDependencyAnalyzerTest extends TestCase
         $element = ContentElementBuilder::create('my-component')
             ->build();
 
-        $analyzer = new ContextDependencyAnalyzer();
-
-        static::assertFalse($analyzer->requiresParentData($element));
+        static::assertFalse($this->analyzer->requiresParentData($element));
     }
 
     #[TestDox('returns the index of the last non-consumer element')]
@@ -47,9 +50,7 @@ class ContextDependencyAnalyzerTest extends TestCase
             ->withConsumer('product', ContextType::Single)
             ->build();
 
-        $analyzer = new ContextDependencyAnalyzer();
-
-        static::assertSame(1, $analyzer->findDataRootIndex([$firstNonConsumer, $lastNonConsumer, $consumerLeaf]));
+        static::assertSame(1, $this->analyzer->findDataRootIndex([$firstNonConsumer, $lastNonConsumer, $consumerLeaf]));
     }
 
     #[TestDox('returns zero when all elements require parent data')]
@@ -62,16 +63,12 @@ class ContextDependencyAnalyzerTest extends TestCase
             ->withConsumer('product', ContextType::Collection)
             ->build();
 
-        $analyzer = new ContextDependencyAnalyzer();
-
-        static::assertSame(0, $analyzer->findDataRootIndex([$root, $child]));
+        static::assertSame(0, $this->analyzer->findDataRootIndex([$root, $child]));
     }
 
     #[TestDox('returns zero for an empty path')]
     public function testFindDataRootIndexReturnsZeroForEmptyPath(): void
     {
-        $analyzer = new ContextDependencyAnalyzer();
-
-        static::assertSame(0, $analyzer->findDataRootIndex([]));
+        static::assertSame(0, $this->analyzer->findDataRootIndex([]));
     }
 }

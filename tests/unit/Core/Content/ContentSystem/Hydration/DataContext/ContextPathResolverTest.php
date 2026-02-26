@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\ContentSystem\Hydration\DataContext;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Tests\Unit\Core\Content\ContentSystem\_helper\StubPathStruct;
 
 /**
@@ -69,96 +71,62 @@ class ContextPathResolverTest extends TestCase
         static::assertSame('child-name', $result);
     }
 
-    #[TestDox('returns null when data is null and path is non-empty and not required')]
-    public function testResolvePathWithNullDataAndNotRequiredReturnsNull(): void
+    /**
+     * @param list<string> $path
+     */
+    #[DataProvider('unresolvedPathNotRequiredProvider')]
+    #[TestDox('returns null for unresolvable path when not required: $_dataName')]
+    public function testResolvePathUnresolvableNotRequiredReturnsNull(?Struct $data, array $path, string $fullPath): void
     {
-        $result = $this->resolver->resolvePath(null, ['cover'], false, 'product.cover', 'elem-1');
+        $result = $this->resolver->resolvePath($data, $path, false, $fullPath, 'elem-1');
 
         static::assertNull($result);
     }
 
-    #[TestDox('throws when data is null and path is non-empty and required')]
-    public function testResolvePathWithNullDataAndRequiredThrows(): void
+    /**
+     * @return iterable<string, array{Struct|null, list<string>, string}>
+     */
+    public static function unresolvedPathNotRequiredProvider(): iterable
     {
-        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
-            'product.cover',
-            'elem-1',
-            'Base context data is null'
-        ));
-
-        $this->resolver->resolvePath(null, ['cover'], true, 'product.cover', 'elem-1');
+        yield 'null base data' => [null, ['cover'], 'product.cover'];
+        yield 'missing property on struct' => [new StubPathStruct('test'), ['missing'], 'product.missing'];
+        yield 'non-struct intermediate value' => [new StubPathStruct(null, null, 'plain-string'), ['nonStructProp', 'deeper'], 'product.nonStructProp.deeper'];
+        yield 'null intermediate value' => [new StubPathStruct(null, null), ['child', 'name'], 'product.child.name'];
     }
 
-    #[TestDox('returns null for missing property when not required')]
-    public function testResolvePathMissingPropertyNotRequiredReturnsNull(): void
+    /**
+     * @param list<string> $path
+     */
+    #[DataProvider('unresolvedPathRequiredProvider')]
+    #[TestDox('throws for unresolvable path when required: $_dataName')]
+    public function testResolvePathUnresolvableRequiredThrows(?Struct $data, array $path, string $fullPath, ContentSystemException $exception): void
     {
-        $struct = new StubPathStruct('test');
+        $this->expectExceptionObject($exception);
 
-        $result = $this->resolver->resolvePath($struct, ['missing'], false, 'product.missing', 'elem-1');
-
-        static::assertNull($result);
+        $this->resolver->resolvePath($data, $path, true, $fullPath, 'elem-1');
     }
 
-    #[TestDox('throws for missing property when required')]
-    public function testResolvePathMissingPropertyRequiredThrows(): void
+    /**
+     * @return iterable<string, array{Struct|null, list<string>, string, ContentSystemException}>
+     */
+    public static function unresolvedPathRequiredProvider(): iterable
     {
-        $struct = new StubPathStruct('test');
-
-        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
-            'product.missing',
-            'elem-1',
-            'Property \'missing\' does not exist at path \'missing\''
-        ));
-
-        $this->resolver->resolvePath($struct, ['missing'], true, 'product.missing', 'elem-1');
-    }
-
-    #[TestDox('returns null when intermediate value is not a Struct and not required')]
-    public function testResolvePathNonStructIntermediateNotRequiredReturnsNull(): void
-    {
-        $struct = new StubPathStruct(null, null, 'plain-string');
-
-        $result = $this->resolver->resolvePath($struct, ['nonStructProp', 'deeper'], false, 'product.nonStructProp.deeper', 'elem-1');
-
-        static::assertNull($result);
-    }
-
-    #[TestDox('throws when intermediate value is not a Struct and required')]
-    public function testResolvePathNonStructIntermediateRequiredThrows(): void
-    {
-        $struct = new StubPathStruct(null, null, 'plain-string');
-
-        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
-            'product.nonStructProp.deeper',
-            'elem-1',
-            'Intermediate value at \'nonStructProp\' is not a Struct instance'
-        ));
-
-        $this->resolver->resolvePath($struct, ['nonStructProp', 'deeper'], true, 'product.nonStructProp.deeper', 'elem-1');
-    }
-
-    #[TestDox('returns null when null intermediate at non-terminal step and not required')]
-    public function testResolvePathNullIntermediateNotRequiredReturnsNull(): void
-    {
-        $struct = new StubPathStruct(null, null);
-
-        $result = $this->resolver->resolvePath($struct, ['child', 'name'], false, 'product.child.name', 'elem-1');
-
-        static::assertNull($result);
-    }
-
-    #[TestDox('throws when null intermediate at non-terminal step and required')]
-    public function testResolvePathNullIntermediateRequiredThrows(): void
-    {
-        $struct = new StubPathStruct(null, null);
-
-        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
-            'product.child.name',
-            'elem-1',
-            'Intermediate value at \'child\' is null'
-        ));
-
-        $this->resolver->resolvePath($struct, ['child', 'name'], true, 'product.child.name', 'elem-1');
+        yield 'null base data' => [
+            null, ['cover'], 'product.cover',
+            ContentSystemException::contextPathNotResolvable('product.cover', 'elem-1', 'Base context data is null'),
+        ];
+        yield 'missing property on struct' => [
+            new StubPathStruct('test'), ['missing'], 'product.missing',
+            ContentSystemException::contextPathNotResolvable('product.missing', 'elem-1', 'Property \'missing\' does not exist at path \'missing\''),
+        ];
+        yield 'non-struct intermediate value' => [
+            new StubPathStruct(null, null, 'plain-string'), ['nonStructProp', 'deeper'], 'product.nonStructProp.deeper',
+            ContentSystemException::contextPathNotResolvable('product.nonStructProp.deeper', 'elem-1', 'Intermediate value at \'nonStructProp\' is not a Struct instance'),
+        ];
+        yield 'null intermediate value' => [
+            new StubPathStruct(null, null), ['child', 'name'], 'product.child.name',
+            ContentSystemException::contextPathNotResolvable('product.child.name', 'elem-1', 'Intermediate value at \'child\' is null'),
+        ];
     }
 
     #[TestDox('matches identical provider and consumer keys')]

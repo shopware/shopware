@@ -62,6 +62,18 @@ class ContentPageTest extends TestCase
         static::assertCount(1, $dataPage->data);
     }
 
+    #[TestDox('creates skeleton page with empty elements and null layout version')]
+    public function testGetContentSkeletonPageWithEmptyElements(): void
+    {
+        $page = new ContentPage('layout-1', [], 'Test Layout', null);
+
+        $skeleton = $page->getContentSkeletonPage();
+
+        static::assertSame('layout-1', $skeleton->layoutId);
+        static::assertCount(0, $skeleton->elements);
+        static::assertNull($skeleton->layoutVersion);
+    }
+
     /**
      * @return array{ContentPage, DataLoaderConfigSerializerProvider}
      */

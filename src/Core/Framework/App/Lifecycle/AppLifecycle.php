@@ -244,8 +244,6 @@ class AppLifecycle extends AbstractAppLifecycle
             throw $e;
         }
 
-        $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
-
         $this->runPersisters(new AppLifecycleContext(
             manifest: $manifest,
             app: $app,
@@ -254,6 +252,8 @@ class AppLifecycle extends AbstractAppLifecycle
             defaultLocale: $defaultLocale,
             isInstall: $install,
         ));
+
+        $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
         $updatePayload = [
             'id' => $app->getId(),

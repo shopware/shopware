@@ -9,6 +9,9 @@
     rowsMd = null,
     rowsLg = null,
     rowsXl = null,
+
+    columnsConfig = null,
+
     gap = 3,
     rowGap = null,
     columnGap = null,
@@ -39,53 +42,60 @@
 %}
 
 {#
-    "padding" Usage Example:
+    Helper macro to generate grid classes.
+    * prop: property to generate classes for (padding, margin, gap, etc.)
+    * classPrefix: prefix for the classes (p, m, gap, row-gap, columns, etc.)
+    * specialKeyword: special keyword to generate a class for (auto, max-content, etc.)
 
-    1. Simple: (0-5)
+    1. Simple:
     <twig:Sw:Grid:Container :padding="3" />
-    Generates simple spacer class p-3
+    Generates: "p-3"
 
     2. With breakpoints:
     <twig:Sw:Grid:Container :padding="{ xs: 0, sm: 2, md: 3, lg: 5, xl: 2, xxl: 1 }" />
-    Generates spacing utility classes for the classes for each breakpoint: p-xs-0 p-sm-2 p-md-3 p-lg-5 p-xl-2 p-xxl-1
-
-    3. Inline styling:
-    <twig:Sw:Grid:Container padding="1.6rem" />
-    If the value is a string, it will be used as inline style.
-    Generates inline style style="padding: 10px;"
+    Generates: "p-0 p-sm-2 p-md-3 p-lg-5 p-xl-2 p-xxl-1"
 #}
-
-{%- macro spacingClasses(prop, classPrefix) %}
+{%- macro spacingClasses(prop, classPrefix, specialKeyword = null) %}
     {%- set classes = [] -%}
-
+    {# Prop contains a special keyword, use it to generate a class. #}
+    {%- if specialKeyword is not null and specialKeyword is same as prop %}
+        {%- set classes = classes|merge(["#{classPrefix}-#{specialKeyword}"]) -%}
+    {% endif -%}
+    {# Prop contains a simple numeric value for all breakpoints. #}
     {%- if prop is not null and prop is not string and prop is not iterable %}
         {%- set classes = classes|merge(["#{classPrefix}-#{prop}"]) -%}
     {% elseif prop is not null and prop is iterable %}
+        {# Prop contains an object with breakpoint values. #}
         {%- for breakpoint, value in prop %}
             {%- if value is not string %}
-                {%- set classes = classes|merge(["#{classPrefix}-#{breakpoint}-#{value}"]) -%}
-            {% else -%}
-                {%- set classes = classes|merge(["#{classPrefix}-#{breakpoint}-[#{value}]"]) -%}
+                {%- if breakpoint == 'xs' %}
+                    {%- set classes = classes|merge(["#{classPrefix}-#{value}"]) -%}
+                {% else %}
+                    {%- set classes = classes|merge(["#{classPrefix}-#{breakpoint}-#{value}"]) -%}
+                {% endif -%}
             {% endif -%}
         {% endfor -%}
     {% endif -%}
-    {# Return value #}
+    {# Output the classes as string #}
     {{- classes|length > 0 ? classes|join(' ') : '' -}}
 {% endmacro -%}
 
 {%- macro spacingInlineStyle(prop, cssProp) %}
     {%- set style = '' -%}
-
     {%- if prop is not null and prop is string and prop is not iterable %}
-        {% if cssProp is iterable %}
-            {%- for i in cssProp %}
-                {%- set style = style ~ "#{i}: #{prop};" -%}
-            {% endfor %}
-        {% else %}
-            {%- set style = style ~ "#{cssProp}: #{prop};" -%}
-        {% endif %}
+        {%- set style = style ~ "#{cssProp}: #{prop};" -%}
+    {% elseif prop is not null and prop is iterable %}
+        {%- for breakpoint, value in prop %}
+            {%- if value is string %}
+                {% if breakpoint == 'xs' %}
+                    {% set style = style ~ "#{cssProp}: #{value}; " %}
+                {% else %}
+                    {%- set breakpointSize = theme_config('breakpoint.' ~ breakpoint) -%}
+                    {%- set style = style ~ "@media (min-width: #{breakpointSize}px) { #{cssProp}: #{value}; } " -%}
+                {% endif %}
+            {% endif -%}
+        {% endfor -%}
     {% endif -%}
-
     {# Return value #}
     {{- style -}}
 {% endmacro -%}
@@ -353,9 +363,7 @@
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
 
-<div
-    {{ attributes.defaults(attributeDefaults) }}
-    {% if gridStyle %} style="{{ gridStyle|trim }}"{% endif %}>
+<div {{ attributes.defaults(attributeDefaults) }}>
 
      {% block content %}
         {% for name, slot in slots %}
@@ -363,16 +371,20 @@
         {% endfor %}
      {% endblock %}
 
-    <style>   
-    {{ "##{gridId} {" }} 
+    <style>
+    {{ "##{gridId} {" }}
         {{- _self.spacingInlineStyle(margin, 'margin') -}}
-        {{- _self.spacingInlineStyle(marginX, ['margin-left', 'margin-right']) -}}
+        {{- _self.spacingInlineStyle(marginX, 'margin-left') -}}
+        {{- _self.spacingInlineStyle(marginX, 'margin-right') -}}
         {{- _self.spacingInlineStyle(marginBottom, 'margin-bottom') -}}
         {{- _self.spacingInlineStyle(marginTop, 'margin-top') -}}
         {{- _self.spacingInlineStyle(marginLeft, 'margin-left') -}}
         {{- _self.spacingInlineStyle(marginRight, 'margin-right') -}}
-        {{- _self.spacingInlineStyle(paddingX, ['padding-left', 'padding-right']) -}}
-        {{- _self.spacingInlineStyle(paddingY, ['padding-top', 'padding-bottom']) -}}
+        {{- _self.spacingInlineStyle(padding, 'padding') -}}
+        {{- _self.spacingInlineStyle(paddingX, 'padding-left') -}}
+        {{- _self.spacingInlineStyle(paddingX, 'padding-right') -}}
+        {{- _self.spacingInlineStyle(paddingY, 'padding-top') -}}
+        {{- _self.spacingInlineStyle(paddingY, 'padding-bottom') -}}
         {{- _self.spacingInlineStyle(paddingTop, 'padding-top') -}}
         {{- _self.spacingInlineStyle(paddingBottom, 'padding-bottom') -}}
         {{- _self.spacingInlineStyle(paddingLeft, 'padding-left') -}}
@@ -380,6 +392,7 @@
         {{- _self.spacingInlineStyle(gap, 'gap') -}}
         {{- _self.spacingInlineStyle(rowGap, 'row-gap') -}}
         {{- _self.spacingInlineStyle(columnGap, 'column-gap') -}}
+        {% if gridStyle %}{{ gridStyle|trim }}{% endif %}
     {{ '}' }}
     </style>
 </div>

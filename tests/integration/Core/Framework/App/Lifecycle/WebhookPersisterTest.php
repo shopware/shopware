@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
@@ -218,7 +219,7 @@ class WebhookPersisterTest extends TestCase
 
     private function getApp(string $appId): AppEntity
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = static::getContainer()->get('app.repository');
         $app = $appRepository->search(new Criteria([$appId]), Context::createDefaultContext())->first();
 

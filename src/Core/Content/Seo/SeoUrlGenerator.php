@@ -113,24 +113,24 @@ class SeoUrlGenerator
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
 
-            $copy = clone $seoUrl;
+            $cmsPageId = $entity->get('cmsPageId');
 
             if (
-                $entity->get('cmsPageId') !== null
+                $cmsPageId !== null
                 && !$entity->get('cmsPage') instanceof CmsPageEntity
-                && $cmsPages->has($entity->get('cmsPageId'))
+                && $cmsPages->has($cmsPageId)
             ) {
-                $entity->assign(['cmsPage' => $cmsPages->get($entity->get('cmsPageId'))]);
+                $entity->assign(['cmsPage' => $cmsPages->get($cmsPageId)]);
             }
 
             $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
-            $copy->setError($mapping->getError());
+            $seoUrl->setError($mapping->getError());
 
             $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
             $pathInfo = $this->removePrefix($pathInfo, $basePath);
 
-            $copy->setPathInfo($pathInfo);
+            $seoUrl->setPathInfo($pathInfo);
 
             $seoPathInfo = $this->getSeoPathInfo($mapping, $config, $templateName);
 
@@ -138,10 +138,10 @@ class SeoUrlGenerator
                 continue;
             }
 
-            $copy->setSeoPathInfo($seoPathInfo);
-            $copy->setSalesChannelId($salesChannel->getId());
+            $seoUrl->setSeoPathInfo($seoPathInfo);
+            $seoUrl->setSalesChannelId($salesChannel->getId());
 
-            yield $copy;
+            yield $seoUrl;
         }
     }
 

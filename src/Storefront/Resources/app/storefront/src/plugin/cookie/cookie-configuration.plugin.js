@@ -390,23 +390,27 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Reset cookie configuration when hash has changed
-     * Resets to technically required cookies only
+     * Reset cookie configuration when hash has changed or language consent is missing.
+     * Removes non-required cookies via _applyCookieConfiguration, then also removes
+     * JS-set consent cookies (e.g. _GRECAPTCHA, cookie-preference) to prompt re-consent.
+     * PHP-managed cookies (session, timezone) and cookie-config-hash are preserved.
      * @private
      */
     async _resetCookieConfiguration(data) {
         const cookieGroups = data.elements || [];
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required', [], data.languageId);
 
-        // Remove all consent cookies that were just set, since we're prompting for re-consent.
-        // Only cookie-config-hash is kept because it tracks per-language consent state.
+        const phpManagedCookies = this._getTechnicallyRequiredCookieNames();
         for (const cookieName of activeCookieNames) {
-            if (cookieName !== this.options.cookieConfigHash) {
+            if (cookieName !== this.options.cookieConfigHash && !phpManagedCookies.includes(cookieName)) {
                 CookieStorage.removeItem(cookieName);
             }
         }
 
-        this._handleUpdateListener([], [...inactiveCookieNames, ...activeCookieNames]);
+        this._handleUpdateListener(
+            activeCookieNames.filter(name => name === this.options.cookieConfigHash || phpManagedCookies.includes(name)),
+            inactiveCookieNames,
+        );
 
         this._checkAndShowCookieBarIfNeeded();
     }

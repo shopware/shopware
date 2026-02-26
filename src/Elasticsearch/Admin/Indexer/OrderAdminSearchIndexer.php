@@ -15,7 +15,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -188,26 +187,18 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
      */
     public function fetch(array $ids): array
     {
-        $baseMapping = [
-            '#lineItems#' => SqlHelper::objectArray([
-                'id' => 'LOWER(HEX(order_line_item.id))',
-                'productId' => 'LOWER(HEX(order_line_item.product_id))',
-                'code' => 'CASE WHEN order_line_item.promotion_id IS NOT NULL THEN JSON_UNQUOTE(JSON_EXTRACT(order_line_item.payload, \'$.code\')) END',
-            ], 'lineItems'),
-        ];
-
         $baseSql = <<<'SQL'
             SELECT LOWER(HEX(`order`.id)) as id,
-                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
-                   GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
-                   GROUP_CONCAT(DISTINCT country_translation.name SEPARATOR " ") as country,
-                   GROUP_CONCAT(DISTINCT order_address.city SEPARATOR " ") as city,
-                   GROUP_CONCAT(DISTINCT order_address.street SEPARATOR " ") as street,
-                   GROUP_CONCAT(DISTINCT order_address.zipcode SEPARATOR " ") as zipcode,
-                   GROUP_CONCAT(DISTINCT order_address.phone_number SEPARATOR " ") as phone_number,
-                   GROUP_CONCAT(DISTINCT order_address.additional_address_line1 SEPARATOR " ") as additional_address_line1,
-                   GROUP_CONCAT(DISTINCT order_address.additional_address_line2 SEPARATOR " ") as additional_address_line2,
-                   GROUP_CONCAT(DISTINCT document.document_number SEPARATOR " ") as documentNumber,
+                   tag_agg.tags as tags,
+                   tag_agg.tagIds as tagIds,
+                   address_agg.country as country,
+                   address_agg.city as city,
+                   address_agg.street as street,
+                   address_agg.zipcode as zipcode,
+                   address_agg.phone_number as phone_number,
+                   address_agg.additional_address_line1 as additional_address_line1,
+                   address_agg.additional_address_line2 as additional_address_line2,
+                   document_agg.documentNumber as documentNumber,
                    order_customer.first_name,
                    order_customer.last_name,
                    order_customer.email,
@@ -222,14 +213,14 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                    `order`.campaign_code AS campaignCode,
                    `order`.created_at as createdAt,
                    primary_delivery.tracking_codes,
-                   GROUP_CONCAT(DISTINCT LOWER(HEX(document.id)) SEPARATOR ' ') as documentIds,
+                   document_agg.documentIds as documentIds,
                    LOWER(HEX(billing_address.id)) as billingAddressId,
                    LOWER(HEX(billing_address.country_id)) as billingAddressCountryId,
                    LOWER(HEX(order_customer.id)) as orderCustomerId,
                    LOWER(HEX(order_customer.customer_id)) as customerId,
                    LOWER(HEX(customer.customer_group_id)) as customerGroupId,
                    customer.customer_number as liveCustomerNumber,
-                   #lineItems#,
+                   line_item_agg.lineItems as lineItems,
                    LOWER(HEX(primary_transaction.id)) as primaryTransactionId,
                    LOWER(HEX(primary_transaction.state_id)) as primaryTransactionStateId,
                    LOWER(HEX(primary_transaction.payment_method_id)) as primaryTransactionPaymentMethodId,
@@ -240,24 +231,72 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             FROM `order`
                 LEFT JOIN order_customer
                     ON `order`.id = order_customer.order_id AND `order`.version_id = order_customer.order_version_id
-                LEFT JOIN order_address
-                    ON `order`.id = order_address.order_id AND `order`.version_id = order_address.order_version_id
-                LEFT JOIN country
-                    ON order_address.country_id = country.id
-                LEFT JOIN country_translation
-                    ON country.id = country_translation.country_id
-                LEFT JOIN order_tag
-                    ON `order`.id = order_tag.order_id AND `order`.version_id = order_tag.order_version_id
-                LEFT JOIN tag
-                    ON order_tag.tag_id = tag.id
-                LEFT JOIN document
-                     ON `order`.id = document.order_id
+                LEFT JOIN (
+                    SELECT order_tag.order_id,
+                           order_tag.order_version_id,
+                           GROUP_CONCAT(DISTINCT tag.name SEPARATOR ' ') as tags,
+                           GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR ' ') as tagIds
+                    FROM order_tag
+                    LEFT JOIN tag
+                        ON order_tag.tag_id = tag.id
+                    WHERE order_tag.order_id IN (:ids)
+                    AND order_tag.order_version_id = :versionId
+                    GROUP BY order_tag.order_id, order_tag.order_version_id
+                ) as tag_agg
+                    ON `order`.id = tag_agg.order_id AND `order`.version_id = tag_agg.order_version_id
+                LEFT JOIN (
+                    SELECT order_address.order_id,
+                           order_address.order_version_id,
+                           GROUP_CONCAT(DISTINCT country_translation.name SEPARATOR ' ') as country,
+                           GROUP_CONCAT(DISTINCT order_address.city SEPARATOR ' ') as city,
+                           GROUP_CONCAT(DISTINCT order_address.street SEPARATOR ' ') as street,
+                           GROUP_CONCAT(DISTINCT order_address.zipcode SEPARATOR ' ') as zipcode,
+                           GROUP_CONCAT(DISTINCT order_address.phone_number SEPARATOR ' ') as phone_number,
+                           GROUP_CONCAT(DISTINCT order_address.additional_address_line1 SEPARATOR ' ') as additional_address_line1,
+                           GROUP_CONCAT(DISTINCT order_address.additional_address_line2 SEPARATOR ' ') as additional_address_line2
+                    FROM order_address
+                    LEFT JOIN country
+                        ON order_address.country_id = country.id
+                    LEFT JOIN country_translation
+                        ON country.id = country_translation.country_id
+                    WHERE order_address.order_id IN (:ids)
+                    AND order_address.order_version_id = :versionId
+                    GROUP BY order_address.order_id, order_address.order_version_id
+                ) as address_agg
+                    ON `order`.id = address_agg.order_id AND `order`.version_id = address_agg.order_version_id
+                LEFT JOIN (
+                    SELECT document.order_id,
+                           GROUP_CONCAT(DISTINCT document.document_number SEPARATOR ' ') as documentNumber,
+                           GROUP_CONCAT(DISTINCT LOWER(HEX(document.id)) SEPARATOR ' ') as documentIds
+                    FROM document
+                    WHERE document.order_id IN (:ids)
+                    GROUP BY document.order_id
+                ) as document_agg
+                    ON `order`.id = document_agg.order_id
                 LEFT JOIN order_address AS billing_address
                     ON `order`.billing_address_id = billing_address.id AND `order`.billing_address_version_id = billing_address.version_id
                 LEFT JOIN customer
                     ON order_customer.customer_id = customer.id
-                LEFT JOIN order_line_item
-                    ON `order`.id = order_line_item.order_id AND `order`.version_id = order_line_item.order_version_id
+                LEFT JOIN (
+                    SELECT order_line_item.order_id,
+                           order_line_item.order_version_id,
+                           CONCAT(
+                               '[',
+                               GROUP_CONCAT(
+                                   DISTINCT JSON_OBJECT(
+                                       'id', LOWER(HEX(order_line_item.id)),
+                                       'productId', LOWER(HEX(order_line_item.product_id)),
+                                       'code', CASE WHEN order_line_item.promotion_id IS NOT NULL THEN JSON_UNQUOTE(JSON_EXTRACT(order_line_item.payload, '$.code')) END
+                                   ) ORDER BY NULL
+                               ),
+                               ']'
+                           ) as lineItems
+                    FROM order_line_item
+                    WHERE order_line_item.order_id IN (:ids)
+                    AND order_line_item.order_version_id = :versionId
+                    GROUP BY order_line_item.order_id, order_line_item.order_version_id
+                ) as line_item_agg
+                    ON `order`.id = line_item_agg.order_id AND `order`.version_id = line_item_agg.order_version_id
                 LEFT JOIN order_transaction AS primary_transaction
                     ON `order`.primary_order_transaction_id = primary_transaction.id AND `order`.primary_order_transaction_version_id = primary_transaction.version_id
                 LEFT JOIN order_delivery AS primary_delivery
@@ -266,11 +305,10 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                     ON primary_delivery.shipping_order_address_id = primary_delivery_address.id AND primary_delivery.shipping_order_address_version_id = primary_delivery_address.version_id
             WHERE `order`.id IN (:ids)
             AND `order`.version_id = :versionId
-            GROUP BY `order`.id
 SQL;
 
         $data = $this->connection->fetchAllAssociative(
-            str_replace(array_keys($baseMapping), array_values($baseMapping), $baseSql),
+            $baseSql,
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -396,8 +434,8 @@ SQL;
             return [
                 'id' => (string) ($item['id'] ?? ''),
                 '_count' => 1,
-                'productId' => (string) ($item['productId'] ?? ''),
-                'payload' => ['code' => (string) ($item['code'] ?? '')],
+                'productId' => \is_string($item['productId']) ? $item['productId'] : null,
+                'payload' => ['code' => \is_string($item['code']) ? $item['code'] : null],
             ];
         }, ElasticsearchIndexingUtils::parseJson($row, 'lineItems')));
     }

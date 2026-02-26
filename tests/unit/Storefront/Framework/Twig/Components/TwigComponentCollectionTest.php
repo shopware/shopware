@@ -102,7 +102,7 @@ class TwigComponentCollectionTest extends TestCase
 
     public function testValidateTypeThrowsExceptionForInvalidType(): void
     {
-        $invalidElement = new class() extends Struct {
+        $invalidElement = new class extends Struct {
         };
 
         $this->expectExceptionObject(

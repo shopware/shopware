@@ -146,7 +146,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
             }
 
             return new FileMetadataResult(
-                size: (int)$result->getContentLength() ?? 0,
+                size: \intval($result->getContentLength()),
                 lastModified: $result->getLastModified() ?? new \DateTimeImmutable(),
                 etag: $etag,
             );

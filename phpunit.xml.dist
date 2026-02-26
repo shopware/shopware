@@ -111,8 +111,13 @@
             <!-- Helper class and its output DTOs and exception, which could not be unit tested -->
             <directory suffix=".php">src/Core/Framework/Util/Database</directory>
 
-            <!-- ContentSystem: trivial value objects, DTOs, route responses, loader configs -->
+            <!-- ContentSystem: trivial value objects, DTOs, route responses, pure delegations, enums, loader configs -->
+            <file>src/Core/Content/ContentSystem/SalesChannel/Routing/ContentRouteDefinition.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Context/Distribution/DistributionStrategy.php</file>
             <file>src/Core/Content/ContentSystem/RenderingSpecification.php</file>
+            <file>src/Core/Content/ContentSystem/Adapter/CategorySpecificationSource.php</file>
+            <file>src/Core/Content/ContentSystem/Adapter/ProductSpecificationSource.php</file>
+            <file>src/Core/Content/ContentSystem/Adapter/LandingPageSpecificationSource.php</file>
             <file>src/Core/Content/ContentSystem/SpecificationData.php</file>
             <file>src/Core/Content/ContentSystem/Adapter/FactoryHelper/LayoutResolutionResult.php</file>
             <file>src/Core/Content/ContentSystem/Adapter/ParameterBinding/ParameterBinding.php</file>

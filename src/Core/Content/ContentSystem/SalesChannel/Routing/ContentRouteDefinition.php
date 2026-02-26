@@ -12,8 +12,6 @@ use Symfony\Component\DependencyInjection\Definition;
 final readonly class ContentRouteDefinition
 {
     /**
-     * @codeCoverageIgnore
-     *
      * @param array<string, string> $requirements
      * @param array<string, mixed> $defaults
      */

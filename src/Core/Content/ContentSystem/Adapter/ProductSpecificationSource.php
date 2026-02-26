@@ -30,9 +30,6 @@ class ProductSpecificationSource extends AbstractSpecificationSource
     ) {
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function getDecorated(): AbstractSpecificationSource
     {
         throw new DecorationPatternException(self::class);
@@ -48,25 +45,17 @@ class ProductSpecificationSource extends AbstractSpecificationSource
         return $this->contextFactory->resolveLayoutId($path, $context, $this->repository, $this->definition);
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
     {
         return $this->contextFactory->resolveSpecificationData($path, $request, $context, $this->repository, $this->definition);
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function resolveTargetElementId(string $path, Request $request, SalesChannelContext $context): ?string
     {
         return $this->contextFactory->resolveTargetElementId($request);
     }
 
     /**
-     * @codeCoverageIgnore
-     *
      * @return list<string>
      */
     public function resolveCacheTags(string $path, Request $request, SalesChannelContext $context): array

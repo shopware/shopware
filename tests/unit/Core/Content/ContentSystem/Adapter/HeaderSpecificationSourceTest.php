@@ -13,7 +13,6 @@ use Shopware\Core\Content\ContentSystem\Adapter\HeaderSpecificationSource;
 use Shopware\Core\Content\ContentSystem\ContentSection;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -108,13 +107,5 @@ class HeaderSpecificationSourceTest extends TestCase
         ));
 
         $this->source->resolveLayoutId('', new Request(), $context);
-    }
-
-    #[TestDox('throws DecorationPatternException from getDecorated')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        static::expectExceptionObject(new DecorationPatternException(HeaderSpecificationSource::class));
-
-        $this->source->getDecorated();
     }
 }

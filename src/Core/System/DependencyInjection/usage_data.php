@@ -30,7 +30,6 @@ use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\System\UsageData\Subscriber\ConsentStateChangedSubscriber;
 use Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber;
-use Shopware\Core\System\UsageData\Subscriber\ShopIdChangedSubscriber;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -60,14 +59,6 @@ return function (ContainerConfigurator $container): void {
             new Reference('clock'),
             new Reference(ConsentService::class),
             '%shopware.usage_data.collection_enabled%',
-        ])
-        ->tag('kernel.event_subscriber');
-
-    $services->set(ShopIdChangedSubscriber::class)
-        ->args([
-            new Reference(BannerService::class),
-            new Reference(EntityDispatchService::class),
-            new Reference(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
 

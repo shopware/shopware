@@ -46,14 +46,9 @@ class ModulePersister implements PersisterInterface
                 ];
             }
 
-            $payload['modules'] = array_reduce(
-                $admin->getModules(),
-                static function (array $modules, Module $module) use ($context): array {
-                    $modules[] = $module->toArray($context->defaultLocale);
-
-                    return $modules;
-                },
-                []
+            $payload['modules'] = array_map(
+                fn (Module $module) => $module->toArray($context->defaultLocale),
+                $admin->getModules()
             );
         }
 

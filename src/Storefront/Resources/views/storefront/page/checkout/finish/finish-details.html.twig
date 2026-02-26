@@ -15,7 +15,12 @@
                 {% endblock %}
 
                 {% block page_checkout_finish_ordernumber %}
-                    <p class="finish-ordernumber" data-order-number="{{ page.order.orderNumber }}">
+                    <p class="finish-ordernumber"
+                       data-order-number="{{ page.order.orderNumber }}"
+                       {% if storefrontAnalytics and storefrontAnalytics.isEnhancedConversions() %}
+                           data-enhanced-conversion="{{ page.order.orderCustomer.email|lower|trim|sha256 }}"
+                       {% endif %}
+                    >
                         {{ 'checkout.finishInfoOrdernumber'|trans|sw_sanitize }}{{ page.order.orderNumber }}
                     </p>
                 {% endblock %}

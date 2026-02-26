@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Util\Hasher;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -85,5 +86,20 @@ class PhpSyntaxExtensionTest extends TestCase
         }
 
         static::assertSame($expected, $result, 'Failure in php syntax support in twig rendering');
+    }
+
+    public function testSha256Filter(): void
+    {
+        $environment = new Environment(new ArrayLoader());
+        $environment->addExtension(new PhpSyntaxExtension());
+        $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
+
+        $result = $renderer->render(
+            '{{ email|sha256 }}',
+            ['email' => 'test@example.com'],
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(Hasher::hash('test@example.com', 'sha256'), $result);
     }
 }

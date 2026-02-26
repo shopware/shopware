@@ -118,6 +118,19 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return Hasher::hash($var, 'md5');
             }),
+            new TwigFilter('sha256', function (mixed $var) {
+                if (\is_array($var)) {
+                    $var = \json_encode($var, \JSON_THROW_ON_ERROR);
+                }
+
+                if (!\is_string($var)) {
+                    throw AdapterException::invalidArgument(
+                        \sprintf('The sha256 filter expects a string or array as input, %s given', $var::class)
+                    );
+                }
+
+                return Hasher::hash($var, 'sha256');
+            }),
         ];
     }
 

@@ -45,16 +45,6 @@
             />
             {% endblock %}
 
-            {% block sw_sales_channel_detail_analytics_fields_track_orders %}
-
-            <mt-switch
-                v-model="salesChannel.analytics.trackOrders"
-                :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
-                name="trackOrders"
-                :disabled="!acl.can('sales_channel.editor')"
-            />
-            {% endblock %}
-
             {% block sw_sales_channel_detail_analytics_fields_anonymize_ip %}
 
             <mt-switch
@@ -64,19 +54,64 @@
                 :disabled="!acl.can('sales_channel.editor')"
             />
             {% endblock %}
-
-            {% block sw_sales_channel_detail_analytics_fields_track_offcanvas_cart %}
-
-            <mt-switch
-                v-model="salesChannel.analytics.trackOffcanvasCart"
-                :label="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.label')"
-                :help-text="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.helpText')"
-                name="trackOffcanvasCart"
-                :disabled="!acl.can('sales_channel.editor')"
-            />
-            {% endblock %}
         </sw-container>
         {% endblock %}
     </template>
 </mt-card>
+
+{% block sw_sales_channel_detail_analytics_tracking %}
+<mt-card
+    v-if="salesChannel && salesChannel.analytics"
+    position-identifier="sw-sales-channel-detail-analytics-tracking"
+    :title="$tc('sw-sales-channel.detail.analytics.tracking.cardTitle')"
+    :is-loading="isLoading"
+>
+    {% block sw_sales_channel_detail_analytics_tracking_description %}
+    <p
+        class="sw-sales-channel-detail-analytics__description"
+        v-html="$tc('sw-sales-channel.detail.analytics.tracking.description')"
+    ></p>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_analytics_fields_track_orders %}
+    <sw-container
+        columns="repeat(auto-fit, minmax(250px, 1fr))"
+        gap="0 30px"
+    >
+        <mt-switch
+            v-model="salesChannel.analytics.trackOrders"
+            :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
+            name="trackOrders"
+            :disabled="!acl.can('sales_channel.editor')"
+        />
+
+        {% block sw_sales_channel_detail_analytics_fields_enhanced_conversions %}
+
+        <mt-switch
+            v-model="salesChannel.analytics.enhancedConversions"
+            :label="$tc('sw-sales-channel.detail.analytics.fields.enhancedConversions.label')"
+            :help-text="$tc('sw-sales-channel.detail.analytics.fields.enhancedConversions.helpText')"
+            name="enhancedConversions"
+            :disabled="!acl.can('sales_channel.editor') || !salesChannel.analytics.trackOrders"
+        />
+        {% endblock %}
+    </sw-container>
+
+    {% block sw_sales_channel_detail_analytics_fields_track_offcanvas_cart %}
+    <sw-container
+        columns="repeat(auto-fit, minmax(250px, 1fr))"
+        gap="0 30px"
+    >
+        <mt-switch
+            v-model="salesChannel.analytics.trackOffcanvasCart"
+            :label="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.label')"
+            :help-text="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.helpText')"
+            name="trackOffcanvasCart"
+            :disabled="!acl.can('sales_channel.editor')"
+        />
+    </sw-container>
+    {% endblock %}
+    {% endblock %}
+</mt-card>
+{% endblock %}
 {% endblock %}

@@ -32,9 +32,17 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'purchase', { ...{
+        const payload = {
             'transaction_id': orderNumber,
-            'items':  LineItemHelper.getLineItems(),
-        }, ...LineItemHelper.getAdditionalProperties() });
+            'items': LineItemHelper.getLineItems(),
+            ...LineItemHelper.getAdditionalProperties(),
+        };
+
+        const enhancedConversion = orderNumberElement.getAttribute('data-enhanced-conversion');
+        if (enhancedConversion) {
+            payload.user_data = { 'sha256_email_address': enhancedConversion };
+        }
+
+        gtag('event', 'purchase', payload);
     }
 }

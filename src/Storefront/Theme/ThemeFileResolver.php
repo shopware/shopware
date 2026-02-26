@@ -201,9 +201,6 @@ class ThemeFileResolver
             if ($bundleRelative !== null) {
                 // Special handling for @Components/ComponentName/file.ext
                 if ($bundleRelative['bundle'] === 'Components') {
-                    if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-                        continue;
-                    }
 
                     // Parse component path (e.g., "Sw/Alert/index.scss")
                     $requestedPath = $bundleRelative['path'];
@@ -351,10 +348,6 @@ class ThemeFileResolver
 
             // Handle @Components
             if ($filepath === '@Components') {
-                if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-                    continue;
-                }
-
                 foreach ($this->twigComponentHelper->getComponents() as $component) {
                     $componentPath = $fileType === self::SCRIPT_FILES
                         ? $component->getScriptPath()

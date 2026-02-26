@@ -90,7 +90,7 @@ class StorybookController extends AbstractController
         $isDev = $this->environment === 'dev';
 
         // Only allow in development environment
-        if (!$isDev || !Feature::isActive('STOREFRONT_COMPONENTS')) {
+        if (!$isDev) {
             throw new NotFoundHttpException('Route not found');
         }
 

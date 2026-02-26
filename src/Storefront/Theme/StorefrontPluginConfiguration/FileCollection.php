@@ -42,15 +42,13 @@ class FileCollection extends Collection
     {
         return array_values(array_filter($this->map(function (File $element) use ($prefix) {
             // Handle Twig UX components
-            if (Feature::isActive('STOREFRONT_COMPONENTS')) {
-                if (str_contains($element->getFilepath(), 'Resources/views/components/')) {
-                    // Build path - handle empty assetName (for root namespace components)
-                    $componentPath = $element->assetName !== null && $element->assetName !== ''
-                        ? $element->assetName . '/' . basename($element->getFilepath())
-                        : basename($element->getFilepath());
+            if (str_contains($element->getFilepath(), 'Resources/views/components/')) {
+                // Build path - handle empty assetName (for root namespace components)
+                $componentPath = $element->assetName !== null && $element->assetName !== ''
+                    ? $element->assetName . '/' . basename($element->getFilepath())
+                    : basename($element->getFilepath());
 
-                    return $prefix . '/components/' . $componentPath;
-                }
+                return $prefix . '/components/' . $componentPath;
             }
 
             // For non-component files, assetName must be set

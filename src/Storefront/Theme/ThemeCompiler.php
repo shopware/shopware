@@ -105,15 +105,13 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         // Individual component styles.
         $componentStyleCopyFiles = [];
-        if (Feature::isActive('STOREFRONT_COMPONENTS')) {
-            $componentStyleCopyFiles = $this->getCompiledComponentStyles(
-                $themeId,
-                $themePrefix,
-                $themeConfig,
-                $salesChannelId,
-                $context
-            );
-        }
+        $componentStyleCopyFiles = $this->getCompiledComponentStyles(
+            $themeId,
+            $themePrefix,
+            $themeConfig,
+            $salesChannelId,
+            $context
+        );
 
         $scriptFiles = $this->getScriptCopyFiles($configurationCollection, $themePrefix);
 
@@ -665,12 +663,7 @@ PHP_EOL;
         string $themePrefix
     ): array {
         $themeScriptCopyFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
-
-        if (Feature::isActive('STOREFRONT_COMPONENTS')) {
-            $componentScriptCopyFiles = $this->copyComponentScriptFiles($themePrefix);
-        } else {
-            $componentScriptCopyFiles = [];
-        }
+        $componentScriptCopyFiles = $this->copyComponentScriptFiles($themePrefix);
 
         return [...$themeScriptCopyFiles, ...$componentScriptCopyFiles];
     }

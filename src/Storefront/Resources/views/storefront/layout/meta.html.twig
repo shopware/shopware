@@ -121,17 +121,9 @@
             {% endif %}
         {% endblock %}
 
-        {% block layout_head_component_styles %}
-            {% if feature('STOREFRONT_COMPONENTS') %}
-                {% for style in component_styles() %}
-                    <link rel="stylesheet" href="{{ asset(style, 'theme') }}">
-                {% endfor %}
-            {% endif %}
-        {% endblock %}
-
         {# ludtwig-ignore twig-json-encode-escape-js #}
         {% block layout_head_component_importmap %}
-            {% if feature('STOREFRONT_COMPONENTS') %}
+            {% if component_import_map() is not empty %}
                 <script type="importmap">
                     {
                         "imports": {{ component_import_map()|json_encode|raw }}

@@ -571,7 +571,7 @@
             <tag name="shopware.route_scope_whitelist"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Twig\Components\UxComponentHelper">
+        <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper">
             <argument>Resources/views/components/</argument>
             <argument>%kernel.project_dir%</argument>
             <argument>%kernel.bundles_metadata%</argument>

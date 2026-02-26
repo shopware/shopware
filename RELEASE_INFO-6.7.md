@@ -1,11 +1,6 @@
-# 6.7.8.0 (upcoming)
+# 6.7.9.0 (upcoming)
 
 ## Features
-
-### New internal comment for state machine state history entries
-A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
-The internal comment is only visible in the administration and not shown to customers.
-It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
 ## API
 
@@ -30,6 +25,35 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 | `/store-api/newsletter/subscribe` | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
 | `/store-api/newsletter/confirm` | `{"success": true}`                                            |
 | `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
+
+## Core
+
+### Deprecation of unused `TemplateGroup` class
+
+The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
+
+## Administration
+
+## Storefront
+
+### `HEAD`-requests do not trigger the registration double-opt-in
+
+As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.8.0
+
+## Features
+
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
 ## Core
 
@@ -107,10 +131,6 @@ When a mismatch is detected, the command provides a clear error message indicati
 When you use `#[Serialized]` field in your attribute entity you should always pass the serializer explicitly, as the default serializer does not work as expected.
 Additionally, the `SerializerField` will become internal in the next major release, as that field should be only used for attribute entities, but never directly in classic `EntityDefinitions`.
 
-### Deprecation of unused `TemplateGroup` class
-
-The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
-
 ## Administration
 
 ### Product detail variants: `configSettingGroups` as computed and deprecations
@@ -165,10 +185,6 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 **Migration:** If you relied on the previous behavior where the clearable button was hidden by default, explicitly set `:show-clearable-button="false"` on your select components.
 
 ## Storefront
-
-### `HEAD`-requests do not trigger the registration double-opt-in
-
-As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
 ### Selling and packaging information in the product detail page
 

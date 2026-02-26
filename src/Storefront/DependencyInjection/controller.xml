@@ -342,14 +342,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Controller\UxComponentLibraryController" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\UxComponentHelper"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Storefront\Controller\StorybookController" public="true">
             <argument>%kernel.environment%</argument>
             <argument type="service" id="twig"/>

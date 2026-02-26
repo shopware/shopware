@@ -36,15 +36,6 @@ class FlowEventPersister implements PersisterInterface
         }
     }
 
-    private function getFlowEvents(Filesystem $fs): ?Event
-    {
-        if (!$fs->has('Resources/flow.xml')) {
-            return null;
-        }
-
-        return Event::createFromXmlFile($fs->path('Resources/flow.xml'));
-    }
-
     public function updateEvents(Event $flowEvent, string $appId, Context $context, string $defaultLocale): void
     {
         $existingFlowEvents = $this->connection->fetchAllKeyValue('SELECT name, LOWER(HEX(id)) FROM app_flow_event WHERE app_id = :appId;', [
@@ -82,6 +73,15 @@ class FlowEventPersister implements PersisterInterface
                 'appId' => Uuid::fromHexToBytes($appId),
             ],
         );
+    }
+
+    private function getFlowEvents(Filesystem $fs): ?Event
+    {
+        if (!$fs->has('Resources/flow.xml')) {
+            return null;
+        }
+
+        return Event::createFromXmlFile($fs->path('Resources/flow.xml'));
     }
 
     /**

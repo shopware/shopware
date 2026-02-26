@@ -24,6 +24,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
+use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
@@ -57,6 +58,10 @@ class InfoControllerTest extends TestCase
     private ShopIdProvider&MockObject $shopIdProvider;
 
     private StatsService&MockObject $statsService;
+
+    private Connection&MockObject $connectionMock;
+
+    private MigrationInfo&MockObject $migrationInfo;
 
     protected function setUp(): void
     {
@@ -131,6 +136,11 @@ class InfoControllerTest extends TestCase
         static::assertFalse($settings['appUrlReachable']);
         static::assertArrayHasKey('appsRequireAppUrl', $settings);
         static::assertFalse($settings['appsRequireAppUrl']);
+        static::assertArrayHasKey('firstMigrationDate', $settings);
+        static::assertTrue(
+            $settings['firstMigrationDate'] === null
+            || \is_string($settings['firstMigrationDate'])
+        );
         static::assertArrayHasKey('private_allowed_extensions', $settings);
         static::assertFalse($settings['private_allowed_extensions']);
         static::assertArrayHasKey('enableHtmlSanitizer', $settings);
@@ -186,6 +196,57 @@ class InfoControllerTest extends TestCase
         static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
     }
 
+    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNull(): void
+    {
+        $this->createInstance();
+
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
+
+        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertNull($data['settings']['firstMigrationDate']);
+    }
+
+    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNullAgain(): void
+    {
+        $this->createInstance();
+
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
+
+        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertNull($data['settings']['firstMigrationDate']);
+    }
+
+    public function testConfigReturnsFirstMigrationDateFromMigrationInfo(): void
+    {
+        $this->createInstance();
+
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn('2020-01-01T00:00:00.123+00:00');
+
+        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
+    }
+
     private function createInstance(): void
     {
         $kernel = new StubKernel([
@@ -196,6 +257,8 @@ class InfoControllerTest extends TestCase
         $this->routerMock = $this->createMock(RouterInterface::class);
         $this->inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $this->connectionMock = $this->createMock(Connection::class);
+        $this->migrationInfo = $this->createMock(MigrationInfo::class);
 
         $this->parameterBagMock->method('get')
             ->willReturnMap([
@@ -225,7 +288,8 @@ class InfoControllerTest extends TestCase
             $kernel,
             $this->createMock(BusinessEventCollector::class),
             $this->createMock(IncrementGatewayRegistry::class),
-            $this->createMock(Connection::class),
+            $this->connectionMock,
+            $this->migrationInfo,
             $this->createMock(AppUrlVerifier::class),
             $this->routerMock,
             $this->createMock(FlowActionCollector::class),

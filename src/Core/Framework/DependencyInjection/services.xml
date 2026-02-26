@@ -148,6 +148,10 @@ frame-ancestors 'none';
             <argument type="tagged_iterator" tag="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationInfo">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument>%kernel.shopware_core_dir%</argument>

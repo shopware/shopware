@@ -175,6 +175,11 @@ runs:
           working-directory: ${{ inputs.directory }}
           run: npx playwright install --with-deps chromium
 
+        - name: Prepare Product Analytics consent preconditions
+          if: ${{ inputs.project == 'Platform' }}
+          shell: bash
+          run: php .github/bin/prepare-product-analytics-consent-preconditions.php
+
         - name: Run your tests
           shell: bash
           working-directory: ${{ inputs.directory }}

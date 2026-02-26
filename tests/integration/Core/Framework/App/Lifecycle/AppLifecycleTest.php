@@ -1630,17 +1630,6 @@ class AppLifecycleTest extends TestCase
         }
     }
 
-    private function getAppFlowActionIdFromSequence(string $sequenceId): ?string
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select('lower(hex(app_flow_action_id))');
-        $query->from('flow_sequence');
-        $query->where('id = :id');
-        $query->setParameter('id', Uuid::fromHexToBytes($sequenceId));
-
-        return $query->executeQuery()->fetchOne() ?: null;
-    }
-
     private function getAppFlowEventFromFlow(string $appFlowEventId): ?string
     {
         $query = $this->connection->createQueryBuilder();

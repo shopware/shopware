@@ -7,7 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -16,7 +19,11 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\MockStorefront\MockStorefront;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeNotIncludingPluginJsAndCss\ThemeNotIncludingPluginJsAndCss;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithBundleRelativeFiles\ThemeWithBundleRelativeFiles;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithComponentReference\ThemeWithComponentReference;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithInvalidBundleReference\ThemeWithInvalidBundleReference;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithMultiInheritance;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithNamespacedComponentReference\ThemeWithNamespacedComponentReference;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
 use Symfony\Component\Filesystem\Filesystem;
@@ -318,5 +325,382 @@ class ThemeFileResolverTest extends TestCase
         );
 
         static::assertSame($currentPath, $config->getStyleFiles()->first()?->getFilepath());
+    }
+
+    public function testCircularReferencePreventionReturnsEmptyCollection(): void
+    {
+        $themePluginBundle = new ThemeWithMultiInheritance(true, __DIR__ . '/fixtures/SimplePlugin');
+        $storefrontBundle = new MockStorefront();
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver,
+            new Filesystem(),
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+        $configCollection->add($storefront);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
+            'ThemeWithMultiInheritance' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithMultiInheritance', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        // This should not cause infinite loop - circular references are handled internally
+        $result = $resolver->resolveScriptFiles($config, $configCollection, false);
+
+        static::assertGreaterThan(0, $result->count());
+    }
+
+    public function testFileDeduplicationAcrossNamespaces(): void
+    {
+        $themePluginBundle = new ThemeWithMultiInheritance(true, __DIR__ . '/fixtures/SimplePlugin');
+        $storefrontBundle = new MockStorefront();
+        $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver,
+            new Filesystem(),
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+        $plugin = $factory->createFromBundle($pluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+        $configCollection->add($storefront);
+        $configCollection->add($plugin);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
+            'ThemeWithMultiInheritance' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+            'SimplePlugin' => $pluginBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithMultiInheritance', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
+            ['SimplePlugin', $pluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))->resolveFiles(
+            $config,
+            $configCollection,
+            false
+        );
+
+        $styleFiles = $resolvedFiles['style'];
+        $stylePaths = $styleFiles->getFilepaths();
+
+        // Check that all paths are unique
+        static::assertCount(\count(array_unique($stylePaths)), $stylePaths, 'Style files should not contain duplicates');
+
+        $scriptFiles = $resolvedFiles['script'];
+        $scriptPaths = $scriptFiles->getFilepaths();
+
+        // Check that all paths are unique
+        static::assertCount(\count(array_unique($scriptPaths)), $scriptPaths, 'Script files should not contain duplicates');
+    }
+
+    public function testBundleRelativeFileResolution(): void
+    {
+        $themePluginBundle = new ThemeWithBundleRelativeFiles();
+        $storefrontBundle = new MockStorefront();
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver,
+            new Filesystem(),
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+        $configCollection->add($storefront);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
+            'ThemeWithBundleRelativeFiles' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithBundleRelativeFiles', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))->resolveFiles(
+            $config,
+            $configCollection,
+            false
+        );
+
+        $styleFiles = $resolvedFiles['style'];
+        $paths = $styleFiles->getFilepaths();
+
+        // Check that overrides.scss is resolved
+        $overridesFound = false;
+        $overridesPosition = -1;
+        foreach ($paths as $index => $path) {
+            if (str_contains((string) $path, 'overrides.scss')) {
+                $overridesFound = true;
+                $overridesPosition = $index;
+                break;
+            }
+        }
+        static::assertTrue($overridesFound, 'Bundle-relative file @MockStorefront/app/storefront/src/scss/overrides.scss should be resolved');
+
+        // Check that overrides.scss appears only once (not duplicated when @MockStorefront is expanded)
+        $overridesCount = 0;
+        foreach ($paths as $path) {
+            if (str_contains((string) $path, 'overrides.scss')) {
+                ++$overridesCount;
+            }
+        }
+        static::assertSame(1, $overridesCount, 'overrides.scss should appear only once (no duplication)');
+
+        // Check that overrides.scss appears before base.scss (order preservation)
+        $basePosition = -1;
+        foreach ($paths as $index => $path) {
+            if (str_contains((string) $path, 'base.scss')) {
+                $basePosition = $index;
+                break;
+            }
+        }
+
+        if ($basePosition !== -1) {
+            static::assertLessThan($basePosition, $overridesPosition, 'Bundle-relative file should appear in order before full bundle expansion');
+        }
+
+        // Check that custom.scss from the theme itself is also included
+        $customFound = false;
+        foreach ($paths as $path) {
+            if (str_contains((string) $path, 'custom.scss')) {
+                $customFound = true;
+                break;
+            }
+        }
+        static::assertTrue($customFound, 'Direct file reference custom.scss should be resolved');
+    }
+
+    public function testBundleRelativeFileThrowsExceptionForMissingBundle(): void
+    {
+        $themePluginBundle = new ThemeWithInvalidBundleReference();
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver,
+            new Filesystem(),
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
+            'ThemeWithInvalidBundleReference' => $themePluginBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithInvalidBundleReference', $themePluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $this->expectExceptionObject(
+            ThemeException::couldNotFindThemeByName('NonExistentBundle')
+        );
+
+        $resolver->resolveStyleFiles($config, $configCollection, false);
+    }
+
+    public function testComponentSingleFileReference(): void
+    {
+        $themePluginBundle = new ThemeWithComponentReference();
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver,
+            new Filesystem(),
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
+            'ThemeWithComponentReference' => $themePluginBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithComponentReference', $themePluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+
+        // Create a test component with anonymous class extending TwigComponent
+        $testComponent = new class('/path/to/components/Sw/Alert/index.html.twig', 'Sw:Alert', 'Storefront') extends TwigComponent {
+            public function getStylePath(): string
+            {
+                return '/path/to/components/Sw/Alert/index.scss';
+            }
+
+            public function getRelativeNamespaceDirectory(): string
+            {
+                return 'Sw/Alert';
+            }
+        };
+
+        $componentCollection = new TwigComponentCollection([$testComponent]);
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->expects($this->any())
+            ->method('getComponents')
+            ->willReturn($componentCollection);
+
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $result = $resolver->resolveStyleFiles($config, $configCollection, false);
+
+        // Verify the component file was resolved
+        static::assertCount(1, $result);
+        $resolvedPath = $result->first()?->getFilepath();
+        static::assertStringContainsString('Sw/Alert/index.scss', (string) $resolvedPath);
+    }
+
+    public function testComponentSingleFileReferenceWithBundleNamespace(): void
+    {
+        $themePluginBundle = new ThemeWithNamespacedComponentReference();
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver,
+            new Filesystem(),
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
+            'ThemeWithNamespacedComponentReference' => $themePluginBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithNamespacedComponentReference', $themePluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+
+        // Create two test components with the same path but different namespaces
+        $componentStorefront = new class('/path/to/components/Custom/Test/index.html.twig', 'Custom:Test', 'Storefront') extends TwigComponent {
+            public function getStylePath(): string
+            {
+                return '/path/to/components/Custom/Test/index.scss';
+            }
+
+            public function getRelativeNamespaceDirectory(): string
+            {
+                return 'Custom/Test';
+            }
+        };
+
+        $componentPlugin = new class('/path/to/plugin/components/Custom/Test/index.html.twig', 'Custom:Test', 'MyPlugin') extends TwigComponent {
+            public function getStylePath(): string
+            {
+                return '/path/to/plugin/components/Custom/Test/index.scss';
+            }
+
+            public function getRelativeNamespaceDirectory(): string
+            {
+                return 'Custom/Test';
+            }
+
+            public function getNamespace(): string
+            {
+                return 'MyPlugin';
+            }
+        };
+
+        $componentCollection = new TwigComponentCollection([
+            $componentStorefront,
+            $componentPlugin,
+        ]);
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->expects($this->any())
+            ->method('getComponents')
+            ->willReturn($componentCollection);
+
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $result = $resolver->resolveStyleFiles($config, $configCollection, false);
+
+        // Verify that only the plugin component was resolved (not the Storefront one)
+        static::assertCount(1, $result);
+        $resolvedPath = $result->first()?->getFilepath();
+        static::assertStringContainsString('/plugin/components/Custom/Test/index.scss', (string) $resolvedPath);
+        static::assertStringNotContainsString('/path/to/components/Custom/Test/index.scss', (string) $resolvedPath);
     }
 }

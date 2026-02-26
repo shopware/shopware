@@ -29,7 +29,6 @@
             v-bind="attributesWithoutListeners"
             @update:model-value="onPriceGrossInputChange"
             @keyup="keymonitor"
-            @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
                 v-if="!disableSuffix && !compact"
@@ -82,7 +81,6 @@
             v-bind="attributesWithoutListeners"
             @update:model-value="onPriceNetInputChange"
             @keyup="keymonitor"
-            @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
                 v-if="!disableSuffix && !compact"

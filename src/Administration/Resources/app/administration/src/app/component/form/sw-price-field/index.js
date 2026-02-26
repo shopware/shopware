@@ -2,7 +2,6 @@ import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
 
 const { Application } = Shopware;
-const { debounce } = Shopware.Utils;
 
 /**
  * @sw-package framework
@@ -279,18 +278,6 @@ export default {
             this.$emit('change', this.priceForCurrency);
         },
 
-        onEndsWithDecimalSeparator(value) {
-            if (value) {
-                // cancel might not be a function if debounce is not active
-                if (this.onPriceGrossChangeDebounce.cancel) {
-                    this.onPriceGrossChangeDebounce.cancel();
-                }
-                if (this.onPriceNetChangeDebounce.cancel) {
-                    this.onPriceNetChangeDebounce.cancel();
-                }
-            }
-        },
-
         onPriceGrossInputChange(value) {
             this.priceForCurrency.gross = value;
 
@@ -298,7 +285,7 @@ export default {
             this.$emit('change', this.priceForCurrency);
 
             if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
-                this.onPriceGrossChangeDebounce();
+                this.onPriceGrossChange(value);
             }
         },
 
@@ -309,7 +296,7 @@ export default {
             this.$emit('change', this.priceForCurrency);
 
             if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
-                this.onPriceNetChangeDebounce();
+                this.onPriceNetChange(value);
             }
         },
 
@@ -416,13 +403,5 @@ export default {
         onCloseModal() {
             this.showModal = false;
         },
-
-        onPriceGrossChangeDebounce: debounce(function onPriceGrossChange() {
-            this.onPriceGrossChange(this.priceForCurrency.gross);
-        }, 300),
-
-        onPriceNetChangeDebounce: debounce(function onPriceNetChange() {
-            this.onPriceNetChange(this.priceForCurrency.net);
-        }, 300),
     },
 };

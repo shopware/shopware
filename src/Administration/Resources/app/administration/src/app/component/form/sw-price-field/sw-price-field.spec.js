@@ -99,12 +99,6 @@ describe('components/form/sw-price-field', () => {
                 },
             };
         };
-
-        jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-        jest.useRealTimers();
     });
 
     it('should contain the dollar price', async () => {
@@ -228,7 +222,6 @@ describe('components/form/sw-price-field', () => {
         });
 
         wrapper.vm.onPriceNetInputChange(euroPrice.net);
-        jest.runAllTimers();
 
         expect(convertNetToGross).toHaveBeenCalled();
     });
@@ -242,7 +235,6 @@ describe('components/form/sw-price-field', () => {
         });
 
         wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
-        jest.runAllTimers();
 
         expect(convertGrossToNet).toHaveBeenCalled();
     });
@@ -255,7 +247,6 @@ describe('components/form/sw-price-field', () => {
         });
 
         wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
-        jest.runAllTimers();
 
         expect(wrapper.emitted('update:value')).toBeFalsy();
     });
@@ -268,12 +259,11 @@ describe('components/form/sw-price-field', () => {
         });
 
         wrapper.vm.onPriceNetInputChange(euroPrice.net);
-        jest.runAllTimers();
 
         expect(wrapper.emitted('update:value')).toBeFalsy();
     });
 
-    it('should have the typed gross value after input change and after debounce time', async () => {
+    it('should have the typed gross value after input change', async () => {
         const wrapper = await setup({ allowEmpty: true });
         await wrapper.setProps({
             value: [euroPrice],
@@ -281,12 +271,11 @@ describe('components/form/sw-price-field', () => {
         });
 
         wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
-        jest.runAllTimers();
 
         expect(wrapper.vm.priceForCurrency.gross).toBe(euroPrice.gross);
     });
 
-    it('should have the typed net value after input change and after debounce time', async () => {
+    it('should have the typed net value after input change', async () => {
         const wrapper = await setup({ allowEmpty: true });
         await wrapper.setProps({
             value: [euroPrice],
@@ -294,31 +283,7 @@ describe('components/form/sw-price-field', () => {
         });
 
         wrapper.vm.onPriceNetInputChange(euroPrice.net);
-        jest.runAllTimers();
 
         expect(wrapper.vm.priceForCurrency.net).toBe(euroPrice.net);
-    });
-
-    it('should cancel the debounce timer when the number field emits "ends-with-decimal-separator" event', async () => {
-        const wrapper = await setup();
-
-        // Type a normal number
-        await wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').setValue('123');
-
-        // Wait for the debounce timer to start
-        await wrapper.vm.$nextTick();
-
-        // Type a number with a decimal separator at the end
-        await wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').setValue('123.');
-
-        // Wait until the debounce timer is finished
-        jest.runAllTimers();
-        await flushPromises();
-
-        // Check if the value is set
-        expect(wrapper.vm.priceForCurrency.gross).toBe(123);
-
-        // Check if the input field value still contains the decimal separator
-        expect(wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').element.value).toBe('123.');
     });
 });

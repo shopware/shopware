@@ -7,13 +7,17 @@
       "vscode": {
         "extensions": [
           "bmewburn.vscode-intelephense-client",
+          "devsense.composer-php-vscode",
           "xdebug.php-debug",
           "swordev.phpstan",
           "junstyle.php-cs-fixer",
           "esbenp.prettier-vscode",
           "dbaeumer.vscode-eslint",
           "stylelint.vscode-stylelint",
-          "Vue.volar"
+          "Vue.volar",
+          "mblode.twig-language-2",
+          "thenouillet.symfony-vscode",
+          "eamodio.gitlens"
         ],
         "settings": {
           "php.suggest.basic": false,

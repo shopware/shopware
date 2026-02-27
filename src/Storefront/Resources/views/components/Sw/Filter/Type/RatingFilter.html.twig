@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     name = 'rating',
     displayName = 'listing.filterRatingDisplayName'|trans|sw_sanitize,
@@ -10,7 +14,7 @@
 } %}
 
 {% set defaultAttributes = {
-    'class': 'sw-rating-filter sw-filter',
+    class: 'sw-rating-filter sw-filter',
     'data-component': 'Sw:Filter:Type:RatingFilter',
     'data-component-options': options|json_encode,
 } %}

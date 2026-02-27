@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     listing = null,
     slots = [],
@@ -15,7 +19,6 @@
 {% set layout = app.request.get('layout') %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
-
     {% block filters %}
         <twig:Slot name="filters-panel">
             <twig:Sw:Filter:Panel

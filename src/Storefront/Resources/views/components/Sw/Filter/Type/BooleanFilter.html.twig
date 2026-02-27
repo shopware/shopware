@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     name = 'boolean-filter-' ~ random(),
     displayName = '',
@@ -5,7 +9,7 @@
 %}
 
 {% set defaultAttributes = {
-    'class': 'sw-boolean-filter sw-filter sw-filter-item' ~ (hidden ? ' is--hidden' : ''),
+    class: 'sw-boolean-filter sw-filter sw-filter-item' ~ (hidden ? ' is--hidden' : ''),
     'data-component': 'Sw:Filter:Type:BooleanFilter',
 } %}
 

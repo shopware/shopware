@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     columns = 'auto',
     columnsSm = null,
@@ -122,7 +126,7 @@
     },
     variants: {
         columns: {
-            'auto': 'auto-columns',
+            auto: 'auto-columns',
             '1': 'columns-1',
             '2': 'columns-2',
             '3': 'columns-3',
@@ -335,8 +339,12 @@
 
 {% set gridId = 'sw-grid-container-' ~ random() %}
 {% set attributeDefaults = {
+<<<<<<< spacing-system
     'id': gridId,
     'class': gridCVA.apply({
+=======
+    class: gridCVA.apply({
+>>>>>>> 8484/storefront-content-system
         align,
         alignContent,
         justify,

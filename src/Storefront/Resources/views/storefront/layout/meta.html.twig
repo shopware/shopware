@@ -131,6 +131,7 @@
             {% endif %}
         {% endblock %}
 
+        {# ludtwig-ignore twig-json-encode-escape-js #}
         {% block layout_head_component_importmap %}
             {% if feature('STOREFRONT_COMPONENTS') %}
                 <script type="importmap">

@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     page = 1,
     totalPages = null,
@@ -10,7 +14,7 @@
 %}
 
 {% set paginationOptions = {
-    'useHref': useHref,
+    useHref: useHref,
 } %}
 
 {% set attributeDefaults = {

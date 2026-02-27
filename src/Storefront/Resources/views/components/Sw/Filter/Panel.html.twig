@@ -1,3 +1,7 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
 {% props
     totalCount = 0,
     currentSorting = null,
@@ -14,7 +18,7 @@
 } %}
 
 {% set defaultAttributes = {
-    'class': 'sw-filter-panel container',
+    class: 'sw-filter-panel container',
     'data-component': 'Sw:Filter:Panel',
     'data-component-options': filterPanelOptions|json_encode,
 } %}
@@ -31,8 +35,8 @@
         {% set manufacturerFilterName = 'listing.filterManufacturerDisplayName'|trans|sw_sanitize %}
 
         <twig:Sw:Filter:Item :filterName="manufacturerFilterName">
-            <twig:Sw:Filter:Type:MultiSelectFilter 
-                name="manufacturer" 
+            <twig:Sw:Filter:Type:MultiSelectFilter
+                name="manufacturer"
                 :displayName="manufacturerFilterName"
                 :options="manufacturersSorted">
             </twig:Sw:Filter:Type:MultiSelectFilter>
@@ -55,7 +59,7 @@
         {% set priceFilterName = 'listing.filterPriceDisplayName'|trans|sw_sanitize %}
 
         <twig:Sw:Filter:Item :filterName="priceFilterName">
-            <twig:Sw:Filter:Type:RangeFilter 
+            <twig:Sw:Filter:Type:RangeFilter
                 minKey="min-price"
                 maxKey="max-price"
                 :unit="context.currency.symbol"
@@ -68,10 +72,10 @@
 
 {% set propertiesFilter %}
     {% if propertiesAggregation.entities|length > 0 %}
-        {% for property in propertiesAggregation.entities %}     
+        {% for property in propertiesAggregation.entities %}
             <twig:Sw:Filter:Item :filterName="property.translated.name">
-                <twig:Sw:Filter:Type:MultiSelectFilter 
-                    name="properties" 
+                <twig:Sw:Filter:Type:MultiSelectFilter
+                    name="properties"
                     :displayName="property.translated.name"
                     :displayType="property.displayType"
                     :options="property.options">
@@ -85,7 +89,7 @@
     {% if shippingFreeAggregation.max > 0 %}
         {% set shippingFreeFilterName = 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Type:BooleanFilter 
+        <twig:Sw:Filter:Type:BooleanFilter
             name="shipping-free"
             :displayName="shippingFreeFilterName">
         </twig:Sw:Filter:Type:BooleanFilter>
@@ -93,10 +97,10 @@
 {% endset %}
 
 {% set filters = {
-    'manufacturer': manufacturerFilter,
-    'rating': ratingFilter,
-    'price': priceFilter,
-    'properties': propertiesFilter,
+    manufacturer: manufacturerFilter,
+    rating: ratingFilter,
+    price: priceFilter,
+    properties: propertiesFilter,
     'shipping-free': shippingFreeFilter,
 } %}
 
@@ -123,7 +127,7 @@
 
             {# Expand or collapse hidden filters #}
             <button class="sw-filter-panel__filter-btn sw-filter-panel__expand btn-light btn d-none d-md-block">
-                <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span> 
+                <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>
                 <span class="sw-filter-panel__collapse-text">{{ 'listing.filterButtonLess'|trans|sw_sanitize }}</span>
                 <twig:Sw:Icon name="sliders-horizontal" size="xs" />
             </button>
@@ -131,10 +135,10 @@
     </twig:Sw:Content:Offcanvas>
 
     {# Offcanvas filter button for mobile #}
-    <button 
+    <button
         class="sw-filter-panel__filter-btn btn-light btn d-block d-md-none"
         aria-controls="filter-offcanvas"
-        data-bs-toggle="offcanvas" 
+        data-bs-toggle="offcanvas"
         data-bs-target="#filter-offcanvas">
         {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
     </button>

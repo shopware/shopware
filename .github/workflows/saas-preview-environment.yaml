@@ -23,9 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger preview environment
-        uses: shopware/github-actions/saas-preview-environment@main
+        uses: shopware/github-actions/saas-preview-environment@ci/migrate-preview-environments-to-v2
         with:
           action: create
+          refFallback: ci/migrate-preview-environments-to-v2
 
   archive_preview_environment:
     name: Archive preview environment
@@ -33,6 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger preview environment
-        uses: shopware/github-actions/preview-environment@main
+        uses: shopware/github-actions/preview-environment@ci/migrate-preview-environments-to-v2
         with:
           action: archive
+          refFallback: ci/migrate-preview-environments-to-v2

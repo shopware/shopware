@@ -213,11 +213,9 @@ export default {
             if (!this.$route.params.flowTemplateId) {
                 this.isLoading = true;
 
-                try {
-                    this.getDetailFlow();
-                } finally {
+                this.getDetailFlow().finally(() => {
                     this.isLoading = false;
-                }
+                });
             }
         },
     },
@@ -245,7 +243,7 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.isLoading = true;
 
             try {
@@ -260,19 +258,19 @@ export default {
                     scope: this,
                 });
 
-                this.getAppFlowAction();
+                await this.getAppFlowAction();
 
                 if (this.isTemplate) {
-                    this.getDetailFlowTemplate();
+                    await this.getDetailFlowTemplate();
                     return;
                 }
 
                 if (this.flowId) {
-                    this.getDetailFlow();
+                    await this.getDetailFlow();
                     return;
                 }
 
-                this.createNewFlow();
+                await this.createNewFlow();
             } finally {
                 this.isLoading = false;
             }

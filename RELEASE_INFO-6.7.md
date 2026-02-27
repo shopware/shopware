@@ -1,4 +1,4 @@
-# 6.7.8.0 (upcoming)
+# 6.7.9.0 (upcoming)
 
 ## Features
 
@@ -7,7 +7,70 @@ A new internal comment field was added to the state change modal which can be us
 The internal comment is only visible in the administration and not shown to customers.
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
+### Online revocation request form
+Customers can now conveniently submit revocation requests through an online form. 
+Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
 ## API
+
+### Deprecation of newsletter route methods
+
+The following methods are deprecated and will be removed with the next major version:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
+- `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
+
+The new methods currently return `StoreApiResponse` in the abstract classes. In the next major version, the return types will change to their explicit types:
+
+- `subscribeWithResponse()` → `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` → `SuccessResponse`
+- `unsubscribeWithResponse()` → `SuccessResponse`
+
+The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
+
+| Route | Response                                                       |
+|-------|----------------------------------------------------------------|
+| `/store-api/newsletter/subscribe` | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
+| `/store-api/newsletter/confirm` | `{"success": true}`                                            |
+| `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
+
+## Core
+
+### Inheritance added to product main categories
+
+Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
+
+### Deprecation of unused `TemplateGroup` class
+
+The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
+
+## Administration
+
+## Storefront
+
+### Block renaming
+
+* Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
+
+### `HEAD`-requests do not trigger the registration double-opt-in
+
+As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.8.0
+
+## Features
+
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
 ## Core
 
@@ -227,6 +290,14 @@ shopware:
 ```
 
 **Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
+
+# 6.7.7.2
+
+## Core
+
+### Indexing the product's custom fields
+
+Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
 
 # 6.7.7.1
 

@@ -134,7 +134,7 @@ class CreateMigrationCommand extends Command
 
         $queries = $this->queryGenerator->generateQueries($entityDefinition);
 
-        if (!empty($queries)) {
+        if ($queries !== []) {
             $path = Path::join($directory, MigrationFileRenderer::createMigrationClassName($timestamp, $entity) . '.php');
 
             $className = MigrationFileRenderer::createMigrationClassName($timestamp, $entity);

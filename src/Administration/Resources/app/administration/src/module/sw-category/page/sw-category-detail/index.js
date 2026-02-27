@@ -24,6 +24,7 @@ export default {
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
+        Mixin.getByName('tour'),
     ],
 
     shortcuts: {

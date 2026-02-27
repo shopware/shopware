@@ -56,6 +56,8 @@ import 'src/app/decorator';
 
 /** Import Meteor Component Library styles */
 import '@shopware-ag/meteor-component-library/styles.css';
+import 'shepherd.js/dist/css/shepherd.css';
+import 'src/app/assets/scss/tour.scss';
 
 import ChangesetGenerator from '../core/data/changeset-generator.data';
 import ErrorResolver from '../core/data/error-resolver.data';

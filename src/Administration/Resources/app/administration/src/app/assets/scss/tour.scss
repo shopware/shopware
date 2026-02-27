@@ -1,0 +1,109 @@
+@import "~scss/variables";
+
+.shepherd-button.sw-tour-button {
+    position: relative;
+    min-width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: var(--border-radius-button);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: var(--color-text-primary-default);
+}
+
+.shepherd-button.sw-tour-button:hover,
+.shepherd-button.sw-tour-button:active {
+    background-color: var(--color-interaction-secondary-hover);
+    color: var(--color-text-primary-default);
+}
+
+
+.shepherd-button.sw-tour-button::before {
+    content: "";
+    display: block;
+    width: 12px;
+    height: 12px;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+}
+
+.shepherd-button.sw-tour-button--prev::before {
+    -webkit-mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/chevron-left-xs.svg");
+    mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/chevron-left-xs.svg");
+}
+
+.shepherd-button.sw-tour-button--next::before {
+    -webkit-mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/chevron-right-xs.svg");
+    mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/chevron-right-xs.svg");
+}
+
+.shepherd-button.sw-tour-button--close::before {
+    -webkit-mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/times-xs.svg");
+    mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/times-xs.svg");
+}
+
+.shepherd-button.sw-tour-button--return::before {
+    -webkit-mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/undo-xs.svg");
+    mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/undo-xs.svg");
+}
+
+.shepherd-button.sw-tour-button--done::before {
+    -webkit-mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/checkmark-xs.svg");
+    mask-image: url("/node_modules/@shopware-ag/meteor-icon-kit/icons/regular/checkmark-xs.svg");
+}
+
+.shepherd-footer .shepherd-buttons {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.shepherd-button.sw-tour-button--prev {
+    margin-right: auto;
+}
+
+.shepherd-button.sw-tour-button:disabled,
+.shepherd-button.sw-tour-button.sw-tour-button--disabled,
+.shepherd-button.sw-tour-button.sw-tour-button--disabled:hover {
+    cursor: not-allowed;
+    opacity: 0.4;
+    background-color: transparent;
+}
+
+.shepherd-has-title .shepherd-content .shepherd-header {
+    background: var(--color-background-primary-default);
+    border-bottom: 1px solid var(--color-border-primary-default);
+}
+
+.shepherd-title {
+    font-weight: var(--font-weight-semi-bold);
+}
+
+.shepherd-text {
+    padding: var(--scale-size-16);
+}
+
+.shepherd-element[data-popper-placement^="top"] {
+    margin-bottom: 16px;
+}
+
+.shepherd-element[data-popper-placement^="bottom"] {
+    margin-top: 16px;
+}
+
+.shepherd-element[data-popper-placement^="left"] {
+    margin-right: 16px;
+}
+
+.shepherd-element[data-popper-placement^="right"] {
+    margin-left: 16px;
+}

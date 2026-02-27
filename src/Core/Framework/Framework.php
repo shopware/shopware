@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Content\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistra
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
@@ -96,6 +96,7 @@ class Framework extends Bundle
         $loader->load('telemetry.xml');
         $loader->load('notification.xml');
         $loader->load('sso.xml');
+        $loader->load('content-system.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');

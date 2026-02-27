@@ -112,28 +112,28 @@
             <directory suffix=".php">src/Core/Framework/Util/Database</directory>
 
             <!-- ContentSystem: trivial value objects, DTOs, route responses, pure delegations, enums, loader configs -->
-            <file>src/Core/Content/ContentSystem/SalesChannel/Routing/ContentRouteDefinition.php</file>
-            <file>src/Core/Content/ContentSystem/Layout/Element/Context/Distribution/DistributionStrategy.php</file>
-            <file>src/Core/Content/ContentSystem/RenderingSpecification.php</file>
-            <file>src/Core/Content/ContentSystem/Adapter/CategorySpecificationSource.php</file>
-            <file>src/Core/Content/ContentSystem/Adapter/ProductSpecificationSource.php</file>
-            <file>src/Core/Content/ContentSystem/Adapter/LandingPageSpecificationSource.php</file>
-            <file>src/Core/Content/ContentSystem/SpecificationData.php</file>
-            <file>src/Core/Content/ContentSystem/Adapter/FactoryHelper/LayoutResolutionResult.php</file>
-            <file>src/Core/Content/ContentSystem/Adapter/ParameterBinding/ParameterBinding.php</file>
-            <file>src/Core/Content/ContentSystem/Adapter/ParameterBinding/ResolutionConfig.php</file>
-            <file>src/Core/Content/ContentSystem/Layout/Element/Context/ContextConsumer.php</file>
-            <file>src/Core/Content/ContentSystem/Layout/Element/Context/ContextProvider.php</file>
-            <file>src/Core/Content/ContentSystem/Layout/Element/DataRequirement/DataRequirement.php</file>
-            <file>src/Core/Content/ContentSystem/Layout/Element/Slot/SlotContent.php</file>
-            <file>src/Core/Content/ContentSystem/Output/Struct/ContentDataPage.php</file>
-            <file>src/Core/Content/ContentSystem/Output/Struct/ContentDecomposedPage.php</file>
-            <file>src/Core/Content/ContentSystem/Output/Struct/ContentSkeletonPage.php</file>
-            <file>src/Core/Content/ContentSystem/SalesChannel/ContentRouteResponse.php</file>
-            <file>src/Core/Content/ContentSystem/SalesChannel/ContentDataRouteResponse.php</file>
-            <file>src/Core/Content/ContentSystem/SalesChannel/ContentDecomposedRouteResponse.php</file>
-            <file>src/Core/Content/ContentSystem/SalesChannel/ContentSkeletonRouteResponse.php</file>
-            <directory suffix="LoaderConfig.php">src/Core/Content/ContentSystem/Hydration/DataLoader/</directory>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/Routing/ContentRouteDefinition.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/Context/Distribution/DistributionStrategy.php</file>
+            <file>src/Core/Framework/ContentSystem/RenderingSpecification.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/CategorySpecificationSource.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/ProductSpecificationSource.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/LandingPageSpecificationSource.php</file>
+            <file>src/Core/Framework/ContentSystem/SpecificationData.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/FactoryHelper/LayoutResolutionResult.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/ParameterBinding/ParameterBinding.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/ParameterBinding/ResolutionConfig.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/Context/ContextConsumer.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/Context/ContextProvider.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/DataRequirement/DataRequirement.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/Slot/SlotContent.php</file>
+            <file>src/Core/Framework/ContentSystem/Output/Struct/ContentDataPage.php</file>
+            <file>src/Core/Framework/ContentSystem/Output/Struct/ContentDecomposedPage.php</file>
+            <file>src/Core/Framework/ContentSystem/Output/Struct/ContentSkeletonPage.php</file>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/ContentRouteResponse.php</file>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDataRouteResponse.php</file>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDecomposedRouteResponse.php</file>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/ContentSkeletonRouteResponse.php</file>
+            <directory suffix="LoaderConfig.php">src/Core/Framework/ContentSystem/Hydration/DataLoader/</directory>
         </exclude>
     </source>
     <php>

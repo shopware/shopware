@@ -50,7 +50,7 @@ class RevocationRequestRouteTest extends TestCase
             static::assertSame($this->ids->get('sales-channel'), $event->getSalesChannelId());
         };
 
-        $this->addEventListener($this->eventDispatcher, RevocationRequestEvent::class, $revocationRequestCallback);
+        $this->addEventListener($this->eventDispatcher, RevocationRequestEvent::EVENT_NAME, $revocationRequestCallback);
 
         $this->browser
             ->request(
@@ -71,7 +71,7 @@ class RevocationRequestRouteTest extends TestCase
         static::assertEmpty($response['individualSuccessMessage']);
         static::assertTrue($listenerIsCalled);
 
-        $this->eventDispatcher->removeListener(RevocationRequestEvent::class, $revocationRequestCallback);
+        $this->eventDispatcher->removeListener(RevocationRequestEvent::EVENT_NAME, $revocationRequestCallback);
     }
 
     public function testRequestWithInvalidData(): void
@@ -81,7 +81,7 @@ class RevocationRequestRouteTest extends TestCase
             $listenerIsCalled = true;
         };
 
-        $this->addEventListener($this->eventDispatcher, RevocationRequestEvent::class, $revocationRequestCallback);
+        $this->addEventListener($this->eventDispatcher, RevocationRequestEvent::EVENT_NAME, $revocationRequestCallback);
 
         $this->browser
             ->request(
@@ -103,6 +103,6 @@ class RevocationRequestRouteTest extends TestCase
         static::assertCount(4, $response['errors']);
         static::assertFalse($listenerIsCalled);
 
-        $this->eventDispatcher->removeListener(RevocationRequestEvent::class, $revocationRequestCallback);
+        $this->eventDispatcher->removeListener(RevocationRequestEvent::EVENT_NAME, $revocationRequestCallback);
     }
 }

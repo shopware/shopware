@@ -23,6 +23,14 @@ Shopware.Component.register('sw-cms-el-form-template-contact', () => import('./c
  * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-form-template-newsletter', () => import('./component/templates/form-newsletter'));
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-cms-el-form-template-revocation-request',
+    () => import('./component/templates/form-revocation-request'),
+);
 
 /**
  * @private

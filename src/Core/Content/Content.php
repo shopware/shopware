@@ -40,6 +40,7 @@ class Content extends Bundle
         $loader->load('delivery_time.xml');
         $loader->load('import_export.xml');
         $loader->load('contact_form.xml');
+        $loader->load('revocation_request_form.xml');
         $loader->load('sitemap.xml');
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');

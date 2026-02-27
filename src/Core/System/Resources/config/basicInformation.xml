@@ -145,6 +145,18 @@
         </component>
 
         <component name="sw-cms-page-select">
+            <name>revocationRequestPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout for revocation request</label>
+            <label lang="de-DE">Shopseiten-Layout für Widerrufsantrag Seite</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+            <helpText>To make the page accessible, you must activate the option "Show Revoke a contract button in footer"</helpText>
+            <helpText lang="de-DE">Um die Seite erreichbar zu machen, musst du den Punkt "Button Vertrag widerrufen im Footer anzeigen" aktivieren.</helpText>
+        </component>
+
+        <component name="sw-cms-page-select">
             <name>newsletterPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
@@ -157,8 +169,8 @@
     </card>
 
     <card>
-        <title>Security and Privacy</title>
-        <title lang="de-DE">Sicherheit und Datenschutz</title>
+        <title>Legal and compliance</title>
+        <title lang="de-DE">Recht und Datenschutz</title>
 
         <input-field type="bool">
             <name>useDefaultCookieConsent</name>
@@ -198,6 +210,14 @@
             <label lang="de-DE">Telefonummer in Kontaktformularen als Pflichtfeld behandeln</label>
             <helpText>If active, the field "phone number" has to be filled in, in order to submit a contact form.</helpText>
             <helpText lang="de-DE">Wenn aktiv, muss das Feld "Telefonnummer" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showRevocationButton</name>
+            <label>Show "Revoke a contract" button in footer</label>
+            <label lang="de-DE">Button "Vertrag widerrufen" im Footer anzeigen</label>
+            <helpText>If active, the button "Revoke a contract" is shown in the page footer. To show the button properly, it's also necessary to select a "Shop page layout for revocation request".</helpText>
+            <helpText lang="de-DE">Wenn aktiv, wird der Button „Vertrag widerrufen“ in der Fußzeile der Seite angezeigt. Damit der Button korrekt angezeigt wird, muss außerdem ein "Shopseiten-Layout für Widerrufsantrag Seite" ausgewählt werden.</helpText>
         </input-field>
     </card>
 

@@ -25,6 +25,7 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
+use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
@@ -59,6 +60,7 @@ class BusinessEventRegistry
         NewsletterUnsubscribeEvent::class,
         ProductExportLoggingEvent::class,
         CustomerPasswordChangedEvent::class,
+        RevocationRequestEvent::class,
     ];
 
     /**

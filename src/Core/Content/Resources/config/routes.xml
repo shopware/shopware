@@ -20,6 +20,7 @@
     <import resource="../../Product/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Cms/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../ContactForm/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../RevocationRequest/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Newsletter/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Seo/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../ProductExport/SalesChannel/**/*Route.php" type="attribute" />

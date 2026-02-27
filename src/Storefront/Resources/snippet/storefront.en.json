@@ -617,6 +617,21 @@
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },
+  "revocationRequest": {
+    "headline": "Revocation",
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "Enter first name...",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Enter last name...",
+    "eMailLabel": "Email address",
+    "eMailPlaceholder": "Enter email address...",
+    "contractNumberLabel": "Contract number (order number, subscription number, ...)",
+    "contractNumberPlaceholder": "Enter contract number...",
+    "commentLabel": "Comment",
+    "commentPlaceholder": "Enter comment...",
+    "formSubmit": "Confirm revocation",
+    "success": "We have received your revocation request and will process it as soon as possible."
+  },
   "search": {
     "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | [0,Inf[ %count% products found for \"%searchTerm%\"",
     "metaTitle": "Search results"
@@ -748,6 +763,8 @@
     "serviceHotline": "Support and counselling via: <a href=\"tel:+49180000000\">0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
     "serviceContactText": "Or via our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Contact form\">contact form</a>.",
     "serviceContactTextPage": "Or via our <a href=\"%url%\" title=\"Contact form\">contact form</a>.",
+    "serviceRevocationRequestText": "<a class=\"btn btn-primary\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Revoke a Contract\">Revoke a contract</a>",
+    "serviceRevocationRequestTextPage": "<a class=\"btn btn-primary\" href=\"%url%\" title=\"Revoke a Contract\">Revoke a contract</a>",
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
     "includeVatText": "%star%All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",

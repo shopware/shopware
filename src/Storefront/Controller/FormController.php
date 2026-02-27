@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -37,7 +38,8 @@ class FormController extends StorefrontController
     public function __construct(
         private readonly AbstractContactFormRoute $contactFormRoute,
         private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
-        private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute
+        private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute,
+        private readonly AbstractRevocationRequestRoute $abstractRevocationRequestRoute,
     ) {
     }
 
@@ -109,6 +111,56 @@ class FormController extends StorefrontController
             $response = $this->handleSubscribe($request, $data, $context);
         } else {
             $response = $this->handleUnsubscribe($data, $context);
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route(
+        path: '/form/revocation/request',
+        name: 'frontend.form.revocation.request',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_CAPTCHA => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function sendRevocationRequest(RequestDataBag $data, SalesChannelContext $context): JsonResponse
+    {
+        $response = [];
+
+        try {
+            $message = $this->abstractRevocationRequestRoute->request($data, $context)
+                ->getIndividualSuccessMessage();
+
+            if ($message === '') {
+                $message = $this->trans('revocationRequest.success');
+            }
+
+            $response[] = [
+                'type' => 'success',
+                'alert' => $message,
+            ];
+        } catch (ConstraintViolationException $formViolations) {
+            $violations = [];
+            foreach ($formViolations->getViolations() as $violation) {
+                $violations[] = $violation->getMessage();
+            }
+            $response[] = [
+                'type' => 'danger',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'danger',
+                    'list' => $violations,
+                ]),
+            ];
+        } catch (RateLimitExceededException $exception) {
+            $response[] = [
+                'type' => 'info',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'info',
+                    'content' => $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]),
+                ]),
+            ];
         }
 
         return new JsonResponse($response);

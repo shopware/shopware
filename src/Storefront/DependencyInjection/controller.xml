@@ -146,6 +146,7 @@
             <argument type="service" id="Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute"/>
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
+            <argument type="service" id="Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

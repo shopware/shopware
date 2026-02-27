@@ -44,6 +44,7 @@ class SendMailAction extends FlowAction implements DelayableAction
     private const RECIPIENT_CONFIG_ADMIN = 'admin';
     private const RECIPIENT_CONFIG_CUSTOM = 'custom';
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
+    private const RECIPIENT_CONFIG_REVOCATION_REQUEST_CUSTOMER_FORM_MAIL = 'revocationRequestCustomerFormMail';
 
     /**
      * @internal
@@ -127,6 +128,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $eventConfig['recipient'],
             $mailStruct->getRecipients(),
             $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
+            $flow->getData(FlowMailVariables::REVOCATION_REQUEST_FORM_DATA, []),
         );
 
         if ($recipients === []) {
@@ -309,10 +311,11 @@ class SendMailAction extends FlowAction implements DelayableAction
      * @param array<string, mixed> $recipients
      * @param array<string, string> $mailStructRecipients
      * @param array<int|string, mixed> $contactFormData
+     * @param array<int|string, mixed> $revocationRequestFormData
      *
      * @return array<int|string, string>
      */
-    private function getRecipients(array $recipients, $mailStructRecipients, array $contactFormData): array
+    private function getRecipients(array $recipients, $mailStructRecipients, array $contactFormData, array $revocationRequestFormData): array
     {
         switch ($recipients['type']) {
             case self::RECIPIENT_CONFIG_CUSTOM:
@@ -328,18 +331,30 @@ class SendMailAction extends FlowAction implements DelayableAction
 
                 return $emails;
             case self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL:
-                if ($contactFormData === []) {
-                    return [];
-                }
-
-                if (!\array_key_exists('email', $contactFormData)) {
-                    return [];
-                }
-
-                return [$contactFormData['email'] => ($contactFormData['firstName'] ?? '') . ' ' . ($contactFormData['lastName'] ?? '')];
+                return $this->createEnquiryReceiver($contactFormData);
+            case self::RECIPIENT_CONFIG_REVOCATION_REQUEST_CUSTOMER_FORM_MAIL:
+                return $this->createEnquiryReceiver($revocationRequestFormData);
             default:
                 return $mailStructRecipients;
         }
+    }
+
+    /**
+     * @param array<int|string, mixed> $formData
+     *
+     * @return array<int|string, string>
+     */
+    private function createEnquiryReceiver(array $formData): array
+    {
+        if ($formData === []) {
+            return [];
+        }
+
+        if (!\array_key_exists('email', $formData)) {
+            return [];
+        }
+
+        return [trim($formData['email']) => trim(($formData['firstName'] ?? '') . ' ' . ($formData['lastName'] ?? ''))];
     }
 
     /**

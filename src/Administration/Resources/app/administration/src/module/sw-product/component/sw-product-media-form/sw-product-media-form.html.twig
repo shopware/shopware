@@ -15,8 +15,8 @@
     <sw-media-upload-v2
         v-if="!isLoading && acl.can('product.editor')"
         variant="regular"
+        default-folder="product"
         :upload-tag="product.id"
-        :default-folder="product.getEntityName()"
         :file-accept="fileAccept"
         @media-upload-sidebar-open="onOpenMedia"
     />

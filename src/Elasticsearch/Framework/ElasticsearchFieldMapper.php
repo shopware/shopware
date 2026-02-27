@@ -129,7 +129,7 @@ class ElasticsearchFieldMapper
             }
 
             foreach ($translatedFields as $field) {
-                if (!empty($item[$field])) {
+                if (($item[$field] ?? '') !== '') {
                     /** @phpstan-ignore offsetAccess.nonOffsetAccessible (It is hard to tell PHPStan that not `id` and `_count` are accessed, but translated fields like `name` and `description`) */
                     $groupedItems[$itemId][$field][$item['languageId']] = $item[$field];
                 } elseif (!isset($groupedItems[$itemId][$field])) {

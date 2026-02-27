@@ -45,6 +45,7 @@
             <argument type="service" id="Shopware\Core\Service\ServiceSourceResolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceClientFactory">
@@ -136,6 +137,20 @@
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\PermissionLogger"/>
         </service>
 
+        <service id="Shopware\Core\Service\Requirement\ServiceConsentRequirement">
+            <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
+            <tag name="shopware.service.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Requirement\ShopwareAccountRequirement">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.service.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Requirement\RequirementsValidator">
+            <argument type="tagged_iterator" tag="shopware.service.requirement" default-index-method="getName"/>
+        </service>
+
         <service id="Shopware\Core\Service\LifecycleManager">
             <argument>%env(ENABLE_SERVICES)%</argument>
             <argument>%kernel.environment%</argument>
@@ -146,6 +161,7 @@
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
             <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
+            <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\ServiceLifecycleSubscriber">
@@ -156,6 +172,12 @@
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Subscriber\ShopwareAccountSubscriber">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="kernel.event_subscriber"/>

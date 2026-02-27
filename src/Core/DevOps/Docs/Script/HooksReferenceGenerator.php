@@ -117,7 +117,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             }
         }
 
-        if (\count($hookClasses) === 0) {
+        if ($hookClasses === []) {
             throw DocsException::noHookClassesFound();
         }
 

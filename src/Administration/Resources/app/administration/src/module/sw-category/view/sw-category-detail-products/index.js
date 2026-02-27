@@ -238,5 +238,11 @@ export default {
 
             return null;
         },
+
+        onUpdateProductAssignmentType(value) {
+            if (value === 'product') {
+                this.category.productStreamId = null;
+            }
+        },
     },
 };

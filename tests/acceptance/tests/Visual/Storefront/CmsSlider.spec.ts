@@ -1,6 +1,12 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test.skip('Visual: Storefront CMS sliders with vertical alignment', { tag: '@Visual' }, async ({
+test('Visual: Storefront CMS sliders with vertical alignment', { 
+    tag: '@Visual',
+    annotation: {
+        type: 'issue',
+        description: 'https://github.com/shopware/shopware/issues/15253',
+  }, 
+}, async ({
     ShopCustomer,
     TestDataService,
     IdProvider,

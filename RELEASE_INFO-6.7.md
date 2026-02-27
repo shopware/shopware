@@ -37,6 +37,10 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 
 ## Core
 
+### Inheritance added to product main categories
+
+Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
+
 ### Deprecation of unused `TemplateGroup` class
 
 The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.

@@ -11,9 +11,11 @@ use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * @internal
@@ -38,11 +40,18 @@ class InstallTranslationCommand extends Command
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Fetch all available translations');
         $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "de-DE,en-US"');
         $this->addOption('skip-activation', null, InputOption::VALUE_NONE, 'Skip activation of created languages');
+        $this->addOption('confirm', null, InputOption::VALUE_NONE, 'Confirms TOS bla bla');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locales = $this->getLocales($input);
+
+        if (!$this->isConfirmed($input, $output) ) {
+            $output->writeln('<error>Command aborted.</error>');
+
+            return self::FAILURE;
+        }
 
         try {
             $metadata = $this->metadataLoader->getUpdatedLocalMetadata($locales);
@@ -78,6 +87,22 @@ class InstallTranslationCommand extends Command
         TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataLoader->save($metadata), $output);
 
         return self::SUCCESS;
+    }
+
+    private function isConfirmed(InputInterface $input, OutputInterface $output): bool
+    {
+        if ($input->getOption('confirm')) {
+            return true;
+        }
+
+        $questionHelper = $this->getHelper('question');
+        \assert($questionHelper instanceof QuestionHelper);
+
+        return $questionHelper->ask(
+            $input,
+            $output,
+            new ConfirmationQuestion('<question>Are you sure, you want to ...</question> ', false)
+        );
     }
 
     /**

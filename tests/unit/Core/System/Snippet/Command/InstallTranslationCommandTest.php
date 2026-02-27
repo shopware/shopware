@@ -98,6 +98,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
+        $tester->setInputs(['y']);
 
         $tester->execute(['--locales' => 'en-GB,es-ES']);
         $tester->assertCommandIsSuccessful();
@@ -137,6 +138,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
+        $tester->setInputs(['y']);
 
         $tester->execute(['--locales' => 'en-GB,es-ES,de-DE']);
         $tester->assertCommandIsSuccessful();
@@ -166,6 +168,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
+        $tester->setInputs(['y']);
 
         $tester->execute(['--locales' => 'es-ES']);
         $output = $tester->getDisplay();
@@ -188,6 +191,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
+        $tester->setInputs(['y']);
 
         $tester->execute(['--locales' => 'es-ES']);
         $output = $tester->getDisplay();
@@ -218,6 +222,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
+        $tester->setInputs(['y']);
 
         $tester->execute(['--locales' => 'en-GB', '--skip-activation' => true]);
         $tester->assertCommandIsSuccessful();
@@ -231,12 +236,91 @@ class InstallTranslationCommandTest extends TestCase
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
+        $tester->setInputs(['y']);
 
         $tester->execute(['--locales' => 'en-GB']);
         $output = $tester->getDisplay();
 
         static::assertStringContainsString('An error occurred while fetching metadata: "Unable to fetch metadata"', $output);
         static::assertSame(InstallTranslationCommand::FAILURE, $tester->getStatusCode());
+    }
+
+    public function testCommandAbortsWhenConfirmationIsDeclined(): void
+    {
+        $this->metadataLoader->expects($this->never())
+            ->method('getUpdatedLocalMetadata');
+
+        $command = $this->getCommand();
+        $tester = new CommandTester($command);
+        $tester->setInputs(['n']);
+
+        $tester->execute(['--locales' => 'en-GB']);
+        $output = $tester->getDisplay();
+
+        static::assertStringContainsString('Command aborted.', $output);
+        static::assertSame(InstallTranslationCommand::FAILURE, $tester->getStatusCode());
+    }
+
+    public function testCommandSkipsInteractiveConfirmationWithConfirmOption(): void
+    {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'en-GB',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+        $collection->get('en-GB')?->markForUpdate();
+
+        $this->initMetadataLoader($collection);
+
+        $this->translationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(function (string $locale): void {
+                static::assertSame('en-GB', $locale);
+            });
+
+        $command = $this->getCommand();
+        $tester = new CommandTester($command);
+
+        $tester->execute(['--locales' => 'en-GB', '--confirm' => true]);
+        $output = $tester->getDisplay();
+
+        static::assertSame(InstallTranslationCommand::SUCCESS, $tester->getStatusCode());
+        static::assertStringNotContainsString('Are you sure, you want to ...', $output);
+    }
+
+    public function testCommandDoesNotAskForConfirmationWithConfirmOptionEvenWhenNegativeInputIsProvided(): void
+    {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'en-GB',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+        $collection->get('en-GB')?->markForUpdate();
+
+        $this->initMetadataLoader($collection);
+
+        $this->translationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(function (string $locale): void {
+                static::assertSame('en-GB', $locale);
+            });
+
+        $command = $this->getCommand();
+        $tester = new CommandTester($command);
+        $tester->setInputs(['n']);
+
+        $tester->execute(['--locales' => 'en-GB', '--confirm' => true]);
+        $output = $tester->getDisplay();
+
+        static::assertSame(InstallTranslationCommand::SUCCESS, $tester->getStatusCode());
+        static::assertStringNotContainsString('Command aborted.', $output);
+        static::assertStringNotContainsString('Are you sure, you want to ...', $output);
     }
 
     private function getCommand(): InstallTranslationCommand

@@ -2,6 +2,15 @@
 
 ## Features
 
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
+### Online revocation request form
+Customers can now conveniently submit revocation requests through an online form. 
+Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
 ## API
 
 ### Deprecation of newsletter route methods
@@ -28,6 +37,10 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 
 ## Core
 
+### Inheritance added to product main categories
+
+Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
+
 ### Deprecation of unused `TemplateGroup` class
 
 The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
@@ -35,6 +48,10 @@ The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been dep
 ## Administration
 
 ## Storefront
+
+### Block renaming
+
+* Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
 
 ### `HEAD`-requests do not trigger the registration double-opt-in
 

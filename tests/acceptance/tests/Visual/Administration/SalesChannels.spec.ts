@@ -1,11 +1,7 @@
 import { test, assertScreenshot, setViewport, hideElements } from '@fixtures/AcceptanceTest';
 
-test.skip('Visual: Administration sales channels page', { 
-    tag: '@Visual', 
-    annotation: {
-        type: 'issue',
-        description: 'https://github.com/shopware/shopware/issues/15090',
-    }, 
+test('Visual: Administration sales channels page', {
+    tag: '@Visual',
 }, async ({
     ShopAdmin,
     AdminSalesChannelDetail,

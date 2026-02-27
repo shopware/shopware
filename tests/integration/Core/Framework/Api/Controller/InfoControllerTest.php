@@ -44,7 +44,6 @@ use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -407,15 +406,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
-            new ViteFileAccessorDecorator(
-                [],
-                static::getContainer()->get('shopware.asset.asset'),
-                $kernel,
-                new Filesystem(),
-            ),
-            new Filesystem(),
-            static::getContainer()->get(ShopIdProvider::class),
-            $this->createMock(StatsService::class),
+            $fileSystemOperatorMock,
             new EventDispatcher(),
         );
 
@@ -484,6 +475,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
             $fileSystemOperatorMock,
+            new EventDispatcher(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -564,15 +556,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
-            new ViteFileAccessorDecorator(
-                [],
-                static::getContainer()->get('shopware.asset.asset'),
-                $kernel,
-                new Filesystem(),
-            ),
-            new Filesystem(),
-            static::getContainer()->get(ShopIdProvider::class),
-            $this->createMock(StatsService::class),
+            $fileSystemOperatorMock,
             new EventDispatcher(),
         );
 

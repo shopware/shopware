@@ -62,13 +62,7 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
-        /**
-         * @phpstan-ignore phpat.restrictNamespacesInCore (Administration dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
-         */
-        private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
-        private readonly Filesystem $filesystem,
-        private readonly ShopIdProvider $shopIdProvider,
-        private readonly StatsService $messageStatsService,
+        private readonly FilesystemOperator $filesystem,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
@@ -208,16 +202,6 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
     public function config(Context $context, Request $request): JsonResponse
     {
-        $adminWorker = [
-            'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
-            'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
-            'transports' => $this->params->get('shopware.admin_worker.transports'),
-        ];
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
-        }
-
         $config = [
             'version' => $this->getShopwareVersion(),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),

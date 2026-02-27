@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Redis;
 
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestKernel;
@@ -29,17 +27,16 @@ class RedisDeprecatedContainerWiringTest extends TestCase
     /** @use CustomKernelTestBehavior<RedisDeprecatedTestKernel> */
     use CustomKernelTestBehavior;
 
-    private static string $redisUrl;
+    private static string $redisUrl = '';
 
-    #[IgnoreDeprecations]
+    private static bool $isDeprecated = false;
+
     public static function setUpBeforeClass(): void
     {
         self::$redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-        if (self::$redisUrl === '') {
-            return;
-        }
+        self::$isDeprecated = (bool) EnvironmentHelper::getVariable('V6_7_0_0', false);
 
-        if (Feature::isActive('v6.7.0.0')) {
+        if (self::$redisUrl === '' || self::$isDeprecated) {
             return;
         }
 
@@ -48,6 +45,10 @@ class RedisDeprecatedContainerWiringTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
+        if (self::$redisUrl === '' || self::$isDeprecated) {
+            return;
+        }
+
         self::unloadKernel();
     }
 
@@ -57,7 +58,7 @@ class RedisDeprecatedContainerWiringTest extends TestCase
             static::markTestSkipped('Redis is not available');
         }
 
-        if (Feature::isActive('v6.7.0.0')) {
+        if (self::$isDeprecated) {
             static::markTestSkipped('Test is deprecated and will fail with v6.7');
         }
     }

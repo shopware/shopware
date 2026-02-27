@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\Bundle;
@@ -36,6 +37,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('framework')]
@@ -61,6 +63,7 @@ class InfoController extends AbstractController
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
         private readonly FilesystemOperator $filesystem,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -199,7 +202,7 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
     public function config(Context $context, Request $request): JsonResponse
     {
-        return new JsonResponse([
+        $config = [
             'version' => $this->getShopwareVersion(),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
@@ -219,7 +222,11 @@ class InfoController extends AbstractController
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),
-        ]);
+        ];
+
+        $config = $this->eventDispatcher->dispatch(new AdminInfoConfigEvent($config))->getConfig();
+
+        return new JsonResponse($config);
     }
 
     #[Route(path: '/api/_info/version', name: 'api.info.shopware.version', methods: ['GET'])]

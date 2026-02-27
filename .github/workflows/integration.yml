@@ -654,7 +654,7 @@ jobs:
             run: bin/console theme:refresh
 
           - name: Run integration tests
-            run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --filter "OrderRouteTest::testSetSamePaymentMethodToOrder"
+            run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error
 
   # this allows us to specifiy just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations

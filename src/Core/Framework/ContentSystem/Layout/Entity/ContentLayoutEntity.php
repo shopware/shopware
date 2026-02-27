@@ -11,8 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
- *
  * @final
  */
 #[Package('framework')]

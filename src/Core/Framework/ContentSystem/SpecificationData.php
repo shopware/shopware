@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Bundles data requirements and placeholder values since both are
  * produced from the same layout assignment resolution.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class SpecificationData

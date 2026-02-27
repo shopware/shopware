@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
+use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
@@ -73,13 +73,13 @@ class EntityLayoutResolver
         string $entityId,
         SalesChannelContext $context,
         EntityRepository $repository
-    ): ?ContentLayoutAssignmentInterface {
+    ): ?AbstractContentLayoutAssignmentEntity {
         $criteria = $this->buildAssignmentCriteria($entityIdField, $entityId, $context);
         $criteria->addAssociation('contentLayout');
 
         $entity = $repository->search($criteria, $context->getContext())->first();
 
-        if (!$entity instanceof ContentLayoutAssignmentInterface) {
+        if (!$entity instanceof AbstractContentLayoutAssignmentEntity) {
             return null;
         }
 
@@ -101,7 +101,7 @@ class EntityLayoutResolver
 
         $entity = $repository->search($criteria, $context->getContext())->first();
 
-        if (!$entity instanceof ContentLayoutAssignmentInterface) {
+        if (!$entity instanceof AbstractContentLayoutAssignmentEntity) {
             return null;
         }
 
@@ -123,7 +123,7 @@ class EntityLayoutResolver
     }
 
     private function buildPlaceholderValues(
-        ContentLayoutAssignmentInterface $assignment,
+        AbstractContentLayoutAssignmentEntity $assignment,
         string $entityIdField,
         string $entityId,
         Request $request

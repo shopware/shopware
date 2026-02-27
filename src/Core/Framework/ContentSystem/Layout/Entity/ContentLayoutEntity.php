@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Entity;
 
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\FooterContentLayout\FooterContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutCollection;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -41,10 +39,6 @@ class ContentLayoutEntity extends Entity
     protected ?CategoryContentLayoutCollection $categoryContentLayouts = null;
 
     protected ?LandingPageContentLayoutCollection $landingPageContentLayouts = null;
-
-    protected ?HeaderContentLayoutCollection $headerContentLayouts = null;
-
-    protected ?FooterContentLayoutCollection $footerContentLayouts = null;
 
     public function getName(): string
     {
@@ -126,25 +120,5 @@ class ContentLayoutEntity extends Entity
     public function setLandingPageContentLayouts(LandingPageContentLayoutCollection $landingPageContentLayouts): void
     {
         $this->landingPageContentLayouts = $landingPageContentLayouts;
-    }
-
-    public function getHeaderContentLayouts(): ?HeaderContentLayoutCollection
-    {
-        return $this->headerContentLayouts;
-    }
-
-    public function setHeaderContentLayouts(HeaderContentLayoutCollection $headerContentLayouts): void
-    {
-        $this->headerContentLayouts = $headerContentLayouts;
-    }
-
-    public function getFooterContentLayouts(): ?FooterContentLayoutCollection
-    {
-        return $this->footerContentLayouts;
-    }
-
-    public function setFooterContentLayouts(FooterContentLayoutCollection $footerContentLayouts): void
-    {
-        $this->footerContentLayouts = $footerContentLayouts;
     }
 }

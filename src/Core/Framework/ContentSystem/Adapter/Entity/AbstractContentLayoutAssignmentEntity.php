@@ -12,11 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * Shared properties for sales channel, content layout,
  * and parameter bindings across content layout assignments.
- *
- * @internal
  */
 #[Package('framework')]
-abstract class AbstractContentLayoutAssignmentEntity extends Entity implements ContentLayoutAssignmentInterface
+abstract class AbstractContentLayoutAssignmentEntity extends Entity
 {
     use EntityIdTrait;
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
+use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\Log\Package;
 
@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class LayoutResolutionResult
 {
     public function __construct(
-        public ContentLayoutAssignmentInterface $assignment,
+        public AbstractContentLayoutAssignmentEntity $assignment,
         public PlaceholderValues $placeholderValues
     ) {
     }

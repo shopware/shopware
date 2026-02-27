@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
+use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
@@ -163,7 +163,7 @@ class EntityLayoutContextFactory
      * @return list<DataRequirement>
      */
     private function transformDataRequirements(
-        ContentLayoutAssignmentInterface $assignment,
+        AbstractContentLayoutAssignmentEntity $assignment,
         SalesChannelContext $context,
         AbstractContentLayoutAssignableDefinition $definition
     ): array {

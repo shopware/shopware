@@ -9,26 +9,18 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition">
+        <service id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition">
+        <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
-            <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Entity\FooterContentLayout\FooterContentLayoutDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
@@ -304,41 +296,29 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver"/>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\HeaderSpecificationSource">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver"/>
-            <argument type="service" id="header_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\FooterSpecificationSource">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver"/>
-            <argument type="service" id="footer_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
-        </service>
-
         <!-- Helper Services -->
         <service id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
         <service id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
 
         <!-- Specification Sources -->
         <!-- Entity Sources - Higher priority -->
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\ProductSpecificationSource">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductSpecificationSource">
             <argument type="service" id="product_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
             <tag name="content_system.context_factory" priority="100"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\CategorySpecificationSource">
+        <service id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategorySpecificationSource">
             <argument type="service" id="category_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
             <tag name="content_system.context_factory" priority="100"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\LandingPageSpecificationSource">
+        <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageSpecificationSource">
             <argument type="service" id="landing_page_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
             <tag name="content_system.context_factory" priority="100"/>
         </service>
@@ -362,7 +342,7 @@
 
         <service id="content_system.section_resolver.header" class="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
             <argument type="collection">
-                <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\HeaderSpecificationSource"/>
+                <argument type="service" id="Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderSpecificationSource"/>
             </argument>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
             <tag name="content_system.section_resolver" section="header"/>
@@ -370,7 +350,7 @@
 
         <service id="content_system.section_resolver.footer" class="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
             <argument type="collection">
-                <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FooterSpecificationSource"/>
+                <argument type="service" id="Shopware\Storefront\ContentSystem\FooterContentLayout\FooterSpecificationSource"/>
             </argument>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
             <tag name="content_system.section_resolver" section="footer"/>

@@ -13,12 +13,12 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 - `RenderingSpecificationResolver` - Iterates sources via `supports()`, delegates to `RenderingSpecificationFactory`
 - `RenderingSpecificationFactory` - Assembles specification from source's discrete resolution steps
 - `AbstractSpecificationSource` - Base class: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`
-- `ProductSpecificationSource`, `CategorySpecificationSource`, `LandingPageSpecificationSource` - Entity sources
-- `HeaderSpecificationSource`, `FooterSpecificationSource` - Domain-aware sources
+- Entity sources moved to domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
+- Domain-aware sources moved to Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
 
 ## Subdirectories
 
-- **Entity/** - Assignment entity definitions (Product, Category, LandingPage, Header, Footer)
+- **Entity/** - Abstract base classes for content layout assignment entities
 - **FactoryHelper/** - Shared resolution logic (EntityLayoutResolver, DomainAwareLayoutResolver, NavigationAliasResolver)
 - **Field/** - Custom DAL field types (CriteriaFilter, ParameterBinding, ResolutionConfig)
 - **ParameterBinding/** - Parameter binding DTOs

@@ -75,7 +75,7 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
 </service>
 ```
 
-Reference: `Adapter/ProductSpecificationSource.php`
+Reference: `Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource.php`
 
 ---
 

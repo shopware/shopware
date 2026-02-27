@@ -7,8 +7,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -16,6 +14,8 @@ use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
+use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEntity;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

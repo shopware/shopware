@@ -5,18 +5,17 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Adapter\FactoryHelper
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
+use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEntity;
 
 /**
  * @internal
@@ -72,11 +71,11 @@ class DomainAwareLayoutResolverTest extends TestCase
         $repository = new StaticEntityRepository([
             static function (Criteria $criteria) use ($entity): array {
                 $filters = $criteria->getFilters();
-                static::assertCount(2, $filters);
-                static::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                static::assertSame('domainId', $filters[0]->getField());
-                static::assertNull($filters[0]->getValue());
-                static::assertInstanceOf(OrFilter::class, $filters[1]);
+                static::assertCount(1, $filters);
+                static::assertInstanceOf(OrFilter::class, $filters[0]);
+
+                static::assertSame(1, $criteria->getLimit());
+                static::assertContains('contentLayout', array_keys($criteria->getAssociations()));
 
                 return [$entity];
             },

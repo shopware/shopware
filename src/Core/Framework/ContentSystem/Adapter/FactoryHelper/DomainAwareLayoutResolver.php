@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\FooterContentLayout\FooterContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutCollection;
+use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -30,43 +29,31 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class DomainAwareLayoutResolver
 {
     /**
-     * @template TCollection of HeaderContentLayoutCollection|FooterContentLayoutCollection
-     *
-     * @param EntityRepository<TCollection> $repository
+     * @param EntityRepository<covariant EntityCollection<covariant AbstractContentLayoutAssignmentEntity>> $repository
      */
     public function resolve(
         SalesChannelContext $context,
         EntityRepository $repository
-    ): ?ContentLayoutAssignmentInterface {
+    ): ?AbstractContentLayoutAssignmentEntity {
         $domainId = $context->getDomainId();
         $salesChannelId = $context->getSalesChannel()->getId();
 
         $criteria = new Criteria();
 
-        if ($domainId !== null) {
-            // When domain is known: match (domain + salesChannel) OR (no domain + salesChannel) OR (global)
-            $criteria->addFilter(new OrFilter([
-                new MultiFilter(MultiFilter::CONNECTION_AND, [
-                    new EqualsFilter('domainId', $domainId),
-                    new EqualsFilter('salesChannelId', $salesChannelId),
-                ]),
-                new MultiFilter(MultiFilter::CONNECTION_AND, [
-                    new EqualsFilter('domainId', null),
-                    new EqualsFilter('salesChannelId', $salesChannelId),
-                ]),
-                new MultiFilter(MultiFilter::CONNECTION_AND, [
-                    new EqualsFilter('domainId', null),
-                    new EqualsFilter('salesChannelId', null),
-                ]),
-            ]));
-        } else {
-            // When domain is unknown: match (salesChannel only) OR (global)
-            $criteria->addFilter(new EqualsFilter('domainId', null));
-            $criteria->addFilter(new OrFilter([
+        $criteria->addFilter(new OrFilter([
+            new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('domainId', $domainId),
                 new EqualsFilter('salesChannelId', $salesChannelId),
+            ]),
+            new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('domainId', null),
+                new EqualsFilter('salesChannelId', $salesChannelId),
+            ]),
+            new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('domainId', null),
                 new EqualsFilter('salesChannelId', null),
-            ]));
-        }
+            ]),
+        ]));
 
         // Sort by specificity: non-null domainId first, then non-null salesChannelId
         $criteria->addSorting(new FieldSorting('domainId', FieldSorting::DESCENDING));

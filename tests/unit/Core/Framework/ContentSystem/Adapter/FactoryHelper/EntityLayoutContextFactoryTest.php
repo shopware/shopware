@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
+use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\LayoutResolutionResult;
@@ -107,7 +107,7 @@ class EntityLayoutContextFactoryTest extends TestCase
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
 
-        $assignment = static::createStub(ContentLayoutAssignmentInterface::class);
+        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
         $assignment->method('getParameterBindings')->willReturn([
             'productId' => new ParameterBinding('productId', 'product_id'),
         ]);
@@ -143,7 +143,7 @@ class EntityLayoutContextFactoryTest extends TestCase
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
 
-        $assignment = static::createStub(ContentLayoutAssignmentInterface::class);
+        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
         $assignment->method('getParameterBindings')->willReturn([
             'productId' => new ParameterBinding('productId', 'product_id'),
         ]);
@@ -179,7 +179,7 @@ class EntityLayoutContextFactoryTest extends TestCase
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
 
-        $assignment = static::createStub(ContentLayoutAssignmentInterface::class);
+        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
         $assignment->method('getParameterBindings')->willReturn([
             'productId' => new ParameterBinding('productId', 'product_id'),
         ]);
@@ -214,7 +214,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     {
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
-        $assignment = static::createStub(ContentLayoutAssignmentInterface::class);
+        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
         $assignment->method('getParameterBindings')->willReturn(null);
 
         $this->layoutResolver->method('resolve')
@@ -244,7 +244,7 @@ class EntityLayoutContextFactoryTest extends TestCase
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
 
-        $assignment = static::createStub(ContentLayoutAssignmentInterface::class);
+        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
         $assignment->method('getParameterBindings')->willReturn([
             'productId' => new ParameterBinding('productId', ''),
         ]);

@@ -2,8 +2,8 @@
 
 ## Source Code References
 
-- **Specification Sources**: `Adapter/ProductSpecificationSource`, `Adapter/CategorySpecificationSource`, `Adapter/LandingPageSpecificationSource`
-- **Header/Footer Sources**: `Adapter/HeaderSpecificationSource`, `Adapter/FooterSpecificationSource`
+- **Entity Specification Sources**: `Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource`, `Content/Category/Aggregate/CategoryContentLayout/CategorySpecificationSource`, `Content/LandingPage/Aggregate/LandingPageContentLayout/LandingPageSpecificationSource`
+- **Header/Footer Sources**: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
 - **Resolver**: `Adapter/RenderingSpecificationResolver` (3 instances: main, header, footer — see DI config)
 - **Events**: `Event/PreContentHydrationEvent`, `Event/PostHydrationEvent`
 - **Pipeline**: `ContentPipeline` (steps 2-5), `RenderingMode` (FULL vs SKELETON)
@@ -21,4 +21,4 @@
 - Exception class: `ContentSystemException`
 - Package: `#[Package('framework')]`
 - DAL: Use Criteria API + EntityDefinition, NOT Doctrine ORM
-- DI config: `src/Core/Framework/DependencyInjection/content-system.xml`
+- DI config: `src/Core/Framework/DependencyInjection/content-system.xml` (core), `src/Storefront/DependencyInjection/content-layout.xml` (header/footer)

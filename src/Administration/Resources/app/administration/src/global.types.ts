@@ -98,6 +98,7 @@ import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type RuleBetweenOperatorMixin from './app/mixin/rule-between-operator.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
+import type TourMixin from './app/mixin/tour.mixin';
 import type PrivilegesService from './app/service/privileges.service';
 import type BusinessEventsApiService from './core/service/api/business-events.api.service';
 import type { FileValidationService } from './app/service/file-validation.service';
@@ -343,6 +344,7 @@ declare global {
         'sw-form-field': typeof SwFormFieldMixin;
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
         'rule-between-operator': typeof RuleBetweenOperatorMixin;
+        tour: typeof TourMixin;
     }
 
     interface InitContainer extends SubContainer<'init'> {

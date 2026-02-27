@@ -22,7 +22,11 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
+        Mixin.getByName('tour'),
+    ],
 
     shortcuts: {
         'SYSTEMKEY+S': {

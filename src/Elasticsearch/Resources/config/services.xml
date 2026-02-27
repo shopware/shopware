@@ -516,7 +516,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
-            <!-- use general (storefront) batch size, as the query is more complex and therefore slower -->
             <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="product"/>

@@ -270,7 +270,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         }
 
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
-        $binaryIds = Uuid::fromHexToBytesList($ids);
+        $binaryIds = array_values(Uuid::fromHexToBytesList($ids));
 
         $baseRows = $this->fetchProductBaseRows($binaryIds, $versionId);
 
@@ -538,7 +538,7 @@ SQL,
             $translatedNames = $this->decodeTranslatedValues($translatedNamesEncoded);
             $states = ElasticsearchIndexingUtils::parseJson(['states' => $row['states'] ?? null], 'states');
             $categoryIds = ElasticsearchIndexingUtils::parseJson(['categoryIds' => $row['categoryIds'] ?? null], 'categoryIds');
-            $visibilities = ElasticsearchIndexingUtils::parseJson(['visibilities' => $visibilitiesEncoded], 'visibilities');
+            $visibilities = ElasticsearchIndexingUtils::parseJson(['visibilities' => $visibilitiesEncoded ?: null], 'visibilities');
             $parsedTagIds = $this->parseTagIds(['tagIds' => $tagIds]);
             $price = $this->parsePrice($row);
 

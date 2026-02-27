@@ -426,7 +426,7 @@ SQL;
     /**
      * @param array<string, mixed> $row
      *
-     * @return list<array{id: string, _count: int, productId: string, payload: array{code: string}}>
+     * @return list<array{id: string, _count: int, productId: string|null, payload: array{code: string|null}}>
      */
     private function parseLineItems(array $row): array
     {
@@ -434,8 +434,8 @@ SQL;
             return [
                 'id' => (string) ($item['id'] ?? ''),
                 '_count' => 1,
-                'productId' => is_string($item['productId']) ? $item['productId'] : null,
-                'payload' => ['code' => is_string($item['code']) ? $item['code'] : null],
+                'productId' => \is_string($item['productId']) ? $item['productId'] : null,
+                'payload' => ['code' => \is_string($item['code']) ? $item['code'] : null],
             ];
         }, ElasticsearchIndexingUtils::parseJson($row, 'lineItems')));
     }

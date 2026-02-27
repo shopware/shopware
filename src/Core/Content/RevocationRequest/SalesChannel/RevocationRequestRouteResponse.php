@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @extends StoreApiResponse<ArrayStruct<array{individualSuccessMessage: string}>>
- */
 #[Package('after-sales')]
 class RevocationRequestRouteResponse extends StoreApiResponse
 {

@@ -23,7 +23,6 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
-use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;

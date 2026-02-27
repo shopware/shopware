@@ -200,7 +200,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertInstanceOf(FlowSendMailActionEvent::class, $mailFilterEvent);
-        static::assertSame(1, $mailService->calls);
+        static::assertEquals(1, $mailService->calls);
         static::assertIsArray($mailService->data);
         static::assertArrayHasKey('recipients', $mailService->data);
 
@@ -323,7 +323,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertSame(1, $mailService->calls);
+        static::assertEquals(1, $mailService->calls);
     }
 
     #[DataProvider('sendMailContactFormProvider')]
@@ -395,11 +395,11 @@ class SendMailActionTest extends TestCase
             static::assertIsArray($mailService->data);
             static::assertArrayHasKey('recipients', $mailService->data);
             static::assertIsObject($mailFilterEvent);
-            static::assertSame(1, $mailService->calls);
+            static::assertEquals(1, $mailService->calls);
             static::assertSame([$data->get('email') => trim($data->get('firstName') . ' ' . $data->get('lastName'))], $mailService->data['recipients']);
         } else {
             static::assertIsNotObject($mailFilterEvent);
-            static::assertSame(0, $mailService->calls);
+            static::assertEquals(0, $mailService->calls);
         }
     }
 
@@ -466,7 +466,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsNotObject($mailFilterEvent);
-        static::assertSame(0, $mailService->calls);
+        static::assertEquals(0, $mailService->calls);
     }
 
     public function testSendRevocationRequestFormMailType(): void
@@ -581,7 +581,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertSame(1, $mailService->calls);
+        static::assertEquals(1, $mailService->calls);
     }
 
     #[DataProvider('updateTemplateDataProvider')]
@@ -643,7 +643,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertSame(1, $mailService->calls);
+        static::assertEquals(1, $mailService->calls);
         static::assertNotNull($mailTemplate->getMailTemplateTypeId());
 
         $templateType = static::getContainer()

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -43,9 +44,13 @@ class SendMailAction extends FlowAction implements DelayableAction
     private const RECIPIENT_CONFIG_ADMIN = 'admin';
     private const RECIPIENT_CONFIG_CUSTOM = 'custom';
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
+    private const RECIPIENT_CONFIG_REVOCATION_REQUEST_CUSTOMER_FORM_MAIL = 'revocationRequestCustomerFormMail';
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MailTemplateCollection> $mailTemplateRepository
+     * @param EntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository
      */
     public function __construct(
         private readonly AbstractMailService $emailService,
@@ -124,9 +129,10 @@ class SendMailAction extends FlowAction implements DelayableAction
             $eventConfig['recipient'],
             $mailStruct->getRecipients(),
             $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
+            $flow->getData(FlowMailVariables::REVOCATION_REQUEST_FORM_DATA, []),
         );
 
-        if (empty($recipients)) {
+        if ($recipients === []) {
             return;
         }
 
@@ -249,13 +255,16 @@ class SendMailAction extends FlowAction implements DelayableAction
     private function sanitizeMailTemplateData(array $templateData): array
     {
         foreach ($templateData as $key => $value) {
-            if (!$value instanceof Entity || empty($value->getInternalEntityName())) {
+            if (!$value instanceof Entity) {
                 continue;
             }
 
-            $definition = $this->definitionInstanceRegistry->getByEntityName(
-                $value->getInternalEntityName()
-            );
+            $internalEntityName = $value->getInternalEntityName();
+            if ($internalEntityName === null || $internalEntityName === '') {
+                continue;
+            }
+
+            $definition = $this->definitionInstanceRegistry->getByEntityName($internalEntityName);
 
             $templateData[$key] = $this->jsonEntityEncoder->encode(
                 new Criteria(),
@@ -307,10 +316,11 @@ class SendMailAction extends FlowAction implements DelayableAction
      * @param array<string, mixed> $recipients
      * @param array<string, string> $mailStructRecipients
      * @param array<int|string, mixed> $contactFormData
+     * @param array<int|string, mixed> $revocationRequestFormData
      *
      * @return array<int|string, string>
      */
-    private function getRecipients(array $recipients, $mailStructRecipients, array $contactFormData): array
+    private function getRecipients(array $recipients, $mailStructRecipients, array $contactFormData, array $revocationRequestFormData): array
     {
         switch ($recipients['type']) {
             case self::RECIPIENT_CONFIG_CUSTOM:
@@ -326,18 +336,30 @@ class SendMailAction extends FlowAction implements DelayableAction
 
                 return $emails;
             case self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL:
-                if (empty($contactFormData)) {
-                    return [];
-                }
-
-                if (!\array_key_exists('email', $contactFormData)) {
-                    return [];
-                }
-
-                return [$contactFormData['email'] => ($contactFormData['firstName'] ?? '') . ' ' . ($contactFormData['lastName'] ?? '')];
+                return $this->createEnquiryReceiver($contactFormData);
+            case self::RECIPIENT_CONFIG_REVOCATION_REQUEST_CUSTOMER_FORM_MAIL:
+                return $this->createEnquiryReceiver($revocationRequestFormData);
             default:
                 return $mailStructRecipients;
         }
+    }
+
+    /**
+     * @param array<int|string, mixed> $formData
+     *
+     * @return array<int|string, string>
+     */
+    private function createEnquiryReceiver(array $formData): array
+    {
+        if ($formData === []) {
+            return [];
+        }
+
+        if (!\array_key_exists('email', $formData)) {
+            return [];
+        }
+
+        return [trim($formData['email']) => trim(($formData['firstName'] ?? '') . ' ' . ($formData['lastName'] ?? ''))];
     }
 
     /**

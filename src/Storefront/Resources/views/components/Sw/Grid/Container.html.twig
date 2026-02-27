@@ -9,9 +9,6 @@
     rowsMd = null,
     rowsLg = null,
     rowsXl = null,
-
-    columnsConfig = null,
-
     gap = 3,
     rowGap = null,
     columnGap = null,
@@ -55,7 +52,7 @@
     <twig:Sw:Grid:Container :padding="{ xs: 0, sm: 2, md: 3, lg: 5, xl: 2, xxl: 1 }" />
     Generates: "p-0 p-sm-2 p-md-3 p-lg-5 p-xl-2 p-xxl-1"
 #}
-{%- macro spacingClasses(prop, classPrefix, specialKeyword = null) %}
+{%- macro gridClasses(prop, classPrefix, specialKeyword = null) %}
     {%- set classes = [] -%}
     {# Prop contains a special keyword, use it to generate a class. #}
     {%- if specialKeyword is not null and specialKeyword is same as prop %}
@@ -80,9 +77,27 @@
     {{- classes|length > 0 ? classes|join(' ') : '' -}}
 {% endmacro -%}
 
-{%- macro spacingInlineStyle(prop, cssProp) %}
+{#
+    Helper macro to generate grid inline CSS for arbitrary values.
+    * prop: Component prop value to generate styles for (padding, margin, gap, etc.)
+    * cssProp: CSS property that will be generated (padding, margin, gap, etc.)
+
+    1. Simple:
+    <twig:Sw:Grid:Container padding="20px" />
+    Generates: "padding: 20px;"
+
+    2. With breakpoints:
+    <twig:Sw:Grid:Container :padding="{ xs: '5px', sm: '10px', md: '15px', lg: '20px', xl: '25px', xxl: '30px' }" />
+    Generates: 
+    @media (min-width: 576px) { padding: 10px; } 
+    @media (min-width: 768px) { padding: 15px; } 
+    @media (min-width: 992px) { padding: 20px; } 
+    @media (min-width: 1200px) { padding: 25px; } 
+    @media (min-width: 1400px) { padding: 30px; }
+#}
+{%- macro gridInlineStyle(prop, cssProp) %}
     {%- set style = '' -%}
-    {%- if prop is not null and prop is string and prop is not iterable %}
+    {%- if prop is not null and prop is not empty and prop is string and prop is not iterable %}
         {%- set style = style ~ "#{cssProp}: #{prop};" -%}
     {% elseif prop is not null and prop is iterable %}
         {%- for breakpoint, value in prop %}
@@ -96,7 +111,7 @@
             {% endif -%}
         {% endfor -%}
     {% endif -%}
-    {# Return value #}
+    {# Output the CSS as string #}
     {{- style -}}
 {% endmacro -%}
 
@@ -298,24 +313,24 @@
     }
 }) %}
 
-{%- set spacingClasses = [
-    _self.spacingClasses(padding, 'p'), 
-    _self.spacingClasses(paddingBottom, 'pb'),
-    _self.spacingClasses(paddingTop, 'pt'),
-    _self.spacingClasses(paddingRight, 'pe'),
-    _self.spacingClasses(paddingLeft, 'ps'),
-    _self.spacingClasses(paddingX, 'px'),
-    _self.spacingClasses(paddingY, 'py'),
-    _self.spacingClasses(marginBottom, 'mb'),
-    _self.spacingClasses(marginTop, 'mt'),
-    _self.spacingClasses(marginRight, 'me'),
-    _self.spacingClasses(marginLeft, 'ms'),
-    _self.spacingClasses(margin, 'm'),
-    _self.spacingClasses(marginX, 'mx'),
-    _self.spacingClasses(marginY, 'my'),
-    _self.spacingClasses(gap, 'gap'),
-    _self.spacingClasses(rowGap, 'row-gap'),
-    _self.spacingClasses(columnGap, 'column-gap'),
+{%- set gridClasses = [
+    _self.gridClasses(padding, 'p'), 
+    _self.gridClasses(paddingBottom, 'pb'),
+    _self.gridClasses(paddingTop, 'pt'),
+    _self.gridClasses(paddingRight, 'pe'),
+    _self.gridClasses(paddingLeft, 'ps'),
+    _self.gridClasses(paddingX, 'px'),
+    _self.gridClasses(paddingY, 'py'),
+    _self.gridClasses(marginBottom, 'mb'),
+    _self.gridClasses(marginTop, 'mt'),
+    _self.gridClasses(marginRight, 'me'),
+    _self.gridClasses(marginLeft, 'ms'),
+    _self.gridClasses(margin, 'm'),
+    _self.gridClasses(marginX, 'mx'),
+    _self.gridClasses(marginY, 'my'),
+    _self.gridClasses(gap, 'gap'),
+    _self.gridClasses(rowGap, 'row-gap'),
+    _self.gridClasses(columnGap, 'column-gap'),
 ]|join(' ')|trim -%}
 
 {% set gridId = 'sw-grid-container-' ~ random() %}
@@ -341,7 +356,7 @@
         border,
         borderVariant,
         borderSubtle,
-    }) ~ ' ' ~ spacingClasses,
+    }) ~ ' ' ~ gridClasses,
 } %}
 
 {% set gridStyle = '' %}
@@ -360,39 +375,44 @@
     {% set rowSetting = rows %}
 {% endif %}
 
-{% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
-{% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
-
 <div {{ attributes.defaults(attributeDefaults) }}>
 
-     {% block content %}
-        {% for name, slot in slots %}
-            <twig:Slot :name="name"></twig:Slot>
-        {% endfor %}
-     {% endblock %}
+    {% block content %}
+       {% for name, slot in slots %}
+           <twig:Slot :name="name"></twig:Slot>
+       {% endfor %}
+    {% endblock %}
 
-    <style>
-    {{ "##{gridId} {" }}
-        {{- _self.spacingInlineStyle(margin, 'margin') -}}
-        {{- _self.spacingInlineStyle(marginX, 'margin-left') -}}
-        {{- _self.spacingInlineStyle(marginX, 'margin-right') -}}
-        {{- _self.spacingInlineStyle(marginBottom, 'margin-bottom') -}}
-        {{- _self.spacingInlineStyle(marginTop, 'margin-top') -}}
-        {{- _self.spacingInlineStyle(marginLeft, 'margin-left') -}}
-        {{- _self.spacingInlineStyle(marginRight, 'margin-right') -}}
-        {{- _self.spacingInlineStyle(padding, 'padding') -}}
-        {{- _self.spacingInlineStyle(paddingX, 'padding-left') -}}
-        {{- _self.spacingInlineStyle(paddingX, 'padding-right') -}}
-        {{- _self.spacingInlineStyle(paddingY, 'padding-top') -}}
-        {{- _self.spacingInlineStyle(paddingY, 'padding-bottom') -}}
-        {{- _self.spacingInlineStyle(paddingTop, 'padding-top') -}}
-        {{- _self.spacingInlineStyle(paddingBottom, 'padding-bottom') -}}
-        {{- _self.spacingInlineStyle(paddingLeft, 'padding-left') -}}
-        {{- _self.spacingInlineStyle(paddingRight, 'padding-right') -}}
-        {{- _self.spacingInlineStyle(gap, 'gap') -}}
-        {{- _self.spacingInlineStyle(rowGap, 'row-gap') -}}
-        {{- _self.spacingInlineStyle(columnGap, 'column-gap') -}}
-        {% if gridStyle %}{{ gridStyle|trim }}{% endif %}
-    {{ '}' }}
-    </style>
+    {%- set inlineCSS %}
+        {{- _self.gridInlineStyle(margin, 'margin') -}}
+        {{- _self.gridInlineStyle(marginX, 'margin-left') -}}
+        {{- _self.gridInlineStyle(marginX, 'margin-right') -}}
+        {{- _self.gridInlineStyle(marginBottom, 'margin-bottom') -}}
+        {{- _self.gridInlineStyle(marginTop, 'margin-top') -}}
+        {{- _self.gridInlineStyle(marginLeft, 'margin-left') -}}
+        {{- _self.gridInlineStyle(marginRight, 'margin-right') -}}
+        {{- _self.gridInlineStyle(padding, 'padding') -}}
+        {{- _self.gridInlineStyle(paddingX, 'padding-left') -}}
+        {{- _self.gridInlineStyle(paddingX, 'padding-right') -}}
+        {{- _self.gridInlineStyle(paddingY, 'padding-top') -}}
+        {{- _self.gridInlineStyle(paddingY, 'padding-bottom') -}}
+        {{- _self.gridInlineStyle(paddingTop, 'padding-top') -}}
+        {{- _self.gridInlineStyle(paddingBottom, 'padding-bottom') -}}
+        {{- _self.gridInlineStyle(paddingLeft, 'padding-left') -}}
+        {{- _self.gridInlineStyle(paddingRight, 'padding-right') -}}
+        {{- _self.gridInlineStyle(gap, 'gap') -}}
+        {{- _self.gridInlineStyle(rowGap, 'row-gap') -}}
+        {{- _self.gridInlineStyle(columnGap, 'column-gap') -}}
+        {{- _self.gridInlineStyle(columnSetting, 'grid-template-columns') -}}
+        {{- _self.gridInlineStyle(rowSetting, 'grid-template-rows') -}}
+    {% endset -%}
+
+    {# If arbitrary values are passed, generate a style tag with inline CSS. #}
+    {% if inlineCSS is not empty %}
+        <style>
+        {{ "##{gridId} {" }}
+            {{- inlineCSS -}}
+        {{ '}' }}
+        </style>
+    {% endif %}
 </div>

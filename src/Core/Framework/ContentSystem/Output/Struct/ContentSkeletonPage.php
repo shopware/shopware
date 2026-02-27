@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentSkeletonPage extends Struct
 {
     /**

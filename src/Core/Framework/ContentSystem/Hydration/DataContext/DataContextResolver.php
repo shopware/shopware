@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class DataContextResolver
 {
     public function __construct(

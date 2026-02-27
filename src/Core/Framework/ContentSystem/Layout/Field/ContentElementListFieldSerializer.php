@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentElementListFieldSerializer extends AbstractFieldSerializer
 {
     public function __construct(

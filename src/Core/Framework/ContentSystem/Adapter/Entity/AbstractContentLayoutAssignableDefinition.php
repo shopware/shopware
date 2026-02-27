@@ -25,7 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinition
 {
     /**

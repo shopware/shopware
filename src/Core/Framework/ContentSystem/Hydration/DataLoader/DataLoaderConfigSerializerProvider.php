@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class DataLoaderConfigSerializerProvider
 {
     /**

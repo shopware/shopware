@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ElementSlotsFieldSerializer extends AbstractFieldSerializer
 {
     public function __construct(

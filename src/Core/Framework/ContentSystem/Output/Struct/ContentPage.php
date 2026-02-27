@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentPage extends Struct
 {
     /**

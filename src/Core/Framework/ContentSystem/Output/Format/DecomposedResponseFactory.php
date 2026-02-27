@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class DecomposedResponseFactory extends AbstractResponseFactory
 {
     public function __construct(

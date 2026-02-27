@@ -23,4 +23,4 @@
 
 - Repositories: `{entity}_content_layout.repository`, `header_content_layout.repository`, `footer_content_layout.repository`
 - Resolution: see `FactoryHelper/EntityLayoutResolver` and `FactoryHelper/DomainAwareLayoutResolver`
-- Package: `#[Package('discovery')]`
+- Package: `#[Package('framework')]`

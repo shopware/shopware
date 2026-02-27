@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<ContentElement>
  */
-#[Package('discovery')]
+#[Package('framework')]
 class SlotContent extends Collection
 {
     public function getApiAlias(): string

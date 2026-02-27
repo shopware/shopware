@@ -20,7 +20,7 @@ use function Symfony\Component\String\u;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ProductListingDataLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'product_listing';

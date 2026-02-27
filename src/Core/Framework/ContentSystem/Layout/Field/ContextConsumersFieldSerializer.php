@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContextConsumersFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(

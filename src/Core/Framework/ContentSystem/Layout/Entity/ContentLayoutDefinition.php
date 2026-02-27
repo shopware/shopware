@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentLayoutDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'content_layout';

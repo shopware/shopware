@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class LandingPageSpecificationSource extends AbstractSpecificationSource
 {
     /**

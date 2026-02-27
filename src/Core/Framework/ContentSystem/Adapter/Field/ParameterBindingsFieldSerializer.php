@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ParameterBindingsFieldSerializer extends AbstractFieldSerializer
 {
     public function __construct(

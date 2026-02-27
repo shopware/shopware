@@ -23,7 +23,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * @final
  */
 #[AsEventListener(event: PreContentHydrationEvent::class, priority: 4000)]
-#[Package('discovery')]
+#[Package('framework')]
 class RedistributeExpansionSubscriber
 {
     public function __invoke(PreContentHydrationEvent $event): void

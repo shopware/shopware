@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 final class StubExtractorEntity extends Entity
 {
     public function __construct(string $id)

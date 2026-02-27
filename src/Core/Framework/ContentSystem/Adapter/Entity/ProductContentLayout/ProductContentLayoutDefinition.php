@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefinition
 {
     final public const ENTITY_NAME = 'product_content_layout';

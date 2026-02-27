@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ProductContentLayoutEntity extends AbstractContentLayoutAssignmentEntity
 {
     protected string $productId;

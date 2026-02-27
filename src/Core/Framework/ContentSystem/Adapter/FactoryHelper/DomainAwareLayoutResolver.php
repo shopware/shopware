@@ -26,7 +26,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class DomainAwareLayoutResolver
 {
     /**

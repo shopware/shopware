@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class CriteriaFilterFieldSerializer extends AbstractFieldSerializer
 {
     public function __construct(

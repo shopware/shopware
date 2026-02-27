@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ResolutionConfigField extends JsonField
 {
     public function __construct(

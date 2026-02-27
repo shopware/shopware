@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class CategorySpecificationSource extends AbstractSpecificationSource
 {
     /**

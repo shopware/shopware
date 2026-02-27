@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class CategoryContentLayoutEntity extends AbstractContentLayoutAssignmentEntity
 {
     protected string $categoryId;

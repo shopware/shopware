@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class EntityLayoutResolver
 {
     public function __construct(private readonly RequestDataExtractor $requestDataExtractor)

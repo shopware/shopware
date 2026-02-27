@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends EntityCollection<CategoryContentLayoutEntity>
  */
-#[Package('discovery')]
+#[Package('framework')]
 class CategoryContentLayoutCollection extends EntityCollection
 {
     public function getApiAlias(): string

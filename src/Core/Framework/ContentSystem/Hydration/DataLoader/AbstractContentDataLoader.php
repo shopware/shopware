@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  * - ContentDataLoaderResult::cached($data, ...$tags) → Data with cache tags
  * - ContentDataLoaderResult::cachedExternally($data) → Data, tags handled elsewhere
  */
-#[Package('discovery')]
+#[Package('framework')]
 abstract class AbstractContentDataLoader
 {
     abstract public function getDecorated(): AbstractContentDataLoader;

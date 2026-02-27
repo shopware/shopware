@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  *
  * @phpstan-ignore shopware.decorationPattern (delegation, not decoration)
  */
-#[Package('discovery')]
+#[Package('framework')]
 class EntityCollectionLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
 {
     public function __construct(

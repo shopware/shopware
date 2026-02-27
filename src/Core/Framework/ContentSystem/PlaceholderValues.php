@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * Replaces the combined EntityIdMap + ParameterMap concept with a simpler flat map.
  * Placeholder replacement doesn't care about the source of values (entity IDs vs URL parameters).
  */
-#[Package('discovery')]
+#[Package('framework')]
 final readonly class PlaceholderValues
 {
     /**

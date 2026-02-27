@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentElementField extends JsonField
 {
     private StringField $idField;

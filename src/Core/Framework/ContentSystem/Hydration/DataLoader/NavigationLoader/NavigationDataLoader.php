@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class NavigationDataLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'navigation';

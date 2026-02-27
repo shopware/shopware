@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class CurrencyDataLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'currency';

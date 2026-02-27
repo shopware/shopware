@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 final readonly class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
 {
     public const DEFAULT_DEPTH = 2;

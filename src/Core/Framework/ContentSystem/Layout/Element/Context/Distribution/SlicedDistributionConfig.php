@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 final readonly class SlicedDistributionConfig implements DistributionConfig
 {
     private function __construct(

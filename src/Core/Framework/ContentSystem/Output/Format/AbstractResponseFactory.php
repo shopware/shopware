@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 abstract class AbstractResponseFactory
 {
     abstract public function getRenderingMode(): RenderingMode;

@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class HeaderContentLayoutEntity extends Entity implements ContentLayoutAssignmentInterface
 {
     use EntityIdTrait;

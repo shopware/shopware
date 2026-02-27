@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('discovery')]
+#[Package('framework')]
 final readonly class RenderingSpecification
 {
     /**

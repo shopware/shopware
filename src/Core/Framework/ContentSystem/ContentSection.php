@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Single source of truth for route path segments and cache tags per section.
  */
-#[Package('discovery')]
+#[Package('framework')]
 enum ContentSection: string
 {
     case HEADER = 'header';

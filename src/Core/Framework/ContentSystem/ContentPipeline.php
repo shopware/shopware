@@ -20,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentPipeline
 {
     /**

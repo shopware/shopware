@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 final readonly class BroadcastDistributionConfig implements DistributionConfig
 {
     private function __construct(

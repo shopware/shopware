@@ -19,6 +19,6 @@
 ## Quick Reference
 
 - Exception class: `ContentSystemException`
-- Package: `#[Package('discovery')]`
+- Package: `#[Package('framework')]`
 - DAL: Use Criteria API + EntityDefinition, NOT Doctrine ORM
 - DI config: `src/Core/Framework/DependencyInjection/content-system.xml`

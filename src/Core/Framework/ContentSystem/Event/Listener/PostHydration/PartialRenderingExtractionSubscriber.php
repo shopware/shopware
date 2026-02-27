@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * @final
  */
 #[AsEventListener(event: PostHydrationEvent::class, priority: 1000)]
-#[Package('discovery')]
+#[Package('framework')]
 class PartialRenderingExtractionSubscriber
 {
     public function __construct(

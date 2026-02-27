@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class HeaderSpecificationSource extends AbstractSpecificationSource
 {
     /**

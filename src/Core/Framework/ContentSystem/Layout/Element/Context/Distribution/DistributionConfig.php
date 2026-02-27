@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraint;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 interface DistributionConfig
 {
     /**

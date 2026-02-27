@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * @final
  */
 #[AsEventListener(event: EntityWrittenContainerEvent::class)]
-#[Package('discovery')]
+#[Package('framework')]
 class CacheInvalidationSubscriber
 {
     public function __construct(

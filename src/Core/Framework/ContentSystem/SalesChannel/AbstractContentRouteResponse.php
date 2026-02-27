@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 /**
  * @extends StoreApiResponse<Struct>
  */
-#[Package('discovery')]
+#[Package('framework')]
 abstract class AbstractContentRouteResponse extends StoreApiResponse
 {
 }

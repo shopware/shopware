@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 enum DistributionStrategy: string
 {
     case Broadcast = 'broadcast';

@@ -27,7 +27,7 @@ use Symfony\Component\Routing\RouteCollection;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class EntityLayoutContextFactory
 {
     public function __construct(

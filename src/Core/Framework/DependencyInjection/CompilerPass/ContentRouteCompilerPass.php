@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentRouteCompilerPass implements CompilerPassInterface
 {
     private const FORMAT_FULL = 'full';

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentDataRouteResponse extends AbstractContentRouteResponse
 {
     private readonly ContentDataPage $dataPage;

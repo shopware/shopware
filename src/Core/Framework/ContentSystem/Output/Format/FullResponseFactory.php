@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class FullResponseFactory extends AbstractResponseFactory
 {
     /**

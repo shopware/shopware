@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class SkeletonResponseFactory extends AbstractResponseFactory
 {
     public function getRenderingMode(): RenderingMode

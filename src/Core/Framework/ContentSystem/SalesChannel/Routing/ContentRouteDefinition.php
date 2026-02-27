@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 final readonly class ContentRouteDefinition
 {
     /**

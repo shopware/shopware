@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ShippingMethodDataLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'shipping_method';

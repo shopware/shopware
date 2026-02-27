@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * - cacheTags = []    → Cache-aware, no tags needed (e.g., data already tagged elsewhere)
  * - cacheTags = [...] → Cache-aware with specific invalidation tags
  */
-#[Package('discovery')]
+#[Package('framework')]
 final class ContentDataLoaderResult
 {
     /**

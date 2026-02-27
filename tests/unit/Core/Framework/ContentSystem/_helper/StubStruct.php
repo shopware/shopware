@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 final class StubStruct extends Struct
 {
     public function getApiAlias(): string

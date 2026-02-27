@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Called by RenderingSpecificationFactory to assemble a RenderingSpecification
  * from discrete resolution steps.
  */
-#[Package('discovery')]
+#[Package('framework')]
 abstract class AbstractSpecificationSource
 {
     abstract public function getDecorated(): AbstractSpecificationSource;

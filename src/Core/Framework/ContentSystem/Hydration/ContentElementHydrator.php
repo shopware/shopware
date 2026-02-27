@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentElementHydrator
 {
     public function __construct(

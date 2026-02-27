@@ -26,7 +26,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class HeaderContentLayoutDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'header_content_layout';

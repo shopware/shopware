@@ -11,4 +11,4 @@
 - Repository: `content_layout.repository`
 - ID generation: `Uuid::randomHex()`
 - Serialization: Automatic via custom field serializers in `Field/`
-- Package: `#[Package('discovery')]`
+- Package: `#[Package('framework')]`

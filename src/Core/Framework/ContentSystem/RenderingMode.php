@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * FULL: Complete pipeline - pre-hydration, hydration, post-hydration.
  * SKELETON: Skip hydration - returns layout structure without loaded data.
  */
-#[Package('discovery')]
+#[Package('framework')]
 enum RenderingMode: string
 {
     case FULL = 'full';

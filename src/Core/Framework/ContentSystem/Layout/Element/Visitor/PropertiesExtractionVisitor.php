@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Util\Hasher;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class PropertiesExtractionVisitor implements ElementVisitor
 {
     /**

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * Serializers encode/decode config objects to/from arrays for storage
  * and transmission. Each loader type has a corresponding serializer.
  */
-#[Package('discovery')]
+#[Package('framework')]
 abstract class AbstractContentDataLoaderConfigSerializer
 {
     abstract public function getDecorated(): AbstractContentDataLoaderConfigSerializer;

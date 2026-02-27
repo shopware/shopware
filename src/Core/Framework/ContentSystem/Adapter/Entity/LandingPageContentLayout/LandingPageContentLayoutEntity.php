@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class LandingPageContentLayoutEntity extends AbstractContentLayoutAssignmentEntity
 {
     protected string $landingPageId;

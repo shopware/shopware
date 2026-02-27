@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContextResolutionVisitor implements ElementVisitor
 {
     public function __construct(

@@ -26,7 +26,7 @@ use function Symfony\Component\String\u;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class EntityCollectionLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'entity_collection';

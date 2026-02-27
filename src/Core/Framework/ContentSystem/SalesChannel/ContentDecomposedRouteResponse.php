@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentDecomposedRouteResponse extends AbstractContentRouteResponse
 {
     private readonly ContentDecomposedPage $contentDecomposedPage;

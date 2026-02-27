@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentElement extends Struct
 {
     /**

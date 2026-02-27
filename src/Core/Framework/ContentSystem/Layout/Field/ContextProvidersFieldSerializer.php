@@ -66,7 +66,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContextProvidersFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(

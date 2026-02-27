@@ -14,7 +14,7 @@ use Symfony\Component\Routing\RouteCollection;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentRouteLoader extends Loader
 {
     private const ROUTE_TYPE = 'content_system';

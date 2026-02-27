@@ -13,7 +13,7 @@ use function Symfony\Component\String\u;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContentLayoutMetadataDeriver
 {
     /**

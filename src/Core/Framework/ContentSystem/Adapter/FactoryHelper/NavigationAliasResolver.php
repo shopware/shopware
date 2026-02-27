@@ -19,7 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class NavigationAliasResolver
 {
     private const ALIAS_MAIN_NAVIGATION = 'main-navigation';

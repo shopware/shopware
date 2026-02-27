@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
 {
     public function getDecorated(): AbstractContentDataLoaderConfigSerializer

@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 final readonly class IteratorDistributionConfig implements DistributionConfig
 {
     private function __construct(

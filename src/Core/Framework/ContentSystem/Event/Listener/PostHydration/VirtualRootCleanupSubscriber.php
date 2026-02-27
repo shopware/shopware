@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * @final
  */
 #[AsEventListener(event: PostHydrationEvent::class, priority: 5000)]
-#[Package('discovery')]
+#[Package('framework')]
 class VirtualRootCleanupSubscriber
 {
     public function __construct(

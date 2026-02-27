@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('framework')]
 class PaymentMethodDataLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'payment_method';

@@ -43,6 +43,7 @@ use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -406,6 +407,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
             $fileSystemOperatorMock,
+            new EventDispatcher(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -473,6 +475,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
             $fileSystemOperatorMock,
+            new EventDispatcher(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -554,6 +557,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
             $fileSystemOperatorMock,
+            new EventDispatcher(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));

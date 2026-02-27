@@ -223,4 +223,35 @@ class MailAttachmentsBuilderTest extends TestCase
             $attachments
         );
     }
+
+    public function testBuildTemplateDocumentAttachmentsForXmlDocument(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $xmlDocId = Uuid::randomHex();
+        $extension = new MailSendSubscriberConfig(false, [$xmlDocId]);
+
+        $document = new RenderedDocument();
+        $document->setContent('<?xml version="1.0"?>');
+        $document->setName('invoice.xml');
+        $document->setContentType('application/xml');
+
+        $this->documentGenerator
+            ->expects($this->once())
+            ->method('readDocument')
+            ->with($xmlDocId, $context, '', null)
+            ->willReturn($document);
+
+        $this->mediaRepository
+            ->expects($this->never())
+            ->method('search');
+
+        $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], null);
+
+        static::assertCount(1, $attachments);
+        static::assertSame($xmlDocId, $attachments[0]['id']);
+        static::assertSame('<?xml version="1.0"?>', $attachments[0]['content']);
+        static::assertSame('invoice.xml', $attachments[0]['fileName']);
+        static::assertSame('application/xml', $attachments[0]['mimeType']);
+    }
 }

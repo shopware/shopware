@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -26,14 +25,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Consent\ConsentState;
+use Shopware\Core\System\Consent\ConsentScope;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
-use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -120,14 +120,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -205,14 +198,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -278,14 +264,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -337,14 +316,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -378,14 +350,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock(),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -407,14 +372,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $connection->expects($this->never())
             ->method('beginTransaction');
 
-        $consentService = new ConsentService(
-            new StaticSystemConfigService([
-                ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::REQUESTED->value,
-            ]),
-            $this->createMock(EntityRepository::class),
-            new CollectingEventDispatcher(),
-            new MockClock(),
-        );
+        $consentService = $this->createConsentService(ConsentStatus::REVOKED);
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
@@ -443,7 +401,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $subscriber->handleEntityDeleteEvent($event);
         $event->success();
 
-        static::assertFalse($consentService->isConsentAccepted());
+        static::assertSame(ConsentStatus::REVOKED, $consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->status);
     }
 
     public function testIfDeletionsAreNotStoredWhenCollectionIsDisabled(): void
@@ -464,14 +422,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             false,
         );
 
@@ -485,6 +436,22 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $subscriber->handleEntityDeleteEvent($event);
         $event->success();
+    }
+
+    private function createConsentService(ConsentStatus $status): ConsentService
+    {
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->method('getConsentState')
+            ->willReturn(new ConsentState(
+                BackendData::NAME,
+                ConsentScope\System::NAME,
+                ConsentScope\System::NAME,
+                $status,
+                'actor',
+                '2023-09-01 12:00:00',
+            ));
+
+        return $consentService;
     }
 }
 

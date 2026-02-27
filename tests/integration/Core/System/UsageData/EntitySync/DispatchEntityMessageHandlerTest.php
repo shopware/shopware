@@ -15,10 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
@@ -58,8 +57,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $this->idsCollection = new IdsCollection();
         $this->connection = static::getContainer()->get(Connection::class);
 
-        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
+        $this->setConsentAccepted();
     }
 
     public function testSendsEntityDataToGateway(): void
@@ -452,6 +450,30 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ],
         ];
         $repo->create([$attributeSet], Context::createDefaultContext());
+    }
+
+    private function setConsentAccepted(): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM consent_state WHERE name = :name AND identifier = :identifier',
+            ['name' => BackendData::NAME, 'identifier' => 'system']
+        );
+
+        $this->connection->executeStatement(
+            'INSERT INTO consent_state (id, name, identifier, state, actor, updated_at)
+            VALUES (:id, :name, :identifier, :state, :actor, :updatedAt)',
+            [
+                'id' => Uuid::randomBytes(),
+                'name' => BackendData::NAME,
+                'identifier' => 'system',
+                'state' => 'accepted',
+                'actor' => 'test',
+                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            ['id' => ParameterType::BINARY]
+        );
+
+        static::getContainer()->get(ConsentService::class)->reset();
     }
 
     private function getMockHttpClient(): MockHttpClient

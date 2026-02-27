@@ -35,7 +35,8 @@ return function (ContainerConfigurator $container): void {
             new TaggedIteratorArgument('shopware.consent.definition'),
             new Reference(ConsentRepository::class),
             new Reference('event_dispatcher'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ConsentScope\System::class)
         ->tag('shopware.consent.scope');

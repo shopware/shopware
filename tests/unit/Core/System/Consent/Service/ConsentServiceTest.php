@@ -83,6 +83,24 @@ class ConsentServiceTest extends TestCase
         $service->list($context);
     }
 
+    public function testResetClearsCachedStates(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->exactly(2))
+            ->method('fetchAllConsentStates')
+            ->willReturn([]);
+
+        $context = Context::createDefaultContext(new AdminApiSource('user-123'));
+
+        $service->list($context);
+        $service->reset();
+        $service->list($context);
+    }
+
     public function testGetConsentStatusThrowsExceptionWhenNoIdentifierGivenForAdminScope(): void
     {
         self::expectExceptionObject(ConsentException::cannotResolveScope(AdminUser::NAME));

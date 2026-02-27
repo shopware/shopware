@@ -7,12 +7,15 @@ use Doctrine\DBAL\Exception as DbalException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDeleteEventHelper;
 use Symfony\Component\Clock\ClockInterface;
@@ -48,7 +51,7 @@ class EntityDeleteSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->consentService->isConsentAccepted()) {
+        if (!$this->isConsentAccepted($event->getContext())) {
             return;
         }
 
@@ -109,5 +112,10 @@ class EntityDeleteSubscriber implements EventSubscriberInterface
         ]);
 
         return $queryBuilder;
+    }
+
+    private function isConsentAccepted(Context $context): bool
+    {
+        return $this->consentService->getConsentState(BackendData::NAME, $context)->status === ConsentStatus::ACCEPTED;
     }
 }

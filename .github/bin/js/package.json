@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "dependencies": {
     "@shopware-ag/gh-project-automation": "1.14.1"
   },

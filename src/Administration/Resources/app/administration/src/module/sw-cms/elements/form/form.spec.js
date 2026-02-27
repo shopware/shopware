@@ -12,5 +12,6 @@ describe('src/module/sw-cms/elements/form', () => {
         preview: 'sw-cms-el-preview-form',
         contact: 'sw-cms-el-form-template-contact',
         newsletter: 'sw-cms-el-form-template-newsletter',
+        revocationRequest: 'sw-cms-el-form-template-revocation-request',
     });
 });

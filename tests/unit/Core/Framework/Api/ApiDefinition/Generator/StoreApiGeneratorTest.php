@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithAssociations;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithJsonOverride;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\PluginBundleWithSchema\PluginBundleWithSchema;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\PluginExtensionForJsonOverride;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -28,6 +31,8 @@ class StoreApiGeneratorTest extends TestCase
     private StoreApiGenerator $generator;
 
     private StoreApiGenerator $customApiGenerator;
+
+    private StoreApiGenerator $pluginApiGenerator;
 
     private Bundle $customBundleSchemas;
 
@@ -55,10 +60,23 @@ class StoreApiGeneratorTest extends TestCase
             ],
             $customBundlePathCollection,
         );
+        $pluginBundle = new PluginBundleWithSchema();
+        $pluginBundlePathCollection = new BundleSchemaPathCollection([$pluginBundle]);
+
+        $this->pluginApiGenerator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
+            ],
+            $pluginBundlePathCollection,
+        );
+
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [
                 SimpleDefinition::class,
                 DefinitionWithAssociations::class,
+                DefinitionWithJsonOverride::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -123,20 +141,16 @@ class StoreApiGeneratorTest extends TestCase
 
     public function testMergeComponentsSchemaRequiredFieldsRecursive(): void
     {
-        $schema = $this->customApiGenerator->generate(
-            $this->definitionRegistry->getDefinitions(),
-            DefinitionService::STORE_API,
-            DefinitionService::TYPE_JSON_API,
-            $this->customBundleSchemas->getName()
-        );
+        [$schema] = $this->generateCapturingDeprecations($this->customApiGenerator, $this->customBundleSchemas->getName());
 
         $entities = $schema['components']['schemas'];
 
+        // Simple schema exists from JSON, but PHP schema was skipped (deprecated)
         static::assertArrayHasKey('Simple', $entities);
         static::assertArrayHasKey('required', $entities['Simple']);
-        static::assertCount(2, $entities['Simple']['required']);
-        static::assertContains('requiredField', $entities['Simple']['required']);
+        static::assertCount(1, $entities['Simple']['required']);
         static::assertContains('apiAlias', $entities['Simple']['required']);
+        static::assertNotContains('requiredField', $entities['Simple']['required']);
     }
 
     public function testGroupsParametersParsing(): void
@@ -1071,5 +1085,208 @@ class StoreApiGeneratorTest extends TestCase
 
         // Verify that category DOES have a description (for contrast)
         static::assertStringContainsString('`category` - ', $result);
+    }
+
+    public function testPhpSchemaIsSkippedWhenJsonSchemaExists(): void
+    {
+        [$schema] = $this->generateCapturingDeprecations($this->generator, null);
+
+        $entities = $schema['components']['schemas'];
+
+        // JsonOverrideEntity should exist in output (from JSON file)
+        static::assertArrayHasKey('JsonOverrideEntity', $entities);
+
+        // JSON-defined field should be present
+        static::assertArrayHasKey('jsonOnlyField', $entities['JsonOverrideEntity']['properties']);
+        static::assertSame(
+            'This field only exists in the JSON schema',
+            $entities['JsonOverrideEntity']['properties']['jsonOnlyField']['description']
+        );
+
+        // PHP-defined field should NOT be present (PHP schema was skipped)
+        static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
+    }
+
+    public function testDeprecationWarningTriggeredForJsonOverriddenSchema(): void
+    {
+        [, $deprecations] = $this->generateCapturingDeprecations($this->generator, null);
+
+        $jsonOverrideDeprecations = array_filter(
+            $deprecations,
+            static fn (string $msg): bool => str_contains($msg, 'JsonOverrideEntity')
+        );
+
+        static::assertNotEmpty($jsonOverrideDeprecations, 'Expected deprecation warning for JsonOverrideEntity');
+        static::assertStringContainsString(
+            'The PHP schema definition for "JsonOverrideEntity" is deprecated and should be removed',
+            array_values($jsonOverrideDeprecations)[0]
+        );
+    }
+
+    public function testNoDeprecationForSchemaWithoutJsonOverride(): void
+    {
+        [$schema, $deprecations] = $this->generateCapturingDeprecations($this->generator, null);
+
+        $simpleDeprecations = array_filter(
+            $deprecations,
+            static fn (string $msg): bool => str_contains($msg, '"Simple"')
+        );
+
+        static::assertEmpty($simpleDeprecations, 'No deprecation expected for Simple (no JSON override in default path)');
+
+        $entities = $schema['components']['schemas'];
+        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayHasKey('stringField', $entities['Simple']['properties']);
+    }
+
+    public function testJsonSchemaOverridesPhpSchemaInCustomBundle(): void
+    {
+        [$schema, $deprecations] = $this->generateCapturingDeprecations($this->customApiGenerator, $this->customBundleSchemas->getName());
+
+        $entities = $schema['components']['schemas'];
+
+        // Simple exists from JSON but PHP generation was skipped
+        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayHasKey('apiAlias', $entities['Simple']['properties']);
+
+        // PHP-only fields should NOT be present
+        static::assertArrayNotHasKey('stringField', $entities['Simple']['properties']);
+        static::assertArrayNotHasKey('intField', $entities['Simple']['properties']);
+
+        $simpleDeprecations = array_filter(
+            $deprecations,
+            static fn (string $msg): bool => str_contains($msg, '"Simple"')
+        );
+        static::assertNotEmpty($simpleDeprecations, 'Expected deprecation warning for Simple in custom bundle');
+    }
+
+    public function testPluginExtensionFieldsSurviveJsonSchemaOverride(): void
+    {
+        $definition = $this->definitionRegistry->getByEntityName(DefinitionWithJsonOverride::ENTITY_NAME);
+        $extension = new PluginExtensionForJsonOverride();
+        $definition->addExtension($extension);
+
+        try {
+            [$schema] = $this->generateCapturingDeprecations($this->generator, null);
+
+            $entities = $schema['components']['schemas'];
+
+            static::assertArrayHasKey('JsonOverrideEntity', $entities);
+
+            // JSON-defined field should be present
+            static::assertArrayHasKey('jsonOnlyField', $entities['JsonOverrideEntity']['properties']);
+
+            // PHP base field should NOT be present (PHP schema was skipped)
+            static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
+
+            // Plugin extension association SHOULD be present under extensions
+            static::assertArrayHasKey('extensions', $entities['JsonOverrideEntity']['properties']);
+            static::assertArrayHasKey('pluginEntities', $entities['JsonOverrideEntity']['properties']['extensions']['properties']);
+        } finally {
+            $definition->removeExtension($extension);
+        }
+    }
+
+    public function testPluginJsonAddsFieldToCoreJsonEntity(): void
+    {
+        [$schema, $deprecations] = $this->generateCapturingDeprecations($this->pluginApiGenerator, null);
+
+        $entities = $schema['components']['schemas'];
+
+        static::assertArrayHasKey('JsonOverrideEntity', $entities);
+
+        // Core JSON fields are present
+        static::assertArrayHasKey('jsonOnlyField', $entities['JsonOverrideEntity']['properties']);
+        static::assertArrayHasKey('name', $entities['JsonOverrideEntity']['properties']);
+        static::assertArrayHasKey('status', $entities['JsonOverrideEntity']['properties']);
+
+        // Plugin-added JSON field is present
+        static::assertArrayHasKey('pluginAddedField', $entities['JsonOverrideEntity']['properties']);
+        static::assertSame(
+            'Field added by a plugin via JSON schema',
+            $entities['JsonOverrideEntity']['properties']['pluginAddedField']['description']
+        );
+
+        // PHP-only field is NOT present (PHP schema was skipped)
+        static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
+
+        // Deprecation was triggered
+        $jsonOverrideDeprecations = array_filter(
+            $deprecations,
+            static fn (string $msg): bool => str_contains($msg, 'JsonOverrideEntity')
+        );
+        static::assertNotEmpty($jsonOverrideDeprecations);
+    }
+
+    public function testPluginJsonExtendsEnumWithDeduplication(): void
+    {
+        [$schema] = $this->generateCapturingDeprecations($this->pluginApiGenerator, null);
+
+        $entities = $schema['components']['schemas'];
+        $statusEnum = $entities['JsonOverrideEntity']['properties']['status']['enum'];
+
+        // Core defines ["active", "inactive"], plugin adds ["active", "draft"]
+        // After deduplication: ["active", "inactive", "draft"] — no duplicates
+        static::assertCount(3, $statusEnum);
+        static::assertContains('active', $statusEnum);
+        static::assertContains('inactive', $statusEnum);
+        static::assertContains('draft', $statusEnum);
+    }
+
+    public function testPluginExtensionFieldsSurviveWithPluginJsonSchema(): void
+    {
+        $definition = $this->definitionRegistry->getByEntityName(DefinitionWithJsonOverride::ENTITY_NAME);
+        $extension = new PluginExtensionForJsonOverride();
+        $definition->addExtension($extension);
+
+        try {
+            [$schema] = $this->generateCapturingDeprecations($this->pluginApiGenerator, null);
+
+            $entities = $schema['components']['schemas'];
+
+            static::assertArrayHasKey('JsonOverrideEntity', $entities);
+
+            // Plugin JSON field is present
+            static::assertArrayHasKey('pluginAddedField', $entities['JsonOverrideEntity']['properties']);
+
+            // PHP base field is NOT present
+            static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
+
+            // PHP extension association IS preserved
+            static::assertArrayHasKey('extensions', $entities['JsonOverrideEntity']['properties']);
+            static::assertArrayHasKey('pluginEntities', $entities['JsonOverrideEntity']['properties']['extensions']['properties']);
+        } finally {
+            $definition->removeExtension($extension);
+        }
+    }
+
+    /**
+     * @return array{0: array<string, mixed>, 1: list<string>}
+     */
+    private function generateCapturingDeprecations(StoreApiGenerator $generator, ?string $bundleName): array
+    {
+        $deprecations = [];
+        set_error_handler(static function (int $errno, string $errstr) use (&$deprecations): bool {
+            if ($errno === \E_USER_DEPRECATED) {
+                $deprecations[] = $errstr;
+
+                return true;
+            }
+
+            return false;
+        });
+
+        try {
+            $schema = $generator->generate(
+                $this->definitionRegistry->getDefinitions(),
+                DefinitionService::STORE_API,
+                DefinitionService::TYPE_JSON_API,
+                $bundleName
+            );
+        } finally {
+            restore_error_handler();
+        }
+
+        return [$schema, $deprecations];
     }
 }

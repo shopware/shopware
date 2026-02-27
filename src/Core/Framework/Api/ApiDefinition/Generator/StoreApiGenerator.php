@@ -71,6 +71,20 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         ksort($definitions);
 
+        $schemaPaths = [$this->schemaPath];
+
+        if ($bundleName !== null && $bundleName !== '') {
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        }
+
+        $loader = new OpenApiFileLoader($schemaPaths);
+        $jsonSpec = $loader->loadOpenapiSpecification();
+        $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
+
+        $deprecatedSchemaNames = [];
+
         foreach ($definitions as $definition) {
             if (!$definition instanceof EntityDefinition) {
                 continue;
@@ -84,6 +98,19 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
 
+            $overlapping = array_intersect(array_keys($schema), $jsonSchemaNames);
+
+            foreach ($overlapping as $schemaName) {
+                $deprecatedSchemaNames[] = $schemaName;
+
+                trigger_deprecation(
+                    'shopware/core',
+                    'v6.8.0',
+                    'The PHP schema definition for "%s" is deprecated and should be removed. The schema is already defined in a JSON file.',
+                    $schemaName
+                );
+            }
+
             $openApi->components->merge($schema);
         }
 
@@ -93,17 +120,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
 
-        $schemaPaths = [$this->schemaPath];
+        $this->stripDeprecatedPhpSchemas($data, $deprecatedSchemaNames);
 
-        if ($bundleName !== null && $bundleName !== '') {
-            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        } else {
-            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        }
-
-        $loader = new OpenApiFileLoader($schemaPaths);
-
-        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $loader->loadOpenapiSpecification());
+        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
@@ -215,6 +234,34 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     new Parameter(['ref' => '#/components/parameters/contentType']),
                     new Parameter(['ref' => '#/components/parameters/accept']),
                 );
+            }
+        }
+    }
+
+    /**
+     * For schemas that exist in both PHP and JSON, strips the PHP-generated data
+     * down to only plugin extension fields. The JSON schema becomes the source of
+     * truth for the base definition, while plugin extensions are preserved.
+     *
+     * @param array<string, mixed> $data
+     * @param list<string> $schemaNames
+     */
+    private function stripDeprecatedPhpSchemas(array &$data, array $schemaNames): void
+    {
+        foreach ($schemaNames as $schemaName) {
+            if (!isset($data['components']['schemas'][$schemaName])) {
+                continue;
+            }
+
+            $extensions = $data['components']['schemas'][$schemaName]['properties']['extensions'] ?? null;
+
+            unset($data['components']['schemas'][$schemaName]);
+
+            if ($extensions !== null) {
+                $data['components']['schemas'][$schemaName] = [
+                    'type' => 'object',
+                    'properties' => ['extensions' => $extensions],
+                ];
             }
         }
     }

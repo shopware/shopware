@@ -26,6 +26,18 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 | `/store-api/newsletter/confirm` | `{"success": true}`                                            |
 | `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
 
+### Store API OpenAPI: JSON schema files take precedence over PHP entity definitions
+
+The `StoreApiGenerator` now checks whether a component schema already exists in the JSON schema files before generating it from the PHP `EntityDefinition`. If a match is found, the PHP-generated schema is skipped entirely and a deprecation notice is triggered:
+
+> The PHP schema definition for "EntityName" is deprecated and should be removed. The schema is already defined in a JSON file.
+
+JSON schema files are now the sole source of truth for any entity they define. Properties, required fields, and other schema details from the PHP `EntityDefinition` will not be merged into the JSON schema.
+
+If you maintain a bundle that provides both a PHP `EntityDefinition` and a JSON schema file under `Resources/Schema/StoreApi/components/schemas/` for the same entity, ensure the JSON file is complete and remove the redundant PHP schema generation.
+
+See the [JSON as the Source of Truth for API Schema](https://github.com/shopware/shopware/discussions/15100) RFC for the full rationale and roadmap.
+
 ## Core
 
 ### Deprecation of unused `TemplateGroup` class

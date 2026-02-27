@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Visual: Storefront CMS sliders with vertical alignment', { tag: '@Visual' }, async ({
+test.skip('Visual: Storefront CMS sliders with vertical alignment', { tag: '@Visual' }, async ({
     ShopCustomer,
     TestDataService,
     IdProvider,

@@ -29,16 +29,18 @@ class RedisDeprecatedContainerWiringTest extends TestCase
     /** @use CustomKernelTestBehavior<RedisDeprecatedTestKernel> */
     use CustomKernelTestBehavior;
 
+    private static string $redisUrl;
+
     #[IgnoreDeprecations]
     public static function setUpBeforeClass(): void
     {
-        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-        if ($redisUrl === '') {
-            static::markTestSkipped('Redis is not available');
+        self::$redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+        if (self::$redisUrl === '') {
+            return;
         }
 
         if (Feature::isActive('v6.7.0.0')) {
-            static::markTestSkipped('Test is deprecated and will fail with v6.7');
+            return;
         }
 
         self::loadKernel();
@@ -47,6 +49,17 @@ class RedisDeprecatedContainerWiringTest extends TestCase
     public static function tearDownAfterClass(): void
     {
         self::unloadKernel();
+    }
+
+    protected function setUp(): void
+    {
+        if (self::$redisUrl === '') {
+            static::markTestSkipped('Redis is not available');
+        }
+
+        if (Feature::isActive('v6.7.0.0')) {
+            static::markTestSkipped('Test is deprecated and will fail with v6.7');
+        }
     }
 
     public function testIncrementGateway(): void

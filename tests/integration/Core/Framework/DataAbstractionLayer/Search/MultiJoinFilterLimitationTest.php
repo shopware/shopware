@@ -4,8 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\AfterClass;
-use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -41,25 +39,30 @@ class MultiJoinFilterLimitationTest extends TestCase
 
     private static IdsCollection $ids;
 
-    /**
-     * Tracks whether this class opened the transaction, so we only roll it
-     * back in stopTransactionAfter() if we started it.
-     */
+    private static bool $dataInserted = false;
+
     private static bool $transactionStarted = false;
 
-    #[BeforeClass]
-    public static function startTransactionBefore(): void
-    {
-        self::$ids = new IdsCollection();
-
-        // performance optimization: only insert the test data once per test class and not before each test
-        self::insertTestData();
-    }
-
-    #[AfterClass]
-    public static function stopTransactionAfter(): void
+    public static function tearDownAfterClass(): void
     {
         self::cleanTestData();
+        self::$dataInserted = false;
+    }
+
+    protected function setUp(): void
+    {
+        // We intentionally avoid setUpBeforeClass here: inserting products via the repository triggers
+        // the product indexer → SeoUrlUpdater → a deprecated DBAL method, which fires a PHP deprecation
+        // notice. PHPUnit's deprecation handler requires a TestCase on the call stack to attribute the
+        // notice to a test — which setUpBeforeClass does not provide, causing NoTestCaseObjectOnCallStackException.
+        // setUp() always runs with a TestCase on the stack, so we guard with a static flag to insert only once.
+        if (self::$dataInserted) {
+            return;
+        }
+
+        self::$ids = new IdsCollection();
+        self::insertTestData();
+        self::$dataInserted = true;
     }
 
     public function testOneToManyWithSortWithMultipleJoinGroups(): void

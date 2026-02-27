@@ -24,11 +24,13 @@ class RedisContainerWiringTest extends TestCase
     /** @use CustomKernelTestBehavior<RedisTestKernel> */
     use CustomKernelTestBehavior;
 
+    private static string $redisUrl;
+
     public static function setUpBeforeClass(): void
     {
-        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-        if ($redisUrl === '') {
-            static::markTestSkipped('Redis is not available');
+        self::$redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+        if (self::$redisUrl === '') {
+            return;
         }
 
         self::loadKernel();
@@ -36,23 +38,28 @@ class RedisContainerWiringTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
-        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-        if ($redisUrl === '') {
+        if (self::$redisUrl === '') {
             return;
         }
 
         self::unloadKernel();
     }
 
+    protected function setUp(): void
+    {
+        if (self::$redisUrl === '') {
+            static::markTestSkipped('Redis is not available');
+        }
+    }
+
     public function testRedisConnections(): void
     {
         // Fetch the container
         $container = self::$kernel->getContainer();
-        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
 
         // Validate config is read correctly
         static::assertTrue($container->hasParameter('shopware.redis.connections.ephemeral.dsn'));
-        static::assertEquals($redisUrl, $container->getParameter('shopware.redis.connections.ephemeral.dsn'));
+        static::assertEquals(self::$redisUrl, $container->getParameter('shopware.redis.connections.ephemeral.dsn'));
 
         // Validate that connection provider is correctly set
         static::assertTrue($container->has(RedisConnectionProvider::class));

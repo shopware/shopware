@@ -33,7 +33,7 @@ class WebhookPersister implements PersisterInterface
     public function persist(AppLifecycleContext $context): void
     {
         $appId = $context->app->getId();
-        $flowActions = $this->getFlowActions($context->filesystem);
+        $flowActions = $this->getFlowActions($context->appFilesystem);
         $webhooks = $this->getWebhooks($context->manifest, $flowActions, $appId, $context->defaultLocale, $context->hasAppSecret());
 
         $existingWebhooks = $this->getExistingWebhooks($appId);

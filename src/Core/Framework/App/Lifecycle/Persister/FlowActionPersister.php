@@ -45,8 +45,8 @@ class FlowActionPersister implements PersisterInterface
 
         foreach ($flowActions as $action) {
             $icon = $action->getMeta()->getIcon();
-            if ($icon && $context->filesystem->has('Resources/' . $icon)) {
-                $icon = $context->filesystem->read('Resources/' . $icon);
+            if ($icon && $context->appFilesystem->has('Resources/' . $icon)) {
+                $icon = $context->appFilesystem->read('Resources/' . $icon);
             }
 
             $payload = array_merge([
@@ -72,11 +72,11 @@ class FlowActionPersister implements PersisterInterface
 
     private function getFlowActions(AppLifecycleContext $context): ?Action
     {
-        if (!$context->filesystem->has('Resources/flow.xml')) {
+        if (!$context->appFilesystem->has('Resources/flow.xml')) {
             return null;
         }
 
-        return Action::createFromXmlFile($context->filesystem->path('Resources/flow.xml'));
+        return Action::createFromXmlFile($context->appFilesystem->path('Resources/flow.xml'));
     }
 
     /**

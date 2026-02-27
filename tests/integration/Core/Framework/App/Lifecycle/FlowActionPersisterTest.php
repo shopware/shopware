@@ -124,7 +124,7 @@ class FlowActionPersisterTest extends TestCase
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
-            filesystem: new Filesystem($appDir),
+            appFilesystem: new Filesystem($appDir),
             defaultLocale: 'en-GB',
             isInstall: false,
         );

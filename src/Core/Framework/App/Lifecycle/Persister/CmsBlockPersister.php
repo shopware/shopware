@@ -29,11 +29,11 @@ class CmsBlockPersister implements PersisterInterface
 
     public function persist(AppLifecycleContext $context): void
     {
-        if (!$context->filesystem->has('Resources/cms.xml')) {
+        if (!$context->appFilesystem->has('Resources/cms.xml')) {
             return;
         }
 
-        $cmsExtensions = CmsExtensions::createFromXmlFile($context->filesystem->path('Resources/cms.xml'));
+        $cmsExtensions = CmsExtensions::createFromXmlFile($context->appFilesystem->path('Resources/cms.xml'));
 
         $existingCmsBlocks = $this->getExistingCmsBlocks($context->app->getId(), $context->context);
 

@@ -89,7 +89,7 @@ class ShippingMethodPersister implements PersisterInterface
                 );
                 $existingShippingMethods->remove($shippingMethodEntity->getId());
             } else {
-                $payload['appShippingMethod']['originalMediaId'] = $this->getIconId($context->filesystem, $appName, $manifestShippingMethod, $context->context);
+                $payload['appShippingMethod']['originalMediaId'] = $this->getIconId($context->appFilesystem, $appName, $manifestShippingMethod, $context->context);
                 $payload['mediaId'] = $payload['appShippingMethod']['originalMediaId'];
             }
 

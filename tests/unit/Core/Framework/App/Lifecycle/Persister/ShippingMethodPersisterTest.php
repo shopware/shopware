@@ -74,7 +74,7 @@ class ShippingMethodPersisterTest extends TestCase
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
-            filesystem: new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
+            appFilesystem: new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
             defaultLocale: self::DEFAULT_LOCALE_ID,
             isInstall: true,
         );

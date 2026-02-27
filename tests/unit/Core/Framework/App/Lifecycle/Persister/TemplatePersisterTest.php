@@ -161,7 +161,7 @@ class TemplatePersisterTest extends TestCase
             manifest: $this->manifest,
             app: $app,
             context: Context::createDefaultContext(),
-            filesystem: new StaticFilesystem(),
+            appFilesystem: new StaticFilesystem(),
             defaultLocale: 'en-GB',
             isInstall: $isInstall,
         );

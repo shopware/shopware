@@ -62,7 +62,7 @@ class PaymentMethodPersister implements PersisterInterface
 
             $payload['appPaymentMethod']['appId'] = $appId;
             $payload['appPaymentMethod']['appName'] = $appName;
-            $payload['appPaymentMethod']['originalMediaId'] = $this->getMediaId($context->filesystem, $appName, $paymentMethod, $context->context, $existingAppPaymentMethod);
+            $payload['appPaymentMethod']['originalMediaId'] = $this->getMediaId($context->appFilesystem, $appName, $paymentMethod, $context->context, $existingAppPaymentMethod);
 
             if ($existing && $existingAppPaymentMethod) {
                 $existingPaymentMethods->remove($existing->getId());

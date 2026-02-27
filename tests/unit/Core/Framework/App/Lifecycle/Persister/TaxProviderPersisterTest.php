@@ -173,7 +173,7 @@ class TaxProviderPersisterTest extends TestCase
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
-            filesystem: new StaticFilesystem(),
+            appFilesystem: new StaticFilesystem(),
             defaultLocale: 'testApp',
             isInstall: true,
         );

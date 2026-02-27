@@ -20,7 +20,10 @@ final readonly class AppLifecycleContext
         public Manifest $manifest,
         public AppEntity $app,
         public Context $context,
-        public Filesystem $filesystem,
+        /**
+         * A filesystem scoped to the root of the extracted app
+         */
+        public Filesystem $appFilesystem,
         public string $defaultLocale,
         public bool $isInstall,
     ) {

@@ -183,7 +183,7 @@ class ModulePersisterTest extends TestCase
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
-            filesystem: new StaticFilesystem(),
+            appFilesystem: new StaticFilesystem(),
             defaultLocale: 'en-GB',
             isInstall: true,
         );

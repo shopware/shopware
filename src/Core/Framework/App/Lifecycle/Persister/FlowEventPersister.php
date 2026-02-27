@@ -29,7 +29,7 @@ class FlowEventPersister implements PersisterInterface
 
     public function persist(AppLifecycleContext $context): void
     {
-        $flowEvents = $this->getFlowEvents($context->filesystem);
+        $flowEvents = $this->getFlowEvents($context->appFilesystem);
 
         if ($flowEvents) {
             $this->updateEvents($flowEvents, $context->app->getId(), $context->context, $context->defaultLocale);

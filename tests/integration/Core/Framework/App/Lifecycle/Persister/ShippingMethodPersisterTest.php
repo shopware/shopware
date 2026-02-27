@@ -207,7 +207,7 @@ class ShippingMethodPersisterTest extends TestCase
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
-            filesystem: $sourceResolver->filesystemForManifest($manifest),
+            appFilesystem: $sourceResolver->filesystemForManifest($manifest),
             defaultLocale: Defaults::LANGUAGE_SYSTEM,
             isInstall: false,
         );

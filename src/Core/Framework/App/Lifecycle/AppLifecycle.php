@@ -248,7 +248,7 @@ class AppLifecycle extends AbstractAppLifecycle
             manifest: $manifest,
             app: $app,
             context: $context,
-            filesystem: $this->sourceResolver->filesystemForManifest($manifest),
+            appFilesystem: $this->sourceResolver->filesystemForManifest($manifest),
             defaultLocale: $defaultLocale,
             isInstall: $install,
         ));

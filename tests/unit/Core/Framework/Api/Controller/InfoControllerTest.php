@@ -10,20 +10,22 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Symfony\Component\Asset\Packages;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Asset\UrlPackage;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -34,57 +36,37 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {
-    private InfoController $infoController;
+    use EnvTestBehaviour;
 
-    private ParameterBagInterface&MockObject $parameterBagMock;
+    private ShopIdProvider&MockObject $shopIdProvider;
 
-    private Kernel&MockObject $kernelMock;
+    private StatsService&MockObject $statsService;
 
-    private RouterInterface&MockObject $routerMock;
+    private MigrationInfo&MockObject $migrationInfo;
 
-    private FilesystemOperator&MockObject $fileSystemOperator;
+    private EventDispatcher $eventDispatcher;
 
-    private InAppPurchase $inAppPurchase;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $this->statsService = $this->createMock(StatsService::class);
+        $this->migrationInfo = $this->createMock(MigrationInfo::class);
+        $this->eventDispatcher = new EventDispatcher();
+    }
 
     public function testConfig(): void
     {
-        $this->createInstance();
+        $this->setEnvVars([
+            'APP_URL' => 'https://app.url',
+        ]);
 
-        $this->parameterBagMock->method('get')
-            ->willReturnMap([
-                ['shopware.html_sanitizer.enabled', true],
-                ['shopware.filesystem.private_allowed_extensions', false],
-                ['shopware.admin_worker.transports', ['slow']],
-                ['shopware.admin_worker.enable_notification_worker', true],
-                ['shopware.admin_worker.enable_queue_stats_worker', true],
-                ['shopware.admin_worker.enable_admin_worker', true],
-                ['kernel.shopware_version', '6.6.9999999-dev'],
-                ['kernel.shopware_version_revision', 'PHPUnit'],
-                ['shopware.media.enable_url_upload_feature', true],
-            ]);
+        $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
-        $this->kernelMock->method('getBundles')
-            ->willReturn([
-                new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
-            ]);
-
-        $this->routerMock->method('generate')
-            ->with(
-                'administration.plugin.index',
-                [
-                    'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
-                ]
-            )
-            ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
-
-        $this->fileSystemOperator->method('fileExists')
-            ->willReturn(true);
-
-        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
-        $content = $response->getContent();
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);
         static::assertArrayHasKey('version', $data);
         static::assertSame('6.6.9999999.9999999-dev', $data['version']);
@@ -144,29 +126,154 @@ class InfoControllerTest extends TestCase
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
     }
 
-    private function createInstance(): void
+    public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
     {
-        $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
-        $this->kernelMock = $this->createMock(Kernel::class);
-        $this->routerMock = $this->createMock(RouterInterface::class);
-        $this->fileSystemOperator = $this->createMock(FilesystemOperator::class);
-        $this->inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]);
+        $this->shopIdProvider
+            ->expects($this->once())
+            ->method('getShopId')
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('current-shop-id'), new FingerprintComparisonResult([], [], 75)));
 
-        $this->infoController = new InfoController(
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('shopId', $data);
+        static::assertSame('current-shop-id', $data['shopId']);
+    }
+
+    public function testConfigExtension(): void
+    {
+        $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, function (AdminInfoConfigEvent $event): void {
+            $event->addConfig('foo', 'bar');
+        });
+
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('foo', $data);
+        static::assertSame('bar', $data['foo']);
+    }
+
+    public function testMessageStatsPreservesFloatingPointPrecision(): void
+    {
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(
+                true,
+                new MessageStatsEntity(1, new \DateTime(), 1.00, new MessageTypeStatsCollection())
+            )
+        );
+        $content = $this->createController()->messageStats()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('stats', $data);
+        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
+
+        // Check that the floating point precision is preserved for zero-padded decimal values
+        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
+    }
+
+    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNull(): void
+    {
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertNull($data['settings']['firstMigrationDate']);
+    }
+
+    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNullAgain(): void
+    {
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertNull($data['settings']['firstMigrationDate']);
+    }
+
+    public function testConfigReturnsFirstMigrationDateFromMigrationInfo(): void
+    {
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn('2020-01-01T00:00:00.123+00:00');
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
+    }
+
+    private function createController(): InfoController
+    {
+        $parameterBag = new ParameterBag([
+            'shopware.html_sanitizer.enabled' => true,
+            'shopware.filesystem.private_allowed_extensions' => false,
+            'shopware.admin_worker.transports' => ['slow'],
+            'shopware.admin_worker.enable_notification_worker' => true,
+            'shopware.admin_worker.enable_queue_stats_worker' => true,
+            'shopware.admin_worker.enable_admin_worker' => true,
+            'kernel.shopware_version' => '6.6.9999999-dev',
+            'kernel.shopware_version_revision' => 'PHPUnit',
+            'shopware.media.enable_url_upload_feature' => true,
+            'shopware.staging.administration.show_banner' => false,
+            'shopware.deployment.runtime_extension_management' => true,
+        ]);
+
+        $kernel = new StubKernel([
+            new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
+        ]);
+
+        $routerMock = $this->createMock(RouterInterface::class);
+        $routerMock->method('generate')
+            ->with('administration.plugin.index', [
+                'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
+            ])
+            ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
+
+        $viteAccessor = new ViteFileAccessorDecorator(
+            [],
+            $this->createMock(UrlPackage::class),
+            $kernel,
+            new Filesystem(),
+        );
+
+        return new InfoController(
             $this->createMock(DefinitionService::class),
-            $this->parameterBagMock,
-            $this->kernelMock,
-            $this->createMock(Packages::class),
+            $parameterBag,
+            $kernel,
             $this->createMock(BusinessEventCollector::class),
             $this->createMock(IncrementGatewayRegistry::class),
             $this->createMock(Connection::class),
+            $this->migrationInfo,
             $this->createMock(AppUrlVerifier::class),
-            $this->routerMock,
+            $routerMock,
             $this->createMock(FlowActionCollector::class),
             new StaticSystemConfigService(),
             $this->createMock(ApiRouteInfoResolver::class),
-            $this->inAppPurchase,
-            $this->fileSystemOperator,
+            StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]),
+            $viteAccessor,
+            new Filesystem(),
+            $this->shopIdProvider,
+            $this->statsService,
+            $this->eventDispatcher,
         );
     }
 }

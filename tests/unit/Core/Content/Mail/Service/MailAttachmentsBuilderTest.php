@@ -249,9 +249,11 @@ class MailAttachmentsBuilderTest extends TestCase
         $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], null);
 
         static::assertCount(1, $attachments);
-        static::assertSame($xmlDocId, $attachments[0]['id']);
-        static::assertSame('<?xml version="1.0"?>', $attachments[0]['content']);
-        static::assertSame('invoice.xml', $attachments[0]['fileName']);
-        static::assertSame('application/xml', $attachments[0]['mimeType']);
+        $attachment = $attachments[0];
+        static::assertArrayHasKey('id', $attachment);
+        static::assertSame($xmlDocId, $attachment['id']);
+        static::assertSame('<?xml version="1.0"?>', $attachment['content']);
+        static::assertSame('invoice.xml', $attachment['fileName']);
+        static::assertSame('application/xml', $attachment['mimeType']);
     }
 }

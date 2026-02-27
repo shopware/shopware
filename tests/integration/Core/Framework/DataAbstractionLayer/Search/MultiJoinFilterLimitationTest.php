@@ -2,6 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -12,17 +16,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  *
- * This test case covers known limitations when using multiple join groups
+ * This test case covers known limitations when using multiple join groups.
  * Due to conceptual reasons multi join groups won't do a "real join" to the filtered association,
  * this means all other DAL features (e.g. sorting, grouping) won't work as expected in combination with multi join groups.
- * Sorting is based on a unfiltered join (meaning all associated entities are considered for sorting, not just the filtered once).
+ * Sorting is based on an unfiltered join (meaning all associated entities are considered for sorting, not just the filtered ones).
  * Grouping is only supported in conjunction with sorting in those cases, and would then also operate on the unfiltered join.
  *
  * The behaviour documented in test explicitly is not considered part of the public API and therefore might be fixed in future versions.
@@ -32,28 +37,46 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  */
 class MultiJoinFilterLimitationTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
-    private IdsCollection $ids;
+    private static IdsCollection $ids;
 
-    protected function setUp(): void
+    /**
+     * Tracks whether this class opened the transaction, so we only roll it
+     * back in stopTransactionAfter() if we started it.
+     */
+    private static bool $transactionStarted = false;
+
+    #[BeforeClass]
+    public static function startTransactionBefore(): void
     {
-        $this->ids = new IdsCollection();
-        $this->insertTestData();
+        self::$ids = new IdsCollection();
+
+        // performance optimization: only insert the test data once per test class and not before each test
+        self::insertTestData();
+    }
+
+    #[AfterClass]
+    public static function stopTransactionAfter(): void
+    {
+        self::cleanTestData();
     }
 
     public function testOneToManyWithSortWithMultipleJoinGroups(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('product-'));
+        $criteria = new Criteria([
+            self::$ids->get('product-1'),
+            self::$ids->get('product-2'),
+            self::$ids->get('product-3'),
+        ]);
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('product.prices.ruleId', $this->ids->get('rule-2')),
+                    new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-2')),
                     new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('product.prices.ruleId', $this->ids->get('rule-1')),
+                    new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
                     new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
                 ]),
             ])
@@ -65,23 +88,27 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins
-        // Both products have matching prices, making the sort order non-deterministic
-        static::assertContains($this->ids->get('product-1'), $result->getIds());
-        static::assertContains($this->ids->get('product-2'), $result->getIds());
+        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
+        // Both products have matching prices, making the sort order non-deterministic.
+        static::assertContains(self::$ids->get('product-1'), $result->getIds());
+        static::assertContains(self::$ids->get('product-2'), $result->getIds());
     }
 
     public function testOneToManyWithSortWithMultipleJoinGroupsDesc(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('product-'));
+        $criteria = new Criteria([
+            self::$ids->get('product-1'),
+            self::$ids->get('product-2'),
+            self::$ids->get('product-3'),
+        ]);
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('product.prices.ruleId', $this->ids->get('rule-1')),
+                    new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
                     new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('product.prices.ruleId', $this->ids->get('rule-2')),
+                    new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-2')),
                     new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
                 ]),
             ])
@@ -93,23 +120,23 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins
-        // Both products have matching prices, making the sort order non-deterministic
-        static::assertContains($this->ids->get('product-1'), $result->getIds());
-        static::assertContains($this->ids->get('product-2'), $result->getIds());
+        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
+        // Both products have matching prices, making the sort order non-deterministic.
+        static::assertContains(self::$ids->get('product-1'), $result->getIds());
+        static::assertContains(self::$ids->get('product-2'), $result->getIds());
     }
 
     public function testOneToManyWithMultipleJoinGroupsAndGroupingIsNotSupported(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('product.prices.ruleId', $this->ids->get('rule-1')),
+                    new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
                     new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('product.prices.ruleId', $this->ids->get('rule-2')),
+                    new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-2')),
                     new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
                 ]),
             ])
@@ -123,16 +150,16 @@ class MultiJoinFilterLimitationTest extends TestCase
 
     public function testManyToOneWithSort(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('category-'));
+        $criteria = new Criteria(self::$ids->prefixed('category-'));
 
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('category.products.manufacturer.id', $this->ids->get('manufacturer-1')),
+                    new EqualsFilter('category.products.manufacturer.id', self::$ids->get('manufacturer-1')),
                     new EqualsFilter('category.products.manufacturer.name', 'manufacturer-1'),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('category.products.manufacturer.id', $this->ids->get('manufacturer-2')),
+                    new EqualsFilter('category.products.manufacturer.id', self::$ids->get('manufacturer-2')),
                     new EqualsFilter('category.products.manufacturer.name', 'manufacturer-2'),
                 ]),
             ])
@@ -143,24 +170,25 @@ class MultiJoinFilterLimitationTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(3, $result->getTotal());
-        // Verify all expected categories are returned
-        static::assertContains($this->ids->get('category-1'), $result->getIds());
-        static::assertContains($this->ids->get('category-2'), $result->getIds());
-        static::assertContains($this->ids->get('category-3'), $result->getIds());
+
+        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
+        static::assertContains(self::$ids->get('category-1'), $result->getIds());
+        static::assertContains(self::$ids->get('category-2'), $result->getIds());
+        static::assertContains(self::$ids->get('category-3'), $result->getIds());
     }
 
     public function testManyToOneWithSortDesc(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('category-'));
+        $criteria = new Criteria(self::$ids->prefixed('category-'));
 
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('category.products.manufacturer.id', $this->ids->get('manufacturer-1')),
+                    new EqualsFilter('category.products.manufacturer.id', self::$ids->get('manufacturer-1')),
                     new EqualsFilter('category.products.manufacturer.name', 'manufacturer-1'),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('category.products.manufacturer.id', $this->ids->get('manufacturer-2')),
+                    new EqualsFilter('category.products.manufacturer.id', self::$ids->get('manufacturer-2')),
                     new EqualsFilter('category.products.manufacturer.name', 'manufacturer-2'),
                 ]),
             ])
@@ -171,23 +199,24 @@ class MultiJoinFilterLimitationTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(3, $result->getTotal());
-        // Verify all expected categories are returned
-        static::assertContains($this->ids->get('category-1'), $result->getIds());
-        static::assertContains($this->ids->get('category-2'), $result->getIds());
-        static::assertContains($this->ids->get('category-3'), $result->getIds());
+
+        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
+        static::assertContains(self::$ids->get('category-1'), $result->getIds());
+        static::assertContains(self::$ids->get('category-2'), $result->getIds());
+        static::assertContains(self::$ids->get('category-3'), $result->getIds());
     }
 
     public function testManyToOneWithMultipleJoinGroupsAndGroupingIsNotSupported(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('category-'));
+        $criteria = new Criteria(self::$ids->prefixed('category-'));
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('category.products.manufacturer.id', $this->ids->get('manufacturer-1')),
+                    new EqualsFilter('category.products.manufacturer.id', self::$ids->get('manufacturer-1')),
                     new EqualsFilter('category.products.manufacturer.name', 'manufacturer-1'),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('category.products.manufacturer.id', $this->ids->get('manufacturer-2')),
+                    new EqualsFilter('category.products.manufacturer.id', self::$ids->get('manufacturer-2')),
                     new EqualsFilter('category.products.manufacturer.name', 'manufacturer-2'),
                 ]),
             ])
@@ -201,15 +230,19 @@ class MultiJoinFilterLimitationTest extends TestCase
 
     public function testManyToManyWithSort(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('product-'));
+        $criteria = new Criteria([
+            self::$ids->get('product-1'),
+            self::$ids->get('product-2'),
+            self::$ids->get('product-3'),
+        ]);
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('product.properties.id', $this->ids->get('yellow')),
+                    new EqualsFilter('product.properties.id', self::$ids->get('yellow')),
                     new EqualsFilter('product.properties.name', 'yellow'),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('product.properties.id', $this->ids->get('S')),
+                    new EqualsFilter('product.properties.id', self::$ids->get('S')),
                     new EqualsFilter('product.properties.name', 'S'),
                 ]),
             ])
@@ -221,23 +254,27 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins
-        // Both products have multiple properties, making the sort order potentially non-deterministic
-        static::assertContains($this->ids->get('product-1'), $result->getIds());
-        static::assertContains($this->ids->get('product-2'), $result->getIds());
+        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
+        // Both products have multiple properties, making the sort order potentially non-deterministic.
+        static::assertContains(self::$ids->get('product-1'), $result->getIds());
+        static::assertContains(self::$ids->get('product-2'), $result->getIds());
     }
 
     public function testManyToManyWithSortDesc(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('product-'));
+        $criteria = new Criteria([
+            self::$ids->get('product-1'),
+            self::$ids->get('product-2'),
+            self::$ids->get('product-3'),
+        ]);
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('product.properties.id', $this->ids->get('yellow')),
+                    new EqualsFilter('product.properties.id', self::$ids->get('yellow')),
                     new EqualsFilter('product.properties.name', 'yellow'),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('product.properties.id', $this->ids->get('S')),
+                    new EqualsFilter('product.properties.id', self::$ids->get('S')),
                     new EqualsFilter('product.properties.name', 'S'),
                 ]),
             ])
@@ -249,23 +286,23 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins
-        // Both products have multiple properties, making the sort order potentially non-deterministic
-        static::assertContains($this->ids->get('product-1'), $result->getIds());
-        static::assertContains($this->ids->get('product-2'), $result->getIds());
+        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
+        // Both products have multiple properties, making the sort order potentially non-deterministic.
+        static::assertContains(self::$ids->get('product-1'), $result->getIds());
+        static::assertContains(self::$ids->get('product-2'), $result->getIds());
     }
 
     public function testManyToManyWithGroup(): void
     {
-        $criteria = new Criteria($this->ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new OrFilter([
                 new AndFilter([
-                    new EqualsFilter('product.properties.id', $this->ids->get('yellow')),
+                    new EqualsFilter('product.properties.id', self::$ids->get('yellow')),
                     new EqualsFilter('product.properties.name', 'yellow'),
                 ]),
                 new AndFilter([
-                    new EqualsFilter('product.properties.id', $this->ids->get('S')),
+                    new EqualsFilter('product.properties.id', self::$ids->get('S')),
                     new EqualsFilter('product.properties.name', 'S'),
                 ]),
             ])
@@ -277,101 +314,105 @@ class MultiJoinFilterLimitationTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
     }
 
-    private function insertTestData(): void
+    private static function cleanTestData(): void
     {
-        $products = [
-            (new ProductBuilder($this->ids, 'product-1', 10, 'tax'))
-                ->price(15, 10)
-                ->manufacturer('manufacturer-1')
-                ->property('red', 'color')
-                ->property('yellow', 'color')
-                ->property('XL', 'size')
-                ->property('L', 'size')
-                ->category('category-1')
-                ->category('category-2')
-                ->prices('rule-1', 100)
-                ->prices('rule-2', 150)
-                ->build(),
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
 
-            (new ProductBuilder($this->ids, 'product-1-variant', 10, 'tax'))
-                ->parent('product-1')
-                ->build(),
+        if (self::$transactionStarted) {
+            $connection->rollBack();
+            self::$transactionStarted = false;
 
-            (new ProductBuilder($this->ids, 'product-2', 3, 'tax'))
-                ->price(15, 10)
-                ->manufacturer('manufacturer-2')
-                ->property('red', 'color')
-                ->property('S', 'size')
-                ->category('category-1')
-                ->category('category-3')
-                ->prices('rule-1', 150)
-                ->build(),
+            return;
+        }
 
-            (new ProductBuilder($this->ids, 'product-3', 3, 'tax'))
-                ->price(15, 10)
-                ->category('category-4')
-                ->build(),
-        ];
+        // Fallback: if we could not open our own transaction (because another suite held one open),
+        // explicitly delete the rows we inserted so they do not leak into other tests.
+        $productIds = array_values(array_map(
+            static fn (string $id) => Uuid::fromHexToBytes($id),
+            self::$ids->prefixed('product-')
+        ));
 
-        static::getContainer()->get('product.repository')
-            ->create($products, Context::createDefaultContext());
+        if ($productIds !== []) {
+            $connection->executeStatement(
+                'DELETE FROM `product` WHERE `id` IN (:ids)',
+                ['ids' => $productIds],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        }
+    }
 
-        // Create a dedicated locale and language for the test
-        // This ensures full transaction isolation without relying on global fixtures
-        $locale = [
-            'id' => $this->ids->create('test-locale'),
-            'code' => 'xx-TEST-' . $this->ids->get('test-locale'),
-            'name' => 'Test Locale',
-            'territory' => 'test',
-        ];
+    private static function insertTestData(): void
+    {
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
 
-        static::getContainer()->get('locale.repository')
-            ->create([$locale], Context::createDefaultContext());
+        // Only open a transaction when no other test holds one open already, to avoid a nested savepoint by accident.
+        if ($connection->getTransactionNestingLevel() === 0) {
+            $connection->beginTransaction();
+            self::$transactionStarted = true;
+        }
 
-        $language = [
-            'id' => $this->ids->create('test-language'),
-            'name' => 'Test Language',
-            'localeId' => $this->ids->get('test-locale'),
-            'translationCodeId' => $this->ids->get('test-locale'),
-        ];
+        $container = KernelLifecycleManager::getKernel()->getContainer();
 
-        static::getContainer()->get('language.repository')
-            ->create([$language], Context::createDefaultContext());
+        try {
+            $products = [
+                (new ProductBuilder(self::$ids, 'product-1', 10, 'tax'))
+                    ->price(15, 10)
+                    ->manufacturer('manufacturer-1')
+                    ->property('red', 'color')
+                    ->property('yellow', 'color')
+                    ->property('XL', 'size')
+                    ->property('L', 'size')
+                    ->category('category-1')
+                    ->category('category-2')
+                    ->prices('rule-1', 100)
+                    ->prices('rule-2', 150)
+                    ->build(),
 
-        $testUser = [
-            'id' => $this->ids->create('test-user'),
-            'localeId' => $this->ids->get('test-locale'),
-            'username' => 'test-user-' . $this->ids->get('test-user'),
-            'firstName' => 'Test',
-            'lastName' => 'User',
-            'email' => 'test-user-' . $this->ids->get('test-user') . '@example.com',
-            'password' => 'shopware',
-        ];
+                (new ProductBuilder(self::$ids, 'product-1-variant', 10, 'tax'))
+                    ->parent('product-1')
+                    ->build(),
 
-        static::getContainer()->get('user.repository')
-            ->create([$testUser], Context::createDefaultContext());
+                (new ProductBuilder(self::$ids, 'product-2', 3, 'tax'))
+                    ->price(15, 10)
+                    ->manufacturer('manufacturer-2')
+                    ->property('red', 'color')
+                    ->property('S', 'size')
+                    ->category('category-1')
+                    ->category('category-3')
+                    ->prices('rule-1', 150)
+                    ->build(),
 
-        $this->ids->set('user-id', $this->ids->get('test-user'));
+                (new ProductBuilder(self::$ids, 'product-3', 3, 'tax'))
+                    ->price(15, 10)
+                    ->category('category-4')
+                    ->build(),
+            ];
 
-        $media = [
-            ['id' => $this->ids->create('with-avatar')],
-            ['id' => $this->ids->create('without-avatar')],
-        ];
+            $container->get('product.repository')
+                ->create($products, Context::createDefaultContext());
 
-        static::getContainer()->get('media.repository')
-            ->create($media, Context::createDefaultContext());
+            $result = $container->get('product.repository')
+                ->searchIds(new Criteria(self::$ids->prefixed('product-')), Context::createDefaultContext());
 
-        $avatar = [
-            'id' => $this->ids->get('user-id'),
-            'avatarId' => $this->ids->get('with-avatar'),
-        ];
+            if ($result->getTotal() !== \count($products)) {
+                throw new \UnexpectedValueException(\sprintf(
+                    'Failed to insert test data: expected %d products, got %d',
+                    \count($products),
+                    $result->getTotal()
+                ));
+            }
+        } catch (\Throwable $e) {
+            // Roll back the transaction we opened to avoid leaving it unclosed for the rest of the process
+            if (self::$transactionStarted) {
+                $connection->rollBack();
+                self::$transactionStarted = false;
+            }
 
-        static::getContainer()->get('user.repository')
-            ->update([$avatar], Context::createDefaultContext());
-
-        $result = static::getContainer()->get('product.repository')
-            ->searchIds(new Criteria($this->ids->prefixed('product-')), Context::createDefaultContext());
-
-        static::assertSame(\count($products), $result->getTotal());
+            throw $e;
+        }
     }
 }

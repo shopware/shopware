@@ -5,18 +5,88 @@
     "components": {
         "schemas": {
             "SeoUrl": {
-                "type": "object",
-                "title": "SeoUrlEntity",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "languageId",
+                    "foreignKey",
+                    "routeName",
+                    "pathInfo",
+                    "seoPathInfo"
+                ],
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "salesChannelId": {
+                        "description": "Unique identity of sales channel.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "languageId": {
+                        "description": "Unique identity of language.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "foreignKey": {
+                        "description": "The key that references to product or category entity ID.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
                     "routeName": {
+                        "description": "A destination routeName that has been registered somewhere in the app's router. For example: \\\\\"frontend.detail.page\\\\\"",
                         "type": "string",
                         "enum": [
                             "frontend.navigation.page",
                             "frontend.landing.page",
                             "frontend.detail.page"
                         ]
+                    },
+                    "pathInfo": {
+                        "description": "Path to product URL. For example: \\\\\"/detail/bbf36734504741c79a3bbe3795b91564\\\\\"",
+                        "type": "string"
+                    },
+                    "seoPathInfo": {
+                        "description": "Seo path to product. For example: \\\\\"Pepper-white-ground-pearl/SW10098\\\\\"",
+                        "type": "string"
+                    },
+                    "isCanonical": {
+                        "description": "When set to true, search redirects to the main URL.",
+                        "type": "boolean"
+                    },
+                    "isModified": {
+                        "description": "When boolean value is `true`, the seo url is changed.",
+                        "type": "boolean"
+                    },
+                    "isDeleted": {
+                        "description": "When set to true, the URL is deleted and cannot be used any more but it is still available on table and can be restored later.",
+                        "type": "boolean"
+                    },
+                    "error": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
+                        "type": "string"
+                    },
+                    "url": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
                     }
-                }
+                },
+                "type": "object",
+                "title": "SeoUrlEntity"
             }
         }
     }

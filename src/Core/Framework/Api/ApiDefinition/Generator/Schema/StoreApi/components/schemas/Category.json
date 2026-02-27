@@ -5,30 +5,162 @@
     "components": {
         "schemas": {
             "Category": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "apiAlias",
+                    "breadcrumb",
+                    "children",
+                    "childCount",
+                    "translated",
+                    "type",
+                    "id",
+                    "name"
+                ],
                 "properties": {
-                    "apiAlias": {
-                        "type": "string",
-                        "enum": ["category"]
-                    },
                     "id": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
-                    "children": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Category"
-                        }
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
                     },
-                    "childCount": {
-                        "type": "number"
+                    "parentId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "parentVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "afterCategoryId": {
+                        "description": "Unique identity of the category under which the new category is to be created.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "afterCategoryVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "mediaId": {
+                        "description": "Unique identity of media added to identify category.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "displayNestedProducts": {
+                        "description": "Shows nested categories on a product category page.",
+                        "type": "boolean"
                     },
                     "breadcrumb": {
                         "type": "array",
                         "items": {
-                            "type": "string"
-                        }
+                            "type": "string",
+                            "additionalProperties": false
+                        },
+                        "readOnly": true
+                    },
+                    "level": {
+                        "description": "An integer value that denotes the level of nesting of a particular category located in an hierarchical category tree.",
+                        "type": "integer",
+                        "format": "int64",
+                        "readOnly": true
+                    },
+                    "path": {
+                        "description": "A relative URL to the category.",
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "childCount": {
+                        "type": "number",
+                        "format": "int64",
+                        "readOnly": true
+                    },
+                    "type": {
+                        "description": "Type of categories like `page`, `folder`, `link`.",
+                        "type": "string",
+                        "enum": [
+                            "page",
+                            "link"
+                        ]
+                    },
+                    "productAssignmentType": {
+                        "description": "Type of product assignment: Dynamic product group as or `product_stream` or Manual assignment as `product`.",
+                        "type": "string"
+                    },
+                    "visible": {
+                        "description": "Displays categories on category page when true.",
+                        "type": "boolean"
+                    },
+                    "active": {
+                        "description": "When boolean value is `true`, the category is listed for selection.",
+                        "type": "boolean"
+                    },
+                    "cmsPageIdSwitched": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
+                        "type": "boolean"
+                    },
+                    "visibleChildCount": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "linkType": {
+                        "type": "string"
+                    },
+                    "internalLink": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "externalLink": {
+                        "type": "string"
+                    },
+                    "linkNewTab": {
+                        "type": "boolean"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "metaTitle": {
+                        "type": "string"
+                    },
+                    "metaDescription": {
+                        "type": "string"
+                    },
+                    "keywords": {
+                        "type": "string"
+                    },
+                    "cmsPageId": {
+                        "description": "Unique identity of CMS page.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "cmsPageVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customEntityTypeId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "seoUrl": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
                     },
                     "translated": {
                         "type": "object",
@@ -41,21 +173,51 @@
                                 }
                             }
                         },
-                        "required": ["breadcrumb"]
+                        "required": [
+                            "breadcrumb"
+                        ]
                     },
-                    "type": {
+                    "parent": {
+                        "$ref": "#/components/schemas/Category",
+                        "description": "Unique identity of category."
+                    },
+                    "children": {
+                        "description": "Child categories within this category for hierarchical navigation",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Category"
+                        }
+                    },
+                    "media": {
+                        "$ref": "#/components/schemas/Media",
+                        "description": "Category image or banner"
+                    },
+                    "tags": {
+                        "description": "Tags for organizing and filtering categories",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Tag"
+                        }
+                    },
+                    "cmsPage": {
+                        "$ref": "#/components/schemas/CmsPage",
+                        "description": "CMS page layout for the category"
+                    },
+                    "seoUrls": {
+                        "description": "SEO-friendly URLs for the category across different sales channels",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SeoUrl"
+                        }
+                    },
+                    "apiAlias": {
                         "type": "string",
-                        "enum": ["page", "link"]
+                        "enum": [
+                            "category"
+                        ]
                     }
                 },
-                "required": [
-                    "apiAlias",
-                    "breadcrumb",
-                    "children",
-                    "childCount",
-                    "translated",
-                    "type"
-                ]
+                "type": "object"
             }
         }
     }

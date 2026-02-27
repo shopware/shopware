@@ -5,14 +5,86 @@
     "components": {
         "schemas": {
             "LandingPage": {
-                "required": ["apiAlias"],
-                "type": "object",
+                "description": "Added since version: 6.4.0.0",
+                "required": [
+                    "apiAlias",
+                    "id",
+                    "name",
+                    "url"
+                ],
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "slotConfig": {
+                        "type": "object"
+                    },
+                    "metaTitle": {
+                        "type": "string"
+                    },
+                    "metaDescription": {
+                        "type": "string"
+                    },
+                    "keywords": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "cmsPageId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "cmsPageVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    },
+                    "cmsPage": {
+                        "$ref": "#/components/schemas/CmsPage",
+                        "description": "CMS page layout for the landing page"
+                    },
+                    "seoUrls": {
+                        "description": "SEO-friendly URLs for the landing page across different sales channels",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SeoUrl"
+                        }
+                    },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["landing_page"]
+                        "enum": [
+                            "landing_page"
+                        ]
                     }
-                }
+                },
+                "type": "object"
             }
         }
     }

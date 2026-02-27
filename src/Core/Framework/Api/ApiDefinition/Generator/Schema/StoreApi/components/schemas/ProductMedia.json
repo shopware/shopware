@@ -5,8 +5,59 @@
     "components": {
         "schemas": {
             "ProductMedia": {
-                "type": "object",
-                "required": ["media"]
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "media",
+                    "id",
+                    "productId",
+                    "mediaId"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productId": {
+                        "description": "Unique identity of the product.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "mediaId": {
+                        "description": "Unique identity of the media.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "position": {
+                        "description": "The order of the images to be displayed for a product.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "media": {
+                        "$ref": "#/components/schemas/Media"
+                    }
+                },
+                "type": "object"
             }
         }
     }

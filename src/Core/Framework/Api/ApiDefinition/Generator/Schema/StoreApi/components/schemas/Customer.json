@@ -5,26 +5,237 @@
     "components": {
         "schemas": {
             "Customer": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
                 "required": [
                     "apiAlias",
                     "activeBillingAddress",
-                    "activeShippingAddress"
+                    "activeShippingAddress",
+                    "id",
+                    "groupId",
+                    "salesChannelId",
+                    "languageId",
+                    "defaultBillingAddressId",
+                    "defaultShippingAddressId",
+                    "customerNumber",
+                    "firstName",
+                    "lastName",
+                    "email"
                 ],
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "groupId": {
+                        "description": "Unique identity of customer group.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "salesChannelId": {
+                        "description": "Unique identity of sales channel.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "languageId": {
+                        "description": "Unique identity of language.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "lastPaymentMethodId": {
+                        "description": "Unique identity of previous payment method.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "defaultBillingAddressId": {
+                        "description": "Unique identity of default billing address.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "defaultShippingAddressId": {
+                        "description": "Unique identity of default shipping address.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customerNumber": {
+                        "description": "Unique  number assigned to identity a customer.",
+                        "type": "string"
+                    },
+                    "salutationId": {
+                        "description": "Unique identity of salutation.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "firstName": {
+                        "description": "First name of the customer.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Last name of the customer.",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "Email ID of the customer.",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "Titles or honorifics like Mr, Mrs, etc.",
+                        "type": "string"
+                    },
+                    "affiliateCode": {
+                        "description": "An affiliate code is an identification option with which website operators can mark outgoing links.",
+                        "type": "string"
+                    },
+                    "campaignCode": {
+                        "description": "A campaign code is the globally unique identifier for a campaign.",
+                        "type": "string"
+                    },
+                    "active": {
+                        "description": "To keep the status of the customer active, the boolean value is set to `true`.",
+                        "type": "boolean"
+                    },
+                    "doubleOptInRegistration": {
+                        "description": "Set to `true` to allow user subscriptions to an email marketing list.",
+                        "type": "boolean"
+                    },
+                    "doubleOptInEmailSentDate": {
+                        "description": "Date and time when the double opt-in email was sent.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "doubleOptInConfirmDate": {
+                        "description": "Date and time when the double opt-in email was confirmed.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "hash": {
+                        "description": "Password hash for customer recovery.",
+                        "type": "string"
+                    },
+                    "guest": {
+                        "description": "Boolean value is `true` if it is to be a guest account.",
+                        "type": "boolean"
+                    },
+                    "firstLogin": {
+                        "description": "To capture date and time of customer's first login.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "lastLogin": {
+                        "description": "To capture date and time of customer's last login.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "birthday": {
+                        "description": "To capture customer's birthday details.",
+                        "type": "string"
+                    },
+                    "lastOrderDate": {
+                        "description": "Captures last order date.",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "orderCount": {
+                        "description": "Captures the number of orders placed.",
+                        "type": "integer",
+                        "format": "int64",
+                        "readOnly": true
+                    },
+                    "orderTotalAmount": {
+                        "description": "Sum of total amount to be paid.",
+                        "type": "number",
+                        "format": "float",
+                        "readOnly": true
+                    },
+                    "reviewCount": {
+                        "description": "Number of reviews the customer has given.",
+                        "type": "integer",
+                        "format": "int64",
+                        "readOnly": true
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "tagIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "readOnly": true
+                    },
+                    "createdById": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "updatedById": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "group": {
+                        "$ref": "#/components/schemas/CustomerGroup",
+                        "description": "Customer group determining pricing and permissions"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/Language",
+                        "description": "Preferred language for customer communication"
+                    },
+                    "lastPaymentMethod": {
+                        "$ref": "#/components/schemas/PaymentMethod",
+                        "description": "Last used payment method by the customer"
+                    },
+                    "defaultBillingAddress": {
+                        "$ref": "#/components/schemas/CustomerAddress",
+                        "description": "Default billing address for the customer"
+                    },
+                    "activeBillingAddress": {
+                        "$ref": "#/components/schemas/CustomerAddress",
+                        "description": "Currently active billing address in the session"
+                    },
+                    "defaultShippingAddress": {
+                        "$ref": "#/components/schemas/CustomerAddress",
+                        "description": "Default shipping address for the customer"
+                    },
+                    "activeShippingAddress": {
+                        "$ref": "#/components/schemas/CustomerAddress",
+                        "description": "Currently active shipping address in the session"
+                    },
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation",
+                        "description": "Customer salutation (e.g., Mr., Mrs., Ms.)"
+                    },
+                    "addresses": {
+                        "description": "All addresses saved for the customer",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CustomerAddress"
+                        }
+                    },
+                    "tags": {
+                        "description": "Tags assigned to the customer for organization and segmentation",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Tag"
+                        }
+                    },
                     "apiAlias": {
                         "type": "string",
                         "enum": [
                             "customer"
                         ]
-                    },
-                    "activeBillingAddress": {
-                        "$ref": "#/components/schemas/CustomerAddress"
-                    },
-                    "activeShippingAddress": {
-                        "$ref": "#/components/schemas/CustomerAddress"
                     }
                 },
+                "type": "object",
                 "oneOf": [
                     {
                         "required": [

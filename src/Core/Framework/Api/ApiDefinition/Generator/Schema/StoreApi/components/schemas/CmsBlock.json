@@ -5,25 +5,127 @@
     "components": {
         "schemas": {
             "CmsBlock": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "apiAlias",
+                    "slots",
+                    "id",
+                    "position",
+                    "type",
+                    "sectionId"
+                ],
                 "properties": {
-                    "apiAlias": {
+                    "id": {
                         "type": "string",
-                        "enum": [
-                            "cms_block"
-                        ]
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "cmsSectionVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "position": {
+                        "description": "Order of the block indicated by number like 0, 1, 2,...",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "type": {
+                        "description": "Type of block can be 'image`, `text`, 'product-listing`, `image-two-column`, etc.",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Unique name of the CMS Block.",
+                        "type": "string"
+                    },
+                    "sectionPosition": {
+                        "description": "Position of the section. It can either be `main` or `sidebar`.",
+                        "type": "string"
+                    },
+                    "marginTop": {
+                        "description": "Defines the margin area on the top of an element.",
+                        "type": "string"
+                    },
+                    "marginBottom": {
+                        "description": "Defines for the margin area on the bottom of an element.",
+                        "type": "string"
+                    },
+                    "marginLeft": {
+                        "description": "Defines for the margin area on the left of an element.",
+                        "type": "string"
+                    },
+                    "marginRight": {
+                        "description": "Defines the margin area on the right of an element.",
+                        "type": "string"
+                    },
+                    "backgroundColor": {
+                        "description": "Defines the background color of an element.",
+                        "type": "string"
+                    },
+                    "backgroundMediaId": {
+                        "description": "Unique identity of background media.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "backgroundMediaMode": {
+                        "description": "Background media mode accept values `cover`, `auto`, `contain`.",
+                        "type": "string"
+                    },
+                    "cssClass": {
+                        "description": "One or more CSS classes added and separated by spaces.",
+                        "type": "string"
+                    },
+                    "visibility": {
+                        "properties": {
+                            "mobile": {
+                                "type": "boolean"
+                            },
+                            "desktop": {
+                                "type": "boolean"
+                            },
+                            "tablet": {
+                                "type": "boolean"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "sectionId": {
+                        "description": "Unique identity of section.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "backgroundMedia": {
+                        "$ref": "#/components/schemas/Media"
                     },
                     "slots": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/CmsSlot"
                         }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": [
+                            "cms_block"
+                        ]
                     }
                 },
-                "required": [
-                    "apiAlias",
-                    "slots"
-                ]
+                "type": "object"
             }
         }
     }

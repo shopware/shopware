@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -87,10 +86,13 @@ class StorybookController extends AbstractController
     )]
     public function storybook(string $component, Request $request): Response
     {
-        $isDev = $this->environment === 'dev';
-
         // Only allow in development environment
-        if (!$isDev) {
+        if ($this->environment !== 'dev') {
+            throw new NotFoundHttpException('Route not found');
+        }
+
+        // Only allow requests from Storybook
+        if ($request->headers->get('Origin') !== 'http://localhost:6006') {
             throw new NotFoundHttpException('Route not found');
         }
 
@@ -127,7 +129,7 @@ class StorybookController extends AbstractController
             );
         }
 
-        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:6006');
 
         return $response;
     }

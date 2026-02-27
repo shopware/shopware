@@ -49,7 +49,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
     ) {
     }
 
-    public function getDecorated(): self
+    public function getDecorated(): AbstractRevocationRequestRoute
     {
         throw new DecorationPatternException(self::class);
     }

@@ -4,50 +4,55 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
+ * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Lifecycle\FlowActionPersisterTest
+ *
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
-class FlowActionPersister
+class FlowActionPersister implements PersisterInterface
 {
     /**
      * @param EntityRepository<AppFlowActionCollection> $flowActionsRepository
      */
     public function __construct(
         private readonly EntityRepository $flowActionsRepository,
-        private readonly SourceResolver $sourceResolver,
         private readonly Connection $connection
     ) {
     }
 
-    public function updateActions(AppEntity $app, Action $flowAction, Context $context, string $defaultLocale): void
+    public function persist(AppLifecycleContext $context): void
     {
+        $flowAction = $this->getFlowActions($context);
+
+        if (!$flowAction) {
+            return;
+        }
+
         $existingFlowActions = $this->connection->fetchAllKeyValue('SELECT name, LOWER(HEX(id)) FROM app_flow_action WHERE app_id = :appId', [
-            'appId' => Uuid::fromHexToBytes($app->getId()),
+            'appId' => Uuid::fromHexToBytes($context->app->getId()),
         ]);
 
-        $flowActions = $flowAction->getActions() ? $flowAction->getActions()->getActions() : [];
-        $fs = $this->sourceResolver->filesystemForApp($app);
+        $flowActions = $flowAction->getActions()?->getActions() ?? [];
         $upserts = [];
 
         foreach ($flowActions as $action) {
             $icon = $action->getMeta()->getIcon();
-            if ($icon && $fs->has('Resources', $icon)) {
-                $icon = $fs->read('Resources', $icon);
+            if ($icon && $context->appFilesystem->has('Resources/' . $icon)) {
+                $icon = $context->appFilesystem->read('Resources/' . $icon);
             }
 
             $payload = array_merge([
-                'appId' => $app->getId(),
+                'appId' => $context->app->getId(),
                 'iconRaw' => $icon,
-            ], $action->toArray($defaultLocale));
+            ], $action->toArray($context->defaultLocale));
 
             $existing = $existingFlowActions[$action->getMeta()->getName()] ?? null;
             if ($existing) {
@@ -59,10 +64,19 @@ class FlowActionPersister
         }
 
         if ($upserts !== []) {
-            $this->flowActionsRepository->upsert($upserts, $context);
+            $this->flowActionsRepository->upsert($upserts, $context->context);
         }
 
-        $this->deleteOldAppFlowActions(\array_values($existingFlowActions), $context);
+        $this->deleteOldAppFlowActions(\array_values($existingFlowActions), $context->context);
+    }
+
+    private function getFlowActions(AppLifecycleContext $context): ?Action
+    {
+        if (!$context->appFilesystem->has('Resources/flow.xml')) {
+            return null;
+        }
+
+        return Action::createFromXmlFile($context->appFilesystem->path('Resources/flow.xml'));
     }
 
     /**

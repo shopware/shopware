@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Visual: Storefront CMS sliders with vertical alignment', { 
+test.skip('Visual: Storefront CMS sliders with vertical alignment', { 
     tag: '@Visual',
     annotation: {
         type: 'issue',

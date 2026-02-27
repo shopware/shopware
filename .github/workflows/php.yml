@@ -121,6 +121,7 @@ jobs:
   openapi-lint:
     runs-on: ubuntu-24.04
     permissions:
+      contents: read
       id-token: write
     env:
       APP_ENV: prod

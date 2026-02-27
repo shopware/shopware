@@ -7,7 +7,6 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\BoolField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\FloatField;
@@ -51,28 +50,23 @@ class RuleConditionPersister implements PersisterInterface
 
     public function persist(AppLifecycleContext $context): void
     {
-        $this->updateConditions($context->manifest, $context->app->getId(), $context->defaultLocale, $context->context);
-    }
-
-    public function updateConditions(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
-    {
-        $app = $this->getAppWithExistingConditions($appId, $context);
+        $app = $this->getAppWithExistingConditions($context->app->getId(), $context->context);
         $existingRuleConditions = $app->getScriptConditions();
         \assert($existingRuleConditions !== null);
 
-        $ruleConditions = $manifest->getRuleConditions();
+        $ruleConditions = $context->manifest->getRuleConditions();
         $ruleConditions = $ruleConditions !== null ? $ruleConditions->getRuleConditions() : [];
 
         $upserts = [];
 
         foreach ($ruleConditions as $ruleCondition) {
-            $payload = $ruleCondition->toArray($defaultLocale);
-            $payload['identifier'] = \sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
+            $payload = $ruleCondition->toArray($context->defaultLocale);
+            $payload['identifier'] = \sprintf('app\\%s_%s', $context->manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
             $payload['script'] = $this->scriptReader->getScriptContent(
                 $app,
                 self::CONDITION_SCRIPT_DIR . $ruleCondition->getScript(),
             );
-            $payload['appId'] = $appId;
+            $payload['appId'] = $context->app->getId();
             $payload['active'] = $app->isActive();
             $payload['constraints'] = $this->hydrateConstraints($payload['constraints']);
 
@@ -87,12 +81,12 @@ class RuleConditionPersister implements PersisterInterface
         }
 
         if ($upserts !== []) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($upserts): void {
-                $this->appScriptConditionRepository->upsert($upserts, $context);
+            $context->context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($upserts): void {
+                $this->appScriptConditionRepository->upsert($upserts, $innerContext);
             });
         }
 
-        $this->deleteConditionScripts($existingRuleConditions, $context);
+        $this->deleteConditionScripts($existingRuleConditions, $context->context);
     }
 
     public function activateConditionScripts(string $appId, Context $context): void

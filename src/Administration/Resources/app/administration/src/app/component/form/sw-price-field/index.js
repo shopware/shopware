@@ -284,9 +284,7 @@ export default {
             this.$emit('price-gross-change', value);
             this.$emit('change', this.priceForCurrency);
 
-            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
-                this.onPriceGrossChange(value);
-            }
+            this.onPriceGrossChange(value);
         },
 
         onPriceNetInputChange(value) {
@@ -295,21 +293,31 @@ export default {
             this.$emit('price-net-change', value);
             this.$emit('change', this.priceForCurrency);
 
-            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
-                this.onPriceNetChange(value);
-            }
+            this.onPriceNetChange(value);
         },
 
         onPriceGrossChange(value) {
-            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
-                this.convertGrossToNet(value);
+            if (!this.priceForCurrency.linked) {
+                return;
             }
+
+            if (value === null || value === undefined || value === '' || value.toString().endsWith('.')) {
+                return;
+            }
+
+            this.convertGrossToNet(value);
         },
 
         onPriceNetChange(value) {
-            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
-                this.convertNetToGross(value);
+            if (!this.priceForCurrency.linked) {
+                return;
             }
+
+            if (value === null || value === undefined || value === '' || value.toString().endsWith('.')) {
+                return;
+            }
+
+            this.convertNetToGross(value);
         },
 
         convertNetToGross(value) {

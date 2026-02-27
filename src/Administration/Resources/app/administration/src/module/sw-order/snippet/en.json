@@ -436,6 +436,7 @@
       "selectInvoiceNumber": "Select invoice",
       "labelDeliveryNoteNumber": "Delivery note number",
       "labelDocumentComment": "Comment",
+      "labelCreateDownload": "Create and download",
       "labelCreateDownloadPdf": "Create and download PDF",
       "labelCreateSend": "Create and send",
       "labelCreate": "Create",

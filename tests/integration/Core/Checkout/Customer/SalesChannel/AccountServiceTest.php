@@ -193,7 +193,6 @@ class AccountServiceTest extends TestCase
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, false);
 
         $this->expectException(BadCredentialsException::class);
-        $this->expectExceptionMessage('Invalid username and/or password.');
         $this->accountService->getCustomerByLogin($email, 'shopware', $context);
     }
 

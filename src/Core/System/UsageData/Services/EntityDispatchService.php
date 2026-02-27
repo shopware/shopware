@@ -4,9 +4,12 @@ namespace Shopware\Core\System\UsageData\Services;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
@@ -28,10 +31,11 @@ class EntityDispatchService
         private readonly EntityDefinitionService $entityDefinitionService,
         private readonly AbstractKeyValueStorage $appConfig,
         private readonly MessageBusInterface $messageBus,
-        private readonly ConsentService $consentService,
+        private readonly LastCollectionAllowedDateResolver $lastCollectionAllowedDateResolver,
         private readonly GatewayStatusService $gatewayStatusService,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly SystemConfigService $systemConfigService,
+        private readonly ConsentService $consentService,
         private readonly bool $collectionEnabled,
     ) {
     }
@@ -47,20 +51,24 @@ class EntityDispatchService
             return;
         }
 
+        if ($this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->status !== ConsentStatus::ACCEPTED) {
+            return;
+        }
+
         $this->messageBus->dispatch(new CollectEntityDataMessage($this->shopIdProvider->getShopId()));
     }
 
     public function dispatchIterateEntityMessages(CollectEntityDataMessage $message): void
     {
-        $lastConsentAcceptedDate = $this->consentService->getLastConsentIsAcceptedDate();
-        if (!$lastConsentAcceptedDate) {
+        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getCollectUntil();
+        if (!$lastCollectionAllowedDate) {
             return;
         }
 
-        if (!$this->hasMinimumTimeElapsed($lastConsentAcceptedDate)) {
+        if (!$this->hasMinimumTimeElapsed($lastCollectionAllowedDate)) {
             return;
         }
-        $runDate = $lastConsentAcceptedDate;
+        $runDate = $lastCollectionAllowedDate;
 
         // don't start iterating if shopId is different; handle old messages without shopId
         if ($message->shopId !== null && $this->shopIdProvider->getShopId() !== $message->shopId) {
@@ -123,7 +131,7 @@ class EntityDispatchService
         return Operation::cases();
     }
 
-    private function hasMinimumTimeElapsed(\DateTimeImmutable $lastConsentAcceptedDate): bool
+    private function hasMinimumTimeElapsed(\DateTimeImmutable $lastCollectionAllowedDate): bool
     {
         $lastRunDate = $this->systemConfigService->get(self::SYSTEM_CONFIG_KEY_LAST_ENTITY_SYNC_RUN);
         if (!\is_string($lastRunDate)) {
@@ -131,6 +139,6 @@ class EntityDispatchService
         }
         $lastRunDate = new \DateTimeImmutable($lastRunDate);
 
-        return $lastConsentAcceptedDate->getTimestamp() > ($lastRunDate->getTimestamp() + self::MIN_LAST_ENTITY_SYNC_DIFFERENCE);
+        return $lastCollectionAllowedDate->getTimestamp() > ($lastRunDate->getTimestamp() + self::MIN_LAST_ENTITY_SYNC_DIFFERENCE);
     }
 }

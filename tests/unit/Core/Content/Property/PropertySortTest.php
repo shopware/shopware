@@ -129,6 +129,34 @@ class PropertySortTest extends TestCase
         );
     }
 
+    public function testAlphaNumericSortingMixedCases(): void
+    {
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
+        $propertyGroups->sortByConfig();
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            ['1A', '2aa', '3-x$e', '3D', '3e', '20AA', '44f', '55g', 'a', 'A', 'aa', 'Ab', 'b', 'B', 'h6', 'i7', 'j2'],
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
+
+    public function testAlphaNumericSortingMixedCasesPositionFirst(): void
+    {
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCasesPositionFirst();
+        $propertyGroups->sortByConfig();
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            ['a', 'b', 'A', 'B', '1A', '2aa', '20AA', '3D', '3e', '44f', '55g', 'h6', 'i7', 'j2', '3-x$e', 'Ab', 'aa'],
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
+
     private function getPropertyGroupAlphaNumericOnlyNumbers(): PropertyGroupCollection
     {
         $propertyGroup = new PropertyGroupEntity();
@@ -280,6 +308,54 @@ class PropertySortTest extends TestCase
         }
         $this->notShuffledName = ['1a', '2aa', '3-x$e', '3d', '3e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
         $this->notShuffledPosition = array_column(json_decode(json_encode($propertyOptions, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR), 'position');
+        shuffle($propertyOptions);
+
+        return new PropertyGroupOptionCollection($propertyOptions);
+    }
+
+    private function getPropertyGroupAlphaNumericMixedCases(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('AlphaNumeric Mixed Cases');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+        $propertyGroup->setOptions($this->getPropertyOptionsMixedCases());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    private function getPropertyGroupAlphaNumericMixedCasesPositionFirst(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('AlphaNumeric Mixed Cases Position First');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_POSITION);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+        $propertyGroup->setOptions($this->getPropertyOptionsMixedCases());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    private function getPropertyOptionsMixedCases(): PropertyGroupOptionCollection
+    {
+        $propertyOptions = [];
+        $letterArray = ['a', 'b', 'A', 'B', '1A', '2aa', '20AA', '3D', '3e', '44f', '55g', 'h6', 'i7', 'j2', '3-x$e', 'Ab', 'aa'];
+        for ($x = 0; $x < \count($letterArray); ++$x) {
+            $propertyOption = new PropertyGroupOptionEntity();
+            $propertyOption->setId(Uuid::randomHex());
+            $propertyOption->setPosition($x);
+            $propertyOption->setName($letterArray[$x]);
+            $propertyOption->setTranslated([
+                'name' => $letterArray[$x],
+                'description' => '',
+                'position' => $x,
+                'customFields' => [],
+            ]);
+            $propertyOptions[] = $propertyOption;
+        }
         shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);

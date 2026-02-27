@@ -34,7 +34,7 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 ## Removal of `/api/_info/queue.json` endpoint
 
 The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
-  
+
 ## Newsletter route methods removed and response changed
 
 The following methods have been removed:
@@ -48,7 +48,7 @@ The following methods are now abstract and must be implemented by extensions. Th
 - `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
 - `confirmWithResponse()` returns `SuccessResponse`
 - `unsubscribeWithResponse()` returns `SuccessResponse`
-  
+
 </details>
 
 # Core
@@ -806,6 +806,10 @@ The indexing progress notifications in the Administration notification center ha
 # Storefront
 
 <details>
+
+## Removed block `page_product_detail_product_buy_button_label` from `@Storefront/storefront/component/product/card/action.html.twig`
+
+The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.
 
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.

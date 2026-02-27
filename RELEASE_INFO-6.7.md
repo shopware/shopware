@@ -36,6 +36,10 @@ The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been dep
 
 ## Storefront
 
+### Block renaming
+
+* Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
+
 ### `HEAD`-requests do not trigger the registration double-opt-in
 
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.

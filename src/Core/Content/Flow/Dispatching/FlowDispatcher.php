@@ -128,7 +128,7 @@ readonly class FlowDispatcher implements EventDispatcherInterface, ServiceSubscr
     {
         $flows = $this->getFlows($event->getName());
 
-        if (empty($flows)) {
+        if ($flows === []) {
             return;
         }
 

@@ -228,7 +228,7 @@ class WriteCommandExtractor
         // call map with child associations only
         $children = array_filter($fields, static fn (Field $field) => $field instanceof ChildrenAssociationField);
 
-        if (\count($children) > 0) {
+        if ($children !== []) {
             $this->map($children, $stack, $existence, $parameters);
         }
 

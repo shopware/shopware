@@ -81,7 +81,7 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
 
     private function getMatchingRules(): RuleCollection
     {
-        if (empty($this->ruleIds)) {
+        if ($this->ruleIds === []) {
             return new RuleCollection();
         }
 

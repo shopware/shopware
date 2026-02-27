@@ -479,7 +479,6 @@ class InvoiceRendererTest extends TestCase
             $address = new OrderAddressEntity();
             $address->setCountry($country);
             $country->setCheckVatIdPattern($orderSettings['shouldCheckVatIdPattern'] ?? false);
-            $address->setVatId('VAT123');
             $delivery->setShippingOrderAddress($address);
         }
 

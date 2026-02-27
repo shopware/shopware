@@ -387,7 +387,7 @@ export default {
             ]);
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showModal = false;
             Store.get('swOrderDetail').setLoading([
                 'states',
@@ -401,20 +401,29 @@ export default {
                     transition = this.orderStateMachineService.transitionOrderTransactionState(
                         this.transaction.id,
                         this.currentActionName,
-                        { documentIds: docIds, sendMail },
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
                     );
                     break;
                 case 'order_delivery':
                     transition = this.orderStateMachineService.transitionOrderDeliveryState(
                         this.delivery.id,
                         this.currentActionName,
-                        { documentIds: docIds, sendMail },
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
                     );
                     break;
                 case 'order':
                     transition = this.orderStateMachineService.transitionOrderState(this.order.id, this.currentActionName, {
                         documentIds: docIds,
                         sendMail,
+                        internalComment,
                     });
                     break;
                 default:

@@ -5,6 +5,9 @@
       "textHeadline": "Data sharing",
       "description": "Configure to share usage data with us to improve Shopware."
     },
+    "errors": {
+      "consent-update-error": "The consent “{consent}” could not be updated"
+    },
     "consent-modal": {
       "title": "Help us improve",
       "intro": "By sharing store and user data, you help us understand how the Administration is used and develop improvements that make your daily work easier.",

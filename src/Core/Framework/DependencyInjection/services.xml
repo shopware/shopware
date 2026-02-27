@@ -148,6 +148,10 @@ frame-ancestors 'none';
             <argument type="tagged_iterator" tag="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationInfo">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument>%kernel.shopware_core_dir%</argument>
@@ -357,6 +361,10 @@ frame-ancestors 'none';
                       id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector"/>
 
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\SwTwigFunctionResetter" public="true">
             <tag name="kernel.reset" method="reset"/>
         </service>
 
@@ -623,10 +631,6 @@ frame-ancestors 'none';
             <argument>%shopware.html_sanitizer.fields%</argument>
             <argument>%shopware.html_sanitizer.enabled%</argument>
 
-            <tag name="kernel.reset" method="reset"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Util\Database\TableHelperResetter">
             <tag name="kernel.reset" method="reset"/>
         </service>
 

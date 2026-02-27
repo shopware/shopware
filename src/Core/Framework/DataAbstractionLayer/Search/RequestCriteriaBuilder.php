@@ -306,7 +306,7 @@ class RequestCriteriaBuilder
     {
         $parts = array_filter(explode(',', $query));
 
-        if (empty($parts)) {
+        if ($parts === []) {
             throw DataAbstractionLayerException::invalidSortQuery('The "sort" parameter needs to be a sorting array or a comma separated list of fields', '/sort');
         }
 

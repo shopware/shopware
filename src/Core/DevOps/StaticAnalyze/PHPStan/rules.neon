@@ -6,6 +6,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnserializeUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFileExistsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule

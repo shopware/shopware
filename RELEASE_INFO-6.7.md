@@ -37,6 +37,12 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 
 ## Core
 
+### Product stream deletion is blocked while product exports exist
+
+Deleting a product stream now raises a dedicated delete restriction while related `product_export` records still exist.
+This prevents accidental product export removals and makes the dependency visible in API and administration workflows.
+In 6.8, this rule is additionally enforced on database level by changing the foreign key delete action from `CASCADE` to `RESTRICT`.
+
 ### Inheritance added to product main categories
 
 Product main categories are now inherited from parent product if not explicitly defined on the variant itself.

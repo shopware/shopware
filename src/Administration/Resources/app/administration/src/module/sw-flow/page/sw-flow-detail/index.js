@@ -258,6 +258,8 @@ export default {
                     scope: this,
                 });
 
+                await this.getAppFlowAction();
+
                 if (this.isTemplate) {
                     await this.getDetailFlowTemplate();
 
@@ -271,8 +273,6 @@ export default {
 
                 await this.createNewFlow();
             } finally {
-                await this.getAppFlowAction();
-
                 this.isLoading = false;
             }
         },

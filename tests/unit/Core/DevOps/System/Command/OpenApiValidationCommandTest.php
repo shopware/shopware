@@ -60,4 +60,17 @@ class OpenApiValidationCommandTest extends TestCase
 
         static::assertSame($tester->getStatusCode(), 1);
     }
+
+    public function testRunWithInvalidApiTypeThrowsException(): void
+    {
+        $command = new OpenApiValidationCommand(
+            new MockHttpClient(),
+            $this->createMock(DefinitionService::class)
+        );
+        $tester = new CommandTester($command);
+
+        $this->expectExceptionObject(new \InvalidArgumentException('Invalid --api-type, must be one of "api" or "store-api"'));
+
+        $tester->execute(['--api-type' => 'invalid']);
+    }
 }

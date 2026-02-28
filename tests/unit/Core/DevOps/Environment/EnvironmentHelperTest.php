@@ -167,6 +167,16 @@ class EnvironmentHelperTest extends TestCase
         static::assertSame('hello_bar_bar', EnvironmentHelper::getVariable('SW_TEST_VAR'));
     }
 
+    public function testRemoveTransformerIsNoopWhenNotRegisteredAtGivenPriority(): void
+    {
+        $_SERVER['SW_TEST_VAR'] = 'hello';
+
+        EnvironmentHelper::addTransformer(AppendBarTransformer::class, 0);
+        EnvironmentHelper::removeTransformer(AppendBarTransformer::class, 1); // registered at 0, not 1
+
+        static::assertSame('hello_bar', EnvironmentHelper::getVariable('SW_TEST_VAR'));
+    }
+
     public function testRemoveTransformerStopsApplyingIt(): void
     {
         $_SERVER['SW_TEST_VAR'] = 'hello';

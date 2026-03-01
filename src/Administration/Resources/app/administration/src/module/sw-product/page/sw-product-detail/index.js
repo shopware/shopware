@@ -103,6 +103,9 @@ export default {
             return Shopware.Store.get('swProductDetail').localMode;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         advancedModeSetting() {
             return Shopware.Store.get('swProductDetail').advancedModeSetting;
         },
@@ -215,10 +218,16 @@ export default {
             return Shopware.Store.get('session').currentUser;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         userModeSettingsRepository() {
             return this.repositoryFactory.create('user_config');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         userModeSettingsCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('key', 'mode.setting.advancedModeSettings'));
@@ -315,6 +324,9 @@ export default {
             };
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getModeSettingGeneralTab() {
             return [
                 {
@@ -356,6 +368,9 @@ export default {
             ];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getModeSettingSpecificationsTab() {
             return [
                 {
@@ -391,6 +406,9 @@ export default {
             ];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         showAdvanceModeSetting() {
             if (this.isChild) {
                 return false;
@@ -530,6 +548,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         initAdvancedModeSettings() {
             Shopware.Store.get('swProductDetail').advancedModeSetting = this.getAdvancedModeDefaultSetting();
 
@@ -542,6 +563,9 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         createUserModeSetting() {
             const newModeSettings = this.userModeSettingsRepository.create();
             newModeSettings.key = 'mode.setting.advancedModeSettings';
@@ -549,6 +573,9 @@ export default {
             return newModeSettings;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getAdvancedModeDefaultSetting() {
             const defaultSettings = this.createUserModeSetting();
             defaultSettings.value = {
@@ -564,6 +591,9 @@ export default {
             return defaultSettings;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getAdvancedModeSetting() {
             return this.userModeSettingsRepository.search(this.userModeSettingsCriteria).then(async (items) => {
                 if (!items.total) {
@@ -587,6 +617,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         saveAdvancedMode() {
             Shopware.Store.get('swProductDetail').setLoading([
                 'advancedMode',
@@ -609,11 +642,17 @@ export default {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         onChangeSetting() {
             Shopware.Store.get('swProductDetail').advancedModeSetting = this.advancedModeSetting;
             this.saveAdvancedMode();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         changeModeSettings() {
             const enabledModeItems = this.advancedModeSetting.value.settings.filter((item) => item.enabled);
             if (!enabledModeItems.length) {
@@ -623,6 +662,9 @@ export default {
             return enabledModeItems.map((item) => item.key);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         onChangeSettingItem() {
             Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
             this.saveAdvancedMode();

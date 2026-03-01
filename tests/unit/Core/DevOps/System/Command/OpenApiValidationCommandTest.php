@@ -26,7 +26,7 @@ class OpenApiValidationCommandTest extends TestCase
 
         $tester->execute([]);
 
-        static::assertSame($tester->getStatusCode(), 0);
+        static::assertSame(0, $tester->getStatusCode());
     }
 
     public function testRunWithErrors(): void
@@ -58,7 +58,7 @@ class OpenApiValidationCommandTest extends TestCase
 
         $tester->execute([]);
 
-        static::assertSame($tester->getStatusCode(), 1);
+        static::assertSame(1, $tester->getStatusCode());
     }
 
     public function testRunWithInvalidApiTypeThrowsException(): void

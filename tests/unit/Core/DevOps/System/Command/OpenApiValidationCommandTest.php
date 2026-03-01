@@ -73,4 +73,24 @@ class OpenApiValidationCommandTest extends TestCase
 
         $tester->execute(['--api-type' => 'invalid']);
     }
+
+    public function testRunWithApiTypes(): void
+    {
+        $command = new OpenApiValidationCommand(
+            new MockHttpClient([
+                new MockResponse('{"messages": [], "schemaValidationMessages": []}', []),
+                new MockResponse('{"messages": [], "schemaValidationMessages": []}', []),
+            ]),
+            $this->createMock(DefinitionService::class)
+        );
+        $tester = new CommandTester($command);
+
+        // Test with DefinitionService::API
+        $tester->execute(['--api-type' => DefinitionService::API]);
+        static::assertSame(0, $tester->getStatusCode());
+
+        // Test with DefinitionService::STORE_API
+        $tester->execute(['--api-type' => DefinitionService::STORE_API]);
+        static::assertSame(0, $tester->getStatusCode());
+    }
 }

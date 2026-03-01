@@ -14,6 +14,8 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
 /**
+ * @internal
+ *
  * @phpstan-import-type Params from DriverManager
  * @phpstan-import-type OverrideParams from DriverManager
  */

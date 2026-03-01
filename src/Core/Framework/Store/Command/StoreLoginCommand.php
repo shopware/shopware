@@ -61,7 +61,7 @@ class StoreLoginCommand extends Command
 
         $host = $input->getOption('host');
         if (!empty($host)) {
-            $this->configService->set('core.store.licenseHost', $host);
+            $this->configService->set('core.store.licenseHost', $host, null, false);
         }
 
         $shopwareId = $input->getOption('shopwareId');

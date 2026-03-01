@@ -399,7 +399,7 @@ class SystemConfigService implements ResetInterface
                 }
 
                 if ($override || !isset($relevantSettings[$key])) {
-                    $this->set($key, $element['defaultValue'], null, true);
+                    $this->set($key, $element['defaultValue'], null, false);
                 }
             }
         }
@@ -444,11 +444,11 @@ class SystemConfigService implements ResetInterface
         $keysForDelete = array_fill_keys($configKeys, null);
 
         // Delete config keys for global scope
-        $this->setMultiple($keysForDelete, null, true);
+        $this->setMultiple($keysForDelete, null, false);
 
-        // Delete overriden config keys for each sales channel
+        // Delete overridden config keys for each sales channel
         foreach ($salesChannelIds as $salesChannelId) {
-            $this->setMultiple($keysForDelete, Uuid::fromBytesToHex($salesChannelId), true);
+            $this->setMultiple($keysForDelete, Uuid::fromBytesToHex($salesChannelId), false);
         }
     }
 

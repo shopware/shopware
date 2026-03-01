@@ -104,7 +104,7 @@ class ConsentService
 
     private function setConsentState(ConsentState $consentState): void
     {
-        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY_CONSENT_STATE, $consentState->value);
+        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY_CONSENT_STATE, $consentState->value, null, true);
 
         $this->dispatcher->dispatch(new ConsentStateChangedEvent($consentState));
     }

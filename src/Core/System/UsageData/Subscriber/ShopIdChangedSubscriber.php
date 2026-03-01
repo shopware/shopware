@@ -61,7 +61,7 @@ class ShopIdChangedSubscriber implements EventSubscriberInterface
     private function resetConsent(): void
     {
         // remove entry from system config, so it can be asked again
-        $this->systemConfigService->delete(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE);
+        $this->systemConfigService->delete(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, null, true);
         $this->bannerService->resetIsBannerHiddenForAllUsers();
         $this->entityDispatchService->resetLastRunDateForAllEntities();
     }

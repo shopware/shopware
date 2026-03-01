@@ -106,12 +106,14 @@ class ArrayWriterTest extends TestCase
         $writer->set($className, 'value');
         $writer->dump();
         $actual = file_get_contents($this->fixtureFile);
+        static::assertIsString($actual);
         static::assertStringContainsString('stdClass::class', $actual);
         static::assertStringContainsString('\'value\'', $actual);
 
         // Also test long dump
         $writer->dump(true);
         $actualLong = file_get_contents($this->fixtureFile);
+        static::assertIsString($actualLong);
         static::assertStringContainsString('stdClass::class', $actualLong);
         static::assertStringContainsString('EOD', $actualLong);
         static::assertStringContainsString('value', $actualLong);

@@ -661,7 +661,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await flushPromises();
 
-        await wrapper.find('.sw-order-document-settings-modal__document-number input').setValue('1000');
         await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
         await flushPromises();
 
@@ -685,7 +684,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             showModal: true,
         });
 
-        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        await flushPromises();
+
         await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
         await flushPromises();
 

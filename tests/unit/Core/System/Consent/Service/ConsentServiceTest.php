@@ -261,6 +261,27 @@ class ConsentServiceTest extends TestCase
         $service->revokeConsent('consent-1', $context);
     }
 
+    public function testRevokeConsentIsNoopWhenConsentWasDeclined(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::DECLINED, 'user-123', '2026-01-26 00:00:00')]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
+
+        $service->revokeConsent('consent-1', $context);
+    }
+
     public function testRevokeConsent(): void
     {
         $eventDispatcher = new AssertingEventDispatcher($this, [

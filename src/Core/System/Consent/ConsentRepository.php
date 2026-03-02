@@ -60,15 +60,16 @@ class ConsentRepository
 
         $this->connection->executeStatement('
         INSERT INTO consent_state (id, name, identifier, state, actor, updated_at)
-        VALUES (:id, :consentName, :identifier, :state, :actor, :updatedAt)
+        VALUES (:id, :consentName, :identifier, :insertState, :actor, :updatedAt)
         ON DUPLICATE KEY UPDATE
-            state = :state,
+            state = CASE WHEN state = "declined" AND :state = "revoked" THEN "declined" ELSE :state END,
             actor = :actor,
             updated_at = :updatedAt
         ', [
             'id' => Uuid::randomBytes(),
             'consentName' => $consent->getName(),
             'identifier' => $scopeIdentifier,
+            'insertState' => $state === ConsentStatus::REVOKED ? ConsentStatus::DECLINED->value : $state->value,
             'state' => $state->value,
             'actor' => $actor,
             'updatedAt' => $now,

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientResult;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -60,7 +59,7 @@ class NewsletterRecipientDefinition extends EntityDefinition
             (new StringField('city', 'city'))->setDescription('City of the recipient.'),
             (new StringField('street', 'street'))->setDescription('Street of the recipient.'),
             (new StringField('status', 'status'))->addFlags(new Required(), new Choice([
-                AccountNewsletterRecipientResult::UNDEFINED,
+                NewsletterSubscribeRoute::STATUS_UNDEFINED,
                 NewsletterSubscribeRoute::STATUS_NOT_SET,
                 NewsletterSubscribeRoute::STATUS_OPT_IN,
                 NewsletterSubscribeRoute::STATUS_OPT_OUT,

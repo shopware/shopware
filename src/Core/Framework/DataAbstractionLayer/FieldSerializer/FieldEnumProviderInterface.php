@@ -10,7 +10,7 @@ interface FieldEnumProviderInterface
     public function isSupported(string $entity, string $fieldName): bool;
 
     /**
-     * @return array<string|bool|int|float>
+     * @return list<string|bool|int|float>
      */
     public function getEnumValues(): array;
 }

@@ -18,6 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\Context\ExecutionContextFactory;
 use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
@@ -86,13 +88,13 @@ class IntFieldSerializerTest extends TestCase
         $existence = EntityExistence::createEmpty();
         $kv = new KeyValuePair('test', 3, true);
 
-        try {
-            iterator_to_array($this->serializer->encode($field, $existence, $kv, $this->createWriteParameterBag()));
-            static::fail('Expected strict Choice validation to reject invalid value.');
-        } catch (\Throwable $e) {
-            static::assertInstanceOf(WriteConstraintViolationException::class, $e);
-            static::assertSame('/test', $e->getViolations()->get(0)->getPropertyPath());
-        }
+        static::expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('Invalid choice.', 'Invalid choice.', [], null, '/test', 3),
+            ])
+        ));
+
+        iterator_to_array($this->serializer->encode($field, $existence, $kv, $this->createWriteParameterBag()));
     }
 
     private function createWriteParameterBag(): WriteParameterBag

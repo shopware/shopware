@@ -82,4 +82,10 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
     await ShopAdmin.expects(AdminFirstRunWizard.forumLink).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.roadmapLink).toBeVisible();
     await AdminFirstRunWizard.finishButton.click();
+
+    // Env var might contain trailing slash, but playwrights waitForResponse needs it without trailing slash, so we remove it here to be sure.
+    const trimmedAdminUrl = process.env.ADMIN_URL.replace(/\/+$/, '');
+    // Wait until FRW is done and has reloaded the admin
+    const response = await AdminFirstRunWizard.page.waitForResponse(trimmedAdminUrl);
+    ShopAdmin.expects(response.ok()).toBeTruthy();
 });

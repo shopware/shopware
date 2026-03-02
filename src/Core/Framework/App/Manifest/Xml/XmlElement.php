@@ -76,7 +76,7 @@ abstract class XmlElement extends Struct
      */
     protected function ensureTranslationForDefaultLanguageExist(array $translations, string $defaultLocale): array
     {
-        if (empty($translations)) {
+        if ($translations === []) {
             return $translations;
         }
 

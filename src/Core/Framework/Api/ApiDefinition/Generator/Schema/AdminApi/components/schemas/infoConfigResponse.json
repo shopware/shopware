@@ -123,6 +123,10 @@
                 "type": "boolean",
                 "description": "True if at least one installed app requires a reachable APP_URL."
               },
+              "firstMigrationDate": {
+                "type": ["string", "null"],
+                "description": "Timestamp of the first executed migration in ISO-8601 UTC format, used for Product Analytics consent eligibility."
+              },
               "private_allowed_extensions": {
                 "type": "array",
                 "description": "Whitelisted file extensions for private filesystem uploads.",
@@ -141,6 +145,7 @@
                 "description": "True if runtime extension management is disabled."
               }
             },
+            "required": ["firstMigrationDate"],
             "additionalProperties": false
           },
           "inAppPurchases": {

@@ -490,7 +490,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('allOf', $jsonApiSchema);
 
         // Serialize the full allOf[1] section and check it contains a 'relationships' entry
-        $allOfSection = json_encode($jsonApiSchema['allOf'][1] ?? []);
+        $allOfSection = json_encode($jsonApiSchema['allOf'][1] ?? [], \JSON_THROW_ON_ERROR);
         static::assertStringContainsString('relationships', $allOfSection);
     }
 

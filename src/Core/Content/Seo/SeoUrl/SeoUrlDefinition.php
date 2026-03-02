@@ -24,19 +24,13 @@ class SeoUrlDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'seo_url';
 
-    /**
-     * @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for product detail pages.
-     */
+    /** @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for product detail pages. */
     public const ROUTE_NAME_PRODUCT_DETAIL_PAGE = 'frontend.detail.page';
 
-    /**
-     * @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for category navigation pages.
-     */
+    /** @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for category navigation pages. */
     public const ROUTE_NAME_NAVIGATION_PAGE = 'frontend.navigation.page';
 
-    /**
-     * @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for landing pages.
-     */
+    /** @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for landing pages. */
     public const ROUTE_NAME_LANDING_PAGE = 'frontend.landing.page';
 
     public function getEntityName(): string

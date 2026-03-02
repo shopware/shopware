@@ -24,6 +24,21 @@ class SeoUrlDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'seo_url';
 
+    /**
+     * @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for product detail pages.
+     */
+    public const ROUTE_NAME_PRODUCT_DETAIL_PAGE = 'frontend.detail.page';
+
+    /**
+     * @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for category navigation pages.
+     */
+    public const ROUTE_NAME_NAVIGATION_PAGE = 'frontend.navigation.page';
+
+    /**
+     * @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for landing pages.
+     */
+    public const ROUTE_NAME_LANDING_PAGE = 'frontend.landing.page';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -53,9 +68,9 @@ class SeoUrlDefinition extends EntityDefinition
             (new IdField('foreign_key', 'foreignKey'))->addFlags(new ApiAware(), new Required())->setDescription('The key that references to product or category entity ID.'),
 
             (new StringField('route_name', 'routeName', 50))->addFlags(new ApiAware(), new Required(), new Choice([
-                'frontend.detail.page',
-                'frontend.navigation.page',
-                'frontend.landing.page',
+                self::ROUTE_NAME_PRODUCT_DETAIL_PAGE,
+                self::ROUTE_NAME_NAVIGATION_PAGE,
+                self::ROUTE_NAME_LANDING_PAGE,
             ]))->setDescription('A destination routeName that has been registered somewhere in the app\'s router. For example: \\\"frontend.detail.page\\\"'),
             (new StringField('path_info', 'pathInfo', 750))->addFlags(new ApiAware(), new Required())->setDescription('Path to product URL. For example: \\\"/detail/bbf36734504741c79a3bbe3795b91564\\\"'),
             (new StringField('seo_path_info', 'seoPathInfo', 750))->addFlags(new ApiAware(), new Required())->setDescription('Seo path to product. For example: \\\"Pepper-white-ground-pearl/SW10098\\\"'),

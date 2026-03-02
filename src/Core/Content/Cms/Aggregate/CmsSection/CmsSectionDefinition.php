@@ -31,6 +31,16 @@ class CmsSectionDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'cms_section';
 
+    /**
+     * Default section type used for regular CMS content.
+     */
+    final public const TYPE_DEFAULT = 'default';
+
+    /**
+     * Sidebar section type used for layouts with a sidebar column.
+     */
+    final public const TYPE_SIDEBAR = 'sidebar';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -65,8 +75,8 @@ class CmsSectionDefinition extends EntityDefinition
 
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required())->setDescription('Position of occurrence of each section denoted by numerical values 0, 1, 2...'),
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required(), new Choice([
-                'default',
-                'sidebar',
+                self::TYPE_DEFAULT,
+                self::TYPE_SIDEBAR,
             ]))->setDescription('Types of sections can be `default` or `sidebar`.'),
             new LockedField(),
             (new StringField('name', 'name'))->addFlags(new ApiAware())->setDescription('Name of the CMS section defined.'),

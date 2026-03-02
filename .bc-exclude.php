@@ -10,6 +10,7 @@ return [
         '**/src/Core/Profiling/Doctrine/BacktraceDebugDataHolder.php', // dev dependency
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
+        '**/tests/unit/Core/DevOps/Docs/Script/_fixtures/**', // Testing
         '**/src/Core/Framework/App/AppException.php', // intended to be internal
     ],
     'errors' => [
@@ -31,7 +32,7 @@ return [
 
         // Had a typo in the internal annotation
         preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder was marked "@internal"', '/'),
-    
+
         // Inherited attribute $reversed parameter removed - attribute inheritance never worked before, so no BC break
         preg_quote('REMOVED: Property Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#$reversed was removed', '/'),
         preg_quote('Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#__construct()', '/'),
@@ -49,5 +50,12 @@ return [
         // Injecting request parameter into controller method is not a BC break
         preg_quote('ADDED: Parameter request was added to Method clearDelayedCache() of class Shopware\Core\Framework\Api\Controller\CacheController', '/'),
         preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\Api\Controller\CacheController#clearDelayedCache() increased from 0 to 1', '/'),
+
+        // SystemDumpDatabaseCommand was not marked @internal
+        preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand was marked "@internal"', '/'),
+        preg_quote('REMOVED: Method Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand#getIgnoreTableStmt() was removed', '/'),
+
+        // SystemRestoreDatabaseCommand was marked @internal
+        preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
     ],
 ];

@@ -85,6 +85,7 @@
     "/_action/store/recommendations",
     "/_action/store/updates",
     "/_action/store/verify-license-domain",
+    "/_action/system-config",
     "/_action/trigger-event/{eventName}",
     "/_action/update/check",
     "/_action/update/check-requirements",

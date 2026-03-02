@@ -10,8 +10,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
-use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -21,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
@@ -39,15 +38,17 @@ class ShippingMethodPersisterTest extends TestCase
     public function testUpdateShippingMethodInstallsTwoNewShippingMethodsWithBasicManifest(): void
     {
         $manifest = $this->getManifest(__DIR__ . '/_fixtures/manifest_basic.xml');
+        $context = Context::createDefaultContext();
 
         $shippingMethodPersister = $this->createShippingMethodPersister();
 
-        $shippingMethodPersister->persist($this->buildContext($manifest));
+        $shippingMethodPersister->updateShippingMethods($manifest, self::APP_ID, self::DEFAULT_LOCALE_ID, $context);
     }
 
     public function testUpdateShippingMethodInstallsOneNewUpdateOneAndDeactivatesOneShippingMethodsWithUpdateManifest(): void
     {
         $manifest = $this->getManifest(__DIR__ . '/_fixtures/update_basic.xml');
+        $context = Context::createDefaultContext();
 
         $appShippingMethodRepositoryMock = $this->createAppShippingMethodRepositoryMockWithExistingAppShippingMethods();
 
@@ -61,23 +62,7 @@ class ShippingMethodPersisterTest extends TestCase
             'mediaService' => $this->createMock(MediaService::class),
         ]);
 
-        $shippingMethodPersister->persist($this->buildContext($manifest));
-    }
-
-    private function buildContext(Manifest $manifest): AppLifecycleContext
-    {
-        $app = new AppEntity();
-        $app->setId(self::APP_ID);
-        $app->setActive(true);
-
-        return new AppLifecycleContext(
-            manifest: $manifest,
-            app: $app,
-            context: Context::createDefaultContext(),
-            appFilesystem: new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
-            defaultLocale: self::DEFAULT_LOCALE_ID,
-            isInstall: true,
-        );
+        $shippingMethodPersister->updateShippingMethods($manifest, self::APP_ID, self::DEFAULT_LOCALE_ID, $context);
     }
 
     /**
@@ -93,6 +78,9 @@ class ShippingMethodPersisterTest extends TestCase
             \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
             \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
             \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
+            \array_key_exists('sourceResolver', $services) ? $services['sourceResolver'] : new StaticSourceResolver([
+                'swagUnitTestShippingMethodPersister' => new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
+            ]),
         );
     }
 

@@ -65,64 +65,30 @@
             <tag name="shopware.app_manifest.validator"/>
         </service>
 
-        <!-- App Lifecycle Persisters (order matches original AppLifecycle::install/updateApp) -->
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister">
+            <argument type="service" id="custom_field_set.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="custom_field_set_relation.repository"/>
+            <argument type="service" id="custom_field.repository"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
-            <argument type="service" id="app_flow_action.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.app_lifecycle.persister" priority="0"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookCacheClearer"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-100"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister">
-            <argument type="service" id="app_flow_event.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-200"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-300"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">
-            <argument type="service" id="tax_provider.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-400"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ModulePersister">
-            <argument type="service" id="app.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-500"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister">
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="app_shipping_method.repository"/>
-            <argument type="service" id="media.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-600"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister">
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
-            <argument type="service" id="app_script_condition.repository"/>
-            <argument type="service" id="app.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-700"/>
-        </service>
-
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister">
             <argument type="service" id="app_action_button.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-800"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
+            <argument type="service" id="script.repository"/>
+            <argument type="service" id="app.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
@@ -130,36 +96,45 @@
             <argument type="service" id="app_template.repository"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-900"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister">
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
-            <argument type="service" id="script.repository"/>
-            <argument type="service" id="app.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-1000"/>
+        <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister">
-            <argument type="service" id="custom_field_set.repository"/>
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="custom_field_set_relation.repository"/>
-            <argument type="service" id="custom_field.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-1100"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookCacheClearer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister">
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="app_shipping_method.repository"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">
+            <argument type="service" id="tax_provider.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
+            <argument type="service" id="app_script_condition.repository"/>
+            <argument type="service" id="app.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
             <argument type="service" id="app_cms_block.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-1200"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\AppService">
@@ -280,6 +255,15 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
@@ -292,14 +276,16 @@
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="string">%kernel.project_dir%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister"/>
             <argument type="service" id="custom_entity.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
-            <argument type="tagged_iterator" tag="shopware.app_lifecycle.persister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -626,6 +612,12 @@
         <service id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader">
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
+            <argument type="service" id="app_flow_action.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
@@ -634,6 +626,11 @@
 
         <service id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider">
             <argument type="tagged_iterator" tag="shopware.app_delta"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister">
+            <argument type="service" id="app_flow_event.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Source\NoDatabaseSourceResolver">

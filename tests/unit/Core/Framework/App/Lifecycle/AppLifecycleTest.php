@@ -17,7 +17,19 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
@@ -356,6 +368,15 @@ class AppLifecycleTest extends TestCase
         return new AppLifecycle(
             $appRepository,
             $this->createMock(PermissionPersister::class),
+            $this->createMock(CustomFieldPersister::class),
+            $this->createMock(ActionButtonPersister::class),
+            $this->createMock(TemplatePersister::class),
+            $this->createMock(ScriptPersister::class),
+            $this->createMock(WebhookPersister::class),
+            $this->createMock(PaymentMethodPersister::class),
+            $this->createMock(TaxProviderPersister::class),
+            $this->createMock(RuleConditionPersister::class),
+            $this->createMock(CmsBlockPersister::class),
             $this->eventDispatcher,
             $this->createMock(AppRegistrationService::class),
             $this->createMock(AppStateService::class),
@@ -368,14 +389,16 @@ class AppLifecycleTest extends TestCase
             $this->createMock(ScriptExecutor::class),
             __DIR__,
             $this->createMock(Connection::class),
+            $this->createMock(FlowActionPersister::class),
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(CustomEntityLifecycleService::class),
             '6.5.0.0',
+            $this->createMock(FlowEventPersister::class),
             'test',
+            $this->createMock(ShippingMethodPersister::class),
             $this->createMock(EntityRepository::class),
             $appSourceResolver,
-            $this->createMock(ConfigReader::class),
-            [],
+            $this->createMock(ConfigReader::class)
         );
     }
 

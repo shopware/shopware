@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,7 +16,7 @@ use Shopware\Core\Framework\Script\ScriptCollection;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ScriptPersister implements PersisterInterface
+class ScriptPersister
 {
     /**
      * @param EntityRepository<ScriptCollection> $scriptRepository
@@ -30,9 +29,44 @@ class ScriptPersister implements PersisterInterface
     ) {
     }
 
-    public function persist(AppLifecycleContext $context): void
+    public function updateScripts(string $appId, Context $context): void
     {
-        $this->updateScripts($context->app->getId(), $context->context);
+        $app = $this->getAppWithExistingScripts($appId, $context);
+        $existingScripts = $app->getScripts();
+        \assert($existingScripts !== null);
+
+        $scriptPaths = $this->scriptReader->getScriptPathsForApp($app);
+
+        $upserts = [];
+        foreach ($scriptPaths as $scriptPath) {
+            $payload = [
+                'script' => $this->scriptReader->getScriptContent($app, $scriptPath),
+            ];
+
+            $existing = $existingScripts->filterByProperty('name', $scriptPath)->first();
+            if ($existing) {
+                $existingScripts->remove($existing->getId());
+
+                if ($existing->getScript() === $payload['script']) {
+                    // Don't update DB when content is identical
+                    continue;
+                }
+                $payload['id'] = $existing->getId();
+            } else {
+                $payload['appId'] = $appId;
+                $payload['active'] = $app->isActive();
+                $payload['name'] = $scriptPath;
+                $payload['hook'] = explode('/', $scriptPath)[0];
+            }
+
+            $upserts[] = $payload;
+        }
+
+        if ($upserts !== []) {
+            $this->scriptRepository->upsert($upserts, $context);
+        }
+
+        $this->deleteOldScripts($existingScripts, $context);
     }
 
     public function activateAppScripts(string $appId, Context $context): void
@@ -82,46 +116,6 @@ class ScriptPersister implements PersisterInterface
         foreach ($appIds as $appId) {
             $this->updateScripts($appId, $context);
         }
-    }
-
-    private function updateScripts(string $appId, Context $context): void
-    {
-        $app = $this->getAppWithExistingScripts($appId, $context);
-        $existingScripts = $app->getScripts();
-        \assert($existingScripts !== null);
-
-        $scriptPaths = $this->scriptReader->getScriptPathsForApp($app);
-
-        $upserts = [];
-        foreach ($scriptPaths as $scriptPath) {
-            $payload = [
-                'script' => $this->scriptReader->getScriptContent($app, $scriptPath),
-            ];
-
-            $existing = $existingScripts->filterByProperty('name', $scriptPath)->first();
-            if ($existing) {
-                $existingScripts->remove($existing->getId());
-
-                if ($existing->getScript() === $payload['script']) {
-                    // Don't update DB when content is identical
-                    continue;
-                }
-                $payload['id'] = $existing->getId();
-            } else {
-                $payload['appId'] = $appId;
-                $payload['active'] = $app->isActive();
-                $payload['name'] = $scriptPath;
-                $payload['hook'] = explode('/', $scriptPath)[0];
-            }
-
-            $upserts[] = $payload;
-        }
-
-        if ($upserts !== []) {
-            $this->scriptRepository->upsert($upserts, $context);
-        }
-
-        $this->deleteOldScripts($existingScripts, $context);
     }
 
     private function deleteOldScripts(ScriptCollection $toBeRemoved, Context $context): void

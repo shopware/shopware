@@ -28,13 +28,11 @@ use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -50,9 +48,9 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityCollection;
-use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -1317,95 +1315,6 @@ class AppLifecycleTest extends TestCase
         static::assertSame($appFlowActions[0], $newAppFlowActions[0]);
     }
 
-    public function testRefreshFlowExtension(): void
-    {
-        $app = null;
-        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
-            $app = $event->getApp();
-        });
-
-        $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        static::assertNotNull($app);
-
-        $flowActions = $this->getAppFlowActions($app->getId());
-        static::assertIsArray($flowActions);
-
-        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
-        $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($app, $flowAction, $context, 'en-GB');
-
-        $newFlowActions = $this->getAppFlowActions($app->getId());
-        static::assertIsArray($newFlowActions);
-        static::assertCount(2, $newFlowActions);
-        foreach ($flowActions as $action) {
-            static::assertContains($action['id'], \array_column($newFlowActions, 'id'));
-        }
-    }
-
-    public function testRefreshFlowExtensionWithAnotherAction(): void
-    {
-        $app = null;
-        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
-            $app = $event->getApp();
-        });
-
-        $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        static::assertNotNull($app);
-
-        $flowActions = $this->getAppFlowActions($app->getId());
-        static::assertIsArray($flowActions);
-
-        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v3.xml');
-        $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($app, $flowAction, $context, 'en-GB');
-
-        $newFlowActions = $this->getAppFlowActions($app->getId());
-        static::assertIsArray($newFlowActions);
-        static::assertCount(1, $newFlowActions);
-        foreach ($flowActions as $action) {
-            static::assertNotContains($action['id'], \array_column($newFlowActions, 'id'));
-        }
-    }
-
-    public function testRefreshFlowActionUsedInFlowBuilder(): void
-    {
-        $app = null;
-        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
-            $app = $event->getApp();
-        });
-
-        $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        static::assertNotNull($app);
-
-        $flowActions = $this->getAppFlowActions($app->getId());
-        static::assertIsArray($flowActions);
-        static::assertArrayHasKey(0, $flowActions);
-        static::assertIsArray($flowActions[0]);
-        static::assertArrayHasKey('id', $flowActions[0]);
-
-        $flowId = Uuid::randomHex();
-        $this->createFlow($flowId);
-
-        $sequenceId = Uuid::randomHex();
-        $this->createSequence($sequenceId, $flowId, $flowActions[0]['id']);
-
-        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
-        $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($app, $flowAction, $context, 'en-GB');
-
-        $appFlowActionId = $this->getAppFlowActionIdFromSequence($sequenceId);
-        static::assertSame($appFlowActionId, $flowActions[0]['id']);
-    }
-
     public function testUpdateFlowEventApp(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
@@ -1624,29 +1533,29 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
-        /** @var AppEntity $app */
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+        static::assertNotNull($app);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
 
         $customEntities = $this->customEntityRepository->search($criteria, $this->context);
 
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
 
-        /** @var CustomEntityEntity $customEntity */
         $customEntity = $customEntities->first();
+        static::assertNotNull($customEntity);
 
         // We call delete with keepUserData = true
         $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context, true);
 
         $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
 
-        /** @var CustomEntityEntity $customEntity */
         $customEntity = $customEntities->first();
+        static::assertNotNull($customEntity);
 
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
         static::assertNotNull($customEntity->getDeletedAt());
 
@@ -1670,26 +1579,26 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
-        /** @var AppEntity $app */
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+        static::assertNotNull($app);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
 
         $customEntities = $this->customEntityRepository->search($criteria, $this->context);
 
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
 
-        /** @var CustomEntityEntity $customEntity */
         $customEntity = $customEntities->first();
+        static::assertNotNull($customEntity);
 
         // We call delete with keepUserData = false
         $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context);
 
         $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
 
-        static::assertFalse($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(0, $customEntities);
 
         // Cleanup
@@ -1719,17 +1628,6 @@ class AppLifecycleTest extends TestCase
             $shippingMethod = $appShippingMethod->getShippingMethod();
             static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
         }
-    }
-
-    private function getAppFlowActionIdFromSequence(string $sequenceId): ?string
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select('lower(hex(app_flow_action_id))');
-        $query->from('flow_sequence');
-        $query->where('id = :id');
-        $query->setParameter('id', Uuid::fromHexToBytes($sequenceId));
-
-        return $query->executeQuery()->fetchOne() ?: null;
     }
 
     private function getAppFlowEventFromFlow(string $appFlowEventId): ?string

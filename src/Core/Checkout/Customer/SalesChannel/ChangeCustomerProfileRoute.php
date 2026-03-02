@@ -77,7 +77,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     {
         $validation = $this->customerProfileValidationFactory->update($context);
 
-        if ($data->has('accountType') && empty($data->get('accountType'))) {
+        if ($data->has('accountType') && $data->getString('accountType') === '') {
             $data->remove('accountType');
         }
 
@@ -95,7 +95,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         $vatIds = $data->get('vatIds');
         if ($vatIds instanceof RequestDataBag) {
             $vatIds = \array_filter($vatIds->all());
-            $data->set('vatIds', empty($vatIds) ? null : $vatIds);
+            $data->set('vatIds', $vatIds === [] ? null : $vatIds);
         }
 
         if (!$data->get('salutationId')) {

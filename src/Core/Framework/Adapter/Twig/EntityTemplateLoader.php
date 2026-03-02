@@ -104,7 +104,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         $namespace = $templateName['namespace'];
         $path = $templateName['path'];
 
-        if (empty($this->databaseTemplateCache)) {
+        if ($this->databaseTemplateCache === []) {
             /** @var list<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
             $templates = $this->connection->fetchAllAssociative('
                 SELECT

@@ -7,14 +7,14 @@
     "index": {
       "headlineMain": "Hallo!",
       "subheadlineMain": "Willkommen zurück.",
-      "headlineForm": "Melde Dich in Deinem Shopware-Shop an",
+      "headlineForm": "Melde Dich bei Shopware an",
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
       "labelKeepLoggedIn": "Angemeldet bleiben",
       "placeholderUsername": "Gib Deinen Benutzernamen ein ...",
       "placeholderPassword": "Gib Dein Passwort ein ...",
       "buttonLogin": "Anmelden",
-      "buttonSsoLogin": "Mit Shopware SSO anmelden",
+      "buttonSsoLogin": "Mit Shopware anmelden",
       "messageUnsupportedGrantType": "\"Grant-Type\" wird nicht unterstützt.",
       "messageInvalidRequest": "Ungültige Anfrage.",
       "messageInvalidClient": "Die Client-Authentifizierung ist fehlgeschlagen.",
@@ -25,7 +25,8 @@
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
       "messageGeneralRequestError": "Die Anfrage an \"{url}\" ist fehlgeschlagen.",
       "messageAuthThrottled": "Zu viele Anmeldeversuche. Bitte warten Sie {seconds} Sekunden, bevor Sie erneut versuchen, sich anzumelden.",
-      "forgottenPasswordLink": "Hast Du Dein Passwort vergessen?"
+      "forgottenPasswordLink": "Passwort vergessen?",
+      "orContinueWith": "Oder fortfahren mit"
     },
     "recovery": {
       "info": {

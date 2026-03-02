@@ -97,7 +97,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         $schemaPaths = [$this->schemaPath];
 
-        if (!empty($bundleName)) {
+        if ($bundleName !== null && $bundleName !== '') {
             $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
             $data['paths'] = [];
         } else {
@@ -232,9 +232,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $schemaDefinitions;
     }
 
-    private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string
+    private function getResourceUri(EntityDefinition $definition): string
     {
-        return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition->getEntityName());
+        return '/' . str_replace('_', '-', $definition->getEntityName());
     }
 
     /**

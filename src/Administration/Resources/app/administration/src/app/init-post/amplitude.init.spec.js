@@ -1,7 +1,17 @@
 import initAmplitude from './amplitude.init';
 import { TelemetryEvent } from '../../core/telemetry/types';
+import { ConsentEvent } from '../../core/consent/events';
+
+const mockAnonymousAmplitudeClient = {
+    init: jest.fn(),
+    track: jest.fn(),
+    setTransport: jest.fn(),
+    flush: jest.fn(),
+    reset: jest.fn(),
+};
 
 jest.mock('@amplitude/analytics-browser', () => ({
+    createInstance: jest.fn(() => mockAnonymousAmplitudeClient),
     add: jest.fn(),
     init: jest.fn(),
     track: jest.fn(),
@@ -16,6 +26,14 @@ describe('src/app/post-init/amplitude.init.ts', () => {
     let mockLoginService;
 
     beforeEach(() => {
+        Shopware.Utils.EventBus.all?.clear();
+
+        mockAnonymousAmplitudeClient.init.mockClear();
+        mockAnonymousAmplitudeClient.track.mockClear();
+        mockAnonymousAmplitudeClient.setTransport.mockClear();
+        mockAnonymousAmplitudeClient.flush.mockClear();
+        mockAnonymousAmplitudeClient.reset.mockClear();
+
         mockLoginService = {
             addOnLogoutListener: jest.fn(),
         };
@@ -31,6 +49,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             ...global.Shopware,
             Service: Shopware.Service,
         };
+
+        Shopware.Store.get('context').app.analyticsGatewayUrl = 'https://gateway.example';
 
         global.repositoryFactoryMock.responses.addResponse({
             method: 'Post',
@@ -51,7 +71,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
     describe('initialization', () => {
         it('add enrichment plugin and calls initialization routine', async () => {
-            const { init, add } = await import('@amplitude/analytics-browser');
+            const { init, add, createInstance } = await import('@amplitude/analytics-browser');
 
             await initAmplitude();
 
@@ -79,6 +99,23 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     fetchRemoteConfig: false,
                 }),
             );
+
+            expect(createInstance).toHaveBeenCalledTimes(1);
+            expect(mockAnonymousAmplitudeClient.init).toHaveBeenCalledWith(
+                expect.any(String),
+                undefined,
+                expect.objectContaining({
+                    serverUrl: 'https://gateway.example/event/anonymous',
+                }),
+            );
+        });
+
+        it('does not initialize anonymous amplitude when gateway base url is missing', async () => {
+            Shopware.Store.get('context').app.analyticsGatewayUrl = null;
+
+            await initAmplitude();
+
+            expect(mockAnonymousAmplitudeClient.init).not.toHaveBeenCalled();
         });
     });
 
@@ -160,6 +197,48 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
             expect(track).toHaveBeenCalled();
             expect(track).toHaveBeenCalledWith(trackedData.eventName, trackedData.properties);
+        });
+
+        it('routes consent events to the anonymous amplitude instance', async () => {
+            const { track } = await import('@amplitude/analytics-browser');
+
+            await initAmplitude();
+
+            Shopware.Utils.EventBus.emit(
+                'consent',
+                new ConsentEvent('consent_modal_viewed', {
+                    option: [
+                        'backend_data',
+                        'user_tracking',
+                    ],
+                }),
+            );
+
+            expect(mockAnonymousAmplitudeClient.track).toHaveBeenCalledWith('consent_modal_viewed', {
+                option: [
+                    'backend_data',
+                    'user_tracking',
+                ],
+            });
+            expect(track).not.toHaveBeenCalledWith('consent_modal_viewed', expect.anything());
+        });
+
+        it('does not send consent events when gateway base url is missing', async () => {
+            Shopware.Store.get('context').app.analyticsGatewayUrl = null;
+
+            await initAmplitude();
+
+            Shopware.Utils.EventBus.emit(
+                'consent',
+                new ConsentEvent('consent_modal_viewed', {
+                    option: [
+                        'backend_data',
+                        'user_tracking',
+                    ],
+                }),
+            );
+
+            expect(mockAnonymousAmplitudeClient.track).not.toHaveBeenCalled();
         });
     });
 
@@ -272,6 +351,19 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit('telemetry', resetEvent);
 
             expect(amplitude.track).toHaveBeenCalledWith('Logout');
+        });
+
+        it('should flush anonymous amplitude on logout listener execution', async () => {
+            await initAmplitude();
+
+            expect(mockLoginService.addOnLogoutListener).toHaveBeenCalledTimes(1);
+            const logoutListener = mockLoginService.addOnLogoutListener.mock.calls[0][0];
+
+            logoutListener();
+
+            expect(mockAnonymousAmplitudeClient.setTransport).toHaveBeenCalledWith('beacon');
+            expect(mockAnonymousAmplitudeClient.flush).toHaveBeenCalledTimes(1);
+            expect(mockAnonymousAmplitudeClient.reset).toHaveBeenCalledTimes(1);
         });
     });
 });

@@ -64,7 +64,7 @@ class OpenApiDefinitionSchemaBuilder
     }
 
     /**
-     * @return Schema[]
+     * @return array<string, Schema>
      */
     public function getSchemaByDefinition(
         EntityDefinition $definition,
@@ -466,7 +466,7 @@ class OpenApiDefinitionSchemaBuilder
             $schema[$schemaName]->description = 'Added since version: ' . $since;
         }
 
-        if (\count($requiredAttributes)) {
+        if ($requiredAttributes !== []) {
             $schema[$schemaName]->required = $requiredAttributes;
         }
 
@@ -798,7 +798,7 @@ class OpenApiDefinitionSchemaBuilder
 
         $required = [];
 
-        if (!empty($jsonField->getPropertyMapping())) {
+        if ($jsonField->getPropertyMapping() !== []) {
             $definition->properties = [];
         }
 
@@ -816,7 +816,7 @@ class OpenApiDefinitionSchemaBuilder
             $definition->properties[] = $this->getPropertyByField($field);
         }
 
-        if (\count($required)) {
+        if ($required !== []) {
             $definition->required = $required;
         }
         if ($this->isWriteProtected($jsonField)) {

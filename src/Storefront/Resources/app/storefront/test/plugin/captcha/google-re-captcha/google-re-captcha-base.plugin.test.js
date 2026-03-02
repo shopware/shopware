@@ -6,6 +6,18 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
     let originalPluginManager;
     let mockRecaptchaScriptElement;
 
+    function createMockElement() {
+        const form = document.createElement('form');
+        const inputField = document.createElement('input');
+        inputField.className = 'grecaptcha-input';
+        form.appendChild(inputField);
+
+        form.submit = jest.fn();
+        form.checkValidity = jest.fn(() => true);
+
+        return form;
+    }
+
     beforeEach(() => {
         window.grecaptcha = {
             ready: jest.fn(),
@@ -13,14 +25,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             execute: jest.fn(),
         };
 
-        mockElement = document.createElement('form');
-        const inputField = document.createElement('input');
-        inputField.className = 'grecaptcha-input';
-        mockElement.appendChild(inputField);
-
-        mockElement.submit = jest.fn();
-        mockElement.checkValidity = jest.fn(() => true);
-
+        mockElement = createMockElement();
         document.body.appendChild(mockElement);
 
         mockRecaptchaScriptElement = document.createElement('script');
@@ -40,6 +45,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
                     }),
                 };
             }),
+            initializePluginsInParentElement: jest.fn(),
         };
 
         googleReCaptchaBasePlugin = new GoogleReCaptchaBasePlugin(mockElement, {
@@ -82,29 +88,42 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         }
     });
 
-    test('init returns early if recaptcha script already has src attribute', () => {
+    test('init sets global recaptcha script src attribute only once and calls grecaptcha.ready for each google-re-captcha plugin instance', () => {
         if (mockRecaptchaScriptElement?.parentElement) {
             mockRecaptchaScriptElement.parentElement.removeChild(mockRecaptchaScriptElement);
         }
 
         const script = document.createElement('script');
         script.id = 'recaptcha-script';
-        script.setAttribute('src', 'already-set.js');
         script.setAttribute('data-src', 'http://example.com/recaptcha.js');
         document.body.appendChild(script);
+        const setAttributeSpy = jest.spyOn(script, 'setAttribute');
 
-        // Mock grecaptcha.ready to track if it was called
+        // Mock grecaptcha.ready to track how many times it was called
         const mockReady = jest.fn();
         window.grecaptcha.ready = mockReady;
 
-        // eslint-disable-next-line no-unused-vars
-        const pluginWithExistingSrc = new GoogleReCaptchaBasePlugin(mockElement, {
+        new GoogleReCaptchaBasePlugin(mockElement, {
             grecaptchaInputSelector: '.grecaptcha-input',
         });
 
-        // Should not have changed the src and should not call grecaptcha.ready
-        expect(script.getAttribute('src')).toBe('already-set.js');
-        expect(mockReady).not.toHaveBeenCalled();
+        const mockElement2 = createMockElement();
+        document.body.appendChild(mockElement2);
+
+        new GoogleReCaptchaBasePlugin(mockElement2, {
+            grecaptchaInputSelector: '.grecaptcha-input',
+        });
+
+        const mockElement3 = createMockElement();
+        document.body.appendChild(mockElement3);
+
+        new GoogleReCaptchaBasePlugin(mockElement3, {
+            grecaptchaInputSelector: '.grecaptcha-input',
+        });
+
+        // Should set the src attribute only once and should call grecaptcha.ready once per plugin instance
+        expect(setAttributeSpy.mock.calls.filter(([attribute]) => attribute === 'src')).toHaveLength(1);
+        expect(mockReady).toHaveBeenCalledTimes(3);
 
         if (script.parentElement) {
             script.parentElement.removeChild(script);
@@ -298,9 +317,10 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             expect(pluginWithNoAjax._form.submit).toHaveBeenCalledTimes(1);
         });
 
-        test('_submitInvisibleForm handles CMS form through FormCmsHandler', () => {
+        test('_submitInvisibleForm calls sendAjaxFormSubmit on FormCmsHandler like any other AJAX plugin', () => {
             const mockFormCmsHandler = {
-                _submitForm: jest.fn(),
+                sendAjaxFormSubmit: jest.fn(),
+                options: {},
             };
 
             const cmsInstancesMap = new Map([
@@ -316,27 +336,8 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             cmsPlugin._form.submit = jest.fn();
 
             cmsPlugin._submitInvisibleForm();
-            expect(mockFormCmsHandler._submitForm).toHaveBeenCalledTimes(1);
+            expect(mockFormCmsHandler.sendAjaxFormSubmit).toHaveBeenCalledTimes(1);
             expect(cmsPlugin._form.submit).not.toHaveBeenCalled();
-        });
-
-        test('_submitInvisibleForm handles CMS form when FormCmsHandler exists but get returns null', () => {
-            // Create a Map and mock has/get to simulate edge case where has() returns true but get() returns null
-            const cmsInstancesMap = new Map();
-            jest.spyOn(cmsInstancesMap, 'has').mockImplementation(key => key === 'FormCmsHandler');
-            jest.spyOn(cmsInstancesMap, 'get').mockImplementation(key => key === 'FormCmsHandler' ? null : undefined);
-
-            window.PluginManager.getPluginInstancesFromElement = jest.fn(() => cmsInstancesMap);
-
-            const cmsPlugin = new GoogleReCaptchaBasePlugin(mockElement, {
-                grecaptchaInputSelector: '.grecaptcha-input',
-            });
-            cmsPlugin._executeGoogleReCaptchaInitialization();
-            cmsPlugin._form.submit = jest.fn();
-
-            // Should continue to form submission logic since FormCmsHandler plugin is null
-            cmsPlugin._submitInvisibleForm();
-            expect(cmsPlugin._form.submit).toHaveBeenCalledTimes(1);
         });
     });
 

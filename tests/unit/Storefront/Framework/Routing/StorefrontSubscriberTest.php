@@ -443,4 +443,216 @@ class StorefrontSubscriberTest extends TestCase
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
+
+    public function testStartSessionWithBindingDisabledUsesDefaultTokenKey(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $request = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
+            ]
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => false,
+        ]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        // Should use default token key
+        static::assertTrue($request->getSession()->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        // Should NOT use channel-specific key
+        static::assertFalse($request->getSession()->has(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId));
+    }
+
+    public function testStartSessionWithBindingEnabledUsesChannelSpecificTokenKey(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $request = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
+            ]
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        // Should use channel-specific token key
+        $channelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertTrue($request->getSession()->has($channelTokenKey));
+
+        // Token should be set in request header
+        static::assertNotNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame(
+            $request->getSession()->get($channelTokenKey),
+            $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN)
+        );
+    }
+
+    public function testStartSessionWithBindingEnabledPreservesTokensAcrossChannels(): void
+    {
+        $salesChannelIdA = 'sales-channel-a';
+        $salesChannelIdB = 'sales-channel-b';
+
+        $session = new Session(new MockArraySessionStorage());
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        // Visit Channel A
+        $requestA = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdA,
+            ]
+        );
+        $requestA->setSession($session);
+        $requestStackA = new RequestStack([$requestA]);
+
+        (new StorefrontSubscriber(
+            $requestStackA,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        $tokenA = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA);
+        static::assertNotNull($tokenA);
+
+        // Visit Channel B
+        $requestB = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdB,
+            ]
+        );
+        $requestB->setSession($session);
+        $requestStackB = new RequestStack([$requestB]);
+
+        (new StorefrontSubscriber(
+            $requestStackB,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        $tokenB = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdB);
+        static::assertNotNull($tokenB);
+        static::assertNotSame($tokenA, $tokenB);
+
+        // Return to Channel A - token should be preserved
+        $requestA2 = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdA,
+            ]
+        );
+        $requestA2->setSession($session);
+        $requestStackA2 = new RequestStack([$requestA2]);
+
+        (new StorefrontSubscriber(
+            $requestStackA2,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->startSession();
+
+        $tokenA2 = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA);
+        static::assertSame($tokenA, $tokenA2, 'Token for Channel A should be preserved');
+
+        // Both tokens should still exist
+        static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA));
+        static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdB));
+    }
+
+    public function testUpdateSessionWithBindingEnabledStoresTokenInChannelKey(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $newToken = 'new-context-token';
+
+        $request = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
+            ]
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->updateSession($newToken);
+
+        // Should store in both channel-specific and default keys
+        $channelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertSame($newToken, $request->getSession()->get($channelTokenKey));
+        static::assertSame($newToken, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($newToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testUpdateSessionWithBindingDisabledStoresTokenInDefaultKeyOnly(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $newToken = 'new-context-token';
+
+        $request = new Request(
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
+            ]
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        $configService = new StaticSystemConfigService([
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => false,
+        ]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            $configService,
+            new EventDispatcher(),
+        ))->updateSession($newToken);
+
+        // Should only store in default key
+        static::assertSame($newToken, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        // Should NOT store in channel-specific key
+        $channelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertFalse($request->getSession()->has($channelTokenKey));
+    }
 }

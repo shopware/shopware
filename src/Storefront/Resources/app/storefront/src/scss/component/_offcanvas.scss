@@ -64,6 +64,10 @@ The sliding direction can be left or right.
             margin-left: -$spacer;
             margin-top: -$spacer;
         }
+
+        .line-item-total-price-value {
+            text-align: left;
+        }
     }
 
     // For horizontal OffCanvas, always reserve some space when the mobile viewport

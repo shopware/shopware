@@ -41,6 +41,7 @@
   "payment_method": [
     {
       "id": "{default-payment-method}",
+      "technicalName": "payment_default",
       "name": "Name",
       "position": 1,
       "active": true
@@ -49,6 +50,7 @@
   "shipping_method": [
     {
       "id": "{shipping-method}",
+      "technicalName": "shipping_default",
       "name": "Default shipping method",
       "active": true,
       "position": 1,

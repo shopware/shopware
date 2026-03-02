@@ -66,7 +66,7 @@ class ProductUrlProvider extends AbstractUrlProvider
     {
         $products = $this->getProducts($context, $limit, $offset);
 
-        if (empty($products)) {
+        if ($products === []) {
             return new UrlResult([], null);
         }
 
@@ -148,7 +148,7 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
 
         $excludedProductIds = $this->getExcludedProductIds($context);
-        if (!empty($excludedProductIds)) {
+        if ($excludedProductIds !== []) {
             $query->andWhere('`product`.id NOT IN (:productIds)');
             $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::BINARY);
         }
@@ -180,7 +180,7 @@ class ProductUrlProvider extends AbstractUrlProvider
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
-        if (empty($excludedUrls)) {
+        if ($excludedUrls === []) {
             return [];
         }
 

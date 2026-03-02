@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\Feature;
@@ -61,9 +62,10 @@ class ApiException extends HttpException
     public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
     public const API_INVALID_SCHEMA_STRUCTURE = 'FRAMEWORK__INVALID_SCHEMA_STRUCTURE';
+    public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
 
     /**
-     * @param array<array{pointer: string, entity: string}> $exceptions
+     * @param list<array{pointer: string, entity: string}> $exceptions
      */
     public static function canNotResolveForeignKeysException(array $exceptions): self
     {
@@ -126,7 +128,7 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param string[] $permissions
+     * @param list<string> $permissions
      */
     public static function missingPrivileges(array $permissions): ShopwareHttpException
     {
@@ -152,7 +154,7 @@ class ApiException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::API_INVALID_ASSOCIATION_FIELD,
-            'Field "%s" is not a valid association field.',
+            'Field "{{ path }}" is not a valid association field.',
             ['path' => $path]
         );
     }
@@ -210,7 +212,7 @@ class ApiException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
         return new InvalidSyncOperationException($message);
@@ -251,6 +253,26 @@ class ApiException extends HttpException
             self::API_UNSUPPORTED_OPERATION_EXCEPTION,
             'Unsupported {{ operation }} operation.',
             ['operation' => $operation]
+        );
+    }
+
+    public static function noPrimaryKeyDefined(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            'No primary key defined for {{ entityName }}',
+            ['entityName' => $entityName]
+        );
+    }
+
+    public static function mappingFieldNotFound(string $storageField): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            'Can not find mapping entity field for storage field {{ storageField }}',
+            ['storageField' => $storageField]
         );
     }
 
@@ -353,6 +375,16 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_SCHEMA_STRUCTURE,
             \sprintf('Invalid schema structure detected for entity "%s".', $entityName),
+        );
+    }
+
+    public static function invalidSchemaForDefinition(EntityDefinition $definition, string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_SCHEMA_FOR_DEFINITION,
+            'Invalid schema for entity "{{ entityName }}". ' . $message,
+            ['entityName' => $definition->getEntityName()]
         );
     }
 

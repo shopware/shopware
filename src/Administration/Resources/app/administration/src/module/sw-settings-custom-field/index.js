@@ -59,6 +59,11 @@ Shopware.Component.extend(
     'sw-custom-field-type-base',
     () => import('./component/sw-custom-field-type-text-editor'),
 );
+Shopware.Component.extend(
+    'sw-custom-field-type-colorpicker',
+    'sw-custom-field-type-base',
+    () => import('./component/sw-custom-field-type-colorpicker'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

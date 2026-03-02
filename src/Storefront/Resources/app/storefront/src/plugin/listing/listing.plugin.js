@@ -38,6 +38,9 @@ export default class ListingPlugin extends Plugin {
         scrollTopListingWrapper: true,
         // how much px the scrolling should be offset
         scrollOffset: 15,
+        // Skip popstate handling for hash-only changes (fixes anchor links)
+        // Set to false to disable this fix for testing
+        ignoreHashOnlyPopstate: true,
     };
 
     init() {
@@ -63,6 +66,9 @@ export default class ListingPlugin extends Plugin {
         this._cmsProductListingWrapperActive = !!this._cmsProductListingWrapper;
 
         this._allFiltersInitializedDebounce = Debouncer.debounce(this.sendDisabledFiltersRequest.bind(this), 100);
+
+        // Track current path for hash-only popstate detection
+        this._lastPathWithoutHash = this._getPathWithoutHash();
 
         this._registerEvents();
     }
@@ -252,6 +258,9 @@ export default class ListingPlugin extends Plugin {
     _updateHistory(queryParams) {
         const url = this._buildUrl(window.location.pathname, queryParams);
         window.history.pushState({}, '', url);
+
+        // Update tracked path for hash-only popstate detection
+        this._lastPathWithoutHash = this._getPathWithoutHash();
     }
 
     /**
@@ -522,6 +531,15 @@ export default class ListingPlugin extends Plugin {
      * @private
      */
     _onWindowPopstate() {
+        // Skip if this is just an anchor/hash navigation (not a filter/page change)
+        // Browsers fire popstate for hash changes
+        if (this.options.ignoreHashOnlyPopstate && this._lastPathWithoutHash) {
+            const currentPathWithoutHash = this._getPathWithoutHash();
+            if (this._lastPathWithoutHash === currentPathWithoutHash) {
+                return;
+            }
+        }
+
         this.refreshRegistry();
 
         this._registry.forEach(filterItem => {
@@ -537,6 +555,17 @@ export default class ListingPlugin extends Plugin {
 
         this.changeListing(false);
     }
+    /**
+     * Get current path without hash (pathname + search).
+     * Used for hash-only popstate detection (Safari/Firefox anchor link fix).
+     *
+     * @private
+     * @return {string}
+     */
+    _getPathWithoutHash() {
+        return window.location.pathname + window.location.search;
+    }
+
     /**
      * @private
      * @param {string} pathname

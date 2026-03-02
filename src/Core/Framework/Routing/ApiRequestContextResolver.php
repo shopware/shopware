@@ -207,7 +207,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->executeQuery()
             ->fetchFirstColumn();
 
-        if (empty($data)) {
+        if ($data === []) {
             throw RoutingException::languageNotFound($languageId);
         }
 

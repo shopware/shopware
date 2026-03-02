@@ -55,9 +55,9 @@ class DocumentGenerator
         string $documentId,
         Context $context,
         string $deepLinkCode = '',
-        ?string $fileType = PdfRenderer::FILE_EXTENSION
+        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
     ): ?RenderedDocument {
-        $fileType = \func_get_args()[3] ?? PdfRenderer::FILE_EXTENSION;
+        $fileType = \func_num_args() > 3 ? \func_get_args()[3] : PdfRenderer::FILE_EXTENSION;
 
         $criteria = new Criteria([$documentId]);
 

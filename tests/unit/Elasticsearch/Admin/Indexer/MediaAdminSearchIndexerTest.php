@@ -140,12 +140,17 @@ class MediaAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('media-file jpg media title media folder tag 809c1844f4734243b6aa04aba860cd45', $document['text']);
+        static::assertSame('media-file jpg media/path/file.jpg media title media folder tag 809c1844f4734243b6aa04aba860cd45', $document['text']);
         static::assertSame('media-file', $document['fileName']);
         static::assertSame('jpg', $document['fileExtension']);
+        static::assertSame(12345, $document['fileSize']);
+        static::assertSame('media/path/file.jpg', $document['path']);
         static::assertIsArray($document['title']);
         static::assertIsArray($document['alt']);
         static::assertIsArray($document['tags']);
+        static::assertSame('a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6', $document['tags'][0]['id']);
+        static::assertSame('Media folder', $document['mediaFolder']['name']);
+        static::assertSame('|aabbccdd11223344|', $document['mediaFolder']['path']);
     }
 
     private function getConnection(): Connection
@@ -159,13 +164,16 @@ class MediaAdminSearchIndexerTest extends TestCase
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     'file_name' => 'media-file',
                     'file_extension' => 'jpg',
-                    'path' => null,
+                    'file_size' => 12345,
+                    'path' => 'media/path/file.jpg',
+                    'private' => 0,
                     'alt' => null,
                     'title' => 'Media title',
                     'translatedFields' => json_encode([
                         ['languageId' => $languageId, 'title' => 'Media title', 'alt' => null],
                     ]),
                     'folderName' => 'Media folder',
+                    'folderPath' => '|aabbccdd11223344|',
                     'mediaFolderId' => 'aabbccdd11223344556677889900aabb',
                     'tags' => 'tag',
                     'tagIds' => 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6',

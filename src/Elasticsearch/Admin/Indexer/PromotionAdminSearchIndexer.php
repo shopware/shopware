@@ -64,6 +64,7 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
     {
         $promotionIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
             'active',
+            'code',
             'validFrom',
             'validUntil',
         ]);
@@ -92,6 +93,7 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
 
         $override = [
             'active' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
+            'code' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'name' => $languageFields,
             'validFrom' => ElasticsearchFieldBuilder::datetime(),
             'validUntil' => ElasticsearchFieldBuilder::datetime(),
@@ -127,6 +129,7 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
                        'languageId', LOWER(HEX(promotion_translation.language_id)),
                        'name', promotion_translation.name
                    )) as translatedNames,
+                   promotion.code AS code,
                    promotion.active AS active,
                    promotion.valid_from AS validFrom,
                    promotion.valid_until AS validUntil,
@@ -148,7 +151,7 @@ SQL,
         $mapped = [];
         foreach ($data as $row) {
             $id = (string) $row['id'];
-            $text = \implode(' ', array_filter([$row['name'] ?? '', $id]));
+            $text = \implode(' ', array_filter([$row['name'] ?? '', $row['code'] ?? '', $id]));
 
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
@@ -165,6 +168,7 @@ SQL,
                 'id' => $id,
                 'text' => \strtolower($text),
                 'name' => $translatedNames,
+                'code' => $row['code'] ?? null,
                 'active' => (bool) $row['active'],
                 'validFrom' => $this->formatDateTime($row, 'validFrom'),
                 'validUntil' => $this->formatDateTime($row, 'validUntil'),

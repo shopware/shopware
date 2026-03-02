@@ -144,6 +144,12 @@ class CustomerAdminSearchIndexerTest extends TestCase
         static::assertSame('firstname', $document['firstName']);
         static::assertSame('lastname', $document['lastName']);
         static::assertSame('12345', $document['customerNumber']);
+        static::assertIsArray($document['defaultBillingAddress']);
+        static::assertSame('bb11223344556677889900aabbccddee', $document['defaultBillingAddress']['id']);
+        static::assertSame('cc11223344556677889900aabbccddee', $document['defaultBillingAddress']['countryId']);
+        static::assertIsArray($document['defaultShippingAddress']);
+        static::assertSame('dd11223344556677889900aabbccddee', $document['defaultShippingAddress']['id']);
+        static::assertSame('ee11223344556677889900aabbccddee', $document['defaultShippingAddress']['countryId']);
         static::assertIsArray($document['tags']);
     }
 
@@ -179,6 +185,10 @@ class CustomerAdminSearchIndexerTest extends TestCase
                     'salutationId' => null,
                     'boundSalesChannelId' => null,
                     'requestedGroupId' => null,
+                    'defaultBillingAddressId' => 'bb11223344556677889900aabbccddee',
+                    'defaultBillingAddressCountryId' => 'cc11223344556677889900aabbccddee',
+                    'defaultShippingAddressId' => 'dd11223344556677889900aabbccddee',
+                    'defaultShippingAddressCountryId' => 'ee11223344556677889900aabbccddee',
                     'createdAt' => '2024-01-01 00:00:00.000',
                 ],
             ],

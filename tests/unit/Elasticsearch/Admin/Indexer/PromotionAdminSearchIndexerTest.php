@@ -140,7 +140,8 @@ class PromotionAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('promotion 809c1844f4734243b6aa04aba860cd45', $document['text']);
+        static::assertSame('promotion summer10 809c1844f4734243b6aa04aba860cd45', $document['text']);
+        static::assertSame('SUMMER10', $document['code']);
         static::assertTrue($document['active']);
         static::assertIsArray($document['name']);
     }
@@ -158,6 +159,7 @@ class PromotionAdminSearchIndexerTest extends TestCase
                     'translatedNames' => json_encode([
                         ['languageId' => $languageId, 'name' => 'Promotion'],
                     ]),
+                    'code' => 'SUMMER10',
                     'active' => 1,
                     'validFrom' => '2024-01-01 00:00:00.000',
                     'validUntil' => '2025-01-01 00:00:00.000',

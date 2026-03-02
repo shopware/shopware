@@ -2,6 +2,15 @@
 
 ## Features
 
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
+### Online revocation request form
+Customers can now conveniently submit revocation requests through an online form. 
+Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
 ## API
 
 ### Deprecation of newsletter route methods
@@ -27,6 +36,10 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 | `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
 
 ## Core
+
+### Inheritance added to product main categories
+
+Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
 
 ### Deprecation of unused `TemplateGroup` class
 
@@ -60,6 +73,10 @@ The internal comment is only visible in the administration and not shown to cust
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
 ## Core
+
+### Indexing the product's custom fields
+
+Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
 
 ### Deprecation of increment-based message queue statistics
 
@@ -278,14 +295,6 @@ shopware:
 
 **Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
 
-# 6.7.7.2
-
-## Core
-
-### Indexing the product's custom fields
-
-Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
-
 # 6.7.7.1
 
 ## Core
@@ -334,6 +343,7 @@ This new component is called `sw-model-viewer`.
 The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
 Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
 A modal will open where you can move, rotate, and scale the model.
+You can also use the sidebar to type in specific values for position, rotation and scale.
 Click Save, and your changes are applied instantly.
 
 ## API

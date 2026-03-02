@@ -1,0 +1,87 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/revocation-request-form": {
+            "post": {
+                "tags": ["Content"],
+                "summary": "Submit a revocation request form message",
+                "description": "Used for submitting revocation request forms. Be aware that there can be more required fields, depending on the system settings.",
+                "operationId": "sendRevocationRequestMail",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["email", "contractNumber"],
+                                "properties": {
+                                    "firstName": {
+                                        "description": "First name. This field may be required depending on the system settings.",
+                                        "type": "string"
+                                    },
+                                    "lastName": {
+                                        "description": "Last name. This field may be required depending on the system settings.",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "Email address.",
+                                        "type": "string"
+                                    },
+                                    "contractNumber": {
+                                        "description": "The number of the contract.",
+                                        "type": "string"
+                                    },
+                                    "comment": {
+                                        "description": "The message of the revocation request form.",
+                                        "type": "string"
+                                    },
+                                    "navigationId": {
+                                        "description": "Identifier of the navigation page. Can be used to override the configuration.\nTake a look at the settings of a category containing a revocation form in the administration.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "slotId": {
+                                        "description": "Identifier of the cms element.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "cmsPageType": {
+                                        "description": "Type of the content management page.",
+                                        "type": "string"
+                                    },
+                                    "entityName": {
+                                        "description": "Entity name for slot config.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Message sent successfully."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

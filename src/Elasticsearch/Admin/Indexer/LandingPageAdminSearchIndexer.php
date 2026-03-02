@@ -64,12 +64,11 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
             'active',
         ]);
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(LandingPageTranslationDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(LandingPageTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 
-        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(LandingPageTagDefinition::ENTITY_NAME, [
+        $tags = $event->getPrimaryKeysWithPropertyChange(LandingPageTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 

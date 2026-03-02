@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Context;
@@ -56,7 +57,7 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
     {
         $ids = [];
 
-        $translations = $event->getPrimaryKeysWithPropertyChange(ProductStreamDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(ProductStreamTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 

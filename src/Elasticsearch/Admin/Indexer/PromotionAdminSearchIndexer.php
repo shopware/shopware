@@ -69,8 +69,7 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
             'validUntil',
         ]);
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(PromotionTranslationDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(PromotionTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 

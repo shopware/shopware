@@ -70,8 +70,7 @@ final class NewsletterRecipientAdminSearchIndexer extends AbstractAdminIndexer
             'languageId',
         ]);
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(NewsletterRecipientTagDefinition::ENTITY_NAME, [
+        $tags = $event->getPrimaryKeysWithPropertyChange(NewsletterRecipientTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 

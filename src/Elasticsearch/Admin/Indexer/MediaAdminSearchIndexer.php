@@ -68,12 +68,11 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
             'mediaFolderId',
         ]);
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(MediaTagDefinition::ENTITY_NAME, [
+        $tags = $event->getPrimaryKeysWithPropertyChange(MediaTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
-        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(MediaTranslationDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(MediaTranslationDefinition::ENTITY_NAME, [
             'title',
             'alt',
         ]);

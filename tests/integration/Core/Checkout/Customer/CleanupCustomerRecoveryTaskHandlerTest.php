@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTaskHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,6 +18,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('checkout')]
+#[CoversClass(CleanupCustomerRecoveryTaskHandler::class)]
 class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

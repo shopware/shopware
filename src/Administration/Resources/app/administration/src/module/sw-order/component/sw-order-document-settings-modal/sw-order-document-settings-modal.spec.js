@@ -227,12 +227,18 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should show download label on the download button', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const downloadButton = wrapper.find('.sw-order-document-settings-modal__download-button');
         expect(downloadButton.text()).toBe('sw-order.documentModal.labelCreateDownload');
     });
 
     it('should allow any text input in the document number field', async () => {
-        const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const documentNumberFieldInput = wrapper.find('.sw-order-document-settings-modal__document-number input');
         expect(documentNumberFieldInput.exists()).toBeTruthy();
 
         await documentNumberFieldInput.setValue('Prefix-1000-Suffix');
@@ -240,6 +246,9 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should enable/disable create & preview buttons by documentNumber value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const documentConfig = {
             documentNumber: '',
             documentDate: '2024/03/01',
@@ -276,6 +285,9 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should enable/disable create & preview buttons by documentDate value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const documentConfig = {
             documentNumber: '1000',
             documentDate: '',

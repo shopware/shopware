@@ -22,7 +22,7 @@ test('Shop administrator should be able to create a internal link type of catego
 
     await test.step('Create a category with internal link type of Category', async () => {
         await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });
-        await ShopAdmin.goesTo(AdminCategories.url());
+        await ShopAdmin.goesTo(AdminCategories.url(), true);
         await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category));
 
         // Verify general data
@@ -62,7 +62,7 @@ test('Shop administrator should be able to create a internal link type of produc
 
     await test.step('Create a category with internal link type of Product', async () => {
         await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });
-        await ShopAdmin.goesTo(AdminCategories.url());
+        await ShopAdmin.goesTo(AdminCategories.url(), true);
         await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category));
 
         // Verify general data
@@ -108,7 +108,7 @@ test('Shop administrator should be able to create a internal link type of landin
     };
 
     await test.step('Create a landing page', async () => {
-        await ShopAdmin.goesTo(AdminCategories.url());
+        await ShopAdmin.goesTo(AdminCategories.url(), true);
         await ShopAdmin.attemptsTo(CreateLandingPage(null, landingPageData));
     });
 

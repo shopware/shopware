@@ -64,6 +64,8 @@ test('Product is visible in storefront search but hidden from listing when set t
                 },
             ],
         });
+
+        await TestDataService.clearCaches();
     });
 
     await test.step('Verify the product does not appear in the Home category listing.', async () => {

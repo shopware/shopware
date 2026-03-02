@@ -8,6 +8,7 @@ test(
 
         await test.step('Visit the home page to check there is no revocation button', async () => {
             await TestDataService.setSystemConfig({ 'core.basicInformation.showRevocationButton': false });
+            await TestDataService.clearCaches();
             await ShopCustomer.goesTo(StorefrontHome.url());
             const revocationFormButton = StorefrontHome.page.getByText(/Revoke a contract|Vertrag widerrufen/);
             await expect(revocationFormButton).toBeHidden();
@@ -15,6 +16,7 @@ test(
 
         await test.step('Enables the revocation button and check if it is visible', async () => {
             await TestDataService.setSystemConfig({ 'core.basicInformation.showRevocationButton': true });
+            await TestDataService.clearCaches();
             await ShopCustomer.goesTo(StorefrontHome.url());
             const revocationFormButton = StorefrontHome.page.getByText(/Revoke a contract|Vertrag widerrufen/);
             await expect(revocationFormButton).toBeVisible();

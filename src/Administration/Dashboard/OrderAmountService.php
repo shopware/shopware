@@ -32,6 +32,7 @@ readonly class OrderAmountService
 
         $accessor = '`order`.order_date_time';
 
+        // @deprecated tag:v6.8.0 - time zone support always enabled, remove if, but keep content
         if ($this->timeZoneSupportEnabled) {
             $accessor = 'IFNULL(CONVERT_TZ(' . $accessor . ', :dbtimezone, :timezone), ' . $accessor . ')';
 

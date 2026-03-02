@@ -12,7 +12,6 @@ return [
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         '**/tests/unit/Core/DevOps/Docs/Script/_fixtures/**', // Testing
         '**/src/Core/Framework/App/AppException.php', // intended to be internal
-
     ],
     'errors' => [
         // Don't complain about doctrine library changes
@@ -51,10 +50,6 @@ return [
         // Injecting request parameter into controller method is not a BC break
         preg_quote('ADDED: Parameter request was added to Method clearDelayedCache() of class Shopware\Core\Framework\Api\Controller\CacheController', '/'),
         preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\Api\Controller\CacheController#clearDelayedCache() increased from 0 to 1', '/'),
-
-        // TaxProviderPersister was mistakenly not marked @internal
-        preg_quote('CHANGED: Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister was marked "@internal"', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister#updateTaxProviders() was removed', '/'),
 
         // SystemDumpDatabaseCommand was not marked @internal
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand was marked "@internal"', '/'),

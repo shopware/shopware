@@ -19,9 +19,9 @@ class ScriptReferenceDataCollector
     private static array $classes = [];
 
     /**
-     * @var array<string, SplFileInfo>
+     * @var array<string, SplFileInfo>|null
      */
-    private static array $files = [];
+    private static ?array $files = null;
 
     /**
      * @return array<class-string>
@@ -41,11 +41,21 @@ class ScriptReferenceDataCollector
     }
 
     /**
+     * @internal only for testing
+     *
+     * @param array<class-string> $classes
+     */
+    public static function setShopwareClasses(array $classes): void
+    {
+        self::$classes = $classes;
+    }
+
+    /**
      * @return SplFileInfo[]
      */
     public static function getFiles(): array
     {
-        if (self::$files === []) {
+        if (self::$files === null) {
             $finder = new Finder();
             $finder
                 ->files()
@@ -65,9 +75,19 @@ class ScriptReferenceDataCollector
         return self::$files;
     }
 
+    /**
+     * @internal only for testing
+     *
+     * @param array<string, SplFileInfo> $files
+     */
+    public static function setFiles(array $files): void
+    {
+        self::$files = $files;
+    }
+
     public static function reset(): void
     {
-        self::$files = [];
+        self::$files = null;
         self::$classes = [];
     }
 }

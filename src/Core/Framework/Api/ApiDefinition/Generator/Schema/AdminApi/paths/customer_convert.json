@@ -1,0 +1,31 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/customer-convert/{customerId}": {
+            "post": {
+                "tags": [
+                    "Customer convert"
+                ],
+                "summary": "Convert a guest customer",
+                "description": "Convert a guest customer to a normal customer",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "path",
+                        "description": "The Id of the customer to convert",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Customer successful converted"
+                    }
+                }
+            }
+        }
+    }
+}

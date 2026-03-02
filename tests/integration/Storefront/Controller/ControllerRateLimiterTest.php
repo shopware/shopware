@@ -19,8 +19,11 @@ use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
+use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -223,10 +226,42 @@ class ControllerRateLimiterTest extends TestCase
             $contactFormRoute,
             static::getContainer()->get(NewsletterSubscribeRoute::class),
             static::getContainer()->get(NewsletterUnsubscribeRoute::class),
+            static::getContainer()->get(RevocationRequestRoute::class),
         );
         $controller->setContainer(static::getContainer());
 
         $response = $controller->sendContactForm(new RequestDataBag([
+        ]), $this->salesChannelContext);
+
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $content);
+        static::assertArrayHasKey('type', $content[0]);
+        static::assertSame('info', $content[0]['type']);
+
+        $contentReturn = $content[0]['alert'];
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($contentReturn);
+
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content-container"]')->text();
+
+        static::assertStringContainsString($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 5]), $errorContent);
+    }
+
+    public function testRevocationRequestFormControllerRateLimit(): void
+    {
+        $abstractRevocationRequestRoute = $this->createMock(AbstractRevocationRequestRoute::class);
+        $abstractRevocationRequestRoute->method('request')->willThrowException(new RateLimitExceededException(time() + 5));
+
+        $controller = new FormController(
+            static::getContainer()->get(ContactFormRoute::class),
+            static::getContainer()->get(NewsletterSubscribeRoute::class),
+            static::getContainer()->get(NewsletterUnsubscribeRoute::class),
+            $abstractRevocationRequestRoute,
+        );
+        $controller->setContainer(static::getContainer());
+
+        $response = $controller->sendRevocationRequest(new RequestDataBag([
         ]), $this->salesChannelContext);
 
         $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);

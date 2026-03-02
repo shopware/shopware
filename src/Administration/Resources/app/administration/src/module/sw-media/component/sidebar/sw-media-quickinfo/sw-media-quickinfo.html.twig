@@ -272,12 +272,13 @@
                     <div class="sw-model-viewer-wrapper">
                         <mt-button
                             v-if="!isLoading"
+                            v-tooltip="{ message: $t('sw-model-editor.open-model-editor-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
                             class="sw-model-viewer-button"
                             variant="secondary"
                             size="x-small"
                             @click="openModelEditorModal()"
                         >
-                            <mt-icon name="regular-expand-arrows" />
+                            <mt-icon name="cog" />
                         </mt-button>
                         <sw-model-viewer
                             :source="item"
@@ -288,7 +289,7 @@
                     <sw-modal
                         v-if="showModelEditorModal"
                         class="sw-model-editor-modal"
-                        :title="$tc('sw-media.sw-model-editor.titleModal')"
+                        :title="$tc('sw-model-editor.titleModal')"
                         variant="full"
                         @modal-close="closeModelEditorModal()"
                     >
@@ -301,10 +302,16 @@
                         </div>
                         <template #modal-footer>
                             <mt-button
+                                variant="secondary"
+                                @click="closeModelEditorModal()"
+                            >
+                                {{ $tc('sw-model-editor.cancel') }}
+                            </mt-button>
+                            <mt-button
                                 variant="primary"
                                 @click="$refs.modelEditorRef.save()"
                             >
-                                {{ $tc('sw-media.sw-model-editor.saveChanges') }}
+                                {{ $tc('sw-model-editor.save') }}
                             </mt-button>
                         </template>
                     </sw-modal>

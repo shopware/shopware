@@ -15,6 +15,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleMappingDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ExtensionWithImmutableDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ImmutableFieldsDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -62,6 +63,7 @@ class OpenApi3GeneratorTest extends TestCase
                 SimpleDefinition::class,
                 ImmutableFieldsDefinition::class,
                 SimpleMappingDefinition::class,
+                ExtensionWithImmutableDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -226,6 +228,40 @@ class OpenApi3GeneratorTest extends TestCase
         // SimpleMappingDefinition should NOT exist (it's a mapping entity with no references)
         static::assertArrayNotHasKey('SimpleMapping', $entities);
         static::assertArrayNotHasKey('SimpleMappingUpdate', $entities);
+    }
+
+    public function testGetSchemaWithNullSinceDefinition(): void
+    {
+        // ExtensionWithImmutableDefinition has since() = null
+        $schema = $this->generator->getSchema(
+            ['extension_immutable_test' => $this->definitionRegistry->get(ExtensionWithImmutableDefinition::class)]
+        );
+
+        static::assertArrayHasKey('extension_immutable_test', $schema);
+        $properties = $schema['extension_immutable_test']['properties'];
+
+        // Should have id, modifiable and immutable fields
+        static::assertArrayHasKey('id', $properties);
+        static::assertArrayHasKey('code', $properties);
+        static::assertArrayHasKey('label', $properties);
+    }
+
+    public function testGenerateWithJsonTypeDoesNotRemoveSchemas(): void
+    {
+        // TYPE_JSON should not trigger removeUnreferencedSchemas
+        $schema = $this->generator->generate(
+            [
+                'simple' => $this->definitionRegistry->get(SimpleDefinition::class),
+                'simple_mapping' => $this->definitionRegistry->get(SimpleMappingDefinition::class),
+            ],
+            DefinitionService::API,
+            DefinitionService::TYPE_JSON
+        );
+
+        $entities = $schema['components']['schemas'];
+
+        // With TYPE_JSON, all schemas remain (no removal happens)
+        static::assertArrayHasKey('Simple', $entities);
     }
 
     public function testReferencedSchemasAreKept(): void

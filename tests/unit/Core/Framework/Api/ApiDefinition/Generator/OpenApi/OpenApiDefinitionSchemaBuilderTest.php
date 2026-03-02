@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ComplexDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ExtensionWithImmutableDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ImmutableFieldsDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\SimpleExtendedDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -32,6 +33,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 ComplexDefinition::class,
                 SimpleExtendedDefinition::class,
                 ImmutableFieldsDefinition::class,
+                ExtensionWithImmutableDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -412,6 +414,84 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
 
         // Should NOT have JsonApi schema when onlyFlat is true
         static::assertArrayNotHasKey('SimpleJsonApi', $schema);
+    }
+
+    public function testReadSchemaDescriptionIncludesSinceVersion(): void
+    {
+        // ImmutableFieldsDefinition has since() = '6.7.0.0'
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
+            '/immutable-test',
+            false
+        );
+
+        $readSchema = json_decode($schema['ImmutableTest']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('description', $readSchema);
+        static::assertStringContainsString('Added since version: 6.7.0.0', $readSchema['description']);
+    }
+
+    public function testReadSchemaDescriptionWithoutSinceVersion(): void
+    {
+        // ExtensionWithImmutableDefinition has since() = null
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ExtensionWithImmutableDefinition::class),
+            '/extension-immutable-test',
+            false
+        );
+
+        $readSchema = json_decode($schema['ExtensionImmutableTest']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('description', $readSchema);
+        static::assertStringNotContainsString('Added since version:', $readSchema['description']);
+    }
+
+    public function testJsonApiSchemaIncludesSinceDescription(): void
+    {
+        // ImmutableFieldsDefinition has since() = '6.7.0.0'
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
+            '/immutable-test',
+            false
+        );
+
+        $jsonApiSchema = json_decode($schema['ImmutableTestJsonApi']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('description', $jsonApiSchema);
+        static::assertStringContainsString('Added since version: 6.7.0.0', $jsonApiSchema['description']);
+    }
+
+    public function testJsonApiSchemaWithoutSinceDescription(): void
+    {
+        // ExtensionWithImmutableDefinition has since() = null
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ExtensionWithImmutableDefinition::class),
+            '/extension-immutable-test',
+            false
+        );
+
+        $jsonApiSchema = json_decode($schema['ExtensionImmutableTestJsonApi']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Without since, there should be no description
+        static::assertArrayNotHasKey('description', $jsonApiSchema);
+    }
+
+    public function testJsonApiSchemaContainsRelationshipsForComplexEntities(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ComplexDefinition::class),
+            '/complex',
+            false
+        );
+
+        $jsonApiSchema = json_decode($schema['ComplexJsonApi']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // JsonApi schema should have allOf composition
+        static::assertArrayHasKey('allOf', $jsonApiSchema);
+
+        // Serialize the full allOf[1] section and check it contains a 'relationships' entry
+        $allOfSection = json_encode($jsonApiSchema['allOf'][1] ?? []);
+        static::assertStringContainsString('relationships', $allOfSection);
     }
 
     /**

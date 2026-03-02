@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuild
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ExtensionWithImmutableDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ImmutableFieldsDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -28,6 +29,7 @@ class OpenApiPathBuilderTest extends TestCase
             [
                 SimpleDefinition::class,
                 ImmutableFieldsDefinition::class,
+                ExtensionWithImmutableDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -88,6 +90,23 @@ class OpenApiPathBuilderTest extends TestCase
         $requestBodySchema = $patchPathJson['requestBody']['content']['application/json']['schema']['$ref'];
 
         static::assertSame('#/components/schemas/ImmutableTestUpdate', $requestBodySchema);
+    }
+
+    public function testGetPathActionsWithExtensionAndImmutableFieldsSkipsExtensionFields(): void
+    {
+        // ExtensionWithImmutableDefinition has Extension+Immutable field AND a regular Immutable field
+        // The Extension field should be skipped, but the regular Immutable field should be detected
+        $definition = $this->definitionRegistry->get(ExtensionWithImmutableDefinition::class);
+        $paths = $this->pathBuilder->getPathActions($definition, '/extension-immutable-test');
+
+        // POST should use Create schema (immutable fields exist after filtering out Extension fields)
+        $postPath = $paths['/extension-immutable-test']->post;
+        static::assertNotNull($postPath);
+
+        $postPathJson = json_decode($postPath->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $requestBodySchema = $postPathJson['requestBody']['content']['application/json']['schema']['$ref'];
+
+        static::assertSame('#/components/schemas/ExtensionImmutableTestCreate', $requestBodySchema);
     }
 
     public function testGetTag(): void

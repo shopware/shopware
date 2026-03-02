@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
@@ -54,7 +55,10 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('meta_description', 'metaDescription'))->addFlags(new ApiAware()),
-            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required(), new Choice([
+                'test',
+                'asdasd',
+            ], true)),
             (new LongTextField('keywords', 'keywords'))->addFlags(new ApiAware()),
             (new LongTextField('description', 'description'))->addFlags(new ApiAware(), new AllowHtml()),
             (new StringField('meta_title', 'metaTitle'))->addFlags(new ApiAware()),

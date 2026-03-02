@@ -437,6 +437,7 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FloatFieldSerializer">
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\EnumProviderRegistry"/>
 
             <tag name="shopware.field_serializer"/>
         </service>
@@ -451,6 +452,7 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer">
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\EnumProviderRegistry"/>
 
             <tag name="shopware.field_serializer"/>
         </service>
@@ -559,6 +561,7 @@
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\EnumProviderRegistry"/>
 
             <tag name="shopware.field_serializer"/>
         </service>

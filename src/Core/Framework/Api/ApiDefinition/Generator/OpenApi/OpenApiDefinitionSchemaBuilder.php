@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
@@ -42,7 +41,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -55,14 +53,15 @@ class OpenApiDefinitionSchemaBuilder
 {
     private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
+    private readonly EnumProviderRegistry $enumProviderRegistry;
+
     /**
      * @internal
-     *
-     * @param iterable<FieldEnumProviderInterface> $enumProviders
      */
-    public function __construct(private readonly iterable $enumProviders = [])
+    public function __construct(?EnumProviderRegistry $enumProviderRegistry = null)
     {
         $this->converter = new CamelCaseToSnakeCaseNameConverter(null, false);
+        $this->enumProviderRegistry = $enumProviderRegistry ?? new EnumProviderRegistry();
     }
 
     /**
@@ -139,21 +138,7 @@ class OpenApiDefinitionSchemaBuilder
 
             $attr = $this->getPropertyByField($field);
 
-            $enumValues = [];
-            $choice = $field->getFlag(Choice::class);
-            if ($choice instanceof Choice) {
-                $enumValues = $choice->getChoices();
-            }
-
-            foreach ($this->enumProviders as $enumProvider) {
-                if (!$enumProvider->isSupported($definition->getEntityName(), $field->getPropertyName())) {
-                    continue;
-                }
-
-                $enumValues = array_merge($enumValues, $enumProvider->getEnumValues());
-            }
-
-            $enumValues = array_values(array_unique($enumValues, \SORT_REGULAR));
+            $enumValues = $this->enumProviderRegistry->getChoices($definition, $field);
 
             if ($enumValues !== [] && \in_array($attr->type, ['string', 'integer', 'number', 'boolean'], true)) {
                 $attr->enum = $enumValues;

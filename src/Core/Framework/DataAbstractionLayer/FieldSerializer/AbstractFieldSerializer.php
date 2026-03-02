@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\EnumProviderRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice as ChoiceFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Choice as ChoiceConstraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -31,10 +34,14 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
      */
     private array $cachedConstraints = [];
 
+    private readonly EnumProviderRegistry $enumProviderRegistry;
+
     public function __construct(
         protected ValidatorInterface $validator,
-        protected DefinitionInstanceRegistry $definitionRegistry
+        protected DefinitionInstanceRegistry $definitionRegistry,
+        ?EnumProviderRegistry $enumProviderRegistry = null
     ) {
+        $this->enumProviderRegistry = $enumProviderRegistry ?? new EnumProviderRegistry();
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -181,5 +188,47 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         return (string) $data->getValue();
+    }
+
+    /**
+     * @param callable(string|bool|int|float): string|bool|int|float|null $normalizeValue
+     */
+    protected function validateStrictChoices(
+        Field $field,
+        KeyValuePair $data,
+        WriteParameterBag $parameters,
+        ?callable $normalizeValue = null
+    ): void {
+        $value = $data->getValue();
+
+        $choice = $field->getFlag(ChoiceFlag::class);
+        if (!$choice instanceof ChoiceFlag || !$choice->isStrict() || $value === null) {
+            return;
+        }
+
+        if (!\is_string($value) && !\is_bool($value) && !\is_int($value) && !\is_float($value)) {
+            return;
+        }
+
+        $choices = $this->enumProviderRegistry->getChoices($parameters->getDefinition(), $field);
+
+        if ($normalizeValue !== null) {
+            $normalizedValue = $normalizeValue($value);
+            if ($normalizedValue !== null) {
+                $data->setValue($normalizedValue);
+            }
+
+            $choices = array_filter(
+                array_map($normalizeValue, $choices),
+                static fn (string|bool|int|float|null $value): bool => $value !== null
+            );
+        }
+
+        $choices = array_values(array_unique($choices, \SORT_REGULAR));
+        if ($choices === []) {
+            return;
+        }
+
+        $this->validate([new ChoiceConstraint(choices: $choices, strict: true)], $data, $parameters->getPath());
     }
 }

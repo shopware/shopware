@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\EnumProviderRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -25,6 +27,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContextFactory;
 use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
 use Symfony\Component\Validator\Validator\RecursiveValidator;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -40,17 +43,19 @@ class StringFieldSerializerTest extends TestCase
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    private ValidatorInterface $validator;
+
     protected function setUp(): void
     {
         $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $validator = new RecursiveValidator(
+        $this->validator = new RecursiveValidator(
             new ExecutionContextFactory($this->createMock(TranslatorInterface::class)),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
         );
 
         $this->serializer = new StringFieldSerializer(
-            $validator,
+            $this->validator,
             $this->definitionInstanceRegistry,
             $this->createMock(HtmlSanitizer::class)
         );
@@ -97,6 +102,38 @@ class StringFieldSerializerTest extends TestCase
         ));
 
         iterator_to_array($this->serializer->encode($field, $existence, $kv, $this->createWriteParameterBag()));
+    }
+
+    public function testChoiceStrictAcceptsDynamicProviderValue(): void
+    {
+        $field = (new StringField('test', 'test'))->addFlags(new Choice(['a'], strict: true));
+        $field->compile($this->definitionInstanceRegistry);
+
+        $serializer = new StringFieldSerializer(
+            $this->validator,
+            $this->definitionInstanceRegistry,
+            $this->createMock(HtmlSanitizer::class),
+            new EnumProviderRegistry([
+                new class implements FieldEnumProviderInterface {
+                    public function isSupported(string $entity, string $fieldName): bool
+                    {
+                        return $entity === 'product' && $fieldName === 'test';
+                    }
+
+                    public function getChoices(): array
+                    {
+                        return ['b'];
+                    }
+                },
+            ])
+        );
+
+        $existence = EntityExistence::createEmpty();
+        $kv = new KeyValuePair('test', 'b', true);
+
+        $encoded = iterator_to_array($serializer->encode($field, $existence, $kv, $this->createWriteParameterBag()));
+
+        static::assertSame(['test' => 'b'], $encoded);
     }
 
     private function createWriteParameterBag(): WriteParameterBag

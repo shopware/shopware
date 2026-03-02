@@ -10,9 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -72,6 +71,7 @@ class StoreLoginCommand extends Command
             $passwordQuestion = new Question('Enter password');
             $passwordQuestion->setValidator(static function ($value): string {
                 if ($value === null || trim($value) === '') {
+                    // @phpstan-ignore shopware.domainException (RuntimeException is fine in console IO validators)
                     throw new \RuntimeException('The password cannot be empty');
                 }
 
@@ -89,19 +89,21 @@ class StoreLoginCommand extends Command
         $userId = $this->userRepository->searchIds($criteria, $context)->firstId();
 
         if ($userId === null) {
-            throw new \RuntimeException('User not found');
+            $io->error('User not found');
+
+            return self::FAILURE;
         }
 
         $userContext = new Context(new AdminApiSource($userId));
 
         if ($shopwareId === null || $password === null) {
-            throw new StoreInvalidCredentialsException();
+            throw StoreException::invalidCredentials();
         }
 
         try {
             $this->storeClient->loginWithShopwareId($shopwareId, $password, $userContext);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         $io->success('Successfully logged in.');

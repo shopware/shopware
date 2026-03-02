@@ -3,14 +3,19 @@
 namespace Shopware\Core\Framework\Store\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Store\StoreException;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-class StoreInvalidCredentialsException extends ShopwareHttpException
+class StoreInvalidCredentialsException extends StoreException
 {
     public function __construct()
     {
-        parent::__construct('Invalid credentials');
+        parent::__construct(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            $this->getErrorCode(),
+            'Invalid credentials'
+        );
     }
 
     public function getErrorCode(): string

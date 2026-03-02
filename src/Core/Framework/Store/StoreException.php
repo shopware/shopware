@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
+use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
+use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -219,5 +221,15 @@ class StoreException extends HttpException
             'License host verification failed for domain "{{ domain }}.',
             ['domain' => $domain],
         );
+    }
+
+    public static function invalidCredentials(): self
+    {
+        return new StoreInvalidCredentialsException();
+    }
+
+    public static function shopSecretInvalid(): self
+    {
+        return new ShopSecretInvalidException();
     }
 }

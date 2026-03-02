@@ -7,7 +7,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
-use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -46,6 +46,6 @@ class ShopSecretInvalidMiddleware implements MiddlewareInterface
 
         $this->systemConfigService->delete(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, null, true);
 
-        throw new ShopSecretInvalidException();
+        throw StoreException::shopSecretInvalid();
     }
 }

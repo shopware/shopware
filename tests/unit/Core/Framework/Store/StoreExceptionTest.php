@@ -202,4 +202,22 @@ class StoreExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(['mimeType' => $mimeType], $exception->getParameters());
     }
+
+    public function testInvalidCredentials(): void
+    {
+        $exception = StoreException::invalidCredentials();
+
+        static::assertSame('Invalid credentials', $exception->getMessage());
+        static::assertSame('FRAMEWORK__STORE_INVALID_CREDENTIALS', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
+    public function testShopSecretInvalid(): void
+    {
+        $exception = StoreException::shopSecretInvalid();
+
+        static::assertSame('Store shop secret is invalid', $exception->getMessage());
+        static::assertSame('FRAMEWORK__STORE_SHOP_SECRET_INVALID', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+    }
 }

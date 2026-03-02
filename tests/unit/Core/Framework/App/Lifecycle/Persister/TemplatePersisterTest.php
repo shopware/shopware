@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
 /**
  * @internal
@@ -64,7 +62,7 @@ class TemplatePersisterTest extends TestCase
             ->willReturn('content1');
 
         $persister = $this->buildPersister(['/path/1' => 'content1']);
-        $persister->persist($this->buildContext(true));
+        $persister->updateTemplates($this->manifest, $this->ids->get('app1'), Context::createDefaultContext(), true);
     }
 
     public function testCacheIsNotClearedIfNoTemplates(): void
@@ -78,7 +76,7 @@ class TemplatePersisterTest extends TestCase
             ->willReturn([]);
 
         $persister = $this->buildPersister([]);
-        $persister->persist($this->buildContext(false));
+        $persister->updateTemplates($this->manifest, $this->ids->get('app1'), Context::createDefaultContext(), false);
     }
 
     public function testCacheIsNotClearedIfTemplatesAreNotChanged(): void
@@ -97,7 +95,7 @@ class TemplatePersisterTest extends TestCase
             ->willReturn('content1');
 
         $persister = $this->buildPersister(['/path/1' => 'content1']);
-        $persister->persist($this->buildContext(false));
+        $persister->updateTemplates($this->manifest, $this->ids->get('app1'), Context::createDefaultContext(), false);
     }
 
     public function testCacheIsClearedIfTemplatesChanged(): void
@@ -116,7 +114,7 @@ class TemplatePersisterTest extends TestCase
             ->willReturn('content2');
 
         $persister = $this->buildPersister(['/path/1' => 'content1']);
-        $persister->persist($this->buildContext(false));
+        $persister->updateTemplates($this->manifest, $this->ids->get('app1'), Context::createDefaultContext(), false);
     }
 
     public function testCacheIsClearedIfTemplateRemoved(): void
@@ -135,7 +133,7 @@ class TemplatePersisterTest extends TestCase
             ->willReturn('content1');
 
         $persister = $this->buildPersister(['/path/1' => 'content1', '/path/2' => 'content2']);
-        $persister->persist($this->buildContext(false));
+        $persister->updateTemplates($this->manifest, $this->ids->get('app1'), Context::createDefaultContext(), false);
     }
 
     /**
@@ -148,22 +146,6 @@ class TemplatePersisterTest extends TestCase
             $this->templateRepository,
             $this->buildAppRepository($templates),
             $this->cacheClearer
-        );
-    }
-
-    private function buildContext(bool $isInstall): AppLifecycleContext
-    {
-        $app = new AppEntity();
-        $app->setId($this->ids->get('app1'));
-        $app->setActive(true);
-
-        return new AppLifecycleContext(
-            manifest: $this->manifest,
-            app: $app,
-            context: Context::createDefaultContext(),
-            appFilesystem: new StaticFilesystem(),
-            defaultLocale: 'en-GB',
-            isInstall: $isInstall,
         );
     }
 

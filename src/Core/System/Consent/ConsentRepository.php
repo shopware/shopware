@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
@@ -47,7 +46,7 @@ class ConsentRepository
         string $scopeIdentifier,
         ConsentStatus $state,
         string $actorId
-    ): ConsentState {
+    ): void {
         $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $actor = $this->connection->executeQuery('SELECT username from user WHERE id = :id', [
@@ -74,14 +73,5 @@ class ConsentRepository
             'actor' => $actor,
             'updatedAt' => $now,
         ], ['id' => 'binary']);
-
-        return new ConsentState(
-            $consent->getName(),
-            $consent->getScopeName(),
-            $scopeIdentifier,
-            $state,
-            $actor,
-            $now
-        );
     }
 }

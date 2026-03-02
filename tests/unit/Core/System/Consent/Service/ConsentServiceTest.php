@@ -201,9 +201,14 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
-            ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls([], [new ConsentStateRecord(
+                'consent-1',
+                'system',
+                ConsentStatus::ACCEPTED,
+                'user-123',
+                '2026-01-26 00:00:00'
+            )]);
 
         $this->consentRepository
             ->expects($this->once())
@@ -213,8 +218,7 @@ class ConsentServiceTest extends TestCase
                 'system',
                 ConsentStatus::ACCEPTED,
                 'user-123'
-            )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'));
+            );
 
         $source = new AdminApiSource('user-123');
         $context = Context::createDefaultContext($source);
@@ -293,9 +297,14 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
-            ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls([], [new ConsentStateRecord(
+                'consent-1',
+                'system',
+                ConsentStatus::REVOKED,
+                'user-456',
+                '2026-01-26 00:00:00'
+            )]);
 
         $this->consentRepository
             ->expects($this->once())
@@ -305,8 +314,7 @@ class ConsentServiceTest extends TestCase
                 'system',
                 ConsentStatus::REVOKED,
                 'user-456'
-            )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'));
+            );
 
         $source = new AdminApiSource('user-456');
         $context = Context::createDefaultContext($source);
@@ -359,9 +367,14 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
-            ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls([], [new ConsentStateRecord(
+                'consent-1',
+                'system',
+                ConsentStatus::ACCEPTED,
+                'user-123',
+                '2026-01-26 00:00:00'
+            )]);
 
         $this->consentRepository
             ->expects($this->once())
@@ -371,8 +384,7 @@ class ConsentServiceTest extends TestCase
                 'system',
                 ConsentStatus::ACCEPTED,
                 'user-123'
-            )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'));
+            );
 
         $source = new AdminApiSource('user-123');
         $source->setIsAdmin(true);
@@ -397,9 +409,14 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
-            ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls([], [new ConsentStateRecord(
+                'consent-1',
+                'system',
+                ConsentStatus::REVOKED,
+                'user-456',
+                '2026-01-26 00:00:00'
+            )]);
 
         $this->consentRepository
             ->expects($this->once())
@@ -409,8 +426,7 @@ class ConsentServiceTest extends TestCase
                 'system',
                 ConsentStatus::REVOKED,
                 'user-456'
-            )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'));
+            );
 
         $source = new AdminApiSource('user-456');
         $source->setPermissions(['permission-1']);

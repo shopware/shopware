@@ -31,7 +31,7 @@ class ConsentRepositoryTest extends TestCase
         $productAnalytics = new ProductAnalytics();
 
         $userId = $this->createUser('test-user');
-        $updatedState = $this->repository->updateConsentState($productAnalytics, $userId, ConsentStatus::ACCEPTED, $userId);
+        $this->repository->updateConsentState($productAnalytics, $userId, ConsentStatus::ACCEPTED, $userId);
 
         $states = $this->repository->fetchAllConsentStates();
 
@@ -41,12 +41,6 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
         static::assertSame($productAnalytics->getName(), $states[0]->name);
-
-        static::assertSame($productAnalytics->getName(), $updatedState->name);
-        static::assertSame($productAnalytics->getScopeName(), $updatedState->scopeName);
-        static::assertSame('test-user', $updatedState->actor);
-        static::assertEquals(ConsentStatus::ACCEPTED, $updatedState->status);
-        static::assertSame($userId, $updatedState->identifier);
     }
 
     public function testUpdateSystemConsentState(): void

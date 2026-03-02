@@ -18,4 +18,6 @@ interface PresignedUrlGeneratorInterface
     public function isSupported(): bool;
 
     public function getFileMetadata(string $path): ?FileMetadataResult;
+
+    public function deleteFromStorage(string $path): void;
 }

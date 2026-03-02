@@ -303,6 +303,10 @@ class PresignedMediaUploadServiceTest extends TestCase
             ->with($path)
             ->willReturn(null);
 
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('deleteFromStorage')
+            ->with($path);
+
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Could not verify uploaded file for media');
 
@@ -360,6 +364,10 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->mediaPathStrategy->method('generate')
             ->willReturn([$mediaId => 'media/ab/cd/test-file.jpg']);
 
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('deleteFromStorage')
+            ->with('media/tampered/path/evil.jpg');
+
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Could not verify uploaded file for media');
 
@@ -393,6 +401,10 @@ class PresignedMediaUploadServiceTest extends TestCase
             $context
         );
         $this->mediaRepository->method('search')->willReturn($searchResult);
+
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('deleteFromStorage')
+            ->with('media/ab/cd/malicious.php');
 
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('not supported');

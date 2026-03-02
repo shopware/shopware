@@ -171,16 +171,15 @@ readonly class PresignedMediaUploadService
             throw MediaException::mediaNotFound($mediaId);
         }
 
-        $this->validateFileExtension($payload->extension, $media->isPrivate(), $mediaId);
-        $this->validateExpectedPath($mediaId, $payload, $media);
-
         $isReplace = $media->hasFile();
 
-        if (!$isReplace) {
-            $this->ensureFileNameIsUnique($mediaId, $payload->fileName, $payload->extension, $media->isPrivate(), $context);
-        }
-
         try {
+            $this->validateFileExtension($payload->extension, $media->isPrivate(), $mediaId);
+            $this->validateExpectedPath($mediaId, $payload, $media);
+
+            if (!$isReplace) {
+                $this->ensureFileNameIsUnique($mediaId, $payload->fileName, $payload->extension, $media->isPrivate(), $context);
+            }
             $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($payload->path);
 
             if ($s3Metadata === null) {
@@ -236,6 +235,8 @@ readonly class PresignedMediaUploadService
 
             $this->mediaFileCleanup->dispatchThumbnailGeneration($mediaId, $context);
         } catch (\Throwable $e) {
+            $this->presignedUrlGenerator->deleteFromStorage($payload->path);
+
             if (!$isReplace) {
                 $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId): void {
                     $this->mediaRepository->delete([['id' => $mediaId]], $context);

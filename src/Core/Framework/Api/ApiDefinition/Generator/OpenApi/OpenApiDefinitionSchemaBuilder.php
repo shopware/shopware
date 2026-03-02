@@ -17,10 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumerableField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
@@ -60,7 +60,7 @@ class OpenApiDefinitionSchemaBuilder
      *
      * @param iterable<FieldEnumProviderInterface> $enumProviders
      */
-    public function __construct(private readonly iterable $enumProviders)
+    public function __construct(private readonly iterable $enumProviders = [])
     {
         $this->converter = new CamelCaseToSnakeCaseNameConverter(null, false);
     }
@@ -139,22 +139,24 @@ class OpenApiDefinitionSchemaBuilder
 
             $attr = $this->getPropertyByField($field);
 
-            if ($field instanceof EnumerableField) {
-                $possibleValues = $field->getPossibleValues();
+            $enumValues = [];
+            $choice = $field->getFlag(Choice::class);
+            if ($choice instanceof Choice) {
+                $enumValues = $choice->getChoices();
+            }
 
-                if (!empty($possibleValues)) {
-                    $attr->enum = $possibleValues;
+            foreach ($this->enumProviders as $enumProvider) {
+                if (!$enumProvider->isSupported($definition->getEntityName(), $field->getPropertyName())) {
+                    continue;
                 }
 
-                foreach ($this->enumProviders as $enumProvider) {
-                    if (!$enumProvider->isSupported($definition->getEntityName(), $field->getPropertyName())) {
-                        continue;
-                    }
+                $enumValues = array_merge($enumValues, $enumProvider->getEnumValues());
+            }
 
-                    $possibleValues = array_values(array_unique(array_merge($possibleValues, $enumProvider->getEnumValues())));
+            $enumValues = array_values(array_unique($enumValues, \SORT_REGULAR));
 
-                    $attr->enum = $possibleValues;
-                }
+            if ($enumValues !== [] && \in_array($attr->type, ['string', 'integer', 'number', 'boolean'], true)) {
+                $attr->enum = $enumValues;
             }
 
             if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || $this->isWriteProtected($field)) {

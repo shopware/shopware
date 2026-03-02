@@ -6,10 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FloatFieldSeria
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class FloatField extends Field implements StorageAware, EnumerableField
+class FloatField extends Field implements StorageAware
 {
-    use EnumerableFieldTrait;
-
     public function __construct(
         private readonly string $storageName,
         string $propertyName

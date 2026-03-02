@@ -51,7 +51,7 @@ final class ProductTypeRegistry implements FieldEnumProviderInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getEnumValues(): array
     {

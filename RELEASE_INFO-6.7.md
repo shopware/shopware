@@ -37,6 +37,16 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 
 ## Core
 
+### Reduced HTTP cache invalidation on system config changes
+
+`SystemConfigService::set()`, `setMultiple()`, and `delete()` now accept an optional `$silent` parameter. When `silent=true`, the internal config cache is still cleared immediately, but the broad HTTP cache tag `system.config-{salesChannelId}` is not invalidated.
+
+This prevents "invalidation storms" where writing internal config values (e.g. timestamps, license keys, store secrets) would wipe big amount of HTTP-cached pages.
+
+Internal Shopware call sites that write non-storefront config values now pass `silent=true`. The `ConfigSet` CLI command accepts `--silent`, and the Admin API `POST /_action/system-config` and `POST /_action/system-config/batch` accept a `?silent` query parameter.
+
+In v6.8.0.0, `silent` paramether in SystemConfigService methods will default to `true`. Clients should pass value explicitly to prepare for changes.
+
 ### Inheritance added to product main categories
 
 Product main categories are now inherited from parent product if not explicitly defined on the variant itself.

@@ -385,6 +385,18 @@ The following unused exceptions were removed:
 * `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
 * `\Shopware\Core\Content\ImportExport\Exception\MappingException`
 
+## SystemConfigService: `$silent` parameter changed default value from `false` to `true`
+
+`SystemConfigService::set()`, `setMultiple()`, and `delete()` changed the default value for the `$silent` parameter from `false` to `true`, meaning config writes **no longer invalidate the HTTP cache** (`system.config-{salesChannelId}` tag) by default. The internal config cache (`system-config`) is always cleared regardless.
+
+If your code writes config values that require immediate cache invalidation (e.g. display settings, feature toggles read via `SystemConfigService::get()` in templates), pass `silent: false` explicitly:
+
+```php
+$this->systemConfigService->set('MyPlugin.config.showBanner', true, $salesChannelId, false);
+```
+
+Please pass `false` only when absolutely necessary, as it leads to invalidation of a huge number of HTTP pages and decreases overall system performance.
+
 ## Removed SystemConfig exceptions
 
 The following exceptions were removed:

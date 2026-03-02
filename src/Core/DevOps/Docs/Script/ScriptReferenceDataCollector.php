@@ -23,6 +23,13 @@ class ScriptReferenceDataCollector
      */
     private static ?array $files = null;
 
+    private static ?string $scanPath = null;
+
+    /**
+     * @var list<string>|null
+     */
+    private static ?array $finderPaths = null;
+
     /**
      * @return array<class-string>
      */
@@ -31,7 +38,7 @@ class ScriptReferenceDataCollector
         if (self::$classes === []) {
             $generator = new ClassMapGenerator();
             $generator->scanPaths(
-                path: __DIR__ . '/../../../..',
+                path: self::$scanPath ?? __DIR__ . '/../../../..',
                 excluded: '/\/vendor\/|\/node_modules\/|\/DevOps\/StaticAnalyze\/|\/Test\/|Interface.php|Trait.php/'
             );
             self::$classes = array_keys($generator->getClassMap()->getMap());
@@ -51,6 +58,14 @@ class ScriptReferenceDataCollector
     }
 
     /**
+     * @internal only for testing
+     */
+    public static function setScanPath(string $path): void
+    {
+        self::$scanPath = $path;
+    }
+
+    /**
      * @return SplFileInfo[]
      */
     public static function getFiles(): array
@@ -59,9 +74,7 @@ class ScriptReferenceDataCollector
             $finder = new Finder();
             $finder
                 ->files()
-                ->in([__DIR__ . '/../../../../', __DIR__ . '/../../../../../tests'])
-                // exclude js files including node_modules for performance reasons, filtering with `notPath`, etc. has no performance impact
-                // note that excluded paths need to be relative to platform/src and that no wildcards are supported
+                ->in(self::$finderPaths ?? [__DIR__ . '/../../../../', __DIR__ . '/../../../../../tests'])
                 ->exclude([
                     'Administration/Resources',
                     'Storefront/Resources',
@@ -76,8 +89,6 @@ class ScriptReferenceDataCollector
     }
 
     /**
-     * @internal only for testing
-     *
      * @param array<string, SplFileInfo> $files
      */
     public static function setFiles(array $files): void
@@ -85,9 +96,19 @@ class ScriptReferenceDataCollector
         self::$files = $files;
     }
 
+    /**
+     * @param list<string> $paths
+     */
+    public static function setFinderPaths(array $paths): void
+    {
+        self::$finderPaths = $paths;
+    }
+
     public static function reset(): void
     {
         self::$files = null;
         self::$classes = [];
+        self::$scanPath = null;
+        self::$finderPaths = null;
     }
 }

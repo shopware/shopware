@@ -209,3 +209,10 @@ parameters:
         -
             identifier: missingType.iterableValue
             path: tests/unit/Core/DevOps/Docs/Script/_fixtures/*
+        # Hook fixtures intentionally omit native property types to test the @var annotation fallback and the untyped property exception path
+        -
+            identifier: shopware.propertyNativeType
+            path: tests/unit/Core/DevOps/Docs/Script/_fixtures/hooks/*
+        -
+            identifier: missingType.property
+            path: tests/unit/Core/DevOps/Docs/Script/_fixtures/hooks/*

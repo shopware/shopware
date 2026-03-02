@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
@@ -51,6 +52,8 @@ class RuleEntity extends Entity
 
     protected bool $invalid;
 
+    protected bool $filterBySalesChannel;
+
     /**
      * @var string[]|null
      */
@@ -75,6 +78,8 @@ class RuleEntity extends Entity
     protected ?PromotionCollection $cartPromotions = null;
 
     protected ?TaxProviderCollection $taxProviders = null;
+
+    protected ?SalesChannelCollection $salesChannels = null;
 
     public function getName(): string
     {
@@ -174,6 +179,16 @@ class RuleEntity extends Entity
     public function setInvalid(bool $invalid): void
     {
         $this->invalid = $invalid;
+    }
+
+    public function isFilterBySalesChannel(): bool
+    {
+        return $this->filterBySalesChannel;
+    }
+
+    public function setFilterBySalesChannel(bool $filterBySalesChannel): void
+    {
+        $this->filterBySalesChannel = $filterBySalesChannel;
     }
 
     /**
@@ -330,5 +345,15 @@ class RuleEntity extends Entity
     public function setTaxProviders(TaxProviderCollection $taxProviders): void
     {
         $this->taxProviders = $taxProviders;
+    }
+
+    public function getSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

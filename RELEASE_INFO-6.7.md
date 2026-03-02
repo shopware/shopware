@@ -343,6 +343,7 @@ This new component is called `sw-model-viewer`.
 The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
 Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
 A modal will open where you can move, rotate, and scale the model.
+You can also use the sidebar to type in specific values for position, rotation and scale.
 Click Save, and your changes are applied instantly.
 
 ## API

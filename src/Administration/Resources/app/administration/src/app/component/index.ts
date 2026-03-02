@@ -496,7 +496,13 @@ export default () => {
     Shopware.Component.register('sw-media-modal-replace', () => import('src/app/component/media/sw-media-modal-replace'));
     Shopware.Component.register('sw-media-preview-v2', () => import('src/app/component/media/sw-media-preview-v2'));
     Shopware.Component.register('sw-model-editor', () => import('src/app/component/media/sw-model-editor'));
+    Shopware.Component.extend(
+        'sw-model-editor-collapse',
+        'sw-collapse',
+        () => import('src/app/component/media/sw-model-editor-collapse'),
+    );
     Shopware.Component.register('sw-model-viewer', () => import('src/app/component/media/sw-model-viewer'));
+    Shopware.Component.register('sw-vector-field', () => import('src/app/component/media/sw-vector-field'));
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
     Shopware.Component.register('sw-media-upload-v2', () => import('src/app/component/media/sw-media-upload-v2'));
     Shopware.Component.register('sw-media-url-form', () => import('src/app/component/media/sw-media-url-form'));

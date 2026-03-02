@@ -1722,5 +1722,30 @@
   },
   "sw-context-button": {
     "ariaLabel": "Kontextmenü öffnen"
-  }
+  },
+  "sw-model-editor": {
+      "titleModal": "Model Editor",
+      "open-model-editor-tooltip": "Model Editor öffnen",
+      "edit-options": {
+        "move-tooltip": "Objekt verschieben",
+        "rotate-tooltip": "Objekt drehen",
+        "scale-tooltip": "Objekt skalieren"
+      },
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "properties": {
+        "transformation": {
+          "label":"Transformation",
+          "position": {
+            "label": "Position"
+          },
+          "rotation": {
+            "label": "Rotation"
+          },
+          "scale": {
+            "label": "Skalierung"
+          }
+        }
+      }
+    }
 }

@@ -82,6 +82,10 @@ It can be found in the state machine state history modal (state change modal) on
 
 ## Core
 
+### Indexing the product's custom fields
+
+Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
+
 ### Deprecation of increment-based message queue statistics
 
 The increment-based message queue statistics system is deprecated and will be removed in v6.8.0.0.
@@ -299,14 +303,6 @@ shopware:
 
 **Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
 
-# 6.7.7.2
-
-## Core
-
-### Indexing the product's custom fields
-
-Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
-
 # 6.7.7.1
 
 ## Core
@@ -355,6 +351,7 @@ This new component is called `sw-model-viewer`.
 The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
 Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
 A modal will open where you can move, rotate, and scale the model.
+You can also use the sidebar to type in specific values for position, rotation and scale.
 Click Save, and your changes are applied instantly.
 
 ## API

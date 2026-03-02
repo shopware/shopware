@@ -4,8 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
@@ -20,7 +18,6 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
 /**
  * @internal
@@ -72,7 +69,7 @@ class TaxProviderPersisterTest extends TestCase
             );
 
         $persister = new TaxProviderPersister($repo);
-        $persister->persist($this->buildContext($manifest, 'foo'));
+        $persister->updateTaxProviders($manifest, 'foo', 'testApp', Context::createDefaultContext());
     }
 
     public function testCreateNewTaxProviderExisting(): void
@@ -110,7 +107,7 @@ class TaxProviderPersisterTest extends TestCase
             );
 
         $persister = new TaxProviderPersister($repo);
-        $persister->persist($this->buildContext($manifest, 'foo'));
+        $persister->updateTaxProviders($manifest, 'foo', 'testApp', Context::createDefaultContext());
     }
 
     public function testNoTaxInManifest(): void
@@ -126,7 +123,7 @@ class TaxProviderPersisterTest extends TestCase
             ->method('upsert');
 
         $persister = new TaxProviderPersister($repo);
-        $persister->persist($this->buildContext($manifest, 'foo'));
+        $persister->updateTaxProviders($manifest, 'foo', 'testApp', Context::createDefaultContext());
     }
 
     public function testNoTaxProvidersInManifest(): void
@@ -137,46 +134,7 @@ class TaxProviderPersisterTest extends TestCase
         $repo->expects($this->never())->method('upsert');
 
         $persister = new TaxProviderPersister($repo);
-        $persister->persist($this->buildContext($manifest, 'foo'));
-    }
-
-    public function testSkippedWhenNoAppSecret(): void
-    {
-        $manifest = $this->createManifest($this->createTaxProviders([
-            [
-                'identifier' => 'test',
-                'name' => 'lol',
-                'processUrl' => 'https://example.com',
-                'priority' => 1,
-            ],
-        ]));
-
-        $repo = $this->createMock(EntityRepository::class);
-        $repo->expects($this->never())->method('upsert');
-        $repo->expects($this->never())->method('search');
-
-        $persister = new TaxProviderPersister($repo);
-        $persister->persist($this->buildContext($manifest, 'foo', false));
-    }
-
-    private function buildContext(Manifest $manifest, string $appId, bool $hasAppSecret = true): AppLifecycleContext
-    {
-        $app = new AppEntity();
-        $app->setId($appId);
-        $app->setActive(true);
-
-        if ($hasAppSecret) {
-            $app->setAppSecret('test-secret');
-        }
-
-        return new AppLifecycleContext(
-            manifest: $manifest,
-            app: $app,
-            context: Context::createDefaultContext(),
-            appFilesystem: new StaticFilesystem(),
-            defaultLocale: 'testApp',
-            isInstall: true,
-        );
+        $persister->updateTaxProviders($manifest, 'foo', 'testApp', Context::createDefaultContext());
     }
 
     /**
@@ -210,7 +168,7 @@ class TaxProviderPersisterTest extends TestCase
         $metaData = Metadata::fromXml($domElement);
 
         $manifest->method('getPath')->willReturn('foo');
-        $manifest->method('getMetadata')->willReturn($metaData);
+        $manifest->method('getMetaData')->willReturn($metaData);
         $manifest->method('getTax')->willReturn($tax);
 
         return $manifest;

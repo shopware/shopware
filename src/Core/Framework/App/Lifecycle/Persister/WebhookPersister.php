@@ -5,12 +5,8 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 
@@ -22,7 +18,7 @@ use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
  * @phpstan-type WebhookRecord array{name: string, event_name: string, url: string, only_live_version: int, app_id: string, active: int, error_count: int}
  */
 #[Package('framework')]
-class WebhookPersister implements PersisterInterface
+class WebhookPersister
 {
     public function __construct(
         private readonly Connection $connection,
@@ -30,12 +26,11 @@ class WebhookPersister implements PersisterInterface
     ) {
     }
 
-    public function persist(AppLifecycleContext $context): void
+    /**
+     * @param array<array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int}> $webhooks
+     */
+    public function updateWebhooksFromArray(array $webhooks, string $appId, Context $context): void
     {
-        $appId = $context->app->getId();
-        $flowActions = $this->getFlowActions($context->appFilesystem);
-        $webhooks = $this->getWebhooks($context->manifest, $flowActions, $appId, $context->defaultLocale, $context->hasAppSecret());
-
         $existingWebhooks = $this->getExistingWebhooks($appId);
         $updates = [];
         $inserts = [];
@@ -118,54 +113,5 @@ class WebhookPersister implements PersisterInterface
             'active' => 1,
             'app_id' => Uuid::fromHexToBytes($appId),
         ];
-    }
-
-    private function getFlowActions(Filesystem $fs): ?Action
-    {
-        if (!$fs->has('Resources/flow.xml')) {
-            return null;
-        }
-
-        return Action::createFromXmlFile($fs->path('Resources/flow.xml'));
-    }
-
-    /**
-     * @return array<array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int}>
-     */
-    private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
-    {
-        $actions = [];
-
-        if ($flowActions) {
-            $actions = $flowActions->getActions()?->getActions() ?? [];
-        }
-
-        $webhooks = array_map(function ($action) use ($appId) {
-            $name = $action->getMeta()->getName();
-
-            return [
-                'name' => $name,
-                'eventName' => $name,
-                'url' => $action->getMeta()->getUrl(),
-                'appId' => $appId,
-                'active' => true,
-                'errorCount' => 0,
-            ];
-        }, $actions);
-
-        if (!$hasAppSecret) {
-            return $webhooks;
-        }
-
-        $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
-
-        return array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
-            /** @var array{name: string, event: string, url: string} $payload */
-            $payload = $webhook->toArray($defaultLocale);
-            $payload['appId'] = $appId;
-            $payload['eventName'] = $webhook->getEvent();
-
-            return $payload;
-        }, $manifestWebhooks));
     }
 }

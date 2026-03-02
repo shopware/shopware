@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
@@ -23,15 +22,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 class SeoUrlDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'seo_url';
-
-    /** @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for product detail pages. */
-    public const ROUTE_NAME_PRODUCT_DETAIL_PAGE = 'frontend.detail.page';
-
-    /** @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for category navigation pages. */
-    public const ROUTE_NAME_NAVIGATION_PAGE = 'frontend.navigation.page';
-
-    /** @phpstan-ignore shopware.storefrontRouteUsage - Seo url route name for landing pages. */
-    public const ROUTE_NAME_LANDING_PAGE = 'frontend.landing.page';
 
     public function getEntityName(): string
     {
@@ -61,11 +51,7 @@ class SeoUrlDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of language.'),
             (new IdField('foreign_key', 'foreignKey'))->addFlags(new ApiAware(), new Required())->setDescription('The key that references to product or category entity ID.'),
 
-            (new StringField('route_name', 'routeName', 50))->addFlags(new ApiAware(), new Required(), new Choice([
-                self::ROUTE_NAME_PRODUCT_DETAIL_PAGE,
-                self::ROUTE_NAME_NAVIGATION_PAGE,
-                self::ROUTE_NAME_LANDING_PAGE,
-            ]))->setDescription('A destination routeName that has been registered somewhere in the app\'s router. For example: \\\"frontend.detail.page\\\"'),
+            (new StringField('route_name', 'routeName', 50))->addFlags(new ApiAware(), new Required())->setDescription('A destination routeName that has been registered somewhere in the app\'s router. For example: \\\"frontend.detail.page\\\"'),
             (new StringField('path_info', 'pathInfo', 750))->addFlags(new ApiAware(), new Required())->setDescription('Path to product URL. For example: \\\"/detail/bbf36734504741c79a3bbe3795b91564\\\"'),
             (new StringField('seo_path_info', 'seoPathInfo', 750))->addFlags(new ApiAware(), new Required())->setDescription('Seo path to product. For example: \\\"Pepper-white-ground-pearl/SW10098\\\"'),
             (new BoolField('is_canonical', 'isCanonical'))->addFlags(new ApiAware())->setDescription('When set to true, search redirects to the main URL.'),

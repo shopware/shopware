@@ -55,6 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
             canvas: null,
             isLoading: false,
             modelEntity: null,
+            objectChangeHandler: null,
             diveModel: null,
             quickView: null,
             toolbox: null,
@@ -77,6 +78,7 @@ export default Shopware.Component.wrapComponentConfig({
             isLoading: boolean;
             mediaService: MediaService;
             modelEntity: EntitySchema.Entity<'media'> | null;
+            objectChangeHandler: ((event: { object: unknown }) => void) | null;
             diveModel: DIVEModel | null;
             quickView: QuickView | null;
             toolbox: Toolbox | null;
@@ -175,11 +177,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.toolbox = markRaw(new Toolbox(this.quickView.scene as any, this.quickView.orbitController as any));
             this.toolbox.enableTool('transform');
             this.toolbox.getTool('transform').setGizmoMode(this.currentEditMode);
-            this.toolbox.getTool('transform').addEventListener(
-                'object-change',
-                // eslint-disable-next-line @typescript-eslint/unbound-method
-                this.onObjectChange,
-            );
+            this.objectChangeHandler = this.onObjectChange.bind(this);
+            this.toolbox.getTool('transform').addEventListener('object-change', this.objectChangeHandler);
 
             this.diveModel = this.quickView.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
             this.saveInitialProperties(this.diveModel as DIVEModel);
@@ -190,13 +189,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async disposeQuickView(): Promise<void> {
-            if (this.toolbox) {
-                this.toolbox.getTool('transform').removeEventListener(
-                    'object-change',
-                    // eslint-disable-next-line @typescript-eslint/unbound-method
-                    this.onObjectChange,
-                );
+            if (this.toolbox && this.objectChangeHandler) {
+                this.toolbox.getTool('transform').removeEventListener('object-change', this.objectChangeHandler);
             }
+            this.objectChangeHandler = null;
             this.toolbox?.dispose();
             await this.quickView?.dispose();
         },

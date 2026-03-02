@@ -87,9 +87,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return;
         }
 
-        $considerInheritance = $message->getContext()->considerInheritance();
-        $message->getContext()->setConsiderInheritance(true);
-
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
         /** @var list<string> $oldMatches */
@@ -99,7 +96,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            $newMatches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
+            $newMatches = $message->getContext()->enableInheritance(fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds());
         } catch (UnmappedFieldException) {
             // invalid filter, remove all mappings
             $newMatches = [];
@@ -132,8 +129,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 );
             });
         }
-
-        $message->getContext()->setConsiderInheritance($considerInheritance);
 
         $ids = array_unique([...$toBeAdded, ...$toBeDeleted]);
 

@@ -319,9 +319,8 @@ class ProductStreamUpdaterTest extends TestCase
     public function testInvalidFilter(): void
     {
         $context = Context::createDefaultContext();
-        $context->setConsiderInheritance(true);
 
-        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
+        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex(), null, $context);
 
         $filters = json_encode([[
             'type' => 'equals',
@@ -355,7 +354,10 @@ class ProductStreamUpdaterTest extends TestCase
         $repository = new StaticEntityRepository([
             function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context): array {
                 static::assertEquals($criteria, $actualCriteria);
-                static::assertEquals($context, $actualContext);
+
+                $context->enableInheritance(static function (Context $context) use ($actualContext): void {
+                    static::assertEquals($context, $actualContext);
+                });
 
                 throw new UnmappedFieldException('non-existing-field', $this->createMock(ProductDefinition::class));
             },
@@ -367,7 +369,7 @@ class ProductStreamUpdaterTest extends TestCase
         $manyToManyFieldUpdater
             ->expects($this->once())
             ->method('update')
-            ->with($definition->getEntityName(), $oldMatches, Context::createDefaultContext(), 'streamIds');
+            ->with($definition->getEntityName(), $oldMatches, $context, 'streamIds');
 
         $updater = new ProductStreamUpdater(
             $connection,

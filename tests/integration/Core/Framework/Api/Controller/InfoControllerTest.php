@@ -443,8 +443,8 @@ class InfoControllerTest extends TestCase
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
-            null,
             new EventDispatcher(),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -520,8 +520,8 @@ class InfoControllerTest extends TestCase
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
-            null,
             new EventDispatcher(),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));

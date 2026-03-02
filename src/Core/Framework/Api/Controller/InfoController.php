@@ -72,8 +72,8 @@ class InfoController extends AbstractController
         private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
-        private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
     ) {
     }
 

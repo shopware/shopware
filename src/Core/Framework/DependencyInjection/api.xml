@@ -168,6 +168,7 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector" />
             <argument type="service" id="shopware.increment.gateway.registry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationInfo"/>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector"/>
@@ -178,6 +179,7 @@
             <argument type="service" id="filesystem"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

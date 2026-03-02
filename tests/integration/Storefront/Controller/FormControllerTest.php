@@ -36,7 +36,7 @@ class FormControllerTest extends TestCase
         ];
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/newsletter',
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
@@ -61,7 +61,7 @@ class FormControllerTest extends TestCase
         ];
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/newsletter',
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
@@ -118,7 +118,7 @@ class FormControllerTest extends TestCase
         static::getContainer()->get('request_stack')->pop();
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/contact',
             $token
         );
@@ -146,7 +146,7 @@ class FormControllerTest extends TestCase
         ];
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/contact',
             $this->tokenize('frontend.form.contact.send', $data)
         );
@@ -161,5 +161,65 @@ class FormControllerTest extends TestCase
         static::assertCount(1, $content);
         static::assertSame('danger', $type);
         static::assertSame(2, $messageCount);
+    }
+
+    public function testSendRevocationRequest(): void
+    {
+        $formData = [
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => 'max@muster.com',
+            'contractNumber' => 'SW123456789',
+            'comment' => 'This is a simple comment',
+        ];
+
+        $response = $this->request(
+            Request::METHOD_POST,
+            '/form/revocation/request',
+            $this->tokenize('frontend.form.revocation.request', $formData)
+        );
+
+        static::assertInstanceOf(JsonResponse::class, $response);
+        static::assertSame(200, $response->getStatusCode());
+
+        $jsonResponse = $response->getContent();
+        $response = (array) json_decode((string) $jsonResponse, true, 512, \JSON_THROW_ON_ERROR);
+        $content = \array_shift($response);
+
+        static::assertArrayHasKey('type', $content);
+        static::assertSame('success', $content['type']);
+        static::assertArrayHasKey('alert', $content);
+        static::assertSame('We have received your revocation request and will process it as soon as possible.', $content['alert']);
+    }
+
+    public function testSendRevocationRequestWithInvalidData(): void
+    {
+        // invalid formData
+        $formData = [
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => 'invalid email', // invalid email address
+            'contractNumber' => '', // Empty contract number
+            'comment' => 'This is a simple comment',
+        ];
+
+        $response = $this->request(
+            Request::METHOD_POST,
+            '/form/revocation/request',
+            $this->tokenize('frontend.form.revocation.request', $formData)
+        );
+
+        static::assertInstanceOf(JsonResponse::class, $response);
+        static::assertSame(200, $response->getStatusCode());
+
+        $jsonResponse = $response->getContent();
+        $response = (array) json_decode((string) $jsonResponse, true, 512, \JSON_THROW_ON_ERROR);
+        $content = \array_shift($response);
+
+        static::assertArrayHasKey('type', $content);
+        static::assertSame('danger', $content['type']);
+
+        $invalidFieldCount = mb_substr_count((string) $content['alert'], '<li>');
+        static::assertSame(2, $invalidFieldCount);
     }
 }

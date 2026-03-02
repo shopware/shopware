@@ -76,7 +76,7 @@ class CountryEntity extends Entity
     protected ?string $defaultPostalCodePattern = null;
 
     /**
-     * @var array<array<string, array<string, string>>>
+     * @var list<list<string>>
      */
     protected array $addressFormat;
 
@@ -331,7 +331,7 @@ class CountryEntity extends Entity
     }
 
     /**
-     * @return array<array<string, array<string, string>>>
+     * @return list<list<string>>
      */
     public function getAddressFormat(): array
     {
@@ -339,7 +339,7 @@ class CountryEntity extends Entity
     }
 
     /**
-     * @param array<array<string, array<string, string>>> $addressFormat
+     * @param list<list<string>> $addressFormat
      */
     public function setAddressFormat(array $addressFormat): void
     {

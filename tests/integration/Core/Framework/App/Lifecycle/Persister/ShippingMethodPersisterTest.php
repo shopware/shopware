@@ -5,10 +5,10 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Persister;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -200,16 +200,20 @@ class ShippingMethodPersisterTest extends TestCase
     private function updateApp(string $appId, string $manifestXml): void
     {
         $manifest = Manifest::createFromXmlFile($manifestXml);
+        $app = $this->getApp();
+        $sourceResolver = static::getContainer()->get(SourceResolver::class);
 
-        $shippingMethodPersister = new ShippingMethodPersister(
-            static::getContainer()->get('shipping_method.repository'),
-            static::getContainer()->get('app_shipping_method.repository'),
-            static::getContainer()->get('media.repository'),
-            static::getContainer()->get(MediaService::class),
-            static::getContainer()->get(SourceResolver::class),
+        $context = new AppLifecycleContext(
+            manifest: $manifest,
+            app: $app,
+            context: Context::createDefaultContext(),
+            appFilesystem: $sourceResolver->filesystemForManifest($manifest),
+            defaultLocale: Defaults::LANGUAGE_SYSTEM,
+            isInstall: false,
         );
 
-        $shippingMethodPersister->updateShippingMethods($manifest, $appId, Defaults::LANGUAGE_SYSTEM, Context::createDefaultContext());
+        $shippingMethodPersister = static::getContainer()->get(ShippingMethodPersister::class);
+        $shippingMethodPersister->persist($context);
     }
 
     private function getAppId(): string

@@ -249,15 +249,17 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
 
     await test.step('Navigate via link to order page from dashboard', async () => {
 
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, { timeout: 3000 });
         await AdminDashboard.adminMenuOrder.click();
         await AdminDashboard.adminMenuOrderOverview.click();
-        await ShopAdmin.expects(requestPromise).rejects.toThrow();
         await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
     });
 
     await test.step('Validate no captured requests for product analytics', async () => {
 
+        // we want to check that something does NOT happen, so we need a hard waitForTimeout, as there is nothing we can actually wait for.
+        // so we wait for 3s to ensure that product analytics events would have been captured
+        // eslint-disable-next-line playwright/no-wait-for-timeout
+        await AdminDashboard.page.waitForTimeout(3000);
         expect(captured.length).toBe(0);
     });
 });

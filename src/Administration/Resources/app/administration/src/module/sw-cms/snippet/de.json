@@ -534,6 +534,7 @@
             "type": "Formulartyp",
             "typeContact": "Kontakt",
             "typeNewsletter": "Newsletter",
+            "typeRevocationRequest": "Widerruf",
             "confirmationText": "Bestätigungstext"
           },
           "placeholder": {
@@ -553,7 +554,9 @@
             "salutation": "Anrede*",
             "salutationUndisclosed": "Keine Angabe",
             "subject": "Betreff*",
-            "subscribeToNewsletter": "Newsletter abonnieren"
+            "subscribeToNewsletter": "Newsletter abonnieren",
+            "contractNumber": "Vertragsnummer (Bestellnummer, Abonnementnummer, ...)*",
+            "comment": "Kommentar"
           },
           "placeholder": {
             "firstName": "John",
@@ -561,7 +564,9 @@
             "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
-            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
+            "contractNumber": "SW123456789",
+            "comment": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
             "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
@@ -844,6 +849,7 @@
           "404Page": "404-Seiten",
           "maintenancePage": "Wartungsseiten",
           "contactPage": "Kontaktformulare",
+          "revocationRequestPage": "Widerrufsformular",
           "newsletterPage": "Newsletterseiten"
         },
         "products": {

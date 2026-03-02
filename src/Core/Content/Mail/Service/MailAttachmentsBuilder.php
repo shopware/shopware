@@ -127,7 +127,7 @@ class MailAttachmentsBuilder
     private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {
         foreach ($documentIds as $documentId) {
-            $document = $this->documentGenerator->readDocument($documentId, $context);
+            $document = $this->documentGenerator->readDocument($documentId, $context, fileType: null);
 
             if ($document === null) {
                 continue;

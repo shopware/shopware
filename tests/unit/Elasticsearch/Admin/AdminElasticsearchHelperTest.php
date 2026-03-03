@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 
 /**
@@ -16,9 +17,9 @@ class AdminElasticsearchHelperTest extends TestCase
     #[DataProvider('searchHelperProvider')]
     public function testSearchHelper(bool $adminEsEnabled, bool $refreshIndices, string $adminIndexPrefix): void
     {
-        $searchHelper = new AdminElasticsearchHelper($adminEsEnabled, $refreshIndices, $adminIndexPrefix);
+        $searchHelper = new AdminElasticsearchHelper($adminEsEnabled, $refreshIndices, $adminIndexPrefix, 'test', true, new NullLogger());
 
-        static::assertSame($adminEsEnabled, $searchHelper->getEnabled());
+        static::assertSame($adminEsEnabled, $searchHelper->isEnabled());
         static::assertSame($refreshIndices, $searchHelper->getRefreshIndices());
         static::assertSame($adminIndexPrefix, $searchHelper->getPrefix());
         static::assertSame($adminIndexPrefix . '-promotion-listing', $searchHelper->getIndex('promotion-listing'));
@@ -26,16 +27,16 @@ class AdminElasticsearchHelperTest extends TestCase
 
     public function testSetEnable(): void
     {
-        $searchHelper = new AdminElasticsearchHelper(false, false, 'sw-admin');
+        $searchHelper = new AdminElasticsearchHelper(false, false, 'sw-admin', 'test', true, new NullLogger());
 
-        static::assertFalse($searchHelper->getEnabled());
+        static::assertFalse($searchHelper->isEnabled());
         static::assertFalse($searchHelper->getRefreshIndices());
         static::assertSame('sw-admin', $searchHelper->getPrefix());
         static::assertSame('sw-admin-promotion-listing', $searchHelper->getIndex('promotion-listing'));
 
         $searchHelper->setEnabled(true);
 
-        static::assertTrue($searchHelper->getEnabled());
+        static::assertTrue($searchHelper->isEnabled());
     }
 
     public static function searchHelperProvider(): \Generator

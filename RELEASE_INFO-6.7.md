@@ -247,6 +247,11 @@ Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the 
 `null` is injected and AsyncAws uses its own internal HTTP client. Integrators can register
 the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
+### Fixed `SystemConfigService::getDomain()` returning unrelated YAML defaults
+
+When YAML-based system config defaults were configured, `SystemConfigService::getDomain()` could return keys from other domains.
+For example, calling `getDomain('core.foo')` might also return keys like `other.bar.setting` if those were defined in YAML config files.
+`getDomain()` now correctly filters the result to only include keys matching the requested domain prefix. If your plugin relied on this unintended behaviour, you should adjust your code to query the correct domain.
 
 ## Administration
 

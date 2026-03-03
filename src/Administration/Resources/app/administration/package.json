@@ -240,6 +240,8 @@
       "jest": "$jest"
     },
     "tmp": "0.2.5",
-    "minimatch": "3.1.5"
+    "twig": {
+      "minimatch": "3.1.5"
+    }
   }
 }

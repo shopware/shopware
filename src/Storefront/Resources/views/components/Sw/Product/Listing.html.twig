@@ -39,10 +39,7 @@
             <twig:Slot name="product-grid">
                 <twig:Sw:Grid:Container
                     class="sw-product-listing__grid"
-                    :columns="layout == 'horizontal' ? '1' : '4'"
-                    :columnsXl="layout == 'horizontal' ? '1' : '3'"
-                    :columnsLg="layout == 'horizontal' ? '1' : '2'"
-                    :columnsSm="layout == 'horizontal' ? '1' : '2'"
+                    :columns="layout == 'horizontal' ? 13 : { xs: 2, sm: 2, md: 3, lg: 3, xl: 3, xxl: 4 }"
                 >
                     {% for product in listing.elements %}
                         <twig:Sw:Product:Card

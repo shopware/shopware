@@ -1,4 +1,6 @@
-.grid-container {
+.sw-grid-container {
+    $maxColumns: 12;
+
     display: grid;
 
     &.centered {
@@ -9,7 +11,7 @@
         margin-right: auto;
     }
 
-    &.auto-columns {
+    &.columns-auto {
         grid-auto-flow: column;
         grid-auto-columns: 1fr;
     }
@@ -18,7 +20,7 @@
         grid-auto-columns: max-content;
     }
 
-    @for $i from 1 through 12 {
+    @for $i from 1 through $maxColumns {
         &.columns-#{$i} {
             grid-template-columns: repeat(#{$i}, 1fr);
         }
@@ -28,50 +30,16 @@
         }
     }
 
-    @include media-breakpoint-down(xl) {
-        @for $i from 1 through 12 {
-            &.columns-xl-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
-            }
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-up($breakpoint) {
+            @for $i from 1 through $maxColumns {
+                &.columns-#{$breakpoint}-#{$i} {
+                    grid-template-columns: repeat(#{$i}, 1fr);
+                }
 
-            &.rows-xl-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-down(lg) {
-        @for $i from 1 through 12 {
-            &.columns-lg-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
-            }
-
-            &.rows-lg-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-down(md) {
-        @for $i from 1 through 12 {
-            &.columns-md-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
-            }
-
-            &.rows-md-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-down(sm) {
-        @for $i from 1 through 12 {
-            &.columns-sm-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
-            }
-
-            &.rows-sm-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
+                &.rows-#{$breakpoint}-#{$i} {
+                    grid-template-rows: repeat(#{$i}, 1fr);
+                }
             }
         }
     }

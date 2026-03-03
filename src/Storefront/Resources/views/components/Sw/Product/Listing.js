@@ -8,7 +8,7 @@ export default class ProductListing extends ShopwareComponent {
         sortingParamName: 'order',
         layoutGridClasses: {
             horizontal: ['columns-1'],
-            default: ['columns-sm-2', 'columns-lg-2', 'columns-xl-3', 'columns-4'],
+            default: ['columns-2', 'columns-sm-2', 'columns-md-3', 'columns-lg-3', 'columns-xl-3', 'columns-xxl-4'],
         },
     };
 

@@ -1007,7 +1007,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $searchRankingFlag = $middleRankedField->getFlag(SearchRanking::class);
         static::assertInstanceOf(SearchRanking::class, $searchRankingFlag);
-        static::assertEquals(SearchRanking::MIDDLE_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertSame(SearchRanking::MIDDLE_SEARCH_RANKING, $searchRankingFlag->getRanking());
         static::assertFalse($searchRankingFlag->tokenize());
 
         $lowRankedField = $definition->getFields()->get('lowRankedString');

@@ -18,6 +18,7 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeNotIncludingPluginJsAndCs
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithMultiInheritance;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -34,7 +35,8 @@ class ThemeFileResolverTest extends TestCase
 
         $factory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),
-            $sourceResolver
+            $sourceResolver,
+            new Filesystem(),
         );
 
         $config = $factory->createFromBundle($themePluginBundle);
@@ -81,7 +83,8 @@ class ThemeFileResolverTest extends TestCase
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),
-            $sourceResolver
+            $sourceResolver,
+            new Filesystem(),
         );
 
         $config = $factory->createFromBundle($themePluginBundle);
@@ -128,7 +131,8 @@ class ThemeFileResolverTest extends TestCase
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),
-            $sourceResolver
+            $sourceResolver,
+            new Filesystem(),
         );
 
         $config = $factory->createFromBundle($themePluginBundle);
@@ -179,7 +183,8 @@ class ThemeFileResolverTest extends TestCase
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),
-            $sourceResolver
+            $sourceResolver,
+            new Filesystem(),
         );
 
         $config = $factory->createFromBundle($themePluginBundle);
@@ -252,7 +257,8 @@ class ThemeFileResolverTest extends TestCase
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),
-            $sourceResolver
+            $sourceResolver,
+            new Filesystem(),
         );
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);

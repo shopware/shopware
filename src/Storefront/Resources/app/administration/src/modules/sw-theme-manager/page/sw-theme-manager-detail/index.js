@@ -1,5 +1,6 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
+
 /**
  * @package discovery
  */
@@ -145,16 +146,26 @@ Component.register('sw-theme-manager-detail', {
             return this.theme.id === this.defaultTheme.id;
         },
 
-        tabItems() {
+        orderedTabs() {
             const tabs = this.structuredThemeFields?.tabs || {};
-            const entries = Object.entries(tabs);
+            if (!Object.prototype.hasOwnProperty.call(tabs, 'default')) {
+                return tabs;
+            }
 
-            const items = entries.map(([name, tab]) => ({
+            const { default: defaultTab, ...nonDefaultTabs } = tabs;
+            return {
+                default: defaultTab,
+                ...nonDefaultTabs,
+            };
+        },
+
+        tabItems() {
+            const entries = Object.entries(this.orderedTabs);
+
+            return entries.map(([name, tab]) => ({
                 name,
                 label: this.getTabLabel(tab.labelSnippetKey, tab.label) || name,
             }));
-
-            return items;
         }
     },
 
@@ -798,7 +809,7 @@ Component.register('sw-theme-manager-detail', {
         selectionDisablingMethod(selection) {
             if (!this.isDefaultTheme) {
                 return false;
-        }
+            }
 
             return this.theme.getOrigin().salesChannels.has(selection.id);
         },

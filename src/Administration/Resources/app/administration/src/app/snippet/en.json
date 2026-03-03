@@ -1099,6 +1099,7 @@
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
       "customer_password_changed": "Customer password changed",
+      "revocation_request_sent": "The revocation request form has been sent.",
       "mail_after_create_message": "Email created",
       "mail_before_send": "Email is being sent",
       "mail_sent": "Email sent",
@@ -1579,7 +1580,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before.",
+            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.",
             "name": "Keep the shop identifier"
           },
           "reinstall-apps": {
@@ -1721,5 +1722,30 @@
   },
   "sw-context-button": {
     "ariaLabel": "Open context menu"
+  },
+  "sw-model-editor": {
+    "titleModal": "Model Editor",
+    "open-model-editor-tooltip": "Open Model Editor",
+    "edit-options": {
+      "move-tooltip": "Move object",
+      "rotate-tooltip": "Rotate object",
+      "scale-tooltip": "Scale object"
+    },
+    "save": "Save",
+    "cancel": "Cancel",
+    "properties": {
+      "transformation": {
+        "label":"Transformation",
+        "position": {
+          "label": "Position"
+        },
+        "rotation": {
+          "label": "Rotation"
+        },
+        "scale": {
+          "label": "Scale"
+        }
+      }
+    }
   }
 }

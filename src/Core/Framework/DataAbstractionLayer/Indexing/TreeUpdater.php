@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -37,7 +38,7 @@ class TreeUpdater
     public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
     {
         $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
-        if (empty($updateIds)) {
+        if ($updateIds === []) {
             return;
         }
 
@@ -290,7 +291,7 @@ class TreeUpdater
         } while ($parentIds !== [] && $levels >= 0);
 
         if ($levels <= 0) {
-            throw new \RuntimeException('Reached max depth, aborting');
+            throw DataAbstractionLayerException::treeUpdateError('Reached max depth, aborting');
         }
     }
 
@@ -301,7 +302,7 @@ class TreeUpdater
      */
     private function fetchByColumn(array $ids, EntityDefinition $definition, string $column, Context $context, TreeUpdaterBag $bag): array
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -328,7 +329,7 @@ class TreeUpdater
      */
     private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag, bool $recursive): void
     {
-        if (empty($updateIds)) {
+        if ($updateIds === []) {
             return;
         }
 
@@ -357,7 +358,7 @@ class TreeUpdater
     private function updateEntity(array $entity, EntityDefinition $definition, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context, TreeUpdaterBag $bag): void
     {
         if ($pathField === null && $levelField) {
-            throw new \RuntimeException('`TreePathField` or `TreeLevelField` required.');
+            throw DataAbstractionLayerException::treeUpdateError('`TreePathField` or `TreeLevelField` required.');
         }
 
         if ($bag->alreadyUpdated($entity['id'])) {

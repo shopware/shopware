@@ -210,7 +210,7 @@
                     @media-upload-remove-image="onImageRemove"
                 />
 
-                    {% block sw_cms_element_vimeo_video_config_preview_media_display %}
+                {% block sw_cms_element_vimeo_video_config_preview_media_display %}
                 <template #preview="{ demoValue }">
                     <div class="sw-cms-el-config-image__mapping-preview">
                         <img
@@ -227,18 +227,18 @@
                         </mt-banner>
                     </div>
                 </template>
-                    {% endblock %}
+                {% endblock %}
             </sw-cms-mapping-field>
 
-                {% block sw_cms_element_vimeo_video_config_preview_media_upload_listener %}
+            {% block sw_cms_element_vimeo_video_config_preview_media_upload_listener %}
             <sw-upload-listener
                 :upload-tag="uploadTag"
                 auto-upload
                 @media-upload-finish="onImageUpload"
             />
-                {% endblock %}
+            {% endblock %}
 
-                {% block sw_cms_element_vimeo_video_config_preview_media_modal %}
+            {% block sw_cms_element_vimeo_video_config_preview_media_modal %}
             <sw-media-modal-v2
                 v-if="mediaModalIsOpen"
                 variant="full"
@@ -250,7 +250,7 @@
                 @media-modal-selection-change="onSelectionChanges"
                 @modal-close="onCloseModal"
             />
-                {% endblock %}
+            {% endblock %}
             {% endblock %}
         </template>
     </sw-cms-inherit-wrapper>

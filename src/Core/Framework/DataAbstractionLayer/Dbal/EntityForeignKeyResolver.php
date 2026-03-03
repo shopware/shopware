@@ -208,7 +208,7 @@ class EntityForeignKeyResolver
         Context $context,
         bool $restrictDeleteOnlyFirstLevel = false
     ): array {
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -267,7 +267,7 @@ class EntityForeignKeyResolver
 
         $affected = $query->executeQuery()->fetchAllAssociative();
 
-        if (empty($affected)) {
+        if ($affected === []) {
             return [];
         }
 

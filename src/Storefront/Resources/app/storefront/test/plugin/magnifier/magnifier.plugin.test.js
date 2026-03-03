@@ -22,6 +22,7 @@ describe('MagnifierPlugin tests', () => {
         window.PluginManager = {
             getPluginInstancesFromElement: jest.fn(() => new Map()),
             getPlugin: jest.fn(() => new Map([["instances", []]])),
+            initializePluginsInParentElement: jest.fn(),
         };
 
         // Ensure deterministic viewport height
@@ -40,6 +41,28 @@ describe('MagnifierPlugin tests', () => {
         magnifierPlugin = undefined;
         element = undefined;
         document.body.innerHTML = '';
+    });
+
+    describe('init', () => {
+        test('should not register events when zoom image container is missing (e.g. CMS pages without product context)', () => {
+            document.body.innerHTML = `
+                <div data-magnifier>
+                    <div class="js-magnifier-container">
+                        <img class="js-magnifier-image" src="#" />
+                    </div>
+                </div>
+            `;
+
+            const el = document.querySelector('[data-magnifier]');
+            const plugin = new MagnifierPlugin(el);
+
+            expect(plugin._zoomImageContainer).toBeNull();
+
+            const image = el.querySelector('.js-magnifier-image');
+            expect(() => {
+                image.dispatchEvent(new MouseEvent('mousemove'));
+            }).not.toThrow();
+        });
     });
 
     describe('_setZoomImageSize', () => {

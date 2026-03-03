@@ -268,35 +268,52 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_preview_item %}
-                <template v-if="item.mimeType?.split('/')[0] === 'model'">
+                <template v-if="item.mimeType?.startsWith('model/gltf')">
                     <div class="sw-model-viewer-wrapper">
                         <mt-button
                             v-if="!isLoading"
+                            v-tooltip="{ message: $t('sw-model-editor.open-model-editor-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
                             class="sw-model-viewer-button"
                             variant="secondary"
                             size="x-small"
-                            @click="openModelViewerModal()"
+                            @click="openModelEditorModal()"
                         >
-                            <mt-icon name="regular-expand-arrows" />
+                            <mt-icon name="cog" />
                         </mt-button>
                         <sw-model-viewer
                             :source="item"
                         />
                     </div>
 
-                    {% block sw_model_viewer_modal %}
+                    {% block sw_model_editor_modal %}
                     <sw-modal
-                        v-if="showModelViewerModal"
-                        class="sw-model-viewer-modal"
-                        :title="$tc('sw-media.sw-model-viewer.titleModal')"
-                        variant="x-large"
-                        @modal-close="closeModelViewerModal()"
+                        v-if="showModelEditorModal"
+                        class="sw-model-editor-modal"
+                        :title="$tc('sw-model-editor.titleModal')"
+                        variant="full"
+                        @modal-close="closeModelEditorModal()"
                     >
-                        <div class="sw-model-viewer-modal-wrapper">
-                            <sw-model-viewer
+                        <div class="sw-model-editor-modal-wrapper">
+                            <sw-model-editor
+                                ref="modelEditorRef"
                                 :source="item"
+                                @save="onSaveComplete"
                             />
                         </div>
+                        <template #modal-footer>
+                            <mt-button
+                                variant="secondary"
+                                @click="closeModelEditorModal()"
+                            >
+                                {{ $tc('sw-model-editor.cancel') }}
+                            </mt-button>
+                            <mt-button
+                                variant="primary"
+                                @click="$refs.modelEditorRef.save()"
+                            >
+                                {{ $tc('sw-model-editor.save') }}
+                            </mt-button>
+                        </template>
                     </sw-modal>
                     {% endblock %}
                 </template>

@@ -25,10 +25,8 @@ class SalesChannelAnalyticsLoader
     public function loadAnalytics(StorefrontRenderEvent $event): void
     {
         $salesChannelContext = $event->getSalesChannelContext();
-        $salesChannel = $salesChannelContext->getSalesChannel();
-        $analyticsId = $salesChannel->getAnalyticsId();
-
-        if (empty($analyticsId)) {
+        $analyticsId = $salesChannelContext->getSalesChannel()->getAnalyticsId();
+        if ($analyticsId === null || $analyticsId === '') {
             return;
         }
 

@@ -283,12 +283,13 @@ export function runNpmAudit(options: NpmAuditOptions = {}): void {
         (pkg) => Array.isArray(pkg.via) && pkg.via.length > 0,
     );
 
-    if (remaining.length === 0) {
+    const advisories = buildRootAdvisories(audit);
+
+    if (remaining.length === 0 || advisories.length === 0) {
         console.log(`No vulnerabilities (${totalIgnored} ignored).`);
         return;
     }
 
-    const advisories = buildRootAdvisories(audit);
     printAdvisories(advisories, remaining.length);
     printSuggestions(advisories);
     process.exit(1);

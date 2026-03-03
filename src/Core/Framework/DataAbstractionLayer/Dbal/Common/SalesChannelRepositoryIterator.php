@@ -61,7 +61,7 @@ class SalesChannelRepositoryIterator
         $ids = $this->repository->searchIds($this->criteria, $this->context);
         $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
-        if (!empty($ids->getIds())) {
+        if ($ids->getIds() !== []) {
             return $ids->getIds();
         }
 
@@ -79,7 +79,7 @@ class SalesChannelRepositoryIterator
         // increase offset for next iteration
         $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
-        if (empty($result->getIds())) {
+        if ($result->getIds() === []) {
             return null;
         }
 

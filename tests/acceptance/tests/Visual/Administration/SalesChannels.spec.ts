@@ -1,6 +1,8 @@
 import { test, assertScreenshot, setViewport, hideElements } from '@fixtures/AcceptanceTest';
 
-test('Visual: Administration sales channels page', { tag: '@Visual' }, async ({
+test('Visual: Administration sales channels page', {
+    tag: '@Visual',
+}, async ({
     ShopAdmin,
     AdminSalesChannelDetail,
     DefaultSalesChannel,

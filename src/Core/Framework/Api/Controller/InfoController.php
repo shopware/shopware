@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
@@ -17,10 +18,12 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
+use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
@@ -38,6 +41,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
@@ -53,6 +57,7 @@ class InfoController extends AbstractController
         private readonly BusinessEventCollector $eventCollector,
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly Connection $connection,
+        private readonly MigrationInfo $migrationInfo,
         private readonly AppUrlVerifier $appUrlVerifier,
         private readonly RouterInterface $router,
         private readonly FlowActionCollector $flowActionCollector,
@@ -66,6 +71,7 @@ class InfoController extends AbstractController
         private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -89,9 +95,16 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Route will be removed. Use /api/_info/message-stats.json instead.
+     */
     #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
     public function queue(): JsonResponse
     {
+        if (Feature::isActive('v6.8.0.0')) { // avoiding polluting logs, as our code still calling this endpoint
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', '\Shopware\Core\Framework\Api\Controller\InfoController::messageStats'));
+        }
+
         try {
             $gateway = $this->incrementGatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
         } catch (IncrementGatewayNotFoundException) {
@@ -178,29 +191,39 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
     public function config(Context $context, Request $request): JsonResponse
     {
-        return new JsonResponse([
+        $adminWorker = [
+            'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
+            'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
+            'transports' => $this->params->get('shopware.admin_worker.transports'),
+        ];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
+        }
+
+        $config = [
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
             'appUrl' => (string) EnvironmentHelper::getVariable('APP_URL'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
-            'adminWorker' => [
-                'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
-                'enableQueueStatsWorker' => $this->params->get('shopware.admin_worker.enable_queue_stats_worker'),
-                'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
-                'transports' => $this->params->get('shopware.admin_worker.transports'),
-            ],
+            'adminWorker' => $adminWorker,
             'bundles' => $this->getBundles(),
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
+                'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
                 'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),
-        ]);
+        ];
+
+        $config = $this->eventDispatcher->dispatch(new AdminInfoConfigEvent($config))->getConfig();
+
+        return new JsonResponse($config);
     }
 
     #[Route(path: '/api/_info/version', name: 'api.info.shopware.version', methods: ['GET'])]

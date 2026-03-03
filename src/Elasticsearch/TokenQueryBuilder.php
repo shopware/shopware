@@ -99,7 +99,7 @@ class TokenQueryBuilder
             $tokenQueries[] = $fieldQuery;
         }
 
-        if (empty($tokenQueries)) {
+        if ($tokenQueries === []) {
             return null;
         }
 
@@ -165,7 +165,11 @@ class TokenQueryBuilder
 
                     $queries[] = new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
                 } else {
-                    $queries[] = new PrefixQuery($config->getField(), $token, [
+                    // Use .search field for prefix matching when using language analyzer
+                    // This ensures stop words are filtered (they don't exist in .search index)
+                    // and avoids stemming issues since PrefixQuery doesn't analyze the search term
+                    $prefixField = $this->useLanguageAnalyzer ? $searchField : $config->getField();
+                    $queries[] = new PrefixQuery($prefixField, $token, [
                         'boost' => 0.4,
                     ]);
                 }
@@ -232,7 +236,7 @@ class TokenQueryBuilder
             $languageQueries[] = $languageQuery;
         }
 
-        if (empty($languageQueries)) {
+        if ($languageQueries === []) {
             return null;
         }
 

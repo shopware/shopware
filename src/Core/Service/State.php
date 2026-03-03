@@ -19,11 +19,11 @@ enum State: string
 
     public static function state(AppEntity $appEntity): State
     {
-        if (\count($appEntity->getRequestedPrivileges()) === 0 && $appEntity->isActive()) {
+        if ($appEntity->getRequestedPrivileges() === [] && $appEntity->isActive()) {
             return State::ACTIVE;
         }
 
-        if (\count($appEntity->getRequestedPrivileges()) > 0 && $appEntity->isActive()) {
+        if ($appEntity->getRequestedPrivileges() !== [] && $appEntity->isActive()) {
             return State::PENDING_PERMISSIONS;
         }
 

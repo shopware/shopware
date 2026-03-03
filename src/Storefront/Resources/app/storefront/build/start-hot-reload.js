@@ -91,19 +91,19 @@ const proxyOptions = {
                     if (req.url.indexOf('offcanvas=1') !== -1) {
                         body = body.concat(openOffCanvasScript());
                     }
-                    body = body
+                    body = rewriteOriginUrls(body)
                         // replace the webpack hot proxy with the url of the live reload server
                         .replace(new RegExp('/_webpack_hot_proxy_/', 'g'), `${proxyUrlEnv.protocol}//${proxyUrlEnv.hostname}:${assetPort}/`)
-                        // replace the domain without port or without port with the proxy url
-                        .replace(new RegExp(`${appUrlEnv.origin}/`, 'g'), `${proxyUrlEnv.origin}/`)
-                        // replace the media url back to use the default storefront url
-                        .replace(new RegExp(`${proxyUrlEnv.origin}/media/`, 'g'), `${appUrlEnv.origin}/media/`)
-                        // replace the thumbnail url back to use the default storefront url
-                        .replace(new RegExp(`${proxyUrlEnv.origin}/thumbnail/`, 'g'), `${appUrlEnv.origin}/thumbnail/`)
                         // Replace Symfony Profiler URL to relative url @see: https://regex101.com/r/HMQd2n/2
                         .replace(/http[s]?\\u003A\\\/\\\/[\w.]*(:\d*|\\u003A\d*)?\\\/_wdt/gm, '/_wdt')
                         .replace(/new\s*URL\(url\);\s*url\.searchParams\.set\('XDEBUG_IGNORE'/gm, 'new URL(window.location.protocol+\'//\'+window.location.host+url);                url.searchParams.set(\'XDEBUG_IGNORE\'');
                     res.end(body);
+                    return;
+                }
+                // rewrite URLs in JSON responses (e.g. variant switch redirect URL)
+                if (isJsonResponse(proxyRes)) {
+                    body = Buffer.concat(body).toString();
+                    res.end(rewriteOriginUrls(body));
                     return;
                 }
                 // when we use the .toString method on Buffer, the body will be converted to a string
@@ -202,6 +202,22 @@ function isDocumentRequest(req) {
 
 function openOffCanvasScript() {
     return '<script>document.addEventListener("DOMContentLoaded", () => { setTimeout(() => { if (!document.querySelector(".header-cart-total").textContent.includes("0.00")) { document.querySelector(".header-cart").click(); } }, 500); });</script>';
+}
+
+function isJsonResponse(proxyRes) {
+    return (proxyRes.headers['content-type'] || '').toLowerCase().includes('application/json');
+}
+
+function rewriteOriginUrls(body) {
+    return body
+        // replace the app origin with the proxy origin (plain and JSON-escaped)
+        .replace(new RegExp(`${appUrlEnv.origin}/`, 'g'), `${proxyUrlEnv.origin}/`)
+        .replaceAll(`${appUrlEnv.origin}/`.replaceAll('/', '\\/'), `${proxyUrlEnv.origin}/`.replaceAll('/', '\\/'))
+        // revert media/thumbnail URLs back to the app origin
+        .replace(new RegExp(`${proxyUrlEnv.origin}/media/`, 'g'), `${appUrlEnv.origin}/media/`)
+        .replace(new RegExp(`${proxyUrlEnv.origin}/thumbnail/`, 'g'), `${appUrlEnv.origin}/thumbnail/`)
+        .replaceAll(`${proxyUrlEnv.origin}/media/`.replaceAll('/', '\\/'), `${appUrlEnv.origin}/media/`.replaceAll('/', '\\/'))
+        .replaceAll(`${proxyUrlEnv.origin}/thumbnail/`.replaceAll('/', '\\/'), `${appUrlEnv.origin}/thumbnail/`.replaceAll('/', '\\/'));
 }
 
 function openBrowserWithUrl(url) {

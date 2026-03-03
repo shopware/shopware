@@ -31,6 +31,24 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 
 The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
+## Removal of `/api/_info/queue.json` endpoint
+
+The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
+
+## Newsletter route methods removed and response changed
+
+The following methods have been removed:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()`
+- `AbstractNewsletterConfirmRoute::confirm()`
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()`
+
+The following methods are now abstract and must be implemented by extensions. Their return types have been narrowed from `StoreApiResponse` to their explicit types:
+
+- `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` returns `SuccessResponse`
+- `unsubscribeWithResponse()` returns `SuccessResponse`
+
 </details>
 
 # Core
@@ -485,6 +503,31 @@ The column `link` of the table `product_manufacturer` was removed.
 
 Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
 
+## Removal of increment-based message queue statistics
+
+The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
+
+### Removed deprecated `TemplateGroup` class
+
+The deprecated class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been removed.
+
+**Removed components:**
+
+- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant and related `message_queue` increment
+- `shopware.admin_worker.enable_queue_stats_worker` configuration option
+- `shopware.increment.message_queue` configuration section
+- `enableQueueStatsWorker` property from `/api/_info/config` response
+
+**Migration:**
+
+If you were using `message_queue` increment - you may configure different one:
+```yaml
+shopware:
+    increment:
+        increment_name:
+          type: 'mysql'
+```
+
 </details>
 
 # Administration
@@ -879,11 +922,24 @@ Changes in `sw-mail-template-index`:
 * `term` data property was removed
 * `onChangeLanguage` method now only calls `tabContent` ref
 
+## Removal of increment-based message queue notifications
+
+The indexing progress notifications in the Administration notification center have been removed without replacement.
+
+**Removed components:**
+
+- `WorkerNotificationListener` class and its exported constants `POLL_BACKGROUND_INTERVAL`, `POLL_FOREGROUND_INTERVAL` (`src/core/worker/worker-notification-listener.js`)
+- `enableQueueStatsWorker` property from `Shopware.Context.app.config.adminWorker`
+
 </details>
 
 # Storefront
 
 <details>
+
+## Removed block `page_product_detail_product_buy_button_label` from `@Storefront/storefront/component/product/card/action.html.twig`
+
+The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.
 
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.

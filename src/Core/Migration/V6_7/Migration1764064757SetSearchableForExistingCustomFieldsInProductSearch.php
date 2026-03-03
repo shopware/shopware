@@ -27,7 +27,7 @@ class Migration1764064757SetSearchableForExistingCustomFieldsInProductSearch ext
                 AND searchable = 1
         ')->fetchFirstColumn();
 
-        if (\count($customFieldIds) === 0) {
+        if ($customFieldIds === []) {
             return;
         }
 

@@ -1295,6 +1295,24 @@ EOT,
                 ],
             ],
         ];
+
+        yield 'EqualsFilter null on nested association field' => [
+            new EqualsFilter('unit.id', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'nested' => [
+                                'path' => 'unit',
+                                'query' => [
+                                    'exists' => ['field' => 'unit.id'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     public function getDefinition(string $entityName = 'product'): EntityDefinition

@@ -56,6 +56,19 @@ class SecureUrlValidatorTest extends TestCase
         yield 'Localhost uppercase' => ['https://LOCALHOST', false];
         yield 'Localhost mixed case' => ['https://LocalHost', false];
 
+        // Invalid URLs - Reserved IANA special-use domains
+        yield '.test TLD' => ['https://myshop.test', false];
+        yield '.local TLD' => ['https://myshop.local', false];
+        yield '.localhost subdomain' => ['https://shop.localhost', false];
+        yield '.example TLD' => ['https://myshop.example', false];
+        yield '.invalid TLD' => ['https://myshop.invalid', false];
+        yield '.onion TLD' => ['https://hidden.onion', false];
+        yield '.home.arpa TLD' => ['https://mydevice.home.arpa', false];
+        yield 'example.net exact' => ['https://example.net', false];
+        yield 'example.org exact' => ['https://example.org', false];
+        yield 'home.arpa exact' => ['https://home.arpa', false];
+        yield 'nested .test subdomain' => ['https://deep.sub.myshop.test', false];
+
         // Invalid URLs - Malformed
         yield 'Invalid URL' => ['not-a-url', false];
         yield 'Empty string' => ['', false];

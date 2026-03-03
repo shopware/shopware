@@ -47,19 +47,23 @@ class PublicAccessTest extends TestCase
         $this->setEnvVars(['APP_URL' => null]);
         $manifest = $this->createMock(Manifest::class);
 
-        $result = $this->requirement->satisfied($manifest);
-
-        static::assertFalse($result);
+        static::assertFalse($this->requirement->satisfied($manifest));
+        static::assertSame(
+            'The APP_URL environment variable is not configured.',
+            $this->requirement->actionableResolution()
+        );
     }
 
     public function testSatisfiedReturnsFalseWhenUrlNotValid(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://localhost']);  // localhost is invalid
+        $this->setEnvVars(['APP_URL' => 'https://localhost']);
         $manifest = $this->createMock(Manifest::class);
 
-        $result = $this->requirement->satisfied($manifest);
-
-        static::assertFalse($result);
+        static::assertFalse($this->requirement->satisfied($manifest));
+        static::assertSame(
+            'APP_URL "https://localhost" is not a valid public URL. It must use HTTPS, must not be an IP address, and must not use a reserved domain.',
+            $this->requirement->actionableResolution()
+        );
     }
 
     public function testSatisfiedReturnsTrueWhenHealthCheckReturns200(): void
@@ -81,9 +85,11 @@ class PublicAccessTest extends TestCase
 
         $this->mockHandler->append(new Response(HttpResponse::HTTP_INTERNAL_SERVER_ERROR));
 
-        $result = $this->requirement->satisfied($manifest);
-
-        static::assertFalse($result);
+        static::assertFalse($this->requirement->satisfied($manifest));
+        static::assertSame(
+            'Health check at "https://example.com/api/_info/health-check" returned HTTP 500. Ensure the Shopware instance is running and publicly reachable.',
+            $this->requirement->actionableResolution()
+        );
     }
 
     #[DataProvider('guzzleExceptionProvider')]
@@ -94,9 +100,11 @@ class PublicAccessTest extends TestCase
 
         $this->mockHandler->append($exception);
 
-        $result = $this->requirement->satisfied($manifest);
-
-        static::assertFalse($result);
+        static::assertFalse($this->requirement->satisfied($manifest));
+        static::assertSame(
+            'Could not reach "https://example.com/api/_info/health-check". Ensure the Shopware instance is publicly accessible at the configured APP_URL.',
+            $this->requirement->actionableResolution()
+        );
     }
 
     public static function guzzleExceptionProvider(): \Generator
@@ -146,18 +154,38 @@ class PublicAccessTest extends TestCase
         // Second response: failure (to prove cache was cleared)
         $this->mockHandler->append(new Response(HttpResponse::HTTP_INTERNAL_SERVER_ERROR));
 
-        // First call - should return true and cache the result
         $result1 = $this->requirement->satisfied($manifest);
         static::assertTrue($result1);
 
-        // Reset cache
         $this->requirement->reset();
 
-        // Second call - should make new HTTP request and return false
         $result2 = $this->requirement->satisfied($manifest);
         static::assertFalse($result2);
 
-        // Verify both HTTP requests were made
         static::assertCount(0, $this->mockHandler);
+    }
+
+    public function testResetClearsFailureReason(): void
+    {
+        $this->setEnvVars(['APP_URL' => null]);
+        $manifest = $this->createMock(Manifest::class);
+
+        $this->requirement->satisfied($manifest);
+        static::assertSame('The APP_URL environment variable is not configured.', $this->requirement->actionableResolution());
+
+        $this->requirement->reset();
+
+        static::assertSame(
+            'The app requires public access to the Shopware instance. Ensure that the APP_URL environment variable is set to a publicly accessible HTTPS URL.',
+            $this->requirement->actionableResolution()
+        );
+    }
+
+    public function testActionableResolutionReturnsFallbackWhenSatisfiedNotCalled(): void
+    {
+        static::assertSame(
+            'The app requires public access to the Shopware instance. Ensure that the APP_URL environment variable is set to a publicly accessible HTTPS URL.',
+            $this->requirement->actionableResolution()
+        );
     }
 }

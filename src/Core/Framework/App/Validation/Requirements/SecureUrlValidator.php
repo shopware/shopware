@@ -6,18 +6,35 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- * SecureUrlValidator
  *
  * Validates whether a given shop URL is a secure and valid target.
  *
- * the validator ensures that the URL: (this remains a simple validation and does not guarantee absolute correctness)
+ * The validator ensures that the URL: (this remains a simple validation and does not guarantee absolute correctness)
  *   - Uses the HTTPS scheme
  *   - Does not resolve to an IP address
- *   - Is not 'localhost'
+ *   - Is not 'localhost' or a reserved domain
+ *
+ * @see https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.xhtml
  */
 #[Package('framework')]
 readonly class SecureUrlValidator
 {
+    private const array RESERVED_SUFFIXES = [
+        '.localhost',
+        '.local',
+        '.test',
+        '.example',
+        '.invalid',
+        '.onion',
+        '.home.arpa',
+    ];
+
+    private const array RESERVED_EXACT = [
+        'example.net',
+        'example.org',
+        'home.arpa',
+    ];
+
     public function isValidTarget(string $url): bool
     {
         $host = parse_url($url, \PHP_URL_HOST);
@@ -33,7 +50,7 @@ readonly class SecureUrlValidator
             return false;
         }
 
-        if ($this->isLocalhost($host)) {
+        if ($this->isReserved($host)) {
             return false;
         }
 
@@ -52,8 +69,19 @@ readonly class SecureUrlValidator
         return filter_var($cleanHost, \FILTER_VALIDATE_IP) !== false;
     }
 
-    private function isLocalhost(string $host): bool
+    private function isReserved(string $host): bool
     {
-        return strtolower($host) === 'localhost';
+        $host = strtolower($host);
+
+        if ($host === 'localhost' || \in_array($host, self::RESERVED_EXACT, true)) {
+            return true;
+        }
+
+        $dotHost = '.' . ltrim($host, '.');
+
+        return array_any(
+            self::RESERVED_SUFFIXES,
+            static fn (string $suffix): bool => str_ends_with($dotHost, $suffix)
+        );
     }
 }

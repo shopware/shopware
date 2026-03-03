@@ -21,7 +21,12 @@ interface Requirement
      */
     public static function name(): string;
 
-    public static function actionableResolution(): string;
+    /**
+     * Provides a user-facing message explaining why the requirement failed
+     * and how to resolve it. Called after {@see satisfied()} returns false,
+     * so implementations may include context from the failed check.
+     */
+    public function actionableResolution(): string;
 
     /**
      * Checks if this validator applies to the given manifest

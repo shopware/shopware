@@ -26,7 +26,7 @@ class AppRequirementsValidatorTest extends TestCase
             ->method('satisfied')
             ->willReturn(true);
 
-        $validator = new AppRequirementsValidator([$requirement]);
+        $validator = new AppRequirementsValidator([$requirement], 'prod');
         $manifest = $this->createMock(Manifest::class);
 
         $violations = $validator->validate($manifest);
@@ -36,7 +36,6 @@ class AppRequirementsValidatorTest extends TestCase
 
     public function testValidateWithUnsatisfiedRequirement(): void
     {
-        // avoid mocking static methods. (used in the validator for error messages)
         $requirement = new class implements Requirement {
             public function satisfied(Manifest $manifest): bool
             {
@@ -53,7 +52,7 @@ class AppRequirementsValidatorTest extends TestCase
                 return 'test-requirement';
             }
 
-            public static function actionableResolution(): string
+            public function actionableResolution(): string
             {
                 return 'Fix the test requirement';
             }
@@ -65,7 +64,7 @@ class AppRequirementsValidatorTest extends TestCase
             ->method('getMetadata')
             ->willReturn($metadata);
 
-        $validator = new AppRequirementsValidator([$requirement]);
+        $validator = new AppRequirementsValidator([$requirement], 'prod');
 
         $violations = $validator->validate($manifest);
 
@@ -85,7 +84,7 @@ class AppRequirementsValidatorTest extends TestCase
         $requirement->expects($this->never())
             ->method('satisfied');
 
-        $validator = new AppRequirementsValidator([$requirement]);
+        $validator = new AppRequirementsValidator([$requirement], 'prod');
         $manifest = $this->createMock(Manifest::class);
 
         $violations = $validator->validate($manifest);
@@ -119,7 +118,7 @@ class AppRequirementsValidatorTest extends TestCase
                 return 'requirement-2';
             }
 
-            public static function actionableResolution(): string
+            public function actionableResolution(): string
             {
                 return 'Fix requirement 2';
             }
@@ -139,7 +138,7 @@ class AppRequirementsValidatorTest extends TestCase
             ->method('getMetadata')
             ->willReturn($metadata);
 
-        $validator = new AppRequirementsValidator([$requirement1, $requirement2, $requirement3]);
+        $validator = new AppRequirementsValidator([$requirement1, $requirement2, $requirement3], 'prod');
 
         $violations = $validator->validate($manifest);
 
@@ -151,7 +150,6 @@ class AppRequirementsValidatorTest extends TestCase
 
     public function testValidateWithMultipleViolations(): void
     {
-        // avoid mocking static methods. (used in the validator for error messages)
         $requirement1 = new class implements Requirement {
             public function satisfied(Manifest $manifest): bool
             {
@@ -168,7 +166,7 @@ class AppRequirementsValidatorTest extends TestCase
                 return 'requirement-1';
             }
 
-            public static function actionableResolution(): string
+            public function actionableResolution(): string
             {
                 return 'Fix requirement 1';
             }
@@ -190,7 +188,7 @@ class AppRequirementsValidatorTest extends TestCase
                 return 'requirement-2';
             }
 
-            public static function actionableResolution(): string
+            public function actionableResolution(): string
             {
                 return 'Fix requirement 2';
             }
@@ -202,7 +200,7 @@ class AppRequirementsValidatorTest extends TestCase
             ->method('getMetadata')
             ->willReturn($metadata);
 
-        $validator = new AppRequirementsValidator([$requirement1, $requirement2]);
+        $validator = new AppRequirementsValidator([$requirement1, $requirement2], 'prod');
 
         $violations = $validator->validate($manifest);
 
@@ -215,5 +213,29 @@ class AppRequirementsValidatorTest extends TestCase
         static::assertSame('violation-app', $violations[1]->appName);
         static::assertSame('requirement-2', $violations[1]->requirementName);
         static::assertSame('Fix requirement 2', $violations[1]->actionableResolution);
+    }
+
+    public function testValidateSkipsInDevEnvironment(): void
+    {
+        $requirement = $this->createMock(Requirement::class);
+        $requirement->expects($this->never())->method('required');
+        $requirement->expects($this->never())->method('satisfied');
+
+        $validator = new AppRequirementsValidator([$requirement], 'dev');
+        $manifest = $this->createMock(Manifest::class);
+
+        static::assertSame([], $validator->validate($manifest));
+    }
+
+    public function testValidateSkipsInTestEnvironment(): void
+    {
+        $requirement = $this->createMock(Requirement::class);
+        $requirement->expects($this->never())->method('required');
+        $requirement->expects($this->never())->method('satisfied');
+
+        $validator = new AppRequirementsValidator([$requirement], 'test');
+        $manifest = $this->createMock(Manifest::class);
+
+        static::assertSame([], $validator->validate($manifest));
     }
 }

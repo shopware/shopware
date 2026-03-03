@@ -17,15 +17,24 @@ class AppRequirementsValidator
      * @param iterable<Requirement> $validators
      */
     public function __construct(
-        private readonly iterable $validators
+        private readonly iterable $validators,
+        private readonly string $environment = 'prod',
     ) {
     }
 
     /**
+     * Requirements are only enforced in the 'prod' environment.
+     * In dev/test, validation is skipped so local development and CI are not blocked
+     * by infrastructure checks (HTTPS, public reachability, etc.).
+     *
      * @return array<UnmetRequirement>
      */
     public function validate(Manifest $manifest): array
     {
+        if ($this->environment !== 'prod') {
+            return [];
+        }
+
         $validationErrors = [];
         foreach ($this->validators as $validator) {
             if (!$validator->required($manifest)) {
@@ -36,7 +45,7 @@ class AppRequirementsValidator
                 $validationErrors[] = new UnmetRequirement(
                     $manifest->getMetadata()->getName(),
                     $validator::name(),
-                    $validator::actionableResolution()
+                    $validator->actionableResolution()
                 );
             }
         }

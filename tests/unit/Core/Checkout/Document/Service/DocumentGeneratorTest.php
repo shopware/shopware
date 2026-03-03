@@ -116,6 +116,56 @@ class DocumentGeneratorTest extends TestCase
         $expectClosure($renderedDocument);
     }
 
+    public function testReadDocumentAutoDetectsXmlFileTypeWhenNullIsPassed(): void
+    {
+        $xmlMedia = new MediaEntity();
+        $xmlMedia->setId(Uuid::randomHex());
+        $xmlMedia->setFileExtension('xml');
+        $xmlMedia->setFileName('invoice');
+        $xmlMedia->setMimeType('application/xml');
+
+        $documentType = new DocumentTypeEntity();
+        $documentType->setId(Uuid::randomHex());
+        $documentType->setTechnicalName('invoice');
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setStatic(false);
+        $document->setOrderId(Uuid::randomHex());
+        $document->setConfig([]);
+        $document->setDocumentType($documentType);
+        $document->setDocumentMediaFileId($xmlMedia->getId());
+        $document->setDocumentMediaFile($xmlMedia);
+
+        $context = Context::createDefaultContext();
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                'document',
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                $context,
+            ),
+        ]);
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([]),
+            $this->createMock(DocumentFileRendererRegistry::class),
+            $this->createMock(MediaService::class),
+            $documentRepository,
+            $this->createMock(Connection::class),
+        );
+
+        $renderedDocument = $generator->readDocument($document->getId(), $context, '', null);
+
+        static::assertNotNull($renderedDocument);
+        static::assertSame('xml', $renderedDocument->getFileExtension());
+        static::assertSame('application/xml', $renderedDocument->getContentType());
+    }
+
     public function testPreview(): void
     {
         $operation = new DocumentGenerateOperation(

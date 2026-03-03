@@ -67,12 +67,11 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
             'type',
         ]);
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CategoryTranslationDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(CategoryTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 
-        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CategoryTagDefinition::ENTITY_NAME, [
+        $tags = $event->getPrimaryKeysWithPropertyChange(CategoryTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 

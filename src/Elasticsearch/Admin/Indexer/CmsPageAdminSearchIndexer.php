@@ -63,8 +63,7 @@ final class CmsPageAdminSearchIndexer extends AbstractAdminIndexer
             'type',
         ]);
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CmsPageTranslationDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(CmsPageTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 

@@ -59,10 +59,9 @@ final class ManufacturerAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
-        $productManufacturerIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), []);
+        $productManufacturerIds = $event->getPrimaryKeys($this->getEntity());
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductManufacturerTranslationDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(ProductManufacturerTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 

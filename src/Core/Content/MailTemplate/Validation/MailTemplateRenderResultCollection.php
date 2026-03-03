@@ -11,4 +11,9 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('after-sales')]
 class MailTemplateRenderResultCollection extends Collection
 {
+    public function jsonSerialize(): array
+    {
+        return \array_map(fn (MailTemplateRenderResult $result) => $result->jsonSerialize(), $this->elements);
+    }
+
 }

@@ -462,12 +462,15 @@ export default {
                         contentPlain: this.mailTemplate.contentPlain,
                     }, this.triggerEvent.class)
                     .then((response) => {
-                        response.contentPlain = response.contentPlain.replace(/\n/g, '<br/>');
+                        response.contentPlain.content = response.contentPlain.content.replace(/\n/g, '<br/>');
 
                         this.mailPreview = Object.entries(response)
-                            .map(([key, value]) => [this.translateTemplateField(key), value])
+                            .map(([key, value]) => {
+                                return [this.translateTemplateField(key), value]
+                            })
                             .reduce(
-                                (result, [key, value]) => `${result}<h2>${key}:</h2><br/>${value}<br/><br/><hr/><br/>`,
+                                (result, [key, value]) =>
+                                    `${result}<h2>${key}:</h2><br/>${value.content}<br/><br/><hr/><br/>`,
                                 '',
                             );
                     })

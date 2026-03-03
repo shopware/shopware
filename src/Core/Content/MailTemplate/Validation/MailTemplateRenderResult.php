@@ -18,4 +18,12 @@ abstract class MailTemplateRenderResult extends Struct
     }
 
     abstract public function getType(): string;
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'type' => $this->getType(),
+            'content' => $this->getContent(),
+        ];
+    }
 }

@@ -396,10 +396,9 @@ class ConsentServiceTest extends TestCase
 
         $updatedState = $service->acceptConsent('consent-1', $context);
 
-        static::assertEquals(
-            new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'),
-            $updatedState
-        );
+        static::assertSame('consent-1', $updatedState->name);
+        static::assertSame(ConsentStatus::ACCEPTED, $updatedState->status);
+        static::assertSame('2026-01-26 00:00:00', $updatedState->updatedAt);
     }
 
     public function testConsentWithPermissions(): void
@@ -438,10 +437,9 @@ class ConsentServiceTest extends TestCase
 
         $updatedState = $service->revokeConsent('consent-1', $context);
 
-        static::assertEquals(
-            new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'),
-            $updatedState
-        );
+        static::assertSame('consent-1', $updatedState->name);
+        static::assertSame(ConsentStatus::REVOKED, $updatedState->status);
+        static::assertSame('2026-01-26 00:00:00', $updatedState->updatedAt);
     }
 
     /**

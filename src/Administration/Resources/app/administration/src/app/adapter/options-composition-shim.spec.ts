@@ -1952,9 +1952,9 @@ describe('src/app/adapter/options-composition-shim', () => {
             });
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
-                created() {
+                async created() {
                     if (this.$nextTick) {
-                        this.$nextTick(() => {
+                        await this.$nextTick(() => {
                             nextTickResolved = true;
                         });
                     }

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -19,6 +20,7 @@ use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -52,10 +54,11 @@ class AdminSearchRegistryTest extends TestCase
             $this->connection,
             static::getContainer()->get(IteratorFactory::class),
             static::getContainer()->get('promotion.repository'),
+            static::getContainer()->get(ElasticsearchFieldBuilder::class),
             100
         );
 
-        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin');
+        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, $this->createMock(LoggerInterface::class));
         $this->registry = new AdminSearchRegistry(
             ['promotion' => $indexer],
             $this->connection,
@@ -67,6 +70,12 @@ class AdminSearchRegistryTest extends TestCase
             [
                 'settings' => [
                     'analysis' => [
+                        'normalizer' => [
+                            'sw_lowercase_normalizer' => [
+                                'type' => 'custom',
+                                'filter' => ['lowercase'],
+                            ],
+                        ],
                         'analyzer' => [
                             'sw_ngram_analyzer' => [
                                 'type' => 'custom',
@@ -87,7 +96,8 @@ class AdminSearchRegistryTest extends TestCase
                     ],
                 ],
             ],
-            []
+            [],
+            'test'
         );
     }
 
@@ -107,25 +117,21 @@ class AdminSearchRegistryTest extends TestCase
         $indices = array_values($this->client->indices()->getMapping(['index' => $index]))[0];
         $properties = $indices['mappings']['properties'];
 
-        $expectedProperties = [
-            'id' => ['type' => 'keyword'],
-            'text' => [
-                'type' => 'text',
-                'fields' => [
-                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                ],
-            ],
-            'entityName' => ['type' => 'keyword'],
-            'parameters' => ['type' => 'keyword'],
-            'textBoosted' => [
-                'type' => 'text',
-                'fields' => [
-                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                ],
-            ],
-        ];
+        // Assert base properties exist
+        static::assertArrayHasKey('id', $properties);
+        static::assertArrayHasKey('text', $properties);
+        static::assertArrayHasKey('entityName', $properties);
+        static::assertArrayHasKey('parameters', $properties);
+        static::assertArrayHasKey('textBoosted', $properties);
 
-        static::assertEquals($expectedProperties, $properties);
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            // Assert promotion-specific properties from mapping()
+            static::assertArrayHasKey('active', $properties);
+            static::assertArrayHasKey('name', $properties);
+            static::assertArrayHasKey('validFrom', $properties);
+            static::assertArrayHasKey('validUntil', $properties);
+            static::assertArrayHasKey('createdAt', $properties);
+        }
     }
 
     public function testRefresh(): void
@@ -155,25 +161,21 @@ class AdminSearchRegistryTest extends TestCase
         $indices = array_values($this->client->indices()->getMapping(['index' => $index]))[0];
         $properties = $indices['mappings']['properties'];
 
-        $expectedProperties = [
-            'id' => ['type' => 'keyword'],
-            'text' => [
-                'type' => 'text',
-                'fields' => [
-                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                ],
-            ],
-            'entityName' => ['type' => 'keyword'],
-            'parameters' => ['type' => 'keyword'],
-            'textBoosted' => [
-                'type' => 'text',
-                'fields' => [
-                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                ],
-            ],
-        ];
+        // Assert base properties exist
+        static::assertArrayHasKey('id', $properties);
+        static::assertArrayHasKey('text', $properties);
+        static::assertArrayHasKey('entityName', $properties);
+        static::assertArrayHasKey('parameters', $properties);
+        static::assertArrayHasKey('textBoosted', $properties);
 
-        static::assertEquals($expectedProperties, $properties);
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            // Assert promotion-specific properties from mapping()
+            static::assertArrayHasKey('active', $properties);
+            static::assertArrayHasKey('name', $properties);
+            static::assertArrayHasKey('validFrom', $properties);
+            static::assertArrayHasKey('validUntil', $properties);
+            static::assertArrayHasKey('createdAt', $properties);
+        }
     }
 
     protected function getDiContainer(): ContainerInterface

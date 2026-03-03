@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-import { email } from 'src/core/service/validation.service';
 import template from './sw-login-recovery.html.twig';
 
 const { Component } = Shopware;
@@ -22,6 +21,7 @@ export default Component.wrapComponentConfig({
     data() {
         return {
             email: '',
+            isEmailValid: false,
         };
     },
 
@@ -38,9 +38,9 @@ export default Component.wrapComponentConfig({
             emailField.focus();
         },
 
-        isEmailValid() {
-            return this.validationApiService.validateEmailAddress(this.email);
-            // return email(this.email);
+        async checkEmailIsValid() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            this.isEmailValid = await this.validationApiService.validateEmailAddress(this.email);
         },
 
         sendRecoveryMail() {

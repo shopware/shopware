@@ -102,14 +102,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Administration\Controller\AdminValidationController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Administration\Controller\NotificationController" public="true">
             <argument type="service" id="shopware.rate_limiter"/>
             <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>

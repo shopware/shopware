@@ -2,6 +2,10 @@ import type { AxiosInstance } from 'axios';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
+interface Email {
+    email: string;
+}
+
 /**
  * Custom gateway for validation routes
  *
@@ -11,13 +15,13 @@ import ApiService from '../api.service';
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ValidationApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'validate') {
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'validation') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'validationApiService';
     }
 
-    validateEmailAddress(email: string) {
-        const apiRoute = `/_action/${this.getApiBasePath()}/email`;
+    validateEmailAddress(email: string): Promise<boolean> {
+        const apiRoute = `/${this.getApiBasePath()}/email`;
 
         return this.httpClient
             .post(
@@ -28,8 +32,25 @@ export default class ValidationApiService extends ApiService {
             .catch(() => {
                 return Promise.resolve(false);
             })
-            .then(() => {
-                return Promise.resolve(true);
+            .then((response) => {
+                return Promise.resolve(response.data.isValid);
+            });
+    }
+
+    validateEmailAddresses(emails: Array<Email>) {
+        const apiRoute = `/${this.getApiBasePath()}/emails`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                { emails: JSON.stringify(emails) },
+                { params: {}, headers: this.getBasicHeaders() },
+            )
+            .catch(() => {
+                return Promise.resolve(false);
+            })
+            .then((response) => {
+                return Promise.resolve(ApiService.handleResponse(response));
             });
     }
 }

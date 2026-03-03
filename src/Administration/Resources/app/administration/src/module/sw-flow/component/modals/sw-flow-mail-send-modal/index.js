@@ -1,4 +1,3 @@
-import { email as emailValidation } from 'src/core/service/validation.service';
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
 
@@ -9,6 +8,7 @@ const {
     Store,
 } = Shopware;
 const { Criteria } = Shopware.Data;
+const { debounce } = Shopware.Utils;
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -20,6 +20,7 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'validationApiService',
     ],
 
     emits: [
@@ -40,6 +41,7 @@ export default {
             mailTemplateId: '',
             showRecipientEmails: false,
             mailRecipient: null,
+            recipientMailIsValid: true,
             documentTypeIds: [],
             recipients: [],
             selectedRecipient: null,
@@ -47,6 +49,8 @@ export default {
             recipientGridError: null,
             replyTo: null,
             replyToError: null,
+            isValidating: false,
+            validationDelay: null,
         };
     },
 
@@ -215,7 +219,7 @@ export default {
         },
 
         showReplyToField() {
-            return !(this.replyTo === null || this.replyTo === 'contactFormMail');
+            return this.replyToSelection === 'custom';
         },
 
         ...mapState(
@@ -241,6 +245,7 @@ export default {
 
                 this.mailRecipient = config.recipient?.type;
 
+                const recipients = {};
                 if (config.recipient?.type === 'custom') {
                     Object.entries(config.recipient.data).forEach(
                         ([
@@ -248,17 +253,28 @@ export default {
                             value,
                         ]) => {
                             const newId = Utils.createId();
-                            this.recipients.push({
+                            recipients[key] = {
                                 id: newId,
                                 email: key,
                                 name: value,
                                 isNew: false,
-                            });
+                            }
                         },
                     );
 
-                    this.addRecipient();
-                    this.showRecipientEmails = true;
+                    this.validationApiService.validateEmailAddresses(recipients).then(result => {
+                        result.forEach((validationResult) => {
+                            const recipient = recipients[validationResult.email];
+                            recipient.isMailValid = validationResult.isValid;
+                            this.handleInvalidMail(recipient);
+                            this.handleInvalidName(recipient);
+
+                            this.recipients.push(recipient);
+                        });
+
+                        this.addEmptyRecipient();
+                        this.showRecipientEmails = true;
+                    });
                 }
 
                 if (config.replyTo) {
@@ -289,6 +305,7 @@ export default {
                     [recipient.email]: recipient.name,
                 });
             });
+
             return recipientData;
         },
 
@@ -304,7 +321,7 @@ export default {
 
             const invalidItemIndex = this.recipients
                 .filter((item) => !item.isNew)
-                .findIndex((recipient) => !recipient.name || !recipient.email || !emailValidation(recipient.email));
+                .findIndex((recipient) => !recipient.name || !recipient.email || !recipient.isMailValid);
 
             if (invalidItemIndex >= 0) {
                 this.validateRecipient(this.recipients[invalidItemIndex], invalidItemIndex);
@@ -315,12 +332,8 @@ export default {
 
         onAddAction() {
             this.mailTemplateIdError = this.mailTemplateError(this.mailTemplateId);
-            if (this.showReplyToField) {
-                this.replyToError = this.setMailError(this.replyTo);
-            }
             this.recipientGridError = this.isRecipientGridError();
-
-            if (this.mailTemplateIdError || this.replyToError || this.recipientGridError) {
+            if (this.mailTemplateIdError || this.replyToError || this.recipientGridError || this.isValidating) {
                 return;
             }
 
@@ -374,13 +387,45 @@ export default {
         onChangeRecipient(recipient) {
             if (recipient === 'custom') {
                 this.showRecipientEmails = true;
-                this.addRecipient();
+                this.addEmptyRecipient();
             } else {
                 this.showRecipientEmails = false;
             }
         },
 
-        addRecipient() {
+        checkReplyToEmailIsValid(email) {
+            this.isValidating = true;
+
+            debounce(() => {
+                this.validationApiService.validateEmailAddress(email).then((isValid) => {
+                    if (isValid) {
+                        this.isValidating = false;
+                        this.replyToError = null;
+                        return;
+                    }
+
+                    this.replyToError = new ShopwareError({
+                        code: 'INVALID_MAIL',
+                    });
+
+                    this.isValidating = false;
+                });
+            }, 500)();
+        },
+
+        checkEmailIsValid(recipient) {
+            this.isValidating = true;
+
+            debounce(() => {
+                this.validationApiService.validateEmailAddress(recipient.email).then((isValid) => {
+                    const index = this.getRecipientIndex(recipient);
+                    this.recipients[index].isMailValid = isValid;
+                    this.isValidating = false;
+                });
+            }, 500)();
+        },
+
+        addEmptyRecipient() {
             const newId = Utils.createId();
 
             this.recipients.push({
@@ -397,24 +442,38 @@ export default {
         },
 
         saveRecipient(recipient) {
-            const index = this.recipients.findIndex((item) => {
-                return item.id === recipient.id;
-            });
+            if (this.isValidating) {
+                this.callErrorOnNextTick(recipient);
 
+                return;
+            }
+
+            const index = this.getRecipientIndex(recipient);
             if (this.validateRecipient(recipient, index)) {
-                this.$nextTick(() => {
-                    this.$refs.recipientsGrid.currentInlineEditId = recipient.id;
-                    this.$refs.recipientsGrid.enableInlineEdit();
-                });
+                this.callErrorOnNextTick(recipient);
+
                 return;
             }
 
             if (recipient.isNew) {
-                this.addRecipient();
+                this.addEmptyRecipient();
                 this.recipients[index].isNew = false;
             }
 
             this.resetError();
+        },
+
+        callErrorOnNextTick(recipient) {
+            this.$nextTick(() => {
+                this.$refs.recipientsGrid.currentInlineEditId = recipient.id;
+                this.$refs.recipientsGrid.enableInlineEdit();
+            });
+        },
+
+        getRecipientIndex(recipient) {
+            return this.recipients.findIndex((item) => {
+                return item.id === recipient.id;
+            });
         },
 
         cancelSaveRecipient(recipient) {
@@ -465,45 +524,44 @@ export default {
             return null;
         },
 
-        setNameError(name) {
-            const error = !name
-                ? new ShopwareError({
-                      code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                  })
-                : null;
-
-            return error;
+        handleInvalidName(recipient) {
+            if (!recipient.name) {
+                recipient.errorName =  new ShopwareError({
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                });
+            } else {
+                recipient.errorName = null;
+            }
         },
 
-        setMailError(mail) {
-            let error = null;
-
-            if (!mail) {
-                error = new ShopwareError({
+        handleInvalidMail(recipient) {
+            let isValid = true;
+            if (!recipient.email) {
+                isValid = false;
+                recipient.errorMail = new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
             }
 
-            if (!emailValidation(mail)) {
-                error = new ShopwareError({
+            if (!recipient.isMailValid) {
+                isValid = false;
+                recipient.errorMail = new ShopwareError({
                     code: 'INVALID_MAIL',
                 });
             }
 
-            return error;
+            if (isValid) {
+                recipient.errorMail = null;
+            }
         },
 
         validateRecipient(item, itemIndex) {
-            const errorName = this.setNameError(item.name);
-            const errorMail = this.setMailError(item.email);
+            this.handleInvalidName(item);
+            this.handleInvalidMail(item);
 
-            this.recipients[itemIndex] = {
-                ...item,
-                errorName,
-                errorMail,
-            };
+            this.recipients[itemIndex] = item;
 
-            return errorName || errorMail;
+            return this.recipients[itemIndex].errorName || this.recipients[itemIndex].errorMail;
         },
 
         resetError() {

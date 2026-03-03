@@ -1,7 +1,6 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-profile-index.html.twig';
 import '../../store/sw-profile.store';
@@ -25,6 +24,7 @@ export default {
         'userConfigService',
         'ssoSettingsService',
         'feature',
+        'validationApiService',
     ],
 
     mixins: [
@@ -259,25 +259,19 @@ export default {
                     return;
                 }
 
-                if (this.checkEmail() === false) {
-                    return;
-                }
+                this.validationApiService.validateEmailAddress(this.user.email).then((isValid) => {
+                    if (isValid) {
+                        const passwordCheck = this.checkPassword();
+                        if (passwordCheck === null || passwordCheck === true) {
+                            this.confirmPasswordModal = true;
+                        }
 
-                const passwordCheck = this.checkPassword();
+                        return;
+                    }
 
-                if (passwordCheck === null || passwordCheck === true) {
-                    this.confirmPasswordModal = true;
-                }
+                    this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
+                });
             });
-        },
-
-        checkEmail() {
-            if (!this.user.email || !email(this.user.email)) {
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
-
-                return false;
-            }
-            return true;
         },
 
         checkPassword() {

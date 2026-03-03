@@ -32,6 +32,7 @@
         :placeholder="$tc('sw-flow.modals.mail.placeholderReplyTo')"
         :error="replyToError"
         required
+        @input="checkReplyToEmailIsValid(replyTo)"
         @update:model-value="replyToError = null"
     />
 
@@ -70,6 +71,7 @@
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorMail"
                 :placeholder="$tc('sw-flow.modals.mail.placeholderRecipientEmailAddress')"
+                @input="checkEmailIsValid(item)"
             />
 
             <template v-else>

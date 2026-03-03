@@ -1,5 +1,3 @@
-import {response} from "express";
-
 const { types } = Shopware.Utils;
 
 /**
@@ -58,15 +56,16 @@ export function regex(value, expression) {
 /**
  * Checks if the value is a valid email address.
  *
+ * @deprecated tag:v6.8.0 - Will be removed, use ValidationApiService.validateEmailAddress instead.
+ *
  * @memberOf module:core/service/validation
  * @param value
  * @returns {boolean}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export async function email(value) {
-    // const validationApiService = Shopware.Application.getContainer('service').validationApiService;
-    //
-    // return validationApiService.validateEmailAddress(value);
+export function email(value) {
+    const emailValidation =
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-    return false;
+    return regex(value, emailValidation);
 }

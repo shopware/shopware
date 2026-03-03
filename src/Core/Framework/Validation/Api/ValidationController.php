@@ -31,7 +31,7 @@ class ValidationController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/validation/email', name: 'api.validation.email', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/validation/email', name: 'api.validation.email', defaults: ['auth_required' => false], methods: [Request::METHOD_POST])]
     public function validateEmailAddress(Request $request): JsonResponse
     {
         $emailAddress = $request->request->get(self::EMAIL_KEY_WORD);

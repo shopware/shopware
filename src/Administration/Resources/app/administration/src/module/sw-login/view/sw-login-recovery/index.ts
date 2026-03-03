@@ -29,6 +29,14 @@ export default Component.wrapComponentConfig({
         this.mountedComponent();
     },
 
+    computed: {
+        checkEmailIsValid() {
+            this.validationApiService.validateEmailAddress(this.email).then((isValid) => {
+                this.isEmailValid = isValid;
+            });
+        },
+    },
+
     methods: {
         mountedComponent() {
             // @ts-expect-error
@@ -36,11 +44,6 @@ export default Component.wrapComponentConfig({
             const emailField = this.$refs.swLoginRecoveryEmailField.$el.querySelector('input') as HTMLInputElement;
 
             emailField.focus();
-        },
-
-        async checkEmailIsValid() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            this.isEmailValid = await this.validationApiService.validateEmailAddress(this.email);
         },
 
         sendRecoveryMail() {

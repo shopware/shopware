@@ -151,6 +151,27 @@ async function createWrapper(sequence = {}) {
                     },
                 },
                 validationService: {},
+                validationApiService: {
+                    validateEmailAddress: (arg) => {
+                        if (arg.includes('invalid')) {
+                            return Promise.resolve(false);
+                        }
+
+                        return Promise.resolve(true);
+                    },
+
+                    validateEmailAddresses: (arg) => {
+                        if (!Array.isArray(arg)) {
+                            arg = Object.values(arg)
+                        }
+
+                        arg.forEach((recipients) =>  {
+                            recipients.isValid = !recipients.email.includes('invalid')
+                        });
+
+                        return Promise.resolve(arg);
+                    }
+                },
             },
         },
         props: {
@@ -555,6 +576,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         wrapper.vm.changeShowReplyToField('foobar');
         await flushPromises();
+        await wrapper.find('#sw-field--replyTo').setValue('invalid');
+        await flushPromises();
         wrapper.vm.onAddAction();
 
         expect(wrapper.vm.replyToError._code).toBe('INVALID_MAIL');
@@ -572,15 +595,11 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should validate reply to field with contact form trigger', async () => {
+        const wrapper = await createWrapper();
+
         Shopware.Store.get('swFlow').triggerEvent = {
             name: 'contact_form.send',
         };
-
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            triggerEvent: { name: 'contact_form.send' },
-        });
-        await flushPromises();
 
         wrapper.vm.onAddAction();
 
@@ -589,6 +608,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(wrapper.vm.replyToOptions).toContain(wrapper.vm.recipientContactFormMail[0]);
 
         wrapper.vm.changeShowReplyToField('foobar');
+        await flushPromises();
+        await wrapper.find('#sw-field--replyTo').setValue('invalid');
         await flushPromises();
 
         wrapper.vm.onAddAction();

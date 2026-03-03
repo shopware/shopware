@@ -23,6 +23,27 @@ async function createWrapper() {
             provide: {
                 userService: {},
                 licenseViolationService: {},
+                validationApiService: {
+                    validateEmailAddress: (arg) => {
+                        if (arg.includes('invalid')) {
+                            return Promise.resolve(false);
+                        }
+
+                        return Promise.resolve(true);
+                    },
+
+                    validateEmailAddresses: (arg) => {
+                        if (!Array.isArray(arg)) {
+                            arg = Object.values(arg)
+                        }
+
+                        arg.forEach((recipients) =>  {
+                            recipients.isValid = !recipients.email.includes('invalid')
+                        });
+
+                        return Promise.resolve(arg);
+                    }
+                },
             },
             stubs: {
                 'router-view': true,
@@ -95,5 +116,18 @@ describe('module/sw-login/recovery.spec.js', () => {
                 waitTime: 1,
             },
         });
+    });
+
+    it('button should be disabled until enter a valid email address', async () => {
+        await wrapper.get('input').setValue('invalid@email');
+        await flushPromises();
+
+        const button = await wrapper.find('.mt-button--primary');
+        expect(button.wrapperElement).toBeDisabled();
+
+        await wrapper.get('input').setValue('valid@email.sw');
+        await flushPromises();
+
+        expect(button.wrapperElement).toBeEnabled();
     });
 });

@@ -33,6 +33,7 @@ export default class ValidationApiService extends ApiService {
                 return Promise.resolve(false);
             })
             .then((response) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 return Promise.resolve(response.data.isValid);
             });
     }

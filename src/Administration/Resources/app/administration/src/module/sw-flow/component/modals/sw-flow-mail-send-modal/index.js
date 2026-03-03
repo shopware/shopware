@@ -193,6 +193,7 @@ export default {
         },
 
         replyToOptions() {
+
             if (this.triggerEvent.name === 'contact_form.send') {
                 return [
                     ...this.recipientDefault,

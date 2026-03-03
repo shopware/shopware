@@ -118,8 +118,15 @@ class HtmlSanitizer implements ResetInterface
                     $allowedElements = array_merge($allowedElements, $this->sets[$set]['tags']);
                 }
                 if (isset($this->sets[$set]['custom_tags'])) {
-                    $allowedTags = array_map(fn($customElement) => $customElement['tag'], $this->sets[$set]['custom_tags']);
+                    $allowedTags = array_map(fn ($customElement) => $customElement['tag'], $this->sets[$set]['custom_tags']);
                     $allowedElements = array_merge($allowedElements, $allowedTags);
+                    foreach ($this->sets[$set]['custom_tags'] as $custom_tag) {
+                        $allowedAttributes = array_merge($allowedAttributes, $custom_tag['attributes']);
+
+                        foreach ($custom_tag['attributes'] as $attribute) {
+                            $customAttributes[$custom_tag['tag']][] = $attribute;
+                        }
+                    }
                     $customTags = array_merge($customTags, $this->sets[$set]['custom_tags']);
                 }
                 if (isset($this->sets[$set]['attributes'])) {

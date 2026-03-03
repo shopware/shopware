@@ -225,10 +225,14 @@ class ConsentServiceTest extends TestCase
 
         $updatedState = $service->acceptConsent('consent-1', $context);
 
-        static::assertEquals(
-            new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'),
-            $updatedState
-        );
+        static::assertSame('consent-1', $updatedState->name);
+        static::assertSame('system', $updatedState->scopeName);
+        static::assertSame('system', $updatedState->identifier);
+        static::assertSame(ConsentStatus::ACCEPTED, $updatedState->status);
+        static::assertSame('user-123', $updatedState->actor);
+        static::assertSame('2026-01-26 00:00:00', $updatedState->updatedAt);
+        static::assertIsString($updatedState->acceptedUntil);
+        static::assertEqualsWithDelta((new \DateTimeImmutable())->getTimestamp(), (new \DateTimeImmutable($updatedState->acceptedUntil))->getTimestamp(), 1);
     }
 
     public function testAcceptConsentThrowsExceptionWhenConsentNotFound(): void

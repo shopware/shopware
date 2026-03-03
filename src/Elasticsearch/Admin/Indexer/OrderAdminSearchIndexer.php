@@ -86,11 +86,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             'config',
             'orderId',
         ]);
-
-        if (!empty($addresses) || !empty($orderDocuments)) {
-            $orderIds = array_merge($orderIds, $event->getPrimaryKeys($this->getEntity()));
-        }
-
+        
         $transactions = $event->getPrimaryKeysWithPropertyChange(OrderTransactionDefinition::ENTITY_NAME, [
             'stateId',
         ]);
@@ -103,8 +99,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             $orderIds = array_merge($orderIds, $event->getPrimaryKeys($this->getEntity()));
         }
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(OrderTagDefinition::ENTITY_NAME, [
+        $tags = $event->getPrimaryKeysWithPropertyChange(OrderTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 

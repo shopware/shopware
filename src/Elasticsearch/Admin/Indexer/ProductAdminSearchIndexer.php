@@ -71,25 +71,24 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'releaseDate',
         ]);
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
             'name',
             'customSearchKeywords',
         ]);
 
-        $categories = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductCategoryDefinition::ENTITY_NAME, [
+        $categories = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductCategoryDefinition::ENTITY_NAME, [
             'categoryId',
         ]) : [];
 
-        $visibilities = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
+        $visibilities = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
             'salesChannelId',
         ]) : [];
 
-        $media = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductMediaDefinition::ENTITY_NAME, [
+        $media = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductMediaDefinition::ENTITY_NAME, [
             'mediaId',
         ]) : [];
 
-        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
+        $tags = $event->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 

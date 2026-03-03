@@ -63,8 +63,7 @@ final class PropertyGroupAdminSearchIndexer extends AbstractAdminIndexer
             'filterable',
         ]);
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(PropertyGroupTranslationDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(PropertyGroupTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 

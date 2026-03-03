@@ -84,12 +84,12 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'countryId',
         ]);
 
-        if (!empty($addresses)) {
+
+        if ($addresses !== []) {
             $customerIds = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
         }
 
-        $multiplePrimaryKeyWrittenEvent = $event;
-        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CustomerTagDefinition::ENTITY_NAME, [
+        $tags = $event->getPrimaryKeysWithPropertyChange(CustomerTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 

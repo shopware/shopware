@@ -187,7 +187,7 @@ export default function createLoginService(
         const accessTokenBeforeLock = getToken();
 
         refreshPromise = new Promise<string>((resolve, reject) => {
-            void navigator.locks.request('sw-admin-token-refresh', async () => {
+            const refreshWithSynchronization = async (): Promise<void> => {
                 try {
                     // Another tab may have successfully refreshed while we waited for the lock
                     const currentAccessToken = getToken();
@@ -209,7 +209,15 @@ export default function createLoginService(
                 } catch (error) {
                     reject(error instanceof Error ? error : new Error(String(error)));
                 }
-            });
+            };
+
+            if (typeof navigator.locks?.request !== 'function') {
+                // Fallback for browsers without Web Locks API support
+                void refreshWithSynchronization();
+                return;
+            }
+
+            void navigator.locks.request('sw-admin-token-refresh', refreshWithSynchronization);
         }).finally(() => {
             refreshPromise = null;
         });

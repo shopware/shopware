@@ -79,6 +79,12 @@ Two new events are dispatched when the product slider CMS element resolves its p
 
 - `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
 - `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
+### New recurrent System Heartbeat health check
+
+Shopware now includes a recurrent `System Heartbeat` system check that runs via scheduled tasks and reports whether the instance is still alive.
+This gives operators an additional runtime signal that core infrastructure paths are functioning.
+
+Because this heartbeat depends on essential internals such as scheduled task execution and cache interaction, a missing heartbeat can also indicate a degraded system state and should be treated as an operational warning signal.
 
 ## Administration
 
@@ -93,6 +99,14 @@ Two new events are dispatched when the product slider CMS element resolves its p
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
 ## App System
+
+### New webhook event: `system.health.heartbeat`
+
+A new hookable event `system.health.heartbeat` was added to indicate that a Shopware instance is up and running.
+This gives app developers a lightweight, platform-native heartbeat signal they can use for operational monitoring or connectivity checks without relying on custom polling.
+
+The heartbeat is emitted by a recurrent system check task and intentionally throttled, so apps should treat it as a periodic liveness signal, not as a strict scheduling mechanism.
+No additional ACL privileges are required for this event.
 
 ## Hosting & Configuration
 

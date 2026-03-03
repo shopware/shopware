@@ -146,48 +146,57 @@ class CreditNoteRendererTest extends TestCase
 
         $this->addCreditItemsToOrderAfterInvoice($orderId, [-100]);
 
-        $operation = new DocumentGenerateOperation(
-            $orderId,
-            HtmlRenderer::FILE_EXTENSION,
-            [
-                'documentComment' => '<script></script>This is a credit note.',
-                'itemsPerPage' => 10,
-                'displayHeader' => true,
-                'displayFooter' => true,
-                'displayPrices' => true,
-                'displayPageCount' => true,
-                'displayLineItems' => true,
-                'displayCompanyAddress' => true,
-                'displayReturnAddress' => true,
-                'companyName' => 'Example Company',
-                'documentDate' => '2023-11-24T12:00:00+00:00',
-            ],
-            $invoiceId
-        );
+        $config = [
+            'documentComment' => '<script></script>This is a credit note.',
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
 
-        $processedTemplate = $this->creditNoteRenderer->render(
-            [$orderId => $operation],
+        $operationHtml = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, $config, $invoiceId);
+        $operationPdf = new DocumentGenerateOperation($orderId, PdfRenderer::FILE_EXTENSION, $config, $invoiceId);
+
+        $processedHtmlTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
+        $processedPdfTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operationPdf],
+            $this->context,
+            new DocumentRendererConfig()
         );
-        static::assertIsString($processedHtml);
 
-        $this->assertHtmlSnapshot(
-            'credit_note_renderer_default',
-            $processedHtml
-        );
+        $renderedPdf = $processedPdfTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedPdf);
+
+        $contentPdf = $renderedPdf->getContent();
+        static::assertIsString($contentPdf);
+
+        $this->assertSnapshot('credit_note_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+            [
+                'type' => self::TYPE_PDF,
+                'actual' => $contentPdf,
+            ],
+        ]);
     }
 
     /**

@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -141,8 +142,8 @@ class InvoiceRendererTest extends TestCase
             ],
         ], $this->context);
 
-        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
-            'documentComment' => '<script></script>This is a invoice.',
+        $config = [
+            'documentComment' => '<script></script>This is an invoice.',
             'itemsPerPage' => 10,
             'displayHeader' => true,
             'displayFooter' => true,
@@ -153,31 +154,45 @@ class InvoiceRendererTest extends TestCase
             'displayReturnAddress' => true,
             'companyName' => 'Example Company',
             'documentDate' => '2023-11-24T12:00:00+00:00',
-        ]);
+        ];
 
-        $processedTemplate = $this->invoiceRenderer->render(
-            [$orderId => $operation],
+        $operationHtml = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, $config);
+        $operationPdf = new DocumentGenerateOperation($orderId, PdfRenderer::FILE_EXTENSION, $config);
+
+        $processedHtmlTemplate = $this->invoiceRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
+        $processedPdfTemplate = $this->invoiceRenderer->render(
+            [$orderId => $operationPdf],
+            $this->context,
+            new DocumentRendererConfig()
         );
-        static::assertIsString($processedHtml);
 
-        $this->assertHtmlSnapshot(
-            'invoice_renderer_default',
-            $processedHtml
-        );
+        $renderedPdf = $processedPdfTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedPdf);
+
+        $contentPdf = $renderedPdf->getContent();
+        static::assertIsString($contentPdf);
+
+        $this->assertSnapshot('invoice_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+            [
+                'type' => self::TYPE_PDF,
+                'actual' => $contentPdf,
+            ],
+        ]);
     }
 
     /**

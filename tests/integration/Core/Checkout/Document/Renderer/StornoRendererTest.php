@@ -118,51 +118,60 @@ class StornoRendererTest extends TestCase
         static::assertNotNull($result);
         $invoiceId = $result->getId();
 
-        $operation = new DocumentGenerateOperation(
-            $orderId,
-            HtmlRenderer::FILE_EXTENSION,
-            [
-                'documentComment' => '<script></script>This is a cancellation invoice.',
-                'custom' => [
-                    'invoiceNumber' => '1001',
-                ],
-                'itemsPerPage' => 10,
-                'displayHeader' => true,
-                'displayFooter' => true,
-                'displayPrices' => true,
-                'displayPageCount' => true,
-                'displayLineItems' => true,
-                'displayCompanyAddress' => true,
-                'displayReturnAddress' => true,
-                'companyName' => 'Example Company',
-                'documentDate' => '2023-11-24T12:00:00+00:00',
+        $config = [
+            'documentComment' => '<script></script>This is a cancellation invoice.',
+            'custom' => [
+                'invoiceNumber' => '1001',
             ],
-            $invoiceId
-        );
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
 
-        $processedTemplate = $this->stornoRenderer->render(
-            [$orderId => $operation],
+        $operationHtml = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, $config, $invoiceId);
+        $operationPdf = new DocumentGenerateOperation($orderId, PdfRenderer::FILE_EXTENSION, $config, $invoiceId);
+
+        $processedHtmlTemplate = $this->stornoRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
+        $processedPdfTemplate = $this->stornoRenderer->render(
+            [$orderId => $operationPdf],
+            $this->context,
+            new DocumentRendererConfig()
         );
-        static::assertIsString($processedHtml);
 
-        $this->assertHtmlSnapshot(
-            'storno_renderer_default',
-            $processedHtml
-        );
+        $renderedPdf = $processedPdfTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedPdf);
+
+        $contentPdf = $renderedPdf->getContent();
+        static::assertIsString($contentPdf);
+
+        $this->assertSnapshot('storno_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+            [
+                'type' => self::TYPE_PDF,
+                'actual' => $contentPdf,
+            ],
+        ]);
     }
 
     /**

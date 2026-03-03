@@ -59,7 +59,6 @@ class NewsletterRecipientDefinition extends EntityDefinition
             (new StringField('city', 'city'))->setDescription('City of the recipient.'),
             (new StringField('street', 'street'))->setDescription('Street of the recipient.'),
             (new StringField('status', 'status'))->addFlags(new Required(), new Choice([
-                NewsletterSubscribeRoute::STATUS_UNDEFINED,
                 NewsletterSubscribeRoute::STATUS_NOT_SET,
                 NewsletterSubscribeRoute::STATUS_OPT_IN,
                 NewsletterSubscribeRoute::STATUS_OPT_OUT,

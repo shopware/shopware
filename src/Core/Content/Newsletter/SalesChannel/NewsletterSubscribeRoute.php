@@ -47,7 +47,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('after-sales')]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
-    final public const STATUS_UNDEFINED = 'undefined';
     final public const STATUS_NOT_SET = 'notSet';
     final public const STATUS_OPT_IN = 'optIn';
     final public const STATUS_OPT_OUT = 'optOut';

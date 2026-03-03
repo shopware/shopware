@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -488,6 +489,64 @@ class ProductDetailRouteTest extends TestCase
         static::assertSame('4', $result->getProduct()->getCmsPageId());
         static::assertSame('mainVariant', $result->getProduct()->getUniqueIdentifier());
         static::assertNull($result->getProduct()->getCmsPage());
+    }
+
+    public function testLoadAddsCmsAssociationsAndMediaSortingOnlyWhenCmsPageIsLoaded(): void
+    {
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId(Uuid::randomHex());
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('mainVariant');
+
+        $searchCall = 0;
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->with(
+                static::callback(function (Criteria $criteria) use (&$searchCall): bool {
+                    ++$searchCall;
+
+                    if ($searchCall === 1) {
+                        $sorting = $criteria->getAssociation('media')->getSorting();
+                        static::assertCount(1, $sorting);
+                        static::assertSame('position', $sorting[0]->getField());
+                        static::assertSame(FieldSorting::ASCENDING, $sorting[0]->getDirection());
+                        static::assertArrayHasKey('media', $criteria->getAssociations());
+                        static::assertArrayHasKey('manufacturer', $criteria->getAssociations());
+                    }
+
+                    if ($searchCall === 2) {
+                        static::assertArrayNotHasKey('media', $criteria->getAssociations());
+                        static::assertArrayNotHasKey('manufacturer', $criteria->getAssociations());
+                    }
+
+                    return true;
+                }),
+                $this->context
+            )
+            ->willReturnOnConsecutiveCalls(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                ),
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $request = new Request();
+        $this->route->load('1', $request, $this->context, new Criteria());
+
+        $request->query->set('skipCmsPage', true);
+        $this->route->load('1', $request, $this->context, new Criteria());
     }
 
     public function testLoadProductNotFound(): void

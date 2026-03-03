@@ -346,9 +346,55 @@ class ProductDetailRouteTest extends TestCase
         $this->assertArray($expected, $response);
     }
 
+    public function testLoadProductWithCmsPageLoadsMediaAssociationByDefault(): void
+    {
+        $this->browser->request('POST', $this->getUrl($this->ids->get('with-layout')));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertArrayHasKey('product', $response);
+        static::assertArrayHasKey('cmsPage', $response['product']);
+        static::assertNotNull($response['product']['cmsPage']);
+        static::assertArrayHasKey('media', $response['product']);
+        $media = $response['product']['media'];
+        if (!\is_array($media)) {
+            static::fail('Expected product media to be an array.');
+        }
+
+        static::assertCount(3, $media);
+        $positions = [];
+        foreach ($media as $mediaItem) {
+            if (!\is_array($mediaItem)) {
+                static::fail('Expected media item to be an array.');
+            }
+
+            /** @var array<string, mixed> $mediaItem */
+            if (!\array_key_exists('position', $mediaItem)) {
+                static::fail('Expected media item to contain position.');
+            }
+            $positions[] = $mediaItem['position'];
+        }
+        static::assertSame([1, 2, 3], $positions);
+    }
+
+    public function testLoadProductWithSkipCmsPageDoesNotLoadMediaAssociationByDefault(): void
+    {
+        $this->browser->request('POST', $this->getUrl($this->ids->get('with-layout')) . '?skipCmsPage=1');
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertArrayHasKey('product', $response);
+        static::assertArrayHasKey('cmsPage', $response['product']);
+        static::assertNull($response['product']['cmsPage']);
+        static::assertArrayHasKey('media', $response['product']);
+        static::assertNull($response['product']['media']);
+    }
+
     /**
-     * @param array<string, string> $expected
-     * @param array<string, string> $actual
+     * @param array<string, mixed> $expected
+     * @param array<string, mixed> $actual
      */
     private function assertArray(array $expected, array $actual, string $pointer = ''): void
     {

@@ -42,7 +42,8 @@
         "branch-alias": {
             "dev-main": "6.7.x-dev",
             "dev-master": "6.7.x-dev",
-            "dev-trunk": "6.7.x-dev"
+            "dev-trunk": "6.7.x-dev",
+            "dev-13362/direct-upload-presign-url": "6.7.x-dev"
         },
         "phpstan/extension-installer": {
             "ignore": [

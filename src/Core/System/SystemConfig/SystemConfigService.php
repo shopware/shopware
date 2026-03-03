@@ -190,7 +190,7 @@ class SystemConfigService implements ResetInterface
         }
 
         $merged = $this->symfonySystemConfigService->override($merged, $salesChannelId, $inherit, false);
-        $merged = array_filter($merged, static fn (string $key) => str_starts_with($key, $domain), ARRAY_FILTER_USE_KEY);
+        $merged = array_filter($merged, static fn (string $key) => str_starts_with($key, $domain), \ARRAY_FILTER_USE_KEY);
 
         $event = new SystemConfigDomainLoadedEvent($domain, $merged, $inherit, $salesChannelId);
         $this->dispatcher->dispatch($event);

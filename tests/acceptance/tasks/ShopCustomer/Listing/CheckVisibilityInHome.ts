@@ -8,7 +8,7 @@ export const CheckVisibilityInHome = base.extend<{ CheckVisibilityInHome: Task }
 
                 const productLocators = await StorefrontHome.getListingItemByProductName(productName);
 
-                await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+                await ShopCustomer.goesTo(StorefrontHome.url());
                 await ShopCustomer.expects(productLocators.productName).toBeVisible();
             }
         };

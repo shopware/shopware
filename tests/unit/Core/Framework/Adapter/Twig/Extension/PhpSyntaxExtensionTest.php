@@ -3,13 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Util\Hasher;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
 use Twig\Loader\ArrayLoader;
 
 /**
@@ -88,18 +91,77 @@ class PhpSyntaxExtensionTest extends TestCase
         static::assertSame($expected, $result, 'Failure in php syntax support in twig rendering');
     }
 
-    public function testSha256Filter(): void
+    #[DataProvider('sha256FilterProvider')]
+    public function testSha256Filter(mixed $input, string $expected): void
     {
-        $environment = new Environment(new ArrayLoader());
+        $environment = new Environment(new ArrayLoader([
+            'test_template' => '{{ value|sha256 }}',
+        ]));
         $environment->addExtension(new PhpSyntaxExtension());
-        $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
 
-        $result = $renderer->render(
-            '{{ email|sha256 }}',
-            ['email' => 'test@example.com'],
-            Context::createDefaultContext()
+        $result = $environment->render('test_template', ['value' => $input]);
+
+        static::assertSame($expected, $result);
+    }
+
+    /**
+     * @return iterable<string, array{input: mixed, expected: string}>
+     */
+    public static function sha256FilterProvider(): iterable
+    {
+        yield 'string input' => [
+            'input' => 'test@example.com',
+            'expected' => Hasher::hash('test@example.com', 'sha256'),
+        ];
+
+        yield 'array input gets json encoded' => [
+            'input' => ['foo' => 'bar', 'baz' => 123],
+            'expected' => Hasher::hash(json_encode(['foo' => 'bar', 'baz' => 123], \JSON_THROW_ON_ERROR), 'sha256'),
+        ];
+
+        yield 'simple array' => [
+            'input' => ['a', 'b', 'c'],
+            'expected' => Hasher::hash(json_encode(['a', 'b', 'c'], \JSON_THROW_ON_ERROR), 'sha256'),
+        ];
+
+        yield 'nested array' => [
+            'input' => ['nested' => ['key' => 'value']],
+            'expected' => Hasher::hash(json_encode(['nested' => ['key' => 'value']], \JSON_THROW_ON_ERROR), 'sha256'),
+        ];
+
+        yield 'empty string' => [
+            'input' => '',
+            'expected' => Hasher::hash('', 'sha256'),
+        ];
+
+        yield 'numeric string' => [
+            'input' => '12345',
+            'expected' => Hasher::hash('12345', 'sha256'),
+        ];
+    }
+
+    public function testSha256FilterThrowsExceptionForInvalidType(): void
+    {
+        $environment = new Environment(new ArrayLoader([
+            'test' => '{{ value|sha256 }}',
+        ]));
+        $environment->addExtension(new PhpSyntaxExtension());
+
+        $invalidObject = new \stdClass();
+
+        $this->expectExceptionObject(
+            AdapterException::invalidArgument(
+                \sprintf('The sha256 filter expects a string or array as input, %s given', $invalidObject::class)
+            )
         );
 
-        static::assertSame(Hasher::hash('test@example.com', 'sha256'), $result);
+        try {
+            $environment->render('test', ['value' => $invalidObject]);
+        } catch (RuntimeError $e) {
+            $previous = $e->getPrevious();
+            static::assertNotNull($previous);
+
+            throw $previous;
+        }
     }
 }

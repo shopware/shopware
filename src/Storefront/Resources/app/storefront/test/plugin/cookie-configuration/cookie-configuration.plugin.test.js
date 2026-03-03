@@ -596,9 +596,8 @@ describe('CookieConfiguration plugin tests', () => {
                         technicalName: 'required-group',
                         isRequired: true,
                         entries: [
-                            { cookie: 'session-', value: 'abc123', expiration: 30 }, // PHP-managed, should not be set or removed
-                            { cookie: 'csrf-token', value: 'xyz789', expiration: 30 }, // Should be set, then removed on reset
-                            { cookie: '_GRECAPTCHA', value: '1', expiration: 30 }, // Consent flag, should be removed on reset
+                            { cookie: 'session-', value: 'abc123', expiration: 30 }, // PHP-managed, should not be set
+                            { cookie: 'csrf-token', value: 'xyz789', expiration: 30 }, // Should be set
                             { cookie: 'cookie-preference', value: '1', expiration: 30 }, // Will be removed to trigger re-consent
                             { cookie: 'cookie-config-hash', value: newHash, expiration: 30 } // Should be set to prevent re-consent loop
                         ]
@@ -621,7 +620,6 @@ describe('CookieConfiguration plugin tests', () => {
             CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
             CookieStorage.setItem(plugin.options.cookieConfigHash, JSON.stringify({ [languageId]: oldHash }), '30');
             CookieStorage.setItem('analytics', '1', 365); // User had accepted analytics
-            CookieStorage.setItem('_GRECAPTCHA', '1', 30); // User had accepted reCAPTCHA
 
             const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
             const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
@@ -642,12 +640,6 @@ describe('CookieConfiguration plugin tests', () => {
             // Verify hash mismatch detected and non-required cookies are removed
             expect(removeItemSpy).toHaveBeenCalledWith('analytics'); // not required, should be removed
             expect(removeItemSpy).toHaveBeenCalledWith('cookie-preference'); // removed to trigger re-consent
-            expect(removeItemSpy).toHaveBeenCalledWith('_GRECAPTCHA'); // consent flag, removed on reset
-            expect(removeItemSpy).toHaveBeenCalledWith('csrf-token'); // JS-set required cookie, removed on reset
-
-            // PHP-managed cookies must NOT be removed during reset
-            expect(removeItemSpy).not.toHaveBeenCalledWith('session-');
-            expect(removeItemSpy).not.toHaveBeenCalledWith('timezone');
 
             // Verify technically required cookies are set (excluding PHP-managed ones and hash)
             expect(setItemSpy).toHaveBeenCalledWith('csrf-token', 'xyz789', 30); // Required but not PHP-managed

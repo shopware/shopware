@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Exception\ThemeException;
@@ -180,86 +179,32 @@ class ThemeFileResolver
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
 
-            // 1. Handle bundle-relative single file references (@BundleName/path/to/file)
-            // Special case: Check for @Components:BundleName/path syntax first
-            $componentBundleNamespace = null;
-            $processedFilepath = $filepath;
-            if (str_starts_with($filepath, '@Components:')) {
-                // Extract bundle namespace from @Components:BundleName/path
-                $colonPos = strpos($filepath, ':');
-                if ($colonPos !== false) {
-                    $slashPos = strpos($filepath, '/', $colonPos);
-                    if ($slashPos !== false) {
-                        $componentBundleNamespace = substr($filepath, $colonPos + 1, $slashPos - $colonPos - 1);
-                        // Convert to @Components/path format for parseBundleRelativePath
-                        $processedFilepath = '@Components' . substr($filepath, $slashPos);
-                    }
-                }
-            }
-
-            $bundleRelative = $this->parseBundleRelativePath($processedFilepath);
+            // Handle bundle-relative single file references (@BundleName/path/to/file)
+            $bundleRelative = $this->parseBundleRelativePath($filepath);
             if ($bundleRelative !== null) {
-                // Special handling for @Components/ComponentName/file.ext
-                if ($bundleRelative['bundle'] === 'Components') {
+                // Handle @Components single file references
+                if (str_starts_with($bundleRelative['bundle'], 'Components')) {
+                    $resolvedComponentFile = $this->resolveComponentSingleFile($filepath, $fileType);
 
-                    // Parse component path (e.g., "Sw/Alert/index.scss")
-                    $requestedPath = $bundleRelative['path'];
-
-                    // Find the matching component by checking if any component's style/script path ends with the requested path
-                    $componentFound = false;
-                    foreach ($this->twigComponentHelper->getComponents() as $component) {
-                        // If bundle namespace is specified, filter by it
-                        if ($componentBundleNamespace !== null && $component->getNamespace() !== $componentBundleNamespace) {
-                            continue;
-                        }
-
-                        $componentPath = null;
-
-                        // Get the appropriate path based on file type
-                        if ($fileType === self::SCRIPT_FILES) {
-                            $componentPath = $component->getScriptPath();
-                        } elseif ($fileType === self::STYLE_FILES) {
-                            $componentPath = $component->getStylePath();
-                        }
-
-                        // Check if this component's path matches the requested path
-                        if ($componentPath !== null && str_contains($componentPath, $requestedPath)) {
-                            // Verify the match is at the end of the path (to avoid partial matches)
-                            $normalizedComponentPath = str_replace('\\', '/', $componentPath);
-                            $normalizedRequestedPath = str_replace('\\', '/', $requestedPath);
-
-                            if (str_ends_with($normalizedComponentPath, $normalizedRequestedPath)) {
-                                if (!isset($processedFiles[$componentPath])) {
-                                    $processedFiles[$componentPath] = true;
-                                    $namespaceDir = $component->getRelativeNamespaceDirectory();
-                                    $assetName = $namespaceDir !== '' ? $namespaceDir : null;
-                                    $resolvedFiles->add(new File($componentPath, [], $assetName));
-                                    $componentFound = true;
-
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (!$componentFound) {
-                        $errorReference = $componentBundleNamespace !== null
-                            ? '@Components:' . $componentBundleNamespace
-                            : '@Components';
+                    if ($resolvedComponentFile === null) {
                         throw ThemeException::themeCompileException(
                             $themeConfig->getTechnicalName(),
                             \sprintf(
-                                'Unable to load file "@%s/%s". File does not exist.',
-                                $errorReference,
-                                $bundleRelative['path']
+                                'Unable to resolve file "%s". File does not exist.',
+                                $filepath
                             )
                         );
+                    }
+
+                    if (!isset($processedFiles[$resolvedComponentFile->getFilepath()])) {
+                        $processedFiles[$resolvedComponentFile->getFilepath()] = true;
+                        $resolvedFiles->add($resolvedComponentFile);
                     }
 
                     continue;
                 }
 
-                // Handle regular bundle-relative paths
+                // Handle regular bundle-relative files
                 $bundleConfig = $configurationCollection->getByTechnicalName($bundleRelative['bundle']);
                 if (!$bundleConfig) {
                     throw ThemeException::couldNotFindThemeByName($bundleRelative['bundle']);
@@ -280,16 +225,15 @@ class ThemeFileResolver
                     throw ThemeException::themeCompileException(
                         $themeConfig->getTechnicalName(),
                         \sprintf(
-                            'Unable to load file "@%s/%s". File does not exist.',
-                            $bundleRelative['bundle'],
-                            $bundleRelative['path']
+                            'Unable to resolve file "%s". File does not exist.',
+                            $filepath
                         )
                     );
                 }
                 continue;
             }
 
-            // 2. Handle direct file paths (not starting with @)
+            // Handle direct file paths (not starting with @)
             if (!$this->isInclude($filepath)) {
                 if (\is_file($filepath)) {
                     // Skip if already processed
@@ -308,14 +252,14 @@ class ThemeFileResolver
                 throw ThemeException::themeCompileException(
                     $themeConfig->getTechnicalName(),
                     \sprintf(
-                        'Unable to load file "Resources/%s". %s',
+                        'Unable to resolve file "Resources/%s". %s',
                         $filepath,
                         'Did you forget to build the theme? Try running ./bin/build-storefront.sh'
                     )
                 );
             }
 
-            // 3. Handle full bundle/namespace references (@BundleName, @Plugins, @Components, etc.)
+            // Handle full bundle/namespace references (@BundleName, @Plugins, @Components, etc.)
 
             // Skip if this namespace was already included (maintain existing behavior)
             if (\in_array($filepath, $included, true)) {
@@ -403,6 +347,58 @@ class ThemeFileResolver
         }
 
         return $resolvedFiles;
+    }
+
+    private function resolveComponentSingleFile($filepath, $fileType): ?File
+    {
+        $processedFilepath = $filepath;
+        $componentBundleNamespace = null;
+        $resolvedFile = null;
+
+        // Extract bundle for specific bundle namespace reference like "@Components:BundleName/path"
+        if (str_starts_with($filepath, '@Components:')) {
+            $colonPos = strpos($filepath, ':');
+            if ($colonPos !== false) {
+                $slashPos = strpos($filepath, '/', $colonPos);
+                if ($slashPos !== false) {
+                    $componentBundleNamespace = substr($filepath, $colonPos + 1, $slashPos - $colonPos - 1);
+                    // Convert to @Components/path format for parseBundleRelativePath
+                    $processedFilepath = '@Components' . substr($filepath, $slashPos);
+                }
+            }
+        }
+
+        $relative = $this->parseBundleRelativePath($processedFilepath);
+        $requestedRelativePath = $relative['path'] ?? null;
+
+        if ($requestedRelativePath !== null) {
+            foreach ($this->twigComponentHelper->getComponents() as $component) {
+                // If bundle namespace is specified, filter by it
+                if ($componentBundleNamespace !== null && $component->getNamespace() !== $componentBundleNamespace) {
+                    continue;
+                }
+
+                $componentFilePath = null;
+
+                // Get the appropriate path based on file type
+                if ($fileType === self::SCRIPT_FILES) {
+                    $componentFilePath = $component->getScriptPath();
+                } elseif ($fileType === self::STYLE_FILES) {
+                    $componentFilePath = $component->getStylePath();
+                }
+
+                $bundleRelativeComponentPath = $component->getNamespace() . '/Resources/views/components/' . $requestedRelativePath;
+
+                if ($componentFilePath !== null && str_ends_with($componentFilePath, $bundleRelativeComponentPath)) {
+                    $namespaceDir = $component->getRelativeNamespaceDirectory();
+                    $assetName = $namespaceDir !== '' ? $namespaceDir : null;
+                    $resolvedFile = new File($componentFilePath, [], $assetName);
+                    break;
+                }
+            }
+        }
+
+        return $resolvedFile;
     }
 
     private function isInclude(string $file): bool

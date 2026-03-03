@@ -263,6 +263,80 @@ class TwigComponentHelperTest extends TestCase
         static::assertNull($component->getMetadata());
     }
 
+    /**
+     * Regression test: an app whose component lives in a subdirectory
+     */
+    public function testGetComponentsFromAppInSubdirectoryHasCorrectComponentName(): void
+    {
+        $appRelPath = 'TestApp';
+        $componentDir = $this->tempDir . '/' . $appRelPath . '/Resources/views/storefront/components';
+        $customDir = $componentDir . '/Custom';
+        mkdir($customDir, 0777, true);
+        file_put_contents($customDir . '/Test.html.twig', '<div>Test</div>');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['namespace' => 'TestApp', 'appPath' => $appRelPath],
+        ]);
+
+        $helper = new TwigComponentHelper(
+            'Resources/views/storefront/components',
+            $this->tempDir,
+            [],
+            $this->createMock(NamespaceHierarchyBuilder::class),
+            $this->createComponentFactory(),
+            $connection
+        );
+
+        $components = $helper->getComponents();
+
+        static::assertCount(1, $components);
+
+        // Name must include the 'Custom' subdirectory segment.
+        static::assertTrue($components->has('TestApp:Custom:Test'), 'Component should be named "Custom:Test", not just "Test"');
+        static::assertFalse($components->has('TestApp:Test'), 'Component must not be named without its subdirectory');
+
+        $component = $components->get('TestApp:Custom:Test');
+        static::assertSame('Custom:Test', $component->getName());
+        static::assertSame('TestApp', $component->getNamespace());
+
+        // getRelativeNamespaceDirectory() must include 'Custom' subdirectory
+        static::assertSame('TestApp/Custom', $component->getRelativeNamespaceDirectory());
+    }
+
+    public function testGetComponentsFromAppWithMultipleTemplatesRegistersRootDirOnce(): void
+    {
+        // Two templates in different subdirectories from the same app should both
+        // be found when the root components/ dir is used as the Finder base.
+        $appRelPath = 'MultiTemplateApp';
+        $componentDir = $this->tempDir . '/' . $appRelPath . '/Resources/views/storefront/components';
+        mkdir($componentDir . '/Custom', 0777, true);
+        mkdir($componentDir . '/Other', 0777, true);
+        file_put_contents($componentDir . '/Custom/Test.html.twig', '<div>Test</div>');
+        file_put_contents($componentDir . '/Other/Widget.html.twig', '<div>Widget</div>');
+
+        $connection = $this->createMock(Connection::class);
+        // DISTINCT in the query means both templates produce one row per app.
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['namespace' => 'MultiTemplateApp', 'appPath' => $appRelPath],
+        ]);
+
+        $helper = new TwigComponentHelper(
+            'Resources/views/storefront/components',
+            $this->tempDir,
+            [],
+            $this->createMock(NamespaceHierarchyBuilder::class),
+            $this->createComponentFactory(),
+            $connection
+        );
+
+        $components = $helper->getComponents();
+
+        static::assertCount(2, $components);
+        static::assertTrue($components->has('MultiTemplateApp:Custom:Test'));
+        static::assertTrue($components->has('MultiTemplateApp:Other:Widget'));
+    }
+
     public function testGetComponentFromTemplate(): void
     {
         $templatePath = $this->tempDir . '/Button.html.twig';

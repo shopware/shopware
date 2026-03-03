@@ -10,6 +10,9 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\UX\TwigComponent\ComponentFactory;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class TwigComponentHelper
 {
@@ -145,9 +148,8 @@ class TwigComponentHelper
     {
         $dirs = [];
 
-        $templates = $this->connection->fetchAllAssociative('
-            SELECT
-                `app_template`.`path` AS `path`,
+        $apps = $this->connection->fetchAllAssociative('
+            SELECT DISTINCT
                 `app`.`name` AS `namespace`,
                 `app`.`path` AS `appPath`
             FROM `app_template`
@@ -156,49 +158,18 @@ class TwigComponentHelper
             AND `app_template`.`path` LIKE "%components/%"
         ');
 
-        foreach ($templates as $template) {
-            $appPath = $this->getAbsoluteAppPath($template['appPath']);
-            $componentDir = $this->getComponentAppDir($appPath, $template['path']);
+        foreach ($apps as $app) {
+            $absoluteAppPath = Path::join($this->projectDir, $app['appPath']);
+            $componentDir = Path::join($absoluteAppPath, $this->componentDirectory);
 
-            if ($componentDir === null) {
+            if (!is_dir($componentDir)) {
                 continue;
             }
 
-            $dirs[$componentDir] = $template['namespace'];
+            $dirs[$componentDir] = $app['namespace'];
         }
 
         return $dirs;
-    }
-
-    private function getAbsoluteAppPath(string $appPath): ?string
-    {
-        $absolutePath = Path::join($this->projectDir, $appPath);
-
-        if (!is_dir($absolutePath)) {
-            return null;
-        }
-
-        return $absolutePath;
-    }
-
-    private function getComponentAppDir(?string $appPath, string $templatePath): ?string
-    {
-        if ($appPath === null) {
-            return null;
-        }
-
-        $path = $this->getComponentAppPath($appPath, $templatePath);
-
-        return Path::getDirectory($path);
-    }
-
-    private function getComponentAppPath(string $appPath, string $templatePath): string
-    {
-        if (str_starts_with($templatePath, 'components/')) {
-            $templatePath = str_replace('components/', '', $templatePath);
-        }
-
-        return Path::join($appPath, $this->componentDirectory, $templatePath);
     }
 
     private function getComponentNameFromPath(string $templateRelativePath): string

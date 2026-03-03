@@ -337,7 +337,9 @@ export default function createLoginService(
                 return;
             }
 
-            void refreshToken();
+            void refreshToken().catch(() => {
+                // Errors are handled by retryRefreshWithBackoff and token refresh subscribers.
+            });
         }, delayMs);
     }
 

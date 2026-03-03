@@ -592,16 +592,10 @@ class ThemeFileResolverTest extends TestCase
             $kernel
         );
 
-        // Create a test component with anonymous class extending TwigComponent
-        $testComponent = new class('/path/to/components/Sw/Alert/index.html.twig', 'Sw:Alert', 'Storefront') extends TwigComponent {
+        $testComponent = new class('Sw:Alert', '/base/Storefront/Resources/views/components/Sw/Alert/index.html.twig', 'Storefront') extends TwigComponent {
             public function getStylePath(): string
             {
-                return '/path/to/components/Sw/Alert/index.scss';
-            }
-
-            public function getRelativeNamespaceDirectory(): string
-            {
-                return 'Sw/Alert';
+                return '/base/Storefront/Resources/views/components/Sw/Alert/index.scss';
             }
         };
 
@@ -620,6 +614,60 @@ class ThemeFileResolverTest extends TestCase
         static::assertCount(1, $result);
         $resolvedPath = $result->first()?->getFilepath();
         static::assertStringContainsString('Sw/Alert/index.scss', (string) $resolvedPath);
+    }
+
+    /**
+     * Regression test: @Components:MyPlugin/Custom/Test.scss should resolve
+     * to a file whose assetName is 'MyPlugin/Custom' (not just 'MyPlugin').
+     */
+    public function testNamespacedComponentReferenceSubdirectoryUsesCorrectAssetName(): void
+    {
+        $themePluginBundle = new ThemeWithNamespacedComponentReference();
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver,
+            new Filesystem(),
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
+            'ThemeWithNamespacedComponentReference' => $themePluginBundle,
+        ]);
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithNamespacedComponentReference', $themePluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver($sourceResolver, $kernel);
+
+        $component = new class('Custom:Test', '/plugin/MyPlugin/Resources/views/components/Custom/Test/index.html.twig', 'MyPlugin') extends TwigComponent {
+            public function getStylePath(): string
+            {
+                return '/plugin/MyPlugin/Resources/views/components/Custom/Test/index.scss';
+            }
+        };
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->expects($this->any())
+            ->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
+
+        $result = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))
+            ->resolveStyleFiles($config, $configCollection, false);
+
+        static::assertCount(1, $result);
+        $resolvedFile = $result->first();
+        static::assertNotNull($resolvedFile);
+        static::assertStringContainsString('Custom/Test/index.scss', $resolvedFile->getFilepath());
+
+        // assetName must include the 'Custom' subdirectory
+        static::assertSame('MyPlugin/Custom', $resolvedFile->assetName);
     }
 
     public function testComponentSingleFileReferenceWithBundleNamespace(): void
@@ -652,33 +700,20 @@ class ThemeFileResolverTest extends TestCase
             $kernel
         );
 
-        // Create two test components with the same path but different namespaces
-        $componentStorefront = new class('/path/to/components/Custom/Test/index.html.twig', 'Custom:Test', 'Storefront') extends TwigComponent {
+        // Two components in the same relative path but different namespaces.
+        // Paths must end with {namespace}/Resources/views/components/{requestedPath}
+        // for resolveComponentSingleFile()'s str_ends_with() check to match.
+        $componentStorefront = new class('Custom:Test', '/base/Storefront/Resources/views/components/Custom/Test/index.html.twig', 'Storefront') extends TwigComponent {
             public function getStylePath(): string
             {
-                return '/path/to/components/Custom/Test/index.scss';
-            }
-
-            public function getRelativeNamespaceDirectory(): string
-            {
-                return 'Custom/Test';
+                return '/base/Storefront/Resources/views/components/Custom/Test/index.scss';
             }
         };
 
-        $componentPlugin = new class('/path/to/plugin/components/Custom/Test/index.html.twig', 'Custom:Test', 'MyPlugin') extends TwigComponent {
+        $componentPlugin = new class('Custom:Test', '/base/MyPlugin/Resources/views/components/Custom/Test/index.html.twig', 'MyPlugin') extends TwigComponent {
             public function getStylePath(): string
             {
-                return '/path/to/plugin/components/Custom/Test/index.scss';
-            }
-
-            public function getRelativeNamespaceDirectory(): string
-            {
-                return 'Custom/Test';
-            }
-
-            public function getNamespace(): string
-            {
-                return 'MyPlugin';
+                return '/base/MyPlugin/Resources/views/components/Custom/Test/index.scss';
             }
         };
 
@@ -696,10 +731,10 @@ class ThemeFileResolverTest extends TestCase
 
         $result = $resolver->resolveStyleFiles($config, $configCollection, false);
 
-        // Verify that only the plugin component was resolved (not the Storefront one)
+        // Verify that only the MyPlugin component was resolved (not the Storefront one)
         static::assertCount(1, $result);
         $resolvedPath = $result->first()?->getFilepath();
-        static::assertStringContainsString('/plugin/components/Custom/Test/index.scss', (string) $resolvedPath);
-        static::assertStringNotContainsString('/path/to/components/Custom/Test/index.scss', (string) $resolvedPath);
+        static::assertStringContainsString('/MyPlugin/Resources/views/components/Custom/Test/index.scss', (string) $resolvedPath);
+        static::assertStringNotContainsString('/Storefront/Resources/views/components/', (string) $resolvedPath);
     }
 }

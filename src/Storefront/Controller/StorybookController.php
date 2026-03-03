@@ -21,6 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,6 +33,9 @@ use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class StorybookController extends AbstractController
 {
@@ -72,6 +76,7 @@ class StorybookController extends AbstractController
         private readonly EntityRepository $salesChannelRepository,
         private readonly DatabaseSalesChannelThemeLoader $themeLoader,
         private readonly ThemeRuntimeConfigStorage $themeRuntimeConfigStorage,
+        private readonly TwigComponentHelper $twigComponentHelper,
     ) {
     }
 
@@ -96,6 +101,12 @@ class StorybookController extends AbstractController
             throw new NotFoundHttpException('Route not found');
         }
 
+        // Validate component name against the registered components
+        $registeredComponents = $this->twigComponentHelper->getComponents();
+        if ($registeredComponents->get($component) === null) {
+            throw new NotFoundHttpException('Component not found');
+        }
+
         // Build SalesChannelContext
         $salesChannel = $this->getFirstAvailableSalesChannel();
         $salesChannelId = $salesChannel->getId();
@@ -114,12 +125,15 @@ class StorybookController extends AbstractController
             $properties = $this->getPropertiesFromStoryParameters($request, $context);
 
             // Resolve properties that reference entities.
-            $data = $this->resolveEntityProperties($properties, $context);
+            $componentProps = $this->resolveEntityProperties($properties, $context);
 
-            $templateString = self::BASE_TEMPLATE . '{{ component("' . $component . '", ' . $this->convertPropertiesToTwig($properties) . ') }}';
+            $templateString = self::BASE_TEMPLATE . '{{ component(componentName, componentProps) }}';
             $template = $this->twig->createTemplate($templateString);
 
-            $content = $this->twig->render($template, $data);
+            $content = $this->twig->render($template, [
+                'componentName' => $component,
+                'componentProps' => $componentProps,
+            ]);
 
             $response = new Response($content);
         } catch (RuntimeError|SyntaxError $e) {
@@ -143,12 +157,20 @@ class StorybookController extends AbstractController
         $queryParams = $request->query->all();
 
         foreach ($queryParams as $key => $value) {
-            if (!\in_array($key, self::PARAMETER_DENY_LIST, true)) {
-                if (\in_array($key, self::ENTITY_PROPERTY_LIST, true)) {
-                    $parameters[$key] = $key;
-                } else {
-                    $parameters[$key] = $value;
-                }
+            // Reject keys that are not valid PHP/Twig identifiers
+            if (!\is_string($key) || !preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $key)) {
+                continue;
+            }
+
+            if (\in_array($key, self::PARAMETER_DENY_LIST, true)) {
+                continue;
+            }
+
+            if (\in_array($key, self::ENTITY_PROPERTY_LIST, true)) {
+                // Store the key as a sentinel so resolveEntityProperties knows to fetch this entity.
+                $parameters[$key] = $key;
+            } else {
+                $parameters[$key] = $value;
             }
         }
 
@@ -156,46 +178,26 @@ class StorybookController extends AbstractController
     }
 
     /**
-     * @param array<string, mixed> $properties
-     */
-    private function convertPropertiesToTwig(array $properties): string
-    {
-        $parameters = '';
-
-        foreach ($properties as $key => $value) {
-            if (\in_array($key, self::ENTITY_PROPERTY_LIST, true)) {
-                $parameters .= $key . ': ' . $key . ', ';
-            } elseif ($value === 'true' || $value === 'false') {
-                $parameters .= $key . ': ' . $value . ', ';
-            } else {
-                $parameters .= $key . ': \'' . $value . '\', ';
-            }
-        }
-
-        return '{ ' . $parameters . '}';
-    }
-
-    /**
+     * Returns the full props array, with entity sentinel values replaced by their resolved
+     * entities and all other values forwarded unchanged.
+     *
      * @param array<string, mixed> $properties
      *
      * @return array<string, mixed>
      */
     private function resolveEntityProperties(array $properties, SalesChannelContext $context): array
     {
-        $data = [];
+        $resolved = [];
 
-        foreach ($properties as $value) {
-            switch ($value) {
-                case 'product':
-                    $data[$value] = $this->resolveProductProperty($context);
-                    break;
-                case 'media':
-                    $data[$value] = $this->resolveMediaProperty($context);
-                    break;
-            }
+        foreach ($properties as $key => $value) {
+            $resolved[$key] = match ($value) {
+                'product' => $this->resolveProductProperty($context),
+                'media' => $this->resolveMediaProperty($context),
+                default => $value,
+            };
         }
 
-        return $data;
+        return $resolved;
     }
 
     private function resolveProductProperty(SalesChannelContext $context): ?SalesChannelProductEntity

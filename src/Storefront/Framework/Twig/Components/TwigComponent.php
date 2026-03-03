@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Filesystem\Path;
 use Symfony\UX\TwigComponent\ComponentMetadata;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class TwigComponent extends Struct
 {

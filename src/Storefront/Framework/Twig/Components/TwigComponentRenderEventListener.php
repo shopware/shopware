@@ -9,6 +9,9 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\UX\TwigComponent\ComponentAttributes;
 use Symfony\UX\TwigComponent\Event\PreRenderEvent;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 #[AsEventListener]
 class TwigComponentRenderEventListener

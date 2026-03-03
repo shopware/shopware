@@ -83,7 +83,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage('No collection allowed date found. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete');
+        static::expectExceptionMessage('The consent was never accepted. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete');
         $handler(new IterateEntityMessage('test-entity', Operation::DELETE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
 
         $dispatchedMessages = $messageBus->getMessages();

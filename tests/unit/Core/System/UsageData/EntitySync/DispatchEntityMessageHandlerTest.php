@@ -139,7 +139,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('No collection allowed date found. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        static::expectExceptionMessage(\sprintf('The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,

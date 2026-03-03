@@ -82,7 +82,7 @@ WHERE custom_field_set_relation.entity_name = :entity
     }
 
     /**
-     * @param array<string, string> $record
+     * @param array<string, mixed> $record
      *
      * @throws \JsonException
      *
@@ -90,10 +90,10 @@ WHERE custom_field_set_relation.entity_name = :entity
      */
     public static function parseJson(array $record, string $field): array
     {
-        if (!\array_key_exists($field, $record)) {
+        if (!\array_key_exists($field, $record) || !\is_string($record[$field])) {
             return [];
         }
 
-        return json_decode($record[$field] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode($record[$field], true, 512, \JSON_THROW_ON_ERROR);
     }
 }

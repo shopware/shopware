@@ -84,7 +84,6 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'countryId',
         ]);
 
-
         if ($addresses !== []) {
             $customerIds = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
         }
@@ -121,6 +120,7 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'salutationId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'boundSalesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'requestedGroupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'defaultPaymentMethodId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'defaultBillingAddress' => ElasticsearchFieldBuilder::nested([
                 'countryId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ]),
@@ -179,6 +179,7 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
                    LOWER(HEX(customer.salutation_id)) AS salutationId,
                    LOWER(HEX(customer.bound_sales_channel_id)) AS boundSalesChannelId,
                    LOWER(HEX(customer.requested_customer_group_id)) AS requestedGroupId,
+                   LOWER(HEX(customer.default_payment_method_id)) AS defaultPaymentMethodId,
                    LOWER(HEX(customer.default_billing_address_id)) AS defaultBillingAddressId,
                    LOWER(HEX(default_billing_address.country_id)) AS defaultBillingAddressCountryId,
                    LOWER(HEX(customer.default_shipping_address_id)) AS defaultShippingAddressId,
@@ -278,6 +279,7 @@ SQL,
                 'salutationId' => $row['salutationId'] ?? null,
                 'boundSalesChannelId' => $row['boundSalesChannelId'] ?? null,
                 'requestedGroupId' => $row['requestedGroupId'] ?? null,
+                'defaultPaymentMethodId' => $row['defaultPaymentMethodId'] ?? null,
                 'defaultBillingAddress' => $this->parseAddress($row, 'defaultBillingAddressId', 'defaultBillingAddressCountryId'),
                 'defaultShippingAddress' => $this->parseAddress($row, 'defaultShippingAddressId', 'defaultShippingAddressCountryId'),
                 'tags' => $this->parseTagIds($row),

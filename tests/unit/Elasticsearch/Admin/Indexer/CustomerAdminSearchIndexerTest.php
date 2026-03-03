@@ -144,6 +144,7 @@ class CustomerAdminSearchIndexerTest extends TestCase
         static::assertSame('firstname', $document['firstName']);
         static::assertSame('lastname', $document['lastName']);
         static::assertSame('12345', $document['customerNumber']);
+        static::assertSame('ff11223344556677889900aabbccddee', $document['defaultPaymentMethodId']);
         static::assertIsArray($document['defaultBillingAddress']);
         static::assertSame('bb11223344556677889900aabbccddee', $document['defaultBillingAddress']['id']);
         static::assertSame('cc11223344556677889900aabbccddee', $document['defaultBillingAddress']['countryId']);
@@ -185,6 +186,7 @@ class CustomerAdminSearchIndexerTest extends TestCase
                     'salutationId' => null,
                     'boundSalesChannelId' => null,
                     'requestedGroupId' => null,
+                    'defaultPaymentMethodId' => 'ff11223344556677889900aabbccddee',
                     'defaultBillingAddressId' => 'bb11223344556677889900aabbccddee',
                     'defaultBillingAddressCountryId' => 'cc11223344556677889900aabbccddee',
                     'defaultShippingAddressId' => 'dd11223344556677889900aabbccddee',

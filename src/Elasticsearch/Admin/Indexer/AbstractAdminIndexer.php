@@ -46,7 +46,7 @@ abstract class AbstractAdminIndexer
      */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
-        return $event->getPrimaryKeys($this->getEntity());
+        return array_values(array_filter($event->getPrimaryKeys($this->getEntity()), '\is_string'));
     }
 
     /**

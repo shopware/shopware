@@ -86,7 +86,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             'config',
             'orderId',
         ]);
-        
+
         $transactions = $event->getPrimaryKeysWithPropertyChange(OrderTransactionDefinition::ENTITY_NAME, [
             'stateId',
         ]);
@@ -147,11 +147,11 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                     ],
                 ],
             ]),
-            'primaryOrderTransaction' => ElasticsearchFieldBuilder::nested([
+            'transactions' => ElasticsearchFieldBuilder::nested([
                 'stateMachineState' => ElasticsearchFieldBuilder::nested(),
                 'paymentMethodId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ]),
-            'primaryOrderDelivery' => ElasticsearchFieldBuilder::nested([
+            'deliveries' => ElasticsearchFieldBuilder::nested([
                 'stateMachineState' => ElasticsearchFieldBuilder::nested(),
                 'shippingMethodId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'shippingOrderAddress' => ElasticsearchFieldBuilder::nested([
@@ -293,9 +293,17 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                 ) as line_item_agg
                     ON `order`.id = line_item_agg.order_id AND `order`.version_id = line_item_agg.order_version_id
                 LEFT JOIN order_transaction AS primary_transaction
-                    ON `order`.primary_order_transaction_id = primary_transaction.id AND `order`.primary_order_transaction_version_id = primary_transaction.version_id
+                    ON primary_transaction.id = (
+                        SELECT id FROM order_transaction
+                        WHERE order_id = `order`.id AND order_version_id = `order`.version_id
+                        ORDER BY created_at DESC LIMIT 1
+                    ) AND primary_transaction.order_version_id = `order`.version_id
                 LEFT JOIN order_delivery AS primary_delivery
-                    ON `order`.primary_order_delivery_id = primary_delivery.id AND `order`.primary_order_delivery_version_id = primary_delivery.version_id
+                    ON primary_delivery.id = (
+                        SELECT id FROM order_delivery
+                        WHERE order_id = `order`.id AND order_version_id = `order`.version_id
+                        ORDER BY created_at ASC LIMIT 1
+                    ) AND primary_delivery.order_version_id = `order`.version_id
                 LEFT JOIN order_address AS primary_delivery_address
                     ON primary_delivery.shipping_order_address_id = primary_delivery_address.id AND primary_delivery.shipping_order_address_version_id = primary_delivery_address.version_id
             WHERE `order`.id IN (:ids)
@@ -362,8 +370,8 @@ SQL;
                 'billingAddress' => $this->parseAddress($row, 'billingAddressId', 'billingAddressCountryId'),
                 'orderCustomer' => $this->parseOrderCustomer($row),
                 'lineItems' => $this->parseLineItems($row),
-                'primaryOrderTransaction' => $this->parsePrimaryOrderTransaction($row),
-                'primaryOrderDelivery' => $this->parsePrimaryOrderDelivery($row),
+                'transactions' => $this->parsePrimaryOrderTransaction($row),
+                'deliveries' => $this->parsePrimaryOrderDelivery($row),
                 'documents' => $this->parseTagIds($row, 'documentIds'),
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
             ];

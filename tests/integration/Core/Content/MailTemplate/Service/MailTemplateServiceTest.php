@@ -63,6 +63,37 @@ class MailTemplateServiceTest extends TestCase
         $this->mailTemplateService->loadTemplate(Uuid::randomHex(), $this->context);
     }
 
+    public function testLoadTemplate(): void
+    {
+        $id = Uuid::randomHex();
+        $this->mailTemplateRepository->create([
+            [
+                'id' => $id,
+                'systemDefault' => false,
+                'mailTemplateType' => [
+                    'name' => 'Test',
+                    'technicalName' => 'test',
+                    'availableEntities' => [],
+                ],
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'subject' => 'Test',
+                        'contentHtml' => 'Some html text',
+                        'contentPlain' => 'Some plain text',
+                        'senderName' => 'Shopware',
+                    ],
+                ],
+            ],
+        ], $this->context);
+
+        $mailTemplate = $this->mailTemplateService->loadTemplate($id, $this->context);
+
+        static::assertSame('Test', $mailTemplate->getSubject());
+        static::assertSame('Some html text', $mailTemplate->getContentHtml());
+        static::assertSame('Some plain text', $mailTemplate->getContentPlain());
+        static::assertSame('Shopware', $mailTemplate->getSenderName());
+    }
+
     public function testPreviewNonExistingEntitiesErrorInStrictMode(): void
     {
         $templateContent = 'Order ID: {{ order.id }}';
@@ -127,7 +158,12 @@ class MailTemplateServiceTest extends TestCase
 
     public function testSendNoEntitiesButNotRequired(): void
     {
-        $id = $this->createMailTemplate();
+        $data = [
+            'contentHtml' => 'test',
+            'contentPlain' => 'test',
+            'subject' => 'Test',
+            'senderName' => 'Shopware',
+        ];
 
         $mailService = $this->createMock(MailService::class);
         $mailService
@@ -172,21 +208,19 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer,
         );
 
-        $mailTemplateService->getTemplateDataAndSend([], ContactFormEvent::class, $id, $this->context);
+        $mailTemplateService->getTemplateDataAndSend($data, ContactFormEvent::class, $this->context);
     }
 
     public function testSendNonExistingEntities(): void
     {
-        $id = $this->createMailTemplate(
-            ['order' => 'order'],
-            'Order ID: {{ order.id }}', // order variable is required for rendering the template
-            'Order ID: {{ order.id }}',
-        );
-
         $data = [
             'recipients' => [
                 'test@shopware.com' => 'Test',
             ],
+            'contentHtml' => 'Order ID: {{ order.id }}',
+            'contentPlain' => 'Order ID: {{ order.id }}',
+            'subject' => 'Test',
+            'senderName' => 'Shopware',
         ];
 
         $state = new \stdClass();
@@ -199,7 +233,6 @@ class MailTemplateServiceTest extends TestCase
         $email = $this->mailTemplateService->getTemplateDataAndSend(
             $data,
             ReviewFormEvent::class,
-            $id,
             $this->context
         );
 
@@ -214,19 +247,17 @@ class MailTemplateServiceTest extends TestCase
 
     public function testCanSend(): void
     {
-        $id = $this->createMailTemplate(
-            [],
-            'Order ID: {{ order.id }}',
-            'Order ID: {{ order.id }}',
-        );
-
         $data = [
             'recipients' => [
                 'test@shopware.com' => 'Test',
             ],
+            'contentHtml' => 'Order ID: {{ order.id }}',
+            'contentPlain' => 'Order ID: {{ order.id }}',
+            'subject' => 'Test',
+            'senderName' => 'Shopware',
         ];
 
-        $email = $this->mailTemplateService->getTemplateDataAndSend($data, CheckoutOrderPlacedEvent::class, $id, $this->context);
+        $email = $this->mailTemplateService->getTemplateDataAndSend($data, CheckoutOrderPlacedEvent::class, $this->context);
 
         static::assertInstanceOf(Email::class, $email);
 
@@ -248,22 +279,19 @@ class MailTemplateServiceTest extends TestCase
 
     public function testCanSendMultipleEntities(): void
     {
-        $id = $this->createMailTemplate(
-            [],
-            'Main order ID: {{ order.id }}, Customer ID: {{ customer.id }}',
-            'Main order ID: {{ order.id }}, Customer ID: {{ customer.id }}',
-        );
-
         $data = [
             'recipients' => [
                 'test@shopware.com' => 'Test',
             ],
+            'contentHtml' => 'Main order ID: {{ order.id }}, Customer ID: {{ customer.id }}',
+            'contentPlain' => 'Main order ID: {{ order.id }}, Customer ID: {{ customer.id }}',
+            'subject' => 'Test',
+            'senderName' => 'Shopware',
         ];
 
         $email = $this->mailTemplateService->getTemplateDataAndSend(
             $data,
             CheckoutOrderPlacedEvent::class,
-            $id,
             $this->context
         );
 
@@ -288,38 +316,6 @@ class MailTemplateServiceTest extends TestCase
         static::assertSame('Shopware', $email->getFrom()[0]->getName());
         static::assertSame('Test', $email->getTo()[0]->getName());
         static::assertSame('test@shopware.com', $email->getTo()[0]->getAddress());
-    }
-
-    /**
-     * @param array<string, string> $availableEntities
-     */
-    private function createMailTemplate(
-        array $availableEntities = [],
-        string $contentHtml = 'test',
-        string $contentPlain = 'test'
-    ): string {
-        $id = Uuid::randomHex();
-        $this->mailTemplateRepository->create([
-            [
-                'id' => $id,
-                'systemDefault' => false,
-                'mailTemplateType' => [
-                    'name' => 'Test',
-                    'technicalName' => 'test',
-                    'availableEntities' => $availableEntities,
-                ],
-                'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => [
-                        'subject' => 'Test',
-                        'contentHtml' => $contentHtml,
-                        'contentPlain' => $contentPlain,
-                        'senderName' => 'Shopware',
-                    ],
-                ],
-            ],
-        ], $this->context);
-
-        return $id;
     }
 }
 

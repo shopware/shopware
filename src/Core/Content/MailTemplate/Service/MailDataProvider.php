@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use Faker\Factory;
+use Faker\Generator;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -22,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -43,6 +47,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -59,10 +64,12 @@ class MailDataProvider
 
     /**
      * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         iterable $dataProviders,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly EntityRepository $languageRepository,
     ) {
         $this->dataProviders = $dataProviders instanceof \Traversable ? iterator_to_array($dataProviders) : $dataProviders;
     }
@@ -74,6 +81,8 @@ class MailDataProvider
      */
     public function getTemplateData(string $flowEventClass, Context $context): array
     {
+        $faker = $this->createFaker($context);
+
         $templateData = [];
         $referenceData = [];
 
@@ -93,7 +102,7 @@ class MailDataProvider
 
         $templateData[MailAware::TIMEZONE] = 'UTC';
 
-        $templateData['salesChannel'] = $this->generateEntityData(SalesChannelDefinition::class, null, $referenceData);
+        $templateData['salesChannel'] = $this->generateEntityData(SalesChannelDefinition::class, null, $referenceData, $faker);
         $templateData['salesChannelId'] = $templateData['salesChannel']['id'];
 
         foreach ($eventData as $name => $type) {
@@ -101,7 +110,7 @@ class MailDataProvider
                 continue;
             }
 
-            $templateData[$name] = $this->generateEventDataTypeData($type, $referenceData, $context);
+            $templateData[$name] = $this->generateEventDataTypeData($type, $referenceData, $context, $faker);
         }
 
         return $templateData;
@@ -110,7 +119,7 @@ class MailDataProvider
     /**
      * @param array<string,mixed> $referenceData
      */
-    private function generateEventDataTypeData(EventDataType $dataType, array &$referenceData, Context $context): mixed
+    private function generateEventDataTypeData(EventDataType $dataType, array &$referenceData, Context $context, Generator $faker): mixed
     {
         if ($dataType::class === AssociativeArrayType::class || $dataType::class === ArrayType::class) {
             return [];
@@ -120,11 +129,11 @@ class MailDataProvider
             $entityDefinition = new ($dataType->getDefinitionClass());
             \assert($entityDefinition instanceof EntityDefinition);
 
-            return [$this->generateEntityData($entityDefinition::class, $this->dataProviders[$entityDefinition->getEntityName()]->getCriteria('mail template test id', $context), $referenceData)];
+            return [$this->generateEntityData($entityDefinition::class, $this->dataProviders[$entityDefinition->getEntityName()]->getCriteria('mail template test id', $context), $referenceData, $faker)];
         }
 
         if ($dataType::class === EntityType::class) {
-            return $this->generateEntityData($dataType->getDefinitionClass(), $this->dataProviders[$dataType->getEntityName()]->getCriteria('mail template test id', $context), $referenceData);
+            return $this->generateEntityData($dataType->getDefinitionClass(), $this->dataProviders[$dataType->getEntityName()]->getCriteria('mail template test id', $context), $referenceData, $faker);
         }
 
         if ($dataType::class === ForeignKeyType::class) {
@@ -136,21 +145,21 @@ class MailDataProvider
         }
 
         if ($dataType::class === ObjectType::class) {
-            return array_map(function ($value) use ($referenceData, $context) {
-                return $this->generateEventDataTypeData($value, $referenceData, $context);
+            return array_map(function ($value) use ($referenceData, $context, $faker) {
+                return $this->generateEventDataTypeData($value, $referenceData, $context, $faker);
             }, $dataType->getData());
         }
 
         if ($dataType::class === ScalarValueType::class) {
             switch ($dataType->getType()) {
                 case ScalarValueType::TYPE_BOOL:
-                    return false;
+                    return $faker->boolean();
                 case ScalarValueType::TYPE_FLOAT:
-                    return 42.24;
+                    return $faker->randomFloat();
                 case ScalarValueType::TYPE_INT:
-                    return 42;
+                    return $faker->randomNumber();
                 case ScalarValueType::TYPE_STRING:
-                    return '[...]';
+                    return '"' . $faker->text(5) . '"';
             }
         }
 
@@ -162,7 +171,7 @@ class MailDataProvider
      *
      * @return array<string,mixed>
      */
-    private function generateEntityData(string $class, ?Criteria $criteria, array &$referenceData): array
+    private function generateEntityData(string $class, ?Criteria $criteria, array &$referenceData, Generator $faker): array
     {
         $entity = [];
         $unresolvedTranslatedFields = [];
@@ -175,7 +184,7 @@ class MailDataProvider
             }
 
             if ($field::class === TranslationsAssociationField::class) {
-                $referenceData[$field->getReferenceClass()] = $this->generateEntityData($field->getReferenceClass(), $criteria, $referenceData);
+                $referenceData[$field->getReferenceClass()] = $this->generateEntityData($field->getReferenceClass(), $criteria, $referenceData, $faker);
                 $entity[EntityDefinition::TRANSLATED_FIELD] = $referenceData[$field->getReferenceClass()];
             }
 
@@ -212,13 +221,16 @@ class MailDataProvider
                     $entity[$field->getPropertyName()] = $referenceData[$class . '.id'];
                     break;
                 case IntField::class:
-                    $entity[$field->getPropertyName()] = 42;
+                    $entity[$field->getPropertyName()] = $faker->randomNumber();
+                    break;
+                case LongTextField::class:
+                    $entity[$field->getPropertyName()] = '"' . $faker->text() . '"';
                     break;
                 case ManyToManyIdField::class:
                     $associationField = $fields->get($field->getAssociationName());
                     \assert($associationField instanceof ManyToManyAssociationField);
                     if (!\array_key_exists($associationField->getReferenceClass(), $referenceData)) {
-                        $referenceData[$associationField->getReferenceClass()] = $this->generateEntityData($associationField->getReferenceClass(), $criteria, $referenceData);
+                        $referenceData[$associationField->getReferenceClass()] = $this->generateEntityData($associationField->getReferenceClass(), $criteria, $referenceData, $faker);
                     }
                     $fkField =
                         $this->definitionRegistry
@@ -229,7 +241,7 @@ class MailDataProvider
                     \assert($fkField instanceof FkField);
 
                     if (!\array_key_exists($fkField->getReferenceClass(), $referenceData)) {
-                        $referenceData[$fkField->getReferenceClass()] = $this->generateEntityData($fkField->getReferenceClass(), $criteria, $referenceData);
+                        $referenceData[$fkField->getReferenceClass()] = $this->generateEntityData($fkField->getReferenceClass(), $criteria, $referenceData, $faker);
                     }
 
                     $entity[$field->getPropertyName()] = [$referenceData[$fkField->getReferenceClass()][$fkField->getReferenceField()]];
@@ -247,7 +259,7 @@ class MailDataProvider
                     $entity[$field->getPropertyName()] = $referenceData[$field->getVersionReferenceClass() . '.' . $field->getReferenceField()];
                     break;
                 case StringField::class:
-                    $entity[$field->getPropertyName()] = '[...]';
+                    $entity[$field->getPropertyName()] = '"' . $faker->text(5) . '"';
                     break;
                 case TranslatedField::class:
                     $unresolvedTranslatedFields[] = $field;
@@ -269,5 +281,16 @@ class MailDataProvider
         }
 
         return $entity;
+    }
+
+    private function createFaker(Context $context): Generator
+    {
+        $criteria = (new Criteria([$context->getLanguageId()]))->addAssociation('locale');
+        $language = $this->languageRepository->search($criteria, $context)->first();
+        \assert($language instanceof LanguageEntity);
+
+        $localeCode = \str_replace('-', '_', $language->getLocale()?->getCode() ?? Factory::DEFAULT_LOCALE);
+
+        return Factory::create($localeCode);
     }
 }

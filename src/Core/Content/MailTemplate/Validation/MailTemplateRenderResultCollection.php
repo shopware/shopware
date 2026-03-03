@@ -15,5 +15,4 @@ class MailTemplateRenderResultCollection extends Collection
     {
         return \array_map(fn (MailTemplateRenderResult $result) => $result->jsonSerialize(), $this->elements);
     }
-
 }

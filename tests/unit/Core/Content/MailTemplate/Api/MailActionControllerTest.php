@@ -5,8 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Mail\Service\AbstractMailService;
-use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Api\MailActionController;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
@@ -23,48 +21,11 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 #[CoversClass(MailActionController::class)]
 class MailActionControllerTest extends TestCase
 {
-    private AbstractMailService&MockObject $mailService;
-
     private StringTemplateRenderer&MockObject $stringTemplateRenderer;
 
     protected function setUp(): void
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $this->mailService = $this->createMock(AbstractMailService::class);
-    }
-
-    public function testSendSuccess(): void
-    {
-        $data = new RequestDataBag([
-            'id' => 'random',
-            'mailTemplateData' => [
-                'order' => [
-                    'id' => Uuid::randomHex(),
-                ],
-            ],
-            'documentIds' => ['1'],
-        ]);
-
-        $this->mailService->expects($this->once())
-            ->method('send')
-            ->with(
-                static::callback(function (array $data) {
-                    static::assertArrayHasKey('attachmentsConfig', $data);
-                    static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
-
-                    return true;
-                }),
-                static::anything(),
-                static::anything()
-            );
-
-        $mailActionController = new MailActionController(
-            $this->mailService,
-            $this->stringTemplateRenderer,
-            $this->createMock(MailTemplateService::class),
-        );
-
-        $mailActionController->send($data, Context::createDefaultContext());
     }
 
     public function testBuild(): void
@@ -96,7 +57,6 @@ class MailActionControllerTest extends TestCase
             ->willReturn('rendered');
 
         $mailActionController = new MailActionController(
-            $this->mailService,
             $this->stringTemplateRenderer,
             $this->createMock(MailTemplateService::class),
         );
@@ -125,7 +85,6 @@ class MailActionControllerTest extends TestCase
             ->willReturn('rendered');
 
         $mailActionController = new MailActionController(
-            $this->mailService,
             $this->stringTemplateRenderer,
             $this->createMock(MailTemplateService::class),
         );
@@ -148,7 +107,6 @@ class MailActionControllerTest extends TestCase
             ->method('render');
 
         $mailActionController = new MailActionController(
-            $this->mailService,
             $this->stringTemplateRenderer,
             $this->createMock(MailTemplateService::class),
         );

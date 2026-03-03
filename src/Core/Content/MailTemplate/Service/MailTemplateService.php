@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
@@ -86,17 +85,19 @@ class MailTemplateService
      * @param array<string, mixed> $data
      * @param class-string<FlowEventAware> $flowEventClass
      */
-    public function getTemplateDataAndSend(array $data, string $flowEventClass, string $templateId, Context $context): ?Email
+    public function getTemplateDataAndSend(array $data, string $flowEventClass, Context $context): ?Email
     {
-        $mailTemplate = $this->loadTemplate($templateId, $context);
-
-        $data['contentHtml'] ??= $mailTemplate->getContentHtml();
-        $data['contentPlain'] ??= $mailTemplate->getContentPlain();
-        $data['subject'] ??= $mailTemplate->getSubject();
-        $data['senderName'] ??= $mailTemplate->getSenderName();
-
         $templateData = $this->mailDataProvider->getTemplateData($flowEventClass, $context);
 
+        return $this->send($data, $context, $templateData);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string|int,mixed> $templateData
+     */
+    public function send(array $data, Context $context, array $templateData): ?Email
+    {
         $extension = new MailSendSubscriberConfig(
             false,
             $data['documentIds'] ?? [],
@@ -108,7 +109,7 @@ class MailTemplateService
             new MailTemplateEntity(),
             $extension,
             [],
-            isset($templateData['order']) && $templateData['order'] instanceof OrderEntity ? $templateData['order']->getId() : null,
+            $templateData['order']['id'] ?? null,
         );
 
         return $this->mailService->send($data, $context, $templateData);

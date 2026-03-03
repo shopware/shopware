@@ -36,7 +36,6 @@
 
         <!-- Controller -->
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
             <call method="setContainer">
@@ -47,6 +46,7 @@
         <service id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider">
             <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService">

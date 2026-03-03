@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -123,8 +125,51 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer
         );
 
-        $email = $mailTemplateService->getTemplateDataAndSend([], ContactFormEvent::class, $mailTemplate->getId(), $context);
+        $email = $mailTemplateService->getTemplateDataAndSend([], ContactFormEvent::class, $context);
 
         static::assertNull($email);
+    }
+
+    public function testSendSuccess(): void
+    {
+        $data = (new RequestDataBag([
+            'id' => 'random',
+            'mailTemplateData' => [
+                'order' => [
+                    'id' => Uuid::randomHex(),
+                ],
+            ],
+            'documentIds' => ['1'],
+        ]))->all();
+
+        $mailService = $this->createMock(AbstractMailService::class);
+        $mailService->expects($this->once())
+            ->method('send')
+            ->with(
+                static::callback(function (array $data) {
+                    static::assertArrayHasKey('attachmentsConfig', $data);
+                    static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
+
+                    return true;
+                }),
+                static::anything(),
+                static::anything()
+            );
+
+        $mailDataProvider = $this->createMock(MailDataProvider::class);
+        $mailDataProvider->method('getTemplateData')->willReturn([]);
+
+        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
+        $mailTemplateRepository = new StaticEntityRepository([]);
+        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
+
+        $mailTemplateService = new MailTemplateService(
+            $mailService,
+            $mailDataProvider,
+            $mailTemplateRepository,
+            $stringTemplateRenderer
+        );
+
+        $mailTemplateService->send($data, Context::createDefaultContext(), []);
     }
 }

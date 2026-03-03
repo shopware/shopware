@@ -56,7 +56,7 @@ final readonly class DispatchEntityMessageHandler
 
         $backendDataConsent = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext());
         if ($backendDataConsent->acceptedUntil === null) {
-            self::throwUnrecoverableMessageHandlingException($message, 'No collection allowed date found');
+            self::throwUnrecoverableMessageHandlingException($message, 'The consent was never accepted');
         }
 
         if ($message->operation === Operation::DELETE) {

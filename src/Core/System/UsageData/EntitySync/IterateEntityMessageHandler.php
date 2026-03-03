@@ -45,7 +45,7 @@ final readonly class IterateEntityMessageHandler
         $acceptedUntil = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->acceptedUntil;
         if ($acceptedUntil === null) {
             throw new UnrecoverableMessageHandlingException(\sprintf(
-                'No collection allowed date found. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
+                'The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
                 $message->entityName,
                 $message->operation->value,
             ));

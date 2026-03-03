@@ -8,15 +8,21 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\ConsentScope;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
+use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
@@ -38,7 +44,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            $this->createMock(ConsentService::class),
+            new LastCollectionAllowedDateResolver($this->createMock(ConsentService::class)),
             $this->createMock(EntityDefinitionService::class),
             $this->createMock(LoggerInterface::class),
         );
@@ -60,8 +66,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->exactly(1))
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(null);
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::REVOKED, null));
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects($this->exactly(1))
@@ -72,13 +78,13 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            $consentService,
+            new LastCollectionAllowedDateResolver($consentService),
             $entityDefinitionService,
             $this->createMock(LoggerInterface::class),
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage('No approval date found. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete');
+        static::expectExceptionMessage('No collection allowed date found. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete');
         $handler(new IterateEntityMessage('test-entity', Operation::DELETE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
 
         $dispatchedMessages = $messageBus->getMessages();
@@ -107,8 +113,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects($this->once())
@@ -119,7 +125,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            $consentService,
+            new LastCollectionAllowedDateResolver($consentService),
             $entityDefinitionService,
             $this->createMock(LoggerInterface::class),
         );
@@ -160,7 +166,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->never())
-            ->method('getLastConsentIsAcceptedDate');
+            ->method('getConsentState');
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects($this->once())
@@ -171,7 +177,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            $consentService,
+            new LastCollectionAllowedDateResolver($consentService),
             $entityDefinitionService,
             $this->createMock(LoggerInterface::class),
         );
@@ -193,8 +199,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects($this->once())
@@ -217,7 +223,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $messageHandler = new IterateEntityMessageHandler(
             $this->createMock(CollectingMessageBus::class),
             $iteratorFactory,
-            $consentService,
+            new LastCollectionAllowedDateResolver($consentService),
             $entityDefinitionService,
             $logger,
         );
@@ -240,8 +246,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects($this->once())
@@ -256,7 +262,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $messageHandler = new IterateEntityMessageHandler(
             $this->createMock(CollectingMessageBus::class),
             $iteratorFactory,
-            $consentService,
+            new LastCollectionAllowedDateResolver($consentService),
             $entityDefinitionService,
             $logger,
         );
@@ -267,5 +273,21 @@ class IterateEntityMessageHandlerTest extends TestCase
             new \DateTimeImmutable('2023-08-16'),
             new \DateTimeImmutable('2023-08-01'),
         ));
+    }
+
+    private function createConsentState(ConsentStatus $status, ?string $updatedAt): ConsentState
+    {
+        if ($status === ConsentStatus::ACCEPTED && $updatedAt === null) {
+            $updatedAt = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        }
+
+        return new ConsentState(
+            BackendData::NAME,
+            ConsentScope\System::NAME,
+            ConsentScope\System::NAME,
+            $status,
+            'actor',
+            $updatedAt,
+        );
     }
 }

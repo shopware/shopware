@@ -19,15 +19,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Consent\ConsentState;
+use Shopware\Core\System\Consent\ConsentScope;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
+use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -60,9 +63,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
     public function testItFetchesEverythingIfLastRunIsNotSet(): void
     {
-        /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
+        $this->setConsentAccepted();
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -75,6 +76,8 @@ class IterateEntityMessageHandlerTest extends TestCase
         $productIds = $this->setUpProducts();
 
         $messageBus = new CollectingMessageBus();
+        $lastCollectionAllowedDateResolver = static::getContainer()->get(LastCollectionAllowedDateResolver::class);
+        static::assertInstanceOf(LastCollectionAllowedDateResolver::class, $lastCollectionAllowedDateResolver);
 
         $messageHandler = new IterateEntityMessageHandler(
             $messageBus,
@@ -83,7 +86,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentService::class),
+            $lastCollectionAllowedDateResolver,
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -114,9 +117,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
     public function testItFetchesOnlyNewChangesIfLastRunIsSet(): void
     {
-        /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
+        $this->setConsentAccepted();
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -129,6 +130,8 @@ class IterateEntityMessageHandlerTest extends TestCase
         $productIds = $this->setUpProducts();
 
         $messageBus = new CollectingMessageBus();
+        $lastCollectionAllowedDateResolver = static::getContainer()->get(LastCollectionAllowedDateResolver::class);
+        static::assertInstanceOf(LastCollectionAllowedDateResolver::class, $lastCollectionAllowedDateResolver);
 
         $messageHandler = new IterateEntityMessageHandler(
             $messageBus,
@@ -137,7 +140,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentService::class),
+            $lastCollectionAllowedDateResolver,
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -166,11 +169,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
     public function testItFetchesOnlyDeletionsUpToTheCurrentRunDate(): void
     {
-        /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
-        // trigger an update
-        $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
+        $this->setConsentAccepted();
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -186,6 +185,8 @@ class IterateEntityMessageHandlerTest extends TestCase
         $this->insertProductDeletion($ids->get('product-from-the-future'), (new \DateTimeImmutable())->add(new \DateInterval('P1D')));
 
         $messageBus = new CollectingMessageBus();
+        $lastCollectionAllowedDateResolver = static::getContainer()->get(LastCollectionAllowedDateResolver::class);
+        static::assertInstanceOf(LastCollectionAllowedDateResolver::class, $lastCollectionAllowedDateResolver);
 
         $messageHandler = new IterateEntityMessageHandler(
             $messageBus,
@@ -194,7 +195,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            static::getContainer()->get(ConsentService::class),
+            $lastCollectionAllowedDateResolver,
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -228,8 +229,15 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+            ->method('getConsentState')
+            ->willReturn(new ConsentState(
+                BackendData::NAME,
+                ConsentScope\System::NAME,
+                ConsentScope\System::NAME,
+                ConsentStatus::ACCEPTED,
+                'actor',
+                (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ));
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects($this->once())
@@ -240,7 +248,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $messageHandler = new IterateEntityMessageHandler(
             new CollectingMessageBus(),
             static::getContainer()->get(IterateEntitiesQueryBuilder::class),
-            $consentService,
+            new LastCollectionAllowedDateResolver($consentService),
             $entityDefinitionService,
             $logger,
         );
@@ -305,6 +313,33 @@ class IterateEntityMessageHandlerTest extends TestCase
         ));
 
         return $ids;
+    }
+
+    private function setConsentAccepted(): void
+    {
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get(Connection::class);
+
+        $connection->executeStatement(
+            'DELETE FROM consent_state WHERE name = :name AND identifier = :identifier',
+            ['name' => BackendData::NAME, 'identifier' => 'system']
+        );
+
+        $connection->executeStatement(
+            'INSERT INTO consent_state (id, name, identifier, state, actor, updated_at)
+            VALUES (:id, :name, :identifier, :state, :actor, :updatedAt)',
+            [
+                'id' => Uuid::randomBytes(),
+                'name' => BackendData::NAME,
+                'identifier' => 'system',
+                'state' => 'accepted',
+                'actor' => 'test',
+                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            ['id' => ParameterType::BINARY]
+        );
+
+        static::getContainer()->get(ConsentService::class)->reset();
     }
 
     private function insertProductDeletion(string $id, \DateTimeImmutable $deletedAt): void

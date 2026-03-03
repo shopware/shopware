@@ -994,7 +994,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $searchRankingFlag = $currencyField->getFlag(SearchRanking::class);
         static::assertInstanceOf(SearchRanking::class, $searchRankingFlag);
-        static::assertEquals(SearchRanking::ASSOCIATION_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertSame(SearchRanking::ASSOCIATION_SEARCH_RANKING, $searchRankingFlag->getRanking());
         static::assertTrue($searchRankingFlag->tokenize());
 
         $middleRankedField = $definition->getFields()->get('middleRankedString');
@@ -1020,7 +1020,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $searchRankingFlag = $lowRankedField->getFlag(SearchRanking::class);
         static::assertInstanceOf(SearchRanking::class, $searchRankingFlag);
-        static::assertEquals(SearchRanking::LOW_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertSame(SearchRanking::LOW_SEARCH_RANKING, $searchRankingFlag->getRanking());
         static::assertTrue($searchRankingFlag->tokenize());
 
         $highRankedField = $definition->getFields()->get('highRankedString');
@@ -1033,7 +1033,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $searchRankingFlag = $highRankedField->getFlag(SearchRanking::class);
         static::assertInstanceOf(SearchRanking::class, $searchRankingFlag);
-        static::assertEquals(SearchRanking::HIGH_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $searchRankingFlag->getRanking());
         static::assertFalse($searchRankingFlag->tokenize());
     }
 

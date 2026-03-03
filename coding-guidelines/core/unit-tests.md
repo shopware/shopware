@@ -14,6 +14,7 @@ When writing unit tests, the following is important:
 - **Modularity** - Your test should not fail just because another test left artifacts (files, storage records, ...).
 - **Cleanup** - It is also important that you clean up your artifacts. If you register an event listener dynamically, make sure that it is removed again on `teardown`. If you write data to the database or change the schema, make sure it is rolled back.
 - **Failure** - Don't just test the happy case or success case, test the failure of your services and objects.
+- **Expected exceptions** - For deterministic exception cases, use PHPUnit's `expectExceptionObject()` (or `expectException*()` helpers) instead of manual `try/catch`. This keeps tests shorter, clearer, and less error-prone.
 - **Unit** - Write unit tests (not integration tests), don't always test the whole request or service stack, you can also just instantiate services yourself and mock dependencies to make testing faster and easier.
 - **Para-test** - Your tests should be compatible with our para-test setup so that any developer can quickly run the tests locally.
 

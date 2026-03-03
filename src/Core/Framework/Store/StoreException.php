@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirm
 use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
+use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -34,6 +35,9 @@ class StoreException extends HttpException
     public const PLUGIN_NOT_A_ZIP_FILE = 'FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE';
     public const INVALID_CONTEXT_SOURCE_USER = 'FRAMEWORK__INVALID_CONTEXT_SOURCE_USER';
     public const STORE_LICENSE_DOMAIN_VALIDATION_FAILED = 'FRAMEWORK__STORE_LICENSE_DOMAIN_VALIDATION_FAILED';
+    public const STORE_INVALID_CREDENTIALS = 'FRAMEWORK__STORE_INVALID_CREDENTIALS';
+    public const STORE_SHOP_SECRET_INVALID = 'FRAMEWORK__STORE_SHOP_SECRET_INVALID';
+    public const STORE_TOKEN_IS_MISSING = 'FRAMEWORK__STORE_TOKEN_IS_MISSING';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -223,13 +227,40 @@ class StoreException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
     public static function invalidCredentials(): self
     {
-        return new StoreInvalidCredentialsException();
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new StoreInvalidCredentialsException();
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::STORE_INVALID_CREDENTIALS,
+            'Invalid credentials'
+        );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
     public static function shopSecretInvalid(): self
     {
-        return new ShopSecretInvalidException();
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ShopSecretInvalidException();
+        }
+
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::STORE_SHOP_SECRET_INVALID,
+            'Store shop secret is invalid'
+        );
+    }
+
+    public static function storeTokenMissing(): self
+    {
+        return new StoreTokenMissingException();
     }
 }

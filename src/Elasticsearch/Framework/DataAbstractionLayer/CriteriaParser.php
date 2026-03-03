@@ -567,11 +567,21 @@ class CriteriaParser
                 foreach ($context->getLanguageIdChain() as $languageId) {
                     $query->add(new ExistsQuery($this->getTranslatedFieldName($fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
-            } else {
-                $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+                return $this->createNestedQuery($query, $definition, $filter->getField());
             }
 
-            return $this->createNestedQuery($query, $definition, $filter->getField());
+            $path = $this->getNestedPath($definition, $filter->getField());
+
+            if ($path) {
+                $query->add(new NestedQuery($path, new ExistsQuery($fieldName)), BoolQuery::MUST_NOT);
+
+                return $query;
+            }
+
+            $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+            return $query;
         }
 
         $value = $this->parseValue($definition, $filter, $filter->getValue());

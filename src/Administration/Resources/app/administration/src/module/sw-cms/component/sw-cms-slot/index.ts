@@ -38,6 +38,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showElementSettings: false,
+            isElementSettingsInitialized: false,
             showElementSelection: false,
             elementNotFound: false,
         };
@@ -161,6 +162,8 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.elementConfig?.defaultConfig || this.element?.locked) {
                 return;
             }
+
+            this.isElementSettingsInitialized = true;
             this.showElementSettings = true;
         },
 

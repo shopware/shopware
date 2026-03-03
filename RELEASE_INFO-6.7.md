@@ -7,6 +7,13 @@ A new internal comment field was added to the state change modal which can be us
 The internal comment is only visible in the administration and not shown to customers.
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
+### [Experimental] Use OpenSearch for Admin API searches
+
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 
+This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
+Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
+To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
+
 ### Online revocation request form
 Customers can now conveniently submit revocation requests through an online form. 
 Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
@@ -249,6 +256,22 @@ This is done by changing the DOM within the `aria-live` region after a short del
 Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
 
 ## Hosting & Configuration
+
+### Feature flag for enabling OpenSearch globally in the Admin API
+
+The new feature flag `ENABLE_OPENSEARCH_FOR_ADMIN_API` (see `adr/2026-01-28-apply-opensearch-in-admin-api.md`) can be used to activate that now all supported searches and reads from the administration and Admin-API are handled by OpenSearch instead of the DB.
+Especially when you have a large amount of data in your shop, this can lead to significant performance improvements in the administration.
+The downside is that the indexing of the data into OpenSearch takes slightly longer, and the results you see might be slightly delayed as they are not read directly from the DB anymore, but need to be indexed to OpenSearch first.
+When the flag is disabled (which is the default), Administration lists, filters, and DAL searches continue to use MySQL exactly as in previous releases.
+Once enabled, supported Admin API entities reuse the Admin OpenSearch indices for criteria-based searches, which requires admin OpenSearch to be configured and re-indexed via `bin/console es:admin:index`.
+
+
+### New config option to fine tune Admin OpenSearch indexing
+
+There is a new config option `elasticsearch.admin.indexing_batch_size` that allows you to configure the batch size for Admin OpenSearch indexing.
+The same config can be set via environment variable `SHOPWARE_ADMIN_ES_INDEXING_BATCH_SIZE`. The default value is `1000`, which means that entities will be indexed in batches of 1000.
+This should reduce the overhead needed when running the admin index process.
+Before the admin indexing process shared the same config `elasticsearch.indexing_batch_size` (default value: 100) with the Storefront/Store API indexing, which could lead to performance issues when you had a large amount of data in your shop, as the admin indexing process is usually way faster and therefore can benefit from higher batch sizes.
 
 ### Deprecated HTTP cache reverse proxy configuration
 

@@ -66,7 +66,7 @@ export default {
             type: Boolean,
             required: false,
             // eslint-disable-next-line vue/no-boolean-default
-            default: Context.app.adminEsEnable ?? false,
+            default: false,
         },
         /**
          * Search bar placeholder

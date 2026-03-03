@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\CmsPageAdminSearchIndexer;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
 /**
  * @internal
@@ -35,16 +36,18 @@ class CmsPageAdminSearchIndexerTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
     }
 
-    public function testGetUpdatedIds(): void
+    public function testGetUpdatedIdsWithTypeChange(): void
     {
         $indexer = new CmsPageAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -54,7 +57,32 @@ class CmsPageAdminSearchIndexerTest extends TestCase
             Context::createDefaultContext(),
             new NestedEventCollection([
                 new EntityWrittenEvent('cms_page', [
-                    new EntityWriteResult(['cmsPageId' => $cmsPageId], ['name' => 'Home'], 'cms_page', EntityWriteResult::OPERATION_UPDATE),
+                    new EntityWriteResult($cmsPageId, ['type' => 'page'], 'cms_page', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$cmsPageId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsWithTranslationChange(): void
+    {
+        $indexer = new CmsPageAdminSearchIndexer(
+            $this->createMock(Connection::class),
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $cmsPageId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('cms_page_translation', [
+                    new EntityWriteResult(['cmsPageId' => $cmsPageId, 'languageId' => Uuid::randomHex()], ['name' => 'Home'], 'cms_page_translation', EntityWriteResult::OPERATION_UPDATE),
                 ], Context::createDefaultContext()),
             ]),
             []
@@ -100,6 +128,7 @@ class CmsPageAdminSearchIndexerTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $repository,
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -123,6 +152,7 @@ class CmsPageAdminSearchIndexerTest extends TestCase
             $connection,
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -131,21 +161,30 @@ class CmsPageAdminSearchIndexerTest extends TestCase
 
         static::assertArrayHasKey($id, $documents);
 
+        /** @var array<string, mixed> $document */
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('809c1844f4734243b6aa04aba860cd45 terms of service', $document['text']);
+        static::assertSame('terms of service 809c1844f4734243b6aa04aba860cd45', $document['text']);
+        static::assertSame('page', $document['type']);
+        static::assertIsArray($document['name']);
     }
 
     private function getConnection(): Connection
     {
         $connection = $this->createMock(Connection::class);
 
+        $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     'name' => 'Terms of service',
+                    'translatedNames' => json_encode([
+                        ['languageId' => $languageId, 'name' => 'Terms of service'],
+                    ]),
+                    'type' => 'page',
+                    'createdAt' => '2024-01-01 00:00:00.000',
                 ],
             ],
         );

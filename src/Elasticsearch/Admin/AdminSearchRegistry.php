@@ -14,10 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -33,22 +35,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class AdminSearchRegistry implements EventSubscriberInterface
 {
     /**
-     * @var array<string, AbstractAdminIndexer>
-     */
-    private readonly array $indexer;
-
-    /**
      * @var array<string, mixed>
      */
     private readonly array $config;
 
     /**
-     * @param array<AbstractAdminIndexer>|\Traversable<AbstractAdminIndexer> $indexer
+     * @param iterable<AbstractAdminIndexer> $indexer
      * @param array<string, mixed> $config
      * @param array<string, mixed> $mapping
      */
     public function __construct(
-        $indexer,
+        private readonly iterable $indexer,
         private readonly Connection $connection,
         private readonly MessageBusInterface $queue,
         private readonly EventDispatcherInterface $dispatcher,
@@ -56,10 +53,9 @@ class AdminSearchRegistry implements EventSubscriberInterface
         private readonly AdminElasticsearchHelper $adminEsHelper,
         private readonly LoggerInterface $logger,
         array $config,
-        private readonly array $mapping
+        private readonly array $mapping,
+        private readonly string $environment
     ) {
-        $this->indexer = ($indexer instanceof \Traversable) ? iterator_to_array($indexer) : $indexer;
-
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
                 unset($config['settings']['index']['number_of_shards']);
@@ -91,12 +87,13 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function iterate(AdminIndexingBehavior $indexingBehavior): void
     {
-        if (!$this->adminEsHelper->getEnabled()) {
+        if (!$this->adminEsHelper->isEnabled()) {
             return;
         }
 
+        $indexers = $this->getIndexersArray();
         /** @var list<string> $entities */
-        $entities = array_keys($this->indexer);
+        $entities = array_keys($indexers);
 
         if ($indexingBehavior->getOnlyEntities()) {
             $entities = array_intersect($entities, $indexingBehavior->getOnlyEntities());
@@ -107,7 +104,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         $indices = $this->createIndices($entities);
 
         foreach ($entities as $entityName) {
-            $indexer = $this->getIndexer($entityName);
+            $indexer = $indexers[$entityName];
             $iterator = $indexer->getIterator();
 
             $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $iterator->fetchCount()));
@@ -133,7 +130,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if (!$this->adminEsHelper->getEnabled() || !$this->isIndexedEntityWritten($event)) {
+        if (!$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
             return;
         }
 
@@ -178,7 +175,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     }
 
     /**
-     * @return AbstractAdminIndexer[]
+     * @return iterable<AbstractAdminIndexer>
      */
     public function getIndexers(): iterable
     {
@@ -187,12 +184,20 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function getIndexer(string $name): AbstractAdminIndexer
     {
-        $indexer = $this->indexer[$name] ?? null;
+        $indexers = $this->getIndexersArray();
+        $indexer = $indexers[$name] ?? null;
         if ($indexer) {
             return $indexer;
         }
 
         throw ElasticsearchException::indexingError([\sprintf('Indexer for name %s not found', $name)]);
+    }
+
+    public function hasIndexer(string $name): bool
+    {
+        $indexers = $this->getIndexersArray();
+
+        return isset($indexers[$name]);
     }
 
     public function updateMappings(): void
@@ -444,26 +449,41 @@ class AdminSearchRegistry implements EventSubscriberInterface
      */
     private function buildMapping(AbstractAdminIndexer $indexer): array
     {
-        $mapping = $indexer->mapping([
+        $properties = [
             'properties' => [
-                'id' => ['type' => 'keyword'],
-                'textBoosted' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                    ],
-                ],
-                'text' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                    ],
-                ],
-                'entityName' => ['type' => 'keyword'],
-                'parameters' => ['type' => 'keyword'],
+                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'textBoosted' => AbstractAdminIndexer::SEARCH_FIELD,
+                'text' => AbstractAdminIndexer::SEARCH_FIELD,
+                'entityName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'parameters' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ],
-        ]);
+        ];
+
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            $properties['properties']['textBoosted']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
+            $properties['properties']['text']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
+        }
+
+        $mapping = $indexer->mapping($properties);
+
+        $debug = $this->environment === 'dev' || $this->environment === 'test';
+
+        if (!$debug) {
+            $mapping['_source'] = ['includes' => ['id', 'text', 'textBoosted', 'entityName', 'parameters']];
+        }
 
         return array_merge_recursive($mapping, $this->mapping);
+    }
+
+    /**
+     * @return array<string, AbstractAdminIndexer>
+     */
+    private function getIndexersArray(): array
+    {
+        if ($this->indexer instanceof \Traversable) {
+            return iterator_to_array($this->indexer);
+        }
+
+        return $this->indexer;
     }
 }

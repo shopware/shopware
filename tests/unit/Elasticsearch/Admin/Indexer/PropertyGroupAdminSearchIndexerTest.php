@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
 /**
  * @internal
@@ -35,6 +36,7 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
     }
@@ -45,6 +47,7 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -100,6 +103,7 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $repository,
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -123,6 +127,7 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
             $connection,
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -131,21 +136,30 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
 
         static::assertArrayHasKey($id, $documents);
 
+        /** @var array<string, mixed> $document */
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('809c1844f4734243b6aa04aba860cd45 property group', $document['text']);
+        static::assertSame('property group 809c1844f4734243b6aa04aba860cd45', $document['text']);
+        static::assertTrue($document['filterable']);
+        static::assertIsArray($document['name']);
     }
 
     private function getConnection(): Connection
     {
         $connection = $this->createMock(Connection::class);
 
+        $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     'name' => 'Property group',
+                    'translatedNames' => json_encode([
+                        ['languageId' => $languageId, 'name' => 'Property group'],
+                    ]),
+                    'filterable' => 1,
+                    'createdAt' => '2024-01-01 00:00:00.000',
                 ],
             ],
         );

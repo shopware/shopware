@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
@@ -46,7 +47,7 @@ class AdminSearchControllerTest extends TestCase
             $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock(),
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->createMock(JsonEntityEncoder::class),
-            new AdminElasticsearchHelper(false, false, 'sw-admin')
+            new AdminElasticsearchHelper(false, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
         $request = new Request();
@@ -64,7 +65,7 @@ class AdminSearchControllerTest extends TestCase
             $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock(),
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->createMock(JsonEntityEncoder::class),
-            new AdminElasticsearchHelper(true, false, 'sw-admin')
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
         $request = new Request();
@@ -82,7 +83,7 @@ class AdminSearchControllerTest extends TestCase
             $this->searcher,
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->createMock(JsonEntityEncoder::class),
-            new AdminElasticsearchHelper(true, false, 'sw-admin')
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
         $request = new Request();

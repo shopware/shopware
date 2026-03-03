@@ -425,16 +425,56 @@
 
             {% block sw_mail_template_detail_sidebar_inner_preview %}
             <sw-sidebar-item
+                v-if="!isMajorActive()"
                 icon="regular-eye"
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
                 :disabled="isLoading || showPreview || !hasTemplateData"
                 class="sw-mail-template-detail__show-preview-sidebar"
                 @click="onClickShowPreview"
             />
+            <sw-sidebar-item
+                v-else
+                icon="regular-eye"
+                :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
+                :disabled="isLoading || showPreview"
+                class="sw-mail-template-detail__show-preview-sidebar"
+            >
+                <div class="sw-mail-template-detail__show-preview-sidebar-container">
+                    <mt-select
+                        value-property="name"
+                        :label="$t('sw-mail-template.detail.sidebar.selectFlowTriggerLabel')"
+                        :model-value="triggerEvent"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
+                    >
+                        <template #hint>
+                            <div class="sw-mail-template-detail__field-hint">
+                                <mt-icon
+                                    size="12"
+                                    name="solid-info-circle"
+                                    class="sw-mail-template-detail__field-hint-icon"
+                                />
+                                {{ $t('sw-mail-template.detail.sidebar.selectFlowTriggerHint') }}
+                            </div>
+                        </template>
+                    </mt-select>
+
+                    <mt-button
+                        variant="secondary"
+                        :disabled="!triggerEvent"
+                        @click="onClickShowPreview"
+                    >
+                        {{ $t('sw-mail-template.detail.previewModalTitle') }}
+                    </mt-button>
+                </div>
+            </sw-sidebar-item>
             {% endblock %}
 
             {% block sw_mail_template_detail_sidebar_inner_media %}
-            <sw-sidebar-media-item ref="mediaSidebarItem">
+            <sw-sidebar-media-item
+                ref="mediaSidebarItem"
+                class="sw-mail-template-detail__media-sidebar"
+            >
                 <template
                     #context-menu-items="media"
                 >

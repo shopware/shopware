@@ -71,7 +71,9 @@
         "titleShowPreview": "Vorschau anzeigen",
         "titleShowAvailableVariables": "Variablen",
         "copyTooltip": "In die Zwischenablage kopieren.",
-        "languageNotAssignedToSalesChannel": "Die aktuelle Sprache ist nicht dem gewählten Verkaufskanal zugewiesen."
+        "languageNotAssignedToSalesChannel": "Die aktuelle Sprache ist nicht dem gewählten Verkaufskanal zugewiesen.",
+        "selectFlowTriggerLabel": "Flow-Auslöser",
+        "selectFlowTriggerHint": "Wird zur Ermittlung der verfügbaren Daten genutzt."
       },
       "previewModalTitle": "Vorschau",
       "buttonSave": "Speichern",

@@ -9,10 +9,15 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderError;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResultCollection;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 
@@ -33,10 +38,7 @@ class MailTemplateService
     ) {
     }
 
-    /**
-     * @param array<string, string> $entities
-     */
-    public function preview(string $templateId, array $entities, Context $context, bool $strict = false): string
+    public function loadTemplate(string $templateId, Context $context): MailTemplateEntity
     {
         $criteria = new Criteria([$templateId]);
         $criteria->addAssociation('mailTemplateType');
@@ -46,46 +48,54 @@ class MailTemplateService
             throw MailTemplateException::templateNotFound();
         }
 
-        $template = $mailTemplate->getContentHtml();
-        if (!\is_string($template)) {
-            throw MailTemplateException::invalidMailTemplateContent();
-        }
+        \assert($mailTemplate instanceof MailTemplateEntity);
 
-        $templateData = $this->mailDataProvider->getTemplateData($mailTemplate, $entities, $context);
+        return $mailTemplate;
+    }
+
+    /**
+     * @param array<int|string,string> $templateContent
+     * @param class-string<FlowEventAware> $flowEventClass
+     */
+    public function preview(array $templateContent, string $flowEventClass, Context $context, bool $strict = false): MailTemplateRenderResultCollection
+    {
+        $renderedResult = new MailTemplateRenderResultCollection();
+
+        $templateData = $this->mailDataProvider->getTemplateData($flowEventClass, $context);
 
         if (!$strict) {
             $this->templateRenderer->enableTestMode();
         }
 
-        $renderedTemplate = $this->templateRenderer->render($template, $templateData, $context);
+        foreach ($templateContent as $key => $value) {
+            try {
+                $renderedResult->set($key, new MailTemplateRenderSuccess($this->templateRenderer->render($value, $templateData, $context)));
+            } catch (AdapterException $e) {
+                $renderedResult->set($key, new MailTemplateRenderError($e->getMessage()));
+            }
+        }
 
         if (!$strict) {
             $this->templateRenderer->disableTestMode();
         }
 
-        return $renderedTemplate;
+        return $renderedResult;
     }
 
     /**
      * @param array<string, mixed> $data
-     * @param array<string, string> $entities
+     * @param class-string<FlowEventAware> $flowEventClass
      */
-    public function getTemplateDataAndSend(array $data, string $templateId, array $entities, Context $context): ?Email
+    public function getTemplateDataAndSend(array $data, string $flowEventClass, string $templateId, Context $context): ?Email
     {
-        $criteria = new Criteria([$templateId]);
-        $criteria->addAssociation('mailTemplateType');
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
-
-        if ($mailTemplate === null) {
-            throw MailTemplateException::templateNotFound();
-        }
+        $mailTemplate = $this->loadTemplate($templateId, $context);
 
         $data['contentHtml'] ??= $mailTemplate->getContentHtml();
         $data['contentPlain'] ??= $mailTemplate->getContentPlain();
         $data['subject'] ??= $mailTemplate->getSubject();
         $data['senderName'] ??= $mailTemplate->getSenderName();
 
-        $templateData = $this->mailDataProvider->getTemplateData($mailTemplate, $entities, $context);
+        $templateData = $this->mailDataProvider->getTemplateData($flowEventClass, $context);
 
         $extension = new MailSendSubscriberConfig(
             false,

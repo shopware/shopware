@@ -31,6 +31,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 #[Package('framework')]
 abstract class EntityDefinition
 {
+    final public const TRANSLATED_FIELD = 'translated';
+
     protected ?CompiledFieldCollection $fields = null;
 
     /**
@@ -184,7 +186,7 @@ abstract class EntityDefinition
             if ($field instanceof TranslationsAssociationField) {
                 $this->translationField = $field;
                 $fields->add(
-                    (new JsonField('translated', 'translated'))->addFlags(new ApiAware(), new Computed(), new Runtime())
+                    (new JsonField(self::TRANSLATED_FIELD, self::TRANSLATED_FIELD))->addFlags(new ApiAware(), new Computed(), new Runtime())
                 );
 
                 break;

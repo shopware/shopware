@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -9,10 +10,16 @@ class EntityCollectionType extends AbstractEventDataType
 {
     final public const TYPE = 'collection';
 
+    /**
+     * @param class-string<EntityDefinition> $definitionClass
+     */
     public function __construct(private readonly string $definitionClass)
     {
     }
 
+    /**
+     * @return class-string<EntityDefinition>
+     */
     public function getDefinitionClass(): string
     {
         return $this->definitionClass;

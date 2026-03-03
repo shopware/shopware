@@ -10,9 +10,9 @@ use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -93,6 +93,16 @@ class MailActionController extends AbstractController
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
         $data = $post->all();
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $mailTemplateContent = $data['mailTemplateContent'];
+            $flowEventClass = $data['flowEventClass'];
+
+            $renderedTemplate = $this->mailTemplateService->preview($mailTemplateContent, $flowEventClass, $context, true);
+
+            return new JsonResponse($renderedTemplate);
+        }
+
         $templateData = $data['mailTemplateType']['templateData'] ?? [];
         $template = $data['mailTemplate']['contentHtml'] ?? null;
 
@@ -115,13 +125,18 @@ class MailActionController extends AbstractController
     public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->getString('mailTemplateId');
-        $entities = $post->get('entities');
+        $flowEventClass = $post->get('flowEventClass');
 
-        if (!$entities instanceof DataBag) {
-            $entities = new DataBag();
-        }
+        $mailTemplate = $this->mailTemplateService->loadTemplate($templateId, $context);
 
-        $renderedTemplate = $this->mailTemplateService->preview($templateId, $entities->all(), $context);
+        $templateContent = [
+            'subject' => $mailTemplate->getSubject() ?? '',
+            'senderName' => $mailTemplate->getSenderName() ?? '',
+            'contentHtml' => $mailTemplate->getContentHtml() ?? '',
+            'contentPlain' => $mailTemplate->getContentPlain() ?? '',
+        ];
+
+        $renderedTemplate = $this->mailTemplateService->preview($templateContent, $flowEventClass, $context, true);
 
         return new JsonResponse($renderedTemplate);
     }
@@ -140,16 +155,12 @@ class MailActionController extends AbstractController
     public function getDataAndSend(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->getString('mailTemplateId');
-        $entities = $post->get('entities');
-
-        if (!$entities instanceof DataBag) {
-            $entities = new DataBag();
-        }
+        $flowEventClass = $post->get('flowEventClass');
 
         $message = $this->mailTemplateService->getTemplateDataAndSend(
             $post->all(),
+            $flowEventClass,
             $templateId,
-            $entities->all(),
             $context
         );
 

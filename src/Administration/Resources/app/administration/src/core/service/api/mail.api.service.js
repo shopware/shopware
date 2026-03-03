@@ -113,6 +113,30 @@ class MailApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    buildMailTemplate(mailTemplateContent, flowEventClass) {
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            // eslint-disable-next-line prefer-promise-reject-errors
+            return Promise.reject("Method only supports >=v6.8.0.0");
+        }
+
+        const apiRoute = `/_action/${this.getApiBasePath()}/build`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    mailTemplateContent: mailTemplateContent,
+                    flowEventClass: flowEventClass,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

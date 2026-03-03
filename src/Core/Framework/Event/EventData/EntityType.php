@@ -35,6 +35,9 @@ class EntityType extends AbstractEventDataType
         $this->entityName = $entityDefinition->getEntityName();
     }
 
+    /**
+     * @return class-string<EntityDefinition>
+     */
     public function getDefinitionClass(): string
     {
         return $this->definitionClass;

@@ -1,3 +1,4 @@
+import camelCase from 'lodash-es/camelCase';
 import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
@@ -20,6 +21,7 @@ export default {
         'repositoryFactory',
         'acl',
         'feature',
+        'businessEventService',
     ],
 
     mixins: [
@@ -57,6 +59,8 @@ export default {
             availableVariables: {},
             entitySchema: Object.fromEntries(Shopware.EntityDefinition.getDefinitionRegistry()),
             showLanguageNotAssignedToSalesChannelWarning: false,
+            triggerEvent: null,
+            triggerEvents: [],
         };
     },
 
@@ -237,6 +241,10 @@ export default {
                 this.mailTemplateId = this.$route.params.id.toLowerCase();
                 this.loadEntityData();
             }
+
+            if (this.isMajorActive()) {
+                this.loadTriggerEvents();
+            }
         },
 
         loadEntityData() {
@@ -257,6 +265,39 @@ export default {
                     this.getMailTemplateMedia();
                 }
             });
+        },
+
+        loadTriggerEvents() {
+            this.businessEventService.getBusinessEvents().then((events) => {
+                this.triggerEvents = events
+                    .filter((event) => event.aware.includes('mailAware'))
+                    .map((event) => ({
+                        ...event,
+                        label: event.name
+                            .split('.')
+                            .map((eventName) => this.getTriggerEventNameTranslated(eventName))
+                            .join(' / '),
+                        data: {
+                            ...event.data,
+                            salesChannel: {
+                                nullable: true,
+                                type: 'entity',
+                                entityName: 'sales_channel',
+                            },
+                        },
+                    }));
+            });
+        },
+
+        getTriggerEventNameTranslated(eventName) {
+            const eventNameCamelCase = camelCase(eventName);
+            const translatedEventName = [
+                `sw-flow-app.triggers-app.${eventNameCamelCase}`,
+                `sw-flow-custom-event.event-tree.${eventNameCamelCase}`,
+                `sw-flow.triggers.${eventNameCamelCase}`,
+            ].find((key) => this.$te(key));
+
+            return translatedEventName ? this.$t(translatedEventName) : eventName.replace(/_|-/g, ' ');
         },
 
         getMailTemplateType() {
@@ -400,8 +441,45 @@ export default {
                 });
         },
 
+        isMajorActive() {
+            return Shopware.Feature.isActive('v6.8.0.0');
+        },
+
+        onTriggerEventChange(eventName) {
+            this.triggerEvent = this.triggerEvents.find((event) => event.name === eventName);
+        },
+
         onClickShowPreview() {
             this.isLoading = true;
+
+
+            if (this.isMajorActive()) {
+                this.mailPreview = this.mailService
+                    .buildMailTemplate({
+                        subject: this.mailTemplate.subject,
+                        senderName: this.mailTemplate.senderName,
+                        contentHtml: this.mailTemplate.contentHtml,
+                        contentPlain: this.mailTemplate.contentPlain,
+                    }, this.triggerEvent.class)
+                    .then((response) => {
+                        response.contentPlain = response.contentPlain.replace(/\n/g, '<br/>');
+
+                        this.mailPreview = Object.entries(response)
+                            .map(([key, value]) => [this.translateTemplateField(key), value])
+                            .reduce(
+                                (result, [key, value]) => `${result}<h2>${key}:</h2><br/>${value}<br/><br/><hr/><br/>`,
+                                '',
+                            );
+                    })
+                    .catch(() => {
+                        this.mailPreview = null;
+                    })
+                    .finally(() => {
+                        this.isLoading = false;
+                    });
+
+                return;
+            }
 
             this.mailPreview = this.mailService
                 .buildRenderPreview(this.mailTemplateType, this.mailPreviewContent())
@@ -429,6 +507,29 @@ export default {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        translateTemplateField(field) {
+            let fieldSuffix = '';
+
+            switch (field) {
+                case 'subject':
+                    fieldSuffix = 'options.labelSubject';
+                    break;
+                case 'senderName':
+                    fieldSuffix = 'options.labelSenderName';
+                    break;
+                case 'contentHtml':
+                    fieldSuffix = 'mailText.labelContentHtml';
+                    break;
+                case 'contentPlain':
+                    fieldSuffix = 'mailText.labelContentPlain';
+                    break;
+                default:
+                    break;
+            }
+
+            return this.$t(`sw-mail-template.detail.${fieldSuffix}`);
         },
 
         mailPreviewContent() {

@@ -43,9 +43,19 @@
         }
     }
 
-    &__test-mail-sidebar-container {
+    &__test-mail-sidebar-container,
+    &__show-preview-sidebar-container {
         padding: var(--scale-size-20);
-        border-top: 1px solid var(--color-border-primary-default);
+        border-top: 1px solid var(--color-border-secondary-default);
+    }
+
+    &__media-sidebar {
+        .sw-sidebar-item__content {
+            border-top: 1px solid var(--color-border-secondary-default);
+        }
+        .sw-sidebar-item__scrollable-container {
+            padding-top: var(--scale-size-20);
+        }
     }
 
     &__attachments-info-grid {

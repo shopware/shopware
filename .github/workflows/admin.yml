@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: "Jest Admin (unit)"
     env:
-      NODE_VERSION: '24'
+      NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
 
     steps:
@@ -89,7 +89,7 @@ jobs:
     name: "License check"
     env:
       WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
-      NODE_VERSION: '24'      
+      NODE_VERSION: 'lts/*'  
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4

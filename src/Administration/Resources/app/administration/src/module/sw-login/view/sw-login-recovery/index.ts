@@ -29,14 +29,6 @@ export default Component.wrapComponentConfig({
         this.mountedComponent();
     },
 
-    computed: {
-        checkEmailIsValid() {
-            this.validationApiService.validateEmailAddress(this.email).then((isValid) => {
-                this.isEmailValid = isValid;
-            });
-        },
-    },
-
     methods: {
         mountedComponent() {
             // @ts-expect-error
@@ -44,6 +36,17 @@ export default Component.wrapComponentConfig({
             const emailField = this.$refs.swLoginRecoveryEmailField.$el.querySelector('input') as HTMLInputElement;
 
             emailField.focus();
+        },
+
+        checkEmailIsValid() {
+            this.validationApiService.validateEmailAddress(this.email).then((isValid) => {
+                this.isEmailValid = isValid;
+            }).catch((error: unknown) => {
+                // @ts-expect-error
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                this.displayRecoveryInfo(error.response.data);
+            });
         },
 
         sendRecoveryMail() {

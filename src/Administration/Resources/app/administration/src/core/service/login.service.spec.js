@@ -547,6 +547,41 @@ describe('core/service/login.service.js', () => {
     });
 
     describe('token refresh behavior', () => {
+        it('should refresh token without Web Locks API support', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+
+            const originalLocks = navigator.locks;
+            try {
+                Object.defineProperty(navigator, 'locks', {
+                    value: undefined,
+                    configurable: true,
+                });
+
+                clientMock.onPost('/oauth/token').replyOnce(200, {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'aCcEsS_tOkEn',
+                    refresh_token: 'rEfReSh_ToKeN',
+                });
+
+                await loginService.loginByUsername('admin', 'shopware');
+
+                clientMock.onPost('/oauth/token').replyOnce(200, {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'fallback_token',
+                    refresh_token: 'fallback_refresh',
+                });
+
+                await expect(loginService.refreshToken()).resolves.toBe('fallback_token');
+            } finally {
+                Object.defineProperty(navigator, 'locks', {
+                    value: originalLocks,
+                    configurable: true,
+                });
+            }
+        });
+
         it('should continue with current token when refresh fails', async () => {
             const { loginService, clientMock } = loginServiceFactory();
 
@@ -603,6 +638,44 @@ describe('core/service/login.service.js', () => {
 
             expect(clientMock.history.post).toHaveLength(2);
             expect(loginService.getToken()).toBe('new_token');
+
+            jest.useRealTimers();
+        });
+
+        it('should logout after max refresh retries are reached', async () => {
+            jest.useFakeTimers();
+
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').reply((config) => {
+                const payload = JSON.parse(config.data);
+
+                if (payload.grant_type === 'password') {
+                    return [
+                        200,
+                        {
+                            token_type: 'Bearer',
+                            expires_in: 600,
+                            access_token: 'aCcEsS_tOkEn',
+                            refresh_token: 'rEfReSh_ToKeN',
+                        },
+                    ];
+                }
+
+                return [
+                    400,
+                    { error: 'invalid_grant' },
+                ];
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            await expect(loginService.refreshToken()).rejects.toThrow();
+
+            // 2 + 4 + 8 + 16 seconds for retries 2-5
+            await jest.advanceTimersByTimeAsync(30000);
+
+            expect(loginService.isLoggedIn()).toBe(false);
 
             jest.useRealTimers();
         });

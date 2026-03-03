@@ -17,7 +17,7 @@
                 {% block page_checkout_finish_ordernumber %}
                     <p class="finish-ordernumber"
                        data-order-number="{{ page.order.orderNumber }}"
-                       {% if storefrontAnalytics and storefrontAnalytics.isEnhancedConversions() %}
+                       {% if storefrontAnalytics and storefrontAnalytics.isActive() and storefrontAnalytics.isTrackOrders() and storefrontAnalytics.isEnhancedConversions() %}
                            data-enhanced-conversion="{{ page.order.orderCustomer.email|lower|trim|sha256 }}"
                        {% endif %}
                     >

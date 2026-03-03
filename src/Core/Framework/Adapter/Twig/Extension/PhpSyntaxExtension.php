@@ -112,7 +112,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 if (!\is_string($var)) {
                     throw AdapterException::invalidArgument(
-                        \sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
+                        \sprintf('The md5 filter expects a string or array as input, %s given', get_debug_type($var))
                     );
                 }
 
@@ -125,7 +125,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 if (!\is_string($var)) {
                     throw AdapterException::invalidArgument(
-                        \sprintf('The sha256 filter expects a string or array as input, %s given', $var::class)
+                        \sprintf('The sha256 filter expects a string or array as input, %s given', get_debug_type($var))
                     );
                 }
 

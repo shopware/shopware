@@ -42,6 +42,8 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_FILE_TYPE_NOT_SUPPORTED = 'DOCUMENT__FILE_TYPE_NOT_SUPPORTED';
 
+    public const DOCUMENT_HAS_DEPENDENCIES = 'DOCUMENT__HAS_DEPENDECIES';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -255,6 +257,15 @@ class DocumentException extends HttpException
             [
                 'requestedFileType' => $fileType,
             ]
+        );
+    }
+
+    public static function documentHasDependencies(): self
+    {
+        return new self(
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+            self::DOCUMENT_HAS_DEPENDENCIES,
+            'The document cannot be deleted because other documents depend on it.'
         );
     }
 }

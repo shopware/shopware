@@ -82,6 +82,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
      */
     private function handleMediaDeletion(array $affected, Context $context): void
     {
+        file_put_contents('/var/www/commercial/src/Core/Checkout/Document/delete.doc.log', \var_export("\n\Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber::handleMediaDeletion - START\n", true), \FILE_APPEND);
         $media = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): MediaCollection => $this->mediaRepository->search(new Criteria($affected), $context)->getEntities());
 
         $privatePaths = [];
@@ -123,6 +124,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
      */
     private function handleFolderDeletion(array $affected, Context $context): void
     {
+        file_put_contents('/var/www/commercial/src/Core/Checkout/Document/delete.doc.log', \var_export("\n\Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber::handleFolderDeletion - START\n", true), \FILE_APPEND);
         $ids = $this->fetchChildrenIds($affected);
 
         if ($ids === []) {
@@ -171,6 +173,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
      */
     private function handleThumbnailDeletion(EntityDeleteEvent $event, array $affected, Context $context): void
     {
+        file_put_contents('/var/www/commercial/src/Core/Checkout/Document/delete.doc.log', \var_export("\n\Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber::handleThumbnailDeletion - START\n", true), \FILE_APPEND);
         $privatePaths = [];
         $publicPaths = [];
 

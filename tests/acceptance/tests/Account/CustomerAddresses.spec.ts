@@ -20,6 +20,9 @@ test('Make address default for billing.', {
     await ShopCustomer.presses(addressContainer.addressActions);
     await ShopCustomer.presses(addressContainer.useAsDefaultBillingButton);
     await ShopCustomer.expects(addressContainer.isDefaultBillingAddress).toBeVisible();
+
+    const defaultBillingAddress = await StorefrontAccountAddresses.getDefaultBillingAddress(address);
+    await ShopCustomer.expects(defaultBillingAddress).toBeVisible();
 });
 
 test('Make address default for shipping.', { 
@@ -41,6 +44,9 @@ test('Make address default for shipping.', {
     await ShopCustomer.presses(addressContainer.addressActions);
     await ShopCustomer.presses(addressContainer.useAsDefaultShippingButton);
     await ShopCustomer.expects(addressContainer.isDefaultShippingAddress).toBeVisible();
+
+    const defaultShippingAddress = await StorefrontAccountAddresses.getDefaultShippingAddress(address);
+    await ShopCustomer.expects(defaultShippingAddress).toBeVisible();
 });
 
 test('Edit an existing address.', { 

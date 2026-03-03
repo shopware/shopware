@@ -332,7 +332,6 @@ Removed dependency of the Core bundle to the Elasticsearch bundle, so that the C
 
 ### Symfony 7.4 update
 
-All symfony packages have been updated to version 7.4.
 All Symfony packages have been updated to version 7.4.
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
 Especially note that Symfony now requires php-redis extension v6.1 or higher: https://github.com/symfony/symfony/blob/7.4/UPGRADE-7.4.md#cache.

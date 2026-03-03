@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Validation\Api;
 
-use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\ValidationException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -36,8 +36,7 @@ class ValidationController extends AbstractController
     {
         $emailAddress = $request->request->get(self::EMAIL_KEY_WORD);
         if (!\is_string($emailAddress)) {
-            // TODO: DOMAIN EXCEPTION
-            throw ApiException::missingRequestParameter(self::EMAIL_KEY_WORD);
+            throw ValidationException::missingRequestParameter(self::EMAIL_KEY_WORD);
         }
 
         return new JsonResponse(['isValid' => $this->validateEmail($emailAddress)], Response::HTTP_OK);
@@ -49,8 +48,7 @@ class ValidationController extends AbstractController
         $emailAddresses = \json_decode((string) $request->request->get(self::EMAILS_KEY_WORD, ''), true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\is_array($emailAddresses)) {
-            // TODO: DOMAIN EXCEPTION
-            throw ApiException::missingRequestParameter(self::EMAILS_KEY_WORD);
+            throw ValidationException::missingRequestParameter(self::EMAILS_KEY_WORD);
         }
 
         $result = [];

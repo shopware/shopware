@@ -20,7 +20,7 @@ export default class ValidationApiService extends ApiService {
         this.name = 'validationApiService';
     }
 
-    validateEmailAddress(email: string): Promise<boolean> {
+    validateEmailAddress(email: string) {
         const apiRoute = `/${this.getApiBasePath()}/email`;
 
         return this.httpClient
@@ -34,7 +34,7 @@ export default class ValidationApiService extends ApiService {
             })
             .then((response) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                return Promise.resolve(response.data.isValid);
+                return response.data.isValid;
             });
     }
 
@@ -51,7 +51,7 @@ export default class ValidationApiService extends ApiService {
                 return Promise.resolve(false);
             })
             .then((response) => {
-                return Promise.resolve(ApiService.handleResponse(response));
+                return ApiService.handleResponse(response);
             });
     }
 }

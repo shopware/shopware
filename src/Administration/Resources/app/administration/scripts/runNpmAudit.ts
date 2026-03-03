@@ -19,5 +19,8 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
 runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-848j-6mx2-7j84', // elliptic ECDSA flaw, low severity, devDep only (vite-plugin-node-polyfills/crypto-browserify), fix requires semver major
+        'https://github.com/advisories/GHSA-3ppc-4f35-3m26', // minimatch ReDoS, high severity, devDep only (twig), fix requires twig semver major
+        'https://github.com/advisories/GHSA-7r86-cg39-jmmj', // minimatch ReDoS (matchOne), high severity, devDep only (twig), fix requires twig semver major
+        'https://github.com/advisories/GHSA-23c5-xmqv-rm74', // minimatch ReDoS (extglobs), high severity, devDep only (twig), fix requires twig semver major
     ],
 });

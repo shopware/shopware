@@ -239,9 +239,6 @@
       "babel-jest": "$babel-jest",
       "jest": "$jest"
     },
-    "tmp": "0.2.5",
-    "twig": {
-      "minimatch": "3.1.5"
-    }
+    "tmp": "0.2.5"
   }
 }

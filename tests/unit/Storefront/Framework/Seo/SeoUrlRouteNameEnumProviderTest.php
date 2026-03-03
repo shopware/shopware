@@ -31,7 +31,6 @@ class SeoUrlRouteNameEnumProviderTest extends TestCase
         $registry->method('getSeoUrlRoutes')->willReturn([
             'frontend.detail.page' => new \stdClass(),
             'frontend.navigation.page' => new \stdClass(),
-            'frontend.detail.page' => new \stdClass(),
         ]);
 
         $provider = new SeoUrlRouteNameEnumProvider($registry);

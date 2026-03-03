@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class SeoUrlRouteNameEnumProvider implements FieldEnumProviderInterface
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry
     ) {

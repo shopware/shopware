@@ -92,3 +92,40 @@ test('Edit an existing address.', {
     const addressContainerEdited = await StorefrontAccountAddresses.getAvailableAddress(newAddress);
     await ShopCustomer.expects(addressContainerEdited.address).toBeVisible();
 });
+
+test('Create a new address.', {
+    tag: ['@Account', '@Address', '@Storefront'],
+    annotation: {type: 'story', description: 'As a shop customer I want to create a new address'},
+}, async ({
+    InstanceMeta,
+    ShopCustomer,
+    StorefrontAccountAddresses,
+    StorefrontAccountAddressDetails,
+    TestDataService,
+    Login,
+}) => {
+    test.skip(satisfies(InstanceMeta.version, '<6.7'), 'Addresses were reworked in 6.7');
+    const customer = await TestDataService.createCustomer();
+    await ShopCustomer.attemptsTo(Login(customer));
+    await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
+    await ShopCustomer.presses(StorefrontAccountAddresses.addNewAddressButton);
+    const addressId = TestDataService.IdProvider.getIdPair();
+    const newAddress: Partial<Address> = {
+        id: addressId.uuid,
+        firstName: 'Egon',
+        lastName: 'Spengler',
+        street: 'Ghostbusters Ave 10',
+        zipcode: '54321',
+        city: 'Manhattan',
+    };
+    TestDataService.addCreatedRecord('customer_address', newAddress.id);
+    await ShopCustomer.fillsIn(StorefrontAccountAddressDetails.firstNameInput, newAddress.firstName);
+    await ShopCustomer.fillsIn(StorefrontAccountAddressDetails.lastNameInput, newAddress.lastName);
+    await ShopCustomer.fillsIn(StorefrontAccountAddressDetails.streetInput, newAddress.street);
+    await ShopCustomer.fillsIn(StorefrontAccountAddressDetails.zipcodeInput, newAddress.zipcode);
+    await ShopCustomer.fillsIn(StorefrontAccountAddressDetails.cityInput, newAddress.city);
+    await ShopCustomer.presses(StorefrontAccountAddressDetails.saveAddressButton);
+
+    const addressContainer = await StorefrontAccountAddresses.getAvailableAddress(newAddress);
+    await ShopCustomer.expects(addressContainer.address).toBeVisible();
+}); 

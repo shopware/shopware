@@ -51,7 +51,7 @@ inputs:
 
     # optimizations
     workers:
-        default: "2"
+        default: "1"
         required: false
         description: Number of workers
     shard:

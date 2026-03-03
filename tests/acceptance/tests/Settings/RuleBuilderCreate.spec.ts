@@ -88,7 +88,9 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
 
         // Wait until product is saved via API
         const response = await AdminRuleDetail.page.waitForResponse(`${process.env["ADMIN_API_URL"] || process.env["APP_URL"]}api/_action/sync`);
-
         ShopAdmin.expects(response.ok()).toBeTruthy();
+
+        // wait for loading spinner to disappear
+        await ShopAdmin.expects(AdminRuleDetail.saveButton).toBeVisible();
     });
 });

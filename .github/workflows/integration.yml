@@ -57,7 +57,6 @@ jobs:
           php-version: ${{ matrix.php-version }}
           shard: ${{ matrix.shard }}
           shard-count: ${{ matrix.shard-count }}
-          workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
           use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}

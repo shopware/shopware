@@ -697,7 +697,7 @@
         },
         "isGuestRule": "Guest account",
         "isNewsletterRecipient": "Customer is newsletter recipient",
-        "daysSinceLastOrderRule": "Time since last order",
+        "daysSinceLastOrderRule": "Time since last finished order",
         "shippingCountryRule": "Shipping address: Country",
         "shippingCityRule": "Shipping address: City",
         "shippingStreetRule": "Shipping address: Street",
@@ -729,7 +729,7 @@
         "lineItemWithQuantityRule": "Item quantity",
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",
-        "orderDeliveryStatusRule": "Delivery status",
+        "orderDeliveryStatusRule": "Delivery status (flow)",
         "orderCreatedByAdminRule": "Order created by administrator (flow)",
         "adminSalesChannelSourceRule": "Applicable in Administration",
         "orderTransactionStatusRule": "Payment status",
@@ -997,6 +997,7 @@
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
+      "revocation_request_sent": "The revocation request form has been sent.",
       "mail_after_create_message": "Email created",
       "mail_before_send": "Email is being sent",
       "mail_sent": "Email sent",
@@ -1389,7 +1390,7 @@
       "warning": "You have insufficient permissions."
     },
     "error": {
-      "description": "You do not have the necessary permissions for this action, please ask your administrator for authorization. The required permissions are: "
+      "description": "You do not have the necessary permissions for this action, please ask your administrator for authorisation. The required permissions are: "
     }
   },
   "sw-custom-field-set-renderer": {

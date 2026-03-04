@@ -268,6 +268,7 @@ const missingTests = [
     'src/module/sw-cms/elements/location-renderer/index.ts',
     'src/module/sw-cms/elements/form/component/templates/form-contact/index.js',
     'src/module/sw-cms/elements/form/component/templates/form-newsletter/index.js',
+    'src/module/sw-cms/elements/form/component/templates/form-revocation-request/index.js',
     'src/module/sw-customer/component/sw-customer-address-form-options/index.js',
     'src/module/sw-customer/constant/sw-customer.constant.js',
     'src/module/sw-customer/default-search-configuration.js',

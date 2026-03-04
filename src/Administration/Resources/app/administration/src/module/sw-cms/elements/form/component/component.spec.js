@@ -46,4 +46,9 @@ describe('module/sw-cms/elements/form/component', () => {
     it.each(formTemplates)('should render form of type "%s"', async (type) => {
         expect((await createWrapper(type)).get(type)).toBeTruthy();
     });
+
+    it('should return correct selectedForm for type "revocationRequest', async () => {
+        const wrapper = await createWrapper('revocationRequest');
+        expect(wrapper.find('sw-cms-el-form-template-revocation-request').exists()).toBe(true);
+    });
 });

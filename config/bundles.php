@@ -24,4 +24,8 @@ if (InstalledVersions::isInstalled('symfony/web-profiler-bundle')) {
     $bundles[Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class] = ['dev' => true, 'test' => true, 'phpstan_dev' => true];
 }
 
+if (InstalledVersions::isInstalled('symfony/mcp-bundle')) {
+    $bundles[Symfony\AI\McpBundle\McpBundle::class] = ['all' => true];
+}
+
 return $bundles;

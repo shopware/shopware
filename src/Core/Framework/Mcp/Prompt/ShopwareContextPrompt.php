@@ -1,0 +1,56 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Mcp\Prompt;
+
+use Mcp\Capability\Attribute\McpPrompt;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ */
+#[McpPrompt(name: 'shopware-context', description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.')]
+#[Package('framework')]
+class ShopwareContextPrompt
+{
+    /**
+     * @return list<array{role: string, content: string}>
+     */
+    public function __invoke(): array
+    {
+        return [
+            [
+                'role' => 'user',
+                'content' => <<<'PROMPT'
+You are interacting with a Shopware 6 e-commerce platform via MCP tools.
+
+## Key concepts
+- Shopware uses a Data Abstraction Layer (DAL) with entity definitions. Use `shopware-entity-schema` to understand field types and associations before querying.
+- Entity IDs are UUIDs (hex format, 32 chars). Always use lowercase without dashes.
+- The `shopware-entity-search` tool accepts criteria in the Admin API JSON format supporting: filter, sort, limit, page, associations, aggregations, includes, and fields.
+- Write operations (`shopware-entity-upsert`, `shopware-entity-delete`, `shopware-system-config-write`) default to dryRun=true. Always preview first.
+- State transitions (`shopware-state-machine-transition`) apply to orders, deliveries, and transactions.
+- Console commands can be executed via `shopware-console-command` with a safe allowlist of commands.
+
+## Common entity names
+product, category, customer, order, order_line_item, order_delivery, order_transaction, media, sales_channel, currency, language, tax, property_group, property_group_option, manufacturer, cms_page, rule
+
+## Search criteria examples
+Filter by name: {"filter": [{"type": "contains", "field": "name", "value": "shirt"}]}
+With pagination: {"limit": 10, "page": 2}
+With association: {"associations": {"manufacturer": {}}}
+With sorting: {"sort": [{"field": "createdAt", "order": "DESC"}]}
+Multiple filters: {"filter": [{"type": "multi", "operator": "AND", "queries": [{"type": "equals", "field": "active", "value": true}, {"type": "range", "field": "stock", "parameters": {"gte": 10}}]}]}
+
+## Best practices
+1. Use `shopware-entity-schema` first to understand the data model
+2. Use `shopware-entity-search` with targeted filters and limited fields for efficiency
+3. Always use dryRun=true for write operations before committing
+4. Check `shopware-business-events` to understand available flow triggers
+5. Use `shopware-system-config-read` to check shop configuration before making changes
+6. Use `shopware-flow-actions` to discover available flow actions for automation
+7. Use `shopware-console-command` to run safe administrative commands
+PROMPT,
+            ],
+        ];
+    }
+}

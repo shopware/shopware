@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
@@ -146,6 +147,8 @@ class AppEntity extends Entity
      * @var EntityCollection<AppShippingMethodEntity>|null
      */
     protected ?EntityCollection $appShippingMethods = null;
+
+    protected ?AppMcpToolCollection $mcpTools = null;
 
     protected int $templateLoadPriority;
 
@@ -632,6 +635,16 @@ class AppEntity extends Entity
     public function setAppShippingMethods(EntityCollection $appShippingMethods): void
     {
         $this->appShippingMethods = $appShippingMethods;
+    }
+
+    public function getMcpTools(): ?AppMcpToolCollection
+    {
+        return $this->mcpTools;
+    }
+
+    public function setMcpTools(AppMcpToolCollection $mcpTools): void
+    {
+        $this->mcpTools = $mcpTools;
     }
 
     public function jsonSerialize(): array

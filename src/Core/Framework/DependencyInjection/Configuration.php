@@ -56,6 +56,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductStreamSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createMcpSection())
             ->end();
 
         return $treeBuilder;
@@ -1196,6 +1197,43 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createMcpSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('mcp'))->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_tools')
+                    ->info('Restrict which MCP tools are exposed. Empty array means all tools are allowed.')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+                ->integerNode('app_tool_timeout')
+                    ->info('Timeout in seconds for app webhook MCP tool calls.')
+                    ->defaultValue(10)
+                    ->min(1)
+                ->end()
+                ->arrayNode('allowed_console_commands')
+                    ->info('Console commands allowed to be executed via the shopware-console-command MCP tool.')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([
+                        'cache:clear',
+                        'cache:warmup',
+                        'plugin:list',
+                        'plugin:refresh',
+                        'scheduled-task:list',
+                        'theme:compile',
+                        'debug:router',
+                        'debug:mcp',
+                        'messenger:stats',
+                        'assets:install',
+                    ])
+                ->end()
             ->end();
 
         return $rootNode;

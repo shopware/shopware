@@ -30,6 +30,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
@@ -42,6 +43,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
+use Shopware\Core\Framework\App\Mcp\Mcp;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
@@ -110,7 +112,8 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly ShippingMethodPersister $shippingMethodPersister,
         private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
-        private readonly ConfigReader $configReader
+        private readonly ConfigReader $configReader,
+        private readonly McpToolPersister $mcpToolPersister,
     ) {
     }
 
@@ -310,6 +313,9 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
         }
 
+        $mcpTools = $this->getMcpTools($app);
+        $this->mcpToolPersister->updateTools($mcpTools, $id, $defaultLocale, $context);
+
         $updatePayload = [
             'id' => $app->getId(),
             'configurable' => $this->handleConfigUpdates($app, $manifest, $install),
@@ -340,6 +346,17 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         return Event::createFromXmlFile($fs->path('Resources/flow.xml'));
+    }
+
+    private function getMcpTools(AppEntity $app): ?Mcp
+    {
+        $fs = $this->sourceResolver->filesystemForApp($app);
+
+        if (!$fs->has('Resources/mcp.xml')) {
+            return null;
+        }
+
+        return Mcp::createFromXmlFile($fs->path('Resources/mcp.xml'));
     }
 
     private function getFlowActions(AppEntity $app): ?Action

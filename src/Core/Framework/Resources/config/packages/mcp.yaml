@@ -1,0 +1,17 @@
+mcp:
+    app: 'Shopware'
+    version: '1.0.0'
+    description: 'Shopware MCP server providing tools for entity management, system configuration, and storefront operations.'
+    instructions: |
+        This MCP server exposes Shopware e-commerce platform capabilities.
+        Use entity tools to search, read, and manage shop data.
+        All operations respect the authenticated user's ACL permissions.
+    client_transports:
+        http: true
+    http:
+        path: /api/_mcp
+    discovery:
+        scan_dirs:
+            - src/Core/Framework/Mcp
+            - custom/plugins
+            - custom/static-plugins

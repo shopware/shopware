@@ -7,6 +7,16 @@ A new internal comment field was added to the state change modal which can be us
 The internal comment is only visible in the administration and not shown to customers.
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
+### [Experimental] MCP Server for AI tool integration
+
+Shopware now includes an experimental MCP (Model Context Protocol) server that allows AI clients like Claude Desktop, Cursor, or any MCP-compatible tool to interact with your Shopware instance through a standardized protocol.
+
+The MCP server exposes tools for entity management (search, read, create, update, delete), system configuration, state machine transitions, cache management, and storefront product search with sales channel context. All operations respect the authenticated user's ACL permissions and integrate with the Admin API OAuth authentication.
+
+To enable this feature, set the `MCP_SERVER` feature flag to `true`. The MCP endpoint is available at `/api/_mcp` and supports Streamable HTTP transport. Plugins can provide additional MCP tools by tagging services with `shopware.mcp.tool`.
+
+A `debug:mcp` CLI command is available to list all registered MCP tools, prompts, and resources.
+
 ### [Experimental] Use OpenSearch for Admin API searches
 
 When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 

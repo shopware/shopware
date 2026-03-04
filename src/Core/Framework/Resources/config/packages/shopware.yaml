@@ -341,6 +341,15 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
+            mcp:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '1 hours'
+                limits:
+                    - limit: 60
+                      interval: '60 seconds'
+                    - limit: 120
+                      interval: '120 seconds'
 
     admin_worker:
         enable_admin_worker: true

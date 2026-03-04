@@ -22,6 +22,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
@@ -398,7 +399,8 @@ class AppLifecycleTest extends TestCase
             $this->createMock(ShippingMethodPersister::class),
             $this->createMock(EntityRepository::class),
             $appSourceResolver,
-            $this->createMock(ConfigReader::class)
+            $this->createMock(ConfigReader::class),
+            $this->createMock(McpToolPersister::class)
         );
     }
 

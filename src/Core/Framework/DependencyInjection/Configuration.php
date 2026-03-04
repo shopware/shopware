@@ -216,6 +216,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('frw')->end()
+                ->booleanNode('use_sales_channel_cookie_path')->defaultFalse()->end()
             ->end();
 
         return $rootNode;

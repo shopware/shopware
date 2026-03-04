@@ -171,6 +171,7 @@
                     };
                 window.salesChannelId = '{{ context.salesChannelId }}';
                 window.salesChannelBaseUrl = '{{ app.request.attributes.get('sw-sales-channel-base-url') }}';
+                window.useSalesChannelCookiePath = {{ app.request.attributes.get('sw-use-sales-channel-cookie-path') ? 'true' : 'false' }};
                 window.currencyIsoCode = '{{ context.currency.isoCode }}';
                 window.openOffcanvasAfterAddToCart = '{{ config('core.cart.openOffcanvasAfterAddToCart') ? '1' : '0' }}';
             </script>

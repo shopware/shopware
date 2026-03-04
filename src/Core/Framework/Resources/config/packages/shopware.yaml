@@ -344,6 +344,7 @@ shopware:
 
     store:
         frw: false
+        use_sales_channel_cookie_path: false
 
     sitemap:
         batchsize: 100

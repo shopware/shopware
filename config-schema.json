@@ -1418,6 +1418,11 @@
             "properties": {
                 "frw": {
                     "type": "boolean"
+                },
+                "use_sales_channel_cookie_path": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When enabled, cookies use the sales channel base URL as their path instead of '/'"
                 }
             },
             "title": "Shopware store"

@@ -32,7 +32,7 @@ class StorefrontSessionStorageFactoryTest extends TestCase
         $innerFactory = $this->createMock(SessionStorageFactoryInterface::class);
         $innerFactory->expects($this->once())->method('createStorage')->willReturn($storageMock);
 
-        $factory = new StorefrontSessionStorageFactory($innerFactory);
+        $factory = new StorefrontSessionStorageFactory($innerFactory, true);
 
         $request = new Request();
         $request->attributes->set('sw-sales-channel-base-url', $baseUrl);
@@ -59,5 +59,45 @@ class StorefrontSessionStorageFactoryTest extends TestCase
             'baseUrl' => null,
             'expectedCookiePath' => '/',
         ];
+    }
+
+    public function testCreateStorageDoesNotSetCookiePathWhenConfigDisabled(): void
+    {
+        $storageMock = $this->getMockBuilder(NativeSessionStorage::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $storageMock->expects($this->never())
+            ->method('setOptions');
+
+        $innerFactory = $this->createMock(SessionStorageFactoryInterface::class);
+        $innerFactory->expects($this->once())->method('createStorage')->willReturn($storageMock);
+
+        $factory = new StorefrontSessionStorageFactory($innerFactory, false);
+
+        $request = new Request();
+        $request->attributes->set('sw-sales-channel-base-url', '/germany');
+
+        $factory->createStorage($request);
+    }
+
+    public function testCreateStorageDoesNotSetCookiePathByDefault(): void
+    {
+        $storageMock = $this->getMockBuilder(NativeSessionStorage::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $storageMock->expects($this->never())
+            ->method('setOptions');
+
+        $innerFactory = $this->createMock(SessionStorageFactoryInterface::class);
+        $innerFactory->expects($this->once())->method('createStorage')->willReturn($storageMock);
+
+        $factory = new StorefrontSessionStorageFactory($innerFactory);
+
+        $request = new Request();
+        $request->attributes->set('sw-sales-channel-base-url', '/germany');
+
+        $factory->createStorage($request);
     }
 }

@@ -84,6 +84,7 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
             <argument>%shopware.routing.registered_api_prefixes%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\DomainLoader"/>
+            <argument>%shopware.store.use_sales_channel_cookie_path%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">

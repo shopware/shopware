@@ -125,6 +125,62 @@ class RequestTransformerTest extends TestCase
         static::assertSame($expectedResolvedUri, $transformed->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
         static::assertSame($salesChannelId, $transformed->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
         static::assertTrue($transformed->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
+        static::assertFalse($transformed->attributes->get(RequestTransformer::USE_SALES_CHANNEL_COOKIE_PATH));
+    }
+
+    #[DataProvider('useSalesChannelCookiePathProvider')]
+    public function testTransformSetsUseSalesChannelCookiePathAttribute(bool $useSalesChannelCookiePath): void
+    {
+        $domainUrl = 'http://shopware.com/de/';
+
+        $decorated = $this->createMock(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(fn ($request) => $request);
+
+        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver->method('resolve')->willReturn([
+            'pathInfo' => '/',
+            'isCanonical' => false,
+        ]);
+
+        $domainLoader = $this->createMock(AbstractDomainLoader::class);
+        $domainLoader->method('load')->willReturn([
+            $domainUrl => [
+                'url' => $domainUrl,
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomHex(),
+                'typeId' => 'storefront',
+                'snippetSetId' => Uuid::randomHex(),
+                'currencyId' => Uuid::randomHex(),
+                'languageId' => Uuid::randomHex(),
+                'themeId' => Uuid::randomHex(),
+                'maintenance' => '0',
+                'maintenanceIpWhitelist' => '',
+                'locale' => 'en-GB',
+                'themeName' => 'Storefront',
+                'parentThemeName' => '',
+            ],
+        ]);
+
+        $requestTransformer = new RequestTransformer($decorated, $resolver, [ApiRouteScope::ID], $domainLoader, $useSalesChannelCookiePath);
+
+        $request = Request::create('http://shopware.com/de/');
+        $transformed = $requestTransformer->transform($request);
+
+        static::assertSame($useSalesChannelCookiePath, $transformed->attributes->get(RequestTransformer::USE_SALES_CHANNEL_COOKIE_PATH));
+    }
+
+    /**
+     * @return iterable<string, array{useSalesChannelCookiePath: bool}>
+     */
+    public static function useSalesChannelCookiePathProvider(): iterable
+    {
+        yield 'enabled' => [
+            'useSalesChannelCookiePath' => true,
+        ];
+
+        yield 'disabled' => [
+            'useSalesChannelCookiePath' => false,
+        ];
     }
 
     /**

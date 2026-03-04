@@ -27,6 +27,8 @@ class RequestTransformer implements RequestTransformerInterface
      */
     final public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
 
+    final public const USE_SALES_CHANNEL_COOKIE_PATH = 'sw-use-sales-channel-cookie-path';
+
     /**
      * Scheme + Host + port + subdir in web root
      *
@@ -56,6 +58,7 @@ class RequestTransformer implements RequestTransformerInterface
         self::SALES_CHANNEL_ABSOLUTE_BASE_URL,
         self::STOREFRONT_URL,
         self::SALES_CHANNEL_RESOLVED_URI,
+        self::USE_SALES_CHANNEL_COOKIE_PATH,
 
         PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID,
         SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST,
@@ -91,7 +94,8 @@ class RequestTransformer implements RequestTransformerInterface
         private readonly RequestTransformerInterface $decorated,
         private readonly AbstractSeoResolver $resolver,
         private readonly array $registeredApiPrefixes,
-        private readonly AbstractDomainLoader $domainLoader
+        private readonly AbstractDomainLoader $domainLoader,
+        private readonly bool $useSalesChannelCookiePath = false
     ) {
     }
 
@@ -170,6 +174,7 @@ class RequestTransformer implements RequestTransformerInterface
 
         $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
+        $transformedRequest->attributes->set(self::USE_SALES_CHANNEL_COOKIE_PATH, $this->useSalesChannelCookiePath);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $transformedRequest->attributes->set(
             self::STOREFRONT_URL,

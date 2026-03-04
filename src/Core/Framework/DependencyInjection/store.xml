@@ -310,6 +310,7 @@
         <service id="Shopware\Core\Framework\Store\Session\StorefrontSessionStorageFactory"
                  decorates="session.storage.factory.native">
             <argument type="service" id=".inner" />
+            <argument>%shopware.store.use_sales_channel_cookie_path%</argument>
         </service>
     </services>
 </container>

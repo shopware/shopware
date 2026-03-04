@@ -213,6 +213,18 @@ Custom headers defined in app flow action configurations are now correctly sent 
 
 ## Hosting & Configuration
 
+### New `use_sales_channel_cookie_path` configuration option
+
+A new boolean configuration option `shopware.store.use_sales_channel_cookie_path` has been added (default: `false`).
+
+When enabled, both PHP session cookies and JavaScript storefront cookies will use the sales channel base URL (e.g. `/de`, `/second-sales-channel`) as their cookie path instead of the default `/`. This is useful in multichannel setups where different sales channels run under the same domain but with different base paths, preventing cookie conflicts between channels.
+
+```yaml
+shopware:
+    store:
+        use_sales_channel_cookie_path: false
+```
+
 ### Deprecated HTTP cache reverse proxy configuration
 
 The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:

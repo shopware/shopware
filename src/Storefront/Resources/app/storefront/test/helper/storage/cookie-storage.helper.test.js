@@ -71,8 +71,9 @@ describe('cookie-storage.helper.js', () => {
         expect(document.cookie).toStrictEqual(cookies);
     });
 
-    test('it sets the cookie with a custom path from window.router', () => {
+    test('it sets the cookie with a custom path when useSalesChannelCookiePath is enabled', () => {
         window.salesChannelBaseUrl = '/custom-sales-channel-path';
+        window.useSalesChannelCookiePath = true;
 
         const cookieSpy = jest.spyOn(document, 'cookie', 'set');
 
@@ -83,6 +84,38 @@ describe('cookie-storage.helper.js', () => {
 
         expect(cookieSpy).toHaveBeenCalledWith(
             expect.stringContaining('path=/custom-sales-channel-path'),
+        );
+
+        cookieSpy.mockRestore();
+        delete window.useSalesChannelCookiePath;
+    });
+
+    test('it uses root path when useSalesChannelCookiePath is disabled', () => {
+        window.salesChannelBaseUrl = '/custom-sales-channel-path';
+        window.useSalesChannelCookiePath = false;
+
+        const cookieSpy = jest.spyOn(document, 'cookie', 'set');
+
+        CookieStorageHelper.setItem('path-test-cookie', 'path-value', 1);
+
+        expect(cookieSpy).toHaveBeenCalledWith(
+            expect.stringContaining('path=/;'),
+        );
+
+        cookieSpy.mockRestore();
+        delete window.useSalesChannelCookiePath;
+    });
+
+    test('it uses root path by default when useSalesChannelCookiePath is not set', () => {
+        window.salesChannelBaseUrl = '/custom-sales-channel-path';
+        delete window.useSalesChannelCookiePath;
+
+        const cookieSpy = jest.spyOn(document, 'cookie', 'set');
+
+        CookieStorageHelper.setItem('path-test-cookie', 'path-value', 1);
+
+        expect(cookieSpy).toHaveBeenCalledWith(
+            expect.stringContaining('path=/;'),
         );
 
         cookieSpy.mockRestore();

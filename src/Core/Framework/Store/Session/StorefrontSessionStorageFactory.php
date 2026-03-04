@@ -17,8 +17,10 @@ class StorefrontSessionStorageFactory implements SessionStorageFactoryInterface
     /**
      * @param SessionStorageFactoryInterface $decorated The original Symfony factory
      */
-    public function __construct(private SessionStorageFactoryInterface $decorated)
-    {
+    public function __construct(
+        private SessionStorageFactoryInterface $decorated,
+        private bool $useSalesChannelCookiePath = false,
+    ) {
     }
 
     public function createStorage(?Request $request): SessionStorageInterface
@@ -30,6 +32,10 @@ class StorefrontSessionStorageFactory implements SessionStorageFactoryInterface
         }
 
         if (!$storage instanceof NativeSessionStorage) {
+            return $storage;
+        }
+
+        if (!$this->useSalesChannelCookiePath) {
             return $storage;
         }
 

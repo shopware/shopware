@@ -4,7 +4,7 @@
 The MCP endpoint at `/api/_mcp` is protected by Shopware's Admin API OAuth authentication. Every request must include a valid Bearer token or integration credentials (`sw-access-key` + `sw-secret-access-key` headers).
 
 ## ACL (Access Control)
-Entity tools (`entity-search`, `entity-read`, `entity-upsert`, `entity-delete`) check the authenticated user's ACL permissions before executing. If the integration/user does not have the required privilege (e.g. `product:read`, `product:create`), the tool returns an error without touching the database.
+Entity tools (`entity-search`, `entity-read`, `entity-upsert`, `entity-delete`) and `state-machine-transition` check the authenticated user's ACL permissions before executing. If the integration/user does not have the required privilege (e.g. `product:read`, `order:update`), the tool returns an error without touching the database. The `state-machine-transition` tool requires `{entity}:read` for dry-run and additionally `{entity}:update` for actual transitions.
 
 The `RequestCriteriaBuilder` additionally validates field-level `ApiAware` flags on criteria fields.
 

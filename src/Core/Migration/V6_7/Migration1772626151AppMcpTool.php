@@ -39,7 +39,7 @@ class Migration1772626151AppMcpTool extends MigrationStep
                 `app_mcp_tool_id` BINARY(16) NOT NULL,
                 `language_id` BINARY(16) NOT NULL,
                 `label` VARCHAR(255) NULL,
-                `description` VARCHAR(1024) NULL,
+                `description` LONGTEXT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`app_mcp_tool_id`, `language_id`),

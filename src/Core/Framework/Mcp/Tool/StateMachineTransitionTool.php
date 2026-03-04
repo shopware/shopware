@@ -30,6 +30,18 @@ class StateMachineTransitionTool
     ): string {
         $context = $this->contextProvider->getContext();
 
+        $readPermission = $entityName . ':read';
+        if (!$context->isAllowed($readPermission)) {
+            return json_encode(['error' => 'Missing privilege: ' . $readPermission], \JSON_THROW_ON_ERROR);
+        }
+
+        if (!$dryRun) {
+            $updatePermission = $entityName . ':update';
+            if (!$context->isAllowed($updatePermission)) {
+                return json_encode(['error' => 'Missing privilege: ' . $updatePermission], \JSON_THROW_ON_ERROR);
+            }
+        }
+
         if ($dryRun) {
             try {
                 $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions(

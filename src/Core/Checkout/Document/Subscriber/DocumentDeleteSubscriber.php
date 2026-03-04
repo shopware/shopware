@@ -18,8 +18,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 #[Package('after-sales')]
-// ich würde gerne eine Beschreibung dazu schreiben
-// reagiert auf das Löschen von Dokumenten und entfernt damit verbundene Medien
 class DocumentDeleteSubscriber implements EventSubscriberInterface
 {
     /**

@@ -7,6 +7,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -109,7 +110,9 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
         $this->connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
 
         try {
-            return $this->connection->transactional($callback);
+            // try to retry deadlock related exceptions
+            // additionally our implementation fixes a dbal issue with wrong transaction nesting level after deadlock exceptions (see https://github.com/doctrine/dbal/issues/6651)
+            return RetryableTransaction::retryable($this->connection, $callback);
         } finally {
             // restore original isolation mode
             $this->connection->setTransactionIsolation($transactionIsolation);

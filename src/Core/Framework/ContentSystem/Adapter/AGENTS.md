@@ -14,7 +14,6 @@
 
 - Sources use `supports()` bool method — NOT null-return pattern
 - Entity sources tagged `content_system.context_factory` priority 100 — higher priority runs first
-- Header/footer are pure Storefront concepts — Core has no knowledge of them. Section resolvers registered in `Storefront/DependencyInjection/content-layout.xml`
 - Header/footer sources are NOT in the tagged iterator — injected directly into separate resolver instances
 - 3 resolver instances: main (Core, tagged iterator), header + footer (Storefront, single source each)
 - Entity query: `WHERE entity_id = X AND (sales_channel_id = Y OR IS NULL) ORDER BY sales_channel_id DESC LIMIT 1`

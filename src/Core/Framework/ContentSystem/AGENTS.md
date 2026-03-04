@@ -21,4 +21,4 @@
 - Exception class: `ContentSystemException`
 - Package: `#[Package('framework')]`
 - DAL: Use Criteria API + EntityDefinition, NOT Doctrine ORM
-- DI config: `src/Core/Framework/DependencyInjection/content-system.xml` (core), `src/Storefront/DependencyInjection/content-layout.xml` (header/footer — Storefront-only concepts, not available in headless deployments)
+- DI config: `src/Core/Framework/DependencyInjection/content-system.xml` (core), `src/Storefront/DependencyInjection/content-layout.xml` (header/footer)

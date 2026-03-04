@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
+use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -46,6 +47,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -93,6 +95,7 @@ class InfoControllerTest extends TestCase
                 'enableUrlFeature' => true,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
+                'firstMigrationDate' => null,
                 'private_allowed_extensions' => [
                     'jpg',
                     'jpeg',
@@ -163,6 +166,7 @@ class InfoControllerTest extends TestCase
         // reset environment-based mismatch
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
+        $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
 
         static::assertSame($expected, $decodedResponse);
     }
@@ -642,6 +646,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(BusinessEventCollector::class),
             static::getContainer()->get('shopware.increment.gateway.registry'),
             $this->connection,
+            static::getContainer()->get(MigrationInfo::class),
             static::getContainer()->get(AppUrlVerifier::class),
             static::getContainer()->get('router'),
             $eventCollector,
@@ -657,6 +662,7 @@ class InfoControllerTest extends TestCase
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
+            new EventDispatcher(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -716,6 +722,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(BusinessEventCollector::class),
             static::getContainer()->get('shopware.increment.gateway.registry'),
             $this->connection,
+            static::getContainer()->get(MigrationInfo::class),
             static::getContainer()->get(AppUrlVerifier::class),
             static::getContainer()->get('router'),
             $eventCollector,
@@ -731,6 +738,7 @@ class InfoControllerTest extends TestCase
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
+            new EventDispatcher(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));

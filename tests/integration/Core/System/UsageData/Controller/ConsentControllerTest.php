@@ -61,10 +61,24 @@ class ConsentControllerTest extends TestCase
 
     public function testConsentStateIsStoredInSystemConfigWhenRevoked(): void
     {
+        static::getContainer()->get(Connection::class)->executeStatement('INSERT INTO `consent_state`
+            (`id`, `name`, `identifier`, `state`, `actor`, `updated_at`)
+            VALUES (:id, "backend_data", "system", "accepted", "admin", NOW())
+        ', ['id' => Uuid::randomBytes()]);
+
         $browser = $this->getBrowser();
         $browser->request(Request::METHOD_POST, '/api/usage-data/revoke-consent');
 
         $consentState = static::getContainer()->get(Connection::class)->executeQuery('SELECT `state` FROM `consent_state` WHERE `name` = "backend_data"')->fetchOne();
         static::assertSame('revoked', $consentState);
+    }
+
+    public function testConsentStateIsStoredInSystemConfigWhenDeclined(): void
+    {
+        $browser = $this->getBrowser();
+        $browser->request(Request::METHOD_POST, '/api/usage-data/revoke-consent');
+
+        $consentState = static::getContainer()->get(Connection::class)->executeQuery('SELECT `state` FROM `consent_state` WHERE `name` = "backend_data"')->fetchOne();
+        static::assertSame('declined', $consentState);
     }
 }

@@ -52,6 +52,13 @@ Product main categories are now inherited from parent product if not explicitly 
 
 The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
 
+### New criteria events for product slider CMS element
+
+Two new events are dispatched when the product slider CMS element resolves its product criteria, allowing subscribers to modify the criteria:
+
+- `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
+- `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
+
 ## Administration
 
 ## Storefront

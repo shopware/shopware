@@ -279,18 +279,6 @@ export default {
             this.$emit('change', this.priceForCurrency);
         },
 
-        onEndsWithDecimalSeparator(value) {
-            if (value) {
-                // cancel might not be a function if debounce is not active
-                if (this.onPriceGrossChangeDebounce.cancel) {
-                    this.onPriceGrossChangeDebounce.cancel();
-                }
-                if (this.onPriceNetChangeDebounce.cancel) {
-                    this.onPriceNetChangeDebounce.cancel();
-                }
-            }
-        },
-
         onPriceGrossInputChange(value) {
             this.priceForCurrency.gross = value;
 

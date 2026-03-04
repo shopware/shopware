@@ -13,7 +13,7 @@ test(
         SalesChannelBaseConfig,
         InstanceMeta,
     }) => {
-        await test.skip(InstanceMeta.isSaaS, 'Skipping on SaaS instances due to instability in variant creation.');
+        // await test.skip(InstanceMeta.isSaaS, 'Skipping on SaaS instances due to instability in variant creation.');
         // TODO: https://github.com/shopware/shopware/issues/14608
 
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());

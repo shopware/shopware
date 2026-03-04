@@ -2,10 +2,6 @@ import type { AxiosInstance } from 'axios';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
-interface Email {
-    email: string;
-}
-
 /**
  * Custom gateway for validation routes
  *
@@ -30,28 +26,15 @@ export default class ValidationApiService extends ApiService {
                 { params: {}, headers: this.getBasicHeaders() },
             )
             .catch(() => {
-                return Promise.resolve(false);
+                return false;
             })
             .then((response) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                return response.data.isValid;
-            });
-    }
+                if (response.status === 204) {
+                    return true;
+                }
 
-    validateEmailAddresses(emails: Array<Email>) {
-        const apiRoute = `/${this.getApiBasePath()}/emails`;
-
-        return this.httpClient
-            .post(
-                apiRoute,
-                { emails: JSON.stringify(emails) },
-                { params: {}, headers: this.getBasicHeaders() },
-            )
-            .catch(() => {
-                return Promise.resolve(false);
-            })
-            .then((response) => {
-                return ApiService.handleResponse(response);
+                return false;
             });
     }
 }

@@ -246,36 +246,24 @@ export default {
 
                 this.mailRecipient = config.recipient?.type;
 
-                const recipients = {};
                 if (config.recipient?.type === 'custom') {
                     Object.entries(config.recipient.data).forEach(
                         ([
-                            key,
-                            value,
-                        ]) => {
+                             key,
+                             value,
+                         ]) => {
                             const newId = Utils.createId();
-                            recipients[key] = {
+                            this.recipients.push({
                                 id: newId,
                                 email: key,
                                 name: value,
                                 isNew: false,
-                            }
+                                isMailValid: true,
+                            });
                         },
                     );
 
-                    this.validationApiService.validateEmailAddresses(recipients).then(result => {
-                        result.forEach((validationResult) => {
-                            const recipient = recipients[validationResult.email];
-                            recipient.isMailValid = validationResult.isValid;
-                            this.handleInvalidMail(recipient);
-                            this.handleInvalidName(recipient);
-
-                            this.recipients.push(recipient);
-                        });
-
-                        this.addEmptyRecipient();
-                        this.showRecipientEmails = true;
-                    });
+                    this.showRecipientEmails = true;
                 }
 
                 if (config.replyTo) {
@@ -285,6 +273,10 @@ export default {
                 this.mailTemplateId = config.mailTemplateId;
                 this.documentTypeIds = config.documentTypeIds;
             }
+        },
+
+        onRecipientsGridMounted() {
+            this.addEmptyRecipient();
         },
 
         onClose() {
@@ -316,7 +308,7 @@ export default {
             }
 
             if (this.recipients.length === 1 && !this.recipients[0].email && !this.recipients[0].name) {
-                this.validateRecipient(this.recipients[0], 0);
+                this.applyValidationResult(this.recipients[0], 0);
                 return true;
             }
 
@@ -325,7 +317,7 @@ export default {
                 .findIndex((recipient) => !recipient.name || !recipient.email || !recipient.isMailValid);
 
             if (invalidItemIndex >= 0) {
-                this.validateRecipient(this.recipients[invalidItemIndex], invalidItemIndex);
+                this.applyValidationResult(this.recipients[invalidItemIndex], invalidItemIndex);
             }
 
             return invalidItemIndex >= 0;
@@ -388,70 +380,100 @@ export default {
         onChangeRecipient(recipient) {
             if (recipient === 'custom') {
                 this.showRecipientEmails = true;
-                this.addEmptyRecipient();
             } else {
                 this.showRecipientEmails = false;
             }
         },
 
-        checkReplyToEmailIsValid(email) {
+        debouncedIsEmailValid: debounce(function emailIsValid(recipient, originKey) {
+            let email;
+            switch (typeof recipient) {
+                case 'string':
+                    email = recipient;
+                    break;
+                case 'object':
+                    email = recipient.email;
+                    break;
+                default:
+                    email = '';
+            }
+
             this.isValidating = true;
 
-            debounce(() => {
-                this.validationApiService.validateEmailAddress(email).then((isValid) => {
-                    if (isValid) {
-                        this.isValidating = false;
-                        this.replyToError = null;
-                        return;
-                    }
+            this.validationApiService.validateEmailAddress(email).then((isValid) => {
+                this.handleDebouncedResponse(recipient, isValid, originKey);
+            });
+        }, 500),
 
-                    this.replyToError = new ShopwareError({
-                        code: 'INVALID_MAIL',
-                    });
+        handleDebouncedResponse(recipient, isValid, originKey) {
+            switch (originKey) {
+                case 'grid':
+                    this.handleGridResponse(recipient, isValid);
+                    break;
+                case 'replyTo':
+                    this.handleReplyToResponse(isValid);
+                    break;
+                default:
+            }
 
-                    this.isValidating = false;
-                });
-            }, 500)();
+            this.isValidating = false;
         },
 
-        checkEmailIsValid(recipient) {
-            this.isValidating = true;
+        handleGridResponse(recipient, isValid) {
+            const index = this.getRecipientIndex(recipient);
+            this.recipients[index].isMailValid = isValid;
+        },
 
-            debounce(() => {
-                this.validationApiService.validateEmailAddress(recipient.email).then((isValid) => {
-                    const index = this.getRecipientIndex(recipient);
-                    this.recipients[index].isMailValid = isValid;
-                    this.isValidating = false;
-                });
-            }, 500)();
+        handleReplyToResponse(isValid) {
+            if (isValid) {
+                this.replyToError = null;
+                return;
+            }
+
+            this.replyToError = new ShopwareError({
+                code: 'INVALID_MAIL',
+            });
         },
 
         addEmptyRecipient() {
-            const newId = Utils.createId();
+            const emptyRecipientIndex = this.getEmptyRecipientIndex();
+            if (emptyRecipientIndex >= 0) {
+                const recipient = this.recipients[emptyRecipientIndex];
+                this.enableInlineEdit(recipient);
 
-            this.recipients.push({
-                id: newId,
+                return;
+            }
+
+            const recipient = this.createEmptyRecipient();
+            this.recipients.push(recipient);
+            this.enableInlineEdit(recipient);
+        },
+
+        createEmptyRecipient() {
+            return {
+                id: Utils.createId(),
                 email: '',
                 name: '',
                 isNew: true,
-            });
+            };
+        },
 
-            this.$nextTick().then(() => {
-                this.$refs.recipientsGrid.currentInlineEditId = newId;
-                this.$refs.recipientsGrid.enableInlineEdit();
+        getEmptyRecipientIndex() {
+            return this.recipients.findIndex((item) => {
+                return item.email === '' && item.name === '' && item.isNew === true;
             });
         },
 
         saveRecipient(recipient) {
             if (this.isValidating) {
-                this.callErrorOnNextTick(recipient);
+                this.enableInlineEdit(recipient);
 
                 return;
             }
 
             const index = this.getRecipientIndex(recipient);
-            if (this.validateRecipient(recipient, index)) {
-                this.callErrorOnNextTick(recipient);
+            if (this.applyValidationResult(recipient, index)) {
+                this.enableInlineEdit(recipient);
 
                 return;
             }
@@ -464,8 +486,8 @@ export default {
             this.resetError();
         },
 
-        callErrorOnNextTick(recipient) {
-            this.$nextTick(() => {
+        enableInlineEdit(recipient) {
+            this.$nextTick().then(() => {
                 this.$refs.recipientsGrid.currentInlineEditId = recipient.id;
                 this.$refs.recipientsGrid.enableInlineEdit();
             });
@@ -503,7 +525,12 @@ export default {
                 this.recipients[index] = { ...item, errorName: null };
                 this.recipients[index] = { ...item, errorMail: null };
             } else {
-                this.validateRecipient(item, index);
+                this.isValidating = true;
+                this.validationApiService.validateEmailAddress(item.email).then((isValid) => {
+                    this.isValidating = false;
+                    item.isMailValid = isValid;
+                    this.applyValidationResult(item, index);
+                });
             }
 
             this.$refs.recipientsGrid.currentInlineEditId = item.id;
@@ -556,11 +583,13 @@ export default {
             }
         },
 
-        validateRecipient(item, itemIndex) {
+        applyValidationResult(item, itemIndex) {
             this.handleInvalidName(item);
             this.handleInvalidMail(item);
 
-            this.recipients[itemIndex] = item;
+            this.recipients[itemIndex].errorName = item.errorName;
+            this.recipients[itemIndex].errorMail = item.errorMail;
+            this.recipients[itemIndex].isMailValid = item.isMailValid;
 
             return this.recipients[itemIndex].errorName || this.recipients[itemIndex].errorMail;
         },

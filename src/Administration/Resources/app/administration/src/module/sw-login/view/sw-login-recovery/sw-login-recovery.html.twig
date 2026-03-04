@@ -32,7 +32,7 @@
             v-model="email"
             :label="$tc('sw-login.recovery.email.label')"
             :placeholder="$tc('sw-login.recovery.email.placeholder')"
-            @input="checkEmailIsValid"
+            @input="debouncedEmailValidation"
         />
         {% endblock %}
 

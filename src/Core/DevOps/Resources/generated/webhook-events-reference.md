@@ -25,6 +25,7 @@
 |`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"mailStruct":"object","salesChannelId":"string","timezone":"string","newsletterRecipientId":"string","newsletterRecipient":"entity"}
 |`product_export.log` | __EMPTY__ | - | {"mailStruct":"object","salesChannelId":"string","timezone":"string","name":"string"}
 |`review_form.send` | Triggers when a product review form is send | `product:read` `customer:read` | {"mailStruct":"object","salesChannelId":"string","timezone":"string","productId":"string","product":"entity","customerId":"string","customer":"entity","reviewFormData":"object"}
+|`revocation_request.sent` | __EMPTY__ | - | {"revocationRequestFormData":"object"}
 |`state_enter.order.state.cancelled` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
 |`state_enter.order.state.completed` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}
 |`state_enter.order.state.in_progress` | __EMPTY__ | `order:read` `customer:read` | {"orderId":"string","order":"entity","mailStruct":"object","salesChannelId":"string","timezone":"string","customerId":"string","customer":"entity","a11yDocumentIds":"array","a11yDocuments":"array"}

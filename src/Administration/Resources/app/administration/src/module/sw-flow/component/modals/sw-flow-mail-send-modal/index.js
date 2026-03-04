@@ -50,7 +50,6 @@ export default {
             replyTo: null,
             replyToError: null,
             isValidating: false,
-            validationDelay: null,
         };
     },
 

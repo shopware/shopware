@@ -10,6 +10,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -30,6 +31,10 @@ class MailActionControllerTest extends TestCase
 
     public function testBuild(): void
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            static::markTestSkipped('New api.action.mail_template.build behavior');
+        }
+
         $templateData = [
             'order' => [
                 'id' => Uuid::randomHex(),
@@ -67,6 +72,10 @@ class MailActionControllerTest extends TestCase
 
     public function testBuildWithoutTemplateData(): void
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            static::markTestSkipped('New api.action.mail_template.build behavior');
+        }
+
         $data = new RequestDataBag([
             'mailTemplate' => [
                 'contentHtml' => 'html',
@@ -95,6 +104,10 @@ class MailActionControllerTest extends TestCase
 
     public function testBuildWithoutTemplateContentThrows(): void
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            static::markTestSkipped('New api.action.mail_template.build behavior');
+        }
+
         $data = new RequestDataBag();
 
         $context = Context::createDefaultContext();

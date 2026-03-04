@@ -5,7 +5,7 @@ import './sw-customer-list.scss';
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -203,6 +203,14 @@ export default {
         emailIdnFilter() {
             return Shopware.Filter.getByName('decode-idn-email');
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     created() {
@@ -240,7 +248,13 @@ export default {
                 this.defaultCriteria,
             );
 
-            const newCriteria = await this.addQueryScores(this.term, criteria);
+            let newCriteria;
+            if (this.adminEsEnable) {
+                newCriteria = criteria;
+                newCriteria.setTerm(this.term);
+            } else {
+                newCriteria = await this.addQueryScores(this.term, criteria);
+            }
 
             this.activeFilterNumber = criteria.filters.length;
 

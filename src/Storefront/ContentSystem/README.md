@@ -14,4 +14,4 @@ Domain-aware three-tier fallback via `Core/Framework/ContentSystem/Adapter/Facto
 
 ## DI Config
 
-`Storefront/DependencyInjection/content-layout.xml` — Registers entity definitions, extensions, specification sources, and section resolvers (`header`, `footer`).
+`Storefront/DependencyInjection/content-system.xml` — Registers entity definitions, extensions, specification sources, and section resolvers (`header`, `footer`).

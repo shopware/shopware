@@ -45,7 +45,6 @@ class Content extends Bundle
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
-        $loader->load('content_system.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('media_test.xml');

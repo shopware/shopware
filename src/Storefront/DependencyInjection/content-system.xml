@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- Entity Definitions -->
+        <service id="Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Storefront\ContentSystem\FooterContentLayout\FooterContentLayoutDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <!-- Entity Extensions -->
+        <service id="Shopware\Storefront\ContentSystem\Extension\SalesChannelExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\ContentSystem\Extension\SalesChannelDomainExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\ContentSystem\Extension\ContentLayoutExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <!-- Section Resolvers (Header/Footer) -->
+        <service id="content_system.section_resolver.header" class="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
+            <argument type="collection">
+                <argument type="service" id="Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderSpecificationSource"/>
+            </argument>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
+            <tag name="content_system.section_resolver" section="header"/>
+        </service>
+
+        <service id="content_system.section_resolver.footer" class="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
+            <argument type="collection">
+                <argument type="service" id="Shopware\Storefront\ContentSystem\FooterContentLayout\FooterSpecificationSource"/>
+            </argument>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
+            <tag name="content_system.section_resolver" section="footer"/>
+        </service>
+
+        <!-- Domain-Aware Specification Sources -->
+        <service id="Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderSpecificationSource">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver"/>
+            <argument type="service" id="header_content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
+        </service>
+
+        <service id="Shopware\Storefront\ContentSystem\FooterContentLayout\FooterSpecificationSource">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver"/>
+            <argument type="service" id="footer_content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
+        </service>
+    </services>
+</container>

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
-use Shopware\Core\Content\ContentSystem\Adapter\Entity\FooterContentLayout\FooterContentLayoutCollection;
-use Shopware\Core\Content\ContentSystem\Adapter\Entity\HeaderContentLayout\HeaderContentLayoutCollection;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -46,10 +44,6 @@ class SalesChannelDomainEntity extends Entity
     protected ?SalesChannelEntity $salesChannelDefaultHreflang = null;
 
     protected bool $hreflangUseOnlyLocale;
-
-    protected ?HeaderContentLayoutCollection $headerContentLayouts = null;
-
-    protected ?FooterContentLayoutCollection $footerContentLayouts = null;
 
     public function getUrl(): string
     {
@@ -179,25 +173,5 @@ class SalesChannelDomainEntity extends Entity
     public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
     {
         $this->measurementUnits = $measurementUnits;
-    }
-
-    public function getHeaderContentLayouts(): ?HeaderContentLayoutCollection
-    {
-        return $this->headerContentLayouts;
-    }
-
-    public function setHeaderContentLayouts(HeaderContentLayoutCollection $headerContentLayouts): void
-    {
-        $this->headerContentLayouts = $headerContentLayouts;
-    }
-
-    public function getFooterContentLayouts(): ?FooterContentLayoutCollection
-    {
-        return $this->footerContentLayouts;
-    }
-
-    public function setFooterContentLayouts(FooterContentLayoutCollection $footerContentLayouts): void
-    {
-        $this->footerContentLayouts = $footerContentLayouts;
     }
 }

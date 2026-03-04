@@ -68,6 +68,24 @@ As some mail clients send `HEAD` requests to links which are contained in emails
 
 ## Hosting & Configuration
 
+### Add custom HTML element configuration for HTML Sanitizer
+
+A new config option `custom_tags` was added, to allow the usage of custom HTML elements using the Shopware CMS Pages and other text fields.
+
+```yaml
+shopware:
+    html_sanitizer:
+        sets:
+            - name: basic
+              custom_tags:
+                  - tag: "your-custom-element"
+                    type: "Block"
+                    contents: "Flow"
+                    attr_collections: ["Common"]
+                    attributes:
+                        - custom-attribute
+```
+
 ## Critical Fixes
 
 # 6.7.8.0
@@ -581,25 +599,6 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 3. The cart widget in the header will still update to show the new item count
 
 **Recommended for accurate funnel tracking:** Disable "Open offcanvas cart after adding a product" and enable "Track offcanvas cart". This ensures `view_cart` events only fire when users intentionally click the cart button, providing accurate funnel metrics.
-
-### Add custom HTML element configuration for HTML Sanitizer
-
-A new config option `custom_tags` was added, to allow the usage of custom HTML elements using the Shopware CMS Pages and other text fields.
-
-```yaml
-shopware:
-    html_sanitizer:
-        sets:
-            - name: basic
-              custom_tags:
-                  - tag: "your-custom-element"
-                    type: "Block"
-                    contents: "Flow"
-                    attr_collections: ["Common"]
-                    attributes:
-                        - custom-attribute
-```
-
 
 ## App System
 

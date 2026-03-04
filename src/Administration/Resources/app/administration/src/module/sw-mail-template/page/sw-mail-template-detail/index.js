@@ -434,7 +434,7 @@ export default {
                         const isMailSent = response?.size !== 0;
                         if (!isMailSent) {
                             this.createNotificationError({
-                                message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                                message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
                             });
                             return;
                         }
@@ -728,8 +728,6 @@ export default {
 
         loadAvailableVariables(variable, variableEntitySchema) {
             if (Feature.isActive('v6.8.0.0')) {
-                console.log(variable, variableEntitySchema)
-
                 this.mailService.loadAvailableVariables(this.triggerEvent.class, variable)
                     .then((response) => {
 
@@ -746,7 +744,7 @@ export default {
 
                     });
 
-                return;
+                return [];
             }
 
             if (!this.mailTemplateType || !this.mailTemplateType.availableEntities) {

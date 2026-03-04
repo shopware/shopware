@@ -395,64 +395,64 @@
                         v-if="loadedAvailableVariables.length > 0 || !feature.isActive('v6.8.0.0')"
                         class="sw-mail-template-detail__available-variables-sidebar-container-tree-container"
                     >
-                        <hr v-if="feature.isActive('v6.8.0.0')" class="sw-mail-template-detail__available-variables-sidebar-divider"/>
+                        <hr v-if="feature.isActive('v6.8.0.0')" class="sw-mail-template-detail__available-variables-sidebar-divider">
 
                         {% block sw_mail_template_available_variables_tree %}
-                            <sw-tree
-                                class="sw-mail-template-detail__available-variables-sidebar-container__tree"
-                                :searchable="false"
-                                :disable-context-menu="true"
-                                :on-change-route="() => { return false; }"
-                                :items="loadedAvailableVariables"
-                                :sortable="false"
-                                @get-tree-items="onGetTreeItems"
+                        <sw-tree
+                            class="sw-mail-template-detail__available-variables-sidebar-container__tree"
+                            :searchable="false"
+                            :disable-context-menu="true"
+                            :on-change-route="() => { return false; }"
+                            :items="loadedAvailableVariables"
+                            :sortable="false"
+                            @get-tree-items="onGetTreeItems"
+                        >
+                            {% block sw_mail_template_available_variables_tree_headline %}
+                            <template #headline>
+                                <span></span>
+                            </template>
+                            {% endblock %}
+
+                            {% block sw_mail_template_available_variables_tree_items %}
+                            <template
+                                #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
                             >
-                                {% block sw_mail_template_available_variables_tree_headline %}
-                                    <template #headline>
+                                {% block sw_mail_template_available_variables_tree_items_item %}
+                                <sw-tree-item
+                                    v-for="(item) in treeItems"
+                                    :key="item.id"
+                                    :item="item"
+                                    :disable-context-menu="disableContextMenu"
+                                    :on-change-route="onChangeRoute"
+                                    :sortable="false"
+                                    :display-checkbox="false"
+                                >
+                                    {% block sw_mail_template_available_variables_tree_items_item_grip %}
+                                    <template #grip>
                                         <span></span>
                                     </template>
-                                {% endblock %}
+                                    {% endblock %}
 
-                                {% block sw_mail_template_available_variables_tree_items %}
-                                    <template
-                                        #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
-                                    >
-                                        {% block sw_mail_template_available_variables_tree_items_item %}
-                                            <sw-tree-item
-                                                v-for="(item) in treeItems"
-                                                :key="item.id"
-                                                :item="item"
-                                                :disable-context-menu="disableContextMenu"
-                                                :on-change-route="onChangeRoute"
-                                                :sortable="false"
-                                                :display-checkbox="false"
-                                            >
-                                                {% block sw_mail_template_available_variables_tree_items_item_grip %}
-                                                    <template #grip>
-                                                        <span></span>
-                                                    </template>
-                                                {% endblock %}
-
-                                                {% block sw_mail_template_available_variables_tree_items_item_actions %}
-                                                    <template #actions="{ item }">
-                                                        <mt-icon
-                                                            v-if="item.childCount === 0"
-                                                            v-tooltip="{
-                                            message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
-                                            width: 150,
-                                            position: 'bottom'
-                                        }"
-                                                            name="regular-products-s"
-                                                            class="sw-mail-template-detail__copy_icon"
-                                                            @click="onCopyVariable(item.schema)"
-                                                        />
-                                                    </template>
-                                                {% endblock %}
-                                            </sw-tree-item>
-                                        {% endblock %}
+                                    {% block sw_mail_template_available_variables_tree_items_item_actions %}
+                                    <template #actions="{ item }">
+                                        <mt-icon
+                                            v-if="item.childCount === 0"
+                                            v-tooltip="{
+                                                message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
+                                                width: 150,
+                                                position: 'bottom'
+                                            }"
+                                            name="regular-products-s"
+                                            class="sw-mail-template-detail__copy_icon"
+                                            @click="onCopyVariable(item.schema)"
+                                        />
                                     </template>
                                 {% endblock %}
-                            </sw-tree>
+                                </sw-tree-item>
+                                {% endblock %}
+                            </template>
+                            {% endblock %}
+                        </sw-tree>
                         {% endblock %}
                     </div>
                 </div>

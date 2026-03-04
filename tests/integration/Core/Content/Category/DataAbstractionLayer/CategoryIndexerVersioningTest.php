@@ -51,13 +51,13 @@ class CategoryIndexerVersioningTest extends TestCase
         $draftVersionId = $this->categoryRepository->createVersion($childCategoryId, $context);
         $draftContext = $context->createWithVersionId($draftVersionId);
 
-        // draft-only sibling under rootCategoryId - should NOT be indexed
+        // draft-only sibling under rootCategoryId - not reachable from this update seed path - should NOT be indexed
         $childCategory2Id = $this->createCategory($draftContext, $rootCategoryId);
 
         // descendant of skipped draft-only branch - should NOT be indexed
         $childCategory3Id = $this->createCategory($draftContext, $childCategory2Id, $draftVersionId);
 
-        // descendant of the written category (existing in live and draft) - should be indexed
+        // Descendant of the written category in the current draft context - should be indexed
         $childCategory4Id = $this->createCategory($draftContext, $childCategoryId);
 
         $event = $this->createWrittenEvent($rootCategoryId, $childCategoryId, $draftContext);
@@ -67,7 +67,10 @@ class CategoryIndexerVersioningTest extends TestCase
 
         $ids = $message->getData();
         static::assertIsArray($ids);
+
+        // Included from EntityExistence old parent_id, not via recursive draft descendant lookup
         static::assertContains($rootCategoryId, $ids);
+
         static::assertContains($childCategoryId, $ids);
         static::assertContains($childCategory4Id, $ids);
         static::assertNotContains($childCategory2Id, $ids);

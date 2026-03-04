@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -31,6 +32,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ZugferdRenderer::class)]
 class ZugferdRendererTest extends TestCase
 {
+    use SnapshotTesting;
+
     private const ORDER_ID = '0192b305fddb7347be83a311a82f0649';
 
     public function testSupports(): void
@@ -47,7 +50,7 @@ class ZugferdRendererTest extends TestCase
         static::assertSame('zugferd_invoice', $renderer->supports());
     }
 
-    public function testRender(): void
+    public function testRenderSnapshot(): void
     {
         $order = new OrderEntity();
         $order->setId(self::ORDER_ID);

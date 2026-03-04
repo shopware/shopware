@@ -55,7 +55,7 @@ trait SnapshotTesting
     /**
      * @return array<string, array{message: string, read?: callable, transform?: callable, write?: callable, normalize?: callable}>
      */
-    protected function getTypeConfig(): array
+    private function getTypeConfig(): array
     {
         return [
             self::TYPE_JSON => [
@@ -68,6 +68,7 @@ trait SnapshotTesting
             ],
             self::TYPE_XML => [
                 'message' => 'XML snapshot mismatch: %s',
+                'normalize' => self::normalizeXml(...),
             ],
             self::TYPE_PDF => [
                 'message' => 'PDF snapshot mismatch: %s',
@@ -83,7 +84,7 @@ trait SnapshotTesting
      *
      * @return string|null The snapshot identifier if it was updated, null otherwise
      */
-    protected function doAssertSnapshot(
+    private function doAssertSnapshot(
         string $name,
         array|string $actual,
         string $extension,
@@ -124,7 +125,7 @@ trait SnapshotTesting
      *
      * @throws \JsonException
      */
-    protected function updateSnapshot(string $filePath, array|string $data): void
+    private function updateSnapshot(string $filePath, array|string $data): void
     {
         $dir = \dirname($filePath);
 
@@ -139,12 +140,12 @@ trait SnapshotTesting
         file_put_contents($filePath, $content);
     }
 
-    protected function getSnapshotPath(string $name, string $extension): string
+    private function getSnapshotPath(string $name, string $extension): string
     {
         return \sprintf('%s/%s/snapshot.%s', $this->getSnapshotDirectory(), $name, $extension);
     }
 
-    protected function getSnapshotDirectory(): string
+    private function getSnapshotDirectory(): string
     {
         $refClass = new \ReflectionClass(static::class);
         $dir = \dirname((string) $refClass->getFileName()) . '/_snapshots';
@@ -156,7 +157,7 @@ trait SnapshotTesting
         return $dir;
     }
 
-    protected function isUpdateSnapshotsEnabled(): bool
+    private function isUpdateSnapshotsEnabled(): bool
     {
         $env = $_SERVER['UPDATE_SNAPSHOTS'] ?? '';
 
@@ -168,14 +169,14 @@ trait SnapshotTesting
      *
      * @return array<mixed>
      */
-    protected static function transformJson(string $content): array
+    private static function transformJson(string $content): array
     {
         return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
     }
 
-    protected static function normalizeHtml(string $content): string
+    private static function normalizeHtml(string $content): string
     {
-        // replace the date in the meta tag to avoid snapshot differences
+        // replace date meta data
         return \preg_replace(
             '/(<meta name="date" content=")(.*?)(")/i',
             '$1[date]$3',
@@ -183,33 +184,43 @@ trait SnapshotTesting
         ) ?? $content;
     }
 
-    protected static function normalizePdf(string $content): string
+    private static function normalizeXml(string $content): string
+    {
+        // replace date meta data (except mocked document date)
+        return \preg_replace(
+            '/(<udt:DateTimeString format="102">)(?!20231124)(\d{8})(<\/udt:DateTimeString>)/',
+            '$1[date]$3',
+            $content
+        ) ?? $content;
+    }
+
+    private static function normalizePdf(string $content): string
     {
         // remove xmp packet
-        $content = (string) preg_replace('/<\\?xpacket.*?\\?>/is', '', $content);
+        $content = (string) \preg_replace('/<\\?xpacket.*?\\?>/is', '', $content);
 
         // remove metadata streams
-        $content = (string) preg_replace('/\\d+\\s+\\d+\\s+obj\\s*<<[^>]*\\/Type\\s*\\/Metadata[^>]*>>.*?endobj/s', '', $content);
-        $content = (string) preg_replace('/\\d+\\s+\\d+\\s+obj\\s*<<[^>]*\\/Subtype\\s*\\/XML[^>]*>>.*?endobj/s', '', $content);
+        $content = (string) \preg_replace('/\\d+\\s+\\d+\\s+obj\\s*<<[^>]*\\/Type\\s*\\/Metadata[^>]*>>.*?endobj/s', '', $content);
+        $content = (string) \preg_replace('/\\d+\\s+\\d+\\s+obj\\s*<<[^>]*\\/Subtype\\s*\\/XML[^>]*>>.*?endobj/s', '', $content);
 
         // remove creation/modification dates, producer and creator info
-        $content = (string) preg_replace('/\/CreationDate\s*\(D:[^)]+\)/', '/CreationDate (D:00000000000000)/', $content);
-        $content = (string) preg_replace('/\/ModDate\s*\(D:[^)]+\)/', '/ModDate (D:00000000000000)/', $content);
-        $content = (string) preg_replace('/\\/Producer\\s*\\(.*?\\)/', '/Producer (REMOVED)/', $content);
-        $content = (string) preg_replace('/\\/Creator\\s*\\(.*?\\)/', '/Creator (REMOVED)/', $content);
+        $content = (string) \preg_replace('/\/CreationDate\s*\(D:[^)]+\)/', '/CreationDate (D:00000000000000)/', $content);
+        $content = (string) \preg_replace('/\/ModDate\s*\(D:[^)]+\)/', '/ModDate (D:00000000000000)/', $content);
+        $content = (string) \preg_replace('/\\/Producer\\s*\\(.*?\\)/', '/Producer (REMOVED)/', $content);
+        $content = (string) \preg_replace('/\\/Creator\\s*\\(.*?\\)/', '/Creator (REMOVED)/', $content);
 
         // remove ids
-        $content = (string) preg_replace('/\/ID\s*\[\s*<[^>]+>\s*<[^>]+>\s*]/', '/ID [<> <>]/', $content);
+        $content = (string) \preg_replace('/\/ID\s*\[\s*<[^>]+>\s*<[^>]+>\s*]/', '/ID [<> <>]/', $content);
 
         // remove title and author info
-        $content = (string) preg_replace('/\\/Title\\s*\\(.*?\\)/', '/Title ()', $content);
-        $content = (string) preg_replace('/\\/Author\\s*\\(.*?\\)/', '/Author ()', $content);
+        $content = (string) \preg_replace('/\\/Title\\s*\\(.*?\\)/', '/Title ()', $content);
+        $content = (string) \preg_replace('/\\/Author\\s*\\(.*?\\)/', '/Author ()', $content);
 
         // normalize line endings and whitespace to avoid differences due to platform variations
-        $content = (string) preg_replace('/\\r\\n|\\r/', "\n", $content);
-        $content = (string) preg_replace('/[ \\t]+/', ' ', $content);
+        $content = (string) \preg_replace('/\\r\\n|\\r/', "\n", $content);
+        $content = (string) \preg_replace('/[ \\t]+/', ' ', $content);
 
         // normalize startxref to avoid differences in file size
-        return (string) preg_replace('/startxref\\s*\\d+\\s*%%EOF/', "startxref 0\n%%EOF", $content);
+        return (string) \preg_replace('/startxref\\s*\\d+\\s*%%EOF/', "startxref 0\n%%EOF", $content);
     }
 }

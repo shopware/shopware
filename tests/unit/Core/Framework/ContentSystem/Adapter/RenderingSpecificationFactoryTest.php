@@ -5,11 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Adapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\ContentSystem\StaticSpecificationSource;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -27,11 +27,12 @@ class RenderingSpecificationFactoryTest extends TestCase
         $placeholders = PlaceholderValues::from(['productId' => 'abc123']);
         $specData = new SpecificationData([], $placeholders);
 
-        $source = static::createStub(AbstractSpecificationSource::class);
-        $source->method('resolveLayoutId')->willReturn('layout-1');
-        $source->method('resolveSpecificationData')->willReturn($specData);
-        $source->method('resolveTargetElementId')->willReturn('element-42');
-        $source->method('resolveCacheTags')->willReturn(['product-abc123']);
+        $source = new StaticSpecificationSource(
+            layoutId: 'layout-1',
+            specificationData: $specData,
+            targetElementId: 'element-42',
+            cacheTags: ['product-abc123'],
+        );
 
         $factory = new RenderingSpecificationFactory();
         $result = $factory->create($source, $path, $request, $context);
@@ -52,11 +53,10 @@ class RenderingSpecificationFactoryTest extends TestCase
         $path = '/category/xyz';
         $specData = new SpecificationData([], PlaceholderValues::from([]));
 
-        $source = static::createStub(AbstractSpecificationSource::class);
-        $source->method('resolveLayoutId')->willReturn('layout-2');
-        $source->method('resolveSpecificationData')->willReturn($specData);
-        $source->method('resolveTargetElementId')->willReturn(null);
-        $source->method('resolveCacheTags')->willReturn([]);
+        $source = new StaticSpecificationSource(
+            layoutId: 'layout-2',
+            specificationData: $specData,
+        );
 
         $factory = new RenderingSpecificationFactory();
         $result = $factory->create($source, $path, $request, $context);

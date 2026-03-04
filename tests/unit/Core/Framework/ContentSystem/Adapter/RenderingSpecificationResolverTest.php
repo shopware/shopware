@@ -5,13 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Adapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\ContentSystem\StaticSpecificationSource;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -27,14 +27,13 @@ class RenderingSpecificationResolverTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $path = '/product/abc';
 
-        $source1 = static::createStub(AbstractSpecificationSource::class);
-        $source1->method('supports')->willReturn(true);
-        $source1->method('resolveLayoutId')->willReturn('layout-1');
-        $source1->method('resolveSpecificationData')->willReturn(new SpecificationData([], PlaceholderValues::from([])));
-        $source1->method('resolveTargetElementId')->willReturn(null);
-        $source1->method('resolveCacheTags')->willReturn([]);
+        $source1 = new StaticSpecificationSource(
+            supports: true,
+            layoutId: 'layout-1',
+            specificationData: new SpecificationData([], PlaceholderValues::from([])),
+        );
 
-        $source2 = static::createStub(AbstractSpecificationSource::class);
+        $source2 = new StaticSpecificationSource(supports: false);
 
         $factory = new RenderingSpecificationFactory();
 
@@ -53,15 +52,13 @@ class RenderingSpecificationResolverTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $path = '/category/xyz';
 
-        $source1 = static::createStub(AbstractSpecificationSource::class);
-        $source1->method('supports')->willReturn(false);
+        $source1 = new StaticSpecificationSource(supports: false);
 
-        $source2 = static::createStub(AbstractSpecificationSource::class);
-        $source2->method('supports')->willReturn(true);
-        $source2->method('resolveLayoutId')->willReturn('layout-2');
-        $source2->method('resolveSpecificationData')->willReturn(new SpecificationData([], PlaceholderValues::from([])));
-        $source2->method('resolveTargetElementId')->willReturn(null);
-        $source2->method('resolveCacheTags')->willReturn([]);
+        $source2 = new StaticSpecificationSource(
+            supports: true,
+            layoutId: 'layout-2',
+            specificationData: new SpecificationData([], PlaceholderValues::from([])),
+        );
 
         $factory = new RenderingSpecificationFactory();
 
@@ -79,8 +76,7 @@ class RenderingSpecificationResolverTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $path = '/unknown/path';
 
-        $source = static::createStub(AbstractSpecificationSource::class);
-        $source->method('supports')->willReturn(false);
+        $source = new StaticSpecificationSource(supports: false);
 
         $factory = new RenderingSpecificationFactory();
 

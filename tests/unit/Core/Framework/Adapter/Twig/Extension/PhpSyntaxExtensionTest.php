@@ -91,11 +91,11 @@ class PhpSyntaxExtensionTest extends TestCase
         static::assertSame($expected, $result, 'Failure in php syntax support in twig rendering');
     }
 
-    #[DataProvider('sha256FilterProvider')]
-    public function testSha256Filter(mixed $input, string $expected): void
+    #[DataProvider('hashFilterProvider')]
+    public function testHashFilter(string $algorithm, mixed $input, string $expected): void
     {
         $environment = new Environment(new ArrayLoader([
-            'test_template' => '{{ value|sha256 }}',
+            'test_template' => '{{ value|' . $algorithm . ' }}',
         ]));
         $environment->addExtension(new PhpSyntaxExtension());
 
@@ -105,63 +105,67 @@ class PhpSyntaxExtensionTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{input: mixed, expected: string}>
+     * @return iterable<string, array{algorithm: string, input: mixed, expected: string}>
      */
-    public static function sha256FilterProvider(): iterable
+    public static function hashFilterProvider(): iterable
     {
-        yield 'string input' => [
-            'input' => 'test@example.com',
-            'expected' => Hasher::hash('test@example.com', 'sha256'),
-        ];
+        foreach (['md5', 'sha256'] as $algo) {
+            yield $algo . ' string input' => [
+                'algorithm' => $algo,
+                'input' => 'test@example.com',
+                'expected' => Hasher::hash('test@example.com', $algo),
+            ];
 
-        yield 'array input gets json encoded' => [
-            'input' => ['foo' => 'bar', 'baz' => 123],
-            'expected' => Hasher::hash(json_encode(['foo' => 'bar', 'baz' => 123], \JSON_THROW_ON_ERROR), 'sha256'),
-        ];
+            yield $algo . ' array input gets json encoded' => [
+                'algorithm' => $algo,
+                'input' => ['foo' => 'bar', 'baz' => 123],
+                'expected' => Hasher::hash(json_encode(['foo' => 'bar', 'baz' => 123], \JSON_THROW_ON_ERROR), $algo),
+            ];
 
-        yield 'simple array' => [
-            'input' => ['a', 'b', 'c'],
-            'expected' => Hasher::hash(json_encode(['a', 'b', 'c'], \JSON_THROW_ON_ERROR), 'sha256'),
-        ];
+            yield $algo . ' nested array' => [
+                'algorithm' => $algo,
+                'input' => ['nested' => ['key' => 'value']],
+                'expected' => Hasher::hash(json_encode(['nested' => ['key' => 'value']], \JSON_THROW_ON_ERROR), $algo),
+            ];
 
-        yield 'nested array' => [
-            'input' => ['nested' => ['key' => 'value']],
-            'expected' => Hasher::hash(json_encode(['nested' => ['key' => 'value']], \JSON_THROW_ON_ERROR), 'sha256'),
-        ];
-
-        yield 'empty string' => [
-            'input' => '',
-            'expected' => Hasher::hash('', 'sha256'),
-        ];
-
-        yield 'numeric string' => [
-            'input' => '12345',
-            'expected' => Hasher::hash('12345', 'sha256'),
-        ];
+            yield $algo . ' empty string' => [
+                'algorithm' => $algo,
+                'input' => '',
+                'expected' => Hasher::hash('', $algo),
+            ];
+        }
     }
 
-    public function testSha256FilterThrowsExceptionForInvalidType(): void
+    #[DataProvider('hashFilterInvalidTypeProvider')]
+    public function testHashFilterThrowsExceptionForInvalidType(string $algorithm): void
     {
         $environment = new Environment(new ArrayLoader([
-            'test' => '{{ value|sha256 }}',
+            'test' => '{{ value|' . $algorithm . ' }}',
         ]));
         $environment->addExtension(new PhpSyntaxExtension());
 
-        $invalidObject = new \stdClass();
-
         $this->expectExceptionObject(
             AdapterException::invalidArgument(
-                \sprintf('The sha256 filter expects a string or array as input, %s given', $invalidObject::class)
+                \sprintf('The %s filter expects a string or array as input, stdClass given', $algorithm)
             )
         );
 
         try {
-            $environment->render('test', ['value' => $invalidObject]);
+            $environment->render('test', ['value' => new \stdClass()]);
         } catch (RuntimeError $e) {
             $previous = $e->getPrevious();
             static::assertNotNull($previous);
 
             throw $previous;
         }
+    }
+
+    /**
+     * @return iterable<string, array{algorithm: string}>
+     */
+    public static function hashFilterInvalidTypeProvider(): iterable
+    {
+        yield 'md5' => ['algorithm' => 'md5'];
+        yield 'sha256' => ['algorithm' => 'sha256'];
     }
 }

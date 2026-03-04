@@ -4,23 +4,15 @@ namespace Shopware\Core\Framework\Validation\Email;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[Package('framework')]
 class EmailDto extends Struct
 {
-    protected bool $isValid = false;
-
     public function __construct(
-        #[NotBlank]
-        #[Email]
+        #[Assert\NotBlank]
+        #[Assert\Email]
         public readonly string $email
     ) {
-    }
-
-    public function setIsValid(bool $isValid): void
-    {
-        $this->isValid = $isValid;
     }
 }

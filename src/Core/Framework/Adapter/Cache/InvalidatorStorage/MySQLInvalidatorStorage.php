@@ -127,6 +127,8 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
             // it's safe to assume that correct nesting level is 0, as we check for transaction nesting level
             // in condition above
             self::fixConnection();
+
+            throw $e;
         } finally {
             // restore original isolation mode
             $this->connection->setTransactionIsolation($transactionIsolation);

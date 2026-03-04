@@ -108,7 +108,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         if ($this->databaseTemplateCache === null) {
             $this->databaseTemplateCache = [];
 
-            if (MySQLFactory::isDatabaseless()) {
+            if (MySQLFactory::hasNoDatabaseAvailable()) {
                 return null;
             }
 

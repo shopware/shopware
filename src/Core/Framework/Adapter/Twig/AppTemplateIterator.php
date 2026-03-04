@@ -41,7 +41,7 @@ class AppTemplateIterator implements \IteratorAggregate
      */
     private function getDatabaseTemplatePaths(): array
     {
-        if (MySQLFactory::isDatabaseless()) {
+        if (MySQLFactory::hasNoDatabaseAvailable()) {
             return [];
         }
 

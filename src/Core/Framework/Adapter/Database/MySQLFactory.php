@@ -20,7 +20,10 @@ class MySQLFactory
 {
     public const PLACEHOLDER_DATABASE_URL = 'mysql://_placeholder.test';
 
-    public static function isDatabaseless(): bool
+    /**
+     * Returns true, when bin/ci is used and Shopware is called in a CI/CD environment where the Database is not available to warmup caches
+     */
+    public static function hasNoDatabaseAvailable(): bool
     {
         return (string) EnvironmentHelper::getVariable('DATABASE_URL', '') === self::PLACEHOLDER_DATABASE_URL;
     }

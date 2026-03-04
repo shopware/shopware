@@ -32,7 +32,7 @@ class SystemHeartbeat extends BaseCheck
         $lastBeatCacheItem = $this->cacheItemPool->getItem(self::CACHE_KEY);
         $lastBeatAt = $lastBeatCacheItem->isHit() ? $lastBeatCacheItem->get() : null;
         if ($this->isTooRecent($lastBeatAt)) {
-            return new Result(name: $this->name(), status: Status::SKIPPED, message: 'System Heartbeat skipped due to recent execution.');
+            return new Result(name: $this->name(), status: Status::SKIPPED, message: 'System Heartbeat skipped due to recent execution.', healthy: true);
         }
 
         $this->eventDispatcher->dispatch(new SystemHeartbeatEvent());

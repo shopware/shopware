@@ -95,6 +95,53 @@ class MailApiService extends ApiService {
         );
     }
 
+    sendTestMailTemplate(
+        recipientMail,
+        recipient,
+        mailTemplate,
+        mailTemplateMedia,
+        salesChannelId,
+        flowEventClass,
+        testMode = false,
+        documentIds = [],
+        mailTemplateTypeId = null,
+        mailTemplateId = null,
+        additionalHeaders = {},
+    ) {
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            // eslint-disable-next-line prefer-promise-reject-errors
+            return Promise.reject("Method only supports >=v6.8.0.0");
+        }
+
+        const apiRoute = `/_action/${this.getApiBasePath()}/send`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
+                    contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
+                    recipients: { [recipientMail]: recipient },
+                    salesChannelId: salesChannelId,
+                    mediaIds: mailTemplateMedia.getIds(),
+                    subject: mailTemplate.subject ?? mailTemplate.translated?.subject,
+                    senderMail: mailTemplate.senderMail,
+                    senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
+                    flowEventClass,
+                    documentIds,
+                    testMode,
+                    mailTemplateTypeId,
+                    mailTemplateId,
+                },
+                {
+                    headers: this.getBasicHeaders(additionalHeaders),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     buildRenderPreview(mailTemplateType, mailTemplate) {
         const apiRoute = `/_action/${this.getApiBasePath()}/build`;
 
@@ -102,8 +149,8 @@ class MailApiService extends ApiService {
             .post(
                 apiRoute,
                 {
-                    mailTemplateType: mailTemplateType,
-                    mailTemplate: mailTemplate,
+                    mailTemplateType,
+                    mailTemplate,
                 },
                 {
                     headers: this.getBasicHeaders(),

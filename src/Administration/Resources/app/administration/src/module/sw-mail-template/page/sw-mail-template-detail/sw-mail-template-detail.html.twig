@@ -340,6 +340,20 @@
                     />
                     {% endblock %}
 
+                    <mt-select
+                        v-if="isMajorActive"
+                        value-property="name"
+                        :label="$t('sw-mail-template.detail.sidebar.selectFlowTriggerLabel')"
+                        :model-value="triggerEvent"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
+                    >
+                        <template #hint>
+                            <mt-icon size="12" name="solid-info-circle"/>
+                            {{ $t('sw-mail-template.detail.sidebar.selectFlowTriggerHint') }}
+                        </template>
+                    </mt-select>
+
                     {% block sw_mail_template_mail_text_form_test_mail_button %}
                     <mt-button
                         :disabled="isSendButtonDisabled"
@@ -425,7 +439,7 @@
 
             {% block sw_mail_template_detail_sidebar_inner_preview %}
             <sw-sidebar-item
-                v-if="!isMajorActive()"
+                v-if="!isMajorActive"
                 icon="regular-eye"
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
                 :disabled="isLoading || showPreview || !hasTemplateData"
@@ -448,14 +462,8 @@
                         @update:model-value="onTriggerEventChange"
                     >
                         <template #hint>
-                            <div class="sw-mail-template-detail__field-hint">
-                                <mt-icon
-                                    size="12"
-                                    name="solid-info-circle"
-                                    class="sw-mail-template-detail__field-hint-icon"
-                                />
-                                {{ $t('sw-mail-template.detail.sidebar.selectFlowTriggerHint') }}
-                            </div>
+                            <mt-icon size="12" name="solid-info-circle"/>
+                            {{ $t('sw-mail-template.detail.sidebar.selectFlowTriggerHint') }}
                         </template>
                     </mt-select>
 

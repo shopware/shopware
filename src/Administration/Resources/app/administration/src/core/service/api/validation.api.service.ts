@@ -24,17 +24,11 @@ export default class ValidationApiService extends ApiService {
                 apiRoute,
                 { email: email },
                 { params: {}, headers: this.getBasicHeaders() },
-            )
-            .catch(() => {
+            ).catch(() => {
                 return false;
-            })
-            .then((response) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (response.status === 204) {
-                    return true;
-                }
-
-                return false;
+            }).then((resp) => {
+                // @ts-expect-error
+                return resp.status === 204;
             });
     }
 }

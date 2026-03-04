@@ -1,0 +1,41 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "SSO",
+        "version": "v1"
+    },
+    "paths": {
+        "\/validation\/email": {
+            "get": {
+                "tags": [
+                    "Validation",
+                    "Email"
+                ],
+                "summary": "Email validation",
+                "description": "Validates given email string",
+                "operationId": "validateEmail",
+                "responses": {
+                    "204": {
+                        "description": "Email is valid"
+                    },
+                    "422": {
+                        "description": "Emails is invalid",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Contains the validation error",
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

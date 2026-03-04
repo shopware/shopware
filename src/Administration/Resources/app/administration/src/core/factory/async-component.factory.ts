@@ -6,6 +6,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
+import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -610,6 +611,22 @@ function override(
     overrideIndex: number | null = null,
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
+
+    /**
+     * Synchronous indexing for direct-object configs (the common case for plugins
+     * and the only case exercised in tests). This ensures the block index is
+     * populated before any `sw-block` with a matching name mounts, without
+     * needing to await the full async config resolution pipeline.
+     */
+    let alreadyIndexed = false;
+    if (typeof componentConfiguration !== 'function') {
+        const { template: tpl } = componentConfiguration;
+        if (typeof tpl === 'string') {
+            indexTwigBlocksFromTemplate(componentName, tpl);
+            alreadyIndexed = true;
+        }
+    }
+
     const configResolveMethod = async (): Promise<ComponentConfig> => {
         if (config) {
             return config;
@@ -634,6 +651,15 @@ function override(
         config.name = componentName;
 
         if (config.template) {
+            /**
+             * Index any Twig block overrides for the native block shim adapter.
+             * Skipped when already indexed synchronously above (direct-object path).
+             * Runs here for async function configs (lazy-loaded plugin overrides).
+             */
+            if (!alreadyIndexed) {
+                indexTwigBlocksFromTemplate(componentName, config.template as string);
+            }
+
             /**
              * Register a template override for the existing component template.
              */

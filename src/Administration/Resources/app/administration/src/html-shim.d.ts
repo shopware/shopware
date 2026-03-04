@@ -25,3 +25,12 @@ declare module '*.vue' {
     // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
     export default component;
 }
+
+// The `twig` package ships without TypeScript declarations.
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+declare module 'twig' {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const Twig: any;
+    // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+    export default Twig;
+}

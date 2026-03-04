@@ -5,6 +5,8 @@
 import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type Slot } from 'vue';
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
+import { hasBlockEntries, getBlockEntries } from '../shim/block-index';
+import { createShimSlot } from '../shim/create-shim-slot';
 
 /**
  * @private
@@ -71,6 +73,31 @@ export default Shopware.Component.wrapComponentConfig({
     },
     setup(props, { slots }) {
         const { addBlock, removeBlock, getBlocks } = useBlockContext();
+
+        /**
+         * Twig → Native Block Runtime Adapter (shim bridge).
+         *
+         * When this `sw-block name` component mounts, check if any legacy Twig
+         * block overrides (registered via `Shopware.Component.override()`) target
+         * this block name. If so, compile each override's inner template into a
+         * native Slot function and push it into the shared `blockContext` — exactly
+         * as a `<sw-block extends="...">` component would.
+         *
+         * `onBeforeUnmount` mirrors the cleanup done by the `extends`-path below,
+         * ensuring shim slots are removed when this component navigates away and
+         * re-added when it remounts.
+         */
+        if (props.name && hasBlockEntries(props.name)) {
+            const entries = getBlockEntries(props.name);
+            const shimSlots = entries.map((entry) => createShimSlot(entry, props.name!));
+
+            shimSlots.forEach((slot) => addBlock(props.name!, slot));
+
+            onBeforeUnmount(() => {
+                shimSlots.forEach((slot) => removeBlock(props.name!, slot));
+            });
+        }
+
         if (props.extends) {
             addBlock(props.extends, slots.default);
 

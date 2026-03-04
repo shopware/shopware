@@ -60,6 +60,7 @@ class MediaUploadParameters
         if ($this->thumbnails === null) {
             $this->thumbnails = new ExternalThumbnailCollection();
         }
+
         return $this->thumbnails;
     }
 }

@@ -1100,6 +1100,16 @@ State-based invalidation is not supported anymore.
 
 <details>
 
+## Database: Time zone support required
+
+The database now requires time zone data to be loaded. You can verify whether time zone data is available by running:
+
+```sql
+SELECT CONVERT_TZ(NOW(), 'UTC', 'Europe/Berlin');
+```
+
+If this returns `NULL`, time zone tables are not populated. Refer to the [MariaDB documentation on time zone tables](https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/internationalization-and-localization/time-zones#mysql-time-zone-tables) for instructions on how to import them.
+
 ## HTTP Cache Changes
 
 ### Removed configuration parameters

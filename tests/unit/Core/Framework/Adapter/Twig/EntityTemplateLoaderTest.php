@@ -227,7 +227,7 @@ class EntityTemplateLoaderTest extends TestCase
         $this->setEnvVars(['DATABASE_URL' => MySQLFactory::PLACEHOLDER_DATABASE_URL]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())->method('fetchAllAssociative');
+        $connection->expects($this->never())->method('fetchAllAssociative');
 
         $loader = new EntityTemplateLoader($connection, 'prod');
 

@@ -52,7 +52,7 @@ class AppTemplateIteratorTest extends TestCase
         $filesystemTemplates = new \ArrayObject(['storefront/base.html.twig']);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(static::never())->method('aggregate');
+        $repository->expects($this->never())->method('aggregate');
 
         $iterator = new AppTemplateIterator($filesystemTemplates, $repository);
 

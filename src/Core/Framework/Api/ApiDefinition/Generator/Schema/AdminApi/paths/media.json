@@ -376,9 +376,9 @@
                 "operationId": "deleteExternalThumbnails",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "mediaId",
                         "in": "path",
-                        "description": "ID of the external media entity",
+                        "description": "ID of the external media entity the thumbnails will be deleted from..",
                         "required": true,
                         "schema": {
                             "$ref": "#/components/schemas/MediaId"

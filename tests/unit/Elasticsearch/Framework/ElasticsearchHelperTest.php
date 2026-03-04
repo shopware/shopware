@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use OpenSearch\Client;
 use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -156,5 +158,51 @@ class ElasticsearchHelperTest extends TestCase
         $helper->addQueries($definition, $criteria, $search, $context);
 
         static::assertSame(['boost' => '500'], $expectedParsed->getParameters());
+    }
+
+    public function testAddQueriesWithTerm(): void
+    {
+        $definition = $this->createMock(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('test_entity');
+
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->setTerm('test');
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('fieldB', 'bar'), 500));
+
+        $search = new Search();
+
+        $search->addQuery(new TermQuery('fieldA', 'bar'), BoolQuery::SHOULD);
+
+        $expectedParsed = new MatchQuery('fieldB', 'bar', ['boost' => SearchRanking::HIGH_SEARCH_RANKING]);
+        $parser = $this->createMock(CriteriaParser::class);
+        $parser->method('parseFilter')
+            ->willReturnCallback(function () use ($expectedParsed) {
+                return $expectedParsed;
+            });
+
+        $helper = new ElasticsearchHelper(
+            'dev',
+            true,
+            true,
+            'prefix',
+            true,
+            $this->createMock(Client::class),
+            $this->createMock(ElasticsearchRegistry::class),
+            $parser,
+            $this->createMock(LoggerInterface::class)
+        );
+
+        $helper->addQueries($definition, $criteria, $search, $context);
+
+        static::assertSame(['query' => [
+            'bool' => [
+                BoolQuery::SHOULD => [
+                    ['term' => ['fieldA' => 'bar']],
+                    ['match' => ['fieldB' => ['query' => 'bar', 'boost' => (string) SearchRanking::HIGH_SEARCH_RANKING, 'fuzziness' => '2']]],
+                ],
+            ],
+        ]], $search->toArray());
     }
 }

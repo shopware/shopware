@@ -12,6 +12,8 @@ Three content sections with different resolution strategies:
 
 **Footer** (`/store-api/content-footer*`) — Same domain-aware resolution as header.
 
+Header and Footer are pure Storefront concepts — the Core has no knowledge of them. This is intentional: headless deployments without the Storefront bundle operate without header/footer sections. The Storefront module registers its own entity definitions, specification sources, and section resolvers via `content-layout.xml`.
+
 Each section supports four response formats: full, decomposed, skeleton, and data. See SalesChannel/ and Output/.
 
 ## Rendering Pipeline

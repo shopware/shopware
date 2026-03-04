@@ -340,22 +340,6 @@
             <tag name="content_system.section_resolver" section="main"/>
         </service>
 
-        <service id="content_system.section_resolver.header" class="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
-            <argument type="collection">
-                <argument type="service" id="Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderSpecificationSource"/>
-            </argument>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
-            <tag name="content_system.section_resolver" section="header"/>
-        </service>
-
-        <service id="content_system.section_resolver.footer" class="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
-            <argument type="collection">
-                <argument type="service" id="Shopware\Storefront\ContentSystem\FooterContentLayout\FooterSpecificationSource"/>
-            </argument>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
-            <tag name="content_system.section_resolver" section="footer"/>
-        </service>
-
         <!-- Output Format Handlers -->
         <service id="Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory">
             <tag name="content_system.output_format" format="full"/>

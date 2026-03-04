@@ -16,7 +16,7 @@
 ## Constraints
 
 - Entity assignments: `UNIQUE (entity_id, sales_channel_id)` — one global + one per channel per entity
-- Header/Footer: `UNIQUE (domain_id, sales_channel_id)` — uses domain-aware resolution (Storefront module)
+- Header/Footer: `UNIQUE (domain_id, sales_channel_id)` — uses domain-aware resolution (Storefront module). Header/footer are pure Storefront concepts — Core has no knowledge of them. All header/footer entities, sources, and section resolvers are registered in `Storefront/DependencyInjection/content-layout.xml`
 - Assignments are unidirectional — parent entities have no awareness of ContentSystem
 - Entity fallback: sales channel specific → global (null)
 - Header/footer fallback: domain+channel → channel → global

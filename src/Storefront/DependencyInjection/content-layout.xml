@@ -26,6 +26,23 @@
             <tag name="shopware.entity.extension"/>
         </service>
 
+        <!-- Section Resolvers (Header/Footer) -->
+        <service id="content_system.section_resolver.header" class="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
+            <argument type="collection">
+                <argument type="service" id="Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderSpecificationSource"/>
+            </argument>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
+            <tag name="content_system.section_resolver" section="header"/>
+        </service>
+
+        <service id="content_system.section_resolver.footer" class="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
+            <argument type="collection">
+                <argument type="service" id="Shopware\Storefront\ContentSystem\FooterContentLayout\FooterSpecificationSource"/>
+            </argument>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
+            <tag name="content_system.section_resolver" section="footer"/>
+        </service>
+
         <!-- Domain-Aware Specification Sources -->
         <service id="Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderSpecificationSource">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver"/>

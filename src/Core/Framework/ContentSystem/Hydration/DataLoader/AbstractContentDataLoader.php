@@ -22,8 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 abstract class AbstractContentDataLoader
 {
-    abstract public function getDecorated(): AbstractContentDataLoader;
-
     /**
      * Returns the requirement type identifier for DI service location.
      * This method is used by the ServiceLocator for indexing.

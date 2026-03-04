@@ -5,7 +5,6 @@ namespace Shopware\Core\Test\Stub\ContentSystem;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,11 +24,6 @@ class StaticSpecificationSource extends AbstractSpecificationSource
         private readonly ?string $targetElementId = null,
         private readonly array $cacheTags = [],
     ) {
-    }
-
-    public function getDecorated(): AbstractSpecificationSource
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public function supports(string $path, Request $request, SalesChannelContext $context): bool

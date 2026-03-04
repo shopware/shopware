@@ -9,7 +9,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,11 +33,6 @@ class NavigationDataLoader extends AbstractContentDataLoader
         private readonly NavigationLoaderInterface $navigationLoader,
         private readonly NavigationAliasResolver $aliasResolver,
     ) {
-    }
-
-    public function getDecorated(): AbstractContentDataLoader
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public static function getRequirementType(): string

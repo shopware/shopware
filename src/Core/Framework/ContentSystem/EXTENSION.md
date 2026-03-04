@@ -45,9 +45,6 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
         private readonly EntityRepository $blogLayoutAssignmentRepository,
     ) {}
 
-    public function getDecorated(): AbstractSpecificationSource
-    { throw new DecorationPatternException(self::class); }
-
     public function supports(string $path, Request $request, SalesChannelContext $context): bool
     { /* Return true if path starts with 'blog/' */ }
 
@@ -114,9 +111,6 @@ final readonly class WeatherLoaderConfig extends AbstractContentDataLoaderConfig
 ```php
 final class WeatherLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
 {
-    public function getDecorated(): AbstractContentDataLoaderConfigSerializer
-    { throw new DecorationPatternException(self::class); }
-
     public static function getSource(): string
     { return 'weather'; /* Must match loader's getRequirementType() */ }
 
@@ -134,9 +128,6 @@ final class WeatherLoaderConfigSerializer extends AbstractContentDataLoaderConfi
 final class WeatherLoader extends AbstractContentDataLoader
 {
     public function __construct(private readonly WeatherApiClient $weatherClient) {}
-
-    public function getDecorated(): AbstractContentDataLoader
-    { throw new DecorationPatternException(self::class); }
 
     public static function getRequirementType(): string
     { return 'weather'; /* Must match serializer's getSource() */ }

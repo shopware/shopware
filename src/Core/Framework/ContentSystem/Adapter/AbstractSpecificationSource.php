@@ -14,8 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 abstract class AbstractSpecificationSource
 {
-    abstract public function getDecorated(): AbstractSpecificationSource;
-
     abstract public function supports(string $path, Request $request, SalesChannelContext $context): bool;
 
     abstract public function resolveLayoutId(string $path, Request $request, SalesChannelContext $context): string;

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -35,11 +34,6 @@ class EntityLoader extends AbstractContentDataLoader
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly EntityCacheTagResolver $cacheTagResolver,
     ) {
-    }
-
-    public function getDecorated(): AbstractContentDataLoader
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public static function getRequirementType(): string

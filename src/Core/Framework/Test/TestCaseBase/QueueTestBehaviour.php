@@ -47,23 +47,5 @@ trait QueueTestBehaviour
         ]);
     }
 
-    /**
-     * @param class-string $messageClass
-     */
-    protected function getDispatchedMessageCount(string $messageClass): int
-    {
-        $bus = static::getContainer()->get('messenger.bus.test_shopware');
-        \assert($bus instanceof TraceableMessageBus);
-
-        $count = 0;
-        foreach ($bus->getDispatchedMessages() as $message) {
-            if (isset($message['message']) && $message['message'] instanceof $messageClass) {
-                ++$count;
-            }
-        }
-
-        return $count;
-    }
-
     abstract protected static function getContainer(): ContainerInterface;
 }

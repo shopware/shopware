@@ -21,6 +21,5 @@ class QueueTestBehaviourTest extends TestCase
         static::expectNotToPerformAssertions();
 
         $this->runWorker();
-        $this->getDispatchedMessageCount(\stdClass::class);
     }
 }

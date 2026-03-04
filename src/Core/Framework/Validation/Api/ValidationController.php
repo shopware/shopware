@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class ValidationController extends AbstractController
 {
-    #[Route(path: '/api/validation/email', name: 'api.validation.email', defaults: ['auth_required' => false], methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/validation/email', name: 'api.validation.email', defaults: ['auth_required' => false], methods: [Request::METHOD_POST], format: 'json')]
     public function validateEmailAddress(
         #[MapRequestPayload]
         EmailDto $email

@@ -1,7 +1,7 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "SSO",
+        "title": "Validation",
         "version": "v1"
     },
     "paths": {

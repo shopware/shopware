@@ -13,6 +13,10 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
 }) => {
     test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
 
+    // Reloading the whole application after finishing the FRW takes some time, especially on CI.
+    // To prevent the test from being marked as failed due to timeout, we set a higher timeout for this test.
+    test.setTimeout(150_000);
+
     await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 
     await ShopAdmin.expects(AdminFirstRunWizard.welcomeText).toBeVisible();

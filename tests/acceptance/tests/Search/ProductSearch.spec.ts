@@ -10,10 +10,10 @@ test('Customer is able to search products in shop', { tag: ['@Search', '@Storefr
 }) => {
     const productNameSuffix1 = IdProvider.getIdPair().uuid;
     const createBottle = TestDataService.createBasicProduct({
-        name: `Bottle${productNameSuffix1}`,
+        name: `Bottle ${productNameSuffix1}`,
     });
     const createBowl = TestDataService.createBasicProduct({
-        name: `Bowl${productNameSuffix1}`,
+        name: `Bowl ${productNameSuffix1}`,
     });
 
     await Promise.all([createBottle, createBowl]);
@@ -22,9 +22,9 @@ test('Customer is able to search products in shop', { tag: ['@Search', '@Storefr
 
     await test.step('Wait for products to be visible.', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
-        const productLocator1 = await StorefrontHome.getListingItemByProductName(`Bottle${productNameSuffix1}`);
+        const productLocator1 = await StorefrontHome.getListingItemByProductName(`Bottle ${productNameSuffix1}`);
         await ShopCustomer.expects(productLocator1.productName).toBeVisible();
-        const productLocator2 = await StorefrontHome.getListingItemByProductName(`Bowl${productNameSuffix1}`);
+        const productLocator2 = await StorefrontHome.getListingItemByProductName(`Bowl ${productNameSuffix1}`);
         await ShopCustomer.expects(productLocator2.productName).toBeVisible();
     });
 
@@ -41,7 +41,7 @@ test('Customer is able to search products in shop', { tag: ['@Search', '@Storefr
         await ShopCustomer.expects(totalCount1).toBe(1);
 
         const lineItemText = await StorefrontSearchSuggest.searchSuggestLineItemName.first().textContent();
-        ShopCustomer.expects(lineItemText).toContain(`Bottle${productNameSuffix1}`);
+        ShopCustomer.expects(lineItemText).toContain(`Bottle ${productNameSuffix1}`);
     });
 
     await test.step('Customer searches for a partial term and sees multiple matching products', async () => {

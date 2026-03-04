@@ -130,14 +130,17 @@ class CategoryIndexer extends EntityIndexer
             );
         }
 
+        if (!$runAllUpdaters && !$parentIdChanged && !$nameChanged) {
+            // we would skip all updaters, so we can return early without dispatching messages for children
+            return null;
+        }
+
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
         $ids = array_unique(array_merge($ids, $children));
 
         $chunks = \array_chunk($ids, self::UPDATE_IDS_CHUNK_SIZE);
         $idsForReturnedMessage = array_shift($chunks);
 
-        // ToDo: check if we skip all updaters we can directly return and not fetch the children
-        // not done now to use this as reproducer for the transaction handling race condition
         $updatersSkips = $this->getSkipUpdaters($runAllUpdaters, $parentIdChanged, $nameChanged);
 
         foreach ($chunks as $chunk) {

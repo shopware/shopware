@@ -53,8 +53,8 @@ final class ProductTypeRegistry implements FieldEnumProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function getEnumValues(): array
+    public function getChoices(): array
     {
-        return $this->getTypes();
+        return $this->types;
     }
 }

@@ -150,7 +150,7 @@ class OpenApiDefinitionSchemaBuilder
                     continue;
                 }
 
-                $enumValues = array_merge($enumValues, $enumProvider->getEnumValues());
+                $enumValues = array_merge($enumValues, $enumProvider->getChoices());
             }
 
             $enumValues = array_values(array_unique($enumValues, \SORT_REGULAR));

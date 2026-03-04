@@ -12,5 +12,5 @@ interface FieldEnumProviderInterface
     /**
      * @return list<string|bool|int|float>
      */
-    public function getEnumValues(): array;
+    public function getChoices(): array;
 }

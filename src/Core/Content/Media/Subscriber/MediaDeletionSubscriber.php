@@ -132,7 +132,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         $ids = $this->fetchChildrenIds($affected);
 
         if ($ids === []) {
-            return; // @codeCoverageIgnore - The way `handleFolderDeletion` and `fetchChildrenIds` are called, this can never happen
+            return; /** @codeCoverageIgnore - The way `handleFolderDeletion` and `fetchChildrenIds` are called, this can never happen  */
         }
 
         $media = $this->connection->fetchAllAssociative(

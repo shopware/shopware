@@ -5304,6 +5304,7 @@
  "sw_sales_channel_detail_actions",
  "sw_sales_channel_detail_actions_save",
  "sw_sales_channel_detail_analytics",
+ "sw_sales_channel_detail_analytics_configuration",
  "sw_sales_channel_detail_analytics_description",
  "sw_sales_channel_detail_analytics_fields_active",
  "sw_sales_channel_detail_analytics_fields_anonymize_ip",

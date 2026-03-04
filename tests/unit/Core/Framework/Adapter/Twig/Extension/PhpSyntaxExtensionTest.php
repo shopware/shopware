@@ -137,6 +137,27 @@ class PhpSyntaxExtensionTest extends TestCase
     }
 
     #[DataProvider('hashFilterInvalidTypeProvider')]
+    public function testHashFilterThrowsExceptionForNonEncodableArray(string $algorithm): void
+    {
+        $environment = new Environment(new ArrayLoader([
+            'test' => '{{ value|' . $algorithm . ' }}',
+        ]));
+        $environment->addExtension(new PhpSyntaxExtension());
+
+        $this->expectException(AdapterException::class);
+        $this->expectExceptionMessage(\sprintf('The %s filter failed to encode array input', $algorithm));
+
+        try {
+            $environment->render('test', ['value' => [\NAN]]);
+        } catch (RuntimeError $e) {
+            $previous = $e->getPrevious();
+            static::assertNotNull($previous);
+
+            throw $previous;
+        }
+    }
+
+    #[DataProvider('hashFilterInvalidTypeProvider')]
     public function testHashFilterThrowsExceptionForInvalidType(string $algorithm): void
     {
         $environment = new Environment(new ArrayLoader([

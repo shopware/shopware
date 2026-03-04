@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -93,6 +95,8 @@ class ProductSearchQueryBuilderTest extends TestCase
         $connection->rollBack();
     }
 
+    #[DoesNotPerformAssertions]
+    #[TestDox('Warmup Elasticsearch index and test data for dependent tests')]
     public function testIndexing(): IdsCollection
     {
         $this->connection->executeStatement('DELETE FROM product');

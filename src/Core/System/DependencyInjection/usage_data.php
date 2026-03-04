@@ -24,7 +24,6 @@ use Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\System\UsageData\Services\GatewayStatusService;
-use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
@@ -66,7 +65,7 @@ return function (ContainerConfigurator $container): void {
         ->args([
             new Reference('messenger.default_bus'),
             new Reference(IterateEntitiesQueryBuilder::class),
-            new Reference(LastCollectionAllowedDateResolver::class),
+            new Reference(ConsentService::class),
             new Reference(EntityDefinitionService::class),
             new Reference('logger'),
         ])
@@ -79,7 +78,7 @@ return function (ContainerConfigurator $container): void {
             new Reference(UsageDataAllowListService::class),
             new Reference(Connection::class),
             new Reference(EntityDispatcher::class),
-            new Reference(LastCollectionAllowedDateResolver::class),
+            new Reference(ConsentService::class),
             new Reference(ShopIdProvider::class),
         ])
         ->tag('messenger.message_handler');
@@ -114,17 +113,11 @@ return function (ContainerConfigurator $container): void {
             new Reference(EntityDefinitionService::class),
             new Reference(AbstractKeyValueStorage::class),
             new Reference('messenger.default_bus'),
-            new Reference(LastCollectionAllowedDateResolver::class),
             new Reference(GatewayStatusService::class),
             new Reference(ShopIdProvider::class),
             new Reference(SystemConfigService::class),
             new Reference(ConsentService::class),
             '%shopware.usage_data.collection_enabled%',
-        ]);
-
-    $services->set(LastCollectionAllowedDateResolver::class)
-        ->args([
-            new Reference(ConsentService::class),
         ]);
 
     $services->set(ManyToManyAssociationService::class)

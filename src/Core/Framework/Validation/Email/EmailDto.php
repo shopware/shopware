@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Validation\Email;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
-class EmailDto extends Struct
+class EmailDto
 {
     public function __construct(
         #[Assert\NotBlank]

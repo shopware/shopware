@@ -156,14 +156,19 @@ class HtmlSanitizer implements ResetInterface
 
         $definition = $config->getHTMLDefinition(true);
 
-        if ($definition === null) {
+        if (!$definition instanceof \HTMLPurifier_HTMLDefinition) {
             return $config;
         }
 
         $this->addHTML5Tags($definition);
 
+        $manager = $definition->manager;
+        if (!$manager instanceof \HTMLPurifier_HTMLModuleManager) {
+            return $config;
+        }
+
         foreach ($customTags as $customTag) {
-            if ($definition->manager->getElement($customTag['tag']) === false) {
+            if ($manager->getElement($customTag['tag']) === false) {
                 $definition->addElement(
                     $customTag['tag'],
                     $customTag['type'],

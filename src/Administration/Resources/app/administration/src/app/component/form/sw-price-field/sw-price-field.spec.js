@@ -247,6 +247,61 @@ describe('components/form/sw-price-field', () => {
         expect(convertGrossToNet).toHaveBeenCalled();
     });
 
+    it('should set net value immediately when gross model change is triggered', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossModelChange(euroPrice.gross);
+
+        expect(convertGrossToNet).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set gross value immediately when net model change is triggered', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetModelChange(euroPrice.net);
+
+        expect(convertNetToGross).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call debounced gross handler on input change', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const onPriceGrossChangeDebounce = jest.spyOn(wrapper.vm, 'onPriceGrossChangeDebounce');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+
+        expect(onPriceGrossChangeDebounce).toHaveBeenCalledTimes(1);
+        expect(onPriceGrossChangeDebounce).toHaveBeenCalledWith(euroPrice.gross);
+    });
+
+    it('should cancel pending debounce when gross model change is triggered', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const onPriceGrossChangeDebounceCancel = jest.fn();
+        wrapper.vm.onPriceGrossChangeDebounce.cancel = onPriceGrossChangeDebounceCancel;
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+        wrapper.vm.onPriceGrossModelChange(euroPrice.gross);
+
+        expect(onPriceGrossChangeDebounceCancel).toHaveBeenCalledTimes(1);
+    });
+
     it('should not emit update:value event on price gross change', async () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({
@@ -299,26 +354,4 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.net).toBe(euroPrice.net);
     });
 
-    it('should cancel the debounce timer when the number field emits "ends-with-decimal-separator" event', async () => {
-        const wrapper = await setup();
-
-        // Type a normal number
-        await wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').setValue('123');
-
-        // Wait for the debounce timer to start
-        await wrapper.vm.$nextTick();
-
-        // Type a number with a decimal separator at the end
-        await wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').setValue('123.');
-
-        // Wait until the debounce timer is finished
-        jest.runAllTimers();
-        await flushPromises();
-
-        // Check if the value is set
-        expect(wrapper.vm.priceForCurrency.gross).toBe(123);
-
-        // Check if the input field value still contains the decimal separator
-        expect(wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').element.value).toBe('123.');
-    });
 });

@@ -298,7 +298,7 @@ export default {
             this.$emit('change', this.priceForCurrency);
 
             if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
-                this.onPriceGrossChangeDebounce();
+                this.onPriceGrossChangeDebounce(value);
             }
         },
 
@@ -309,8 +309,24 @@ export default {
             this.$emit('change', this.priceForCurrency);
 
             if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
-                this.onPriceNetChangeDebounce();
+                this.onPriceNetChangeDebounce(value);
             }
+        },
+
+        onPriceGrossModelChange(value) {
+            if (this.onPriceGrossChangeDebounce.cancel) {
+                this.onPriceGrossChangeDebounce.cancel();
+            }
+
+            this.onPriceGrossChange(value);
+        },
+
+        onPriceNetModelChange(value) {
+            if (this.onPriceNetChangeDebounce.cancel) {
+                this.onPriceNetChangeDebounce.cancel();
+            }
+
+            this.onPriceNetChange(value);
         },
 
         onPriceGrossChange(value) {
@@ -417,12 +433,12 @@ export default {
             this.showModal = false;
         },
 
-        onPriceGrossChangeDebounce: debounce(function onPriceGrossChange() {
-            this.onPriceGrossChange(this.priceForCurrency.gross);
+        onPriceGrossChangeDebounce: debounce(function onPriceGrossChangeDebounce(value) {
+            this.onPriceGrossChange(value);
         }, 300),
 
-        onPriceNetChangeDebounce: debounce(function onPriceNetChange() {
-            this.onPriceNetChange(this.priceForCurrency.net);
+        onPriceNetChangeDebounce: debounce(function onPriceNetChangeDebounce(value) {
+            this.onPriceNetChange(value);
         }, 300),
     },
 };

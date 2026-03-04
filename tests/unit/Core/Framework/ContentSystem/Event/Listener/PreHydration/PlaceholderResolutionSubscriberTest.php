@@ -7,8 +7,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\PlaceholderResolutionSubscriber;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\EventFactory;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\EventFactory;
 
 /**
  * @internal

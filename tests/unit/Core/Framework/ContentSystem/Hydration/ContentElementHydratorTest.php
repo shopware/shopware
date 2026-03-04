@@ -16,9 +16,9 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubLoaderConfig;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubStruct;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
+use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 

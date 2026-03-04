@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

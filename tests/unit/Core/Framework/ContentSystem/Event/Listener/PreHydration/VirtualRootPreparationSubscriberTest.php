@@ -9,8 +9,8 @@ use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\VirtualRoo
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LanguageLoader\LanguageLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\EventFactory;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\EventFactory;
 
 /**
  * @internal

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Output\Format\DataResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDataRouteResponse;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**

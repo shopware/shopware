@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper;
+namespace Shopware\Core\Test\Stub\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
@@ -15,10 +15,10 @@ use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @internal
+ * @final
  */
 #[Package('framework')]
-final class EventFactory
+class EventFactory
 {
     private function __construct()
     {

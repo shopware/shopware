@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper;
+namespace Shopware\Core\Test\Stub\ContentSystem;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @internal
+ * @final
  */
 #[Package('framework')]
-final class StubStruct extends Struct
+class StubStruct extends Struct
 {
     public function getApiAlias(): string
     {

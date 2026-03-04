@@ -8,10 +8,10 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubExtractorEntity;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubLoaderConfig;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubStruct;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubExtractorEntity;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
+use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 
 /**
  * @internal

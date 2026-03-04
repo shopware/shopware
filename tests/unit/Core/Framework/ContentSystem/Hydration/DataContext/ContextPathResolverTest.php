@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubPathStruct;
+use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
 
 /**
  * @internal

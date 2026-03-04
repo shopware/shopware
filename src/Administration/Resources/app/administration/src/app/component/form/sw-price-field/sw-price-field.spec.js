@@ -287,6 +287,20 @@ describe('components/form/sw-price-field', () => {
         expect(onPriceGrossChangeDebounce).toHaveBeenCalledWith(euroPrice.gross);
     });
 
+    it('should call debounced net handler on input change', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const onPriceNetChangeDebounce = jest.spyOn(wrapper.vm, 'onPriceNetChangeDebounce');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetInputChange(euroPrice.net);
+
+        expect(onPriceNetChangeDebounce).toHaveBeenCalledTimes(1);
+        expect(onPriceNetChangeDebounce).toHaveBeenCalledWith(euroPrice.net);
+    });
+
     it('should cancel pending debounce when gross model change is triggered', async () => {
         const wrapper = await setup({ allowEmpty: false });
         const onPriceGrossChangeDebounceCancel = jest.fn();
@@ -300,6 +314,21 @@ describe('components/form/sw-price-field', () => {
         wrapper.vm.onPriceGrossModelChange(euroPrice.gross);
 
         expect(onPriceGrossChangeDebounceCancel).toHaveBeenCalledTimes(1);
+    });
+
+    it('should cancel pending debounce when net model change is triggered', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const onPriceNetChangeDebounceCancel = jest.fn();
+        wrapper.vm.onPriceNetChangeDebounce.cancel = onPriceNetChangeDebounceCancel;
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetInputChange(euroPrice.net);
+        wrapper.vm.onPriceNetModelChange(euroPrice.net);
+
+        expect(onPriceNetChangeDebounceCancel).toHaveBeenCalledTimes(1);
     });
 
     it('should not emit update:value event on price gross change', async () => {
@@ -353,5 +382,4 @@ describe('components/form/sw-price-field', () => {
 
         expect(wrapper.vm.priceForCurrency.net).toBe(euroPrice.net);
     });
-
 });

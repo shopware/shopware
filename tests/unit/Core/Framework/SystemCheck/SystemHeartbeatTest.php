@@ -53,6 +53,7 @@ class SystemHeartbeatTest extends TestCase
         static::assertSame(Status::OK, $result->status);
         static::assertSame('System Heartbeat indicated successfully.', $result->message);
         static::assertSame('System Heartbeat', $result->name);
+        static::assertTrue($result->healthy);
     }
 
     public function testRunDispatchesEventWhenCacheReturnsNullValue(): void

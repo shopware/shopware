@@ -30,19 +30,17 @@ final class SystemCheckTaskHandler extends ScheduledTaskHandler
         $results = $this->systemChecker->check(SystemCheckExecutionContext::RECURRENT);
 
         foreach ($results as $result) {
-            if ($result->healthy === true) {
-                continue;
+            if ($result->healthy === false) {
+                $this->exceptionLogger->error(
+                    'System check "{name}" is unhealthy: {message}',
+                    [
+                        'name' => $result->name,
+                        'status' => $result->status->name,
+                        'message' => $result->message,
+                        'extra' => $result->extra,
+                    ]
+                );
             }
-
-            $this->exceptionLogger->error(
-                'System check "{name}" is unhealthy: {message}',
-                [
-                    'name' => $result->name,
-                    'status' => $result->status->name,
-                    'message' => $result->message,
-                    'extra' => $result->extra,
-                ]
-            );
         }
     }
 }

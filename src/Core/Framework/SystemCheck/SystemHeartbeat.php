@@ -43,6 +43,7 @@ class SystemHeartbeat extends BaseCheck
             name: $this->name(),
             status: Status::OK,
             message: 'System Heartbeat indicated successfully.',
+            healthy: true
         );
     }
 

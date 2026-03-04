@@ -66,6 +66,7 @@ class AppException extends HttpException
     final public const APP_URL_NOT_CONFIGURED = 'FRAMEWORK__APP_URL_NOT_CONFIGURED';
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
+    final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -545,5 +546,15 @@ class AppException extends HttpException
     public static function shopIdChangeResolveStrategyNotFound(string $strategy): self
     {
         return new ShopIdChangeStrategyNotFoundException($strategy);
+    }
+
+    public static function manifestNotFound(string $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MANIFEST_NOT_FOUND,
+            'No "manifest.xml" file in path "{{ path }}" found. (The file must be placed in the app root folder.)',
+            ['path' => $path],
+        );
     }
 }

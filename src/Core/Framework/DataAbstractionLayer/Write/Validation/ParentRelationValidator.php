@@ -43,7 +43,7 @@ class ParentRelationValidator implements EventSubscriberInterface
         $writeCommands = $event->getCommands();
         $selfReferences = $this->containsSelfReferencingParent($writeCommands);
 
-        if (empty($selfReferences)) {
+        if ($selfReferences === []) {
             return;
         }
 

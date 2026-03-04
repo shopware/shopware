@@ -74,7 +74,7 @@ class ModuleLoader
             $modules = $this->formatModules($app, $context);
             $mainModule = $this->formatMainModule($app, $context);
 
-            if (empty($modules) && $mainModule === null) {
+            if ($modules === [] && $mainModule === null) {
                 continue;
             }
 

@@ -1605,7 +1605,6 @@
   },
   "sw-wizard": {
     "backButton": "Back",
-    "closeButton": "Close",
     "finishButton": "Finish",
     "nextButton": "Next"
   },
@@ -1731,8 +1730,6 @@
       "rotate-tooltip": "Rotate object",
       "scale-tooltip": "Scale object"
     },
-    "save": "Save",
-    "cancel": "Cancel",
     "properties": {
       "transformation": {
         "label":"Transformation",

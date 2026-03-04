@@ -5,6 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
+        <!-- @deprecated tag:v6.8.0 Will be removed, it's then always enabled -->
         <parameter key="env(SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)" type="string">0</parameter>
         <parameter key="shopware.dbal.time_zone_support_enabled">%env(bool:SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)%</parameter>
 

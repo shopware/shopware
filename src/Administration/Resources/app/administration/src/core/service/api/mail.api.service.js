@@ -173,8 +173,27 @@ class MailApiService extends ApiService {
             .post(
                 apiRoute,
                 {
-                    mailTemplateContent: mailTemplateContent,
-                    flowEventClass: flowEventClass,
+                    mailTemplateContent,
+                    flowEventClass,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    loadAvailableVariables(flowEventClass, fieldPath) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/available-variables`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    flowEventClass,
+                    fieldPath,
                 },
                 {
                     headers: this.getBasicHeaders(),

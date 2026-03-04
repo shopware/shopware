@@ -114,4 +114,36 @@ class MailTemplateService
 
         return $this->mailService->send($data, $context, $templateData);
     }
+
+    /**
+     * @param class-string<FlowEventAware> $flowEventClass
+     *
+     * @return array<string,int|string|bool>[]
+     */
+    public function availableVariables(string $flowEventClass, string $fieldPath, Context $context): array
+    {
+        $templateData = $this->mailDataProvider->getTemplateData($flowEventClass, $context);
+
+        if ($fieldPath === '') {
+            return \array_map(
+                fn ($fieldName) => ['fieldName' => $fieldName, 'hasChildren' => \is_array($templateData[$fieldName]) && $templateData[$fieldName] !== []],
+                \array_keys($templateData)
+            );
+        }
+
+        $fieldPathParts = \explode('.', $fieldPath);
+
+        foreach ($fieldPathParts as $fieldPathPart) {
+            if (!\array_key_exists($fieldPathPart, $templateData)) {
+                return [];
+            }
+
+            $templateData = $templateData[$fieldPathPart];
+        }
+
+        return \array_map(
+            fn ($fieldName) => ['fieldName' => $fieldName, 'hasChildren' => \is_array($templateData[$fieldName]) && $templateData[$fieldName] !== []],
+            \array_keys($templateData)
+        );
+    }
 }

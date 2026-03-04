@@ -341,7 +341,7 @@
                     {% endblock %}
 
                     <mt-select
-                        v-if="isMajorActive"
+                        v-if="feature.isActive('v6.8.0.0')"
                         value-property="name"
                         :label="$t('sw-mail-template.detail.sidebar.selectFlowTriggerLabel')"
                         :model-value="triggerEvent"
@@ -376,70 +376,92 @@
                 class="sw-mail-template-detail__show-available-variables"
             >
                 <div class="sw-mail-template-detail__available-variables-sidebar-container">
-                    {% block sw_mail_template_available_variables_tree %}
-                    <sw-tree
-                        class="sw-mail-template-detail__available-variables-sidebar-container__tree"
-                        :searchable="false"
-                        :disable-context-menu="true"
-                        :on-change-route="() => { return false; }"
-                        :items="loadedAvailableVariables"
-                        :sortable="false"
-                        @get-tree-items="onGetTreeItems"
+                    <mt-select
+                        v-if="feature.isActive('v6.8.0.0')"
+                        class="sw-mail-template-detail__available-variables-sidebar-trigger-select"
+                        value-property="name"
+                        :label="$t('sw-mail-template.detail.sidebar.selectFlowTriggerLabel')"
+                        :model-value="triggerEvent"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
                     >
-                        {% block sw_mail_template_available_variables_tree_headline %}
-                        <template #headline>
-                            <span></span>
+                        <template #hint>
+                            <mt-icon size="12" name="solid-info-circle"/>
+                            {{ $t('sw-mail-template.detail.sidebar.selectFlowTriggerHint') }}
                         </template>
-                        {% endblock %}
+                    </mt-select>
 
-                        {% block sw_mail_template_available_variables_tree_items %}
-                        <template
-                            #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
-                        >
-                            {% block sw_mail_template_available_variables_tree_items_item %}
-                            <sw-tree-item
-                                v-for="(item) in treeItems"
-                                :key="item.id"
-                                :item="item"
-                                :disable-context-menu="disableContextMenu"
-                                :on-change-route="onChangeRoute"
+                    <div
+                        v-if="loadedAvailableVariables.length > 0 || !feature.isActive('v6.8.0.0')"
+                        class="sw-mail-template-detail__available-variables-sidebar-container-tree-container"
+                    >
+                        <hr v-if="feature.isActive('v6.8.0.0')" class="sw-mail-template-detail__available-variables-sidebar-divider"/>
+
+                        {% block sw_mail_template_available_variables_tree %}
+                            <sw-tree
+                                class="sw-mail-template-detail__available-variables-sidebar-container__tree"
+                                :searchable="false"
+                                :disable-context-menu="true"
+                                :on-change-route="() => { return false; }"
+                                :items="loadedAvailableVariables"
                                 :sortable="false"
-                                :display-checkbox="false"
+                                @get-tree-items="onGetTreeItems"
                             >
-                                {% block sw_mail_template_available_variables_tree_items_item_grip %}
-                                <template #grip>
-                                    <span></span>
-                                </template>
+                                {% block sw_mail_template_available_variables_tree_headline %}
+                                    <template #headline>
+                                        <span></span>
+                                    </template>
                                 {% endblock %}
 
-                                {% block sw_mail_template_available_variables_tree_items_item_actions %}
-                                <template #actions="{ item }">
-                                    <mt-icon
-                                        v-if="item.childCount === 0"
-                                        v-tooltip="{
+                                {% block sw_mail_template_available_variables_tree_items %}
+                                    <template
+                                        #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
+                                    >
+                                        {% block sw_mail_template_available_variables_tree_items_item %}
+                                            <sw-tree-item
+                                                v-for="(item) in treeItems"
+                                                :key="item.id"
+                                                :item="item"
+                                                :disable-context-menu="disableContextMenu"
+                                                :on-change-route="onChangeRoute"
+                                                :sortable="false"
+                                                :display-checkbox="false"
+                                            >
+                                                {% block sw_mail_template_available_variables_tree_items_item_grip %}
+                                                    <template #grip>
+                                                        <span></span>
+                                                    </template>
+                                                {% endblock %}
+
+                                                {% block sw_mail_template_available_variables_tree_items_item_actions %}
+                                                    <template #actions="{ item }">
+                                                        <mt-icon
+                                                            v-if="item.childCount === 0"
+                                                            v-tooltip="{
                                             message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
                                             width: 150,
                                             position: 'bottom'
                                         }"
-                                        name="regular-products-s"
-                                        class="sw-mail-template-detail__copy_icon"
-                                        @click="onCopyVariable(item.schema)"
-                                    />
-                                </template>
+                                                            name="regular-products-s"
+                                                            class="sw-mail-template-detail__copy_icon"
+                                                            @click="onCopyVariable(item.schema)"
+                                                        />
+                                                    </template>
+                                                {% endblock %}
+                                            </sw-tree-item>
+                                        {% endblock %}
+                                    </template>
                                 {% endblock %}
-                            </sw-tree-item>
-                            {% endblock %}
-                        </template>
+                            </sw-tree>
                         {% endblock %}
-                    </sw-tree>
-                    {% endblock %}
+                    </div>
                 </div>
             </sw-sidebar-item>
             {% endblock %}
 
             {% block sw_mail_template_detail_sidebar_inner_preview %}
             <sw-sidebar-item
-                v-if="!isMajorActive"
+                v-if="!feature.isActive('v6.8.0.0')"
                 icon="regular-eye"
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
                 :disabled="isLoading || showPreview || !hasTemplateData"

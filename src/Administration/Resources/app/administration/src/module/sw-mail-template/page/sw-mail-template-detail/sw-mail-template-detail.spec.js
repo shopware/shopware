@@ -131,6 +131,7 @@ async function createWrapper(privileges = []) {
                         return privileges.includes(identifier);
                     },
                 },
+                businessEventService: {},
             },
             mocks: {
                 $route: { params: { id: Shopware.Utils.createId() } },

@@ -3,7 +3,7 @@ import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Feature } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -79,7 +79,8 @@ export default {
         ]),
 
         loadedAvailableVariables() {
-            if (!this.mailTemplateType || !this.mailTemplateType.templateData) {
+            if ((!this.triggerEvent && Feature.isActive('v6.8.0.0'))
+                || ((!this.mailTemplateType || !this.mailTemplateType.templateData) && !Feature.isActive('v6.8.0.0'))) {
                 return [];
             }
             if (Object.values(this.availableVariables).length === 0) {
@@ -242,7 +243,7 @@ export default {
                 this.loadEntityData();
             }
 
-            if (this.isMajorActive()) {
+            if (Feature.isActive('v6.8.0.0')) {
                 this.loadTriggerEvents();
             }
         },
@@ -414,7 +415,7 @@ export default {
                 this.showLanguageNotAssignedToSalesChannelWarning = false;
             });
 
-            if (this.isMajorActive()) {
+            if (Feature.isActive('v6.8.0.0')) {
                 this.mailService
                     .sendTestMailTemplate(
                         this.testerMail,
@@ -475,19 +476,15 @@ export default {
                 });
         },
 
-        isMajorActive() {
-            return Shopware.Feature.isActive('v6.8.0.0');
-        },
-
         onTriggerEventChange(eventName) {
             this.triggerEvent = this.triggerEvents.find((event) => event.name === eventName);
+            this.availableVariables = {};
         },
 
         onClickShowPreview() {
             this.isLoading = true;
 
-
-            if (this.isMajorActive()) {
+            if (Feature.isActive('v6.8.0.0')) {
                 this.mailPreview = this.mailService
                     .buildMailTemplate({
                         subject: this.mailTemplate.subject,
@@ -730,6 +727,28 @@ export default {
         },
 
         loadAvailableVariables(variable, variableEntitySchema) {
+            if (Feature.isActive('v6.8.0.0')) {
+                console.log(variable, variableEntitySchema)
+
+                this.mailService.loadAvailableVariables(this.triggerEvent.class, variable)
+                    .then((response) => {
+
+                        Object.values(response).forEach((value) => {
+                            this.addVariables([{
+                                id: `${variable}.${value.fieldName}`,
+                                schema: `${variable}.${value.fieldName}`,
+                                name: value.fieldName,
+                                childCount: value.hasChildren ? 1 : 0,
+                                parentId: variable,
+                                afterId: null,
+                            }]);
+                        });
+
+                    });
+
+                return;
+            }
+
             if (!this.mailTemplateType || !this.mailTemplateType.availableEntities) {
                 return [];
             }
@@ -795,6 +814,30 @@ export default {
 
         loadInitialAvailableVariables() {
             this.availableVariables = {};
+
+            if (Feature.isActive('v6.8.0.0')) {
+                if (!this.triggerEvent) {
+                    return;
+                }
+
+                this.mailService.loadAvailableVariables(this.triggerEvent.class, '')
+                    .then((response) => {
+
+                        Object.values(response).forEach((value) => {
+                            this.addVariables([{
+                                id: value.fieldName,
+                                schema: value.fieldName,
+                                name: value.fieldName,
+                                childCount: value.hasChildren ? 1 : 0,
+                                parentId: null,
+                                afterId: null,
+                            }]);
+                        });
+
+                    });
+
+                return;
+            }
 
             if (!this.hasTemplateData) {
                 return;

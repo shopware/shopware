@@ -37,7 +37,7 @@ class SeoUrlRouteNameEnumProviderTest extends TestCase
 
         static::assertSame(
             ['frontend.detail.page', 'frontend.navigation.page'],
-            $provider->getEnumValues()
+            $provider->getChoices()
         );
     }
 }

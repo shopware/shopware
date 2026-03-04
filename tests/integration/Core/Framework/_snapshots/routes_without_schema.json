@@ -34,6 +34,7 @@
     "/_action/import-export/prepare-template-file-download",
     "/_action/import-export/process",
     "/_action/increment/{pool}",
+    "/_action/mail-template/available-variables",
     "/_action/media-folder/{folderId}/dissolve",
     "/_action/media/provide-name",
     "/_action/media/{mediaId}/rename",

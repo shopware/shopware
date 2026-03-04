@@ -110,14 +110,14 @@ class ConsentControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
 
-        static::assertSame([
+        static::assertArrayIsEqualToArrayIgnoringListOfKeys([
             'name' => 'test-consent',
             'scopeName' => 'admin_user',
             'identifier' => $user,
             'status' => 'accepted',
             'actor' => $user,
             'updatedAt' => '2026-01-20 12:00:00.0',
-        ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
+        ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR), ['acceptedUntil']);
     }
 
     public function testRevokeConsent(): void
@@ -149,13 +149,14 @@ class ConsentControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
 
-        static::assertSame([
+        static::assertEquals([
             'name' => 'test-consent',
             'scopeName' => 'admin_user',
             'identifier' => $userId,
             'status' => 'revoked',
             'actor' => $userId,
             'updatedAt' => '2026-01-20 12:00:00.0',
+            'acceptedUntil' => '2026-01-20 12:00:00.0',
         ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
 }

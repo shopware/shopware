@@ -30,7 +30,6 @@ use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
-use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -76,8 +75,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $productIds = $this->setUpProducts();
 
         $messageBus = new CollectingMessageBus();
-        $lastCollectionAllowedDateResolver = static::getContainer()->get(LastCollectionAllowedDateResolver::class);
-        static::assertInstanceOf(LastCollectionAllowedDateResolver::class, $lastCollectionAllowedDateResolver);
 
         $messageHandler = new IterateEntityMessageHandler(
             $messageBus,
@@ -86,7 +83,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            $lastCollectionAllowedDateResolver,
+            $this->getContainer()->get(ConsentService::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -130,8 +127,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $productIds = $this->setUpProducts();
 
         $messageBus = new CollectingMessageBus();
-        $lastCollectionAllowedDateResolver = static::getContainer()->get(LastCollectionAllowedDateResolver::class);
-        static::assertInstanceOf(LastCollectionAllowedDateResolver::class, $lastCollectionAllowedDateResolver);
 
         $messageHandler = new IterateEntityMessageHandler(
             $messageBus,
@@ -140,7 +135,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            $lastCollectionAllowedDateResolver,
+            $this->getContainer()->get(ConsentService::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -185,8 +180,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $this->insertProductDeletion($ids->get('product-from-the-future'), (new \DateTimeImmutable())->add(new \DateInterval('P1D')));
 
         $messageBus = new CollectingMessageBus();
-        $lastCollectionAllowedDateResolver = static::getContainer()->get(LastCollectionAllowedDateResolver::class);
-        static::assertInstanceOf(LastCollectionAllowedDateResolver::class, $lastCollectionAllowedDateResolver);
 
         $messageHandler = new IterateEntityMessageHandler(
             $messageBus,
@@ -195,7 +188,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 static::getContainer()->get(Connection::class),
                 static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            $lastCollectionAllowedDateResolver,
+            $this->getContainer()->get(ConsentService::class),
             $entityDefinitionService,
             static::getContainer()->get(LoggerInterface::class),
         );
@@ -248,7 +241,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $messageHandler = new IterateEntityMessageHandler(
             new CollectingMessageBus(),
             static::getContainer()->get(IterateEntitiesQueryBuilder::class),
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $entityDefinitionService,
             $logger,
         );

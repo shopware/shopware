@@ -108,8 +108,6 @@ class ConsentService implements ResetInterface
         \assert(\is_string($updatedState->actor));
         $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor));
 
-        $this->invalidateState();
-
         return $updatedState;
     }
 
@@ -119,8 +117,6 @@ class ConsentService implements ResetInterface
 
         \assert(\is_string($updatedState->actor));
         $this->eventDispatcher->dispatch(new ConsentRevokedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor));
-
-        $this->invalidateState();
 
         return $updatedState;
     }
@@ -197,18 +193,30 @@ class ConsentService implements ResetInterface
         $key = $this->key($consent, $context);
 
         $states = $this->fetchStates($context);
-        if (isset($states[$key]) && $states[$key]->status === $status) {
-            return $states[$key];
+        $stored = $states[$key] ?? null;
+
+        if ($stored !== null) {
+            if ($stored->status === $status) {
+                return $stored;
+            }
+
+            if ($stored->status === ConsentStatus::DECLINED && $status === ConsentStatus::REVOKED) {
+                return $stored;
+            }
         }
 
         $scope = $this->getScope($consent);
 
-        return $this->consentRepository->updateConsentState(
+        $this->consentRepository->updateConsentState(
             $consent,
             $scope->resolveIdentifier($context),
             $status,
             $scope->resolveActorIdentifier($context)
         );
+
+        $this->invalidateState();
+
+        return $this->getConsentState($name, $context);
     }
 
     private function validatePermissions(Context $context, ConsentDefinition $consent): void

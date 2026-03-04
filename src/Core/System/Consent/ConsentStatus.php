@@ -15,4 +15,5 @@ enum ConsentStatus: string
     case UNSET = 'unset';
     case ACCEPTED = 'accepted';
     case REVOKED = 'revoked';
+    case DECLINED = 'declined';
 }

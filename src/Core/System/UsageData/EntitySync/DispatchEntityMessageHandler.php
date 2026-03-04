@@ -4,6 +4,7 @@ namespace Shopware\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -13,8 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
-use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
@@ -34,7 +36,7 @@ final readonly class DispatchEntityMessageHandler
         private UsageDataAllowListService $usageDataAllowListService,
         private Connection $connection,
         private EntityDispatcher $entityDispatcher,
-        private LastCollectionAllowedDateResolver $lastCollectionAllowedDateResolver,
+        private ConsentService $consentService,
         private ShopIdProvider $shopIdProvider
     ) {
     }
@@ -52,9 +54,9 @@ final readonly class DispatchEntityMessageHandler
             self::throwUnrecoverableMessageHandlingException($message, 'Message dispatched for old shopId');
         }
 
-        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getCollectUntil();
-        if ($lastCollectionAllowedDate === null) {
-            self::throwUnrecoverableMessageHandlingException($message, 'No collection allowed date found');
+        $backendDataConsent = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext());
+        if ($backendDataConsent->acceptedUntil === null) {
+            self::throwUnrecoverableMessageHandlingException($message, 'The consent was never accepted');
         }
 
         if ($message->operation === Operation::DELETE) {
@@ -63,7 +65,7 @@ final readonly class DispatchEntityMessageHandler
             return;
         }
 
-        $this->handleUpserts($message, $definition, $lastCollectionAllowedDate);
+        $this->handleUpserts($message, $definition, new \DateTimeImmutable($backendDataConsent->acceptedUntil));
     }
 
     /**

@@ -110,9 +110,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
         $this->connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
 
         try {
-            // try to retry deadlock related exceptions
-            // additionally our implementation fixes a dbal issue with wrong transaction nesting level after deadlock exceptions (see https://github.com/doctrine/dbal/issues/6651)
-            return RetryableTransaction::retryable($this->connection, $callback);
+            return RetryableTransaction::transactional($this->connection, $callback);
         } finally {
             // restore original isolation mode
             $this->connection->setTransactionIsolation($transactionIsolation);

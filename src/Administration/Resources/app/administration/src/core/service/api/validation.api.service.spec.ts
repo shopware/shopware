@@ -4,10 +4,10 @@
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
-import type { AxiosInstance } from "axios";
-import createHTTPClient from "../../factory/http.factory";
-import createLoginService from "../login.service";
-import ValidationApiService from "./validation.api.service";
+import type { AxiosInstance } from 'axios';
+import createHTTPClient from '../../factory/http.factory';
+import createLoginService from '../login.service';
+import ValidationApiService from './validation.api.service';
 
 function createValidationApiService() {
     const context = Shopware.Context?.api || {};
@@ -15,12 +15,12 @@ function createValidationApiService() {
     const clientMock = new MockAdapter(client);
     const loginService = createLoginService(client, context);
 
-    const validationApiService = new ValidationApiService(client, loginService)
+    const validationApiService = new ValidationApiService(client, loginService);
 
     return {
         validationApiService,
         clientMock,
-    }
+    };
 }
 
 describe('core/service/api/validation.api.service.ts', () => {

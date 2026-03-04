@@ -40,13 +40,16 @@ export default Component.wrapComponentConfig({
         },
 
         checkEmailIsValid() {
-            return this.validationApiService.validateEmailAddress(this.email).then((isValid) => {
-                this.isEmailValid = isValid;
-            }).catch((error: unknown) => {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                this.displayRecoveryInfo(error.response.data);
-            });
+            return this.validationApiService
+                .validateEmailAddress(this.email)
+                .then((isValid) => {
+                    this.isEmailValid = isValid;
+                })
+                .catch((error: unknown) => {
+                    // @ts-expect-error
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                    this.displayRecoveryInfo(error.response.data);
+                });
         },
 
         debouncedEmailValidation: debounce(function test() {

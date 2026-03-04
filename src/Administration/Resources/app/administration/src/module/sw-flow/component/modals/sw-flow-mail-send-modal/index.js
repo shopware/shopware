@@ -193,7 +193,6 @@ export default {
         },
 
         replyToOptions() {
-
             if (this.triggerEvent.name === 'contact_form.send') {
                 return [
                     ...this.recipientDefault,
@@ -249,9 +248,9 @@ export default {
                 if (config.recipient?.type === 'custom') {
                     Object.entries(config.recipient.data).forEach(
                         ([
-                             key,
-                             value,
-                         ]) => {
+                            key,
+                            value,
+                        ]) => {
                             const newId = Utils.createId();
                             this.recipients.push({
                                 id: newId,
@@ -554,7 +553,7 @@ export default {
 
         handleInvalidName(recipient) {
             if (!recipient.name) {
-                recipient.errorName =  new ShopwareError({
+                recipient.errorName = new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
             } else {

@@ -20,13 +20,11 @@ export default class ValidationApiService extends ApiService {
         const apiRoute = `/${this.getApiBasePath()}/email`;
 
         return this.httpClient
-            .post(
-                apiRoute,
-                { email: email },
-                { params: {}, headers: this.getBasicHeaders() },
-            ).catch(() => {
+            .post(apiRoute, { email: email }, { params: {}, headers: this.getBasicHeaders() })
+            .catch(() => {
                 return false;
-            }).then((resp) => {
+            })
+            .then((resp) => {
                 // @ts-expect-error
                 return resp.status === 204;
             });

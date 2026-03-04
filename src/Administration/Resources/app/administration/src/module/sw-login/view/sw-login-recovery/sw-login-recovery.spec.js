@@ -34,15 +34,15 @@ async function createWrapper() {
 
                     validateEmailAddresses: (arg) => {
                         if (!Array.isArray(arg)) {
-                            arg = Object.values(arg)
+                            arg = Object.values(arg);
                         }
 
-                        arg.forEach((recipients) =>  {
-                            recipients.isValid = !recipients.email.includes('invalid')
+                        arg.forEach((recipients) => {
+                            recipients.isValid = !recipients.email.includes('invalid');
                         });
 
                         return Promise.resolve(arg);
-                    }
+                    },
                 },
             },
             stubs: {

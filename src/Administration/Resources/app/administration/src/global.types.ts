@@ -146,7 +146,7 @@ import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.con
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
 import type SnippetApiService from './core/service/api/snippet.api.service';
 import type ConsentApiService from './core/consent/consent.api.service';
-import type ValidationApiService from "./core/service/api/validation.api.service";
+import type ValidationApiService from './core/service/api/validation.api.service';
 // trick to make it an "external module" to support global type extension
 
 // base methods for subContainer

@@ -109,15 +109,15 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, saveFunc
 
                     validateEmailAddresses: (arg) => {
                         if (!Array.isArray(arg)) {
-                            arg = Object.values(arg)
+                            arg = Object.values(arg);
                         }
 
-                        arg.forEach((recipients) =>  {
+                        arg.forEach((recipients) => {
                             recipients.isValid = true;
                         });
 
                         return Promise.resolve(arg);
-                    }
+                    },
                 },
             },
         },

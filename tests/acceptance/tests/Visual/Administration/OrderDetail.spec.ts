@@ -13,9 +13,7 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
         const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id));
 
-        await setViewport(AdminOrderDetail.page, {
-            requestURL: 'api/search/user-config',
-        });
+        await setViewport(AdminOrderDetail.page);
 
         await replaceElements(AdminOrderDetail.page, [
             'td.sw-data-grid__cell--label .sw-order-line-items-grid__item-label',

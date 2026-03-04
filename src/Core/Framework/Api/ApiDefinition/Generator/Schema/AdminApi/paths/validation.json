@@ -11,21 +11,37 @@
                     "Validation",
                     "Email"
                 ],
-                "summary": "Email validation",
-                "description": "Validates given email string",
+                "summary": "Email validation.",
+                "description": "Validates given email string.",
                 "operationId": "validateEmail",
                 "responses": {
                     "204": {
                         "description": "Email is valid"
                     },
-                    "422": {
-                        "description": "Emails is invalid",
+                    "400": {
+                        "description": "Invalid request payload. The argument 'email' may be missing.",
                         "content": {
                             "application\/json": {
                                 "schema": {
                                     "properties": {
                                         "error": {
-                                            "description": "Contains the validation error",
+                                            "description": "Contains the error message.",
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Email address is invalid.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Contains the validation error.",
                                             "type": "array"
                                         }
                                     },

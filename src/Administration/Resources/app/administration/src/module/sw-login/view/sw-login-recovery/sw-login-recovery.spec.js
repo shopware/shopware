@@ -31,18 +31,6 @@ async function createWrapper() {
 
                         return Promise.resolve(true);
                     },
-
-                    validateEmailAddresses: (arg) => {
-                        if (!Array.isArray(arg)) {
-                            arg = Object.values(arg);
-                        }
-
-                        arg.forEach((recipients) => {
-                            recipients.isValid = !recipients.email.includes('invalid');
-                        });
-
-                        return Promise.resolve(arg);
-                    },
                 },
             },
             stubs: {

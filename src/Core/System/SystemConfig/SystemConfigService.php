@@ -254,6 +254,18 @@ class SystemConfigService implements ResetInterface
 
         $values = $beforeChangedEvent->getConfig();
 
+        // Checking if real change happened, in other case we can early return. Doing this after dispatching
+        // BeforeSystemConfigMultipleChangedEvent, as subscribers can modify values.
+        foreach ($values as $key => $value) {
+            if ($this->get($key, $salesChannelId) === $value) {
+                unset($values[$key]);
+            }
+        }
+
+        if ($values === []) {
+            return;
+        }
+
         $where = $salesChannelId ? 'sales_channel_id = :salesChannelId' : 'sales_channel_id IS NULL';
 
         $existingIds = $this->connection

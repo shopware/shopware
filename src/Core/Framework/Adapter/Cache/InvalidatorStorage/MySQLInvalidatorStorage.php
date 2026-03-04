@@ -109,40 +109,11 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
         $transactionIsolation = $this->connection->getTransactionIsolation();
         $this->connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
 
-        $nestingLevel = $this->connection->getTransactionNestingLevel();
         try {
-            return $this->connection->transactional($callback);
-        } catch (\Throwable $e) {
-            if ($nestingLevel > 0) {
-                // If this another transaction, do not retry this nested
-                // transaction. Remember that the whole (outermost) transaction was already rolled back by the database
-                // when any RetryableException is thrown.
-                // Rethrow the exception here so only the outermost transaction is retried which in turn includes this
-                // nested transaction.
-                throw $e;
-            }
-
-            // after failure and rollback in transactional we need to make sure the nesting level
-            // is correct (see https://github.com/doctrine/dbal/issues/6651) and transaction is rolled back
-            // it's safe to assume that correct nesting level is 0, as we check for transaction nesting level
-            // in condition above
-            self::fixConnection();
-
-            throw $e;
+            return RetryableTransaction::transactional($this->connection, $callback);
         } finally {
             // restore original isolation mode
             $this->connection->setTransactionIsolation($transactionIsolation);
-        }
-    }
-
-    private function fixConnection(): void
-    {
-        if ($this->connection->getTransactionNestingLevel() > 0) {
-            $reflectionProperty = new \ReflectionProperty(Connection::class, 'transactionNestingLevel');
-            $reflectionProperty->setValue($this->connection, 1);
-            // it could happen that transaction was already rolled back in the transactional method.
-            // if case reported - need to catch specific exception
-            $this->connection->rollBack();
         }
     }
 }

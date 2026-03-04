@@ -57,6 +57,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           shard: ${{ matrix.shard }}
           shard-count: ${{ matrix.shard-count }}
+          workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
           use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
@@ -94,14 +95,6 @@ jobs:
             --repeat-each="10"
             -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
           artifact-prefix: "ats-changed"
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: server-logs
-          path: var/log
-          retention-days: 1
-        continue-on-error: true
 
   phpunit-matrix:
     runs-on: ubuntu-24.04

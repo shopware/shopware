@@ -211,7 +211,11 @@ export default {
     watch: {
         flowId() {
             if (!this.$route.params.flowTemplateId) {
-                this.getDetailFlow();
+                this.isLoading = true;
+
+                this.getDetailFlow().finally(() => {
+                    this.isLoading = false;
+                });
             }
         },
     },
@@ -239,31 +243,38 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            Service('flowBuilderService').addLabels({
-                entity: 'sw-flow.labelDescription.labelEntity',
-                tagIds: 'sw-flow.labelDescription.labelTag',
-            });
+        async createdComponent() {
+            this.isLoading = true;
 
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-flow-detail__flow',
-                path: 'flow',
-                scope: this,
-            });
+            try {
+                Service('flowBuilderService').addLabels({
+                    entity: 'sw-flow.labelDescription.labelEntity',
+                    tagIds: 'sw-flow.labelDescription.labelTag',
+                });
 
-            this.getAppFlowAction();
+                Shopware.ExtensionAPI.publishData({
+                    id: 'sw-flow-detail__flow',
+                    path: 'flow',
+                    scope: this,
+                });
 
-            if (this.isTemplate) {
-                this.getDetailFlowTemplate();
-                return;
+                await this.getAppFlowAction();
+
+                if (this.isTemplate) {
+                    await this.getDetailFlowTemplate();
+
+                    return;
+                }
+
+                if (this.flowId) {
+                    await this.getDetailFlow();
+                    return;
+                }
+
+                await this.createNewFlow();
+            } finally {
+                this.isLoading = false;
             }
-
-            if (this.flowId) {
-                this.getDetailFlow();
-                return;
-            }
-
-            this.createNewFlow();
         },
 
         beforeDestroyComponent() {
@@ -313,7 +324,6 @@ export default {
         },
 
         async getDetailFlow() {
-            this.isLoading = true;
             const flowStore = Store.get('swFlow');
 
             try {
@@ -327,8 +337,6 @@ export default {
                 this.createNotificationError({
                     message: this.$tc('sw-flow.flowNotification.messageError'),
                 });
-            } finally {
-                this.isLoading = false;
             }
         },
 
@@ -339,8 +347,6 @@ export default {
         },
 
         getDetailFlowTemplate() {
-            this.isLoading = true;
-
             return this.flowTemplateRepository
                 .get(this.flowId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
@@ -353,9 +359,6 @@ export default {
                     this.createNotificationError({
                         message: this.$tc('sw-flow.flowNotification.messageError'),
                     });
-                })
-                .finally(() => {
-                    this.isLoading = false;
                 });
         },
 
@@ -653,9 +656,6 @@ export default {
                     this.createNotificationError({
                         message: this.$tc('sw-flow.flowNotification.messageError'),
                     });
-                })
-                .finally(() => {
-                    this.isLoading = false;
                 });
         },
 

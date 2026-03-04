@@ -6,7 +6,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -31,7 +30,6 @@ class EntityDispatchService
         private readonly EntityDefinitionService $entityDefinitionService,
         private readonly AbstractKeyValueStorage $appConfig,
         private readonly MessageBusInterface $messageBus,
-        private readonly LastCollectionAllowedDateResolver $lastCollectionAllowedDateResolver,
         private readonly GatewayStatusService $gatewayStatusService,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly SystemConfigService $systemConfigService,
@@ -51,7 +49,7 @@ class EntityDispatchService
             return;
         }
 
-        if ($this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->status !== ConsentStatus::ACCEPTED) {
+        if ($this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->acceptedUntil === null) {
             return;
         }
 
@@ -60,15 +58,15 @@ class EntityDispatchService
 
     public function dispatchIterateEntityMessages(CollectEntityDataMessage $message): void
     {
-        $lastCollectionAllowedDate = $this->lastCollectionAllowedDateResolver->getCollectUntil();
-        if (!$lastCollectionAllowedDate) {
+        $backendDataConsent = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext());
+        if ($backendDataConsent->acceptedUntil === null) {
             return;
         }
 
-        if (!$this->hasMinimumTimeElapsed($lastCollectionAllowedDate)) {
+        $runDate = new \DateTimeImmutable($backendDataConsent->acceptedUntil);
+        if (!$this->hasMinimumTimeElapsed($runDate)) {
             return;
         }
-        $runDate = $lastCollectionAllowedDate;
 
         // don't start iterating if shopId is different; handle old messages without shopId
         if ($message->shopId !== null && $this->shopIdProvider->getShopId() !== $message->shopId) {

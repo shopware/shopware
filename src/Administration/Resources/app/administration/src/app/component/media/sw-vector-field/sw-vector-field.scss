@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+.sw-vector-field {
+    .sw-vector-field__input {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 32px;
+        gap: 16px;
+    }
+
+    .mt-field__addition.is--prefix {
+        min-width: 32px;
+        font-weight: $font-weight-bold;
+    }
+
+    .sw-vector-field__lock-icon {
+        float: right;
+        cursor: pointer;
+
+        &.is--linked {
+            color: var(--color-blue-500);
+        }
+
+        &.is--disabled {
+            cursor: default;
+            color: var(--color-gray-700);
+        }
+    }
+
+    .mt-number-field {
+        margin-bottom: 0;
+    }
+
+    .mt-number-field__controls {
+        display: none;
+    }
+}

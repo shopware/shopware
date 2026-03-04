@@ -47,6 +47,7 @@
 
         {% block sw_order_document_card_grid %}
         <sw-entity-listing
+            ref="entityListing"
             v-if="!documentsEmpty"
             class="sw-order-document-card__grid"
             :repository="documentRepository"
@@ -58,6 +59,7 @@
             :allow-column-edit="false"
             :full-page="false"
             :plain-appearance="true"
+            :allowDelete="!attachView"
         >
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">
@@ -172,6 +174,28 @@
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
+
+                {% block sw_order_document_card_grid_action_delete %}
+                    <sw-context-menu-item
+                        :disabled="!acl.can('document.viewer')"
+                        class="sw-order-document-card__context-button-delete"
+                        data-analytics-id="sw-order-document-card.delete-document"
+                        @click="$refs.entityListing.showDelete(item.id)"
+                    >
+                        {% block sw_order_document_card_grid_action_delete_label %}
+                            {{ $t('global.default.delete') }}
+                        {% endblock %}
+                    </sw-context-menu-item>
+                {% endblock %}
+            </template>
+
+            <template #delete-confirm-text>
+                <mt-banner
+                    :title="$tc('global.default.warning')"
+                    variant="attention">
+                    {{ $t('sw-order.documentCard.confirmDeleteTextParagraph1') }}<br />
+                    {{ $t('sw-order.documentCard.confirmDeleteTextParagraph2') }}
+                </mt-banner>
             </template>
             {% endblock %}
         </sw-entity-listing>

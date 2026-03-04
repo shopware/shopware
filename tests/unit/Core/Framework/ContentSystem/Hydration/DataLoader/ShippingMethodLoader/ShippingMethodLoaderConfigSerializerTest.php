@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ShippingMethodLoader\ShippingMethodLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ShippingMethodLoader\ShippingMethodLoaderConfigSerializer;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
@@ -205,13 +204,5 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
         );
 
         $this->serializer->encode(new StubLoaderConfig());
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(ShippingMethodLoaderConfigSerializer::class));
-
-        $this->serializer->getDecorated();
     }
 }

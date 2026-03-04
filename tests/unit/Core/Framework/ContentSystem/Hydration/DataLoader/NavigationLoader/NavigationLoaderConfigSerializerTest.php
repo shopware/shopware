@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfigSerializer;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
@@ -228,13 +227,5 @@ class NavigationLoaderConfigSerializerTest extends TestCase
         $encoded = $this->serializer->encode($config);
 
         static::assertSame($original, $encoded);
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(NavigationLoaderConfigSerializer::class));
-
-        $this->serializer->getDecorated();
     }
 }

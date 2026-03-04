@@ -16,7 +16,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -205,13 +204,5 @@ class PaymentMethodDataLoaderTest extends TestCase
         $this->dataLoader->load($element, $requirement, $context, $originalRequest);
 
         static::assertNull($originalRequest->query->get('onlyAvailable'));
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(PaymentMethodDataLoader::class));
-
-        $this->dataLoader->getDecorated();
     }
 }

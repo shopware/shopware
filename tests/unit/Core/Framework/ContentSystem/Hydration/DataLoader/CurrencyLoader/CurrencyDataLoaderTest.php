@@ -12,7 +12,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\CurrencyLoader\Cu
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\Currency\SalesChannel\CurrencyRouteResponse;
@@ -112,13 +111,5 @@ class CurrencyDataLoaderTest extends TestCase
         static::assertSame($currencies, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(CurrencyDataLoader::class));
-
-        $this->dataLoader->getDecorated();
     }
 }

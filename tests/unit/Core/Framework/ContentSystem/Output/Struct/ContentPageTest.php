@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**

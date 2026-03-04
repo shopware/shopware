@@ -11,8 +11,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependen
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreeUtil;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\EventFactory;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\EventFactory;
 
 /**
  * @internal

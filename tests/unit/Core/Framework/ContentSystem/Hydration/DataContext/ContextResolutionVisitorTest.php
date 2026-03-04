@@ -10,8 +10,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResol
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextResolutionVisitor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubContextStruct;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
 
 /**
  * @internal

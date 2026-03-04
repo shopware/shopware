@@ -1,28 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper;
+namespace Shopware\Core\Test\Stub\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @final
  */
 #[Package('framework')]
-final class EnterTrackingVisitor implements ElementVisitor
+class OrderTrackingVisitor implements ElementVisitor
 {
     /**
      * @var list<string>
      */
-    public array $visited = [];
+    public array $log = [];
 
     public function enter(ContentElement $element): void
     {
-        $this->visited[] = $element->getComponent();
+        $this->log[] = 'enter:' . $element->getComponent();
     }
 
     public function leave(ContentElement $element): void
     {
+        $this->log[] = 'leave:' . $element->getComponent();
     }
 }

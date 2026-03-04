@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Util\Json;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\EmptyProductDefinition;
+use Shopware\Core\Test\Stub\ContentSystem\EmptyProductDefinition;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

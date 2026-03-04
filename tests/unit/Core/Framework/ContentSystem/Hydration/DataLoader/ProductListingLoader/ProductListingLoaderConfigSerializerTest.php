@@ -11,7 +11,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfigSerializer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubLoaderConfig;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal

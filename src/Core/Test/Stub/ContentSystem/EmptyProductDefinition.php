@@ -1,14 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper;
+namespace Shopware\Core\Test\Stub\ContentSystem;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @final
  */
-final class EmptyProductDefinition extends EntityDefinition
+#[Package('framework')]
+class EmptyProductDefinition extends EntityDefinition
 {
     public function getEntityName(): string
     {

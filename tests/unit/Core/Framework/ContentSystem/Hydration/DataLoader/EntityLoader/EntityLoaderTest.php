@@ -21,8 +21,8 @@ use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundEx
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\ContentElementBuilder;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper\StubLoaderConfig;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

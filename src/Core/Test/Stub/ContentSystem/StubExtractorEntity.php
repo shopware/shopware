@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\_helper;
+namespace Shopware\Core\Test\Stub\ContentSystem;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @final
  */
 #[Package('framework')]
-final class StubExtractorEntity extends Entity
+class StubExtractorEntity extends Entity
 {
     public function __construct(string $id)
     {

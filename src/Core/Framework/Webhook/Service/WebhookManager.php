@@ -96,7 +96,7 @@ class WebhookManager implements ResetInterface
     {
         $webhooksForEvent = $this->filterWebhooksByLiveVersion($this->getWebhooks($event->getName()), $event);
 
-        if (\count($webhooksForEvent) === 0) {
+        if ($webhooksForEvent === []) {
             return;
         }
 
@@ -244,7 +244,7 @@ class WebhookManager implements ResetInterface
             $requests[] = $request;
         }
 
-        if (\count($requests) > 0) {
+        if ($requests !== []) {
             $pool = new Pool($this->guzzle, $requests);
             $pool->promise()->wait();
         }

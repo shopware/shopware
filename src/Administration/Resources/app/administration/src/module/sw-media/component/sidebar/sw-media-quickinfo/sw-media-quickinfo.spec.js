@@ -84,6 +84,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
             },
             stubs: {
+                'mt-button': true,
                 'sw-page': {
                     template: `
                         <div class="sw-page">
@@ -101,7 +102,9 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
                 'sw-media-quickinfo-metadata-item': true,
                 'sw-media-preview-v2': true,
+                'sw-modal': true,
                 'sw-model-viewer': true,
+                'sw-model-editor': true,
                 'sw-media-tag': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-field-error': true,
@@ -154,6 +157,7 @@ function provide3DMockOptions() {
             {
                 fileName: 'smth.glb',
                 fileExtension: 'glb',
+                mimeType: 'model/gltf-binary',
             },
             true,
             false,
@@ -163,6 +167,7 @@ function provide3DMockOptions() {
             {
                 fileName: 'smth.glb',
                 fileExtension: 'glb',
+                mimeType: 'model/gltf-binary',
             },
             true,
             false,
@@ -171,6 +176,7 @@ function provide3DMockOptions() {
         [
             {
                 fileName: 'smth.glb',
+                mimeType: 'model/gltf-binary',
                 url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
             },
             true,
@@ -180,6 +186,7 @@ function provide3DMockOptions() {
         [
             {
                 fileName: 'smth.glb',
+                mimeType: 'model/gltf-binary',
                 url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
             },
             true,
@@ -544,33 +551,68 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         },
     );
 
-    it('should have showModelViewerModal initially set to false', async () => {
-        const wrapper = await createWrapper();
+    it.each([
+        { mimeType: 'model/gltf-binary', fileExtension: 'glb', fileName: 'test.glb' },
+        { mimeType: 'model/gltf+json', fileExtension: 'gltf', fileName: 'test.gltf' },
+    ])('should show model viewer for $mimeType mime type', async ({ mimeType, fileExtension, fileName }) => {
+        const wrapper = await createWrapper({
+            mimeType,
+            hasFile: true,
+            fileExtension,
+            fileName,
+        });
         await flushPromises();
 
-        expect(wrapper.vm.showModelViewerModal).toBe(false);
+        expect(wrapper.find('sw-model-viewer-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-media-preview-v2-stub').exists()).toBe(false);
     });
 
-    it('should set showModelViewerModal to true when openModelViewerModal is called', async () => {
+    it.each([
+        { mimeType: 'model/step', fileExtension: 'step', fileName: 'test.step' },
+        { mimeType: 'model/obj', fileExtension: 'obj', fileName: 'test.obj' },
+    ])(
+        'should not show model viewer for non-gltf model mime type $mimeType',
+        async ({ mimeType, fileExtension, fileName }) => {
+            const wrapper = await createWrapper({
+                mimeType,
+                hasFile: true,
+                fileExtension,
+                fileName,
+            });
+            await flushPromises();
+
+            expect(wrapper.find('sw-model-viewer-stub').exists()).toBe(false);
+            expect(wrapper.find('sw-media-preview-v2-stub').exists()).toBe(true);
+        },
+    );
+
+    it('should have showModelEditorModal initially set to false', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.showModelViewerModal).toBe(false);
-
-        wrapper.vm.openModelViewerModal();
-
-        expect(wrapper.vm.showModelViewerModal).toBe(true);
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
     });
 
-    it('should set showModelViewerModal to false when closeModelViewerModal is called', async () => {
+    it('should set showModelEditorModal to true when openModelEditorModal is called', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.showModelViewerModal = true;
-        expect(wrapper.vm.showModelViewerModal).toBe(true);
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
 
-        wrapper.vm.closeModelViewerModal();
+        wrapper.vm.openModelEditorModal();
 
-        expect(wrapper.vm.showModelViewerModal).toBe(false);
+        expect(wrapper.vm.showModelEditorModal).toBe(true);
+    });
+
+    it('should set showModelEditorModal to false when closeModelEditorModal is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.showModelEditorModal = true;
+        expect(wrapper.vm.showModelEditorModal).toBe(true);
+
+        wrapper.vm.closeModelEditorModal();
+
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
     });
 });

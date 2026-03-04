@@ -81,7 +81,7 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements Delay
 
         $orderData = $this->getAffiliateAndCampaignCodeFromOrderId($orderId);
 
-        if (empty($orderData)) {
+        if ($orderData === []) {
             return;
         }
 
@@ -104,7 +104,7 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements Delay
             $data['campaignCode'] = $campaignCode;
         }
 
-        if (empty($data)) {
+        if ($data === []) {
             return;
         }
 

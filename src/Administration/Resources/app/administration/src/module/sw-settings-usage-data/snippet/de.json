@@ -5,6 +5,9 @@
       "textHeadline": "Daten teilen",
       "description": "Lege fest Nutzungsdaten mit uns zu teilen, um Shopware zu verbessern."
     },
+    "errors": {
+      "consent-update-error": "Beim Aktualisieren Deiner Einwilligung \"{consent}\" ist ein Fehler aufgetreten."
+    },
     "consent-modal": {
       "title": "Hilf uns, besser zu werden",
       "intro": "Indem Du Shop- und Nutzungsdaten teilst, hilfst Du uns zu verstehen, wie die Administration genutzt wird und Verbesserungen zu entwickeln, die Deine tägliche Arbeit erleichtern.",

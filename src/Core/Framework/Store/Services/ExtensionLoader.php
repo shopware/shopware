@@ -157,7 +157,7 @@ class ExtensionLoader
 
         $id = $this->getLocalesCodesFromLanguageIds([$languageId]);
 
-        if (empty($id)) {
+        if ($id === []) {
             return null;
         }
 

@@ -1,10 +1,123 @@
-# 6.7.8.0 (upcoming)
+# 6.7.9.0 (upcoming)
 
 ## Features
 
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
+### [Experimental] Use OpenSearch for Admin API searches
+
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 
+This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
+Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
+To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
+
+### Online revocation request form
+Customers can now conveniently submit revocation requests through an online form. 
+Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
 ## API
 
+### Deprecation of newsletter route methods
+
+The following methods are deprecated and will be removed with the next major version:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
+- `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
+
+The new methods currently return `StoreApiResponse` in the abstract classes. In the next major version, the return types will change to their explicit types:
+
+- `subscribeWithResponse()` → `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` → `SuccessResponse`
+- `unsubscribeWithResponse()` → `SuccessResponse`
+
+The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
+
+| Route | Response                                                       |
+|-------|----------------------------------------------------------------|
+| `/store-api/newsletter/subscribe` | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
+| `/store-api/newsletter/confirm` | `{"success": true}`                                            |
+| `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
+
 ## Core
+
+### Inheritance added to product main categories
+
+Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
+
+### Deprecation of unused `TemplateGroup` class
+
+The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
+
+### New criteria events for product slider CMS element
+
+Two new events are dispatched when the product slider CMS element resolves its product criteria, allowing subscribers to modify the criteria:
+
+- `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
+- `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
+
+## Administration
+
+## Storefront
+
+### Block renaming
+
+* Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
+
+### `HEAD`-requests do not trigger the registration double-opt-in
+
+As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.8.0
+
+## Features
+
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
+## Core
+
+### Indexing the product's custom fields
+
+Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
+
+### Deprecation of increment-based message queue statistics
+
+The increment-based message queue statistics system is deprecated and will be removed in v6.8.0.0.
+
+**What's changing:**
+- The Administration notification center will no longer show indexing progress notifications (e.g., "X products will be indexed")
+- API endpoint `GET /api/_info/queue.json` is deprecated - use `GET /api/_info/message-stats.json` instead
+
+**Deprecated configuration options:**
+- `shopware.admin_worker.enable_queue_stats_worker`
+- `shopware.increment.message_queue`
+
+**Deprecated code:**
+- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant
+- Increment-based handling in `MessageQueueStatsSubscriber::onMessageHandled()`
+
+**Why?**
+The increment-based statistics were often inaccurate due to hardcoded multipliers and missing decrements in edge cases. The replacement functionality was introduced in https://github.com/shopware/shopware/pull/8698
+
+**Immediate disable:**
+To disable the deprecated functionality before v6.8.0.0:
+```yaml
+shopware:
+    admin_worker:
+        enable_queue_stats_worker: false
+```
 
 ### Internal product streams
 
@@ -32,13 +145,35 @@ Doctrine does not support this format and creates broken migrations; therefore, 
 
 Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
 
+### CategoryIndexer selective indexing optimization
+
+The `CategoryIndexer` now skips tree/child-count updaters when `parentId` hasn't changed, and breadcrumb updater when `name` hasn't changed. All updaters still run for `INSERT` and `DELETE` operations.
+
 ### Updated `doctrine/dbal` dependency
 
 The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
 They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
 Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
 
+### Primary key validation in `dal:validate` command
+
+The `dal:validate` command now includes validation to detect mismatches between database PRIMARY KEY constraints and entity definition PrimaryKey flags.
+This validation prevents silent failures where queries return correct `total` counts but empty `data` arrays due to entity hydration failures caused by inconsistent primary key definitions.
+When a mismatch is detected, the command provides a clear error message indicating which fields differ between the database schema and the entity definition.
+
+### Deprecation of default value for `serializer` in `#[Serialized]` field attribute
+
+When you use `#[Serialized]` field in your attribute entity you should always pass the serializer explicitly, as the default serializer does not work as expected.
+Additionally, the `SerializerField` will become internal in the next major release, as that field should be only used for attribute entities, but never directly in classic `EntityDefinitions`.
+
 ## Administration
+
+### Product detail variants: `configSettingGroups` as computed and deprecations
+
+In `sw-product-detail-variants`, the following changes were made:
+
+* **`configSettingGroups`** (now computed): Previously a `data()` property set by `loadConfigSettingGroups()`. It is now a computed property derived from `productEntity.configuratorSettings` and `groups`.
+* **`loadConfigSettingGroups()`** (deprecated): Marked as `@deprecated tag:v6.8.0`. It will be removed in 6.8.0 without replacement.
 
 ### Deprecation of `items` prop in `sw-entity-listing` component
 
@@ -91,6 +226,17 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 * Display the selling and packaging information with the product that has advanced pricing.
 * Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
+### Default theme breakpoints now available in theme config
+
+The default layout breakpoints in the Storefront were hard-coded before and couldn't easily be overriden. Now you will find new theme config fields in the default config, which serve as the default values. The fields are hidden in the visual configuration, so they serve as a feature for theme developers for now. You can override the following config fields in your custom `theme.json` file to change the default breakpoints. The fields are mapped to the existing hard-coded configuration. The configuration is only passed in Twig and JS currently and there is no direct usage in SCSS, as they represent the Bootstrap default breakpoints. If you want to make a full override, you can simply configure the Bootstrap breakpoints in your custom SCSS and use the theme config values for that.
+
+*  `sw-breakpoint-xs`
+*  `sw-breakpoint-sm`
+*  `sw-breakpoint-md`
+*  `sw-breakpoint-lg`
+*  `sw-breakpoint-xl`
+*  `sw-breakpoint-xxl`
+
 ### Make static alerts announced in the screenreader
 
 Static alert boxes that are rendered in the DOM on page load were previously not read out by screenreaders.
@@ -117,6 +263,47 @@ This is done by changing the DOM within the `aria-live` region after a short del
 Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
 
 ## Hosting & Configuration
+
+### Feature flag for enabling OpenSearch globally in the Admin API
+
+The new feature flag `ENABLE_OPENSEARCH_FOR_ADMIN_API` (see `adr/2026-01-28-apply-opensearch-in-admin-api.md`) can be used to activate that now all supported searches and reads from the administration and Admin-API are handled by OpenSearch instead of the DB.
+Especially when you have a large amount of data in your shop, this can lead to significant performance improvements in the administration.
+The downside is that the indexing of the data into OpenSearch takes slightly longer, and the results you see might be slightly delayed as they are not read directly from the DB anymore, but need to be indexed to OpenSearch first.
+When the flag is disabled (which is the default), Administration lists, filters, and DAL searches continue to use MySQL exactly as in previous releases.
+Once enabled, supported Admin API entities reuse the Admin OpenSearch indices for criteria-based searches, which requires admin OpenSearch to be configured and re-indexed via `bin/console es:admin:index`.
+
+
+### New config option to fine tune Admin OpenSearch indexing
+
+There is a new config option `elasticsearch.admin.indexing_batch_size` that allows you to configure the batch size for Admin OpenSearch indexing.
+The same config can be set via environment variable `SHOPWARE_ADMIN_ES_INDEXING_BATCH_SIZE`. The default value is `1000`, which means that entities will be indexed in batches of 1000.
+This should reduce the overhead needed when running the admin index process.
+Before the admin indexing process shared the same config `elasticsearch.indexing_batch_size` (default value: 100) with the Storefront/Store API indexing, which could lead to performance issues when you had a large amount of data in your shop, as the admin indexing process is usually way faster and therefore can benefit from higher batch sizes.
+
+### Deprecated HTTP cache reverse proxy configuration
+
+The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:
+
+- `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+- `shopware.http_cache.reverse_proxy.ban_method`
+- `shopware.http_cache.reverse_proxy.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_method`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
+  - `shopware.http_cache.reverse_proxy.purge_all.urls`
+
+If you are currently using any of these options, you can safely remove them from your configuration.
+### Configurable Elasticsearch shard and replica counts
+
+The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
+
+For the Storefront/Store API Elasticsearch:
+- `SHOPWARE_ES_NUMBER_OF_SHARDS` (default: empty, meaning Elasticsearch default)
+- `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
+
+For the Admin Elasticsearch:
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
 
 ## Critical Fixes
 
@@ -180,6 +367,14 @@ This change helps optimize index storage size and improve search performance, es
 From now on you are able to inspect your 3D models directly in the Media module in the Administration.
 Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right.
 This new component is called `sw-model-viewer`.
+
+### Media Model Editor
+
+The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
+Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
+A modal will open where you can move, rotate, and scale the model.
+You can also use the sidebar to type in specific values for position, rotation and scale.
+Click Save, and your changes are applied instantly.
 
 ## API
 

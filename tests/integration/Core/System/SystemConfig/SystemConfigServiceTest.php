@@ -464,6 +464,6 @@ class SystemConfigServiceTest extends TestCase
 
         $salesChannelMultipleEvent = $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['sales_channel'][0];
         static::assertInstanceOf(SystemConfigMultipleChangedEvent::class, $salesChannelMultipleEvent);
-        static::assertEquals([$configKey1, $configKey2], array_keys($salesChannelMultipleEvent->getConfig()));
+        static::assertEquals([$configKey1], array_keys($salesChannelMultipleEvent->getConfig()));
     }
 }

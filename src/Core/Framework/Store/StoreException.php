@@ -230,7 +230,7 @@ class StoreException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
-    public static function invalidCredentials(): self
+    public static function invalidCredentials(): self|StoreInvalidCredentialsException
     {
         if (!Feature::isActive('v6.8.0.0')) {
             return new StoreInvalidCredentialsException();
@@ -246,7 +246,7 @@ class StoreException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
-    public static function shopSecretInvalid(): self
+    public static function shopSecretInvalid(): self|ShopSecretInvalidException
     {
         if (!Feature::isActive('v6.8.0.0')) {
             return new ShopSecretInvalidException();

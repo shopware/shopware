@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 #[Package('discovery')]
 #[CoversClass(ExternalThumbnailDataNormalizer::class)]
-class ExternalThumbnailDataDenormalizerTest extends TestCase
+class ExternalThumbnailDataNormalizerTest extends TestCase
 {
     private ExternalThumbnailDataNormalizer $denormalizer;
 
@@ -93,7 +93,7 @@ class ExternalThumbnailDataDenormalizerTest extends TestCase
         $data = new ExternalThumbnailData('http://localhost:8000/thumb.jpg', 100, 100);
         $expected = ['url' => 'http://localhost:8000/thumb.jpg', 'width' => 100, 'height' => 100];
 
-        $this->innerNormalizer->expects(static::once())
+        $this->innerNormalizer->expects($this->once())
             ->method('normalize')
             ->with($data, null, static::arrayHasKey(ExternalThumbnailDataNormalizer::class . '::NORMALIZE_ALREADY_CALLED'))
             ->willReturn($expected);

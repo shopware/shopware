@@ -7,7 +7,7 @@
         </h2>
 
         <h2 v-else>
-            {{ $tc('sw-settings-document.detail.textHeadline') }}
+            {{ $t('sw-settings-document.detail.textHeadline') }}
         </h2>
     </template>
     {% endblock %}
@@ -22,22 +22,22 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
         {% block sw_settings_document_detail_actions_save %}
-        <sw-button-process
-            v-model:process-success="isSaveSuccessful"
+        <mt-button
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-document-detail__save-action"
-            :disabled="isLoading || !acl.can('document.editor') || undefined"
             variant="primary"
-            @update:process-success="saveFinish"
+            size="default"
+            :disabled="!acl.can('document.editor') || undefined"
+            :is-loading="isLoading"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-document.detail.buttonSave') }}
-        </sw-button-process>
+            {{ $t('sw-settings-document.detail.buttonSave') }}
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -45,205 +45,203 @@
     {% block sw_settings_document_detail_content %}
     <template #content>
         <sw-card-view>
-            <template v-if="isLoading">
-                <sw-skeleton />
-                <sw-skeleton />
-            </template>
-
-            <template v-else>
-                {% block sw_settings_document_detail_assignment_card %}
-                <mt-card
-                    position-identifier="sw-settings-document-detail-assignment"
-                    :title="$tc('sw-settings-document.detail.assignmentCard')"
-                    :is-loading="isLoading || typeIsLoading"
+            {% block sw_settings_document_detail_assignment_card %}
+            <mt-card
+                class="sw-settings-document-detail__assignment_card"
+                position-identifier="sw-settings-document-detail-assignment"
+                :title="$t('sw-settings-document.detail.assignmentCard')"
+                :is-loading="isLoading || typeIsLoading"
+            >
+                <sw-container
+                    columns="repeat(auto-fit, minmax(100%, 1fr))"
+                    gap="0px 30px"
                 >
-                    <sw-container
-                        columns="repeat(auto-fit, minmax(100%, 1fr))"
-                        gap="0px 30px"
+                    {% block sw_document_detail_base_general_input_type %}
+                    <sw-entity-single-select
+                        id="documentConfigTypes"
+                        v-model:value="documentConfig.documentTypeId"
+                        v-tooltip="{
+                            showDelay: 300,
+                            message: $t('sw-settings-document.detail.disabledTypeSelect'),
+                            disabled: !documentConfig.global || !acl.can('document.editor')
+                        }"
+                        class="sw-settings-document-detail__select-type"
+                        name="sw-field--documentConfig-documentTypeId"
+                        entity="document_type"
+                        required
+                        show-clearable-button
+                        :error="documentConfigDocumentTypeIdError"
+                        :criteria="documentCriteria"
+                        :label="$t('sw-settings-document.detail.labelType')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderType')"
+                        :disabled="documentConfig.global || !acl.can('document.editor') || undefined"
+                        @update:value="(id, type) => onChangeType(type)"
+                    />
+                    {% endblock %}
+
+                    {% block sw_document_detail_base_general_input_sales_channel %}
+                    <sw-multi-select
+                        v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)"
+                        id="documentSalesChannel"
+                        v-model:value="documentConfigSalesChannels"
+                        v-tooltip="{
+                            showDelay: 300,
+                            message: $t('sw-settings-document.detail.disabledSalesChannelSelect'),
+                            disabled: !!documentConfig.documentType
+                        }"
+                        name="sw-field--documentConfigSalesChannels"
+                        class="sw-document-detail__select-type"
+                        label-property="name"
+                        value-property="salesChannelId"
+                        :options="documentConfigSalesChannelOptionsCollection"
+                        :label="$t('sw-settings-document.detail.labelSalesChannel')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderSalesChannel')"
+                        :disabled="!documentConfig.documentType || !acl.can('document.editor')"
+                        @update:value="(v) => documentConfigSalesChannels = v"
                     >
-                        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order,vue/no-parsing-error -->
-                        {% block sw_document_detail_base_general_input_type %}
-                        <sw-entity-single-select
-                            id="documentConfigTypes"
-                            v-model:value="documentConfig.documentTypeId"
-                            name="sw-field--documentConfig-documentTypeId"
-                            @update:value="(id, type) => onChangeType(type)"
-                            v-tooltip="{
-                                showDelay: 300,
-                                message: $tc('sw-settings-document.detail.disabledTypeSelect'),
-                                disabled: !documentConfig.global || !acl.can('document.editor')
-                            }"
-                            required
-                            show-clearable-button
-                            :error="documentBaseConfigDocumentTypeIdError"
-                            entity="document_type"
-                            :criteria="documentCriteria"
-                            :label="$tc('sw-settings-document.detail.labelType')"
-                            class="sw-settings-document-detail__select-type"
-                            :disabled="documentConfig.global || !acl.can('document.editor') || undefined"
-                        />
-                        {% endblock %}
-
-                        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_document_detail_base_general_input_sales_channel %}
-                        <sw-multi-select
-                            v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)"
-                            id="documentSalesChannel"
-                            v-model:value="documentConfigSalesChannels"
-                            @update:value="(v) => documentConfigSalesChannels = v"
-                            name="sw-field--documentConfigSalesChannels"
-                            v-tooltip="{
-                                showDelay: 300,
-                                message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),
-                                disabled: !!documentConfig.documentType
-                            }"
-                            label-property="name"
-                            value-property="id"
-                            :options="documentConfigSalesChannelOptionsCollection"
-                            :label="$tc('sw-settings-document.detail.labelSalesChannel')"
-                            :disabled="!documentConfig.documentType || !acl.can('document.editor')"
-                            class="sw-document-detail__select-type"
-                        >
-                            {% block sw_document_detail_base_general_input_sales_channel_label %}
-                            <template #selection-label-property="{ item }">
-                                {{ item.salesChannel.translated.name }}
-                            </template>
-                            {% endblock %}
-
-                            {% block sw_document_detail_base_general_input_sales_channel_result_item %}
-                            <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
-                                <sw-select-result
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: $tc('sw-settings-document.detail.disabledSalesChannel'),
-                                        disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
-                                    }"
-                                    :selected="isSelected(item)"
-                                    :disabled="alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)"
-                                    v-bind="{ item, index }"
-                                    @item-select="addItem"
-                                >
-                                    <sw-highlight-text
-                                        v-if="highlightSearchTerm"
-                                        :text="item.salesChannel.translated.name"
-                                        :search-term="searchTerm"
-                                    />
-                                    <template v-else>
-                                        {{ item.salesChannel.translated.name }}
-                                    </template>
-                                </sw-select-result>
-                            </template>
-                            {% endblock %}
-                        </sw-multi-select>
-                        {% endblock %}
-                    </sw-container>
-                </mt-card>
-                {% endblock %}
-
-                {% block sw_settings_document_detail_content_card %}
-                <mt-card
-                    position-identifier="sw-settings-document-detail-content"
-                    :title="$tc('sw-settings-document.detail.configCard')"
-                    :is-loading="isLoading"
-                >
-                    <sw-container
-                        columns="repeat(auto-fit, minmax(250px, 1fr))"
-                        gap="0px 30px"
-                    >
-                        {% block sw_settings_document_detail_content_field_name %}
-                        <div class="sw-settings-document-detail__field_name">
-                            <mt-text-field
-                                v-model="documentConfig.name"
-                                name="sw-field--documentConfig-name"
-                                :label="$tc('sw-settings-document.detail.labelName')"
-                                :placeholder="$tc('sw-settings-document.detail.placeholderName')"
-                                :disabled="!acl.can('document.editor') || undefined"
-                                validation="required"
-                                :error="documentBaseConfigNameError"
-                                required
-                            />
-                        </div>
-                        {% endblock %}
-
-                        {% block sw_settings_document_detail_content_field_media %}
-                        <div
-                            flex="250px"
-                            align="stretch"
-                            class="media-column"
-                        >
-                            <sw-media-field
-                                :value="documentConfig.logoId"
-                                @update:value="(v) => documentConfig.logoId = v"
-                                name="sw-field--documentConfig-logoId"
-                                :disabled="!acl.can('document.editor')"
-                                :label="$tc('sw-settings-document.detail.labelOptionMedia')"
-                            />
-                        </div>
-                        {% endblock %}
-
-                        {% block sw_settings_document_detail_content_field_file_name_prefix %}
-                        <div class="sw-settings-document-detail__field_file_name_prefix">
-
-                            <mt-text-field
-                                v-model="documentConfig.filenamePrefix"
-                                name="sw-field--documentConfig-filenamePrefix"
-                                :disabled="!acl.can('document.editor') || undefined"
-                                :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
-                            />
-                        </div>
-                        {% endblock %}
-
-                        {% block sw_settings_document_detail_content_field_file_name_suffix %}
-                        <div class="sw-settings-document-detail__field_file_name_suffix">
-
-                            <mt-text-field
-                                v-model="documentConfig.filenameSuffix"
-                                name="sw-field--documentConfig-filenameSuffix"
-                                :disabled="!acl.can('document.editor') || undefined"
-                                :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
-                            />
-                        </div>
-                        {% endblock %}
-
-                        {% block sw_settings_document_detail_content_form_field_renderer_content %}
-                        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                        <template v-if="documentConfig.config">
-                            <template
-                                v-for="(formField, index) in generalFormFields"
-                                :key="`formField-${index}`"
-                            >
-                                {% block sw_settings_document_detail_content_form_field_renderer_multi_select %}
-                                <sw-multi-select
-                                    v-if="formField && formField.name === 'fileTypes'"
-                                    class="sw-settings-document-detail__multi-select"
-                                    :disabled="!acl.can('document.editor') || undefined"
-                                    :label="formField.config.label"
-                                    :options="formField.config.options"
-                                    :value-property="formField.config.valueProperty"
-                                    :label-property="formField.config.labelProperty"
-                                    v-model:value="fileTypesSelected"
-                                    @item-remove="onRemoveDocumentType"
-                                    @item-add="onAddDocumentType"
-                                />
-                                {% endblock %}
-
-                                {% block sw_settings_document_detail_content_form_field_renderer %}
-                                <sw-form-field-renderer
-                                    v-else-if="formField"
-                                    v-model:value="documentConfig.config[formField.name]"
-                                    :disabled="!acl.can('document.editor') || undefined"
-                                    class="sw-settings-document-detail__form-field-renderer"
-                                    v-bind="formField"
-                                />
-
-                                <div
-                                    v-else
-                                    :key="`else-formField-${index}`"
-                                ></div>
-                                {% endblock %}
-                            </template>
+                        {% block sw_document_detail_base_general_input_sales_channel_label %}
+                        <template #selection-label-property="{ item }">
+                            {{ item.salesChannel.translated.name }}
                         </template>
                         {% endblock %}
+
+                        {% block sw_document_detail_base_general_input_sales_channel_result_item %}
+                        <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                            <sw-select-result
+                                v-tooltip="{
+                                    showDelay: 300,
+                                    message: $t('sw-settings-document.detail.disabledSalesChannel'),
+                                    disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
+                                }"
+                                :selected="isSelected(item)"
+                                :disabled="alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)"
+                                v-bind="{ item, index }"
+                                @item-select="addItem"
+                            >
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="item.salesChannel.translated.name"
+                                    :search-term="searchTerm"
+                                />
+
+                                <template v-else>
+                                    {{ item.salesChannel.translated.name }}
+                                </template>
+                            </sw-select-result>
+                        </template>
+                        {% endblock %}
+                    </sw-multi-select>
+                    {% endblock %}
+                </sw-container>
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_document_detail_content_card %}
+            <mt-card
+                class="sw-settings-document-detail__settings_card"
+                position-identifier="sw-settings-document-detail-content"
+                :title="$t('sw-settings-document.detail.configCard')"
+                :is-loading="isLoading"
+            >
+                <sw-container
+                    class="sw-settings-document-detail__settings_card-form"
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="0px 30px"
+                >
+                    {% block sw_settings_document_detail_content_field_name %}
+                    <div class="sw-settings-document-detail__field_name">
+                        <mt-text-field
+                            v-model="documentConfig.name"
+                            name="sw-field--documentConfig-name"
+                            :label="$t('sw-settings-document.detail.labelName')"
+                            :placeholder="$t('sw-settings-document.detail.placeholderName')"
+                            :disabled="!acl.can('document.editor') || undefined"
+                            validation="required"
+                            :error="documentConfigNameError"
+                            required
+                        />
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_document_detail_content_field_file_name_prefix %}
+                    <div class="sw-settings-document-detail__field_file_name_prefix">
+                        <mt-text-field
+                            v-model="documentConfig.filenamePrefix"
+                            name="sw-field--documentConfig-filenamePrefix"
+                            :disabled="!acl.can('document.editor') || undefined"
+                            :label="$t('sw-settings-document.detail.labelFileNamePrefix')"
+                            :placeholder="$t('sw-settings-document.detail.placeholderFileNamePrefix')"
+                        />
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_document_detail_content_field_file_name_suffix %}
+                    <div class="sw-settings-document-detail__field_file_name_suffix">
+                        <mt-text-field
+                            v-model="documentConfig.filenameSuffix"
+                            name="sw-field--documentConfig-filenameSuffix"
+                            :disabled="!acl.can('document.editor') || undefined"
+                            :label="$t('sw-settings-document.detail.labelFileNameSuffix')"
+                            :placeholder="$t('sw-settings-document.detail.placeholderFileNameSuffix')"
+                        />
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_document_detail_content_form_field_renderer_content %}
+                    <template v-if="documentConfig.config">
+                        <template
+                            v-for="(formField, index) in generalFormFields"
+                            :key="`general-form-field-${index}`"
+                        >
+                            {% block sw_settings_document_detail_content_form_field_renderer_multi_select %}
+                            <sw-multi-select
+                                v-if="formField && formField.name === 'fileTypes'"
+                                v-model:value="fileTypesSelected"
+                                class="sw-settings-document-detail__multi-select"
+                                :disabled="!acl.can('document.editor') || undefined"
+                                :label="formField.config.label"
+                                :placeholder="formField.config.placeholder"
+                                :required="formField.config.required"
+                                :options="formField.config.options"
+                                :value-property="formField.config.valueProperty"
+                                :label-property="formField.config.labelProperty"
+                                @item-remove="onRemoveDocumentType"
+                                @item-add="onAddDocumentType"
+                            />
+                            {% endblock %}
+
+                            {% block sw_settings_document_detail_content_form_field_renderer %}
+                            <sw-form-field-renderer
+                                v-else-if="formField"
+                                v-model:value="documentConfig.config[formField.name]"
+                                :disabled="!acl.can('document.editor') || undefined"
+                                class="sw-settings-document-detail__form-field-renderer"
+                                v-bind="formField"
+                            />
+                            {% endblock %}
+                        </template>
+                    </template>
+                    {% endblock %}
+                </sw-container>
+
+                <div class="sw-settings-document-detail__settings_card-display">
+                    <h4 class="sw-settings-document-detail__settings_card-display-title">
+                        {{ $t('sw-settings-document.detail.displayTitle') }}
+                    </h4>
+
+                    <div class="sw-settings-document-detail__settings_card-display-container">
+                        <template v-if="documentConfig.config">
+                            <template
+                                v-for="(formField, index) in generalDisplayFields"
+                                :key="`display-form-field-${index}`"
+                            >
+                                <sw-form-field-renderer
+                                    v-model:value="documentConfig.config[formField.name]"
+                                    :disabled="!acl.can('document.editor') || undefined"
+                                    v-bind="formField"
+                                />
+                            </template>
+                        </template>
 
                         {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
                         <mt-checkbox
@@ -252,7 +250,7 @@
                             name="sw-field--documentConfig-config-displayDivergentDeliveryAddress"
                             class="sw-settings-document-detail__field_divergent_delivery_address"
                             :disabled="!acl.can('document.editor') || undefined"
-                            :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
+                            :label="$t('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
                         />
                         {% endblock %}
 
@@ -263,8 +261,8 @@
                             name="sw-field--documentConfig-config-displayAdditionalNoteDelivery"
                             class="sw-settings-document-detail__field_additional_note_delivery"
                             :disabled="!acl.can('document.editor') || undefined"
-                            :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
-                            :help-text="$tc('sw-settings-document.detail.helpTextDisplayAdditionalNoteDelivery')"
+                            :label="$t('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
+                            :help-text="$t('sw-settings-document.detail.helpTextDisplayAdditionalNoteDelivery')"
                         />
                         {% endblock %}
 
@@ -275,60 +273,91 @@
                             name="sw-field--documentConfig-config-displayCustomerVatId"
                             class="sw-settings-document-detail__field_customer_vat_id"
                             :disabled="!acl.can('document.editor') || undefined"
-                            :label="$tc('sw-settings-document.detail.labelDisplayCustomerVatId')"
+                            :label="$t('sw-settings-document.detail.labelDisplayCustomerVatId')"
                         />
                         {% endblock %}
-                    </sw-container>
-                </mt-card>
-                {% endblock %}
+                    </div>
+                </div>
+            </mt-card>
+            {% endblock %}
 
-                {% block sw_settings_document_detail_company_card %}
-                <mt-card
-                    class="sw-settings-document-detail__company_card"
-                    position-identifier="sw-settings-document-detail-company"
-                    :title="$tc('sw-settings-document.detail.companyCard')"
-                    :is-loading="isLoading"
-                >
-                    <sw-container
-                        columns="repeat(auto-fit, minmax(250px, 1fr))"
-                        gap="0px 30px"
-                        align="center"
-                    >
-                        {% block sw_settings_document_detail_company_form_field_renderer_content %}
-                        <template v-if="documentConfig.config">
-                            <template
-                                v-for="formField in companyFormFields"
-                                :key="formField.name"
-                            >
-                                {% block sw_settings_document_detail_company_form_field_renderer %}
-                                <sw-form-field-renderer
-                                    v-model:value="documentConfig.config[formField.name]"
-                                    :disabled="!acl.can('document.editor') || undefined"
-                                    v-bind="formField"
-                                />
-                                {% endblock %}
-                            </template>
-                        </template>
-                        {% endblock %}
-                    </sw-container>
-                </mt-card>
-                {% endblock %}
-
-                {% block sw_settings_document_detail_custom_field_sets %}
-                <mt-card
-                    v-if="showCustomFields"
-                    position-identifier="sw-settings-document-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                    :is-loading="isLoading"
-                >
-                    <sw-custom-field-set-renderer
-                        :entity="documentConfig"
-                        :disabled="!acl.can('document.editor') || undefined"
-                        :sets="customFieldSets"
+            {% block sw_settings_document_detail_company_card %}
+            <mt-card
+                class="sw-settings-document-detail__company_card"
+                position-identifier="sw-settings-document-detail-company"
+                :title="$t('sw-settings-document.detail.companyCard')"
+                :is-loading="isLoading"
+            >
+                <div class="sw-settings-document-detail__company_card_required">
+                    {% block sw_settings_document_detail_content_field_media %}
+                    <sw-media-compact-upload-v2
+                        class="sw-settings-document-detail__company_card_media"
+                        name="sw-field--documentConfig-logoId"
+                        :source="documentConfig.logoId"
+                        :label="$t('sw-settings-document.detail.labelCompanyLogo')"
+                        @media-upload-remove-image="documentConfig.logoId = null"
+                        @selection-change="onChangeCompanyLogo"
                     />
-                </mt-card>
-                {% endblock %}
-            </template>
+                    {% endblock %}
+                </div>
+
+                <div class="sw-settings-document-detail__company_card_options">
+                    <mt-switch
+                        v-model="documentConfig.config.displayCompanyAddress"
+                        class="sw-settings-document-detail__company_card_display_company"
+                        :label="$t('sw-settings-document.detail.labelDisplayCompanyAddress')"
+                        :disabled="!acl.can('document.editor') || undefined"
+                    />
+
+                    <mt-switch
+                        v-model="documentConfig.config.displayReturnAddress"
+                        class="sw-settings-document-detail__company_card_display_return"
+                        :label="$t('sw-settings-document.detail.labelDisplayReturnAddress')"
+                        :disabled="!acl.can('document.editor') || undefined"
+                    />
+                </div>
+
+                <sw-container
+                    v-if="showCompanyForm"
+                    class="sw-settings-document-detail__company_card_form"
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="0px 30px"
+                    align="center"
+                >
+                    {% block sw_settings_document_detail_company_form_field_renderer_content %}
+                    <template v-if="documentConfig.config">
+                        <template
+                            v-for="formField in companyFormFields"
+                            :key="formField.name"
+                        >
+                            {% block sw_settings_document_detail_company_form_field_renderer %}
+                            <sw-form-field-renderer
+                                v-model:value="documentConfig.config[formField.name]"
+                                :disabled="!acl.can('document.editor') || undefined"
+                                v-bind="formField"
+                            />
+                            {% endblock %}
+                        </template>
+                    </template>
+                    {% endblock %}
+                </sw-container>
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_document_detail_custom_field_sets %}
+            <mt-card
+                v-if="showCustomFields"
+                position-identifier="sw-settings-document-detail-custom-field-sets"
+                :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                :is-loading="isLoading"
+            >
+                <sw-custom-field-set-renderer
+                    :entity="documentConfig"
+                    :disabled="!acl.can('document.editor') || undefined"
+                    :sets="customFieldSets"
+                />
+            </mt-card>
+            {% endblock %}
         </sw-card-view>
     </template>
     {% endblock %}

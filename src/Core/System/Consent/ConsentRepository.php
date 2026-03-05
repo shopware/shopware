@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
@@ -47,7 +46,7 @@ class ConsentRepository
         string $scopeIdentifier,
         ConsentStatus $state,
         string $actorId
-    ): ConsentState {
+    ): void {
         $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $actor = $this->connection->executeQuery('SELECT username from user WHERE id = :id', [
@@ -60,27 +59,19 @@ class ConsentRepository
 
         $this->connection->executeStatement('
         INSERT INTO consent_state (id, name, identifier, state, actor, updated_at)
-        VALUES (:id, :consentName, :identifier, :state, :actor, :updatedAt)
+        VALUES (:id, :consentName, :identifier, :insertState, :actor, :updatedAt)
         ON DUPLICATE KEY UPDATE
-            state = :state,
+            state = CASE WHEN state = "declined" AND :state = "revoked" THEN "declined" ELSE :state END,
             actor = :actor,
             updated_at = :updatedAt
         ', [
             'id' => Uuid::randomBytes(),
             'consentName' => $consent->getName(),
             'identifier' => $scopeIdentifier,
+            'insertState' => $state === ConsentStatus::REVOKED ? ConsentStatus::DECLINED->value : $state->value,
             'state' => $state->value,
             'actor' => $actor,
             'updatedAt' => $now,
         ], ['id' => 'binary']);
-
-        return new ConsentState(
-            $consent->getName(),
-            $consent->getScopeName(),
-            $scopeIdentifier,
-            $state,
-            $actor,
-            $now
-        );
     }
 }

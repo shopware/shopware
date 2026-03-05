@@ -67,9 +67,13 @@ class WebhookEventMessageHandlerTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
+        $customHeaders = [
+            'X-Custom-Header' => 'custom-value',
+            'X-Another-Header' => 'another-value',
+        ];
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', $customHeaders);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -109,6 +113,10 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertEquals($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
+
+        // validate headers
+        static::assertSame('custom-value', $request->getHeaderLine('X-Custom-Header'));
+        static::assertSame('another-value', $request->getHeaderLine('X-Another-Header'));
     }
 
     /**

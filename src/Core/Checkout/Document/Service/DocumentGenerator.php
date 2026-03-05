@@ -57,7 +57,7 @@ class DocumentGenerator
         string $deepLinkCode = '',
         /* , string $fileType = PdfRenderer::FILE_EXTENSION */
     ): ?RenderedDocument {
-        $fileType = \func_get_args()[3] ?? PdfRenderer::FILE_EXTENSION;
+        $fileType = \func_num_args() > 3 ? \func_get_args()[3] : PdfRenderer::FILE_EXTENSION;
 
         $criteria = new Criteria([$documentId]);
 
@@ -75,6 +75,8 @@ class DocumentGenerator
         if (!$document instanceof DocumentEntity) {
             throw DocumentException::documentNotFound($documentId);
         }
+
+        $fileType ??= $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
         $documentMedia = $this->loadMediaByFileType($document, $fileType);

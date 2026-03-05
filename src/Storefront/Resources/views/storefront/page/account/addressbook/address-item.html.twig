@@ -10,11 +10,13 @@
                 {% endblock %}
 
                 {% block address_item_dropdown %}
+                    {% set addressItemDropdownId = 'address-item-dropdown-' ~ random() %}
+
                     <div class="dropdown">
                         {% block address_item_dropdown_button %}
                             <button
                                 type="button"
-                                id="dropdownMenuButton"
+                                id="{{ addressItemDropdownId }}"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                                 class="bg-transparent border-0"
@@ -23,7 +25,7 @@
                             </button>
                         {% endblock %}
 
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <ul class="dropdown-menu" aria-labelledby="{{ addressItemDropdownId }}">
                             {% block address_item_dropdown_items %}
                                 <li>
                                     <a

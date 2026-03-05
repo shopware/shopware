@@ -5,25 +5,25 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Core\Kernel;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Asset\Packages;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -34,57 +34,26 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {
-    private InfoController $infoController;
+    use EnvTestBehaviour;
 
-    private ParameterBagInterface&MockObject $parameterBagMock;
+    private EventDispatcher $eventDispatcher;
 
-    private Kernel&MockObject $kernelMock;
-
-    private RouterInterface&MockObject $routerMock;
-
-    private FilesystemOperator&MockObject $fileSystemOperator;
-
-    private InAppPurchase $inAppPurchase;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->eventDispatcher = new EventDispatcher();
+    }
 
     public function testConfig(): void
     {
-        $this->createInstance();
+        $this->setEnvVars([
+            'APP_URL' => 'https://app.url',
+        ]);
 
-        $this->parameterBagMock->method('get')
-            ->willReturnMap([
-                ['shopware.html_sanitizer.enabled', true],
-                ['shopware.filesystem.private_allowed_extensions', false],
-                ['shopware.admin_worker.transports', ['slow']],
-                ['shopware.admin_worker.enable_notification_worker', true],
-                ['shopware.admin_worker.enable_queue_stats_worker', true],
-                ['shopware.admin_worker.enable_admin_worker', true],
-                ['kernel.shopware_version', '6.6.9999999-dev'],
-                ['kernel.shopware_version_revision', 'PHPUnit'],
-                ['shopware.media.enable_url_upload_feature', true],
-            ]);
-
-        $this->kernelMock->method('getBundles')
-            ->willReturn([
-                new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
-            ]);
-
-        $this->routerMock->method('generate')
-            ->with(
-                'administration.plugin.index',
-                [
-                    'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
-                ]
-            )
-            ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
-
-        $this->fileSystemOperator->method('fileExists')
-            ->willReturn(true);
-
-        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
-        $content = $response->getContent();
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);
         static::assertArrayHasKey('version', $data);
         static::assertSame('6.6.9999999.9999999-dev', $data['version']);
@@ -144,29 +113,67 @@ class InfoControllerTest extends TestCase
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
     }
 
-    private function createInstance(): void
+    public function testConfigExtension(): void
     {
-        $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
-        $this->kernelMock = $this->createMock(Kernel::class);
-        $this->routerMock = $this->createMock(RouterInterface::class);
-        $this->fileSystemOperator = $this->createMock(FilesystemOperator::class);
-        $this->inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]);
+        $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, function (AdminInfoConfigEvent $event): void {
+            $event->addConfig('foo', 'bar');
+        });
 
-        $this->infoController = new InfoController(
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('foo', $data);
+        static::assertSame('bar', $data['foo']);
+    }
+
+    private function createController(): InfoController
+    {
+        $parameterBag = new ParameterBag([
+            'shopware.html_sanitizer.enabled' => true,
+            'shopware.filesystem.private_allowed_extensions' => false,
+            'shopware.admin_worker.transports' => ['slow'],
+            'shopware.admin_worker.enable_notification_worker' => true,
+            'shopware.admin_worker.enable_queue_stats_worker' => true,
+            'shopware.admin_worker.enable_admin_worker' => true,
+            'kernel.shopware_version' => '6.6.9999999-dev',
+            'kernel.shopware_version_revision' => 'PHPUnit',
+            'shopware.media.enable_url_upload_feature' => true,
+            'shopware.staging.administration.show_banner' => false,
+            'shopware.deployment.runtime_extension_management' => true,
+        ]);
+
+        $kernel = new StubKernel([
+            new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
+        ]);
+
+        $routerMock = $this->createMock(RouterInterface::class);
+        $routerMock->method('generate')
+            ->with('administration.plugin.index', [
+                'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
+            ])
+            ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
+
+        $fileSystemOperator = $this->createMock(FilesystemOperator::class);
+        $fileSystemOperator->method('fileExists')->willReturn(true);
+
+        return new InfoController(
             $this->createMock(DefinitionService::class),
-            $this->parameterBagMock,
-            $this->kernelMock,
+            $parameterBag,
+            $kernel,
             $this->createMock(Packages::class),
             $this->createMock(BusinessEventCollector::class),
             $this->createMock(IncrementGatewayRegistry::class),
             $this->createMock(Connection::class),
             $this->createMock(AppUrlVerifier::class),
-            $this->routerMock,
+            $routerMock,
             $this->createMock(FlowActionCollector::class),
             new StaticSystemConfigService(),
             $this->createMock(ApiRouteInfoResolver::class),
-            $this->inAppPurchase,
-            $this->fileSystemOperator,
+            StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]),
+            $fileSystemOperator,
+            $this->eventDispatcher,
         );
     }
 }
@@ -178,6 +185,6 @@ class AdminExtensionApiPluginWithLocalEntryPoint extends Plugin
 {
     public function getPath(): string
     {
-        return \dirname(ReflectionHelper::getFileName(static::class) ?: '') . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
+        return __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
     }
 }

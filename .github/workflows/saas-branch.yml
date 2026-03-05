@@ -19,7 +19,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: octo-sts/action@v1.0.0
+      - uses: octo-sts/action@v1.1.1
         id: sts-shopware-private
         with:
           scope: shopware
@@ -48,8 +48,8 @@ jobs:
       CURRENT_MAJOR_ALIAS: "6.6.x-dev"
     steps:
       - name: Checkout platform
-        uses: actions/checkout@v4
-      - uses: octo-sts/action@v1.0.0
+        uses: actions/checkout@v6
+      - uses: octo-sts/action@v1.1.1
         id: sts-shopware-private
         with:
           scope: shopware

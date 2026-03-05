@@ -40,6 +40,7 @@
             "forward-command": false
         },
         "branch-alias": {
+            "dev-main": "6.6.x-dev",
             "dev-master": "6.6.x-dev",
             "dev-trunk": "6.6.x-dev"
         }
@@ -85,7 +86,7 @@
         "composer/semver": "^3.4.0",
         "doctrine/dbal": "~3.10.0",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "2.0.4",
+        "dompdf/dompdf": "3.1.4",
         "dragonmantank/cron-expression": "^3.3",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",

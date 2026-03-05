@@ -55,7 +55,7 @@
                                             "code": "0",
                                             "status": "400",
                                             "title": "Unprocessable Content",
-                                            "detail": "This value should not be blank.",
+                                            "detail": "This value should not be blank."
                                         }
                                     ]
                                 }
@@ -82,7 +82,7 @@
                                             "code": "0",
                                             "status": "422",
                                             "title": "Unprocessable Content",
-                                            "detail": "This value is not a supported email address.",
+                                            "detail": "This value is not a supported email address."
                                         }
                                     ]
                                 }

@@ -403,9 +403,7 @@ export default {
         },
 
         debouncedIsEmailValid: debounce(function emailIsValid(recipient, originKey) {
-            const email = typeof recipient === 'string'
-                ? recipient
-                : recipient?.email || '';
+            const email = typeof recipient === 'string' ? recipient : recipient?.email || '';
 
             this.isValidating = true;
 
@@ -535,12 +533,15 @@ export default {
                 this.recipients[index] = { ...item, errorMail: null };
             } else {
                 this.isValidating = true;
-                this.validationApiService.validateEmailAddress(item.email).then((isValid) => {
-                    item.isMailValid = isValid;
-                    this.applyValidationResult(item, index);
-                }).finally(() => {
-                    this.isValidating = false;
-                });
+                this.validationApiService
+                    .validateEmailAddress(item.email)
+                    .then((isValid) => {
+                        item.isMailValid = isValid;
+                        this.applyValidationResult(item, index);
+                    })
+                    .finally(() => {
+                        this.isValidating = false;
+                    });
             }
 
             this.$refs.recipientsGrid.currentInlineEditId = item.id;

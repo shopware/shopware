@@ -23,7 +23,8 @@ export default class ValidationApiService extends ApiService {
             .post(apiRoute, { email: email }, { params: {}, headers: this.getBasicHeaders() })
             .then((resp) => {
                 return resp.status === 204;
-            }).catch(() => {
+            })
+            .catch(() => {
                 return false;
             });
     }

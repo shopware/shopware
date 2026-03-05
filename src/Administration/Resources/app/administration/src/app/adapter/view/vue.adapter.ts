@@ -75,7 +75,7 @@ export default class VueAdapter extends ViewAdapter {
         this.app = createApp({
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
-            mounted: () => this.removeLoadingIndicator(),
+            mounted: () => window.removePageLoadingIndicator(),
         });
     }
 
@@ -751,25 +751,5 @@ export default class VueAdapter extends ViewAdapter {
             // @ts-expect-error - extends can be a string or a component config
             this.resolveMixins(componentConfig.extends);
         }
-    }
-
-    /**
-     * Removes the loading indicator (potentially with a delay to prevent flickering)
-     *
-     * @private
-     */
-    removeLoadingIndicator() {
-        // `DELAY` matches animation-delay that is used in `administration/index.html`
-        const DELAY = 2000;
-        const MIN_VISIBLE_TIME = 300;
-
-        const startTime = window._pageLoadTime_;
-        const elapsedTime = Date.now() - startTime;
-        // prevent flickering, show loading indicator longer than necessary:
-        const buffer = elapsedTime < DELAY ? 0 : Math.max(DELAY + MIN_VISIBLE_TIME - elapsedTime, 0);
-
-        setTimeout(() => {
-            document.getElementById('page-loading-screen')?.remove();
-        }, buffer);
     }
 }

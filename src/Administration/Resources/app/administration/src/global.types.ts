@@ -224,7 +224,7 @@ declare global {
         _sw_extension_component_collection: DevtoolComponent[];
         _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
-        _pageLoadTime_: number;
+        removePageLoadingIndicator: () => void;
     }
 
     const _features_: {

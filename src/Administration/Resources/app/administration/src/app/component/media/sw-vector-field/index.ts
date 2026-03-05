@@ -58,6 +58,31 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+
+        variant: {
+            type: String,
+            required: false,
+            default: 'colored',
+            validValues: [
+                'neutral',
+                'colored',
+            ],
+            validator(value: string) {
+                return [
+                    'neutral',
+                    'colored',
+                ].includes(value);
+            },
+        },
+    },
+
+    computed: {
+        classes(): Record<string, boolean> {
+            return {
+                'sw-vector-field': true,
+                [`sw-vector-field--${this.variant}`]: true,
+            };
+        },
     },
 
     data() {

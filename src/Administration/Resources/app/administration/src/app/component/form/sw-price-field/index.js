@@ -128,12 +128,12 @@ export default {
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
-         * Will be used inside mt-number-field which defaults to true.
+         * After that it behaves like `:allow-empty="true"`.
          */
         allowEmpty: {
             type: Boolean,
             required: false,
-            default: undefined,
+            default: false,
         },
 
         inherited: {

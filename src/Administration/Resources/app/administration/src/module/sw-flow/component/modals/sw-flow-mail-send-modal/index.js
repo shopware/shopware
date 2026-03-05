@@ -384,17 +384,9 @@ export default {
         },
 
         debouncedIsEmailValid: debounce(function emailIsValid(recipient, originKey) {
-            let email;
-            switch (typeof recipient) {
-                case 'string':
-                    email = recipient;
-                    break;
-                case 'object':
-                    email = recipient.email;
-                    break;
-                default:
-                    email = '';
-            }
+            const email = typeof recipient === 'string'
+                ? recipient
+                : recipient?.email || '';
 
             this.isValidating = true;
 
@@ -525,9 +517,10 @@ export default {
             } else {
                 this.isValidating = true;
                 this.validationApiService.validateEmailAddress(item.email).then((isValid) => {
-                    this.isValidating = false;
                     item.isMailValid = isValid;
                     this.applyValidationResult(item, index);
+                }).finally(() => {
+                    this.isValidating = false;
                 });
             }
 

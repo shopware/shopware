@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-profile-index.html.twig';
 import '../../store/sw-profile.store';
@@ -252,32 +253,45 @@ export default {
                 return;
             }
 
-            this.ssoSettingsService.isSso().then((response) => {
+            this.ssoSettingsService.isSso().then(async (response) => {
                 if (response.isSso) {
                     this.saveUser();
 
                     return;
                 }
 
-                this.validationApiService.validateEmailAddress(this.user.email).then((isValid) => {
-                    if (isValid) {
-                        const passwordCheck = this.checkPassword();
-                        if (passwordCheck === null || passwordCheck === true) {
-                            this.confirmPasswordModal = true;
-                        }
+                const isValid = await this.validationApiService.validateEmailAddress(this.user.email);
 
-                        return;
+                if (isValid) {
+                    const passwordCheck = this.checkPassword();
+                    if (passwordCheck === null || passwordCheck === true) {
+                        this.confirmPasswordModal = true;
                     }
 
-                    this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
-                });
+                    return;
+                }
+
+                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
             });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed.
+         * @returns {boolean}
+         */
+        checkEmail() {
+            if (!this.user.email || !email(this.user.email)) {
+                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
+
+                return false;
+            }
+            return true;
         },
 
         checkPassword() {
             if (this.newPassword && this.newPassword.length > 0) {
                 if (this.newPassword !== this.newPasswordConfirm) {
-                    this.createErrorMessage(this.$tc('sw-profile.index.notificationPasswordErrorMessage'));
+                    this.createErrorMessage(this.$t('sw-profile.index.notificationPasswordErrorMessage'));
                     return false;
                 }
 
@@ -318,7 +332,7 @@ export default {
                             error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                         });
                         this.createNotificationError({
-                            message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                            message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                         });
                         this.isLoading = false;
                         this.isSaveSuccessful = false;
@@ -403,7 +417,7 @@ export default {
         handleUserSaveError() {
             if (this.$route.name.includes('sw.profile.index')) {
                 this.createNotificationError({
-                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                    message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                 });
             }
             this.isLoading = false;

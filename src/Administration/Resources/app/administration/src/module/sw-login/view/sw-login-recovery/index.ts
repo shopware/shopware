@@ -39,7 +39,7 @@ export default Component.wrapComponentConfig({
             emailField.focus();
         },
 
-        checkEmailIsValid() {
+        async checkEmailIsValid() {
             return this.validationApiService
                 .validateEmailAddress(this.email)
                 .then((isValid) => {

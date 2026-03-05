@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * @internal
+ *
  * @codeCoverageIgnore
  */
 #[Package('framework')]

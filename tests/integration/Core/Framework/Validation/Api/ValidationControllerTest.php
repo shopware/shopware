@@ -2,23 +2,20 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Validation\Api;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Validation\Api\ValidationController;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
-#[Group('slow')]
-#[CoversClass(ValidationController::class)]
 #[Package('framework')]
 class ValidationControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminApiTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @param array<string, string> $emailPayload

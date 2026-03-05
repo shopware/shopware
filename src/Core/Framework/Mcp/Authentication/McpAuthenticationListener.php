@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\Mcp\Authentication;
 
-use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -21,7 +22,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * directly, without requiring a separate OAuth token exchange.
  *
  * When `sw-access-key` and `sw-secret-access-key` headers are present on the MCP endpoint,
- * this listener validates them against the integration table and sets up the request
+ * this listener validates them via the existing ClientRepository and sets up the request
  * attributes so that ApiRequestContextResolver resolves the proper AdminApiSource
  * with the integration's ACL permissions.
  *
@@ -36,8 +37,10 @@ class McpAuthenticationListener implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly ClientRepository $clientRepository,
+        private readonly RateLimiter $rateLimiter,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -68,34 +71,14 @@ class McpAuthenticationListener implements EventSubscriberInterface
             throw McpException::unsupportedKeyType();
         }
 
-        $integration = $this->connection->fetchAssociative(
-            'SELECT integration.id, integration.secret_access_key, app.active AS app_active
-             FROM integration
-             LEFT JOIN app ON app.integration_id = integration.id
-             WHERE integration.access_key = :accessKey',
-            ['accessKey' => $accessKey]
-        );
+        $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $accessKey);
 
-        if ($integration === false) {
-            throw McpException::invalidAccessKey();
+        if (!$this->clientRepository->validateClient($accessKey, $secretKey, 'client_credentials')) {
+            throw McpException::invalidCredentials();
         }
-
-        if ($integration['app_active'] === '0') {
-            throw McpException::inactiveApp();
-        }
-
-        if (!password_verify($secretKey, (string) $integration['secret_access_key'])) {
-            throw McpException::invalidSecret();
-        }
-
-        $this->connection->update(
-            'integration',
-            ['last_usage_at' => (new \DateTime())->format('Y-m-d H:i:s.v')],
-            ['id' => $integration['id']]
-        );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'mcp-' . $accessKey);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $accessKey);
-        $request->attributes->set('auth_required', false);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, true);
     }
 }

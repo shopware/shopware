@@ -9,10 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class McpException extends HttpException
 {
-    private const MCP_INVALID_ACCESS_KEY = 'MCP__INVALID_ACCESS_KEY';
-    private const MCP_INACTIVE_APP = 'MCP__INACTIVE_APP';
-    private const MCP_INVALID_SECRET = 'MCP__INVALID_SECRET';
     private const MCP_UNSUPPORTED_KEY_TYPE = 'MCP__UNSUPPORTED_KEY_TYPE';
+    private const MCP_INVALID_CREDENTIALS = 'MCP__INVALID_CREDENTIALS';
     private const MCP_THROTTLED = 'MCP__THROTTLED';
 
     public static function unsupportedKeyType(): self
@@ -24,30 +22,12 @@ class McpException extends HttpException
         );
     }
 
-    public static function invalidAccessKey(): self
+    public static function invalidCredentials(): self
     {
         return new self(
             Response::HTTP_UNAUTHORIZED,
-            self::MCP_INVALID_ACCESS_KEY,
-            'Invalid integration access key.',
-        );
-    }
-
-    public static function inactiveApp(): self
-    {
-        return new self(
-            Response::HTTP_UNAUTHORIZED,
-            self::MCP_INACTIVE_APP,
-            'The app associated with this integration is inactive.',
-        );
-    }
-
-    public static function invalidSecret(): self
-    {
-        return new self(
-            Response::HTTP_UNAUTHORIZED,
-            self::MCP_INVALID_SECRET,
-            'Invalid secret access key.',
+            self::MCP_INVALID_CREDENTIALS,
+            'Invalid integration credentials.',
         );
     }
 

@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationDefinition;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
@@ -46,7 +47,10 @@ return static function (ContainerConfigurator $container): void {
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     $services->set(McpAuthenticationListener::class)
-        ->args([service('Doctrine\DBAL\Connection')])
+        ->args([
+            service(ClientRepository::class),
+            service(RateLimiter::class),
+        ])
         ->tag('kernel.event_subscriber')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 

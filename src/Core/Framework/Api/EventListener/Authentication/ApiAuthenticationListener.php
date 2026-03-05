@@ -9,6 +9,7 @@ use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
@@ -88,6 +89,10 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $request = $event->getRequest();
 
         if (!$request->attributes->get('auth_required', true)) {
+            return;
+        }
+
+        if ($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, false)) {
             return;
         }
 

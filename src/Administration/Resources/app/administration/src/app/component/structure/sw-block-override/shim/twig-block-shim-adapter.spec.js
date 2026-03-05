@@ -330,9 +330,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.default-content').exists()).toBeTruthy();
             expect(wrapper.find('.override-content-1').exists()).toBeTruthy();
             expect(wrapper.find('.override-content-2').exists()).toBeTruthy();
-            expect(
-                wrapper.find('.default-content + .override-content-1 + .override-content-2').exists(),
-            ).toBeTruthy();
+            expect(wrapper.find('.default-content + .override-content-1 + .override-content-2').exists()).toBeTruthy();
         });
 
         it('renders only the last registered Twig override when none of the overrides use {% parent %}', async () => {
@@ -485,9 +483,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             // Full chain: default → plugin-a → plugin-b → plugin-c
             expect(
-                wrapper
-                    .find('.default-content + .plugin-a-content + .plugin-b-content + .plugin-c-content')
-                    .exists(),
+                wrapper.find('.default-content + .plugin-a-content + .plugin-b-content + .plugin-c-content').exists(),
             ).toBeTruthy();
         });
 
@@ -546,14 +542,10 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             );
 
             // block-x: default → plugin-a-x → plugin-b-x
-            expect(
-                wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists(),
-            ).toBeTruthy();
+            expect(wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists()).toBeTruthy();
 
             // block-y: default → plugin-a-y → plugin-b-y (independent of block-x)
-            expect(
-                wrapper.find('.root-y .default-y + .plugin-a-y + .plugin-b-y').exists(),
-            ).toBeTruthy();
+            expect(wrapper.find('.root-y .default-y + .plugin-a-y + .plugin-b-y').exists()).toBeTruthy();
         });
 
         it('stacks plugin-A on both blocks and plugin-B only on block-X, leaving block-Y untouched by plugin-B', async () => {
@@ -607,9 +599,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             );
 
             // block-x gets both plugins stacked
-            expect(
-                wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists(),
-            ).toBeTruthy();
+            expect(wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists()).toBeTruthy();
 
             // block-y gets only plugin-A; plugin-B must not appear here
             expect(wrapper.find('.root-y .default-y + .plugin-a-y').exists()).toBeTruthy();
@@ -767,9 +757,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             // default → shim → native (all chained via parent)
-            expect(
-                wrapper.find('.default-content + .shim-content + .native-content').exists(),
-            ).toBeTruthy();
+            expect(wrapper.find('.default-content + .shim-content + .native-content').exists()).toBeTruthy();
         });
 
         it('renders only native content when the native override has no <sw-block-parent />', async () => {
@@ -943,9 +931,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             await createWrapper({ blockName: 'shim_warn_block_name' });
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('shim_warn_block_name'),
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('shim_warn_block_name'));
         });
 
         it('includes the native migration hint in the deprecation warning message', async () => {
@@ -955,9 +941,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             await createWrapper({ blockName: 'shim_warn_migration_hint' });
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('<sw-block extends='),
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('<sw-block extends='));
         });
 
         it('emits the deprecation warning only once per block name across multiple mount/unmount cycles', async () => {
@@ -1003,12 +987,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             );
 
             expect(consoleSpy).toHaveBeenCalledTimes(2);
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('shim_warn_separate_a'),
-            );
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('shim_warn_separate_b'),
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('shim_warn_separate_a'));
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('shim_warn_separate_b'));
         });
 
         it('does not emit a deprecation warning when no Twig override targets the mounted sw-block name', async () => {
@@ -1234,7 +1214,13 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             const wrapper = await createWrapper({
                 blockName: 'shim_directive_vfor',
-                extraData: { items: ['alpha', 'beta', 'gamma'] },
+                extraData: {
+                    items: [
+                        'alpha',
+                        'beta',
+                        'gamma',
+                    ],
+                },
             });
 
             const listItems = wrapper.findAll('.list-item');
@@ -1322,7 +1308,13 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             const wrapper = await createWrapper({
                 blockName: 'shim_limitation_twig_for',
                 defaultContent: '',
-                extraData: { items: ['a', 'b', 'c'] },
+                extraData: {
+                    items: [
+                        'a',
+                        'b',
+                        'c',
+                    ],
+                },
             });
 
             expect(wrapper.find('.twig-for-item').exists()).toBeFalsy();

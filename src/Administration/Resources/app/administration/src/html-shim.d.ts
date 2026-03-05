@@ -29,8 +29,23 @@ declare module '*.vue' {
 // The `twig` package ships without TypeScript declarations.
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 declare module 'twig' {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const Twig: any;
+    // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+    interface TwigStatic {
+        twig(options: { data: string; rethrow: boolean }): {
+            tokens: Array<{
+                type: string;
+                value?: string;
+                token?: {
+                    type?: string;
+                    blockName?: string;
+                    output?: unknown[];
+                };
+            }>;
+        };
+    }
+
+    // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+    const Twig: TwigStatic;
     // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
     export default Twig;
 }

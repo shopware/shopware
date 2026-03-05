@@ -14,24 +14,8 @@
  * `{% parent %}` tag registered) before this module is first used.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-import TwigLib from 'twig';
-import { reconstructInnerTemplate, containsParentToken } from './reconstruct-twig-template';
-
-type TwigParsedToken = {
-    type: string;
-    token?: {
-        blockName?: string;
-        output?: Parameters<typeof reconstructInnerTemplate>[0];
-    };
-};
-
-type TwigInstance = {
-    twig: (options: { data: string; rethrow: boolean }) => { tokens: TwigParsedToken[] };
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const Twig = TwigLib as unknown as TwigInstance;
+import Twig from 'twig';
+import { reconstructInnerTemplate } from './reconstruct-twig-template';
 
 /**
  * @private
@@ -39,7 +23,6 @@ const Twig = TwigLib as unknown as TwigInstance;
 export interface BlockEntry {
     componentName: string;
     innerTemplate: string;
-    hasParent: boolean;
 }
 
 const blockIndex = new Map<string, BlockEntry[]>();
@@ -55,7 +38,7 @@ const blockIndex = new Map<string, BlockEntry[]>();
  * @private
  */
 export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: string): void {
-    let parsed: { tokens: TwigParsedToken[] };
+    let parsed: ReturnType<typeof Twig.twig>;
 
     try {
         parsed = Twig.twig({ data: rawTemplate, rethrow: true });
@@ -67,13 +50,12 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
         .filter((token) => token.type === 'logic' && !!token.token?.blockName)
         .forEach((token) => {
             const blockName = token.token!.blockName as string;
-            const output = token.token!.output ?? [];
+            const output = (token.token!.output ?? []) as Parameters<typeof reconstructInnerTemplate>[0];
 
             const innerTemplate = reconstructInnerTemplate(output);
-            const hasParent = containsParentToken(output);
 
             const existing = blockIndex.get(blockName) ?? [];
-            existing.push({ componentName, innerTemplate, hasParent });
+            existing.push({ componentName, innerTemplate });
             blockIndex.set(blockName, existing);
         });
 }

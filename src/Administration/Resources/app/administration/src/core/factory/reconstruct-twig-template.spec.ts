@@ -2,10 +2,7 @@
  * @sw-package framework
  */
 
-import {
-    reconstructInnerTemplate,
-    containsParentToken,
-} from 'src/core/factory/reconstruct-twig-template';
+import { reconstructInnerTemplate, containsParentToken } from 'src/core/factory/reconstruct-twig-template';
 
 type TestToken = {
     type: 'raw' | 'logic';
@@ -46,7 +43,11 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
         });
 
         it('concatenates multiple raw tokens in order', () => {
-            const tokens = [rawToken('<div>'), rawToken('<span>'), rawToken('</span></div>')];
+            const tokens = [
+                rawToken('<div>'),
+                rawToken('<span>'),
+                rawToken('</span></div>'),
+            ];
 
             expect(reconstructInnerTemplate(tokens)).toBe('<div><span></span></div>');
         });
@@ -64,9 +65,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
                 rawToken('</div>'),
             ];
 
-            expect(reconstructInnerTemplate(tokens)).toBe(
-                '<div class="before"><sw-block-parent /></div>',
-            );
+            expect(reconstructInnerTemplate(tokens)).toBe('<div class="before"><sw-block-parent /></div>');
         });
 
         it('recursively reconstructs the content of a nested {% block %} token', () => {
@@ -79,12 +78,13 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
 
         it('recursively handles a nested block that itself contains a parent token', () => {
             const tokens = [
-                blockToken('nested_with_parent', [parentToken(), rawToken('<div class="extra"></div>')]),
+                blockToken('nested_with_parent', [
+                    parentToken(),
+                    rawToken('<div class="extra"></div>'),
+                ]),
             ];
 
-            expect(reconstructInnerTemplate(tokens)).toBe(
-                '<sw-block-parent /><div class="extra"></div>',
-            );
+            expect(reconstructInnerTemplate(tokens)).toBe('<sw-block-parent /><div class="extra"></div>');
         });
 
         it('collapses unknown Twig logic tokens (if, for, …) to an empty string', () => {
@@ -135,7 +135,11 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
         });
 
         it('returns true when a parent token is mixed with raw tokens', () => {
-            const tokens = [rawToken('<div>'), parentToken(), rawToken('</div>')];
+            const tokens = [
+                rawToken('<div>'),
+                parentToken(),
+                rawToken('</div>'),
+            ];
 
             expect(containsParentToken(tokens)).toBe(true);
         });

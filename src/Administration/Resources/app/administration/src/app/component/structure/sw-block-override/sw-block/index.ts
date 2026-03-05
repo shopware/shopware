@@ -87,6 +87,8 @@ export default Shopware.Component.wrapComponentConfig({
          * ensuring shim slots are removed when this component navigates away and
          * re-added when it remounts.
          */
+        // Assumes `name` is static (set once at mount). If it were to change
+        // dynamically, shim slots would not re-bind to the new name.
         if (props.name && hasBlockEntries(props.name)) {
             const entries = getBlockEntries(props.name);
             const shimSlots = entries.map((entry) => createShimSlot(entry, props.name!));

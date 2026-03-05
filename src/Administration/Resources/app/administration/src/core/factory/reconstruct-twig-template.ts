@@ -72,6 +72,9 @@ export function reconstructInnerTemplate(tokens: TwigToken[]): string {
  * Returns true when any token in the array (at any nesting depth inside nested
  * `{% block %}` tags) is a `{% parent %}` token.
  *
+ * Not consumed at runtime — kept as a public utility for future tooling
+ * (e.g. migration codemods, dev-tools block inspection).
+ *
  * @private
  */
 export function containsParentToken(tokens: TwigToken[]): boolean {

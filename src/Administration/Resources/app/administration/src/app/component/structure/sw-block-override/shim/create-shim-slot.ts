@@ -31,6 +31,13 @@ import swBlockParent from '../sw-block-parent/index';
 const warnedBlocks = new Set<string>();
 
 /**
+ * Caches the static part of ShimContent component definitions (template +
+ * components) keyed by inner template string. The `setup` closure is attached
+ * per invocation so each call gets a fresh reactive context.
+ */
+const shimDefCache = new Map<string, Record<string, unknown>>();
+
+/**
  * Compiles `entry.innerTemplate` into a Slot function compatible with
  * `sw-block`'s `blockContext`. Emits a `console.warn` deprecation on first
  * use of each block name so developers know which overrides to migrate.
@@ -50,22 +57,20 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
         );
     }
 
-    return (dataScope) => {
-        const ShimContent = {
+    let baseDef = shimDefCache.get(entry.innerTemplate);
+    if (!baseDef) {
+        baseDef = {
             name: `__twig-shim__${blockName}`,
             template: entry.innerTemplate,
-            /**
-             * Register sw-block-parent locally so that `<sw-block-parent />` in
-             * the reconstructed template string is resolved correctly. In a
-             * production Vue app, sw-block-parent is globally registered at boot
-             * time; this explicit registration ensures it is also available for
-             * tests (which only register components locally on the host wrapper).
-             */
             components: { 'sw-block-parent': swBlockParent },
-            setup: () => buildSetupContext(dataScope as object | null),
         };
+        shimDefCache.set(entry.innerTemplate, baseDef);
+    }
 
-        return [h(ShimContent)];
+    const cachedDef = baseDef;
+
+    return (dataScope) => {
+        return [h({ ...cachedDef, setup: () => buildSetupContext(dataScope as object | null) })];
     };
 }
 
@@ -147,4 +152,5 @@ function buildSetupContext(dataScope: object | null): Record<string, unknown> {
  */
 export function resetShimSlotState(): void {
     warnedBlocks.clear();
+    shimDefCache.clear();
 }

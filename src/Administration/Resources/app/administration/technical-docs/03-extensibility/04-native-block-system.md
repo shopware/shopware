@@ -2,7 +2,7 @@
 
 > **Status**: Introduced in Shopware 6.8 — experimental, coexists with the TwigJS block system. The future target is to fully replace TwigJS blocks with this approach.
 >
-> **Companion document**: See [`admin-twig-block-system.md`](./admin-twig-block-system.md) for the current TwigJS block system.
+> **Companion document**: See [`05-twig-block-system.md`](./05-twig-block-system.md) for the current TwigJS block system.
 
 ---
 

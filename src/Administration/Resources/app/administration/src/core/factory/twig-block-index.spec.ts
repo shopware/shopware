@@ -16,66 +16,66 @@ describe('core/factory/twig-block-index.ts', () => {
 
     describe('indexTwigBlocksFromTemplate', () => {
         it('indexes a single block from a Twig template', () => {
-            indexTwigBlocksFromTemplate('sw-product-detail', `
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
                 {% block my_block %}<div class="content"></div>{% endblock %}
-            `);
+            `,
+            );
 
             expect(hasBlockEntries('my_block')).toBe(true);
         });
 
         it('indexes multiple top-level blocks from a single template', () => {
-            indexTwigBlocksFromTemplate('sw-product-detail', `
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
                 {% block block_a %}<div class="a"></div>{% endblock %}
                 {% block block_b %}<div class="b"></div>{% endblock %}
-            `);
+            `,
+            );
 
             expect(hasBlockEntries('block_a')).toBe(true);
             expect(hasBlockEntries('block_b')).toBe(true);
         });
 
         it('stores the component name in each block entry', () => {
-            indexTwigBlocksFromTemplate('sw-product-detail', `
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
                 {% block comp_name_block %}<div></div>{% endblock %}
-            `);
+            `,
+            );
 
             const [entry] = getBlockEntries('comp_name_block');
             expect(entry.componentName).toBe('sw-product-detail');
         });
 
         it('stores a non-empty inner template for a block with HTML content', () => {
-            indexTwigBlocksFromTemplate('sw-product-detail', `
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
                 {% block inner_tmpl_block %}<div class="inner"></div>{% endblock %}
-            `);
+            `,
+            );
 
             const [entry] = getBlockEntries('inner_tmpl_block');
             expect(entry.innerTemplate).toContain('class="inner"');
         });
 
-        it('sets hasParent to true when the block body contains {% parent %}', () => {
-            indexTwigBlocksFromTemplate('sw-product-detail', `
-                {% block has_parent_block %}{% parent %}<div></div>{% endblock %}
-            `);
-
-            const [entry] = getBlockEntries('has_parent_block');
-            expect(entry.hasParent).toBe(true);
-        });
-
-        it('sets hasParent to false when the block body does not contain {% parent %}', () => {
-            indexTwigBlocksFromTemplate('sw-product-detail', `
-                {% block no_parent_block %}<div></div>{% endblock %}
-            `);
-
-            const [entry] = getBlockEntries('no_parent_block');
-            expect(entry.hasParent).toBe(false);
-        });
-
         it('accumulates multiple entries for the same block name from separate calls', () => {
-            indexTwigBlocksFromTemplate('sw-plugin-a', `
+            indexTwigBlocksFromTemplate(
+                'sw-plugin-a',
+                `
                 {% block shared_block %}<div class="a"></div>{% endblock %}
-            `);
-            indexTwigBlocksFromTemplate('sw-plugin-b', `
+            `,
+            );
+            indexTwigBlocksFromTemplate(
+                'sw-plugin-b',
+                `
                 {% block shared_block %}<div class="b"></div>{% endblock %}
-            `);
+            `,
+            );
 
             const entries = getBlockEntries('shared_block');
             expect(entries).toHaveLength(2);

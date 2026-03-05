@@ -10,7 +10,6 @@ function makeEntry(overrides: Partial<BlockEntry> = {}): BlockEntry {
     return {
         componentName: 'sw-product-detail',
         innerTemplate: '<div class="shim-content"></div>',
-        hasParent: false,
         ...overrides,
     };
 }
@@ -43,25 +42,19 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
         it('includes the block name in the deprecation warning message', () => {
             createShimSlot(makeEntry(), 'warn_includes_block_name');
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('warn_includes_block_name'),
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('warn_includes_block_name'));
         });
 
         it('includes the component name in the deprecation warning message', () => {
             createShimSlot(makeEntry({ componentName: 'sw-order-detail' }), 'warn_includes_comp_name');
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('sw-order-detail'),
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('sw-order-detail'));
         });
 
         it('includes the native migration hint in the deprecation warning message', () => {
             createShimSlot(makeEntry(), 'warn_includes_hint');
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('<sw-block extends='),
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('<sw-block extends='));
         });
 
         it('does not emit a second warning when called again with the same block name', () => {

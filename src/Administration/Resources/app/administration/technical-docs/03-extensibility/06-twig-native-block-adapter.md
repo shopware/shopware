@@ -73,7 +73,7 @@ Consequently, from TwigJS's perspective:
 - `v-if`, `@click`, `:title` — HTML attribute strings; raw text, passed through verbatim
 - `{% block %}` / `{% parent %}` — the **only** logic tokens TwigJS processes
 
-The inner content of any `{% block %}` is therefore already valid Vue template HTML. The adapter reconstructs it from the token tree and compiles it with `compileToFunction` — exactly how Shopware's existing TwigJS pipeline hands templates to Vue.
+The inner content of any `{% block %}` is therefore already valid Vue template HTML. The adapter reconstructs it from the token tree and passes it as a `template` property on the ShimContent component options — Vue's runtime template compiler then compiles it on first mount and caches the result internally.
 
 ---
 
@@ -98,7 +98,6 @@ Shopware.Component.override('sw-product-detail', { template: '...' })
                       'sw_product_detail_content': [{
                           componentName: 'sw-product-detail',
                           innerTemplate: '...<div v-if="product.active">...',
-                          hasParent: true,
                       }]
                     }
 
@@ -109,7 +108,8 @@ Runtime (first mount of a given block name)
     ├─ hasBlockEntries('sw_product_detail_content') → true
     │
     ├─ createShimSlot(entry)
-    │       compileToFunction(innerTemplate)  ← Vue runtime compiler, once per template
+    │       builds ShimContent with { template: innerTemplate }
+    │       Vue compiles the template on first mount and caches internally
     │       returns: Slot = (dataScope) => [h(ShimContent)]
     │
     └─ addBlock('sw_product_detail_content', shimSlot)
@@ -123,45 +123,40 @@ Runtime (first mount of a given block name)
 
 ## Implementation
 
-### 1. Block Index — `src/app/component/structure/sw-block-override/shim/block-index.ts`
+### 1. Block Index — `src/core/factory/twig-block-index.ts`
 
-Built at override registration time. Provides O(1) lookup for `sw-block` at mount time.
+Built at override registration time. Provides O(1) lookup for `sw-block` at mount time. A thin re-export layer at `shim/block-index.ts` lets app-layer files import from a sibling path without reaching into core.
 
 ```ts
 import Twig from 'twig';
-import { reconstructInnerTemplate, containsParentToken } from './reconstruct-template';
+import { reconstructInnerTemplate } from './reconstruct-twig-template';
 
 export interface BlockEntry {
     componentName: string;
     innerTemplate: string;
-    hasParent: boolean;
 }
 
 const blockIndex = new Map<string, BlockEntry[]>();
 
-export function indexTwigBlocksFromTemplate(
-    componentName: string,
-    rawTemplate: string,
-): void {
+export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: string): void {
     let parsed: ReturnType<typeof Twig.twig>;
     try {
         parsed = Twig.twig({ data: rawTemplate, rethrow: true });
     } catch {
-        return; // malformed template — TwigJS will also fail later; skip silently
+        return;
     }
 
-    for (const token of parsed.tokens) {
-        if (token.type !== 'logic') continue;
-        if (token.token?.type !== 'Twig.logic.type.block') continue;
+    parsed.tokens
+        .filter((token) => token.type === 'logic' && !!token.token?.blockName)
+        .forEach((token) => {
+            const blockName = token.token!.blockName as string;
+            const output = token.token!.output ?? [];
+            const innerTemplate = reconstructInnerTemplate(output);
 
-        const blockName = token.token.name as string;
-        const innerTemplate = reconstructInnerTemplate(token.token.output);
-        const hasParent = containsParentToken(token.token.output);
-
-        const existing = blockIndex.get(blockName) ?? [];
-        existing.push({ componentName, innerTemplate, hasParent });
-        blockIndex.set(blockName, existing);
-    }
+            const existing = blockIndex.get(blockName) ?? [];
+            existing.push({ componentName, innerTemplate });
+            blockIndex.set(blockName, existing);
+        });
 }
 
 export function getBlockEntries(blockName: string): BlockEntry[] {
@@ -173,112 +168,118 @@ export function hasBlockEntries(blockName: string): boolean {
 }
 ```
 
-### 2. Template Reconstruction — `src/app/component/structure/sw-block-override/shim/reconstruct-template.ts`
+### 2. Template Reconstruction — `src/core/factory/reconstruct-twig-template.ts`
 
-Walks the TwigJS token tree and reconstructs the raw Vue-compatible template string without invoking TwigJS's renderer.
+Walks the TwigJS token tree and reconstructs the raw Vue-compatible template string without invoking TwigJS's renderer. The `{% parent %}` custom tag is registered with `type: 'parent'` via `Twig.extendTag` in `template.factory.js`, and block tokens are identified by their `blockName` property.
 
 ```ts
 export function reconstructInnerTemplate(tokens: TwigToken[]): string {
-    return tokens.map((token) => {
-        if (token.type === 'raw') {
-            // HTML, Vue directives, {{ interpolation }} — verbatim passthrough
-            return token.value as string;
-        }
-
-        if (token.type === 'logic') {
-            if (token.token?.type === 'Twig.logic.type.parent') {
-                // {% parent %} → native <sw-block-parent />
-                return '<sw-block-parent />';
+    return tokens
+        .map((token) => {
+            if (token.type === 'raw') {
+                return token.value ?? '';
             }
 
-            if (token.token?.type === 'Twig.logic.type.block') {
-                // Nested {% block %} — recurse into its content
-                return reconstructInnerTemplate(token.token.output);
-            }
-        }
+            if (token.type === 'logic') {
+                if (token.token?.type === 'parent') {
+                    return '<sw-block-parent />';
+                }
 
-        return '';
-    }).join('');
+                if (token.token?.blockName !== undefined) {
+                    return reconstructInnerTemplate(token.token.output ?? []);
+                }
+            }
+
+            return '';
+        })
+        .join('');
 }
 
 export function containsParentToken(tokens: TwigToken[]): boolean {
-    return tokens.some(
-        (t) => t.type === 'logic' && t.token?.type === 'Twig.logic.type.parent',
-    );
+    return tokens.some((token) => {
+        if (token.type !== 'logic') return false;
+        if (token.token?.type === 'parent') return true;
+        if (token.token?.blockName !== undefined) {
+            return containsParentToken(token.token.output ?? []);
+        }
+        return false;
+    });
 }
 ```
 
 ### 3. Slot Factory — `src/app/component/structure/sw-block-override/shim/create-shim-slot.ts`
 
-Compiles the reconstructed template with Vue's runtime compiler and returns a slot function compatible with `sw-block`'s `blockContext`.
+Builds a ShimContent component definition using the reconstructed template string and returns a slot function compatible with `sw-block`'s `blockContext`. Vue's runtime template compiler handles the `template` string on first mount and caches the result internally — no manual render function caching is required. The static part of the component definition (template + components) is memoized per template string; only the `setup` closure is created per invocation.
 
 ```ts
-import { compileToFunction } from '@vue/runtime-dom';
 import { h, type Slot } from 'vue';
 import type { BlockEntry } from './block-index';
+import swBlockParent from '../sw-block-parent/index';
 
-// Compiled render functions are cached by inner template string
-const renderFnCache = new Map<string, ReturnType<typeof compileToFunction>>();
-
-// Deprecation warnings are emitted once per block name
 const warnedBlocks = new Set<string>();
+const shimDefCache = new Map<string, Record<string, unknown>>();
 
 export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
         console.warn(
             `[Shopware Deprecation] Block "${blockName}" in component "${entry.componentName}" ` +
-            `uses a legacy Twig override. ` +
-            `Migrate to: <sw-block extends="${blockName}">...</sw-block>`,
+                `uses a legacy Twig override. ` +
+                `Migrate to: <sw-block extends="${blockName}">...</sw-block>`,
         );
     }
 
-    let renderFn = renderFnCache.get(entry.innerTemplate);
-    if (!renderFn) {
-        renderFn = compileToFunction(entry.innerTemplate);
-        renderFnCache.set(entry.innerTemplate, renderFn);
+    let baseDef = shimDefCache.get(entry.innerTemplate);
+    if (!baseDef) {
+        baseDef = {
+            name: `__twig-shim__${blockName}`,
+            template: entry.innerTemplate,
+            components: { 'sw-block-parent': swBlockParent },
+        };
+        shimDefCache.set(entry.innerTemplate, baseDef);
     }
 
-    const compiledRenderFn = renderFn;
+    const cachedDef = baseDef;
 
     return (dataScope) => {
-        const ShimContent = {
-            name: `__twig-shim__${blockName}`,
-            render: compiledRenderFn,
-            setup: () => buildSetupContext(dataScope),
-        };
-
-        return [h(ShimContent)];
+        return [h({ ...cachedDef, setup: () => buildSetupContext(dataScope) })];
     };
-}
-
-function buildSetupContext(dataScope: object | null): Record<string, unknown> {
-    if (!dataScope) return {};
-
-    const ctx: Record<string, unknown> = {};
-    for (const key of Object.keys(dataScope)) {
-        if (key.startsWith('$') || key.startsWith('_')) continue;
-        ctx[key] = (dataScope as Record<string, unknown>)[key];
-    }
-    return ctx;
 }
 ```
 
-**How reactivity works:** `sw-block`'s `template` computed re-evaluates whenever its `data` prop changes (which holds `$dataScope` — the component proxy). Each re-evaluation re-calls the slot function with a fresh proxy, which rebuilds `buildSetupContext`. Vue then re-renders `ShimContent` with the updated context. All `{{ }}` interpolations, `v-if` conditions, and event handlers inside the override template update correctly.
+**`buildSetupContext`** uses a Proxy (not `Object.keys` enumeration) to give ShimContent's compiled render function transparent, reactive read access to every public property of the host component proxy — without triggering Vue's `ownKeys` warning. `Object.keys()` on a Vue component proxy returns an empty array in production mode and logs a warning in development, making plain enumeration broken. The Proxy delegates `get` to the component proxy so Vue's reactivity system tracks each read as a dependency.
 
-**How `<sw-block-parent />` works:** `ShimContent` is rendered inside `sw-block`'s render tree. `sw-block` already `provide()`s the parent VNode stack via `parentsInjectionKey`. `<sw-block-parent />` injects from that stack and pops the previous content — exactly as a natively written `<sw-block extends="...">` would behave.
+**How `<sw-block-parent />` works:** `ShimContent` is rendered inside `sw-block`'s render tree. `sw-block` already `provide()`s the parent VNode stack via `parentsInjectionKey`. `<sw-block-parent />` injects from that stack and pops the previous content — exactly as a natively written `<sw-block extends="...">` would behave. The `components: { 'sw-block-parent': swBlockParent }` registration ensures the component is available even in test environments where only local components are registered.
 
 ### 4. Hook into `async-component.factory.ts`
 
-One line added to the `override()` function, inside `configResolveMethod`, before the template string is deleted:
+Two indexing paths are added to the `override()` function to handle both synchronous (direct object) and asynchronous (lazy-loaded function) config shapes:
 
 ```ts
-if (config.template) {
-    indexTwigBlocksFromTemplate(componentName, config.template as string); // ← NEW
-
-    TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
-    delete config.template;
+// Synchronous indexing for direct-object configs (the common case)
+let alreadyIndexed = false;
+if (typeof componentConfiguration !== 'function') {
+    const { template: tpl } = componentConfiguration;
+    if (typeof tpl === 'string') {
+        indexTwigBlocksFromTemplate(componentName, tpl);
+        alreadyIndexed = true;
+    }
 }
+
+const configResolveMethod = async (): Promise<ComponentConfig> => {
+    // ... resolve config ...
+
+    if (config.template) {
+        // Async path: index here for lazy-loaded plugin overrides
+        if (!alreadyIndexed) {
+            indexTwigBlocksFromTemplate(componentName, config.template as string);
+        }
+
+        TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
+        delete config.template;
+    }
+    // ...
+};
 ```
 
 ### 5. Hook into `sw-block/index.ts`
@@ -310,11 +311,12 @@ Lifecycle-driven cleanup: when the host component unmounts (e.g., navigating awa
 
 | File | Type | Purpose |
 |------|------|---------|
-| `shim/block-index.ts` | New | Block name index, built at registration time |
-| `shim/reconstruct-template.ts` | New | TwigJS token tree → Vue template string |
-| `shim/create-shim-slot.ts` | New | Slot function factory, Vue compiler integration |
-| `async-component.factory.ts` | Modified | +1 line: call `indexTwigBlocksFromTemplate` |
-| `sw-block/index.ts` | Modified | +~10 lines: shim bridge in `setup()` |
+| `core/factory/twig-block-index.ts` | New | Block name index (Map), built at registration time |
+| `core/factory/reconstruct-twig-template.ts` | New | TwigJS token tree → Vue template string |
+| `shim/block-index.ts` | New | Thin re-export of core index + test reset helper |
+| `shim/create-shim-slot.ts` | New | Slot function factory, Proxy-based setup context |
+| `core/factory/async-component.factory.ts` | Modified | +16 lines: sync + async `indexTwigBlocksFromTemplate` calls |
+| `sw-block/index.ts` | Modified | +25 lines: shim bridge in `setup()` |
 
 ---
 
@@ -325,7 +327,6 @@ Lifecycle-driven cleanup: when the host component unmounts (e.g., navigating awa
 | `{% if %}` / `{% for %}` inside block content are unsupported | These Twig control flow tags were never valid in Shopware's admin block system. They produce empty strings in `reconstructInnerTemplate`. Must be documented in the migration guide. |
 | Vue component references inside Twig overrides (e.g. `<sw-card>`) | Resolved by Vue's runtime compiler using the global component registry — works as expected. |
 | Async overrides indexed after first `sw-block` mount | In Shopware's boot sequence, `initComponent()` awaits all override configs before Vue mounts. In practice this cannot be hit. |
-| `compileToFunction` requires Vue's runtime compiler | Already present in Shopware admin — the entire existing template pipeline relies on it. |
 
 ---
 

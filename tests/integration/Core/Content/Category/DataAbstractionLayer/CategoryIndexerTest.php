@@ -135,36 +135,41 @@ class CategoryIndexerTest extends TestCase
      *
      * @param array<string, mixed> $categoryPayload Fields written to category table
      * @param array<string, mixed>|null $translationPayload Fields written to category_translation table
-     * @param list<string> $expectedSkips
+     * @param list<string>|null $expectedSkips
      */
     #[DataProvider('selectiveIndexingCases')]
     public function testSelectiveIndexing(
         array $categoryPayload,
         ?array $translationPayload,
         string $categoryOperation,
-        array $expectedSkips,
+        ?array $expectedSkips,
     ): void {
         $this->prepareFetchChildrenMethod([]);
 
         $containerEvent = $this->createCategoryWrittenEvent($categoryPayload, $categoryOperation, $translationPayload);
         $message = $this->indexer->update($containerEvent);
 
+        if ($expectedSkips === null) {
+            static::assertNull($message);
+
+            return;
+        }
+
         static::assertNotNull($message);
         static::assertEqualsCanonicalizing($expectedSkips, $message->getSkip());
     }
 
     /**
-     * @return \Generator<string, array{categoryPayload: array<string, mixed>, translationPayload: array<string, mixed>|null, categoryOperation: string, expectedSkips: list<string>}>
+     * @return \Generator<string, array{categoryPayload: array<string, mixed>, translationPayload: array<string, mixed>|null, categoryOperation: string, expectedSkips: list<string>|null}>
      */
     public static function selectiveIndexingCases(): \Generator
     {
         // Translation-only updates (category gets updatedAt, translation gets the actual field)
-        // Message is dispatched for BC (external systems may listen), but all built-in updaters skipped
         yield 'translation: metaDescription only - all updaters skipped' => [
             'categoryPayload' => ['updatedAt' => new \DateTimeImmutable()],
             'translationPayload' => ['metaDescription' => 'new desc'],
             'categoryOperation' => EntityWriteResult::OPERATION_UPDATE,
-            'expectedSkips' => [CategoryIndexer::CHILD_COUNT_UPDATER, CategoryIndexer::TREE_UPDATER, CategoryIndexer::BREADCRUMB_UPDATER],
+            'expectedSkips' => null,
         ];
 
         yield 'translation: name change - breadcrumb only' => [
@@ -235,7 +240,7 @@ class CategoryIndexerTest extends TestCase
                 $uuid,
                 [],
                 CategoryDefinition::ENTITY_NAME,
-                EntityWriteResult::OPERATION_UPDATE
+                EntityWriteResult::OPERATION_INSERT
             );
         }
 

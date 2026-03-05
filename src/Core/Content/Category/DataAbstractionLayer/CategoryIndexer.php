@@ -130,6 +130,11 @@ class CategoryIndexer extends EntityIndexer
             );
         }
 
+        if (!$runAllUpdaters && !$parentIdChanged && !$nameChanged) {
+            // we would skip all updaters, so we can return early without dispatching messages for children
+            return null;
+        }
+
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
         $ids = array_unique(array_merge($ids, $children));
 

@@ -1,0 +1,217 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Migration\Core\V6_7;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_7\Migration1768545320RevocationRequestCmsForm;
+
+/**
+ * @internal
+ */
+#[Package('after-sales')]
+#[CoversClass(Migration1768545320RevocationRequestCmsForm::class)]
+class Migration1768545320RevocationRequestCmsFormTest extends TestCase
+{
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testUpdate(): void
+    {
+        $cmsPageByteId = $this->getCmsPageId();
+        $cmsSectionByteId = $this->getCmsSectionId($cmsPageByteId);
+        $cmsBlockByteId = $this->getCmsBlockId();
+
+        if ($cmsPageByteId !== null) {
+            $this->connection->delete('cms_page', ['id' => $cmsPageByteId]);
+            $this->connection->delete('cms_section', ['cms_page_id' => $cmsPageByteId]);
+        }
+
+        if ($cmsSectionByteId !== null) {
+            $this->connection->delete('cms_block', ['cms_section_id' => $cmsSectionByteId]);
+        }
+
+        if ($cmsBlockByteId !== null) {
+            $this->connection->delete('cms_block', ['id' => $cmsBlockByteId]);
+            $this->connection->delete('cms_slot', ['cms_block_id' => $cmsPageByteId]);
+        }
+
+        $migration = new Migration1768545320RevocationRequestCmsForm();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $cmsPageResult = $this->getCmsPage();
+        static::assertArrayHasKey('id', $cmsPageResult);
+        static::assertIsString($cmsPageResult['id']);
+        static::assertArrayHasKey('type', $cmsPageResult);
+        static::assertSame('page', $cmsPageResult['type']);
+        static::assertArrayHasKey('translations', $cmsPageResult);
+        static::assertIsArray($cmsPageResult['translations']);
+        static::assertCount(2, $cmsPageResult['translations']);
+
+        $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
+        static::assertArrayHasKey('id', $cmsSectionResult);
+        static::assertIsString($cmsSectionResult['id']);
+        static::assertArrayHasKey('type', $cmsSectionResult);
+        static::assertSame('default', $cmsSectionResult['type']);
+
+        $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
+        static::assertArrayHasKey('id', $cmsBlockResult);
+        static::assertIsString($cmsBlockResult['id']);
+        static::assertArrayHasKey('section_position', $cmsBlockResult);
+        static::assertSame('main', $cmsBlockResult['section_position']);
+        static::assertArrayHasKey('type', $cmsBlockResult);
+        static::assertSame('form', $cmsBlockResult['type']);
+        static::assertArrayHasKey('name', $cmsBlockResult);
+        static::assertSame('Revocation request form', $cmsBlockResult['name']);
+
+        $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
+        static::assertArrayHasKey('id', $cmsSlotResult);
+        static::assertIsString($cmsSlotResult['id']);
+        static::assertArrayHasKey('type', $cmsSlotResult);
+        static::assertSame('form', $cmsSlotResult['type']);
+        static::assertArrayHasKey('slot', $cmsSlotResult);
+        static::assertSame('content', $cmsSlotResult['slot']);
+        static::assertArrayHasKey('translations', $cmsSlotResult);
+        static::assertIsArray($cmsSlotResult['translations']);
+        static::assertCount(2, $cmsSlotResult['translations']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getCmsPage(): array
+    {
+        $cmsPageByteId = $this->getCmsPageId();
+        static::assertIsString($cmsPageByteId);
+
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM `cms_page` WHERE `cms_page`.`id` = :id',
+            ['id' => $cmsPageByteId]
+        )->fetchAssociative();
+        static::assertIsArray($result);
+
+        $translationResult = $this->connection->executeQuery(
+            'SELECT * FROM `cms_page_translation` WHERE `cms_page_id` = :cmsPageId',
+            ['cmsPageId' => $cmsPageByteId]
+        )->fetchAllAssociative();
+        static::assertIsArray($translationResult);
+
+        $result['translations'] = $translationResult;
+
+        return $result;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getCmsSection(string $cmsPageByteId): array
+    {
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM `cms_section` WHERE `cms_page_id` = :cmsPageId',
+            ['cmsPageId' => $cmsPageByteId]
+        )->fetchAssociative();
+
+        static::assertIsArray($result);
+
+        return $result;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getCmsBlock(string $cmsSectionByteId): array
+    {
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM `cms_block` WHERE `cms_section_id` = :cmsSectionId',
+            ['cmsSectionId' => $cmsSectionByteId]
+        )->fetchAssociative();
+
+        static::assertIsArray($result);
+
+        return $result;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getCmsSlot(string $cmsBlockByteId): array
+    {
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM `cms_slot` WHERE `cms_block_id` = :cmsBlockId',
+            ['cmsBlockId' => $cmsBlockByteId]
+        )->fetchAssociative();
+
+        static::assertIsArray($result);
+        static::assertArrayHasKey('id', $result);
+        static::assertIsString($result['id']);
+
+        $cmsSlotTranslation = $this->connection->executeQuery(
+            'SELECT * FROM `cms_slot_translation` WHERE `cms_slot_id` = :cmsSlotId',
+            ['cmsSlotId' => $result['id']]
+        )->fetchAllAssociative();
+
+        static::assertIsArray($cmsSlotTranslation);
+
+        $result['translations'] = $cmsSlotTranslation;
+
+        return $result;
+    }
+
+    private function getCmsPageId(): ?string
+    {
+        $sql = <<<'SQL'
+SELECT `id` 
+FROM `cms_page` AS `page`
+INNER JOIN `cms_page_translation` AS `page_translation` ON `page`.`id` = `page_translation`.`cms_page_id`
+WHERE page_translation.name = :name
+SQL;
+
+        $cmsPageByteId = $this->connection->executeQuery(
+            $sql,
+            ['name' => Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name']]
+        )->fetchOne();
+
+        if (!\is_string($cmsPageByteId)) {
+            return null;
+        }
+
+        return $cmsPageByteId;
+    }
+
+    private function getCmsSectionId(?string $cmsPageByteId): ?string
+    {
+        $cmsSectionByteId = $this->connection->executeQuery(
+            'SELECT `id` FROM `cms_section` WHERE `cms_page_id` = :cmsPageId',
+            ['cmsPageId' => $cmsPageByteId]
+        )->fetchOne();
+
+        if (!Uuid::isValid(Uuid::fromBytesToHex($cmsSectionByteId))) {
+            return null;
+        }
+
+        return $cmsSectionByteId;
+    }
+
+    private function getCmsBlockId(): ?string
+    {
+        $cmsBlockByteId = $this->connection->executeQuery(
+            'SELECT `id` FROM `cms_block` WHERE `name` = :cmsBlockName',
+            ['cmsBlockName' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME]
+        )->fetchOne();
+
+        if (!Uuid::isValid(Uuid::fromBytesToHex($cmsBlockByteId))) {
+            return null;
+        }
+
+        return $cmsBlockByteId;
+    }
+}

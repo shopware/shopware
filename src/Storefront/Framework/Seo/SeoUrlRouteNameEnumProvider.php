@@ -24,7 +24,7 @@ class SeoUrlRouteNameEnumProvider implements FieldEnumProviderInterface
     }
 
     /**
-     * @return list<string|bool|int|float>
+     * {@inheritDoc}
      */
     public function getChoices(): array
     {

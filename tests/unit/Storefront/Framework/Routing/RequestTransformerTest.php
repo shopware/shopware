@@ -75,7 +75,7 @@ class RequestTransformerTest extends TestCase
         string $expectedBaseUrl,
         string $expectedAbsoluteBaseUrl,
         string $expectedStorefrontUrl,
-        string $expectedResolvedUri,
+        string $expectedResolvedUri
     ): void {
         $domainId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
@@ -125,11 +125,11 @@ class RequestTransformerTest extends TestCase
         static::assertSame($expectedResolvedUri, $transformed->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
         static::assertSame($salesChannelId, $transformed->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
         static::assertTrue($transformed->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
-        static::assertFalse($transformed->attributes->get(RequestTransformer::USE_SALES_CHANNEL_COOKIE_PATH));
+        static::assertSame('/', $transformed->attributes->get(RequestTransformer::SALES_CHANNEL_COOKIE_PATH));
     }
 
     #[DataProvider('useSalesChannelCookiePathProvider')]
-    public function testTransformSetsUseSalesChannelCookiePathAttribute(bool $useSalesChannelCookiePath): void
+    public function testTransformSetsSalesChannelCookiePathAttribute(bool $useSalesChannelCookiePath): void
     {
         $domainUrl = 'http://shopware.com/de/';
 
@@ -166,7 +166,7 @@ class RequestTransformerTest extends TestCase
         $request = Request::create('http://shopware.com/de/');
         $transformed = $requestTransformer->transform($request);
 
-        static::assertSame($useSalesChannelCookiePath, $transformed->attributes->get(RequestTransformer::USE_SALES_CHANNEL_COOKIE_PATH));
+        static::assertSame($useSalesChannelCookiePath ? '/de' : '/', $transformed->attributes->get(RequestTransformer::SALES_CHANNEL_COOKIE_PATH));
     }
 
     /**

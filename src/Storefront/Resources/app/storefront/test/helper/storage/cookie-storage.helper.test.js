@@ -71,44 +71,23 @@ describe('cookie-storage.helper.js', () => {
         expect(document.cookie).toStrictEqual(cookies);
     });
 
-    test('it sets the cookie with a custom path when useSalesChannelCookiePath is enabled', () => {
-        window.salesChannelBaseUrl = '/custom-sales-channel-path';
-        window.useSalesChannelCookiePath = true;
-
-        const cookieSpy = jest.spyOn(document, 'cookie', 'set');
-
-        const cookieName = 'path-test-cookie';
-        const cookieValue = 'path-value';
-
-        CookieStorageHelper.setItem(cookieName, cookieValue, 1);
-
-        expect(cookieSpy).toHaveBeenCalledWith(
-            expect.stringContaining('path=/custom-sales-channel-path'),
-        );
-
-        cookieSpy.mockRestore();
-        delete window.useSalesChannelCookiePath;
-    });
-
-    test('it uses root path when useSalesChannelCookiePath is disabled', () => {
-        window.salesChannelBaseUrl = '/custom-sales-channel-path';
-        window.useSalesChannelCookiePath = false;
+    test('it sets the cookie with a custom path when salesChannelCookiePath is set', () => {
+        window.salesChannelCookiePath = '/custom-sales-channel-path';
 
         const cookieSpy = jest.spyOn(document, 'cookie', 'set');
 
         CookieStorageHelper.setItem('path-test-cookie', 'path-value', 1);
 
         expect(cookieSpy).toHaveBeenCalledWith(
-            expect.stringContaining('path=/;'),
+            expect.stringContaining('path=/custom-sales-channel-path'),
         );
 
         cookieSpy.mockRestore();
-        delete window.useSalesChannelCookiePath;
+        delete window.salesChannelCookiePath;
     });
 
-    test('it uses root path by default when useSalesChannelCookiePath is not set', () => {
-        window.salesChannelBaseUrl = '/custom-sales-channel-path';
-        delete window.useSalesChannelCookiePath;
+    test('it uses root path when salesChannelCookiePath is not set', () => {
+        delete window.salesChannelCookiePath;
 
         const cookieSpy = jest.spyOn(document, 'cookie', 'set');
 

@@ -66,16 +66,12 @@ export default class CookieStorageHelper {
     }
 
     /**
-     * Returns the base path for the current Sales Channel.
-     * Used to ensure cookies are scoped to the correct path
-     * * @returns {string} The base URL from the router configuration, or a default slash.
+     * Returns the cookie path for the current Sales Channel.
+     *
+     * @returns {string}
      */
     static getPath() {
-        if (!window.useSalesChannelCookiePath) {
-            return '/';
-        }
-
-        return window.salesChannelBaseUrl || '/';
+        return window.salesChannelCookiePath || '/';
     }
 
     /**

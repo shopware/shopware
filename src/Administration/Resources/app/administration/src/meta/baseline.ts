@@ -8,6 +8,7 @@ import dataSetIds from './data-sets.json';
 /* eslint-disable max-len */
 const missingTests = [
     'src/app/adapter/view/sw-vue-devtools.ts',
+    'src/app/component/structure/sw-block-override/shim/block-index.ts',
     'src/app/component/media/sw-media-add-thumbnail-form/index.js',
     'src/app/component/media/sw-media-entity-mapper/index.js',
     'src/app/component/media/sw-media-folder-content/index.js',

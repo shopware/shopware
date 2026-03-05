@@ -70,34 +70,73 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
 }
 
 /**
- * Builds a setup context object that exposes all public properties of the host
- * component proxy via `Object.defineProperty` getters.
+ * Builds a setup-context Proxy that gives ShimContent's compiled render
+ * function transparent, reactive read access to every public property of the
+ * host component proxy — without triggering Vue's ownKeys warning.
  *
- * Using getters (rather than copying values) is essential for reactivity: each
- * property access inside ShimContent's render function reads through to the
- * reactive proxy, registering the dependency in Vue's tracking system. Changes
- * to the host component's data, computed properties, or methods are therefore
- * automatically reflected in ShimContent without re-creating the slot.
+ * Why a Proxy instead of Object.keys enumeration:
+ *   Calling `Object.keys()` on a Vue component proxy logs
+ *   "[Vue warn]: Avoid app logic that relies on enumerating keys on a component
+ *   instance. The keys will be empty in production mode to avoid performance
+ *   overhead." and returns an empty array in production, making a plain
+ *   enumeration approach broken in production builds.
  *
- * Properties starting with `$` (Vue internals) or `_` (private conventions) are
- * excluded to keep the context clean.
+ * Why a plain `{}` is used as the Proxy target:
+ *   The ECMAScript spec requires that, when validating a Proxy's `ownKeys` trap
+ *   result, the engine always calls `Reflect.ownKeys(target)` on the *actual*
+ *   Proxy target to check invariants. If the component proxy were used as the
+ *   target, that validation call would trigger `PublicInstanceProxyHandlers
+ *   .ownKeys` — which emits Vue's warning — even though our trap returns `[]`.
+ *   Using `{}` as the target means the invariant check calls
+ *   `Reflect.ownKeys({})` = `[]`, which is completely silent.
+ *
+ * How the Proxy works:
+ *   - `ownKeys()` returns `[]` so that `Object.keys(proxy)` enumerates nothing
+ *     on the component proxy. This eliminates the warning and the
+ *     production-empty-array problem.
+ *   - `getOwnPropertyDescriptor` returns a fake configurable descriptor for any
+ *     key that exists on the source (component proxy). This makes
+ *     `hasOwnProperty(proxy, key)` return true for every publicly accessible
+ *     property, which is how Vue's `hasSetupBinding()` check decides that the
+ *     key lives in setup state and should be read from there.
+ *   - `get` reads directly from the `source` closure (the component proxy) so
+ *     Vue's reactivity system tracks each read as a dependency exactly as it
+ *     would for any direct reactive access.
+ *
+ * Properties starting with `$` (Vue internals) or `_` (private conventions)
+ * are excluded, matching the intent of the original enumeration filter.
  */
 function buildSetupContext(dataScope: object | null): Record<string, unknown> {
     if (!dataScope) return {};
 
-    const ctx: Record<string, unknown> = {};
+    const source = dataScope as Record<string | symbol, unknown>;
 
-    Object.keys(dataScope)
-        .filter((key) => !key.startsWith('$') && !key.startsWith('_'))
-        .forEach((key) => {
-            Object.defineProperty(ctx, key, {
-                get: () => (dataScope as Record<string, unknown>)[key],
-                enumerable: true,
-                configurable: true,
-            });
-        });
-
-    return ctx;
+    return new Proxy({} as Record<string, unknown>, {
+        get(_t, key: string | symbol): unknown {
+            if (typeof key === 'string' && (key.startsWith('$') || key.startsWith('_'))) {
+                return undefined;
+            }
+            return source[key];
+        },
+        has(_t, key: string | symbol): boolean {
+            if (typeof key === 'string' && (key.startsWith('$') || key.startsWith('_'))) {
+                return false;
+            }
+            return key in source;
+        },
+        getOwnPropertyDescriptor(_t, key: string | symbol): PropertyDescriptor | undefined {
+            if (typeof key === 'symbol' || key.startsWith('$') || key.startsWith('_')) {
+                return undefined;
+            }
+            if (key in source) {
+                return { configurable: true, enumerable: false, get: () => source[key] };
+            }
+            return undefined;
+        },
+        ownKeys(): (string | symbol)[] {
+            return [];
+        },
+    });
 }
 
 /**

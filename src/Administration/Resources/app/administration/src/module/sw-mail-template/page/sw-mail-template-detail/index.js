@@ -79,8 +79,10 @@ export default {
         ]),
 
         loadedAvailableVariables() {
-            if ((!this.triggerEvent && Feature.isActive('v6.8.0.0'))
-                || ((!this.mailTemplateType || !this.mailTemplateType.templateData) && !Feature.isActive('v6.8.0.0'))) {
+            if (
+                (!this.triggerEvent && Feature.isActive('v6.8.0.0')) ||
+                ((!this.mailTemplateType || !this.mailTemplateType.templateData) && !Feature.isActive('v6.8.0.0'))
+            ) {
                 return [];
             }
             if (Object.values(this.availableVariables).length === 0) {
@@ -486,22 +488,38 @@ export default {
 
             if (Feature.isActive('v6.8.0.0')) {
                 this.mailPreview = this.mailService
-                    .buildMailTemplate({
-                        subject: this.mailTemplate.subject,
-                        senderName: this.mailTemplate.senderName,
-                        contentHtml: this.mailTemplate.contentHtml,
-                        contentPlain: this.mailTemplate.contentPlain,
-                    }, this.triggerEvent.class)
+                    .buildMailTemplate(
+                        {
+                            subject: this.mailTemplate.subject,
+                            senderName: this.mailTemplate.senderName,
+                            contentHtml: this.mailTemplate.contentHtml,
+                            contentPlain: this.mailTemplate.contentPlain,
+                        },
+                        this.triggerEvent.class,
+                    )
                     .then((response) => {
                         response.contentPlain.content = response.contentPlain.content.replace(/\n/g, '<br/>');
 
                         this.mailPreview = Object.entries(response)
-                            .map(([key, value]) => {
-                                return [this.translateTemplateField(key), value]
-                            })
+                            .map(
+                                ([
+                                    key,
+                                    value,
+                                ]) => {
+                                    return [
+                                        this.translateTemplateField(key),
+                                        value,
+                                    ];
+                                },
+                            )
                             .reduce(
-                                (result, [key, value]) =>
-                                    `${result}<h2>${key}:</h2><br/>${value.content}<br/><br/><hr/><br/>`,
+                                (
+                                    result,
+                                    [
+                                        key,
+                                        value,
+                                    ],
+                                ) => `${result}<h2>${key}:</h2><br/>${value.content}<br/><br/><hr/><br/>`,
                                 '',
                             );
                     })
@@ -728,21 +746,22 @@ export default {
 
         loadAvailableVariables(variable, variableEntitySchema) {
             if (Feature.isActive('v6.8.0.0')) {
-                this.mailService.loadAvailableVariables(this.triggerEvent.class, variable)
-                    .then((response) => {
-
-                        Object.values(response).forEach((value) => {
-                            this.addVariables([{
-                                id: `${variable}.${value.fieldName}`,
-                                schema: `${variable}.${value.fieldName}`,
-                                name: value.fieldName,
-                                childCount: value.hasChildren ? 1 : 0,
-                                parentId: variable,
-                                afterId: null,
-                            }]);
+                this.mailService.loadAvailableVariables(this.triggerEvent.class, variable).then((response) => {
+                    Object.values(response)
+                        .sort((a, b) => a.fieldName.localeCompare(b.fieldName))
+                        .forEach((value) => {
+                            this.addVariables([
+                                {
+                                    id: `${variable}.${value.fieldName}`,
+                                    schema: `${variable}.${value.fieldName}`,
+                                    name: value.fieldName,
+                                    childCount: value.hasChildren ? 1 : 0,
+                                    parentId: variable,
+                                    afterId: null,
+                                },
+                            ]);
                         });
-
-                    });
+                });
 
                 return [];
             }
@@ -818,21 +837,22 @@ export default {
                     return;
                 }
 
-                this.mailService.loadAvailableVariables(this.triggerEvent.class, '')
-                    .then((response) => {
-
-                        Object.values(response).forEach((value) => {
-                            this.addVariables([{
-                                id: value.fieldName,
-                                schema: value.fieldName,
-                                name: value.fieldName,
-                                childCount: value.hasChildren ? 1 : 0,
-                                parentId: null,
-                                afterId: null,
-                            }]);
+                this.mailService.loadAvailableVariables(this.triggerEvent.class, '').then((response) => {
+                    Object.values(response)
+                        .sort((a, b) => a.fieldName.localeCompare(b.fieldName))
+                        .forEach((value) => {
+                            this.addVariables([
+                                {
+                                    id: value.fieldName,
+                                    schema: value.fieldName,
+                                    name: value.fieldName,
+                                    childCount: value.hasChildren ? 1 : 0,
+                                    parentId: null,
+                                    afterId: null,
+                                },
+                            ]);
                         });
-
-                    });
+                });
 
                 return;
             }

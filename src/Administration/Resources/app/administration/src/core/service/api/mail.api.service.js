@@ -110,7 +110,7 @@ class MailApiService extends ApiService {
     ) {
         if (!Shopware.Feature.isActive('v6.8.0.0')) {
             // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject("Method only supports >=v6.8.0.0");
+            return Promise.reject('Method only supports >=v6.8.0.0');
         }
 
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
@@ -164,7 +164,7 @@ class MailApiService extends ApiService {
     buildMailTemplate(mailTemplateContent, flowEventClass) {
         if (!Shopware.Feature.isActive('v6.8.0.0')) {
             // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject("Method only supports >=v6.8.0.0");
+            return Promise.reject('Method only supports >=v6.8.0.0');
         }
 
         const apiRoute = `/_action/${this.getApiBasePath()}/build`;

@@ -1,0 +1,33 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": [],
+  "components": {
+    "schemas": {
+      "ProductQuantityLimitsResult": {
+        "type": "object",
+        "description": "Current quantity purchase limits for a product.",
+        "required": ["productId", "minPurchase", "purchaseSteps", "maxPurchase"],
+        "properties": {
+          "productId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$",
+            "description": "The product ID."
+          },
+          "minPurchase": {
+            "type": "integer",
+            "description": "Minimum quantity a customer can purchase."
+          },
+          "purchaseSteps": {
+            "type": "integer",
+            "description": "Step increment for quantity selection."
+          },
+          "maxPurchase": {
+            "type": "integer",
+            "description": "Maximum quantity a customer can purchase, reflecting current stock for closeout products."
+          }
+        }
+      }
+    }
+  }
+}

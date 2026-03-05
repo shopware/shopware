@@ -625,6 +625,45 @@
                 ]
             }
         },
+        "/product/{productId}/quantity-limits": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch current quantity limits for a product",
+                "description": "Returns the current min/max/step purchase constraints for a product, reflecting live stock. Intended for use on PDP to show actual values on pdp pages.",
+                "operationId": "readProductQuantityLimits",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current quantity limits for the product",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductQuantityLimitsResult"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/product/{productId}/find-variant": {
             "post": {
                 "tags": [

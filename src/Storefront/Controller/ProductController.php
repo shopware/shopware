@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\AbstractProductQuantityLimitsRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
@@ -47,6 +48,7 @@ class ProductController extends StorefrontController
         private readonly AbstractProductReviewSaveRoute $productReviewSaveRoute,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly AbstractProductReviewLoader $productReviewLoader,
+        private readonly AbstractProductQuantityLimitsRoute $productQuantityLimitsRoute,
     ) {
     }
 
@@ -226,5 +228,27 @@ class ProductController extends StorefrontController
                 ),
             ]
         );
+    }
+
+    #[Route(
+        path: '/product/{productId}/quantity-limits',
+        name: 'frontend.product.quantity-limits',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
+    public function quantityLimits(string $productId, Request $request, SalesChannelContext $context): JsonResponse
+    {
+        try {
+            $result = $this->productQuantityLimitsRoute->load($productId, $request, $context)->getResult();
+        } catch (ProductNotFoundException) {
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'productId' => $result->getProductId(),
+            'minPurchase' => $result->getMinPurchase(),
+            'purchaseSteps' => $result->getPurchaseSteps(),
+            'maxPurchase' => $result->getMaxPurchase(),
+        ]);
     }
 }

@@ -18,6 +18,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveUpdateMode: 'live',
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
+        liveQuantityUrlAttribute: 'data-live-quantity-url',
     };
 
     init() {
@@ -30,6 +31,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         }
 
         this._registerEvents();
+        this._fetchLiveQuantityLimits();
     }
 
     /**
@@ -143,5 +145,68 @@ export default class QuantitySelectorPlugin extends Plugin {
         }
 
         this.ariaLiveContainer.innerHTML = text;
+    }
+
+    /**
+     * Fetch live quantity limits from the server and apply them to the input.
+     * Falls back silently to rendered values on failure.
+     *
+     * @private
+     */
+    _fetchLiveQuantityLimits() {
+        const url = this.el.getAttribute(this.options.liveQuantityUrlAttribute);
+
+        if (!url) {
+            return;
+        }
+
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return null;
+                }
+
+                return response.json();
+            })
+            .then((data) => {
+                if (data) {
+                    this._applyQuantityLimits(data);
+                }
+            })
+            .catch(() => {
+                // Silent failure – keep rendered values
+            });
+    }
+
+    /**
+     * Apply fetched quantity limits to the input element.
+     * Clamps the current value to the new constraints and dispatches a change event if needed.
+     *
+     * @param {{ minPurchase: number, purchaseSteps: number, maxPurchase: number }} limits
+     * @private
+     */
+    _applyQuantityLimits(limits) {
+        if (!this._input) {
+            return;
+        }
+
+        const min = limits.minPurchase;
+        const max = limits.maxPurchase;
+        const step = limits.purchaseSteps;
+
+        this._input.setAttribute('min', min);
+        this._input.setAttribute('max', max);
+        this._input.setAttribute('step', step);
+
+        const currentValue = parseInt(this._input.value, 10) || min;
+        const clampedValue = Math.min(Math.max(currentValue, min), max);
+        const steppedValue = Math.floor((clampedValue - min) / step) * step + min;
+
+        if (steppedValue !== currentValue) {
+            this._input.value = steppedValue;
+            this._triggerChange();
+        }
     }
 }

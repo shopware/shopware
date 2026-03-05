@@ -15,7 +15,7 @@
  */
 
 import Twig from 'twig';
-import { reconstructInnerTemplate } from './reconstruct-twig-template';
+import reconstructInnerTemplate from './reconstruct-twig-template';
 
 /**
  * @private

@@ -3,9 +3,9 @@
  *
  */
 import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type Slot } from 'vue';
+import { hasBlockEntries, getBlockEntries } from 'src/core/factory/twig-block-index';
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
-import { hasBlockEntries, getBlockEntries } from '../shim/block-index';
 import { createShimSlot } from '../shim/create-shim-slot';
 
 /**

@@ -31,8 +31,8 @@
  *   - Side-effects visible from the outside (console.warn deprecation messages)
  *
  * These tests MUST NOT directly import or assert on:
- *   - block-index.ts          (blockIndex Map, getBlockEntries, hasBlockEntries)
- *   - reconstruct-template.ts (reconstructInnerTemplate, containsParentToken)
+ *   - twig-block-index.ts     (blockIndex Map, getBlockEntries, hasBlockEntries)
+ *   - reconstruct-twig-template.ts (reconstructInnerTemplate)
  *   - create-shim-slot.ts     (createShimSlot, renderFnCache, warnedBlocks)
  *
  * If you feel the need to inspect internal state, write an additional behavioral
@@ -75,16 +75,16 @@
  * ─── State isolation between tests ──────────────────────────────────────────
  *
  * The block index (Map) and the deprecation-warning deduplication Set are
- * module-level singletons. The shim module exposes a
- * `__resetShimStateForTesting()` helper that clears them; call it in `afterEach`
- * to guarantee a clean slate regardless of test order.
+ * module-level singletons. Call `resetBlockIndex()` and `resetShimSlotState()`
+ * in `afterEach` to guarantee a clean slate regardless of test order.
  *
  * Additionally, use a UNIQUE block name per test (e.g. embed a test-local
  * identifier in the block name: "shim_test_basic_rendering_no_parent") so tests
- * cannot share index entries even if the reset helper is accidentally skipped.
+ * cannot share index entries even if the reset helpers are accidentally skipped.
  *
- * Note: importing `__resetShimStateForTesting` is the only permissible reference
- * to a shim-internal export. It is a test seam, not an assertion target.
+ * Note: importing `resetBlockIndex` and `resetShimSlotState` is the only
+ * permissible reference to shim-internal exports. They are test seams, not
+ * assertion targets.
  *
  *
  * ─── Deprecation warning assertions ─────────────────────────────────────────
@@ -121,7 +121,8 @@
 import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
 import getBlockDataScope from '../sw-block/get-block-data-scope';
-import { __resetShimStateForTesting } from './block-index';
+import { resetBlockIndex } from 'src/core/factory/twig-block-index';
+import { resetShimSlotState } from './create-shim-slot';
 
 /**
  * Mounts a host component containing a single `<sw-block name="...">` wrapped in
@@ -189,7 +190,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
     afterEach(() => {
         consoleSpy.mockRestore();
-        __resetShimStateForTesting();
+        resetBlockIndex();
+        resetShimSlotState();
     });
 
     // ─── Basic rendering ─────────────────────────────────────────────────────

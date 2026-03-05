@@ -46,7 +46,7 @@ type TwigToken = {
  *
  * @private
  */
-export function reconstructInnerTemplate(tokens: TwigToken[]): string {
+export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
     return tokens
         .map((token) => {
             if (token.type === 'raw') {
@@ -68,25 +68,3 @@ export function reconstructInnerTemplate(tokens: TwigToken[]): string {
         .join('');
 }
 
-/**
- * Returns true when any token in the array (at any nesting depth inside nested
- * `{% block %}` tags) is a `{% parent %}` token.
- *
- * Not consumed at runtime — kept as a public utility for future tooling
- * (e.g. migration codemods, dev-tools block inspection).
- *
- * @private
- */
-export function containsParentToken(tokens: TwigToken[]): boolean {
-    return tokens.some((token) => {
-        if (token.type !== 'logic') return false;
-
-        if (token.token?.type === 'parent') return true;
-
-        if (token.token?.blockName !== undefined) {
-            return containsParentToken(token.token.output ?? []);
-        }
-
-        return false;
-    });
-}

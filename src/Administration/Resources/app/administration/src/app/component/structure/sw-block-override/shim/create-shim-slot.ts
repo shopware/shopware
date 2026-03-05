@@ -9,12 +9,11 @@
  * `blockContext` alongside slots from real `<sw-block extends>` components.
  *
  * Reactivity:
- *   `buildSetupContext` creates an object whose properties are backed by
- *   `Object.defineProperty` getters delegating to the component proxy. When
- *   ShimContent's render function reads `ctx.someProperty`, Vue's reactivity
- *   system tracks `proxy.someProperty` as a dependency. Subsequent changes to
- *   that property on the host component automatically trigger ShimContent to
- *   re-render — no extra effort required from the developer.
+ *   `buildSetupContext` creates a Proxy whose getters delegate to the component
+ *   proxy. When ShimContent's render function reads `ctx.someProperty`, Vue's
+ *   reactivity system tracks `proxy.someProperty` as a dependency. Subsequent
+ *   changes to that property on the host component automatically trigger
+ *   ShimContent to re-render.
  *
  * `<sw-block-parent />` resolution:
  *   ShimContent is rendered inside `sw-block`'s render tree. `sw-block` already
@@ -24,18 +23,19 @@
  */
 
 import { h, type Slot } from 'vue';
-import type { BlockEntry } from './block-index';
+import type { BlockEntry } from 'src/core/factory/twig-block-index';
 import swBlockParent from '../sw-block-parent/index';
 
 /** Deprecation warnings are emitted once per block name across the app's lifetime. */
 const warnedBlocks = new Set<string>();
 
 /**
- * Caches the static part of ShimContent component definitions (template +
- * components) keyed by inner template string. The `setup` closure is attached
- * per invocation so each call gets a fresh reactive context.
+ * Returns `true` for Vue-internal (`$`) or private-convention (`_`) property
+ * names. These are excluded from the reactive context proxy so that
+ * ShimContent's template cannot accidentally resolve Vue internals.
  */
-const shimDefCache = new Map<string, Record<string, unknown>>();
+const isInternalKey = (key: string | symbol): boolean =>
+    typeof key === 'string' && (key.startsWith('$') || key.startsWith('_'));
 
 /**
  * Compiles `entry.innerTemplate` into a Slot function compatible with
@@ -57,21 +57,13 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
         );
     }
 
-    let baseDef = shimDefCache.get(entry.innerTemplate);
-    if (!baseDef) {
-        baseDef = {
-            name: `__twig-shim__${blockName}`,
-            template: entry.innerTemplate,
-            components: { 'sw-block-parent': swBlockParent },
-        };
-        shimDefCache.set(entry.innerTemplate, baseDef);
-    }
-
-    const cachedDef = baseDef;
-
-    return (dataScope) => {
-        return [h({ ...cachedDef, setup: () => buildSetupContext(dataScope as object | null) })];
+    const def = {
+        name: `__twig-shim__${blockName}`,
+        template: entry.innerTemplate,
+        components: { 'sw-block-parent': swBlockParent },
     };
+
+    return (dataScope) => [h({ ...def, setup: () => buildSetupContext(dataScope as object | null) })];
 }
 
 /**
@@ -108,8 +100,8 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
  *     Vue's reactivity system tracks each read as a dependency exactly as it
  *     would for any direct reactive access.
  *
- * Properties starting with `$` (Vue internals) or `_` (private conventions)
- * are excluded, matching the intent of the original enumeration filter.
+ * Internal Vue (`$`) and private convention (`_`) keys are excluded via
+ * `isInternalKey`.
  */
 function buildSetupContext(dataScope: object | null): Record<string, unknown> {
     if (!dataScope) return {};
@@ -118,25 +110,14 @@ function buildSetupContext(dataScope: object | null): Record<string, unknown> {
 
     return new Proxy({} as Record<string, unknown>, {
         get(_t, key: string | symbol): unknown {
-            if (typeof key === 'string' && (key.startsWith('$') || key.startsWith('_'))) {
-                return undefined;
-            }
-            return source[key];
+            return isInternalKey(key) ? undefined : source[key];
         },
         has(_t, key: string | symbol): boolean {
-            if (typeof key === 'string' && (key.startsWith('$') || key.startsWith('_'))) {
-                return false;
-            }
-            return key in source;
+            return !isInternalKey(key) && key in source;
         },
         getOwnPropertyDescriptor(_t, key: string | symbol): PropertyDescriptor | undefined {
-            if (typeof key === 'symbol' || key.startsWith('$') || key.startsWith('_')) {
-                return undefined;
-            }
-            if (key in source) {
-                return { configurable: true, enumerable: false, get: () => source[key] };
-            }
-            return undefined;
+            if (isInternalKey(key) || !(key in source)) return undefined;
+            return { configurable: true, enumerable: false, get: () => source[key] };
         },
         ownKeys(): (string | symbol)[] {
             return [];
@@ -152,5 +133,4 @@ function buildSetupContext(dataScope: object | null): Record<string, unknown> {
  */
 export function resetShimSlotState(): void {
     warnedBlocks.clear();
-    shimDefCache.clear();
 }

@@ -125,11 +125,11 @@ Runtime (first mount of a given block name)
 
 ### 1. Block Index — `src/core/factory/twig-block-index.ts`
 
-Built at override registration time. Provides O(1) lookup for `sw-block` at mount time. A thin re-export layer at `shim/block-index.ts` lets app-layer files import from a sibling path without reaching into core.
+Built at override registration time. Provides O(1) lookup for `sw-block` at mount time.
 
 ```ts
 import Twig from 'twig';
-import { reconstructInnerTemplate } from './reconstruct-twig-template';
+import reconstructInnerTemplate from './reconstruct-twig-template';
 
 export interface BlockEntry {
     componentName: string;
@@ -173,7 +173,7 @@ export function hasBlockEntries(blockName: string): boolean {
 Walks the TwigJS token tree and reconstructs the raw Vue-compatible template string without invoking TwigJS's renderer. The `{% parent %}` custom tag is registered with `type: 'parent'` via `Twig.extendTag` in `template.factory.js`, and block tokens are identified by their `blockName` property.
 
 ```ts
-export function reconstructInnerTemplate(tokens: TwigToken[]): string {
+export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
     return tokens
         .map((token) => {
             if (token.type === 'raw') {
@@ -194,30 +194,18 @@ export function reconstructInnerTemplate(tokens: TwigToken[]): string {
         })
         .join('');
 }
-
-export function containsParentToken(tokens: TwigToken[]): boolean {
-    return tokens.some((token) => {
-        if (token.type !== 'logic') return false;
-        if (token.token?.type === 'parent') return true;
-        if (token.token?.blockName !== undefined) {
-            return containsParentToken(token.token.output ?? []);
-        }
-        return false;
-    });
-}
 ```
 
 ### 3. Slot Factory — `src/app/component/structure/sw-block-override/shim/create-shim-slot.ts`
 
-Builds a ShimContent component definition using the reconstructed template string and returns a slot function compatible with `sw-block`'s `blockContext`. Vue's runtime template compiler handles the `template` string on first mount and caches the result internally — no manual render function caching is required. The static part of the component definition (template + components) is memoized per template string; only the `setup` closure is created per invocation.
+Builds a ShimContent component definition using the reconstructed template string and returns a slot function compatible with `sw-block`'s `blockContext`. Vue's runtime template compiler handles the `template` string on first mount and caches the result internally — no manual component definition caching is needed.
 
 ```ts
 import { h, type Slot } from 'vue';
-import type { BlockEntry } from './block-index';
+import type { BlockEntry } from 'src/core/factory/twig-block-index';
 import swBlockParent from '../sw-block-parent/index';
 
 const warnedBlocks = new Set<string>();
-const shimDefCache = new Map<string, Record<string, unknown>>();
 
 export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     if (!warnedBlocks.has(blockName)) {
@@ -229,21 +217,13 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
         );
     }
 
-    let baseDef = shimDefCache.get(entry.innerTemplate);
-    if (!baseDef) {
-        baseDef = {
-            name: `__twig-shim__${blockName}`,
-            template: entry.innerTemplate,
-            components: { 'sw-block-parent': swBlockParent },
-        };
-        shimDefCache.set(entry.innerTemplate, baseDef);
-    }
-
-    const cachedDef = baseDef;
-
-    return (dataScope) => {
-        return [h({ ...cachedDef, setup: () => buildSetupContext(dataScope) })];
+    const def = {
+        name: `__twig-shim__${blockName}`,
+        template: entry.innerTemplate,
+        components: { 'sw-block-parent': swBlockParent },
     };
+
+    return (dataScope) => [h({ ...def, setup: () => buildSetupContext(dataScope) })];
 }
 ```
 
@@ -313,7 +293,6 @@ Lifecycle-driven cleanup: when the host component unmounts (e.g., navigating awa
 |------|------|---------|
 | `core/factory/twig-block-index.ts` | New | Block name index (Map), built at registration time |
 | `core/factory/reconstruct-twig-template.ts` | New | TwigJS token tree → Vue template string |
-| `shim/block-index.ts` | New | Thin re-export of core index + test reset helper |
 | `shim/create-shim-slot.ts` | New | Slot function factory, Proxy-based setup context |
 | `core/factory/async-component.factory.ts` | Modified | +16 lines: sync + async `indexTwigBlocksFromTemplate` calls |
 | `sw-block/index.ts` | Modified | +25 lines: shim bridge in `setup()` |
@@ -377,12 +356,11 @@ Mapping:
 
 | Task | Estimate |
 |---|---|
-| `block-index.ts` | 0.5 days |
-| `reconstruct-template.ts` | 1 day |
+| `twig-block-index.ts` + `reconstruct-twig-template.ts` | 1.5 days |
 | `create-shim-slot.ts` | 1–2 days |
 | `async-component.factory.ts` hook | 0.5 days |
 | `sw-block/index.ts` bridge | 0.5 days |
 | Deprecation warning deduplication | 0.5 days |
 | Unit + integration tests | 2–3 days |
 | Documentation & migration guide | 0.5 days |
-| **Total** | **~6–9 days** |
+| **Total** | **~6–8.5 days** |

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { reconstructInnerTemplate, containsParentToken } from 'src/core/factory/reconstruct-twig-template';
+import reconstructInnerTemplate from 'src/core/factory/reconstruct-twig-template';
 
 type TestToken = {
     type: 'raw' | 'logic';
@@ -117,53 +117,5 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
         });
     });
 
-    describe('containsParentToken', () => {
-        it('returns false for an empty token array', () => {
-            expect(containsParentToken([])).toBe(false);
-        });
 
-        it('returns false when the array contains only raw tokens', () => {
-            expect(containsParentToken([rawToken('<div></div>')])).toBe(false);
-        });
-
-        it('returns false when the array contains only unknown logic tokens', () => {
-            expect(containsParentToken([unknownLogicToken()])).toBe(false);
-        });
-
-        it('returns true when the array contains a parent token at the top level', () => {
-            expect(containsParentToken([parentToken()])).toBe(true);
-        });
-
-        it('returns true when a parent token is mixed with raw tokens', () => {
-            const tokens = [
-                rawToken('<div>'),
-                parentToken(),
-                rawToken('</div>'),
-            ];
-
-            expect(containsParentToken(tokens)).toBe(true);
-        });
-
-        it('returns true when a parent token is nested inside a block token', () => {
-            const tokens = [blockToken('nested_block', [parentToken()])];
-
-            expect(containsParentToken(tokens)).toBe(true);
-        });
-
-        it('returns false when a nested block contains no parent token', () => {
-            const tokens = [blockToken('nested_no_parent', [rawToken('<div></div>')])];
-
-            expect(containsParentToken(tokens)).toBe(false);
-        });
-
-        it('returns true when a parent token is deeply nested two levels down', () => {
-            const tokens = [
-                blockToken('outer', [
-                    blockToken('inner', [parentToken()]),
-                ]),
-            ];
-
-            expect(containsParentToken(tokens)).toBe(true);
-        });
-    });
 });

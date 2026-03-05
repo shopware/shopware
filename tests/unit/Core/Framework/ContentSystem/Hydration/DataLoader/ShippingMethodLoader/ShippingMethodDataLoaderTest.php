@@ -15,7 +15,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ShippingMethodLoa
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -171,14 +170,6 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame($shippingMethods, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(ShippingMethodDataLoader::class));
-
-        $this->dataLoader->getDecorated();
     }
 
     private function createShippingMethodRouteResponse(ShippingMethodCollection $shippingMethods): ShippingMethodRouteResponse

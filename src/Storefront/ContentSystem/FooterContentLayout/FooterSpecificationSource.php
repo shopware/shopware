@@ -12,7 +12,6 @@ use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,14 +33,6 @@ class FooterSpecificationSource extends AbstractSpecificationSource
         private readonly EntityRepository $repository,
         private readonly RequestDataExtractor $requestDataExtractor,
     ) {
-    }
-
-    /**
-     * @codeCoverageIgnore
-     */
-    public function getDecorated(): AbstractSpecificationSource
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public function supports(string $path, Request $request, SalesChannelContext $context): bool

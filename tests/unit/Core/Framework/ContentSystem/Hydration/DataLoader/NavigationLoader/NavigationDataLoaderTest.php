@@ -14,7 +14,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\NavigationLoader\
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -237,13 +236,5 @@ class NavigationDataLoaderTest extends TestCase
         static::assertFalse($result->hasData());
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(NavigationDataLoader::class));
-
-        $this->dataLoader->getDecorated();
     }
 }

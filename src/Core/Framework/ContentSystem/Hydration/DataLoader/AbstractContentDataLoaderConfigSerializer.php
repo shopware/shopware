@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 abstract class AbstractContentDataLoaderConfigSerializer
 {
-    abstract public function getDecorated(): AbstractContentDataLoaderConfigSerializer;
-
     /**
      * Returns the source identifier for DI service location.
      * This method is used by the ServiceLocator for indexing.

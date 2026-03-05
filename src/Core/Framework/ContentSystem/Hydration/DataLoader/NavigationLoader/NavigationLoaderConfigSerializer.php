@@ -6,7 +6,6 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @phpstan-import-type NavigationLoaderConfigData from NavigationLoaderConfig
@@ -18,11 +17,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[Package('framework')]
 class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
 {
-    public function getDecorated(): AbstractContentDataLoaderConfigSerializer
-    {
-        throw new DecorationPatternException(self::class);
-    }
-
     public static function getSource(): string
     {
         return 'navigation';

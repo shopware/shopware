@@ -14,7 +14,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ProductListingLoa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -297,13 +296,5 @@ class ProductListingDataLoaderTest extends TestCase
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(ProductListingDataLoader::class));
-
-        $this->loader->getDecorated();
     }
 }

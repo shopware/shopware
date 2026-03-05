@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
@@ -206,13 +205,5 @@ class EntityLoaderConfigSerializerTest extends TestCase
         $encoded = $this->serializer->encode($config);
 
         static::assertSame($original, $encoded);
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(EntityLoaderConfigSerializer::class));
-
-        $this->serializer->getDecorated();
     }
 }

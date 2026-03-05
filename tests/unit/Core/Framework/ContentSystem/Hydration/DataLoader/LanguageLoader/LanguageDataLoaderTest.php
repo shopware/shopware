@@ -12,7 +12,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LanguageLoader\La
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
@@ -118,14 +117,6 @@ class LanguageDataLoaderTest extends TestCase
         static::assertSame($languages, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(LanguageDataLoader::class));
-
-        $this->dataLoader->getDecorated();
     }
 
     private function createLanguageRouteResponse(LanguageCollection $languages): LanguageRouteResponse

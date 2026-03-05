@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LanguageLoader\LanguageLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LanguageLoader\LanguageLoaderConfigSerializer;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
@@ -143,13 +142,5 @@ class LanguageLoaderConfigSerializerTest extends TestCase
         $encoded = $this->serializer->encode($config);
 
         static::assertSame($original, $encoded);
-    }
-
-    #[TestDox('throws DecorationPatternException when getDecorated is called')]
-    public function testGetDecoratedThrowsDecorationPatternException(): void
-    {
-        $this->expectExceptionObject(new DecorationPatternException(LanguageLoaderConfigSerializer::class));
-
-        $this->serializer->getDecorated();
     }
 }

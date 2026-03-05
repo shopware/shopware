@@ -9,6 +9,7 @@ import './html';
 import './image';
 import './image-gallery';
 import './image-slider';
+import './media-gallery';
 import './location-renderer';
 import './manufacturer-logo';
 import './product-box';

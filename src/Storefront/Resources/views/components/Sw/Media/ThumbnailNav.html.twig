@@ -1,0 +1,75 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    mediaItems,
+    thumbnailSize = 70,
+    isHorizontal = false,
+%}
+
+{% set thumbnailNavCVA = cva({
+    base: 'sw-thumbnail-nav',
+    variants: {
+        isHorizontal: {
+            true: 'sw-thumbnail-nav--horizontal',
+        },
+    },
+}) %}
+
+{% set defaultAttributes = {
+    class: thumbnailNavCVA.apply({ isHorizontal }),
+} %}
+
+{% set scrollBackwardIcon = isHorizontal ? 'arrow-head-left' : 'arrow-head-up' %}
+{% set scrollForwardIcon = isHorizontal ? 'arrow-head-right' : 'arrow-head-down' %}
+{% set scrollForwardText = isHorizontal ? 'component.cms.mediaGallery.thumbnailNavScrollRight'|trans : 'component.cms.mediaGallery.thumbnailNavScrollDown'|trans %}
+{% set scrollBackwardText = isHorizontal ? 'component.cms.mediaGallery.thumbnailNavScrollLeft'|trans : 'component.cms.mediaGallery.thumbnailNavScrollUp'|trans %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <button
+        type="button" 
+        class="sw-thumbnail-nav__scroll-control is--backward btn btn-light"
+        aria-label="{{ scrollBackwardText|striptags }}"
+        hidden="hidden"
+    >
+        <twig:Sw:Icon 
+            :name="scrollBackwardIcon" 
+            size="sm" 
+        />
+    </button>
+    <nav
+        class="sw-thumbnail-nav__inner" 
+        aria-label="{{ 'component.cms.mediaGallery.thumbnailNavAriaLabel'|trans|striptags }}"
+    >
+        {% for mediaItem in mediaItems %}
+            <button
+                class="sw-thumbnail-nav__button {% if loop.first %}is--active{% endif %}" 
+                {% if loop.first %}aria-current="true"{% endif %}
+                type="button"
+                data-gallery-thumbnail-button="true"
+                data-target="{{ loop.index }}"
+                aria-label="{{ 'component.cms.mediaGallery.thumbnailNavButtonAriaLabel'|trans({'%index%': loop.index, '%total%': mediaItems|length})|striptags }}"
+            >
+                <twig:Sw:Media 
+                    class="sw-thumbnail-nav__media"
+                    :media="mediaItem" 
+                    :title="null"
+                    :previewMode="true"
+                    :sizes="thumbnailSize ~ 'px'"
+                />
+            </button>
+        {% endfor %}
+    </nav>
+    <button
+        type="button" 
+        class="sw-thumbnail-nav__scroll-control is--forward btn btn-light"
+        aria-label="{{ scrollForwardText|striptags }}"
+        hidden="hidden"
+    >
+        <twig:Sw:Icon 
+            :name="scrollForwardIcon" 
+            size="sm" 
+        />
+    </button>
+</div>

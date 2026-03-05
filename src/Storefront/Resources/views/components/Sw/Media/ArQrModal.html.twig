@@ -1,0 +1,35 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+{# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+
+{% props
+    qrCodeOptions = null,
+%}
+
+{% block spatial_ar_qr_code_modal_show_qr %}
+    <twig:Sw:Content:Modal
+        id="ar-qr-modal"
+        title="{{ 'spatial.ar.scanQrCode'|trans|striptags }}"
+        class="ar-qr-modal"
+    >
+        {% block content %}
+            <div class="text-center ar-qr-modal-body-text">
+                <span>{{ 'spatial.ar.pointToQrCode'|trans|striptags }}</span>
+            </div>
+            <div class="text-center">
+                <div class="ar-qr-modal-body-qr-code" data-page-qrcode-generator{% if qrCodeOptions %} data-page-qrcode-generator-options="{{ qrCodeOptions|json_encode|escape('html_attr') }}"{% endif %}></div>
+            </div>
+        {% endblock %}
+
+        {% block footer %}
+            <div class="text-center ar-qr-modal-footer-headline">
+                <span>{{ 'spatial.ar.whyDoISeeThis'|trans|striptags }}</span>
+            </div>
+            <div class="text-center">
+                <span id="ar-qr-modal-error-reason">{{ 'spatial.ar.errors.unknownARError.reason'|trans|striptags }}</span>
+                <span id="ar-qr-modal-error-solution">{{ 'spatial.ar.errors.unknownARError.solution'|trans|striptags }}</span>
+            </div>
+        {% endblock %}
+    </twig:Sw:Content:Modal>
+{% endblock %}

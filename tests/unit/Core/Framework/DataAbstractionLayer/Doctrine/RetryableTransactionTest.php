@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Doctrine\Doctrine;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;

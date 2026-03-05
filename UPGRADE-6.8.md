@@ -803,6 +803,26 @@ The indexing progress notifications in the Administration notification center ha
 
 </details>
 
+## Document settings changes
+
+We've restructured the document settings to make them more intuitive and user-friendly.
+
+As part of this update, the following administration component parts have been deprecated:
+* `src/module/sw-settings-document/page/sw-settings-document-detail`:
+  * computed `expandButtonClass` was deprecated without replacement
+  * computed `collapseButtonClass` was deprecated without replacement
+  * property `sortBy` was deprecated without replacement
+
+* `src/module/sw-settings-document/page/sw-settings-document-list`
+  * computed `countryRepository` was deprecated without replacement
+  * computed `documentTypeRepository` was deprecated without replacement
+  * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
+  * property `selectedType` was deprecated without replacement
+  * property `isSaveSuccessful` was deprecated without replacement
+  * property `isShowCountriesSelect` was deprecated without replacement
+  * method `loadAvailableSalesChannel()` was deprecated without replacement
+  * method `showOption()` was deprecated without replacement
+
 # Storefront
 
 <details>
@@ -1044,6 +1064,8 @@ Instead of returning `204`, the route now returns:
 The block `buy_widget_price_unit` and its children has been moved into `@Storefront/storefront/component/buy-widget/buy-widget.html.twig`.
 Instead of overwriting any of those blocks inside `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`, extend the new `@Storefront/storefront/component/buy-widget/buy-widget.html.twig` file using the same blocks.
 
+## Removed address book action template
+The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
 </details>
 
 # App System
@@ -1102,6 +1124,16 @@ State-based invalidation is not supported anymore.
 # Hosting & Configuration
 
 <details>
+
+## Database: Time zone support required
+
+The database now requires time zone data to be loaded. You can verify whether time zone data is available by running:
+
+```sql
+SELECT CONVERT_TZ(NOW(), 'UTC', 'Europe/Berlin');
+```
+
+If this returns `NULL`, time zone tables are not populated. Refer to the [MariaDB documentation on time zone tables](https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/internationalization-and-localization/time-zones#mysql-time-zone-tables) for instructions on how to import them.
 
 ## HTTP Cache Changes
 

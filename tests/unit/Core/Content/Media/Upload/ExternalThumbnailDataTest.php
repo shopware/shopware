@@ -72,7 +72,7 @@ class ExternalThumbnailDataTest extends TestCase
 
         new ExternalThumbnailData(
             url: 'https://localhost:8000/thumb.jpg',
-            width: 0,
+            width: 0, // @phpstan-ignore argument.type
             height: 200
         );
     }
@@ -84,7 +84,7 @@ class ExternalThumbnailDataTest extends TestCase
 
         new ExternalThumbnailData(
             url: 'https://localhost:8000/thumb.jpg',
-            width: -100,
+            width: -100, // @phpstan-ignore argument.type
             height: 200
         );
     }
@@ -97,7 +97,7 @@ class ExternalThumbnailDataTest extends TestCase
         new ExternalThumbnailData(
             url: 'https://localhost:8000/thumb.jpg',
             width: 200,
-            height: 0
+            height: 0 // @phpstan-ignore argument.type
         );
     }
 
@@ -109,7 +109,7 @@ class ExternalThumbnailDataTest extends TestCase
         new ExternalThumbnailData(
             url: 'https://localhost:8000/thumb.jpg',
             width: 200,
-            height: -100
+            height: -100 // @phpstan-ignore argument.type
         );
     }
 

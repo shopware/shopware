@@ -344,9 +344,6 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
                                         "mediaId": {
                                             "description": "ID of the media entity the thumbnails were attached to.",
                                             "$ref": "#/components/schemas/MediaId"
@@ -393,9 +390,6 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
                                         "mediaId": {
                                             "description": "ID of the media entity the thumbnails were deleted from.",
                                             "$ref": "#/components/schemas/MediaId"

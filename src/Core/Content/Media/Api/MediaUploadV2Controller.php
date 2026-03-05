@@ -81,7 +81,7 @@ readonly class MediaUploadV2Controller
         ]);
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/external-thumbnails', name: 'api.action.media.add-external-thumbnails', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/{mediaId}/external-thumbnails', name: 'api.action.media.add-external-thumbnails', methods: [Request::METHOD_POST])]
     public function addExternalThumbnails(
         string $mediaId,
         #[MapRequestPayload]
@@ -93,13 +93,12 @@ readonly class MediaUploadV2Controller
         $this->mediaUploadService->addExternalThumbnailsToMedia($media->getId(), $params->thumbnails, $context);
 
         return new JsonResponse([
-            'success' => true,
             'mediaId' => $media->getId(),
             'thumbnailsCreated' => $params->thumbnails->count(),
         ], Response::HTTP_CREATED);
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/external-thumbnails', name: 'api.action.media.delete-external-thumbnails', methods: ['DELETE'])]
+    #[Route(path: '/api/_action/media/{mediaId}/external-thumbnails', name: 'api.action.media.delete-external-thumbnails', methods: [Request::METHOD_DELETE])]
     public function deleteExternalThumbnails(
         string $mediaId,
         Context $context
@@ -109,7 +108,6 @@ readonly class MediaUploadV2Controller
         $this->mediaUploadService->deleteAllExternalThumbnails($media->getId(), $context);
 
         return new JsonResponse([
-            'success' => true,
             'mediaId' => $media->getId(),
         ]);
     }

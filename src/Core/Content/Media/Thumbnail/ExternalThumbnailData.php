@@ -14,7 +14,13 @@ readonly class ExternalThumbnailData
 {
     public function __construct(
         public string $url,
+        /**
+         * @var int<1, max> $width
+         */
         public int $width,
+        /**
+         * @var int<1, max> $height
+         */
         public int $height
     ) {
         $this->validate();

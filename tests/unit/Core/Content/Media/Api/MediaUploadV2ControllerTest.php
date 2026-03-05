@@ -174,7 +174,6 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertSame(Response::HTTP_CREATED, $response->getStatusCode());
 
         $content = json_decode((string) $response->getContent(), true);
-        static::assertTrue($content['success']);
         static::assertSame($mediaId, $content['mediaId']);
         static::assertSame(2, $content['thumbnailsCreated']);
     }
@@ -228,7 +227,6 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = json_decode((string) $response->getContent(), true);
-        static::assertTrue($content['success']);
         static::assertSame($mediaId, $content['mediaId']);
     }
 

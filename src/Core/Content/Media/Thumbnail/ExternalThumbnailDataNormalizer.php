@@ -37,11 +37,20 @@ class ExternalThumbnailDataNormalizer implements DenormalizerInterface, Normaliz
                 'Each thumbnail must have "url", "width" and "height" fields'
             );
         }
+        $width = (int) $data['width'];
+        $height = (int) $data['height'];
+
+        if ($width <= 0) {
+            throw MediaException::invalidDimension('width', $width);
+        }
+        if ($height <= 0) {
+            throw MediaException::invalidDimension('height', $height);
+        }
 
         return new ExternalThumbnailData(
             $data['url'],
-            (int) $data['width'],
-            (int) $data['height']
+            $width,
+            $height
         );
     }
 

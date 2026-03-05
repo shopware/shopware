@@ -1,0 +1,59 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{#
+    @prop mediaItems - array of Shopware\Core\Content\Media
+#}
+
+{% props 
+    mediaItems,
+    thumbnailSize = 70,
+%}
+
+{% set defaultAttributes = {
+    class: 'sw-media-gallery',
+    'data-component': 'Sw:Media:Gallery',
+    style: "--sw-media-gallery-thumbnail-size: " ~ thumbnailSize ~ "px;",
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <div class="sw-media-gallery__thumbnails">
+        {% for mediaItem in mediaItems %}
+            <button 
+                class="sw-media-gallery__thumbnail-button {% if loop.first %}is--active{% endif %}" 
+                type="button"
+                data-target="{{ mediaItem.id }}"
+            >
+                <twig:Sw:Media 
+                    class="sw-media-gallery__thumbnail"
+                    :media="mediaItem" 
+                    :width="thumbnailSize"
+                    :height="thumbnailSize"
+                />
+            </button>
+        {% endfor %}
+    </div>
+
+    <div class="sw-media-gallery__previews">
+        {% for mediaItem in mediaItems %}
+            <twig:Sw:Media
+                :hidden="not loop.first"
+                :media="mediaItem" 
+                class="sw-media-gallery__preview img-fluid"
+                data-media-id="{{ mediaItem.id }}"
+                data-bs-toggle="modal"
+                data-bs-target="#sw-media-gallery-modal"
+            />
+        {% endfor %}
+    </div>
+</div>
+
+<twig:Sw:Content:Modal
+    id="sw-media-gallery-modal"
+    title="Media Gallery"
+    size="full"
+    :fullscreen="true"
+>
+    Fullscreen image
+</twig:Sw:Content:Modal>

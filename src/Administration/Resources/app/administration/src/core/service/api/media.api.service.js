@@ -7,6 +7,7 @@ import ApiService from '../api.service';
 
 const UploadEvents = {
     UPLOAD_ADDED: 'media-upload-add',
+    UPLOAD_PROGRESS: 'media-upload-progress',
     UPLOAD_FINISHED: 'media-upload-finish',
     UPLOAD_FAILED: 'media-upload-fail',
     UPLOAD_CANCELED: 'media-upload-cancel',
@@ -106,10 +107,12 @@ class MediaApiService extends ApiService {
 
     keepFile(uploadTag, uploadData) {
         const task = new UploadTask({ uploadTag, ...uploadData });
+        const originalTargetId = uploadData?.originalTargetId ?? null;
         this.getListenerForTag(uploadTag).forEach((listener) => {
             listener(
                 this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, uploadTag, {
                     targetId: task.targetId,
+                    originalTargetId,
                     successAmount: 0,
                     failureAmount: 0,
                     totalAmount: 0,
@@ -152,7 +155,7 @@ class MediaApiService extends ApiService {
                 }
 
                 task.running = true;
-                return this._startUpload(task)
+                return this._startUpload(task, tag)
                     .then(() => {
                         task.running = false;
                         successUploads += 1;
@@ -182,10 +185,10 @@ class MediaApiService extends ApiService {
         );
     }
 
-    _startUpload(task) {
+    _startUpload(task, uploadTag = null) {
         if (task.src instanceof File) {
             return fileReader.readAsArrayBuffer(task.src).then((buffer) => {
-                return this.uploadMediaById(task.targetId, task.src.type, buffer, task.extension, task.fileName);
+                return this.uploadMediaById(task.targetId, task.src.type, buffer, task.extension, task.fileName, uploadTag);
             });
         }
 
@@ -196,7 +199,7 @@ class MediaApiService extends ApiService {
         return Promise.reject(new Error('src of upload must either be an instance of File or URL'));
     }
 
-    uploadMediaById(id, mimeType, data, extension, fileName = id) {
+    uploadMediaById(id, mimeType, data, extension, fileName = id, uploadTag = null) {
         if (extension === 'glb' && mimeType === '') {
             mimeType = 'model/gltf-binary';
         }
@@ -214,9 +217,31 @@ class MediaApiService extends ApiService {
             fileName,
         };
 
-        return this.httpClient.post(apiRoute, data, { params, headers }).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(apiRoute, data, {
+                params,
+                headers,
+                onUploadProgress: (progressEvent) => {
+                    if (!uploadTag) {
+                        return;
+                    }
+
+                    const total = progressEvent.total ?? data.byteLength ?? 0;
+                    this.getListenerForTag(uploadTag).forEach((listener) => {
+                        listener(
+                            this._createUploadEvent(UploadEvents.UPLOAD_PROGRESS, uploadTag, {
+                                targetId: id,
+                                loaded: progressEvent.loaded,
+                                total,
+                            }),
+                        );
+                    });
+                },
+                timeout: 0,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     uploadMediaFromUrl(id, url, extension, fileName = id) {
@@ -231,9 +256,15 @@ class MediaApiService extends ApiService {
 
         const body = JSON.stringify({ url });
 
-        return this.httpClient.post(apiRoute, body, { params, headers }).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(apiRoute, body, {
+                params,
+                headers,
+                timeout: 0,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     renameMedia(id, fileName) {

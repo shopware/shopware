@@ -12,8 +12,20 @@ async function createWrapper() {
             'core.measurementUnits.weight': 'kg',
         }),
     };
+    const repositoryFactory = {
+        create: () => ({
+            create: () => ({}),
+            get: () =>
+                Promise.resolve({
+                    productExports: {
+                        first: () => ({}),
+                    },
+                }),
+            search: () => Promise.resolve([]),
+        }),
+    };
 
-    return mount(await wrapTestComponent('sw-sales-channel-create', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-sales-channel-create', { sync: true }), {
         global: {
             stubs: {
                 'sw-page': {
@@ -36,18 +48,7 @@ async function createWrapper() {
                 'sw-skeleton': true,
             },
             provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => ({}),
-                        get: () =>
-                            Promise.resolve({
-                                productExports: {
-                                    first: () => ({}),
-                                },
-                            }),
-                        search: () => Promise.resolve([]),
-                    }),
-                },
+                repositoryFactory,
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
                 },
@@ -64,6 +65,8 @@ async function createWrapper() {
             },
         },
     });
+
+    return { wrapper };
 }
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
@@ -72,7 +75,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
     });
 
     it('should disable the save button when privilege does not exist', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 
         await wrapper.setData({
@@ -84,7 +87,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
 
     it('should enable the save button when privilege does exists', async () => {
         global.activeAclRoles = ['sales_channel.creator'];
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -96,7 +99,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
     });
 
     it('should prepare measurementUnits for salesChannel with values from system config', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
 
         expect(wrapper.vm.salesChannel.measurementUnits).toEqual({
             system: 'metric',
@@ -105,5 +108,40 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
                 weight: 'kg',
             },
         });
+    });
+
+    it('should set languageId from admin context when creating sales channel', async () => {
+        const mockLanguageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+
+        Shopware.Store.get('context').api.languageId = mockLanguageId;
+
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.salesChannel.languageId).toBe(mockLanguageId);
+    });
+
+    it('should add default language to languages collection when missing', async () => {
+        const mockLanguageId = '7c3f39f2c2134f7aa42f4dcf5f3c9b1b';
+        const languageCollection = {
+            has: jest.fn().mockReturnValue(false),
+            add: jest.fn(),
+        };
+        const languageRepository = {
+            get: jest.fn().mockResolvedValue({ id: mockLanguageId }),
+        };
+
+        Shopware.Store.get('context').api.languageId = mockLanguageId;
+
+        const { wrapper } = await createWrapper();
+        wrapper.vm.salesChannel.languages = languageCollection;
+        wrapper.vm.repositoryFactory.create = jest.fn().mockReturnValue(languageRepository);
+
+        wrapper.vm.ensureDefaultLanguageInCollection(mockLanguageId);
+
+        await flushPromises();
+
+        expect(languageRepository.get).toHaveBeenCalledWith(mockLanguageId, expect.any(Object));
+        expect(languageCollection.add).toHaveBeenCalledWith(expect.objectContaining({ id: mockLanguageId }));
     });
 });

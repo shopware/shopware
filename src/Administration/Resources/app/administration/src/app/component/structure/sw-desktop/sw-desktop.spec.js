@@ -132,6 +132,7 @@ async function createWrapper() {
                 'sw-error-boundary': true,
                 'sw-settings-services-grant-permissions-modal': true,
                 'sw-settings-usage-data-consent-modal': true,
+                'sw-settings-usage-data-consent-modal-data-provider': true,
             },
             provide: {
                 shopIdChangeService: {

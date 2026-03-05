@@ -4,17 +4,14 @@ namespace Shopware\Core\System\UsageData\Api;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Consent\BannerService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
-use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
-use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRevokedException;
 use Shopware\Core\System\UsageData\UsageDataException;
-use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,8 +20,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
- *
- * @param EntityRepository<UserConfigCollection> $userConfigRepository
  */
 #[Package('data-services')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -41,13 +36,10 @@ class ConsentController extends AbstractController
     {
         $userId = $this->getUserIdFromContext($context);
 
-        try {
-            $this->consentService->requestConsent();
-        } catch (ConsentAlreadyRequestedException) {
-        }
+        $consent = $this->consentService->getConsentState(BackendData::NAME, $context);
 
         return new JsonResponse([
-            'isConsentGiven' => $this->consentService->isConsentAccepted(),
+            'isConsentGiven' => $consent->status === ConsentStatus::ACCEPTED,
             'isBannerHidden' => $this->bannerService->hasUserHiddenConsentBanner($userId, Context::createDefaultContext()),
         ]);
     }
@@ -55,12 +47,7 @@ class ConsentController extends AbstractController
     #[Route(path: '/api/usage-data/accept-consent', name: 'api.usage_data.accept_consent', methods: [Request::METHOD_POST])]
     public function acceptConsent(Context $context): Response
     {
-        $this->getUserIdFromContext($context);
-
-        try {
-            $this->consentService->acceptConsent();
-        } catch (ConsentAlreadyAcceptedException) {
-        }
+        $this->consentService->acceptConsent(BackendData::NAME, $context);
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }
@@ -68,12 +55,7 @@ class ConsentController extends AbstractController
     #[Route(path: '/api/usage-data/revoke-consent', name: 'api.usage_data.revoke_consent', methods: [Request::METHOD_POST])]
     public function revokeConsent(Context $context): Response
     {
-        $this->getUserIdFromContext($context);
-
-        try {
-            $this->consentService->revokeConsent();
-        } catch (ConsentAlreadyRevokedException) {
-        }
+        $this->consentService->revokeConsent(BackendData::NAME, $context);
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }

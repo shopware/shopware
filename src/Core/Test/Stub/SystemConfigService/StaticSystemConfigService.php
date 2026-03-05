@@ -10,7 +10,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class StaticSystemConfigService extends SystemConfigService
 {
     /**
-     * @param array<string, mixed> $config
+     * @param array<string, mixed>|array<string, array<string, mixed>> $config
      */
     public function __construct(private array $config = [])
     {
@@ -74,8 +74,8 @@ class StaticSystemConfigService extends SystemConfigService
             $pointer = $configValue;
         }
 
-        // @phpstan-ignore empty.variable ($foundValues can be empty)
-        if (empty($foundValues)) {
+        // @phpstan-ignore identical.alwaysTrue ($foundValues can be empty)
+        if ($foundValues === []) {
             return null;
         }
 

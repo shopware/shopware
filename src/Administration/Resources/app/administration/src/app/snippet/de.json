@@ -465,7 +465,7 @@
       "buttonSwitchToUrlUpload": "Datei von URL hochladen",
       "buttonOpenMedia": "Medien öffnen",
       "snackbar": {
-        "message": "Datei wird hochgeladen | Dateien werden hochgeladen",
+        "message": "Datei wird hochgeladen | Dateien werden hochgeladen ({processed}/{total})",
         "errorMessage": "Die Datei konnte nicht hochgeladen werden. | Manche Dateien konnten nicht hochgeladen werden."
       },
       "notification": {
@@ -490,6 +490,12 @@
         },
         "requestCanceled": {
           "message": "Das Hochladen wurde abgebrochen."
+        },
+        "payloadTooLarge": {
+          "message": "Die Datei ist zu groß. Bitte reduziere die Dateigröße oder überprüfe die Server-Konfiguration."
+        },
+        "transportError": {
+          "message": "Upload fehlgeschlagen aufgrund eines Verbindungsproblems oder eines Server-Timeouts. Bitte Verbindung oder Server-Limits prüfen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"
@@ -1093,6 +1099,7 @@
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
       "customer_recovery_request": "Kunde fordert neues Passwort an",
       "customer_password_changed": "Kunden-Passwort wurde geändert",
+      "revocation_request_sent": "Das Widerrufsformular wurde verschickt",
       "mail_after_create_message": "E-Mail wurde erzeugt",
       "mail_before_send": "E-Mail wird gesendet",
       "mail_sent": "E-Mail wurde gesendet",
@@ -1573,7 +1580,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor.",
+            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor. Das bedeuted, dass die neue Instanz die App-Daten der alten Installation überschreibt.",
             "name": "Shop-ID beibehalten"
           },
           "reinstall-apps": {
@@ -1598,7 +1605,6 @@
   },
   "sw-wizard": {
     "backButton": "Zurück",
-    "closeButton": "Schließen",
     "finishButton": "Abschließen",
     "nextButton": "Weiter"
   },
@@ -1715,5 +1721,32 @@
   },
   "sw-context-button": {
     "ariaLabel": "Kontextmenü öffnen"
-  }
+  },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Gleichmäßige Skalierung sperren",
+    "unlock-uniform-scale": "Gleichmäßige Skalierung entsperren"
+  },
+  "sw-model-editor": {
+      "titleModal": "Model Editor",
+      "open-model-editor-tooltip": "Model Editor öffnen",
+      "edit-options": {
+        "move-tooltip": "Objekt verschieben",
+        "rotate-tooltip": "Objekt drehen",
+        "scale-tooltip": "Objekt skalieren"
+      },
+      "properties": {
+        "transformation": {
+          "label":"Transformation",
+          "position": {
+            "label": "Position"
+          },
+          "rotation": {
+            "label": "Rotation"
+          },
+          "scale": {
+            "label": "Skalierung"
+          }
+        }
+      }
+    }
 }

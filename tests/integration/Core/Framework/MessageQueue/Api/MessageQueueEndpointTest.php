@@ -3,12 +3,15 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
+ * @deprecated tag:v6.8.0 - Test class tests deprecated /api/_info/queue.json endpoint which will be removed
+ *
  * @internal
  */
 #[Package('framework')]
@@ -16,6 +19,11 @@ class MessageQueueEndpointTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
     use IntegrationTestBehaviour;
+
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+    }
 
     public function testEndpoint(): void
     {

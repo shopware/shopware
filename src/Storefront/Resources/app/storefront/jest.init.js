@@ -33,4 +33,6 @@ global.PluginManager = {
     getPluginInstances: () => {
         return new Map();
     },
+    initializePlugins: jest.fn(() => Promise.resolve()),
+    initializePluginsInParentElement: jest.fn(() => Promise.resolve()),
 };

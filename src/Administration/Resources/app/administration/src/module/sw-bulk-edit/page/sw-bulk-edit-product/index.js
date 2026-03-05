@@ -367,7 +367,6 @@ export default {
                         numberType: 'int',
                         allowOverwrite: true,
                         allowClear: true,
-                        min: 0,
                     },
                 },
                 {

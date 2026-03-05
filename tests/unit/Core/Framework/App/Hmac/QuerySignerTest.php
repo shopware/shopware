@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Hmac;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -27,7 +28,9 @@ class QuerySignerTest extends TestCase
     {
         $inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['extension-1' => ['purchase-1', 'purchase-2'], 'extension-2' => ['purchase-3']]);
 
-        $context = new Context(new AdminApiSource(null));
+        $userId = Uuid::randomHex();
+
+        $context = new Context(new AdminApiSource($userId));
 
         $localeProvider = $this->createMock(LocaleProvider::class);
         $localeProvider
@@ -62,6 +65,7 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('sw-user-language', $url);
         static::assertArrayHasKey('shopware-shop-signature', $url);
         static::assertArrayHasKey('app-version', $url);
+        static::assertArrayHasKey('sw-user-id', $url);
 
         static::assertSame('shopId', $url['shop-id']);
         static::assertSame('http://shop.url', $url['shop-url']);
@@ -71,6 +75,49 @@ class QuerySignerTest extends TestCase
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $url['sw-context-language']);
         static::assertSame('en-GB', $url['sw-user-language']);
         static::assertSame('1.0.0', $url['app-version']);
+        static::assertSame($userId, $url['sw-user-id']);
+    }
+
+    #[DataProvider('userIdDataProvider')]
+    public function testUserIdInSignedUri(Context $context, string $expectedUserId): void
+    {
+        $localeProvider = $this->createMock(LocaleProvider::class);
+        $localeProvider
+            ->expects($this->once())
+            ->method('getLocaleFromContext')
+            ->with($context)
+            ->willReturn('en-GB');
+
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider
+            ->expects($this->once())
+            ->method('getShopId')
+            ->willReturn('shopId');
+
+        $app = new AppEntity();
+        $app->setName('extension-1');
+        $app->setAppSecret('devSecret');
+        $app->setId(Uuid::randomHex());
+        $app->setVersion('1.0.0');
+
+        $querySigner = new QuerySigner(
+            'http://shop.url',
+            '1.0.0',
+            $localeProvider,
+            $shopIdProvider,
+            StaticInAppPurchaseFactory::createWithFeatures(),
+        );
+
+        $signedQuery = $querySigner->signUri(
+            'http://app.url/?foo=bar',
+            $app,
+            $context
+        );
+
+        \parse_str($signedQuery->getQuery(), $url);
+
+        static::assertArrayHasKey('sw-user-id', $url);
+        static::assertSame($expectedUserId, $url['sw-user-id']);
     }
 
     public function testThrowsWithoutAppSecret(): void
@@ -91,5 +138,28 @@ class QuerySignerTest extends TestCase
         $this->expectExceptionMessage('App secret is missing for app Foo');
 
         $querySigner->signUri('http://app.url/?foo=bar', $app, Context::createDefaultContext());
+    }
+
+    /**
+     * @return \Generator<string, array{Context, string}>
+     */
+    public static function userIdDataProvider(): \Generator
+    {
+        $userId = Uuid::randomHex();
+
+        yield 'admin api source with user' => [
+            new Context(new AdminApiSource($userId)),
+            $userId,
+        ];
+
+        yield 'admin api source without user' => [
+            new Context(new AdminApiSource(null)),
+            '',
+        ];
+
+        yield 'non-admin api source' => [
+            Context::createDefaultContext(),
+            '',
+        ];
     }
 }

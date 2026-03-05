@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
@@ -23,6 +24,8 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-import-type SourceConfig from AppDefinition
  */
 #[Package('framework')]
 class Manifest
@@ -34,7 +37,7 @@ class Manifest
     private ?string $sourceType = null;
 
     /**
-     * @var array<string, string|null>
+     * @var SourceConfig
      */
     private array $sourceConfig = [];
 
@@ -247,7 +250,7 @@ class Manifest
     }
 
     /**
-     * @return array<string, string|null>
+     * @return SourceConfig
      */
     public function getSourceConfig(): array
     {
@@ -255,7 +258,7 @@ class Manifest
     }
 
     /**
-     * @param array<string, string|null> $sourceConfig
+     * @param SourceConfig $sourceConfig
      */
     public function setSourceConfig(array $sourceConfig): void
     {

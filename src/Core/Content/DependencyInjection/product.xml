@@ -158,7 +158,7 @@
 
         <service id="Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument>%elasticsearch.enabled%</argument>
+            <argument type="service" id="parameter_bag"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -239,6 +239,7 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.cms.product_slider.processor"/>
         </service>
@@ -246,6 +247,7 @@
         <service id="Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor">
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.cms.product_slider.processor"/>
         </service>
@@ -430,6 +432,8 @@
 
         <service id="Shopware\Core\Content\Product\ProductTypeRegistry" public="true">
             <argument>%shopware.product.allowed_types%</argument>
+
+            <tag name="shopware.api.enum_provider" />
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">

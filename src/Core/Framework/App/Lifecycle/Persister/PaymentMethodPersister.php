@@ -79,7 +79,7 @@ class PaymentMethodPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $this->paymentMethodRepository->upsert($upserts, $context);
         }
 

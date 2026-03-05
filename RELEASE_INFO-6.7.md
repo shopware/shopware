@@ -1,27 +1,407 @@
-# 6.7.7.0 (upcoming)
+# 6.7.9.0 (upcoming)
 
 ## Features
 
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
+### [Experimental] Use OpenSearch for Admin API searches
+
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 
+This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
+Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
+To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
+
+### Online revocation request form
+Customers can now conveniently submit revocation requests through an online form. 
+Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
+## API
+
+### Deprecation of newsletter route methods
+
+The following methods are deprecated and will be removed with the next major version:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
+- `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
+
+The new methods currently return `StoreApiResponse` in the abstract classes. In the next major version, the return types will change to their explicit types:
+
+- `subscribeWithResponse()` → `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` → `SuccessResponse`
+- `unsubscribeWithResponse()` → `SuccessResponse`
+
+The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
+
+| Route | Response                                                       |
+|-------|----------------------------------------------------------------|
+| `/store-api/newsletter/subscribe` | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
+| `/store-api/newsletter/confirm` | `{"success": true}`                                            |
+| `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
+
+### OpenAPI enums via DAL `Choice` flag
+
+DAL fields can now declare a finite set of allowed values using the `Choice` flag.
+This information is used to enrich the generated OpenAPI schema with `enum` values for better API documentation and client generation.
+
+By default, `Choice` is non-strict and does not affect write validation.
+If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
+
+## Core
+
+### Scheduled cleanup of expired customer recovery records
+
+A new scheduled task `customer.cleanup_customer_recovery` has been added that automatically removes expired customer recovery records from the database on a daily basis.
+
+Customer recovery records (password reset tokens) expire after 2 hours. Previously these records were never removed, causing the `customer_recovery` table to grow indefinitely. The new task deletes all records older than 48 hours.
+
+### Inheritance added to product main categories
+
+Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
+
+### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
+
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed. 
+But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
+This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
+Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
+
+### Deprecation of unused `TemplateGroup` class
+
+The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
+
+### New criteria events for product slider CMS element
+
+Two new events are dispatched when the product slider CMS element resolves its product criteria, allowing subscribers to modify the criteria:
+
+- `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
+- `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
+
+## Administration
+
+## Storefront
+
+### Block renaming
+
+* Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
+
+### `HEAD`-requests do not trigger the registration double-opt-in
+
+As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.8.0
+
+## Features
+
+### New internal comment for state machine state history entries
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
+## Core
+
+### Indexing the product's custom fields
+
+Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
+
+### Deprecation of increment-based message queue statistics
+
+The increment-based message queue statistics system is deprecated and will be removed in v6.8.0.0.
+
+**What's changing:**
+- The Administration notification center will no longer show indexing progress notifications (e.g., "X products will be indexed")
+- API endpoint `GET /api/_info/queue.json` is deprecated - use `GET /api/_info/message-stats.json` instead
+
+**Deprecated configuration options:**
+- `shopware.admin_worker.enable_queue_stats_worker`
+- `shopware.increment.message_queue`
+
+**Deprecated code:**
+- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant
+- Increment-based handling in `MessageQueueStatsSubscriber::onMessageHandled()`
+
+**Why?**
+The increment-based statistics were often inaccurate due to hardcoded multipliers and missing decrements in edge cases. The replacement functionality was introduced in https://github.com/shopware/shopware/pull/8698
+
+**Immediate disable:**
+To disable the deprecated functionality before v6.8.0.0:
+```yaml
+shopware:
+    admin_worker:
+        enable_queue_stats_worker: false
+```
+
+### Internal product streams
+
+A new boolean field `internal` has been added to product streams with a default value of `false`.
+This allows you to mark product streams as internal for system or plugin use, preventing them from appearing in merchant-facing selection lists throughout the Administration (e.g., in categories, cross-selling, CMS elements, or sales channels).
+
+Use this feature when you need to create product streams programmatically that should not be modified or selected by shop administrators.
+
+### Database table helper class
+
+A new helper class `\Shopware\Core\Framework\Util\Database\TableHelper` was introduced,
+which could be used to check the table for existence, columns, indexes, and foreign keys.
+
+#### Deprecation of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
+
+As consequence of the introduction of the new table helper class following methods are deprecated and will be removed with the next major version:
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
+
+### Migration generator improvements
+
+The migration generator previously used a fixed format: `fk.<table-name>.<column>` for foreign key names.
+Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
+
+Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
+
+### CategoryIndexer selective indexing optimization
+
+The `CategoryIndexer` now skips tree/child-count updaters when `parentId` hasn't changed, and breadcrumb updater when `name` hasn't changed. All updaters still run for `INSERT` and `DELETE` operations.
+
+### Updated `doctrine/dbal` dependency
+
+The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
+They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
+Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
+
+### Primary key validation in `dal:validate` command
+
+The `dal:validate` command now includes validation to detect mismatches between database PRIMARY KEY constraints and entity definition PrimaryKey flags.
+This validation prevents silent failures where queries return correct `total` counts but empty `data` arrays due to entity hydration failures caused by inconsistent primary key definitions.
+When a mismatch is detected, the command provides a clear error message indicating which fields differ between the database schema and the entity definition.
+
+### Deprecation of default value for `serializer` in `#[Serialized]` field attribute
+
+When you use `#[Serialized]` field in your attribute entity you should always pass the serializer explicitly, as the default serializer does not work as expected.
+Additionally, the `SerializerField` will become internal in the next major release, as that field should be only used for attribute entities, but never directly in classic `EntityDefinitions`.
+
+## Administration
+
+### Product detail variants: `configSettingGroups` as computed and deprecations
+
+In `sw-product-detail-variants`, the following changes were made:
+
+* **`configSettingGroups`** (now computed): Previously a `data()` property set by `loadConfigSettingGroups()`. It is now a computed property derived from `productEntity.configuratorSettings` and `groups`.
+* **`loadConfigSettingGroups()`** (deprecated): Marked as `@deprecated tag:v6.8.0`. It will be removed in 6.8.0 without replacement.
+
+### Deprecation of `items` prop in `sw-entity-listing` component
+
+The `items` prop in the `sw-entity-listing` component has been deprecated and will be removed in v6.8.0.
+Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
+
+**Before (deprecated):**
+```html
+<sw-entity-listing
+    :items="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+**After (recommended):**
+```html
+<sw-entity-listing
+    :data-source="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+The component will continue to work with the `items` prop for backward compatibility, but you will see a deprecation warning in the browser console.
+
+### Notification translations now update when language changes
+
+Notifications now store translation keys directly in their title and message fields instead of translating them immediately.
+The template checks if the text is a translation key and translates it reactively, allowing notifications to update automatically when the user changes the interface language.
+
+### Help text support for color picker custom fields
+
+The color picker type for custom fields now supports adding a help text. When creating or editing a custom field of type "Colorpicker" in Settings > Content > Custom fields, you can now specify a help text that will be displayed to users in the Administration.
+
+### `sw-select-base` clearable button default behavior changed
+
+The `showClearableButton` prop in `sw-select-base` now defaults based on the `required` attribute:
+- When `required` is `false` or not set: clearable button is shown by default
+- When `required` is `true`: clearable button is hidden by default
+
+Previously, the clearable button was always hidden by default (`showClearableButton: false`).
+
+**Migration:** If you relied on the previous behavior where the clearable button was hidden by default, explicitly set `:show-clearable-button="false"` on your select components.
+
+## Storefront
+
+### Selling and packaging information in the product detail page
+
+* Display the selling and packaging information with the product that has advanced pricing.
+* Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
+
+### Default theme breakpoints now available in theme config
+
+The default layout breakpoints in the Storefront were hard-coded before and couldn't easily be overriden. Now you will find new theme config fields in the default config, which serve as the default values. The fields are hidden in the visual configuration, so they serve as a feature for theme developers for now. You can override the following config fields in your custom `theme.json` file to change the default breakpoints. The fields are mapped to the existing hard-coded configuration. The configuration is only passed in Twig and JS currently and there is no direct usage in SCSS, as they represent the Bootstrap default breakpoints. If you want to make a full override, you can simply configure the Bootstrap breakpoints in your custom SCSS and use the theme config values for that.
+
+*  `sw-breakpoint-xs`
+*  `sw-breakpoint-sm`
+*  `sw-breakpoint-md`
+*  `sw-breakpoint-lg`
+*  `sw-breakpoint-xl`
+*  `sw-breakpoint-xxl`
+
+### Make static alerts announced in the screenreader
+
+Static alert boxes that are rendered in the DOM on page load were previously not read out by screenreaders.
+The `role="alert"` did not have an effect. Only `role="alerts"` added to the DOM by JavaScript were read out.
+
+To solve the screenreader issue with static alerts, we introduced a new parameter `announceOnLoad`.
+When `announceOnLoad` is set to true, the alert box content will be announced in the screenreader right after the page is loaded.
+The alert box will apply an additional JavaScript plugin that attempts to trigger the screenreader.
+This is done by changing the DOM within the `aria-live` region after a short delay, which tells the screenreader to read it.
+
+```
+{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+    type: "primary",
+    content: "An important message on initial page load",
+    announceOnLoad: true
+    ariaLive: 'assertive' {# Define the priority of the alert #}
+} %}
+```
+
+## App System
+
+### Fixed custom headers for app flow action webhooks in async mode
+
+Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
+
+## Hosting & Configuration
+
+### Feature flag for enabling OpenSearch globally in the Admin API
+
+The new feature flag `ENABLE_OPENSEARCH_FOR_ADMIN_API` (see `adr/2026-01-28-apply-opensearch-in-admin-api.md`) can be used to activate that now all supported searches and reads from the administration and Admin-API are handled by OpenSearch instead of the DB.
+Especially when you have a large amount of data in your shop, this can lead to significant performance improvements in the administration.
+The downside is that the indexing of the data into OpenSearch takes slightly longer, and the results you see might be slightly delayed as they are not read directly from the DB anymore, but need to be indexed to OpenSearch first.
+When the flag is disabled (which is the default), Administration lists, filters, and DAL searches continue to use MySQL exactly as in previous releases.
+Once enabled, supported Admin API entities reuse the Admin OpenSearch indices for criteria-based searches, which requires admin OpenSearch to be configured and re-indexed via `bin/console es:admin:index`.
+
+
+### New config option to fine tune Admin OpenSearch indexing
+
+There is a new config option `elasticsearch.admin.indexing_batch_size` that allows you to configure the batch size for Admin OpenSearch indexing.
+The same config can be set via environment variable `SHOPWARE_ADMIN_ES_INDEXING_BATCH_SIZE`. The default value is `1000`, which means that entities will be indexed in batches of 1000.
+This should reduce the overhead needed when running the admin index process.
+Before the admin indexing process shared the same config `elasticsearch.indexing_batch_size` (default value: 100) with the Storefront/Store API indexing, which could lead to performance issues when you had a large amount of data in your shop, as the admin indexing process is usually way faster and therefore can benefit from higher batch sizes.
+
+### Deprecated HTTP cache reverse proxy configuration
+
+The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:
+
+- `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+- `shopware.http_cache.reverse_proxy.ban_method`
+- `shopware.http_cache.reverse_proxy.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_method`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
+  - `shopware.http_cache.reverse_proxy.purge_all.urls`
+
+If you are currently using any of these options, you can safely remove them from your configuration.
+### Configurable Elasticsearch shard and replica counts
+
+The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
+
+For the Storefront/Store API Elasticsearch:
+- `SHOPWARE_ES_NUMBER_OF_SHARDS` (default: empty, meaning Elasticsearch default)
+- `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
+
+For the Admin Elasticsearch:
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
+- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
+
+## Critical Fixes
+
+### Session deadlock fix for file-based sessions
+
+A new configuration option `shopware.cache.disable_stampede_protection` has been added to prevent deadlocks when using file-based sessions with Symfony's cache stampede protection.
+
+**Problem**: A deadlock (ABBA pattern) can occur when:
+- Process 1: Acquires Session File Lock → Needs Cache → Tries to acquire Cache Lock
+- Process 2: Acquires Cache Lock (stampede protection) → Needs Session → Tries to acquire Session File Lock
+
+**Solution**: Set `shopware.cache.disable_stampede_protection: true` in your configuration to disable file-based cache locking when file-based sessions are in use.
+
+```yaml
+shopware:
+    cache:
+        disable_stampede_protection: true
+```
+
+**Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
+
+# 6.7.7.1
+
+## Core
+
+### Dependency on Elasticsearch Bundle
+
+Removed dependency of the Core bundle to the Elasticsearch bundle, so that the Core bundle can be used without Elasticsearch again.
+
+# 6.7.7.0
+
+## Features
+
+### Symfony 7.4 update
+
+All Symfony packages have been updated to version 7.4.
+Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
+Especially note that Symfony now requires php-redis extension v6.1 or higher: https://github.com/symfony/symfony/blob/7.4/UPGRADE-7.4.md#cache.
+If you note compatibility issues with the Redis extension please check the installed version php-redis.
+
+### Changed maintenance mode redirect
+
+After maintenance ends, users are now redirected back to the page they were on before maintenance.
+Previously, users were always redirected to the shop homepage.
+
 ### Support of media paths with up to 2046 characters
-Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
-database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
-2046 characters long.
+
+Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the database field already supported up to 2046 characters.
+This limitation has now been lifted, and media paths can be up to 2046 characters long.
 
 ### Configurable Custom Field Searchability
 
-Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields. This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
+Custom fields are now **not searchable by default**.
+To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields.
+This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
 
 **Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
 ### Media Model Viewer
 
-From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
+From now on you are able to inspect your 3D models directly in the Media module in the Administration.
+Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right.
+This new component is called `sw-model-viewer`.
+
+### Media Model Editor
+
+The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
+Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
+A modal will open where you can move, rotate, and scale the model.
+You can also use the sidebar to type in specific values for position, rotation and scale.
+Click Save, and your changes are applied instantly.
 
 ## API
 
-### Improved tagged based cache invalidation
+### Improved tagged-based cache invalidation
 
-Next routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
+The following routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
 * `/store-api/breadcrumb/{id}`
 * `/store-api/media`
 * `/store-api/product/{productId}/find-variant`
@@ -48,13 +428,17 @@ Previously, the generated query would `LEFT JOIN` `order_line_item` multiple tim
 
 ### Introduce Immutable DAL flag
 
-A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
+A new `Immutable` flag is available for Data Abstraction Layer fields.
+Fields marked as immutable can be set during entity creation but cannot be updated later.
+This prevents accidental renames of technical identifiers that other subsystems rely on.
+Core entities now using the flag include:
 
 * `custom_field.name`
 * `custom_field.type`
 * `custom_field_set.name`
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+If the value is not set in the payload, or the value won't change, no exception is thrown.
 
 ### Performance Improvement for `ProductCategoryDenormalizer`
 
@@ -77,6 +461,32 @@ As part of this change, the following deprecations were made:
 
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
+
+### New `RequestParamHelper`
+
+Symfony deprecated the "magic" `Request::get()` method, which was used to retrieve parameters from the request, by checking the `attribute`, `query` or `request` parameter bags.
+For easier backward compatibilty we backported the old behaviour in the new `RequestParamHelper` class, however, it should only be used in explicit cases, where the parameter could be in any of those parameter bags.
+The best practice is to check the explicit parameter bag, where you expect the parameter to be.
+However, as we have a lot of API routes that support being called by `GET` and `POST` methods both, the helper is handy in such cases.
+
+Before:
+```php
+$parameter = $request->get($parameterName, $default);
+```
+After:
+```php
+$parameter = RequestParameterHelper::get($request, $parameterName, $default);
+```
+
+To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first.
+However, it should be possible to strictly differentiate between request attributes (which are generally controlled and set by the application itself) and input parameters (which are provided by the client, and based on how they are passed are either part of the query bag or the request bag) in the future.
+Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release.
+When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
+In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
+
+### The `TranslationLoader` class is now decoratable
+
+The `TranslationLoader` class extends from the new `AbstractTranslationLoader` class and implements the decoratable pattern. This allows third-party developers to decorate the loader to add custom logic when a translation is loaded.
 
 ### DomainExceptions don't create \RuntimeException anymore
 
@@ -105,7 +515,27 @@ This affects the following exception factory methods:
 * `WebhookException::invalidDataMapping(...)`
 * `WebhookException::unknownEventDataType(...)`
 
+### More fine-grained caching control in `HttpCacheCookieEvent`
+
+A new `doNotStore` property was added to the `HttpCacheCookieEvent` to allow fine-grained control over caching behavior.
+This new property allows preventing the current response from being stored in the cache.
+This behaviour differs from the existing ìsCacheable` property, which will also prevent the following requests from that session being cached.
+
+### Logging for invalidated cache tags
+
+Added logging for invalidated cache tags at the info level, with the ability to enable or disable the logging via configuration for debugging and transparency.
+
+### Removed `CacheInvalidationSubscriber::getChangedPropertyFilterTags` due to performance issues
+
+The `getChangedPropertyFilterTags` method has been removed from `CacheInvalidationSubscriber` due to performance issues where it could cause invalidation storms by selecting all product IDs for popular property options.
+
+Changing a property group or option will no longer automatically invalidate product and product list caches. It's recommended to rely on TTLs for bigger shops. If you experience issues after changing a property group, a manual cache clear may be required.
+
 ## Administration
+
+### Refactored media modal from `sw-modal` to `mt-modal`
+
+The media modal in Shopping Experiences has been refactored from `sw-modal` to `mt-modal`. This fixes an issue where elements inside the "open media" modal could not be focused when the CMS extension was installed.
 
 ### Deprecations in mail template components
 
@@ -123,13 +553,18 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ## Storefront
 
+### Cookie consent now language-aware
+
+The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.
+
+The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response.
 ### New `window.activeNavigationPathIdList` variable
 
 A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
 
 ### Improved cookie consent dialog UI and accessibility
 
-The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
+The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
 
 ### HTTP caching policies update
 
@@ -137,6 +572,20 @@ The following changes are relevant when HTTP caching policies feature is enabled
 
 * HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
 * `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
+
+### First tap on iOS Safari did not trigger call-to-action buttons on product detail page
+Fixes an issue on iOS Safari where the first tap does not trigger the desired action on the product detail page after scrolling over the image gallery.
+The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
+A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
+
+### Better handling of JS plugin initialization for async content
+When content was loaded asyncronously within offcanvas elements or modals, all JS plugins of the page were initialized again, causing that update methods of all plugins to be called. We added a new method `initializePluginsInParentElement()` to the plugin manager to enable plugin initialization scoped to a parent element. This creates the possibility to initlize plugins only within newly added or async fetched content. The correposnding calls were updated in the following plugins:
+
+*  `ajax-offcanvas.plugin.js`
+*  `offcanvas-cart.plugin.js`
+*  `offcanvas-menu.plugin.js`
+*  `offcanvas-tabs.plugin.js`
+*  `ajax-modal.plugin.js`
 
 ### Google Analytics 4 Integration Update
 
@@ -166,6 +615,11 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 ## Hosting & Configuration
 
 ## Critical Fixes
+
+### Flash messages are not cached anymore
+
+As soon as a flash message is displayed, the response won't be stored in the HTTP cache anymore, thus preventing the message from being displayed to other users.
+Additionally, the cache will be passed as soon as there is a flash message that still needs to be displayed. This ensures that flash messages are always displayed on the next request, and not only on the next request to an uncached page.
 
 # 6.7.6.0
 
@@ -281,6 +735,11 @@ We don't synchronously fetch and generate the SEO-Urls for all child categories 
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
+### Make the find best variant on searching as non default behaviour
+
+Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best variant" feature was always the default behaviour on the search. It means that if a product has variants, the best matching variant is returned instead of what merchant has configured in the product's Storefront presentation > Product listings > "Show main product or variant" setting.
+This behaviour is now optional and can be enabled by setting the `core.listing.findBestVariant` config to `true` or setting it via the admin interface under Settings > Products > "Preview best matching variant for search results"
+
 ## Administration
 
 As part of this change, the following deprecations were made:
@@ -327,6 +786,10 @@ In the settings module, there is now a search bar in the top right. It can be us
 ### The email validation supports IDN email addresses
 
 The domain part of email addresses may now contain internationalized domain names (IDN). The Storefront validation will properly check these domains. The form validation in PHP may still deny IDN emails addresses, but the default Shopware forms already allow them.
+
+### BuyBox JavaScript Plugin
+
+The options `modalTriggerSelector` and `urlAttribute` as well as the former private methods `_initModalTriggerEvent()` and `_openTaxInfoModal()` have been removed from `buy-box.plugin.js` and have no effect anymore. The Ajax modal now reinitializes event handlers via `initializePlugins()` after the request, which also resolves an issue where changing a product variant in the buy box was not possible when the cms-element was used in a shopping experience.
 
 ## App System
 
@@ -418,7 +881,7 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ### Automatic indexer execution for plugin migrations
 
-The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+The `IndexerQueuer` now runs automatically during plugin install, update, and uninstall events.
 This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions

@@ -50,9 +50,9 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityCollection;
-use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -1624,29 +1624,29 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
-        /** @var AppEntity $app */
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+        static::assertNotNull($app);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
 
         $customEntities = $this->customEntityRepository->search($criteria, $this->context);
 
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
 
-        /** @var CustomEntityEntity $customEntity */
         $customEntity = $customEntities->first();
+        static::assertNotNull($customEntity);
 
         // We call delete with keepUserData = true
         $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context, true);
 
         $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
 
-        /** @var CustomEntityEntity $customEntity */
         $customEntity = $customEntities->first();
+        static::assertNotNull($customEntity);
 
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
         static::assertNotNull($customEntity->getDeletedAt());
 
@@ -1670,26 +1670,26 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
-        /** @var AppEntity $app */
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+        static::assertNotNull($app);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
 
         $customEntities = $this->customEntityRepository->search($criteria, $this->context);
 
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
 
-        /** @var CustomEntityEntity $customEntity */
         $customEntity = $customEntities->first();
+        static::assertNotNull($customEntity);
 
         // We call delete with keepUserData = false
         $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context);
 
         $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
 
-        static::assertFalse($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(0, $customEntities);
 
         // Cleanup

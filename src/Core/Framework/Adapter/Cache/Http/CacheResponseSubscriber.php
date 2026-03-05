@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
-use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
@@ -86,7 +86,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         if (!$this->httpCacheEnabled) {
             // no-store attribute still has to be processed even in early return case
-            if ($request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE)) {
+            if ($this->isNoStoreRoute($request)) {
                 $this->applyPolicy($request, $response, $area, false, null);
             }
 
@@ -145,7 +145,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         // even when the response is not cached itself, so that the cache-hash on the client is updated for the next request
         //
         // It should be called here as side effects (cookie, header) should also appy for non-cacheable responses
-        $cacheHash = $this->cacheHeadersService->applyCacheHash($request, $context, $cart, $response);
+        $cacheHashEvent = $this->cacheHeadersService->applyCacheHash($request, $context, $cart, $response);
 
         if (!$request->isMethod(Request::METHOD_GET)) {
             $this->noCache($request, $response, $area);
@@ -160,7 +160,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         // No cache when dynamic calculation says so
-        if ($cacheHash === HttpCacheCookieEvent::NOT_CACHEABLE) {
+        if ($cacheHashEvent && !$cacheHashEvent->shouldResponseBeCached()) {
             // Response is not cacheable because of dynamic calculation, giving a hint to the reverse proxy
             $response->headers->set(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS, '1');
             $this->noCache($request, $response, $area);
@@ -168,6 +168,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $cacheHash = $cacheHashEvent?->getHash();
         // No cache when client cache hash does not match the expected one. This protects from cache poisoning
         if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
             $clientHash = $request->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE) ??
@@ -200,6 +201,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         // old behavior
         if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            if ($this->isNoStoreRoute($request)) {
+                $this->addNoStoreHeader($request, $response);
+
+                return;
+            }
+
             $sMaxAge = $cacheAttribute->sMaxAge ?? $this->defaultTtl;
             $response->setSharedMaxAge($sMaxAge);
 
@@ -239,7 +246,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     private function noCache(Request $request, Response $response, string $area): void
     {
         if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
-            // do nothing for backwards compatibility
+            if ($this->isNoStoreRoute($request)) {
+                $this->addNoStoreHeader($request, $response);
+            }
+
             return;
         }
         $this->applyPolicy($request, $response, $area, false, null);
@@ -284,7 +294,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     {
         $states = $this->getSystemStates($request, $context, $cart);
 
-        if (empty($states)) {
+        if ($states === []) {
             if ($request->cookies->has(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE)) {
                 $response->headers->removeCookie(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);
                 $response->headers->clearCookie(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);
@@ -346,7 +356,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      */
     private function setCurrencyCookie(Request $request, Response $response): void
     {
-        $currencyId = $request->get(SalesChannelContextService::CURRENCY_ID);
+        $currencyId = RequestParamHelper::get($request, SalesChannelContextService::CURRENCY_ID);
 
         if (!$currencyId) {
             return;
@@ -365,5 +375,23 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
         );
+    }
+
+    private function isNoStoreRoute(Request $request): bool
+    {
+        return $request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE);
+    }
+
+    private function addNoStoreHeader(Request $request, Response $response): void
+    {
+        if (!$this->isNoStoreRoute($request)) {
+            return;
+        }
+
+        $response->setMaxAge(0);
+        $response->headers->addCacheControlDirective('no-cache');
+        $response->headers->addCacheControlDirective('no-store');
+        $response->headers->addCacheControlDirective('must-revalidate');
+        $response->setExpires(new \DateTime('@0'));
     }
 }

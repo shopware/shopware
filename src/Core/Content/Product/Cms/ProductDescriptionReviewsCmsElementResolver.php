@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruc
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -45,7 +46,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
         }
 
         $request = $resolverContext->getRequest();
-        $ratingSuccess = (bool) $request->get('success', false);
+        $ratingSuccess = (bool) RequestParamHelper::get($request, 'success', false);
         $data->setRatingSuccess($ratingSuccess);
 
         $product = null;

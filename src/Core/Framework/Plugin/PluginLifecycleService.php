@@ -61,6 +61,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 class PluginLifecycleService
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+    final public const PLUGIN_LIFECYCLE_METHOD_ACTIVATE = 'activate';
 
     /**
      * @var array{plugin: PluginEntity, context: Context}|null
@@ -163,8 +164,14 @@ class PluginLifecycleService
 
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
-            if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
-                $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+            try {
+                if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
+                    $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+                }
+            } finally {
+                if ($plugin->getInstalledAt()) {
+                    $this->uninstallPlugin($plugin, $shopwareContext, true);
+                }
             }
 
             throw $e;
@@ -352,7 +359,7 @@ class PluginLifecycleService
             return $activateContext;
         }
 
-        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'activate');
+        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, self::PLUGIN_LIFECYCLE_METHOD_ACTIVATE);
 
         $this->eventDispatcher->dispatch(new PluginPreActivateEvent($plugin, $activateContext));
 
@@ -418,7 +425,7 @@ class PluginLifecycleService
             $dependantPlugins
         );
 
-        if (\count($dependants) > 0) {
+        if ($dependants !== []) {
             throw PluginException::hasActiveDependants($plugin->getName(), $dependants);
         }
 

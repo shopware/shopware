@@ -87,7 +87,7 @@
                 v-else-if="entitySearchable"
                 ref="propertyList"
                 class="sw-property-list-grid"
-                :items="propertyGroup"
+                :data-source="propertyGroup"
                 :columns="getPropertyColumns()"
                 :repository="propertyRepository"
                 :show-selection="false"

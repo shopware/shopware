@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type\Api;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
@@ -88,9 +89,13 @@ class JsonApiType extends JsonFactoryBase
             'total' => $searchResult->getTotal(),
         ];
 
+        if ($searchResult->getStates() !== []) {
+            $rootNode['meta']['states'] = $searchResult->getStates();
+        }
+
         $fields = new ResponseFields(
-            $request->get('includes', []),
-            $request->get('excludes', []),
+            RequestParamHelper::get($request, 'includes', []),
+            RequestParamHelper::get($request, 'excludes', []),
         );
 
         $aggregations = [];

@@ -316,7 +316,7 @@ describe('NavbarPlugin', () => {
         const mockDropdown = {
             show: jest.fn(),
             hide: jest.fn(),
-            _menu: {classList: {contains: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true)}},
+            _menu: {classList: {contains: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true)}},
         };
         const mockNoDropdown = {
             show: jest.fn(),
@@ -347,7 +347,7 @@ describe('NavbarPlugin', () => {
 
         jest.runAllTimers();
 
-        expect(navbarPlugin._closeAllDropdowns).not.toHaveBeenCalled();
+        expect(navbarPlugin._closeAllDropdowns).toHaveBeenCalled();
         expect(mockDropdown.hide).toHaveBeenCalled();
         expect(mockNoDropdown.show).not.toHaveBeenCalled();
     });

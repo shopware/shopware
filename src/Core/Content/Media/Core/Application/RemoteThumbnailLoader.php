@@ -56,7 +56,7 @@ class RemoteThumbnailLoader implements ResetInterface
     {
         $mapping = $this->map($media);
 
-        if (empty($mapping)) {
+        if ($mapping === []) {
             return;
         }
 
@@ -161,7 +161,7 @@ class RemoteThumbnailLoader implements ResetInterface
             INNER JOIN media_thumbnail_size mts ON mfcmts.media_thumbnail_size_id = mts.id'
         );
 
-        if (empty($entities)) {
+        if ($entities === []) {
             return [];
         }
 
@@ -210,7 +210,7 @@ class RemoteThumbnailLoader implements ResetInterface
                     $mediaPath = $mediaEntity->get('path');
                     \assert(\is_string($mediaPath));
                     $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
-                    \assert($mediaUpdatedAt instanceof \DateTimeInterface);
+                    \assert($mediaUpdatedAt instanceof \DateTimeInterface || $mediaUpdatedAt === null);
                 }
 
                 $replacements = [

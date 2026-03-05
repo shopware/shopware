@@ -225,7 +225,7 @@ class DocsException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CANNOT_PARSE_PAYLOAD_OF_EVENT,
-            'Can not parsing payload of {{ eventType }}.',
+            'Can not parsing payload for {{ eventType }}.',
             [
                 'eventType' => $eventType,
             ],

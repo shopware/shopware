@@ -4,16 +4,10 @@ namespace Shopware\Tests\Integration\Core\Content\Category\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -60,7 +54,12 @@ class CategoryIndexerVersioningTest extends TestCase
         // Descendant of the written category in the current draft context - should be indexed
         $childCategory4Id = $this->createCategory($draftContext, $childCategoryId);
 
-        $event = $this->createWrittenEvent($rootCategoryId, $childCategoryId, $draftContext);
+        $event = $this->categoryRepository->update([
+            [
+                'id' => $childCategoryId,
+                'name' => 'Changed ' . Uuid::randomHex(),
+            ],
+        ], $draftContext);
 
         $message = $this->categoryIndexer->update($event);
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
@@ -97,37 +96,5 @@ class CategoryIndexerVersioningTest extends TestCase
         $this->categoryRepository->create([$payload], $context);
 
         return $id;
-    }
-
-    private function createWrittenEvent(string $rootCategoryId, string $childCategoryId, Context $draftContext): EntityWrittenContainerEvent
-    {
-        $existence = new EntityExistence(
-            CategoryDefinition::ENTITY_NAME,
-            ['id' => $childCategoryId],
-            true,
-            false,
-            false,
-            ['parent_id' => Uuid::fromHexToBytes($rootCategoryId)],
-        );
-
-        $writeResult = new EntityWriteResult(
-            $childCategoryId,
-            ['id' => $childCategoryId, 'name' => 'changed'],
-            CategoryDefinition::ENTITY_NAME,
-            EntityWriteResult::OPERATION_UPDATE,
-            $existence
-        );
-
-        return new EntityWrittenContainerEvent(
-            $draftContext,
-            new NestedEventCollection([
-                new EntityWrittenEvent(
-                    CategoryDefinition::ENTITY_NAME,
-                    [$writeResult],
-                    $draftContext
-                ),
-            ]),
-            []
-        );
     }
 }

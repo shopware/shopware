@@ -799,7 +799,7 @@ export default {
             return this.productRepository
                 .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
                 .then(async (product) => {
-                    if (!product.purchasePrices || (!product.purchasePrices?.length > 0 && !product.parentId)) {
+                    if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
                         if (!this.defaultCurrency?.id) {
                             await this.loadCurrencies();
                         }
@@ -824,6 +824,7 @@ export default {
 
                     if (this.product.parentId) {
                         await this.loadParentProduct();
+                        this.syncVariantPriceInheritance();
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
@@ -833,6 +834,36 @@ export default {
                         false,
                     ]);
                 });
+        },
+
+        syncVariantPriceInheritance() {
+            const productPrice = this.product.price;
+            const productPurchasePrices = this.product.purchasePrices;
+
+            const priceInherited = !productPrice || !Array.isArray(productPrice) || productPrice.length === 0;
+            const purchasePricesInherited =
+                !productPurchasePrices || !Array.isArray(productPurchasePrices) || productPurchasePrices.length === 0;
+
+            if (priceInherited && !purchasePricesInherited) {
+                this.product.purchasePrices = null;
+                return;
+            }
+
+            if (!priceInherited && purchasePricesInherited) {
+                const defaultCurrencyId = this.defaultCurrency?.id;
+                const parentPurchasePrice = this.parentProduct.purchasePrices?.find(
+                    (p) => p.currencyId === defaultCurrencyId,
+                );
+
+                this.product.purchasePrices = [
+                    {
+                        currencyId: defaultCurrencyId,
+                        gross: parentPurchasePrice?.gross ?? 0,
+                        net: parentPurchasePrice?.net ?? 0,
+                        linked: parentPurchasePrice?.linked ?? true,
+                    },
+                ];
+            }
         },
 
         getDefaultPurchasePrices() {
@@ -855,6 +886,14 @@ export default {
             return this.productRepository
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then(async (parent) => {
+                    if (!parent.purchasePrices || parent.purchasePrices.length === 0) {
+                        if (!this.defaultCurrency?.id) {
+                            await this.loadCurrencies();
+                        }
+
+                        parent.purchasePrices = this.getDefaultPurchasePrices();
+                    }
+
                     if (parent.propertyIds?.length > 0) {
                         const propertyCriteria = new Criteria(1, null);
                         propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));

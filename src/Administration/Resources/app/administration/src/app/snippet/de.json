@@ -1722,6 +1722,10 @@
   "sw-context-button": {
     "ariaLabel": "Kontextmenü öffnen"
   },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Gleichmäßige Skalierung sperren",
+    "unlock-uniform-scale": "Gleichmäßige Skalierung entsperren"
+  },
   "sw-model-editor": {
       "titleModal": "Model Editor",
       "open-model-editor-tooltip": "Model Editor öffnen",

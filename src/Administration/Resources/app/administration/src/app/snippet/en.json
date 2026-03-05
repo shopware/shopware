@@ -1722,6 +1722,10 @@
   "sw-context-button": {
     "ariaLabel": "Open context menu"
   },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Lock uniform scale",
+    "unlock-uniform-scale": "Unlock uniform scale"
+  },
   "sw-model-editor": {
     "titleModal": "Model Editor",
     "open-model-editor-tooltip": "Open Model Editor",

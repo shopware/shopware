@@ -33,7 +33,7 @@
     };
 
     window.addEventListener('error', onError);
-    window.addEventListener('unhandledrejection', onError);
+    window.addEventListener('unhandledrejection', onUnhandledRejection);
 
     window.removePageLoadingIndicator = () => {
         // `DELAY` matches animation-delay that is used in `administration/index.html`

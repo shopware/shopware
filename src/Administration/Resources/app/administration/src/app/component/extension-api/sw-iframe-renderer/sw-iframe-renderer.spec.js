@@ -374,6 +374,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
     it('should trigger full page reload when iframe is reloaded after initial load', async () => {
         const reloadMock = jest.fn();
+        const originalReload = window.location.reload;
         window.location.reload = reloadMock;
 
         Shopware.Store.get('extensions').addExtension({
@@ -389,11 +390,17 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         await flushPromises();
 
         // First load (initial): should not reload the page
-        wrapper.vm.onIframeLoad();
+        const iframe = wrapper.find('iframe');
+        expect(iframe.exists()).toBe(true);
+
+        await iframe.trigger('load');
         expect(reloadMock).not.toHaveBeenCalled();
 
         // Second load (iframe reload): should trigger full page reload
-        wrapper.vm.onIframeLoad();
+        await iframe.trigger('load');
         expect(reloadMock).toHaveBeenCalledTimes(1);
+
+        // clean up
+        window.location.reload = originalReload;
     });
 });

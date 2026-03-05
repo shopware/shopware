@@ -1,0 +1,12 @@
+Wir haben Ihren Widerrufsantrag für den Vertrag mit der Nummer {{ revocationRequestFormData.contractNumber }} erhalten.
+
+Weitere Informationen:
+Vorname: {{ revocationRequestFormData.firstName }}
+Nachname: {{ revocationRequestFormData.lastName }}
+E-Mail-Adresse: {{ revocationRequestFormData.email }}
+Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ revocationRequestFormData.contractNumber }}
+{% if revocationRequestFormData.comment %}
+Kommentar: {{ revocationRequestFormData.comment }}
+{% endif %}
+
+Das Formular wurde am {{ revocationRequestFormData.submitTime|format_datetime('medium', 'short', locale='de-DE') }} eingereicht.

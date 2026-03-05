@@ -12,8 +12,10 @@ elasticsearch:
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
+        indexing_batch_size: "%env(int:SHOPWARE_ADMIN_ES_INDEXING_BATCH_SIZE)%"
         refresh_indices: "%env(bool:SHOPWARE_ADMIN_ES_REFRESH_INDICES)%"
         index_prefix: "%env(string:SHOPWARE_ADMIN_ES_INDEX_PREFIX)%"
+        throw_exception: "%env(string:SHOPWARE_ADMIN_ES_THROW_EXCEPTION)%"
         search:
             timeout: 5s
             term_max_length: 300
@@ -31,6 +33,10 @@ elasticsearch:
                     type: custom
                     filter: [ 'lowercase' ]
             analyzer:
+                sw_whitespace_analyzer:
+                    type: custom
+                    tokenizer: whitespace
+                    filter: [ 'lowercase' ]
                 sw_ngram_analyzer:
                     type: custom
                     tokenizer: whitespace
@@ -122,7 +128,9 @@ parameters:
     env(ADMIN_OPENSEARCH_URL): ""
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
+    env(SHOPWARE_ADMIN_ES_THROW_EXCEPTION): "1"
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): "100"
+    env(SHOPWARE_ADMIN_ES_INDEXING_BATCH_SIZE): "1000"
     env(SHOPWARE_ES_EXCLUDE_SOURCE): "0"
     env(SHOPWARE_ES_NGRAM_MIN_GRAM): "4"
     env(SHOPWARE_ES_NGRAM_MAX_GRAM): "5"

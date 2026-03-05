@@ -39,7 +39,8 @@ $sw-sales-channel-detail-color-text-access-key: $color-darkgray-200;
     }
 
     .sw-sales-channel-detail-base__headline-text {
-        font-weight: bold;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-s;
     }
 
     .sw-sales-channel-detail-base__description-text {

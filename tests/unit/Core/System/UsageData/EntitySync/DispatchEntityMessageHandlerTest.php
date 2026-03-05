@@ -29,7 +29,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\ConsentScope;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\EntityDispatcher;
@@ -100,8 +104,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(null);
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::REVOKED, null));
 
         $definition = new SyncEntityDefinition();
         new StaticDefinitionInstanceRegistry(
@@ -135,7 +139,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        static::expectExceptionMessage(\sprintf('The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -156,7 +160,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->never())
-            ->method('getLastConsentIsAcceptedDate');
+            ->method('getConsentState');
 
         $definition = new SyncEntityDefinition();
         new StaticDefinitionInstanceRegistry(
@@ -248,8 +252,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ->willReturn(\count($primaryKeys));
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+        $consentService->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -354,8 +358,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
             );
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+        $consentService->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -431,8 +435,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -486,8 +490,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')->willReturn('current-shop-id');
@@ -582,8 +586,11 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn($createdAndUpdatedAt);
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(
+                ConsentStatus::ACCEPTED,
+                $createdAndUpdatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -695,8 +702,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ->method('dispatch');
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+        $consentService->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -740,6 +747,22 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ],
             'current-shop-id',
         ));
+    }
+
+    private function createConsentState(ConsentStatus $status, ?string $updatedAt): ConsentState
+    {
+        if ($status === ConsentStatus::ACCEPTED && $updatedAt === null) {
+            $updatedAt = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        }
+
+        return new ConsentState(
+            BackendData::NAME,
+            ConsentScope\System::NAME,
+            ConsentScope\System::NAME,
+            $status,
+            'actor',
+            $updatedAt,
+        );
     }
 
     private function createConnectionMock(): Connection&MockObject

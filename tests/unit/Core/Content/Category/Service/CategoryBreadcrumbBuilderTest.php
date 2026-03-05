@@ -109,7 +109,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setName('category-name-1');
 
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
-            $this->getCategoryRepositoryMock([], [$categoryEntity]),
+            $this->getCategoryRepositoryMock([$categoryEntity], []),
             $this->getProductRepositoryMock([], []),
             $this->getConnectionMock()
         );
@@ -129,7 +129,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setName('category-name-1');
 
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
-            $this->getCategoryRepositoryMock([], [$categoryEntity]),
+            $this->getCategoryRepositoryMock([$categoryEntity], []),
             $this->getProductRepositoryMock([], []),
             $this->getConnectionMock()
         );
@@ -155,17 +155,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
         $product = $this->getProductEntity([], $categoryIds);
 
-        $searchCalls = 0;
-
-        $categoryRepositoryMock->expects($this->exactly(2))
+        $categoryRepositoryMock->expects($this->once())
             ->method('search')
-            ->willReturnCallback(function (Criteria $criteria) use (&$searchCalls): void {
-                ++$searchCalls;
-
-                if ($searchCalls !== 2) {
-                    return;
-                }
-
+            ->willReturnCallback(function (Criteria $criteria): void {
                 $levelSorting = array_values(array_filter(
                     $criteria->getSorting(),
                     static fn (FieldSorting $sorting) => $sorting->getField() === 'level'

@@ -1,3 +1,6 @@
+/**
+ * @sw-package after-sales
+ */
 import './acl';
 
 const { Module, Component } = Shopware;
@@ -7,9 +10,6 @@ Component.register('sw-settings-document-list', () => import('./page/sw-settings
 Component.register('sw-settings-document-detail', () => import('./page/sw-settings-document-detail'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-/**
- * @sw-package after-sales
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-document', {
     type: 'core',

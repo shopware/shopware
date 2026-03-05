@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -27,13 +28,22 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $mediaConfig = $slot->getFieldConfig()->get('media');
+        $criteriaCollection = parent::collect($slot, $resolverContext) ?? new CriteriaCollection();
+
+        if ($mediaConfig !== null && $mediaConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
+            $media = $this->resolveEntityValue($resolverContext->getEntity(), $mediaConfig->getStringValue());
+            if (!$media instanceof MediaEntity) {
+                $criteria = new Criteria([$resolverContext->getEntity()->getUniqueIdentifier()]);
+                $criteria->addAssociation('manufacturer.media');
+                $criteriaCollection->add('mapped_product_' . $slot->getUniqueIdentifier(), SalesChannelProductDefinition::class, $criteria);
+            }
+        }
+
         if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
-            return parent::collect($slot, $resolverContext);
+            return $criteriaCollection->all() !== [] ? $criteriaCollection : null;
         }
 
         $criteria = new Criteria([$mediaConfig->getStringValue()]);
-
-        $criteriaCollection = parent::collect($slot, $resolverContext) ?? new CriteriaCollection();
         $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
 
         return $criteriaCollection;
@@ -65,7 +75,12 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             }
         }
 
-        if ($resolverContext instanceof EntityResolverContext && $resolverContext->getDefinition() instanceof SalesChannelProductDefinition) {
+        $mappedProduct = $this->getMappedProduct($slot, $result);
+        if ($mappedProduct !== null) {
+            $manufacturerStruct->setManufacturer($mappedProduct->getManufacturer());
+        }
+
+        if ($manufacturerStruct->getManufacturer() === null && $resolverContext instanceof EntityResolverContext && $resolverContext->getDefinition() instanceof SalesChannelProductDefinition) {
             /** @var SalesChannelProductEntity $product */
             $product = $resolverContext->getEntity();
             $manufacturerStruct->setManufacturer($product->getManufacturer());
@@ -103,6 +118,26 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             return null;
         }
 
+        $mappedProduct = $this->getMappedProduct($slot, $result);
+        if ($mappedProduct !== null) {
+            $media = $this->resolveEntityValue($mappedProduct, $config->getStringValue());
+            if ($media instanceof MediaEntity) {
+                return $media;
+            }
+        }
+
         return $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
+    }
+
+    private function getMappedProduct(CmsSlotEntity $slot, ElementDataCollection $result): ?SalesChannelProductEntity
+    {
+        $mappedProduct = $result->get('mapped_product_' . $slot->getUniqueIdentifier());
+        if (!$mappedProduct instanceof EntitySearchResult) {
+            return null;
+        }
+
+        $product = $mappedProduct->first();
+
+        return $product instanceof SalesChannelProductEntity ? $product : null;
     }
 }

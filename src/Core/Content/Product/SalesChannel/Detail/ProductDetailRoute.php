@@ -105,15 +105,6 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $criteria->setTitle('product-detail-route');
 
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
-            if ($loadCmsPage) {
-                $criteria->addAssociation('media.media');
-                $criteria->addAssociation('manufacturer.media');
-
-                $criteria->getAssociation('media')->addSorting(
-                    new FieldSorting('position')
-                );
-            }
-
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             if (!($product instanceof SalesChannelProductEntity)) {
                 throw ProductException::productNotFound($productId);

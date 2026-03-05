@@ -110,4 +110,33 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         static::assertSame('manufacturer_01', $manufacturerLogoStruct->getManufacturer()->getId());
         static::assertSame('media_01', $manufacturerLogoStruct->getMediaId());
     }
+
+    public function testCollectWithMappedMediaInEntityContext(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setId('product_01');
+
+        $resolverContext = new EntityResolverContext(
+            $this->createMock(SalesChannelContext::class),
+            new Request(),
+            static::getContainer()->get(SalesChannelProductDefinition::class),
+            $product
+        );
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.manufacturer.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('manufacturer-logo');
+        $slot->setFieldConfig($fieldConfig);
+
+        $collection = $this->manufacturerLogoCmsElementResolver->collect($slot, $resolverContext);
+        static::assertNotNull($collection);
+        static::assertArrayHasKey(SalesChannelProductDefinition::class, $collection->all());
+
+        $criteria = $collection->all()[SalesChannelProductDefinition::class]['mapped_product_id'];
+        static::assertSame(['product_01'], $criteria->getIds());
+        static::assertArrayHasKey('manufacturer', $criteria->getAssociations());
+    }
 }

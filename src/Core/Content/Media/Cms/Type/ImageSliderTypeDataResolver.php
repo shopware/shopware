@@ -14,8 +14,12 @@ use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -36,7 +40,29 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $sliderItemsConfig = $slot->getFieldConfig()->get('sliderItems');
-        if ($sliderItemsConfig === null || $sliderItemsConfig->isMapped() || $sliderItemsConfig->isDefault()) {
+        if ($sliderItemsConfig === null || $sliderItemsConfig->isDefault()) {
+            return null;
+        }
+
+        $criteriaCollection = new CriteriaCollection();
+
+        if ($sliderItemsConfig->isMapped() && $resolverContext instanceof EntityResolverContext && $sliderItemsConfig->getStringValue() === 'product.media') {
+            $resolved = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getStringValue());
+            if ($resolved instanceof ProductMediaCollection && $this->isProductMediaFullyResolved($resolved)) {
+                return null;
+            }
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('productId', $resolverContext->getEntity()->getUniqueIdentifier()));
+            $criteria->addAssociation('media');
+            $criteria->addSorting(new FieldSorting('position'));
+
+            $criteriaCollection->add('product_media_' . $slot->getUniqueIdentifier(), ProductMediaDefinition::class, $criteria);
+
+            return $criteriaCollection;
+        }
+
+        if ($sliderItemsConfig->isMapped()) {
             return null;
         }
 
@@ -44,8 +70,6 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         $mediaIds = array_column($sliderItems, 'mediaId');
 
         $criteria = new Criteria($mediaIds);
-
-        $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
 
         return $criteriaCollection;
@@ -82,7 +106,18 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         }
 
         if ($sliderItemsConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            $sliderItems = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getStringValue());
+            $sliderItems = null;
+
+            if ($sliderItemsConfig->getStringValue() === 'product.media') {
+                $searchResult = $result->get('product_media_' . $slot->getUniqueIdentifier());
+                if ($searchResult instanceof EntitySearchResult) {
+                    $sliderItems = $searchResult->getEntities();
+                }
+            }
+
+            if (!$sliderItems instanceof ProductMediaCollection) {
+                $sliderItems = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getStringValue());
+            }
 
             if (!$sliderItems instanceof ProductMediaCollection || $sliderItems->count() < 1) {
                 return;
@@ -151,5 +186,16 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         $imageSliderItem = new ImageSliderItemStruct();
         $imageSliderItem->setMedia($media);
         $imageSlider->addSliderItem($imageSliderItem);
+    }
+
+    private function isProductMediaFullyResolved(ProductMediaCollection $productMedia): bool
+    {
+        foreach ($productMedia as $productMediaEntity) {
+            if ($productMediaEntity->getMedia() === null) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

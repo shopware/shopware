@@ -51,7 +51,14 @@ function setConsentEligibilityContext({
 
 describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal-data-provider', () => {
     beforeEach(() => {
-        useConsentStore().consents = {};
+        useConsentStore().consents = {
+            backend_data: {
+                status: 'unset',
+            },
+            product_analytics: {
+                status: 'unset',
+            },
+        };
         localStorage.removeItem(WRONG_APP_URL_MODAL_STORAGE_KEY);
         document.body.innerHTML = '';
         setConsentEligibilityContext();
@@ -59,37 +66,21 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
     describe('consent passing', () => {
         it('doesnt show modal if consent is not loaded', async () => {
+            const consentStore = useConsentStore();
+            consentStore.consents = {};
+
             const wrapper = await createWrapper();
 
             expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(false);
         });
 
         it('shows modal when consents are loaded', async () => {
-            const consentStore = useConsentStore();
-            consentStore.consents = {
-                backend_data: {
-                    status: 'accepted',
-                },
-                product_analytics: {
-                    status: 'revoked',
-                },
-            };
-
             const wrapper = await createWrapper();
 
             expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(true);
         });
 
         it('doesnt show modal when admin user is too new', async () => {
-            const consentStore = useConsentStore();
-            consentStore.consents = {
-                backend_data: {
-                    status: 'accepted',
-                },
-                product_analytics: {
-                    status: 'revoked',
-                },
-            };
             setConsentEligibilityContext({
                 adminUserCreatedAt: getDateStringDaysAgo(5),
             });
@@ -100,15 +91,6 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         });
 
         it('doesnt show modal when shop is too new', async () => {
-            const consentStore = useConsentStore();
-            consentStore.consents = {
-                backend_data: {
-                    status: 'accepted',
-                },
-                product_analytics: {
-                    status: 'revoked',
-                },
-            };
             setConsentEligibilityContext({
                 firstMigrationDate: getDateStringDaysAgo(10),
             });
@@ -119,15 +101,6 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         });
 
         it('doesnt show modal during first run wizard', async () => {
-            const consentStore = useConsentStore();
-            consentStore.consents = {
-                backend_data: {
-                    status: 'accepted',
-                },
-                product_analytics: {
-                    status: 'revoked',
-                },
-            };
             setConsentEligibilityContext({
                 firstRunWizard: true,
             });
@@ -138,15 +111,6 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         });
 
         it('doesnt show modal when wrong APP_URL modal is displayed', async () => {
-            const consentStore = useConsentStore();
-            consentStore.consents = {
-                backend_data: {
-                    status: 'accepted',
-                },
-                product_analytics: {
-                    status: 'revoked',
-                },
-            };
             setConsentEligibilityContext({
                 appUrlReachable: false,
                 appsRequireAppUrl: true,
@@ -158,19 +122,25 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         });
 
         it('doesnt show modal when shop id change modal is displayed', async () => {
+            const shopIdChangeModal = document.createElement('div');
+            shopIdChangeModal.classList.add(SHOP_ID_CHANGE_MODAL_CLASS);
+            document.body.appendChild(shopIdChangeModal);
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(false);
+        });
+
+        it('does not show modal if product analytics consent was already given', async () => {
             const consentStore = useConsentStore();
             consentStore.consents = {
                 backend_data: {
                     status: 'accepted',
                 },
                 product_analytics: {
-                    status: 'revoked',
+                    status: 'accepted',
                 },
             };
-
-            const shopIdChangeModal = document.createElement('div');
-            shopIdChangeModal.classList.add(SHOP_ID_CHANGE_MODAL_CLASS);
-            document.body.appendChild(shopIdChangeModal);
 
             const wrapper = await createWrapper();
 
@@ -181,40 +151,30 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             [
                 'unset',
                 false,
-                'unset',
-                false,
             ],
             [
                 'revoked',
                 false,
-                'accepted',
-                true,
             ],
             [
                 'accepted',
                 true,
-                'revoked',
-                false,
             ],
-        ])(
-            'passes down the correct consent',
-            async (initialBackenDataConsent, backendDataConsent, initialUserDataConsent, userDataConsent) => {
-                const consentStore = useConsentStore();
-                consentStore.consents = {
-                    backend_data: {
-                        status: initialBackenDataConsent,
-                    },
-                    product_analytics: {
-                        status: initialUserDataConsent,
-                    },
-                };
+        ])('passes down the correct backend data consent', async (initialBackendDataConsent, backendDataConsent) => {
+            const consentStore = useConsentStore();
+            consentStore.consents = {
+                backend_data: {
+                    status: initialBackendDataConsent,
+                },
+                product_analytics: {
+                    status: 'unset',
+                },
+            };
 
-                const wrapper = await createWrapper();
-                const modal = wrapper.getComponent(SwSettingsUsageDataConsentModal);
+            const wrapper = await createWrapper();
+            const modal = wrapper.getComponent(SwSettingsUsageDataConsentModal);
 
-                expect(modal.props('storedStoreDataConsent')).toBe(backendDataConsent);
-                expect(modal.props('storedUserDataConsent')).toBe(userDataConsent);
-            },
-        );
+            expect(modal.props('storedStoreDataConsent')).toBe(backendDataConsent);
+        });
     });
 });

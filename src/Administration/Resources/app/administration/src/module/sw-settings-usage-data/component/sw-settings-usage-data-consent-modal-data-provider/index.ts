@@ -124,6 +124,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
+            const consentStore = useConsentStore();
+            if (consentStore.consents.product_analytics.status !== 'unset') {
+                return false;
+            }
+
             if (isFirstRunWizardActive() || isWrongAppUrlModalVisible() || isShopIdChangeModalVisible()) {
                 return false;
             }

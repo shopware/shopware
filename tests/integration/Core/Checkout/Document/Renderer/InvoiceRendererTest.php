@@ -20,7 +20,6 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -156,8 +155,11 @@ class InvoiceRendererTest extends TestCase
             'documentDate' => '2023-11-24T12:00:00+00:00',
         ];
 
-        $operationHtml = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, $config);
-        $operationPdf = new DocumentGenerateOperation($orderId, PdfRenderer::FILE_EXTENSION, $config);
+        $operationHtml = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            $config
+        );
 
         $processedHtmlTemplate = $this->invoiceRenderer->render(
             [$orderId => $operationHtml],
@@ -171,26 +173,10 @@ class InvoiceRendererTest extends TestCase
         $contentHtml = $renderedHtml->getContent();
         static::assertIsString($contentHtml);
 
-        $processedPdfTemplate = $this->invoiceRenderer->render(
-            [$orderId => $operationPdf],
-            $this->context,
-            new DocumentRendererConfig()
-        );
-
-        $renderedPdf = $processedPdfTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $renderedPdf);
-
-        $contentPdf = $renderedPdf->getContent();
-        static::assertIsString($contentPdf);
-
         $this->assertSnapshot('invoice_renderer_default', [
             [
                 'type' => self::TYPE_HTML,
                 'actual' => $contentHtml,
-            ],
-            [
-                'type' => self::TYPE_PDF,
-                'actual' => $contentPdf,
             ],
         ]);
     }

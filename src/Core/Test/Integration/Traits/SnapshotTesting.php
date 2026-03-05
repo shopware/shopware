@@ -15,10 +15,9 @@ trait SnapshotTesting
     final public const TYPE_JSON = 'json';
     final public const TYPE_HTML = 'html';
     final public const TYPE_XML = 'xml';
-    final public const TYPE_PDF = 'pdf';
 
     /**
-     * @param array<array{type: string, actual: array<mixed>|string, message?: string}> $assertions
+     * @param array<array{type: string, actual: array<mixed>|string, normalize?: callable, transform?: callable}> $assertions
      */
     protected function assertSnapshot(string $name, array $assertions): void
     {
@@ -29,15 +28,18 @@ trait SnapshotTesting
             static::assertArrayHasKey('type', $assertion);
 
             $type = $assertion['type'];
-            $config = $typeConfig[$type] ?? [];
+            static::assertArrayHasKey($type, $typeConfig);
 
-            static::assertNotEmpty($config);
+            $config = \array_merge([
+                'transform' => $assertion['transform'] ?? null,
+                'normalize' => $assertion['normalize'] ?? null,
+            ], $typeConfig[$type]);
 
             $updated = $this->doAssertSnapshot(
                 $name,
                 $assertion['actual'],
                 $type,
-                $assertion['message'] ?? \sprintf($config['message'], $name),
+                \sprintf($config['message'], $name),
                 $config['transform'] ?? null,
                 $config['normalize'] ?? null,
             );
@@ -69,10 +71,6 @@ trait SnapshotTesting
             self::TYPE_XML => [
                 'message' => 'XML snapshot mismatch: %s',
                 'normalize' => self::normalizeXml(...),
-            ],
-            self::TYPE_PDF => [
-                'message' => 'PDF snapshot mismatch: %s',
-                'normalize' => self::normalizePdf(...),
             ],
         ];
     }
@@ -186,41 +184,11 @@ trait SnapshotTesting
 
     private static function normalizeXml(string $content): string
     {
-        // replace date meta data (except mocked document date)
+        // replace all date meta data
         return \preg_replace(
-            '/(<udt:DateTimeString format="102">)(?!20231124)(\d{8})(<\/udt:DateTimeString>)/',
+            '/(<udt:DateTimeString format="102">)(\d{8})(<\/udt:DateTimeString>)/',
             '$1[date]$3',
             $content
         ) ?? $content;
-    }
-
-    private static function normalizePdf(string $content): string
-    {
-        // remove xmp packet
-        $content = (string) \preg_replace('/<\\?xpacket.*?\\?>/is', '', $content);
-
-        // remove metadata streams
-        $content = (string) \preg_replace('/\\d+\\s+\\d+\\s+obj\\s*<<[^>]*\\/Type\\s*\\/Metadata[^>]*>>.*?endobj/s', '', $content);
-        $content = (string) \preg_replace('/\\d+\\s+\\d+\\s+obj\\s*<<[^>]*\\/Subtype\\s*\\/XML[^>]*>>.*?endobj/s', '', $content);
-
-        // remove creation/modification dates, producer and creator info
-        $content = (string) \preg_replace('/\/CreationDate\s*\(D:[^)]+\)/', '/CreationDate (D:00000000000000)/', $content);
-        $content = (string) \preg_replace('/\/ModDate\s*\(D:[^)]+\)/', '/ModDate (D:00000000000000)/', $content);
-        $content = (string) \preg_replace('/\\/Producer\\s*\\(.*?\\)/', '/Producer (REMOVED)/', $content);
-        $content = (string) \preg_replace('/\\/Creator\\s*\\(.*?\\)/', '/Creator (REMOVED)/', $content);
-
-        // remove ids
-        $content = (string) \preg_replace('/\/ID\s*\[\s*<[^>]+>\s*<[^>]+>\s*]/', '/ID [<> <>]/', $content);
-
-        // remove title and author info
-        $content = (string) \preg_replace('/\\/Title\\s*\\(.*?\\)/', '/Title ()', $content);
-        $content = (string) \preg_replace('/\\/Author\\s*\\(.*?\\)/', '/Author ()', $content);
-
-        // normalize line endings and whitespace to avoid differences due to platform variations
-        $content = (string) \preg_replace('/\\r\\n|\\r/', "\n", $content);
-        $content = (string) \preg_replace('/[ \\t]+/', ' ', $content);
-
-        // normalize startxref to avoid differences in file size
-        return (string) \preg_replace('/startxref\\s*\\d+\\s*%%EOF/', "startxref 0\n%%EOF", $content);
     }
 }

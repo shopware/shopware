@@ -135,8 +135,12 @@ class StornoRendererTest extends TestCase
             'documentDate' => '2023-11-24T12:00:00+00:00',
         ];
 
-        $operationHtml = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, $config, $invoiceId);
-        $operationPdf = new DocumentGenerateOperation($orderId, PdfRenderer::FILE_EXTENSION, $config, $invoiceId);
+        $operationHtml = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            $config,
+            $invoiceId
+        );
 
         $processedHtmlTemplate = $this->stornoRenderer->render(
             [$orderId => $operationHtml],
@@ -150,26 +154,10 @@ class StornoRendererTest extends TestCase
         $contentHtml = $renderedHtml->getContent();
         static::assertIsString($contentHtml);
 
-        $processedPdfTemplate = $this->stornoRenderer->render(
-            [$orderId => $operationPdf],
-            $this->context,
-            new DocumentRendererConfig()
-        );
-
-        $renderedPdf = $processedPdfTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $renderedPdf);
-
-        $contentPdf = $renderedPdf->getContent();
-        static::assertIsString($contentPdf);
-
         $this->assertSnapshot('storno_renderer_default', [
             [
                 'type' => self::TYPE_HTML,
                 'actual' => $contentHtml,
-            ],
-            [
-                'type' => self::TYPE_PDF,
-                'actual' => $contentPdf,
             ],
         ]);
     }

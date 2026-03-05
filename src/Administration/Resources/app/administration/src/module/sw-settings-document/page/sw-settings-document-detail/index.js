@@ -379,15 +379,15 @@ export default {
     data() {
         return {
             /**
-             * @deprecated tag:v6.9.0 - Will be removed without replacement
+             * @deprecated tag:v6.8.0 - Will be removed without replacement
              */
             selectedType: {},
             /**
-             * @deprecated tag:v6.9.0 - Will be removed without replacement
+             * @deprecated tag:v6.8.0 - Will be removed without replacement
              */
             isSaveSuccessful: false,
             /**
-             * @deprecated tag:v6.9.0 - Will be removed without replacement
+             * @deprecated tag:v6.8.0 - Will be removed without replacement
              */
             isShowCountriesSelect: false,
             isLoading: false,
@@ -417,15 +417,15 @@ export default {
 
     computed: {
         generalFormFields() {
-            return DOCUMENT_SETTINGS_GENERAL(this.$tc);
+            return DOCUMENT_SETTINGS_GENERAL(this.$t);
         },
 
         generalDisplayFields() {
-            return DOCUMENT_SETTINGS_GENERAL_DISPLAY(this.$tc);
+            return DOCUMENT_SETTINGS_GENERAL_DISPLAY(this.$t);
         },
 
         companyFormFields() {
-            return DOCUMENT_SETTINGS_COMPANY(this.$tc);
+            return DOCUMENT_SETTINGS_COMPANY(this.$t);
         },
 
         documentBaseConfigRepository() {
@@ -462,7 +462,7 @@ export default {
             }
 
             return {
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('order.editor'),
                 showOnDisabledElements: true,
             };
@@ -488,21 +488,21 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.9.0 - Will be removed without replacement
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         countryRepository() {
             return this.repositoryFactory.create('country');
         },
 
         /**
-         * @deprecated tag:v6.9.0 - Will be removed without replacement
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         documentTypeRepository() {
             return this.repositoryFactory.create('document_type');
         },
 
         /**
-         * @deprecated tag:v6.9.0 - Will be removed without replacement
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         documentBaseConfigSalesChannelRepository() {
             return this.repositoryFactory.create('document_base_config_sales_channel');
@@ -679,7 +679,7 @@ export default {
                 await this.loadEntityData();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });
             } finally {
                 this.isLoading = false;
@@ -752,14 +752,14 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.9.0 - Will be removed without replacement
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         async loadAvailableSalesChannel() {
             this.salesChannels = await this.salesChannelRepository.search(new Criteria(1, 500));
         },
 
         /**
-         * @deprecated tag:v6.9.0 - Will be removed without replacement
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         showOption(item) {
             return item.id !== this.documentConfig.id;

@@ -7,7 +7,7 @@
         </h2>
 
         <h2 v-else>
-            {{ $tc('sw-settings-document.detail.textHeadline') }}
+            {{ $t('sw-settings-document.detail.textHeadline') }}
         </h2>
     </template>
     {% endblock %}
@@ -22,7 +22,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -36,7 +36,7 @@
             :is-loading="isLoading"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-document.detail.buttonSave') }}
+            {{ $t('sw-settings-document.detail.buttonSave') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -49,7 +49,7 @@
             <mt-card
                 class="sw-settings-document-detail__assignment_card"
                 position-identifier="sw-settings-document-detail-assignment"
-                :title="$tc('sw-settings-document.detail.assignmentCard')"
+                :title="$t('sw-settings-document.detail.assignmentCard')"
                 :is-loading="isLoading || typeIsLoading"
             >
                 <sw-container
@@ -62,7 +62,7 @@
                         v-model:value="documentConfig.documentTypeId"
                         v-tooltip="{
                             showDelay: 300,
-                            message: $tc('sw-settings-document.detail.disabledTypeSelect'),
+                            message: $t('sw-settings-document.detail.disabledTypeSelect'),
                             disabled: !documentConfig.global || !acl.can('document.editor')
                         }"
                         class="sw-settings-document-detail__select-type"
@@ -72,8 +72,8 @@
                         show-clearable-button
                         :error="documentConfigDocumentTypeIdError"
                         :criteria="documentCriteria"
-                        :label="$tc('sw-settings-document.detail.labelType')"
-                        :placeholder="$tc('sw-settings-document.detail.placeholderType')"
+                        :label="$t('sw-settings-document.detail.labelType')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderType')"
                         :disabled="documentConfig.global || !acl.can('document.editor') || undefined"
                         @update:value="(id, type) => onChangeType(type)"
                     />
@@ -86,7 +86,7 @@
                         v-model:value="documentConfigSalesChannels"
                         v-tooltip="{
                             showDelay: 300,
-                            message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),
+                            message: $t('sw-settings-document.detail.disabledSalesChannelSelect'),
                             disabled: !!documentConfig.documentType
                         }"
                         name="sw-field--documentConfigSalesChannels"
@@ -94,8 +94,8 @@
                         label-property="name"
                         value-property="salesChannelId"
                         :options="documentConfigSalesChannelOptionsCollection"
-                        :label="$tc('sw-settings-document.detail.labelSalesChannel')"
-                        :placeholder="$tc('sw-settings-document.detail.placeholderSalesChannel')"
+                        :label="$t('sw-settings-document.detail.labelSalesChannel')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderSalesChannel')"
                         :disabled="!documentConfig.documentType || !acl.can('document.editor')"
                         @update:value="(v) => documentConfigSalesChannels = v"
                     >
@@ -110,7 +110,7 @@
                             <sw-select-result
                                 v-tooltip="{
                                     showDelay: 300,
-                                    message: $tc('sw-settings-document.detail.disabledSalesChannel'),
+                                    message: $t('sw-settings-document.detail.disabledSalesChannel'),
                                     disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
                                 }"
                                 :selected="isSelected(item)"
@@ -140,7 +140,7 @@
             <mt-card
                 class="sw-settings-document-detail__settings_card"
                 position-identifier="sw-settings-document-detail-content"
-                :title="$tc('sw-settings-document.detail.configCard')"
+                :title="$t('sw-settings-document.detail.configCard')"
                 :is-loading="isLoading"
             >
                 <sw-container
@@ -153,8 +153,8 @@
                         <mt-text-field
                             v-model="documentConfig.name"
                             name="sw-field--documentConfig-name"
-                            :label="$tc('sw-settings-document.detail.labelName')"
-                            :placeholder="$tc('sw-settings-document.detail.placeholderName')"
+                            :label="$t('sw-settings-document.detail.labelName')"
+                            :placeholder="$t('sw-settings-document.detail.placeholderName')"
                             :disabled="!acl.can('document.editor') || undefined"
                             validation="required"
                             :error="documentConfigNameError"
@@ -169,8 +169,8 @@
                             v-model="documentConfig.filenamePrefix"
                             name="sw-field--documentConfig-filenamePrefix"
                             :disabled="!acl.can('document.editor') || undefined"
-                            :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
-                            :placeholder="$tc('sw-settings-document.detail.placeholderFileNamePrefix')"
+                            :label="$t('sw-settings-document.detail.labelFileNamePrefix')"
+                            :placeholder="$t('sw-settings-document.detail.placeholderFileNamePrefix')"
                         />
                     </div>
                     {% endblock %}
@@ -181,8 +181,8 @@
                             v-model="documentConfig.filenameSuffix"
                             name="sw-field--documentConfig-filenameSuffix"
                             :disabled="!acl.can('document.editor') || undefined"
-                            :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
-                            :placeholder="$tc('sw-settings-document.detail.placeholderFileNameSuffix')"
+                            :label="$t('sw-settings-document.detail.labelFileNameSuffix')"
+                            :placeholder="$t('sw-settings-document.detail.placeholderFileNameSuffix')"
                         />
                     </div>
                     {% endblock %}
@@ -226,7 +226,7 @@
 
                 <div class="sw-settings-document-detail__settings_card-display">
                     <h4 class="sw-settings-document-detail__settings_card-display-title">
-                        {{ $tc('sw-settings-document.detail.displayTitle') }}
+                        {{ $t('sw-settings-document.detail.displayTitle') }}
                     </h4>
 
                     <div class="sw-settings-document-detail__settings_card-display-container">
@@ -250,7 +250,7 @@
                             name="sw-field--documentConfig-config-displayDivergentDeliveryAddress"
                             class="sw-settings-document-detail__field_divergent_delivery_address"
                             :disabled="!acl.can('document.editor') || undefined"
-                            :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
+                            :label="$t('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
                         />
                         {% endblock %}
 
@@ -261,8 +261,8 @@
                             name="sw-field--documentConfig-config-displayAdditionalNoteDelivery"
                             class="sw-settings-document-detail__field_additional_note_delivery"
                             :disabled="!acl.can('document.editor') || undefined"
-                            :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
-                            :help-text="$tc('sw-settings-document.detail.helpTextDisplayAdditionalNoteDelivery')"
+                            :label="$t('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
+                            :help-text="$t('sw-settings-document.detail.helpTextDisplayAdditionalNoteDelivery')"
                         />
                         {% endblock %}
 
@@ -273,7 +273,7 @@
                             name="sw-field--documentConfig-config-displayCustomerVatId"
                             class="sw-settings-document-detail__field_customer_vat_id"
                             :disabled="!acl.can('document.editor') || undefined"
-                            :label="$tc('sw-settings-document.detail.labelDisplayCustomerVatId')"
+                            :label="$t('sw-settings-document.detail.labelDisplayCustomerVatId')"
                         />
                         {% endblock %}
                     </div>
@@ -285,7 +285,7 @@
             <mt-card
                 class="sw-settings-document-detail__company_card"
                 position-identifier="sw-settings-document-detail-company"
-                :title="$tc('sw-settings-document.detail.companyCard')"
+                :title="$t('sw-settings-document.detail.companyCard')"
                 :is-loading="isLoading"
             >
                 <div class="sw-settings-document-detail__company_card_required">
@@ -294,7 +294,7 @@
                         class="sw-settings-document-detail__company_card_media"
                         name="sw-field--documentConfig-logoId"
                         :source="documentConfig.logoId"
-                        :label="$tc('sw-settings-document.detail.labelCompanyLogo')"
+                        :label="$t('sw-settings-document.detail.labelCompanyLogo')"
                         @media-upload-remove-image="documentConfig.logoId = null"
                         @selection-change="onChangeCompanyLogo"
                     />
@@ -305,14 +305,14 @@
                     <mt-switch
                         v-model="documentConfig.config.displayCompanyAddress"
                         class="sw-settings-document-detail__company_card_display_company"
-                        :label="$tc('sw-settings-document.detail.labelDisplayCompanyAddress')"
+                        :label="$t('sw-settings-document.detail.labelDisplayCompanyAddress')"
                         :disabled="!acl.can('document.editor') || undefined"
                     />
 
                     <mt-switch
                         v-model="documentConfig.config.displayReturnAddress"
                         class="sw-settings-document-detail__company_card_display_return"
-                        :label="$tc('sw-settings-document.detail.labelDisplayReturnAddress')"
+                        :label="$t('sw-settings-document.detail.labelDisplayReturnAddress')"
                         :disabled="!acl.can('document.editor') || undefined"
                     />
                 </div>
@@ -348,7 +348,7 @@
             <mt-card
                 v-if="showCustomFields"
                 position-identifier="sw-settings-document-detail-custom-field-sets"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                 :is-loading="isLoading"
             >
                 <sw-custom-field-set-renderer

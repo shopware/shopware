@@ -31,6 +31,14 @@ Apps declare tools in `Resources/mcp.xml`:
 3. `AppMcpToolLoader` (tagged `mcp.loader`) reads active app tools from DB at server build time
 4. Tool calls are proxied to the app webhook via `AppMcpToolExecutor` with HMAC signing
 
+### Response format
+App tool responses should follow the same envelope convention as core tools:
+```json
+{"success": true, "data": {...}}
+{"success": false, "error": "message"}
+```
+`AppMcpToolExecutor` logs a warning when an app response is missing the `success` key.
+
 ### Classes
 - `AppMcpToolLoader` -- implements `Mcp\Capability\Registry\Loader\LoaderInterface`, reads from DB, registers tools
-- `AppMcpToolExecutor` -- sends HMAC-signed HTTP POST to app URL, returns response
+- `AppMcpToolExecutor` -- sends HMAC-signed HTTP POST to app URL, returns response, validates response convention

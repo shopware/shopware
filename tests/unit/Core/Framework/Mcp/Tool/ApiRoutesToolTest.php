@@ -31,10 +31,11 @@ class ApiRoutesToolTest extends TestCase
         $output = ($tool)();
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(1, $data['total']);
-        static::assertSame('api.product', $data['routes'][0]['name']);
-        static::assertSame('/api/product', $data['routes'][0]['path']);
-        static::assertSame(['GET', 'POST'], $data['routes'][0]['methods']);
+        static::assertTrue($data['success']);
+        static::assertSame(1, $data['_meta']['total']);
+        static::assertSame('api.product', $data['data'][0]['name']);
+        static::assertSame('/api/product', $data['data'][0]['path']);
+        static::assertSame(['GET', 'POST'], $data['data'][0]['methods']);
     }
 
     public function testReturnsOnlyRoutesMatchingCustomPrefix(): void
@@ -50,9 +51,10 @@ class ApiRoutesToolTest extends TestCase
         $output = ($tool)('/store-api');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(1, $data['total']);
-        static::assertSame('store-api.product', $data['routes'][0]['name']);
-        static::assertSame('/store-api/product', $data['routes'][0]['path']);
+        static::assertTrue($data['success']);
+        static::assertSame(1, $data['_meta']['total']);
+        static::assertSame('store-api.product', $data['data'][0]['name']);
+        static::assertSame('/store-api/product', $data['data'][0]['path']);
     }
 
     public function testReturnsTotalZeroWhenNoRoutesMatch(): void
@@ -66,7 +68,8 @@ class ApiRoutesToolTest extends TestCase
         $output = ($tool)();
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(0, $data['total']);
-        static::assertSame([], $data['routes']);
+        static::assertTrue($data['success']);
+        static::assertSame(0, $data['_meta']['total']);
+        static::assertSame([], $data['data']);
     }
 }

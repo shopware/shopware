@@ -15,6 +15,11 @@ use Shopware\Core\System\StateMachine\Transition;
 #[Package('framework')]
 class StateMachineTransitionTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly StateMachineRegistry $stateMachineRegistry,
         private readonly McpContextProvider $contextProvider,
@@ -32,13 +37,13 @@ class StateMachineTransitionTool
 
         $readPermission = $entityName . ':read';
         if (!$context->isAllowed($readPermission)) {
-            return json_encode(['error' => 'Missing privilege: ' . $readPermission], \JSON_THROW_ON_ERROR);
+            return $this->error('Missing privilege: ' . $readPermission);
         }
 
         if (!$dryRun) {
             $updatePermission = $entityName . ':update';
             if (!$context->isAllowed($updatePermission)) {
-                return json_encode(['error' => 'Missing privilege: ' . $updatePermission], \JSON_THROW_ON_ERROR);
+                return $this->error('Missing privilege: ' . $updatePermission);
             }
         }
 
@@ -67,18 +72,13 @@ class StateMachineTransitionTool
                     }
                 }
 
-                return json_encode([
-                    'dryRun' => true,
+                return $this->success([
                     'actionValid' => $actionValid,
                     'requestedAction' => $actionName,
                     'availableTransitions' => $available,
-                ], \JSON_THROW_ON_ERROR);
+                ], ['dryRun' => true]);
             } catch (\Throwable $e) {
-                return json_encode([
-                    'dryRun' => true,
-                    'success' => false,
-                    'error' => $e->getMessage(),
-                ], \JSON_THROW_ON_ERROR);
+                return $this->error($e->getMessage());
             }
         }
 
@@ -93,10 +93,6 @@ class StateMachineTransitionTool
             ];
         }
 
-        return json_encode([
-            'dryRun' => false,
-            'success' => true,
-            'states' => $states,
-        ], \JSON_THROW_ON_ERROR);
+        return $this->success($states, ['dryRun' => false]);
     }
 }

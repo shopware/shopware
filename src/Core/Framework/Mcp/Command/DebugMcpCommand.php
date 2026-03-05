@@ -21,6 +21,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class DebugMcpCommand extends Command
 {
     /**
+     * @internal
+     *
      * @param iterable<object> $tools
      * @param iterable<object> $prompts
      * @param iterable<object> $resources

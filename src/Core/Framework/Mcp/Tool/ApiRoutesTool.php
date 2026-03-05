@@ -13,6 +13,11 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('framework')]
 class ApiRoutesTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly RouterInterface $router,
     ) {
@@ -38,9 +43,6 @@ class ApiRoutesTool
 
         usort($routes, fn (array $a, array $b) => $a['path'] <=> $b['path']);
 
-        return json_encode([
-            'total' => \count($routes),
-            'routes' => $routes,
-        ], \JSON_THROW_ON_ERROR);
+        return $this->success($routes, ['total' => \count($routes)]);
     }
 }

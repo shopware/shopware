@@ -14,6 +14,11 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[Package('framework')]
 class FlowActionsTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly FlowActionCollector $collector,
         private readonly McpContextProvider $contextProvider,
@@ -36,9 +41,6 @@ class FlowActionsTool
 
         usort($actions, fn (array $a, array $b) => $a['name'] <=> $b['name']);
 
-        return json_encode([
-            'total' => \count($actions),
-            'actions' => $actions,
-        ], \JSON_THROW_ON_ERROR);
+        return $this->success($actions, ['total' => \count($actions)]);
     }
 }

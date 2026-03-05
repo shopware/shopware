@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -59,11 +60,15 @@ class StorefrontSearchToolTest extends TestCase
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($criteria);
 
-        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder);
+        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder->method('encode')->willReturn([['id' => 'prod-1']]);
+
+        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder);
         $output = ($tool)('sales-channel-123');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(1, $data['total']);
+        static::assertTrue($data['success']);
+        static::assertSame(1, $data['_meta']['total']);
         static::assertArrayHasKey('data', $data);
         static::assertArrayHasKey('_meta', $data);
         static::assertSame('sales-channel-123', $data['_meta']['salesChannelId']);

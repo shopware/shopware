@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppMcpToolExecutor
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly Client $client,
         private readonly string $shopUrl,
@@ -56,6 +59,14 @@ class AppMcpToolExecutor
                 'url' => $url,
                 'statusCode' => $response->getStatusCode(),
             ]);
+
+            $decoded = json_decode($body, true);
+            if (\is_array($decoded) && !\array_key_exists('success', $decoded)) {
+                $this->logger?->warning('App MCP tool response does not follow the response convention (missing "success" key)', [
+                    'tool' => $toolName,
+                    'url' => $url,
+                ]);
+            }
 
             return $body;
         } catch (\Throwable $e) {

@@ -26,8 +26,9 @@ class SystemConfigReadToolTest extends TestCase
         $output = ($tool)('core.listing.defaultSorting');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('core.listing.defaultSorting', $data['key']);
-        static::assertSame('name-asc', $data['value']);
+        static::assertTrue($data['success']);
+        static::assertSame('core.listing.defaultSorting', $data['data']['key']);
+        static::assertSame('name-asc', $data['data']['value']);
     }
 
     public function testReadDomain(): void
@@ -44,8 +45,9 @@ class SystemConfigReadToolTest extends TestCase
         $output = ($tool)('core.listing');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('core.listing', $data['domain']);
-        static::assertCount(2, $data['values']);
+        static::assertTrue($data['success']);
+        static::assertSame('core.listing', $data['data']['domain']);
+        static::assertCount(2, $data['data']['values']);
     }
 
     public function testReadWithSalesChannelId(): void
@@ -60,6 +62,7 @@ class SystemConfigReadToolTest extends TestCase
         $output = ($tool)('core.listing.defaultSorting', $salesChannelId);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('price-asc', $data['value']);
+        static::assertTrue($data['success']);
+        static::assertSame('price-asc', $data['data']['value']);
     }
 }

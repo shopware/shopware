@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppMcpToolLoader implements LoaderInterface
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly Connection $connection,
         private readonly AppMcpToolExecutor $executor,

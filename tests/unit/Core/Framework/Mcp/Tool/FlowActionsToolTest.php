@@ -37,14 +37,15 @@ class FlowActionsToolTest extends TestCase
         $output = ($tool)();
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(2, $data['total']);
-        static::assertCount(2, $data['actions']);
-        static::assertSame('action.add-tag', $data['actions'][0]['name']);
-        static::assertSame(['entity'], $data['actions'][0]['requirements']);
-        static::assertFalse($data['actions'][0]['delayable']);
-        static::assertSame('action.send-mail', $data['actions'][1]['name']);
-        static::assertSame(['order'], $data['actions'][1]['requirements']);
-        static::assertTrue($data['actions'][1]['delayable']);
+        static::assertTrue($data['success']);
+        static::assertSame(2, $data['_meta']['total']);
+        static::assertCount(2, $data['data']);
+        static::assertSame('action.add-tag', $data['data'][0]['name']);
+        static::assertSame(['entity'], $data['data'][0]['requirements']);
+        static::assertFalse($data['data'][0]['delayable']);
+        static::assertSame('action.send-mail', $data['data'][1]['name']);
+        static::assertSame(['order'], $data['data'][1]['requirements']);
+        static::assertTrue($data['data'][1]['delayable']);
     }
 
     public function testReturnsEmptyActionsWhenNoneRegistered(): void
@@ -62,7 +63,8 @@ class FlowActionsToolTest extends TestCase
         $output = ($tool)();
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(0, $data['total']);
-        static::assertSame([], $data['actions']);
+        static::assertTrue($data['success']);
+        static::assertSame(0, $data['_meta']['total']);
+        static::assertSame([], $data['data']);
     }
 }

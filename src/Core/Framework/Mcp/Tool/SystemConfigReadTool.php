@@ -13,6 +13,11 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 #[Package('framework')]
 class SystemConfigReadTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
     ) {
@@ -23,11 +28,11 @@ class SystemConfigReadTool
         if (str_contains($key, '.') && substr_count($key, '.') >= 2) {
             $value = $this->systemConfigService->get($key, $salesChannelId);
 
-            return json_encode(['key' => $key, 'value' => $value], \JSON_THROW_ON_ERROR);
+            return $this->success(['key' => $key, 'value' => $value]);
         }
 
         $domain = $this->systemConfigService->getDomain($key, $salesChannelId);
 
-        return json_encode(['domain' => $key, 'values' => $domain], \JSON_THROW_ON_ERROR);
+        return $this->success(['domain' => $key, 'values' => $domain]);
     }
 }

@@ -47,8 +47,9 @@ class EntityDeleteToolTest extends TestCase
         $output = ($tool)('product', '["abc123"]', true);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['dryRun']);
         static::assertTrue($data['success']);
+        static::assertArrayHasKey('data', $data);
+        static::assertTrue($data['_meta']['dryRun']);
     }
 
     public function testRealDelete(): void
@@ -74,8 +75,9 @@ class EntityDeleteToolTest extends TestCase
         $output = ($tool)('product', '["abc123"]', false);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['dryRun']);
         static::assertTrue($data['success']);
+        static::assertArrayHasKey('data', $data);
+        static::assertFalse($data['_meta']['dryRun']);
     }
 
     public function testDeniesAccessWithoutDeletePermission(): void
@@ -95,6 +97,7 @@ class EntityDeleteToolTest extends TestCase
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertFalse($data['success']);
         static::assertArrayHasKey('error', $data);
         static::assertStringContainsString('product:delete', $data['error']);
     }

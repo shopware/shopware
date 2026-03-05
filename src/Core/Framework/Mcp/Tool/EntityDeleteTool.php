@@ -15,6 +15,11 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[Package('framework')]
 class EntityDeleteTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
         private readonly McpContextProvider $contextProvider,
@@ -27,7 +32,7 @@ class EntityDeleteTool
         $context = $this->contextProvider->getContext();
 
         if (!$context->isAllowed($entity . ':delete')) {
-            return json_encode(['error' => \sprintf('Missing privilege: %s:delete', $entity)], \JSON_THROW_ON_ERROR);
+            return $this->error(\sprintf('Missing privilege: %s:delete', $entity));
         }
 
         $repository = $this->registry->getRepository($entity);
@@ -43,7 +48,7 @@ class EntityDeleteTool
         ));
 
         if ($idList === []) {
-            return json_encode(['error' => 'No valid IDs provided.'], \JSON_THROW_ON_ERROR);
+            return $this->error('No valid IDs provided.');
         }
 
         $deletePayload = array_map(static fn (string $id): array => ['id' => $id], $idList);
@@ -62,17 +67,9 @@ class EntityDeleteTool
                     ];
                 }
 
-                return json_encode([
-                    'dryRun' => true,
-                    'success' => true,
-                    'wouldDelete' => $deleted,
-                ], \JSON_THROW_ON_ERROR);
+                return $this->success($deleted, ['dryRun' => true]);
             } catch (\Throwable $e) {
-                return json_encode([
-                    'dryRun' => true,
-                    'success' => false,
-                    'error' => $e->getMessage(),
-                ], \JSON_THROW_ON_ERROR);
+                return $this->error($e->getMessage());
             } finally {
                 $this->connection->rollBack();
             }
@@ -88,10 +85,6 @@ class EntityDeleteTool
             ];
         }
 
-        return json_encode([
-            'dryRun' => false,
-            'success' => true,
-            'deleted' => $deleted,
-        ], \JSON_THROW_ON_ERROR);
+        return $this->success($deleted, ['dryRun' => false]);
     }
 }

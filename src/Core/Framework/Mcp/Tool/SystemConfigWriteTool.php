@@ -13,6 +13,11 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 #[Package('framework')]
 class SystemConfigWriteTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
     ) {
@@ -26,24 +31,19 @@ class SystemConfigWriteTool
         $oldValue = $this->systemConfigService->get($key, $salesChannelId);
 
         if ($dryRun) {
-            return json_encode([
-                'dryRun' => true,
+            return $this->success([
                 'key' => $key,
                 'oldValue' => $oldValue,
                 'newValue' => $actualValue,
-                'salesChannelId' => $salesChannelId,
-            ], \JSON_THROW_ON_ERROR);
+            ], ['dryRun' => true, 'salesChannelId' => $salesChannelId]);
         }
 
         $this->systemConfigService->set($key, $actualValue, $salesChannelId);
 
-        return json_encode([
-            'dryRun' => false,
-            'success' => true,
+        return $this->success([
             'key' => $key,
             'oldValue' => $oldValue,
             'newValue' => $actualValue,
-            'salesChannelId' => $salesChannelId,
-        ], \JSON_THROW_ON_ERROR);
+        ], ['dryRun' => false, 'salesChannelId' => $salesChannelId]);
     }
 }

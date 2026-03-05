@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -34,7 +35,10 @@ class EntitySearchToolIntegrationTest extends TestCase
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $this->tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider);
+        /** @var JsonEntityEncoder $encoder */
+        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+
+        $this->tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
     }
 
     public function testSearchCurrencyReturnsResults(): void
@@ -42,9 +46,9 @@ class EntitySearchToolIntegrationTest extends TestCase
         $output = ($this->tool)('currency');
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertGreaterThan(0, $data['total']);
+        static::assertTrue($data['success']);
         static::assertNotEmpty($data['data']);
-        static::assertArrayHasKey('_meta', $data);
+        static::assertGreaterThan(0, $data['_meta']['total']);
         static::assertSame(1, $data['_meta']['page']);
     }
 
@@ -58,7 +62,8 @@ class EntitySearchToolIntegrationTest extends TestCase
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(1, $data['total']);
+        static::assertTrue($data['success']);
+        static::assertSame(1, $data['_meta']['total']);
         static::assertSame('EUR', $data['data'][0]['isoCode']);
     }
 
@@ -71,6 +76,7 @@ class EntitySearchToolIntegrationTest extends TestCase
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertTrue($data['success']);
         static::assertSame(1, $data['_meta']['limit']);
         static::assertSame(1, $data['_meta']['page']);
         static::assertCount(1, $data['data']);
@@ -86,7 +92,8 @@ class EntitySearchToolIntegrationTest extends TestCase
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertGreaterThan(0, $data['total']);
+        static::assertTrue($data['success']);
+        static::assertGreaterThan(0, $data['_meta']['total']);
 
         $isoCodes = array_column($data['data'], 'isoCode');
         $sorted = $isoCodes;
@@ -107,7 +114,8 @@ class EntitySearchToolIntegrationTest extends TestCase
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(1, $data['total']);
+        static::assertTrue($data['success']);
+        static::assertSame(1, $data['_meta']['total']);
         static::assertArrayHasKey('locale', $data['data'][0]);
         static::assertNotNull($data['data'][0]['locale']);
     }
@@ -122,7 +130,8 @@ class EntitySearchToolIntegrationTest extends TestCase
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(0, $data['total']);
+        static::assertTrue($data['success']);
+        static::assertSame(0, $data['_meta']['total']);
         static::assertEmpty($data['data']);
     }
 }

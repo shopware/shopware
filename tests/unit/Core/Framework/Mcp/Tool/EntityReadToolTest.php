@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -51,13 +52,17 @@ class EntityReadToolTest extends TestCase
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn(new Criteria(['prod-123']));
 
+        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder->method('encode')->willReturn(['id' => 'prod-123', 'name' => 'Test Product']);
+
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider);
+        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
         $output = ($tool)('product', 'prod-123');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($data['success']);
         static::assertArrayHasKey('data', $data);
         static::assertArrayNotHasKey('error', $data);
         static::assertSame('prod-123', $data['data']['id']);
@@ -88,13 +93,16 @@ class EntityReadToolTest extends TestCase
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn(new Criteria(['prod-missing']));
 
+        $encoder = $this->createMock(JsonEntityEncoder::class);
+
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider);
+        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
         $output = ($tool)('product', 'prod-missing');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
         static::assertArrayHasKey('error', $data);
         static::assertArrayNotHasKey('data', $data);
         static::assertSame('Entity "product" with ID "prod-missing" not found.', $data['error']);
@@ -112,11 +120,12 @@ class EntityReadToolTest extends TestCase
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityReadTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityReadTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider, $this->createMock(JsonEntityEncoder::class));
         $output = ($tool)('product', 'some-id');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertFalse($data['success']);
         static::assertArrayHasKey('error', $data);
         static::assertStringContainsString('product:read', $data['error']);
     }

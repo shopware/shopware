@@ -14,6 +14,11 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[Package('framework')]
 class BusinessEventsTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly BusinessEventCollector $collector,
         private readonly McpContextProvider $contextProvider,
@@ -34,9 +39,6 @@ class BusinessEventsTool
             ];
         }
 
-        return json_encode([
-            'total' => \count($events),
-            'events' => $events,
-        ], \JSON_THROW_ON_ERROR);
+        return $this->success($events, ['total' => \count($events)]);
     }
 }

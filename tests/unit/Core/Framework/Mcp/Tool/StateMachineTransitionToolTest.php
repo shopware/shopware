@@ -36,6 +36,7 @@ class StateMachineTransitionToolTest extends TestCase
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertFalse($data['success']);
         static::assertArrayHasKey('error', $data);
         static::assertStringContainsString('order:read', $data['error']);
     }
@@ -57,6 +58,7 @@ class StateMachineTransitionToolTest extends TestCase
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertFalse($data['success']);
         static::assertArrayHasKey('error', $data);
         static::assertStringContainsString('order:update', $data['error']);
     }

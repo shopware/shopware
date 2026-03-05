@@ -17,9 +17,13 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[Package('framework')]
 class ConsoleCommandTool
 {
+    use McpToolResponse;
+
     private ?Application $application = null;
 
     /**
+     * @internal
+     *
      * @param list<string> $allowedCommands
      */
     public function __construct(
@@ -32,10 +36,7 @@ class ConsoleCommandTool
     public function __invoke(string $command, string $arguments = '{}'): string
     {
         if (!\in_array($command, $this->allowedCommands, true)) {
-            return json_encode([
-                'success' => false,
-                'error' => \sprintf('Command "%s" is not in the allowlist. Allowed commands: %s', $command, implode(', ', $this->allowedCommands)),
-            ], \JSON_THROW_ON_ERROR);
+            return $this->error(\sprintf('Command "%s" is not in the allowlist. Allowed commands: %s', $command, implode(', ', $this->allowedCommands)));
         }
 
         $args = json_decode($arguments, true, 512, \JSON_THROW_ON_ERROR);
@@ -66,12 +67,11 @@ class ConsoleCommandTool
                 'durationMs' => $duration,
             ]);
 
-            return json_encode([
-                'success' => $exitCode === 0,
+            return $this->success([
                 'exitCode' => $exitCode,
                 'output' => $rawOutput,
                 'durationMs' => $duration,
-            ], \JSON_THROW_ON_ERROR);
+            ]);
         } catch (\Throwable $e) {
             $duration = round((microtime(true) - $startTime) * 1000);
 
@@ -82,12 +82,7 @@ class ConsoleCommandTool
                 'durationMs' => $duration,
             ]);
 
-            return json_encode([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'output' => $this->stripAnsiCodes($output->fetch()),
-                'durationMs' => $duration,
-            ], \JSON_THROW_ON_ERROR);
+            return $this->error($e->getMessage());
         }
     }
 

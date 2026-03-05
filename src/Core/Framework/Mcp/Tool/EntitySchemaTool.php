@@ -25,6 +25,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntitySchemaTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
     ) {
@@ -39,7 +44,7 @@ class EntitySchemaTool
 
         foreach ($definition->getFields() as $field) {
             if ($field instanceof AssociationField) {
-                $assoc = [
+                $associations[] = [
                     'name' => $field->getPropertyName(),
                     'type' => match (true) {
                         $field instanceof ManyToManyAssociationField => 'many-to-many',
@@ -50,8 +55,6 @@ class EntitySchemaTool
                     },
                     'entity' => $field->getReferenceDefinition()->getEntityName(),
                 ];
-
-                $associations[] = $assoc;
 
                 continue;
             }
@@ -72,10 +75,10 @@ class EntitySchemaTool
             ];
         }
 
-        return json_encode([
+        return $this->success([
             'entity' => $entity,
             'fields' => $fields,
             'associations' => $associations,
-        ], \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT);
+        ]);
     }
 }

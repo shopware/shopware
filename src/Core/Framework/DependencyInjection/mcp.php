@@ -2,6 +2,7 @@
 
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationDefinition;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
@@ -89,6 +90,7 @@ return static function (ContainerConfigurator $container): void {
             service(DefinitionInstanceRegistry::class),
             service('api.request_criteria_builder'),
             service(McpContextProvider::class),
+            service(JsonEntityEncoder::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
@@ -98,6 +100,7 @@ return static function (ContainerConfigurator $container): void {
             service(DefinitionInstanceRegistry::class),
             service('api.request_criteria_builder'),
             service(McpContextProvider::class),
+            service(JsonEntityEncoder::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
@@ -175,6 +178,7 @@ return static function (ContainerConfigurator $container): void {
             service('sales_channel.product.repository'),
             service(DefinitionInstanceRegistry::class),
             service('api.request_criteria_builder'),
+            service(JsonEntityEncoder::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);

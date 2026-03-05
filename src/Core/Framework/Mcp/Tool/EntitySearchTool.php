@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -12,14 +13,20 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-entity-search', description: 'Search Shopware entities using the Admin API criteria format. Supports filters, sorting, pagination, aggregations, and associations. Pass criteria as JSON.')]
+#[McpTool(name: 'shopware-entity-search', description: 'Search Shopware entities using the Admin API criteria format. Supports filters, sorting, pagination, aggregations, associations, and includes/excludes for field selection. Pass criteria as JSON.')]
 #[Package('framework')]
 class EntitySearchTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly McpContextProvider $contextProvider,
+        private readonly JsonEntityEncoder $encoder,
     ) {
     }
 
@@ -28,7 +35,7 @@ class EntitySearchTool
         $context = $this->contextProvider->getContext();
 
         if (!$context->isAllowed($entity . ':read')) {
-            return json_encode(['error' => \sprintf('Missing privilege: %s:read', $entity)], \JSON_THROW_ON_ERROR);
+            return $this->error(\sprintf('Missing privilege: %s:read', $entity));
         }
 
         $definition = $this->registry->getByEntityName($entity);
@@ -47,13 +54,12 @@ class EntitySearchTool
 
         $limit = $criteriaObj->getLimit() ?? 25;
 
-        return json_encode([
+        $encoded = $this->encoder->encode($criteriaObj, $definition, $result->getEntities(), '/api');
+
+        return $this->success($encoded, [
             'total' => $result->getTotal(),
-            'data' => array_values($result->getEntities()->jsonSerialize()),
-            '_meta' => [
-                'page' => $criteriaObj->getOffset() ? (int) ($criteriaObj->getOffset() / $limit) + 1 : 1,
-                'limit' => $limit,
-            ],
-        ], \JSON_THROW_ON_ERROR);
+            'page' => $criteriaObj->getOffset() ? (int) ($criteriaObj->getOffset() / $limit) + 1 : 1,
+            'limit' => $limit,
+        ]);
     }
 }

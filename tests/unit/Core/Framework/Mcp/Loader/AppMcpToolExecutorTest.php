@@ -56,10 +56,10 @@ class AppMcpToolExecutorTest extends TestCase
         static::assertSame('application/json', $lastRequest->getHeaderLine('Accept'));
         static::assertNotEmpty($lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
 
-        $body = $lastRequest->getBody()->getContents();
-        static::assertStringContainsString('"tool":"sync-orders"', $body);
-        static::assertStringContainsString('"arguments":{"foo":"bar"}', $body);
-        static::assertStringContainsString('"source":{"url":"https://shop.example.com"}', $body);
+        $body = json_decode($lastRequest->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('sync-orders', $body['tool']);
+        static::assertSame(['foo' => 'bar'], $body['arguments']);
+        static::assertSame('https://shop.example.com', $body['source']['url']);
     }
 
     public function testFailedExecutionReturnsJsonError(): void

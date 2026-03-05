@@ -15,6 +15,11 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[Package('framework')]
 class EntityUpsertTool
 {
+    use McpToolResponse;
+
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
         private readonly McpContextProvider $contextProvider,
@@ -28,7 +33,7 @@ class EntityUpsertTool
 
         foreach (['create', 'update'] as $privilege) {
             if (!$context->isAllowed($entity . ':' . $privilege)) {
-                return json_encode(['error' => \sprintf('Missing privilege: %s:%s', $entity, $privilege)], \JSON_THROW_ON_ERROR);
+                return $this->error(\sprintf('Missing privilege: %s:%s', $entity, $privilege));
             }
         }
 
@@ -37,7 +42,7 @@ class EntityUpsertTool
         $data = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\is_array($data)) {
-            return json_encode(['error' => 'Payload must be a JSON object or array of objects.'], \JSON_THROW_ON_ERROR);
+            return $this->error('Payload must be a JSON object or array of objects.');
         }
 
         if (!\array_is_list($data)) {
@@ -59,17 +64,9 @@ class EntityUpsertTool
                     ];
                 }
 
-                return json_encode([
-                    'dryRun' => true,
-                    'success' => true,
-                    'preview' => $written,
-                ], \JSON_THROW_ON_ERROR);
+                return $this->success($written, ['dryRun' => true]);
             } catch (\Throwable $e) {
-                return json_encode([
-                    'dryRun' => true,
-                    'success' => false,
-                    'error' => $e->getMessage(),
-                ], \JSON_THROW_ON_ERROR);
+                return $this->error($e->getMessage());
             } finally {
                 $this->connection->rollBack();
             }
@@ -86,10 +83,6 @@ class EntityUpsertTool
             ];
         }
 
-        return json_encode([
-            'dryRun' => false,
-            'success' => true,
-            'written' => $written,
-        ], \JSON_THROW_ON_ERROR);
+        return $this->success($written, ['dryRun' => false]);
     }
 }

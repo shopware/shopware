@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntityListResource
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
     ) {

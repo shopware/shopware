@@ -28,6 +28,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class McpServerController
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly Server $server,
         private readonly HttpMessageFactoryInterface $httpMessageFactory,

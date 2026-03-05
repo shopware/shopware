@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -23,7 +24,11 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 #[Package('framework')]
 class StorefrontSearchTool
 {
+    use McpToolResponse;
+
     /**
+     * @internal
+     *
      * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
@@ -31,6 +36,7 @@ class StorefrontSearchTool
         private readonly SalesChannelRepository $productRepository,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly JsonEntityEncoder $encoder,
     ) {
     }
 
@@ -59,16 +65,15 @@ class StorefrontSearchTool
 
         $limit = $criteriaObj->getLimit() ?? 25;
 
-        return json_encode([
+        $encoded = $this->encoder->encode($criteriaObj, $definition, $result->getEntities(), '/api');
+
+        return $this->success($encoded, [
             'total' => $result->getTotal(),
-            'data' => array_values($result->getEntities()->jsonSerialize()),
-            '_meta' => [
-                'salesChannelId' => $salesChannelId,
-                'customerId' => $customerId,
-                'currencyId' => $salesChannelContext->getCurrencyId(),
-                'page' => $criteriaObj->getOffset() ? (int) ($criteriaObj->getOffset() / $limit) + 1 : 1,
-                'limit' => $limit,
-            ],
-        ], \JSON_THROW_ON_ERROR);
+            'page' => $criteriaObj->getOffset() ? (int) ($criteriaObj->getOffset() / $limit) + 1 : 1,
+            'limit' => $limit,
+            'salesChannelId' => $salesChannelId,
+            'customerId' => $customerId,
+            'currencyId' => $salesChannelContext->getCurrencyId(),
+        ]);
     }
 }

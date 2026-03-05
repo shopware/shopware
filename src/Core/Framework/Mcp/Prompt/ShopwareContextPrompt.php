@@ -39,16 +39,24 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 ## Common entity names
 product, category, customer, order, order_line_item, order_delivery, order_transaction, media, sales_channel, currency, language, tax, property_group, property_group_option, manufacturer, cms_page, rule
 
+## Tool response format
+All tools return a unified JSON envelope:
+- Success: {"success": true, "data": ..., "_meta": {...}}
+- Error: {"success": false, "error": "message"}
+The `_meta` object contains pagination (total, page, limit), context (salesChannelId), or write metadata (dryRun).
+
 ## Search criteria examples
 Filter by name: {"filter": [{"type": "contains", "field": "name", "value": "shirt"}]}
 With pagination: {"limit": 10, "page": 2}
 With association: {"associations": {"manufacturer": {}}}
 With sorting: {"sort": [{"field": "createdAt", "order": "DESC"}]}
 Multiple filters: {"filter": [{"type": "multi", "operator": "AND", "queries": [{"type": "equals", "field": "active", "value": true}, {"type": "range", "field": "stock", "parameters": {"gte": 10}}]}]}
+With field selection (includes): {"includes": {"product": ["id", "name", "productNumber", "price", "stock"]}}
+Exclude heavy fields: {"excludes": {"product": ["translations", "customFields"]}}
 
 ## Best practices
 1. Use `shopware-entity-schema` first to understand the data model
-2. Use `shopware-entity-search` with targeted filters and limited fields for efficiency
+2. Always use "includes" in search criteria to select only the fields you need -- this keeps responses small and fast
 3. Always use dryRun=true for write operations before committing
 4. Check `shopware-business-events` to understand available flow triggers
 5. Use `shopware-system-config-read` to check shop configuration before making changes

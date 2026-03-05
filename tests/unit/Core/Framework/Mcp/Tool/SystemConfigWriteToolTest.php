@@ -25,9 +25,10 @@ class SystemConfigWriteToolTest extends TestCase
         $output = ($tool)('core.test.key', '"new-value"');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['dryRun']);
-        static::assertSame('old-value', $data['oldValue']);
-        static::assertSame('new-value', $data['newValue']);
+        static::assertTrue($data['success']);
+        static::assertTrue($data['_meta']['dryRun']);
+        static::assertSame('old-value', $data['data']['oldValue']);
+        static::assertSame('new-value', $data['data']['newValue']);
     }
 
     public function testNonDryRunCallsSetAndReturnsSuccess(): void
@@ -40,8 +41,8 @@ class SystemConfigWriteToolTest extends TestCase
         $output = ($tool)('core.test.key', '"new-value"', null, false);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['dryRun']);
         static::assertTrue($data['success']);
+        static::assertFalse($data['_meta']['dryRun']);
     }
 
     public function testJsonValueDecoding(): void
@@ -54,6 +55,6 @@ class SystemConfigWriteToolTest extends TestCase
         $output = ($tool)('core.bool.key', 'true', null, false);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['newValue']);
+        static::assertTrue($data['data']['newValue']);
     }
 }

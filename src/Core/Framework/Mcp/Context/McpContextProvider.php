@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('framework')]
 class McpContextProvider
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly RequestStack $requestStack,
     ) {

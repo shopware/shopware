@@ -125,6 +125,9 @@
                 },
                 "product_stream": {
                     "$ref": "#/definitions/product_stream"
+                },
+                "mcp": {
+                    "$ref": "#/definitions/mcp"
                 }
             },
             "title": "Shopware"
@@ -321,6 +324,32 @@
                 }
             }
         },
+        "mcp": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_tools": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "Restrict which MCP tools are exposed. Empty array means all tools are allowed."
+                },
+                "app_tool_timeout": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "title": "Timeout in seconds for app webhook MCP tool calls."
+                },
+                "allowed_console_commands": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "Console commands allowed to be executed via the shopware-console-command MCP tool."
+                }
+            },
+            "title": "MCP (Model Context Protocol)"
+        },
         "messenger": {
             "type": "object",
             "additionalProperties": false,
@@ -497,6 +526,9 @@
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "cart_add_line_item_from": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "mcp": {
                     "$ref": "#/definitions/rate_limiter_config"
                 }
             },

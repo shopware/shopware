@@ -64,7 +64,7 @@ The MCP endpoint supports two authentication methods:
 
 ### Integration credentials (recommended)
 
-Pass `sw-access-key` and `sw-secret-access-key` headers directly. The MCP server validates them against the integration in the database. No token expiration, no manual token exchange -- credentials work as long as the integration exists.
+Pass `sw-access-key` and `sw-secret-access-key` headers directly. The MCP server validates them via the standard integration credential flow (same as `client_credentials` OAuth grant). No token expiration, no manual token exchange -- credentials work as long as the integration exists. Rate limiting applies to prevent brute-force attempts.
 
 ### Bearer token
 

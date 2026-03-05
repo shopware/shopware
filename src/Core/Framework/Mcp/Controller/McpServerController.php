@@ -56,9 +56,10 @@ class McpServerController
             logger: $this->logger,
         );
 
-        return $this->httpFoundationFactory->createResponse(
-            $this->server->run($transport),
-        );
+        $psrResponse = $this->server->run($transport);
+        $streamed = $psrResponse->getHeaderLine('Content-Type') === 'text/event-stream';
+
+        return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
     }
 
     private function rateLimit(Request $request): void

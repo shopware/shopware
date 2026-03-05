@@ -33,6 +33,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\Prop
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationCollection;
@@ -196,6 +197,8 @@ class LanguageEntity extends Entity
     protected ?AppCmsBlockTranslationCollection $appCmsBlockTranslations = null;
 
     protected ?AppScriptConditionTranslationCollection $appScriptConditionTranslations = null;
+
+    protected ?AppMcpToolTranslationCollection $appMcpToolTranslations = null;
 
     protected ?AppFlowActionTranslationCollection $appFlowActionTranslations = null;
 
@@ -833,6 +836,16 @@ class LanguageEntity extends Entity
     public function setAppScriptConditionTranslations(AppScriptConditionTranslationCollection $appScriptConditionTranslations): void
     {
         $this->appScriptConditionTranslations = $appScriptConditionTranslations;
+    }
+
+    public function getAppMcpToolTranslations(): ?AppMcpToolTranslationCollection
+    {
+        return $this->appMcpToolTranslations;
+    }
+
+    public function setAppMcpToolTranslations(AppMcpToolTranslationCollection $appMcpToolTranslations): void
+    {
+        $this->appMcpToolTranslations = $appMcpToolTranslations;
     }
 
     public function getAppFlowActionTranslations(): ?AppFlowActionTranslationCollection

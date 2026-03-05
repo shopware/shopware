@@ -24,7 +24,7 @@ class McpAuthenticationListenerTest extends TestCase
     public function testSkipsNonMcpRoutes(): void
     {
         $clientRepository = $this->createMock(ClientRepository::class);
-        $clientRepository->expects(static::never())->method('validateClient');
+        $clientRepository->expects($this->never())->method('validateClient');
 
         $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
         $event = $this->createControllerEvent('api.some.other.route');
@@ -37,7 +37,7 @@ class McpAuthenticationListenerTest extends TestCase
     public function testSkipsWhenNoAccessKeyHeaders(): void
     {
         $clientRepository = $this->createMock(ClientRepository::class);
-        $clientRepository->expects(static::never())->method('validateClient');
+        $clientRepository->expects($this->never())->method('validateClient');
 
         $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
         $event = $this->createControllerEvent('api.mcp.endpoint');
@@ -95,7 +95,7 @@ class McpAuthenticationListenerTest extends TestCase
             ->willReturn(true);
 
         $rateLimiter = $this->createMock(RateLimiter::class);
-        $rateLimiter->expects(static::once())->method('ensureAccepted')
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
             ->with(RateLimiter::OAUTH, $accessKey);
 
         $listener = new McpAuthenticationListener($clientRepository, $rateLimiter);

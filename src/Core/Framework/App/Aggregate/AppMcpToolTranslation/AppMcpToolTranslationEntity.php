@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation;
 
+use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 class AppMcpToolTranslationEntity extends TranslationEntity
 {
     protected string $appMcpToolId;
+
+    protected ?AppMcpToolEntity $appMcpTool = null;
 
     protected ?string $label = null;
 
@@ -25,6 +28,16 @@ class AppMcpToolTranslationEntity extends TranslationEntity
     public function setAppMcpToolId(string $appMcpToolId): void
     {
         $this->appMcpToolId = $appMcpToolId;
+    }
+
+    public function getAppMcpTool(): ?AppMcpToolEntity
+    {
+        return $this->appMcpTool;
+    }
+
+    public function setAppMcpTool(?AppMcpToolEntity $appMcpTool): void
+    {
+        $this->appMcpTool = $appMcpTool;
     }
 
     public function getLabel(): ?string

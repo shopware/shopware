@@ -108,6 +108,7 @@
     "/_info/ping",
     "/_info/rule-config",
     "/_info/stoplightio.html",
+    "/_mcp",
     "/_proxy-order/{salesChannelId}",
     "/_proxy/disable-automatic-promotions",
     "/_proxy/enable-automatic-promotions",

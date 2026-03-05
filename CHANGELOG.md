@@ -2,7 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
 ## 6.7.2.2
-#  [#12503 - fix: disable profiler in production](https://github.com/shopware/shopware/pull/12503)
+*  [#12503 - fix: disable profiler in production](https://github.com/shopware/shopware/pull/12503)
 *  [#12434 - Fix deletion of active customer address](./changelog/release-6-7-2-2/2025-09-11-fix-deletion-of-active-customer-address.md)
 *  [#12472 - Fix type error when using named arguments in the Length validation constraint](./changelog/release-6-7-2-2/2025-09-10-fix-type-cast-system-config-validation.md) @grzegorzrolka
 

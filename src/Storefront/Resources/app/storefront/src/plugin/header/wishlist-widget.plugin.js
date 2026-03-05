@@ -113,7 +113,9 @@ export default class WishlistWidgetPlugin extends Plugin {
 
         buttonElements.forEach((el) => {
             const plugin = window.PluginManager.getPluginInstanceFromElement(el, 'AddToWishlist');
-            plugin.initStateClasses();
+            if (plugin) {
+                plugin.initStateClasses();
+            }
         });
     }
 }

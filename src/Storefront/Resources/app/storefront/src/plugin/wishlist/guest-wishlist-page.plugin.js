@@ -51,20 +51,22 @@ export default class GuestWishlistPagePlugin extends Plugin {
             .then(response => response.text())
             .then(content => {
                 this.el.innerHTML = content;
+
+                window.PluginManager.initializePlugins();
+
                 const forms = this.el.querySelectorAll('form.product-wishlist-form');
 
-                if (!forms || forms.length !== productIds.length) {
-                    this._cleanInvalidGuestProductIds(productIds, forms);
-                }
-
                 if (forms && forms.length > 0) {
+                    if (forms.length !== productIds.length) {
+                        this._cleanInvalidGuestProductIds(productIds, forms);
+                    }
+
                     forms.forEach(form => {
                         this._removeGuestProductFormHandler(form);
                     });
                 }
 
                 ElementLoadingIndicatorUtil.remove(this.el);
-                window.PluginManager.initializePlugins();
             });
     }
 

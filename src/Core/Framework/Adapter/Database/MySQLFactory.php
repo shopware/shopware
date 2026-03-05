@@ -18,6 +18,16 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MySQLFactory
 {
+    public const PLACEHOLDER_DATABASE_URL = 'mysql://_placeholder.test';
+
+    /**
+     * Returns true, when bin/ci is used and Shopware is called in a CI/CD environment where the Database is not available to warmup caches
+     */
+    public static function hasNoDatabaseAvailable(): bool
+    {
+        return (string) EnvironmentHelper::getVariable('DATABASE_URL', '') === self::PLACEHOLDER_DATABASE_URL;
+    }
+
     /**
      * @param array<Middleware> $middlewares
      */

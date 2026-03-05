@@ -33,10 +33,11 @@ class EntitySchemaToolTest extends TestCase
         $tool = new EntitySchemaTool($registry);
         $result = json_decode(($tool)('test_entity'), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('test_entity', $result['entity']);
-        static::assertNotEmpty($result['fields']);
+        static::assertTrue($result['success']);
+        static::assertSame('test_entity', $result['data']['entity']);
+        static::assertNotEmpty($result['data']['fields']);
 
-        $fieldNames = array_column($result['fields'], 'name');
+        $fieldNames = array_column($result['data']['fields'], 'name');
         static::assertContains('id', $fieldNames);
         static::assertContains('name', $fieldNames);
         static::assertContains('active', $fieldNames);
@@ -55,9 +56,10 @@ class EntitySchemaToolTest extends TestCase
 
         static::assertJson($result);
         $data = json_decode($result, true);
-        static::assertArrayHasKey('entity', $data);
-        static::assertArrayHasKey('fields', $data);
-        static::assertArrayHasKey('associations', $data);
+        static::assertTrue($data['success']);
+        static::assertArrayHasKey('entity', $data['data']);
+        static::assertArrayHasKey('fields', $data['data']);
+        static::assertArrayHasKey('associations', $data['data']);
     }
 }
 

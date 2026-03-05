@@ -35,11 +35,12 @@ class BusinessEventsToolTest extends TestCase
         $output = ($tool)();
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(1, $data['total']);
-        static::assertCount(1, $data['events']);
-        static::assertSame('test.event', $data['events'][0]['name']);
-        static::assertSame(TestEventClass::class, $data['events'][0]['class']);
-        static::assertSame(['orderId' => 'string'], $data['events'][0]['data']);
+        static::assertTrue($data['success']);
+        static::assertSame(1, $data['_meta']['total']);
+        static::assertCount(1, $data['data']);
+        static::assertSame('test.event', $data['data'][0]['name']);
+        static::assertSame(TestEventClass::class, $data['data'][0]['class']);
+        static::assertSame(['orderId' => 'string'], $data['data'][0]['data']);
     }
 }
 

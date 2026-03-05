@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
@@ -127,7 +128,11 @@ class CategoryDefinition extends EntityDefinition
             (new TreePathField('path', 'path'))->addFlags(new ApiAware())->setDescription('A relative URL to the category.'),
             (new ChildCountField())->addFlags(new ApiAware()),
 
-            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required())->setDescription('Type of categories like `page`, `folder`, `link`.'),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required(), new Choice([
+                self::TYPE_PAGE,
+                self::TYPE_LINK,
+                self::TYPE_FOLDER,
+            ]))->setDescription('Type of categories like `page`, `folder`, `link`.'),
             (new StringField('product_assignment_type', 'productAssignmentType'))->addFlags(new ApiAware(), new Required())->setDescription('Type of product assignment: Dynamic product group as or `product_stream` or Manual assignment as `product`.'),
             (new BoolField('visible', 'visible'))->addFlags(new ApiAware())->setDescription('Displays categories on category page when true.'),
             (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('When boolean value is `true`, the category is listed for selection.'),

@@ -7,7 +7,6 @@ use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAs
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,7 +30,6 @@ class FooterSpecificationSource extends AbstractSpecificationSource
     public function __construct(
         private readonly DomainAwareLayoutResolver $resolver,
         private readonly EntityRepository $repository,
-        private readonly RequestDataExtractor $requestDataExtractor,
     ) {
     }
 
@@ -47,12 +45,11 @@ class FooterSpecificationSource extends AbstractSpecificationSource
 
     public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
     {
-        $assignment = $this->resolveAssignment($context);
-        $processedParameters = $this->requestDataExtractor->extractData($request, $assignment->getParameterBindings());
+        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
 
         return new SpecificationData(
             dataRequirements: [],
-            placeholderValues: PlaceholderValues::from($processedParameters),
+            placeholderValues: PlaceholderValues::from($scalarParameters),
         );
     }
 

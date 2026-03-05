@@ -42,7 +42,7 @@ Module root:
 - **Cache/** - HTTP cache integration and invalidation
 - **Event/** - Hydration lifecycle event definitions
 - **Event/Listener/** - Pre/post hydration pipeline transformations
-- **Helper/** - Utility classes (RequestDataExtractor, ContentLayoutMetadataDeriver)
+- **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - Data loading and context distribution
 - **Layout/** - Element tree, entities, field types, scaffolding
 - **Output/** - Response formatting and partial rendering

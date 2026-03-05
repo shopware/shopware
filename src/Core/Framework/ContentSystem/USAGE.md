@@ -112,8 +112,7 @@ Products, Categories, and Landing Pages can render directly using ContentSystem 
   "id": "<uuid>",
   "productId": "<product-uuid>",
   "salesChannelId": "<sales-channel-uuid>|null",
-  "contentLayoutId": "<layout-uuid>",
-  "parameterBindings": null
+  "contentLayoutId": "<layout-uuid>"
 }
 ```
 
@@ -121,21 +120,12 @@ Fields:
 - Entity ID (`productId`/`categoryId`/`landingPageId`) - Entity to render
 - `salesChannelId` - Sales channel scope (`null` = global)
 - `contentLayoutId` - Layout to use
-- `parameterBindings` - Optional parameter name mappings (see [Parameter Bindings](#parameter-bindings))
 
 ### Sales Channel Resolution
 
 Resolution priority: **sales channel specific** > **global** (null `salesChannelId`).
 
 Example: Product with global layout and B2B-specific layout. B2B channel uses specific assignment, all other channels use global.
-
-### Parameter Bindings
-
-Entity-based endpoints map URL segments to placeholders by default: `product/{productId}` makes `{{productId}}` available, `category/{categoryId}` makes `{{categoryId}}` available, `landing-page/{landingPageId}` makes `{{landingPageId}}` available. Parameter bindings allow customizing these placeholder names to match your layout's expectations without modifying the layout itself.
-
-**Example:** Remap `productId` to `product_id` to reuse a layout expecting `{{product_id}}` instead of `{{productId}}`. This enables layout reusability with different naming conventions.
-
-Bindings are configured per assignment in the `parameterBindings` field of the assignment entity. They also affect additional query parameters (see below).
 
 ### Automatic Data Loading
 
@@ -185,8 +175,6 @@ Default placeholders available in entity-based rendering:
 - `{{categoryId}}` - Category UUID (category endpoint)
 - `{{landingPageId}}` - Landing page UUID (landing-page endpoint)
 
-These placeholder names can be customized via parameter bindings (see [Parameter Bindings](#parameter-bindings) above) to match your layout's naming conventions.
-
 Use these in element properties and data requirements. See [Example: Product Detail Page](#example-product-detail-page) for usage.
 
 ### Additional Parameters
@@ -216,8 +204,6 @@ Makes `{{page}}` and `{{limit}}` available as placeholders:
 - Filter values (`category`, `brand`, `priceRange`)
 - Display preferences (`view`, `sort`)
 - Feature flags (`showReviews`, `hidePrice`)
-
-**Parameter bindings:** Additional parameters are also affected by parameter bindings (see [Parameter Bindings](#parameter-bindings)). If configured, the system maps parameter names to different placeholder names.
 
 ## Header and Footer Sections
 
@@ -252,8 +238,7 @@ Header and footer layouts use domain-aware resolution instead of entity-based re
   "id": "<uuid>",
   "domainId": "<domain-uuid>|null",
   "salesChannelId": "<sales-channel-uuid>|null",
-  "contentLayoutId": "<layout-uuid>",
-  "parameterBindings": null
+  "contentLayoutId": "<layout-uuid>"
 }
 ```
 
@@ -261,7 +246,6 @@ Fields:
 - `domainId` - Sales channel domain scope (`null` = not domain-specific)
 - `salesChannelId` - Sales channel scope (`null` = global)
 - `contentLayoutId` - Layout to use
-- `parameterBindings` - Optional parameter name mappings
 
 ### Domain-Aware Resolution
 

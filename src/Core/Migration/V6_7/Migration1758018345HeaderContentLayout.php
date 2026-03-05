@@ -25,7 +25,6 @@ class Migration1758018345HeaderContentLayout extends MigrationStep
                 `domain_id` BINARY(16) NULL,
                 `sales_channel_id` BINARY(16) NULL,
                 `content_layout_id` BINARY(16) NOT NULL,
-                `parameter_bindings` JSON NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),

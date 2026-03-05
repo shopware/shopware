@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -28,10 +27,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class EntityLayoutResolver
 {
-    public function __construct(private readonly RequestDataExtractor $requestDataExtractor)
-    {
-    }
-
     /**
      * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
      */
@@ -55,7 +50,7 @@ class EntityLayoutResolver
             );
         }
 
-        $placeholderValues = $this->buildPlaceholderValues($assignment, $entityIdField, $entityId, $request);
+        $placeholderValues = $this->buildPlaceholderValues($entityIdField, $entityId, $request);
 
         return new LayoutResolutionResult(
             assignment: $assignment,
@@ -123,22 +118,15 @@ class EntityLayoutResolver
     }
 
     private function buildPlaceholderValues(
-        AbstractContentLayoutAssignmentEntity $assignment,
         string $entityIdField,
         string $entityId,
         Request $request
     ): PlaceholderValues {
-        $entityIdPlaceholder = $entityIdField;
-        $bindings = $assignment->getParameterBindings();
-        if ($bindings !== null && \array_key_exists($entityIdField, $bindings)) {
-            $entityIdPlaceholder = $bindings[$entityIdField]->placeholder ?? $entityIdField;
-        }
-
-        $processedParameters = $this->requestDataExtractor->extractData($request, $bindings);
+        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
 
         return PlaceholderValues::from(array_merge(
-            [$entityIdPlaceholder => $entityId],
-            $processedParameters
+            [$entityIdField => $entityId],
+            $scalarParameters
         ));
     }
 }

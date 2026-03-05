@@ -8,9 +8,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
-use Shopware\Core\Framework\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -28,7 +26,7 @@ class EntityLayoutResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = new EntityLayoutResolver(new RequestDataExtractor());
+        $this->resolver = new EntityLayoutResolver();
     }
 
     #[TestDox('returns layout resolution result with assignment and placeholders')]
@@ -47,27 +45,6 @@ class EntityLayoutResolverTest extends TestCase
 
         static::assertSame($entity, $result->assignment);
         static::assertSame($entityId, $result->placeholderValues->all()['productId']);
-    }
-
-    #[TestDox('remaps entity ID placeholder when binding exists')]
-    public function testRemapsEntityIdPlaceholderWhenBindingExists(): void
-    {
-        $entityId = Uuid::randomHex();
-        $layoutId = Uuid::randomHex();
-
-        $entity = $this->createAssignmentEntity($layoutId, [
-            'productId' => new ParameterBinding('productId', 'product_id'),
-        ]);
-
-        $repository = $this->createRepository($entity);
-
-        $definition = $this->createDefinitionMock('product', 'productId');
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $this->resolver->resolve($entityId, new Request(), $context, $repository, $definition);
-
-        static::assertSame($entityId, $result->placeholderValues->all()['product_id']);
-        static::assertArrayNotHasKey('productId', $result->placeholderValues->all());
     }
 
     #[TestDox('throws layout assignment not found when no assignment exists')]
@@ -126,15 +103,11 @@ class EntityLayoutResolverTest extends TestCase
         return $repository;
     }
 
-    /**
-     * @param array<string, ParameterBinding>|null $bindings
-     */
-    private function createAssignmentEntity(string $layoutId, ?array $bindings = null): HeaderContentLayoutEntity
+    private function createAssignmentEntity(string $layoutId): HeaderContentLayoutEntity
     {
         $entity = new HeaderContentLayoutEntity();
         $entity->setId(Uuid::randomHex());
         $entity->setContentLayoutId($layoutId);
-        $entity->setParameterBindings($bindings);
 
         return $entity;
     }

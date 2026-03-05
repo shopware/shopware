@@ -109,40 +109,6 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Field\CriteriaFilterFieldSerializer">
-            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Field\CriteriaFilterListFieldSerializer">
-            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\Field\CriteriaFilterFieldSerializer"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Field\ResolutionConfigFieldSerializer">
-            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\Field\CriteriaFilterFieldSerializer"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Field\ParameterBindingFieldSerializer">
-            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\Field\ResolutionConfigFieldSerializer"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\Field\ParameterBindingsFieldSerializer">
-            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\Field\ParameterBindingFieldSerializer"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
         <!-- Content Data Loaders -->
         <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
@@ -283,12 +249,9 @@
         <service id="Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor"/>
 
         <!-- Entity Layout Services -->
-        <service id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
-        </service>
+        <service id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver"/>
         <service id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
         </service>
 
         <!-- Domain-Aware Layout Resolution (Header/Footer) -->
@@ -297,7 +260,6 @@
         <service id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver"/>
 
         <!-- Helper Services -->
-        <service id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
         <service id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
 
         <!-- Specification Sources -->

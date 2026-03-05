@@ -20,5 +20,3 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 
 - **Entity/** - Abstract base classes for content layout assignment entities
 - **FactoryHelper/** - Shared resolution logic (EntityLayoutResolver, DomainAwareLayoutResolver, NavigationAliasResolver)
-- **Field/** - Custom DAL field types (CriteriaFilter, ParameterBinding, ResolutionConfig)
-- **ParameterBinding/** - Parameter binding DTOs

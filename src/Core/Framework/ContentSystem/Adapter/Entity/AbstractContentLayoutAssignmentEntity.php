@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Adapter\Entity;
 
-use Shopware\Core\Framework\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -10,8 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
- * Shared properties for sales channel, content layout,
- * and parameter bindings across content layout assignments.
+ * Shared properties for sales channel and content layout across content layout assignments.
  */
 #[Package('framework')]
 abstract class AbstractContentLayoutAssignmentEntity extends Entity
@@ -21,11 +19,6 @@ abstract class AbstractContentLayoutAssignmentEntity extends Entity
     protected ?string $salesChannelId = null;
 
     protected string $contentLayoutId;
-
-    /**
-     * @var array<string, ParameterBinding>|null
-     */
-    protected ?array $parameterBindings = null;
 
     protected ?SalesChannelEntity $salesChannel = null;
 
@@ -49,22 +42,6 @@ abstract class AbstractContentLayoutAssignmentEntity extends Entity
     public function setContentLayoutId(string $contentLayoutId): void
     {
         $this->contentLayoutId = $contentLayoutId;
-    }
-
-    /**
-     * @return array<string, ParameterBinding>|null
-     */
-    public function getParameterBindings(): ?array
-    {
-        return $this->parameterBindings;
-    }
-
-    /**
-     * @param array<string, ParameterBinding>|null $parameterBindings
-     */
-    public function setParameterBindings(?array $parameterBindings): void
-    {
-        $this->parameterBindings = $parameterBindings;
     }
 
     public function getSalesChannel(): ?SalesChannelEntity

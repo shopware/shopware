@@ -26,7 +26,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(DocumentDeleteSubscriber::class)]
 class DocumentDeleteSubscriberTest extends TestCase
 {
@@ -117,10 +117,10 @@ class DocumentDeleteSubscriberTest extends TestCase
             ),
         ], $documentDefinition);
 
-
         $mediaDefinition = new MediaDefinition();
         $mediaDefinition->compile($definitionInstanceRegistry);
 
+        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository(
             [],
             $mediaDefinition,
@@ -143,9 +143,7 @@ class DocumentDeleteSubscriberTest extends TestCase
     private function createEntityDeleteEvent(
         DocumentDefinition $documentDefinition,
         string $documentId
-    ): EntityDeleteEvent
-    {
-
+    ): EntityDeleteEvent {
         return EntityDeleteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [
@@ -166,6 +164,5 @@ class DocumentDeleteSubscriberTest extends TestCase
                 ),
             ]
         );
-
     }
 }

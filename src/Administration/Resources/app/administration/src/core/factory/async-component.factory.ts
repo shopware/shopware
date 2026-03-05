@@ -619,7 +619,7 @@ function override(
      * needing to await the full async config resolution pipeline.
      */
     let alreadyIndexed = false;
-    if (typeof componentConfiguration !== 'function') {
+    if (componentConfiguration !== null && typeof componentConfiguration !== 'function') {
         const { template: tpl } = componentConfiguration;
         if (typeof tpl === 'string') {
             indexTwigBlocksFromTemplate(componentName, tpl);

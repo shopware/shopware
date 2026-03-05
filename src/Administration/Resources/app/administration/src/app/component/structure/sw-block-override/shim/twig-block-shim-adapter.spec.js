@@ -119,9 +119,9 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { resetBlockIndex } from 'src/core/factory/twig-block-index';
 import blockOverrideStore from '../../../../store/block-override.store';
 import getBlockDataScope from '../sw-block/get-block-data-scope';
-import { resetBlockIndex } from 'src/core/factory/twig-block-index';
 import { resetShimSlotState } from './create-shim-slot';
 
 /**

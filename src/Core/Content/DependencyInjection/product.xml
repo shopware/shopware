@@ -432,6 +432,8 @@
 
         <service id="Shopware\Core\Content\Product\ProductTypeRegistry" public="true">
             <argument>%shopware.product.allowed_types%</argument>
+
+            <tag name="shopware.api.enum_provider" />
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">

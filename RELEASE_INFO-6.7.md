@@ -42,6 +42,14 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 | `/store-api/newsletter/confirm` | `{"success": true}`                                            |
 | `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
 
+### OpenAPI enums via DAL `Choice` flag
+
+DAL fields can now declare a finite set of allowed values using the `Choice` flag.
+This information is used to enrich the generated OpenAPI schema with `enum` values for better API documentation and client generation.
+
+By default, `Choice` is non-strict and does not affect write validation.
+If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
+
 ## Core
 
 ### Scheduled cleanup of expired customer recovery records

@@ -1,0 +1,59 @@
+{% block sw_cms_element_media_gallery %}
+<div
+    class="sw-cms-el-media-gallery"
+    :class="thumbnailPositionClass"
+>
+    {% block sw_cms_element_media_gallery_thumbnails %}
+    <div class="sw-cms-el-media-gallery__thumbnails">
+        <template v-if="mediaUrls && mediaUrls.length">
+            <template
+                v-for="(sliderItem, index) in mediaUrls"
+                :key="index"
+            >
+                <sw-media-list-selection-item-v2
+                    :item="sliderItem.media"
+                    :class="activeMediaClass(sliderItem.media)"
+                    hide-actions
+                    hide-tooltip
+                    @click="onChangeActiveMedia(sliderItem.media, index)"
+                />
+            </template>
+        </template>
+
+        <template v-else>
+            {% block sw_cms_element_media_gallery_empty %}
+            <img
+                v-for="mediaItem in getPlaceholderItems()"
+                :key="mediaItem.url"
+                class="sw-cms-el-media-gallery__placeholder"
+                :src="mediaItem.url"
+                alt=""
+            >
+            {% endblock %}
+        </template>
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_element_media_gallery_preview %}
+    <div class="sw-cms-el-media-gallery__main-preview">
+        <template v-if="mediaUrls && mediaUrls.length">
+            <sw-media-list-selection-item-v2
+                :item="activeMedia || mediaUrls[0].media"
+                hide-actions
+                hide-tooltip
+            />
+        </template>
+
+        <template v-else>
+            {% block sw_cms_element_media_gallery_main_placeholder %}
+            <img
+                class="sw-cms-el-media-gallery__main-placeholder"
+                :src="getPlaceholderItems()[0].url"
+                alt=""
+            >
+            {% endblock %}
+        </template>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% block sw_cms_element_media_gallery_preview %}
+<div class="sw-cms-el-preview-media-gallery">
+    {% block sw_cms_element_media_gallery_preview_badge %}
+    <span class="sw-cms-el-preview-media-gallery__badge">
+        {{ $tc('sw-cms.elements.mediaGallery.preview.badge') }}
+    </span>
+    {% endblock %}
+
+    <div class="sw-cms-el-preview-media-gallery__thumbnails">
+        <img
+            :src="assetFilter('/administration/administration/static/img/cms/preview_mountain_small.webp')"
+            alt=""
+        >
+        <img
+            :src="assetFilter('/administration/administration/static/img/cms/preview_glasses_small.webp')"
+            alt=""
+        >
+        <img
+            :src="assetFilter('/administration/administration/static/img/cms/preview_plant_small.webp')"
+            alt=""
+        >
+    </div>
+
+    <div class="sw-cms-el-preview-media-gallery__main">
+        <img
+            :src="assetFilter('/administration/administration/static/img/cms/preview_mountain_small.webp')"
+            alt=""
+        >
+    </div>
+</div>
+{% endblock %}

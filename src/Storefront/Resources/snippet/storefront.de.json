@@ -865,6 +865,21 @@
         "zoomOut": "Herauszoomen",
         "zoomReset": "Zoom zurücksetzen"
       },
+      "mediaGallery": {
+        "ariaLabel": "Mediengalerie mit %total% Elementen",
+        "lightboxTitle": "Vollbild-Mediengalerie",
+        "openLightboxAriaLabel": "Öffne Medienelement %index% in Vollbild-Galerie",
+        "counterDeviderLabel": "von",
+        "counterLabel": "Zeige",
+        "thumbnailNavAriaLabel": "Mediengalerie Vorschaunavigation",
+        "thumbnailNavScrollDown": "Nach unten scrollen",
+        "thumbnailNavScrollUp": "Nach oben scrollen",
+        "thumbnailNavScrollLeft": "Nach links scrollen",
+        "thumbnailNavScrollRight": "Nach rechts scrollen",
+        "thumbnailNavButtonAriaLabel": "Zeige Medienelement %index% von %total%",
+        "previousMedia": "Vorheriges Medienelement",
+        "nextMedia": "Nächstes Medienelement"
+      },
       "productGallery": {
         "ariaLabel": "Produktgalerie mit %total% Elementen",
         "skipProductGallery": "Produktgalerie überspringen"

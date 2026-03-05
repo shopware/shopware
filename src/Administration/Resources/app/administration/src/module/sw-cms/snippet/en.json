@@ -277,6 +277,26 @@
           }
         }
       },
+      "mediaGallery": {
+        "label": "Media gallery",
+        "preview": {
+          "badge": "New"
+        },
+        "config": {
+          "label": {
+            "displayMode": "Display mode",
+            "displayModeAuto": "Auto",
+            "displayModeFixedHeight": "Fixed height",
+            "maxHeight": "Max height (px)",
+            "thumbnailPosition": "Thumbnail position",
+            "thumbnailPositionLeft": "Left",
+            "thumbnailPositionBottom": "Bottom",
+            "showNavigationArrows": "Show navigation arrows",
+            "showMagnifier": "Image zoom",
+            "showFullScreenGallery": "Lightbox gallery"
+          }
+        }
+      },
       "imageGallery": {
         "label": "Image gallery",
         "config": {
@@ -700,6 +720,12 @@
         },
         "imageGallery": {
           "label": "Image gallery"
+        },
+        "mediaGallery": {
+          "label": "Media gallery",
+          "preview": {
+            "badge": "New"
+          }
         },
         "imageHighlightRow": {
           "label": "Three columns, boxed & background"

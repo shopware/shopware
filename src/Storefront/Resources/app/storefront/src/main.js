@@ -131,6 +131,11 @@ PluginManager.register('SpatialArViewer', () => import('src/plugin/spatial/spati
  */
 PluginManager.register('PageQrcodeGenerator', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
 
+/**
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('SpatialBaseViewer', () => import('src/plugin/spatial/spatial-base-viewer.plugin'), '[data-spatial-base-viewer]');
+
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', () => import('src/plugin/cookie/cookie-permission.plugin'), '[data-cookie-permission]');
     PluginManager.register('CookieConfiguration', () => import('src/plugin/cookie/cookie-configuration.plugin'), '[data-cookie-permission]');

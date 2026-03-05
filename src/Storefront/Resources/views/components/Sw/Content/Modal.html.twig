@@ -72,29 +72,31 @@
 <div class="{{ modalCVA.apply({ size, animation }, attributes.render('class')) }}" {{ attributes.defaults(defaultAttributes) }}>
     <div class="{{ modalDialogCVA.apply({ scrollable, verticallyCentered, fullscreen }, attributes.render('class')) }}">
         <div class="sw-modal__content modal-content">
-            <div class="sw-modal__header modal-header">
-                {% block header %}
-                    <h2 class="sw-modal__title modal-title" id="{{ id }}-title">
-                        {{ title|raw }}
-                    </h2>
-                    <button
-                        type="button"
-                        class="sw-modal__close btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="{{ closeLabel }}"
-                    ></button>
-                {% endblock %}
-            </div>
-
-            <div class="sw-modal__body modal-body">
-                {% block content %}{% endblock %}
-            </div>
-
-            {% if block('footer') is not empty %}
-                <div class="sw-modal__footer modal-footer">
-                    {% block footer %}{% endblock %}
+            {% block modal_content %}
+                <div class="sw-modal__header modal-header">
+                    {% block header %}
+                        <h2 class="sw-modal__title modal-title" id="{{ id }}-title">
+                            {{ title|raw }}
+                        </h2>
+                        <button
+                            type="button"
+                            class="sw-modal__close btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="{{ closeLabel }}"
+                        ></button>
+                    {% endblock %}
                 </div>
-            {% endif %}
+
+                <div class="sw-modal__body modal-body">
+                    {% block content %}{% endblock %}
+                </div>
+
+                {% if block('footer') is not empty %}
+                    <div class="sw-modal__footer modal-footer">
+                        {% block footer %}{% endblock %}
+                    </div>
+                {% endif %}
+            {% endblock %}
         </div>
     </div>
 </div>

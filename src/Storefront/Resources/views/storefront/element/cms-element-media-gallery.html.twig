@@ -1,0 +1,34 @@
+{% block element_media_gallery %}
+    {% if element.fieldConfig is defined and element.data is defined %}
+        {% set config = element.fieldConfig.elements %}
+
+        {% set mediaItems = [] %}
+        {% for item in element.data.sliderItems %}
+            {% if item.media is not null %}
+                {% set mediaItems = mediaItems|merge([item.media]) %}
+            {% endif %}
+        {% endfor %}
+
+        {# Map admin values to Twig component props #}
+        {% set displayMode = config.displayMode.value %}
+        {% set thumbnailNavPosition = config.thumbnailPosition.value %}
+        {% set showNavigationArrows = config.showNavigationArrows.value %}
+        {% set showMagnifier = config.showMagnifier.value %}
+        {% set showFullScreenGallery = config.showFullScreenGallery.value %}
+        {% set maxHeight = config.displayMode.value == 'fixedHeight' and config.maxHeight.value ? config.maxHeight.value %}
+
+        <div class="cms-element-{{ element.type }}">
+            {% block element_media_gallery_inner %}
+                <twig:Sw:Media:Gallery
+                    :mediaItems="mediaItems"
+                    :displayMode="displayMode"
+                    :thumbnailNavigationPosition="thumbnailNavPosition"
+                    :showNavigationArrows="showNavigationArrows"
+                    :showMagnifier="showMagnifier"
+                    :showFullScreenGallery="showFullScreenGallery"
+                    :maxHeight="maxHeight"
+                />
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

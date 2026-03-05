@@ -9,6 +9,7 @@ import createTelemetryEventHandler from './amplitude.telemetry-handlers';
 
 type AmplitudeModule = typeof AmplitudeClient;
 type AnonymousAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
+type PrivacyAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 
 let stopTelemetryConsentWatch: (() => void) | null = null;
 
@@ -32,12 +33,14 @@ export default async function (): Promise<void> {
     });
     const amplitude = await import('@amplitude/analytics-browser');
     const anonymousAmplitude = amplitude.createInstance();
+    const privacyAmplitude = amplitude.createInstance();
     const pushTelemetryEventToAmplitude = createTelemetryEventHandler(amplitude);
     let isTelemetryInitialized = false;
     let isTelemetryListenerRegistered = false;
 
     registerAnonymousLogoutListener(anonymousAmplitude);
     initAnonymousAmplitude(anonymousAmplitude, analyticsGatewayUrl);
+    initPrivacyAmplitude(privacyAmplitude, analyticsGatewayUrl);
 
     const pushConsentEventToAmplitude = createConsentEventHandler(anonymousAmplitude);
 
@@ -91,6 +94,17 @@ export default async function (): Promise<void> {
             isTelemetryListenerRegistered = false;
         }
 
+        const shopId = Shopware.Store.get('context').app.config.shopId;
+        const userId = Shopware.Store.get('session').currentUser?.id;
+
+        if (typeof userId === 'string') {
+            privacyAmplitude.track('delete_user', {
+                shop_id: shopId,
+                user_id: userId,
+                amplitude_user_id: `${shopId}:${userId}`,
+            });
+            privacyAmplitude.flush();
+        }
         amplitude.setOptOut(true);
         amplitude.flush();
         amplitude.reset();
@@ -143,6 +157,11 @@ function initAnonymousAmplitude(anonymousAmplitude: AnonymousAmplitudeClient, an
 function initTelemetryAmplitude(amplitude: AmplitudeModule, analyticsGatewayUrl: string): void {
     // The real key will be added by the gateway
     amplitude.init('placeholder-apikey', undefined, createAmplitudeInitOptions(`${analyticsGatewayUrl}/event`));
+}
+
+function initPrivacyAmplitude(privacyAmplitude: PrivacyAmplitudeClient, analyticsGatewayUrl: string): void {
+    // The real key will be added by the gateway
+    privacyAmplitude.init('placeholder-apikey', undefined, createAmplitudeInitOptions(`${analyticsGatewayUrl}/delete-user`));
 }
 
 function createAmplitudeInitOptions(serverUrl: string) {

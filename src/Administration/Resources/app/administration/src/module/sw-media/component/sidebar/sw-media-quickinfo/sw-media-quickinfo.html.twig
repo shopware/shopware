@@ -289,7 +289,7 @@
                     <sw-modal
                         v-if="showModelEditorModal"
                         class="sw-model-editor-modal"
-                        :title="$tc('sw-model-editor.titleModal')"
+                        :title="$t('sw-model-editor.titleModal')"
                         variant="full"
                         @modal-close="closeModelEditorModal()"
                     >
@@ -305,13 +305,13 @@
                                 variant="secondary"
                                 @click="closeModelEditorModal()"
                             >
-                                {{ $tc('sw-model-editor.cancel') }}
+                                {{ $t('global.default.cancel') }}
                             </mt-button>
                             <mt-button
                                 variant="primary"
                                 @click="$refs.modelEditorRef.save()"
                             >
-                                {{ $tc('sw-model-editor.save') }}
+                                {{ $t('global.default.save') }}
                             </mt-button>
                         </template>
                     </sw-modal>

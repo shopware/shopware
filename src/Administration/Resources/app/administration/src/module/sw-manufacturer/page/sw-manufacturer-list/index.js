@@ -5,7 +5,7 @@
 import template from './sw-manufacturer-list.html.twig';
 import './sw-manufacturer-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -70,6 +70,14 @@ export default {
 
             return manufacturerCriteria;
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     methods: {
@@ -80,7 +88,13 @@ export default {
         async getList() {
             this.isLoading = true;
 
-            const criteria = await this.addQueryScores(this.term, this.manufacturerCriteria);
+            let criteria;
+            if (this.adminEsEnable) {
+                criteria = this.manufacturerCriteria;
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, this.manufacturerCriteria);
+            }
 
             if (!this.entitySearchable) {
                 this.isLoading = false;

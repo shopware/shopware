@@ -56,8 +56,11 @@
                             {% block component_product_box_action_buy_button %}
                                 <div class="d-grid">
                                     <button class="btn btn-buy">
-                                        {% block page_product_detail_product_buy_button_label %}
-                                            {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
+                                        {% block component_product_box_action_buy_button_label %}
+                                            {# @deprecated tag:v6.8.0 - Block page_product_detail_product_buy_button_label will be removed. Use component_product_box_action_buy_button_label instead. The default content will remain. #}
+                                            {% block page_product_detail_product_buy_button_label %}
+                                                {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
+                                            {% endblock %}
                                         {% endblock %}
                                     </button>
                                 </div>

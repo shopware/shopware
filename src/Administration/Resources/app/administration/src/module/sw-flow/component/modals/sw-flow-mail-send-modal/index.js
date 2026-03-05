@@ -73,7 +73,7 @@ export default {
             return [
                 {
                     value: 'default',
-                    label: this.$tc('sw-flow.modals.mail.labelCustomer'),
+                    label: this.$t('sw-flow.modals.mail.labelCustomer'),
                 },
             ];
         },
@@ -82,7 +82,7 @@ export default {
             return [
                 {
                     value: 'admin',
-                    label: this.$tc('sw-flow.modals.mail.labelAdmin'),
+                    label: this.$t('sw-flow.modals.mail.labelAdmin'),
                 },
             ];
         },
@@ -91,7 +91,7 @@ export default {
             return [
                 {
                     value: 'custom',
-                    label: this.$tc('sw-flow.modals.mail.labelCustom'),
+                    label: this.$t('sw-flow.modals.mail.labelCustom'),
                 },
             ];
         },
@@ -100,7 +100,7 @@ export default {
             return [
                 {
                     value: 'default',
-                    label: this.$tc('sw-flow.modals.mail.labelDefault'),
+                    label: this.$t('sw-flow.modals.mail.labelDefault'),
                 },
             ];
         },
@@ -109,7 +109,16 @@ export default {
             return [
                 {
                     value: 'contactFormMail',
-                    label: this.$tc('sw-flow.modals.mail.labelContactFormMail'),
+                    label: this.$t('sw-flow.modals.mail.labelContactFormMail'),
+                },
+            ];
+        },
+
+        recipientRevocationRequestFormMail() {
+            return [
+                {
+                    value: 'revocationRequestCustomerFormMail',
+                    label: this.$t('sw-flow.modals.mail.labelRevocationRequestFormMail'),
                 },
             ];
         },
@@ -146,6 +155,16 @@ export default {
                     ...this.recipientCustom,
                 ];
             }
+
+            if (this.triggerEvent.name === 'revocation_request.sent') {
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientRevocationRequestFormMail,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+
             if (
                 [
                     'newsletter.confirm',
@@ -622,7 +641,7 @@ export default {
                 settingsLink: routeData.href,
             };
 
-            return this.$tc(snippet, 0, data);
+            return this.$t(snippet, 0, data);
         },
     },
 };

@@ -60,4 +60,13 @@
             width: calc(50% - 15px);
         }
     }
+
+    .sw-cms-el-form-revocation-request__form-group {
+        display: flex;
+        justify-content: space-between;
+
+        &.two-items > * {
+            width: calc(50% - 15px);
+        }
+    }
 }

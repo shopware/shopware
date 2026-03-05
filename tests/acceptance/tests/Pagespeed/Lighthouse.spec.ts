@@ -26,17 +26,12 @@ test('Category Lighthouse Report', async ({
 
     const category: Category = await TestDataService.createCategory();
 
-    const setupPromises: Promise<void>[] = [];
-    for (let i = 0; i < productCount; i++) {
-        setupPromises.push(
-            // create products asynchronously
-            TestDataService.createProductWithImage()
-                .then((product) => TestDataService.assignProductCategory(product.id, category.id))
-        );
-    }
-
-    // wait for all products to be created and assigned to the category
-    await Promise.all(setupPromises);
+    await Promise.all(
+        Array.from({ length: productCount }, async () => {
+            const product = await TestDataService.createProductWithImage();
+            await TestDataService.assignProductCategory(product.id, category.id);
+        })
+    );
 
     await TestDataService.clearCaches();
 

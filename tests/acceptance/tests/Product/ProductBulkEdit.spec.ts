@@ -13,34 +13,32 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
     const originalRestockTime = 10;
     const tagUuid = IdProvider.getIdPair().uuid;
 
-    let originalTag, addedTag, changedProduct1, changedProduct2, unchangedProduct, originalProductPrice, changedManufacturer;
+    const [originalTag, addedTag] = await Promise.all([
+        TestDataService.createTag('Tag1-' + tagUuid),
+        TestDataService.createTag('Tag2-' + tagUuid),
+    ]);
 
-    const setupData: Promise<unknown>[] = [];
+    const productPayload = {
+        stock: originalStock,
+        restockTime: originalRestockTime,
+        tags: [{ id: originalTag.id }],
+        visibilities: [
+            {
+                salesChannelId: DefaultSalesChannel.salesChannel.id,
+                visibility: 30,
+            },
+        ],
+    };
 
-    setupData.push(TestDataService.createTag('Tag1-' + tagUuid)
-        .then((tag) => {
-            originalTag = tag;
+    const [changedProduct1, changedProduct2, unchangedProduct, changedManufacturer] =
+        await Promise.all([
+            TestDataService.createBasicProduct(productPayload),
+            TestDataService.createBasicProduct(productPayload),
+            TestDataService.createBasicProduct(productPayload),
+            TestDataService.createBasicManufacturer(),
+        ]);
 
-            return Promise.all([
-                TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] })
-                    .then((product) => {changedProduct1 = product}),
-                TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] })
-                    .then((product) => {changedProduct2 = product}),
-                TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] })
-                    .then((product) => {
-                        unchangedProduct = product;
-                        originalProductPrice = unchangedProduct.price[0].gross.toString();
-                    }),
-            ])
-        }));
-
-    setupData.push(TestDataService.createTag('Tag2-' + tagUuid)
-        .then(tag => {addedTag = tag;}));
-
-    setupData.push(TestDataService.createBasicManufacturer()
-        .then((manufacturer) => {changedManufacturer = manufacturer}));
-
-    await Promise.all(setupData);
+    const originalProductPrice = unchangedProduct.price[0].gross.toString();
 
     const changedProducts = [changedProduct1, changedProduct2];
     const changedReleaseDate = '20/05/2025, 00:00';

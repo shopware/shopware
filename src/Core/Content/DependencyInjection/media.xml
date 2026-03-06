@@ -283,7 +283,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="http_client"/>
+            <argument type="service" id="shopware.media.upload.http_client"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="media_thumbnail_size.repository"/>
         </service>
@@ -291,10 +291,14 @@
         <service id="Shopware\Core\Content\Media\Service\VideoCoverService">
             <argument type="service" id="media.repository"/>
         </service>
-        <!-- endregion Services -->
 
         <service id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator">
         </service>
+        <!-- endregion Services -->
+
+        <!-- region Testable service aliases -->
+        <service id="shopware.media.upload.http_client" alias="http_client" public="false"/>
+        <!-- endregion Testable service aliases -->
 
         <service id="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator">
             <factory class="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator" method="create"/>

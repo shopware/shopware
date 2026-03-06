@@ -73,7 +73,6 @@ export async function screenshotPdfPopup(
     ]);
 
     await pdfPage.setViewportSize({ width: 1000, height: 1000 });
-    await pdfPage.waitForLoadState('load');
 
     // wait for pdf viewer to render
     // eslint-disable-next-line playwright/no-wait-for-timeout

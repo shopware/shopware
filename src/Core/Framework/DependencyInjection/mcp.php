@@ -35,7 +35,6 @@ use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
-use Shopware\Core\Framework\Mcp\Tool\FlowCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
 use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\RevenueReportTool;
@@ -204,14 +203,6 @@ return static function (ContainerConfigurator $container): void {
     $services->set(RevenueReportTool::class)
         ->args([
             service(DefinitionInstanceRegistry::class),
-            service(McpContextProvider::class),
-        ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
-
-    $services->set(FlowCreateTool::class)
-        ->args([
-            service('flow.repository'),
             service(McpContextProvider::class),
         ])
         ->tag('mcp.tool')

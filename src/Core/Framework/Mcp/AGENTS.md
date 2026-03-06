@@ -44,7 +44,7 @@ Static data the AI client can read. Resources are identified by URIs and provide
 ## Architecture
 - **Transport**: HTTP via Symfony MCP Bundle (`/api/_mcp`), authenticated through Shopware's Admin API OAuth stack
 - **Context**: `McpContextProvider` bridges the authenticated HTTP request into the MCP tool execution layer
-- **Tools**: Single-responsibility PHP classes with `#[McpTool]` attributes, registered via XML service definitions
+- **Tools**: Single-responsibility PHP classes with `#[McpTool]` attributes, registered via PHP service definitions (`mcp.php`)
 - **Feature flag**: All services tagged with `shopware.feature` flag `MCP_SERVER` -- removed from the container when disabled
 
 ## Naming convention
@@ -63,6 +63,7 @@ The `McpToolCompilerPass` enforces unique names and throws on conflicts.
 - `Resource/` -- Static MCP resources
 - `Command/` -- CLI commands (`debug:mcp`)
 - `Loader/` -- Extension loaders for app tools (`AppMcpToolLoader`, `AppMcpToolExecutor`)
+- `docs/` -- Documentation: tool reference, examples, security, setup, extensibility, user stories
 
 ## Conventions
 - All classes use `@experimental stableVersion:v6.8.0 feature:MCP_SERVER` annotation

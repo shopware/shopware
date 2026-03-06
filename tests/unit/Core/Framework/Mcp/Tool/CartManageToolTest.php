@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -27,7 +28,7 @@ class CartManageToolTest extends TestCase
 {
     private SalesChannelContextServiceInterface $contextService;
 
-    private CartService $cartService;
+    private CartService&MockObject $cartService;
 
     private SalesChannelContext $salesChannelContext;
 

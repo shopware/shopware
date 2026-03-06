@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -126,7 +127,7 @@ class CartCheckoutToolTest extends TestCase
         static::assertSame($customPaymentId, $data['data']['paymentMethodId']);
     }
 
-    private function createTool(Cart $cart, string $paymentMethodId, string $shippingMethodId, ?CartService $cartService = null): CartCheckoutTool
+    private function createTool(Cart $cart, string $paymentMethodId, string $shippingMethodId, (CartService&MockObject)|null $cartService = null): CartCheckoutTool
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId($paymentMethodId);

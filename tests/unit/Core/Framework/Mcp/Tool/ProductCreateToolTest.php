@@ -132,7 +132,7 @@ class ProductCreateToolTest extends TestCase
 
         $taxResult = new IdSearchResult(
             $taxId !== null ? 1 : 0,
-            $taxId !== null ? [['primaryKey' => $taxId, 'data' => []]] : [],
+            $taxId !== null ? [$taxId => ['primaryKey' => $taxId, 'data' => []]] : [],
             new \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria(),
             $context,
         );
@@ -142,7 +142,7 @@ class ProductCreateToolTest extends TestCase
 
         $currencyResult = new IdSearchResult(
             $currencyId !== null ? 1 : 0,
-            $currencyId !== null ? [['primaryKey' => $currencyId, 'data' => []]] : [],
+            $currencyId !== null ? [$currencyId => ['primaryKey' => $currencyId, 'data' => []]] : [],
             new \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria(),
             $context,
         );

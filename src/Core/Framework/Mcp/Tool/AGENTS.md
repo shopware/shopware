@@ -52,6 +52,18 @@ Rules:
 - `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact)
 - `SystemConfigWriteTool` (`shopware-system-config-write`) -- update configuration values
 - `StateMachineTransitionTool` (`shopware-state-machine-transition`) -- transition entity states
+## Outcome tools
+Outcome tools encapsulate common multi-step workflows into a single call with human-readable parameters:
+- `OrderSummaryTool` (`shopware-order-summary`) -- look up an order by number or UUID, returns customer info, line items, payment/delivery status
+- `CustomerLookupTool` (`shopware-customer-lookup`) -- look up a customer by email, customer number, or UUID with order history
+- `ProductCreateTool` (`shopware-product-create`) -- create a product with auto-resolution of tax, currency, and categories
+- `RevenueReportTool` (`shopware-revenue-report`) -- generate revenue reports with date range, aggregations, and timeline
+
+## Storefront tools
+Storefront tools use the Store API / SalesChannelContext layer for customer-facing operations:
+- `CartManageTool` (`shopware-cart-manage`) -- create, add to, remove from, update, and view shopping carts
+- `CartCheckoutTool` (`shopware-cart-checkout`) -- place an order from an existing cart (dryRun for preview)
+- `CheckoutMethodsTool` (`shopware-checkout-methods`) -- list available payment and shipping methods for a sales channel
 
 ## Adding a new tool
 1. Create a class in this directory

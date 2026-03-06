@@ -1,4 +1,13 @@
-# 6.7.8.0 (upcoming)
+# 6.7.8.1
+
+## Critical Fixes
+
+### LoginRoute and AccountService don't throw CustomerNotFoundException
+The `LoginRoute` and `AccountService` have been updated to no longer throw a `CustomerNotFoundException` when a login attempt is made with an email address that does not exist in the system.
+Instead, they will now throw a generic `BadCredentialsException` without revealing whether the email address is registered or not.
+This change enhances security by preventing potential attackers from enumerating valid email addresses through error messages.
+
+# 6.7.8.0
 
 ## Features
 

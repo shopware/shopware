@@ -123,5 +123,31 @@
 
             <tag name="shopware.cms.data_resolver"/>
         </service>
+
+        <!-- Content System -->
+        <service id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\Service\NavigationLoaderInterface"
+                 alias="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+
+        <service id="Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader">
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategorySpecificationSource">
+            <argument type="service" id="category_content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
+            <tag name="content_system.context_factory" priority="100"/>
+        </service>
     </services>
 </container>

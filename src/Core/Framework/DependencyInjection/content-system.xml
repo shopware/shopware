@@ -9,21 +9,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
-            <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
-            <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <!-- Scaffolding Services -->
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper"/>
 
@@ -124,53 +109,6 @@
             <tag name="content_system.data_loader"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" />
-            <tag name="content_system.data_loader"/>
-        </service>
-
-        <!-- Route Aliases for Domain Data Loaders -->
-        <service id="Shopware\Core\Content\Category\Service\NavigationLoaderInterface"
-                 alias="Shopware\Core\Content\Category\Service\NavigationLoader"/>
-
-        <service id="Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader">
-            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver"/>
-            <tag name="content_system.data_loader"/>
-        </service>
-
-        <service id="Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute"
-                 alias="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/>
-
-        <service id="Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader">
-            <argument type="service" id="Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute"/>
-            <tag name="content_system.data_loader"/>
-        </service>
-
-        <service id="Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute"
-                 alias="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute"/>
-
-        <service id="Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyDataLoader">
-            <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute"/>
-            <tag name="content_system.data_loader"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute"
-                 alias="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
-
-        <service id="Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodDataLoader">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute"/>
-            <tag name="content_system.data_loader"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute"
-                 alias="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
-
-        <service id="Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader">
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute"/>
-            <tag name="content_system.data_loader"/>
-        </service>
-
         <!-- Data Loader Provider with Tagged Locator -->
         <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider">
             <argument type="tagged_locator" tag="content_system.data_loader" default-index-method="getRequirementType"/>
@@ -183,30 +121,6 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer"/>
-            <tag name="content_system.config_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer">
-            <tag name="content_system.config_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer">
-            <tag name="content_system.config_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfigSerializer">
-            <tag name="content_system.config_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfigSerializer">
-            <tag name="content_system.config_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfigSerializer">
-            <tag name="content_system.config_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfigSerializer">
             <tag name="content_system.config_serializer"/>
         </service>
 
@@ -265,29 +179,6 @@
 
         <!-- Helper Services -->
         <service id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
-
-        <!-- Specification Sources -->
-        <!-- Entity Sources - Higher priority -->
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductSpecificationSource">
-            <argument type="service" id="product_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
-            <tag name="content_system.context_factory" priority="100"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategorySpecificationSource">
-            <argument type="service" id="category_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
-            <tag name="content_system.context_factory" priority="100"/>
-        </service>
-
-        <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageSpecificationSource">
-            <argument type="service" id="landing_page_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
-            <tag name="content_system.context_factory" priority="100"/>
-        </service>
 
         <!-- Content Pipeline -->
         <service id="Shopware\Core\Framework\ContentSystem\ContentPipeline" public="true">

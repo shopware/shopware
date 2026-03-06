@@ -36,6 +36,16 @@ Module root:
 - `PlaceholderValues` - Immutable placeholder value map
 - `SpecificationData` - Bundles data requirements + placeholders from layout resolution
 
+## Domain Placement
+
+Domain-specific content system classes live in their owning domain module — not centralized here. Both the class and its DI registration belong to the domain.
+
+**Domain-owned:** Entity definitions, specification sources, data loaders, config serializers. These are co-located with the domain entity they serve (e.g., product data loader lives in the product module).
+
+**Framework-owned (stays here):** Pipeline, hydration engine, field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader.
+
+**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.context_factory`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which XML file defines them.
+
 ## Subdirectories
 
 - **Adapter/** - Specification sources, layout assignment entities, resolution helpers

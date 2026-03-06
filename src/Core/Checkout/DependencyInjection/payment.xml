@@ -175,5 +175,18 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="currency.repository"/>
         </service>
+
+        <!-- Content System -->
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute"
+                 alias="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+
+        <service id="Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodDataLoader">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
     </services>
 </container>

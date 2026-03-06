@@ -591,5 +591,27 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.sync.fk_resolver"/>
         </service>
+
+        <!-- Content System -->
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" />
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductSpecificationSource">
+            <argument type="service" id="product_content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
+            <tag name="content_system.context_factory" priority="100"/>
+        </service>
     </services>
 </container>

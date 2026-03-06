@@ -9,7 +9,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-system-config-write', description: 'Write Shopware system configuration values. Set dryRun=true (default) to preview the change without persisting.')]
+#[McpTool(name: 'shopware-system-config-write', description: 'Write Shopware system configuration values. Always use dryRun=true (default) first to preview the before/after diff, then set dryRun=false to persist. Use shopware-system-config-read to check current values first.')]
 #[Package('framework')]
 class SystemConfigWriteTool
 {

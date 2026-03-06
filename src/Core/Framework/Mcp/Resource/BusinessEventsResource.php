@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Mcp\Tool;
+namespace Shopware\Core\Framework\Mcp\Resource;
 
-use Mcp\Capability\Attribute\McpTool;
+use Mcp\Capability\Attribute\McpResource;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -10,12 +10,10 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-business-events', description: 'List all registered Shopware business events that can be used in flows and event actions.')]
+#[McpResource(uri: 'shopware://business-events', name: 'shopware-business-events', description: 'All registered Shopware business events that can trigger flows and event actions.')]
 #[Package('framework')]
-class BusinessEventsTool
+class BusinessEventsResource
 {
-    use McpToolResponse;
-
     /**
      * @internal
      */
@@ -25,7 +23,10 @@ class BusinessEventsTool
     ) {
     }
 
-    public function __invoke(): string
+    /**
+     * @return array{uri: string, mimeType: string, text: string}
+     */
+    public function __invoke(): array
     {
         $context = $this->contextProvider->getContext();
         $result = $this->collector->collect($context);
@@ -39,6 +40,10 @@ class BusinessEventsTool
             ];
         }
 
-        return $this->success($events, ['total' => \count($events)]);
+        return [
+            'uri' => 'shopware://business-events',
+            'mimeType' => 'application/json',
+            'text' => json_encode($events, \JSON_THROW_ON_ERROR),
+        ];
     }
 }

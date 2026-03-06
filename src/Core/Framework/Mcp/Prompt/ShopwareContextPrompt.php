@@ -60,14 +60,55 @@ Multiple filters: {"filter": [{"type": "multi", "operator": "AND", "queries": [{
 With field selection (includes): {"includes": {"product": ["id", "name", "productNumber", "price", "stock"]}}
 Exclude heavy fields: {"excludes": {"product": ["translations", "customFields"]}}
 
+## Available MCP resources
+These are static reference data you can read without calling a tool:
+- `shopware://entities` -- all registered entity names
+- `shopware://sales-channels` -- sales channels with IDs, names, domains
+- `shopware://currencies` -- currencies with ISO codes and IDs
+- `shopware://languages` -- languages with locale codes
+- `shopware://state-machines` -- state machines with states and transitions
+- `shopware://business-events` -- business events that can trigger flows
+- `shopware://flow-actions` -- flow actions available in Flow Builder
+
+## Entity relationships
+- order -> lineItems, transactions (payment), deliveries (shipping), customer, stateMachineState
+- order_transaction -> stateMachineState (open, paid, cancelled, refunded)
+- order_delivery -> stateMachineState (open, shipped, returned)
+- product -> manufacturer, categories, media, prices, properties, options
+- customer -> group, defaultBillingAddress, defaultShippingAddress, orders
+- sales_channel -> domains, languages, currencies, countries
+
+## Common workflows
+
+### Create a product
+1. `shopware-entity-search` on `tax` to find the tax ID for your rate
+2. `shopware-entity-search` on `currency` to find the currency ID (or read `shopware://currencies`)
+3. `shopware-entity-upsert` on `product` with payload including name, productNumber, stock, taxId, and price array: `[{"currencyId": "...", "gross": 29.99, "net": 25.20, "linked": true}]`
+4. Always use dryRun=true first
+
+### Process an order
+1. `shopware-entity-search` on `order` to find the order (include associations: stateMachineState, transactions, deliveries)
+2. Check current state via `stateMachineState.technicalName`
+3. `shopware-state-machine-transition` with dryRun=true to validate the transition
+4. Set dryRun=false to execute
+
+### Find customer orders
+1. `shopware-entity-search` on `customer` with filter `{"type": "equals", "field": "email", "value": "..."}`
+2. `shopware-entity-search` on `order` with filter `{"type": "equals", "field": "orderCustomer.customerId", "value": "..."}` and associations for lineItems, stateMachineState
+
+## Error recovery
+- If search returns 0 results: check the entity name (use `shopware://entities`), broaden filters, or try a term search
+- If upsert fails with "missing field": call `shopware-entity-schema` to check required fields
+- If state transition fails: read `shopware://state-machines` to see valid transitions from the current state
+- If permission denied: the integration lacks the required ACL privilege (e.g. `product:read`, `order:update`)
+
 ## Best practices
-1. When you need field or association names to build criteria (e.g. which field links sales channel to categories), call `shopware-entity-schema` for the relevant entity first, then build your `shopware-entity-search` criteria from the returned fields. No predefined task list needed.
+1. When you need field or association names, call `shopware-entity-schema` first, then build your criteria
 2. Always use "includes" in search criteria to select only the fields you need -- this keeps responses small and fast
 3. Always use dryRun=true for write operations before committing
-4. Check `shopware-business-events` to understand available flow triggers
-5. Use `shopware-system-config-read` to check shop configuration before making changes
-6. Use `shopware-flow-actions` to discover available flow actions for automation
-7. Use `shopware-console-command` to run safe administrative commands
+4. Use `shopware-system-config-read` to check shop configuration before making changes
+5. Use `shopware-console-command` to run safe administrative commands (e.g. cache:clear, plugin:list --format=json)
+6. For simple searches, use the top-level term, limit, and page parameters on `shopware-entity-search` instead of constructing criteria JSON
 PROMPT,
             ],
         ];

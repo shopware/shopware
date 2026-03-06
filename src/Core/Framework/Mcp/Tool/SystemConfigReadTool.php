@@ -9,7 +9,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-system-config-read', description: 'Read Shopware system configuration values. Provide a config key domain (e.g. "core.listing") to get all values under that prefix, or a full key for a single value. Optionally scope to a sales channel.')]
+#[McpTool(name: 'shopware-system-config-read', description: 'Read Shopware system configuration values. Pass a domain prefix (e.g. "core.listing") to get all keys under it, or a full key (e.g. "core.listing.defaultSorting") for a single value. Optionally scope to a sales channel. Use this before shopware-system-config-write to check current values.')]
 #[Package('framework')]
 class SystemConfigReadTool
 {

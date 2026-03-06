@@ -15,16 +15,19 @@ use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
+use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
+use Shopware\Core\Framework\Mcp\Resource\CurrencyListResource;
 use Shopware\Core\Framework\Mcp\Resource\EntityListResource;
-use Shopware\Core\Framework\Mcp\Tool\ApiRoutesTool;
-use Shopware\Core\Framework\Mcp\Tool\BusinessEventsTool;
+use Shopware\Core\Framework\Mcp\Resource\FlowActionsResource;
+use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
+use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
+use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
-use Shopware\Core\Framework\Mcp\Tool\FlowActionsTool;
 use Shopware\Core\Framework\Mcp\Tool\StateMachineTransitionTool;
 use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
@@ -141,27 +144,6 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
-    $services->set(ApiRoutesTool::class)
-        ->args([service('router')])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
-
-    $services->set(BusinessEventsTool::class)
-        ->args([
-            service(BusinessEventCollector::class),
-            service(McpContextProvider::class),
-        ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
-
-    $services->set(FlowActionsTool::class)
-        ->args([
-            service(FlowActionCollector::class),
-            service(McpContextProvider::class),
-        ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
-
     $services->set(ConsoleCommandTool::class)
         ->args([
             service('kernel'),
@@ -188,9 +170,45 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.prompt')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
-    // Resource
+    // Resources
     $services->set(EntityListResource::class)
         ->args([service(DefinitionInstanceRegistry::class)])
+        ->tag('mcp.resource')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(BusinessEventsResource::class)
+        ->args([
+            service(BusinessEventCollector::class),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.resource')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(FlowActionsResource::class)
+        ->args([
+            service(FlowActionCollector::class),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.resource')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(SalesChannelListResource::class)
+        ->args([service('sales_channel.repository')])
+        ->tag('mcp.resource')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(CurrencyListResource::class)
+        ->args([service('currency.repository')])
+        ->tag('mcp.resource')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(LanguageListResource::class)
+        ->args([service('language.repository')])
+        ->tag('mcp.resource')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(StateMachineResource::class)
+        ->args([service('state_machine.repository')])
         ->tag('mcp.resource')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 

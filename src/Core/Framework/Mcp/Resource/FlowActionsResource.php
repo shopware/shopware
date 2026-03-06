@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Mcp\Tool;
+namespace Shopware\Core\Framework\Mcp\Resource;
 
-use Mcp\Capability\Attribute\McpTool;
+use Mcp\Capability\Attribute\McpResource;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -10,12 +10,10 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-flow-actions', description: 'List all registered Shopware flow actions (core and app-provided) that can be used in Flow Builder automations.')]
+#[McpResource(uri: 'shopware://flow-actions', name: 'shopware-flow-actions', description: 'All registered Shopware flow actions (core and app-provided) available in Flow Builder automations.')]
 #[Package('framework')]
-class FlowActionsTool
+class FlowActionsResource
 {
-    use McpToolResponse;
-
     /**
      * @internal
      */
@@ -25,7 +23,10 @@ class FlowActionsTool
     ) {
     }
 
-    public function __invoke(): string
+    /**
+     * @return array{uri: string, mimeType: string, text: string}
+     */
+    public function __invoke(): array
     {
         $context = $this->contextProvider->getContext();
         $result = $this->collector->collect($context);
@@ -41,6 +42,10 @@ class FlowActionsTool
 
         usort($actions, fn (array $a, array $b) => $a['name'] <=> $b['name']);
 
-        return $this->success($actions, ['total' => \count($actions)]);
+        return [
+            'uri' => 'shopware://flow-actions',
+            'mimeType' => 'application/json',
+            'text' => json_encode($actions, \JSON_THROW_ON_ERROR),
+        ];
     }
 }

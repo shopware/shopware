@@ -30,7 +30,7 @@ Pre-written instructions the AI client can request to get context. Prompts help 
 Static data the AI client can read. Resources are identified by URIs and provide reference data without executing logic.
 - **Triggered by**: the AI client reads them like files
 - **Can have side effects**: no, read-only data
-- **Examples**: `shopware://entities` -- lists all registered entity names
+- **Examples**: `shopware://entities`, `shopware://sales-channels`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`
 - **Attribute**: `#[McpResource(uri: '...', name: '...', description: '...')]`
 - **Implementation**: `__invoke()` returns `['uri' => '...', 'mimeType' => '...', 'text' => '...']`
 

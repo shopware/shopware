@@ -41,12 +41,9 @@ Rules:
 
 ## Read tools
 - `EntitySchemaTool` (`shopware-entity-schema`) -- entity field/association introspection
-- `EntitySearchTool` (`shopware-entity-search`) -- criteria-based search using `RequestCriteriaBuilder`
+- `EntitySearchTool` (`shopware-entity-search`) -- criteria-based search with flattened term/limit/page params
 - `EntityReadTool` (`shopware-entity-read`) -- single entity read by ID
 - `SystemConfigReadTool` (`shopware-system-config-read`) -- read shop configuration
-- `ApiRoutesTool` (`shopware-api-routes`) -- list API routes
-- `BusinessEventsTool` (`shopware-business-events`) -- list available business events
-- `FlowActionsTool` (`shopware-flow-actions`) -- list registered flow actions
 - `StorefrontSearchTool` (`shopware-storefront-search`) -- search products with sales channel context
 - `ConsoleCommandTool` (`shopware-console-command`) -- execute allowlisted console commands
 

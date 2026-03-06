@@ -11,7 +11,7 @@ use Shopware\Core\System\StateMachine\Transition;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-state-machine-transition', description: 'Transition a Shopware entity state (e.g. order, delivery, transaction). Set dryRun=true (default) to validate without executing.')]
+#[McpTool(name: 'shopware-state-machine-transition', description: 'Transition a Shopware entity state machine. Common entities: order, order_delivery, order_transaction. Common actions: process, complete, cancel, refund, reopen. Always use dryRun=true (default) to validate the transition is allowed, then dryRun=false to execute. See shopware://state-machines resource for available states and transitions.')]
 #[Package('framework')]
 class StateMachineTransitionTool
 {

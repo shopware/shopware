@@ -12,11 +12,11 @@ The `RequestCriteriaBuilder` additionally validates field-level `ApiAware` flags
 - `shopware-entity-schema` -- schema introspection only, no data access
 - `shopware-console-command` -- restricted by the command allowlist, not by ACL roles
 - `shopware-system-config-read` / `shopware-system-config-write` -- `SystemConfigService` has no built-in ACL; restrict via the tool allowlist
-- `shopware-api-routes` -- route listing, read-only metadata
-- `shopware-business-events` / `shopware-flow-actions` -- event/action listing, read-only metadata
 - `shopware-storefront-search` -- uses its own `SalesChannelContext`, not the admin ACL
 
 For these tools, use `shopware.mcp.allowed_tools` to control access.
+
+**Resources:** All MCP resources (e.g., `shopware://entities`, `shopware://sales-channels`) are read-only and have no ACL checks. They expose reference data only.
 
 ## Tool allowlist
 You can restrict which MCP tools are available by configuring `shopware.mcp.allowed_tools`:

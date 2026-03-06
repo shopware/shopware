@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
  * Searches products through the sales channel context, resolving prices,
  * customer group pricing, and visibility rules.
  */
-#[McpTool(name: 'shopware-storefront-search', description: 'Search products with storefront context including resolved prices, customer group pricing, and visibility. Requires a salesChannelId; optionally pass customerId for customer-specific prices.')]
+#[McpTool(name: 'shopware-storefront-search', description: 'Search products with storefront context. Unlike shopware-entity-search, this returns prices resolved for the sales channel including customer group pricing, tax rules, and product visibility. Use this when you need real storefront prices. Requires a salesChannelId (see shopware://sales-channels resource); optionally pass customerId for customer-specific pricing.')]
 #[Package('framework')]
 class StorefrontSearchTool
 {

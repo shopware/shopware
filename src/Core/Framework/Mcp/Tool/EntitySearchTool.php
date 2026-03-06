@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-entity-search', description: 'Search Shopware entities using the Admin API criteria format. Supports filters, sorting, pagination, aggregations, associations, and includes/excludes for field selection. Pass criteria as JSON.')]
+#[McpTool(name: 'shopware-entity-search', description: 'Primary data retrieval tool. Search Shopware entities using the Admin API criteria format. Use the top-level term, limit, and page parameters for simple queries, or pass full criteria JSON for filters, sorting, aggregations, associations, and includes/excludes. Returns {success, data: [...], _meta: {total, page, limit}}. Use shopware-entity-schema first if you need field names.')]
 #[Package('framework')]
 class EntitySearchTool
 {
@@ -30,7 +30,7 @@ class EntitySearchTool
     ) {
     }
 
-    public function __invoke(string $entity, string $criteria = '{}'): string
+    public function __invoke(string $entity, string $criteria = '{}', int $limit = 25, int $page = 1, string $term = ''): string
     {
         $context = $this->contextProvider->getContext();
 
@@ -42,6 +42,16 @@ class EntitySearchTool
         $repository = $this->registry->getRepository($entity);
 
         $payload = json_decode($criteria, true, 512, \JSON_THROW_ON_ERROR);
+
+        if ($limit !== 25) {
+            $payload['limit'] = $limit;
+        }
+        if ($page > 1) {
+            $payload['page'] = $page;
+        }
+        if ($term !== '') {
+            $payload['term'] = $term;
+        }
 
         $criteriaObj = $this->criteriaBuilder->fromArray(
             $payload,

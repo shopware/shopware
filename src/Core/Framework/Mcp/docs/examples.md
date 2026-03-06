@@ -13,12 +13,18 @@ Input: {"entity": "product"}
 
 ## Searching for products
 
-**Find products containing "shirt":**
+**Simple term search (using flattened params):**
+```
+Tool: shopware-entity-search
+Input: {"entity": "product", "term": "shirt", "limit": 5}
+```
+
+**Search with criteria JSON:**
 ```
 Tool: shopware-entity-search
 Input: {
     "entity": "product",
-    "criteria": "{\"filter\": [{\"type\": \"contains\", \"field\": \"name\", \"value\": \"shirt\"}], \"limit\": 5}"
+    "criteria": "{\"filter\": [{\"type\": \"contains\", \"field\": \"name\", \"value\": \"shirt\"}], \"limit\": 10}"
 }
 ```
 
@@ -29,6 +35,12 @@ Input: {
     "entity": "product",
     "criteria": "{\"filter\": [{\"type\": \"multi\", \"operator\": \"AND\", \"queries\": [{\"type\": \"equals\", \"field\": \"active\", \"value\": true}, {\"type\": \"range\", \"field\": \"stock\", \"parameters\": {\"gte\": 10}}]}], \"sort\": [{\"field\": \"name\", \"order\": \"ASC\"}]}"
 }
+```
+
+**Paginate through results:**
+```
+Tool: shopware-entity-search
+Input: {"entity": "product", "limit": 10, "page": 3}
 ```
 
 ## Storefront product search
@@ -85,17 +97,16 @@ Input: {
 }
 ```
 
-## Investigating available events and flow actions
+## Using resources
 
-```
-Tool: shopware-business-events
-```
-Returns all events that can trigger flows.
+**List available events and flow actions:**
+Read the `shopware://business-events` and `shopware://flow-actions` resources.
 
-```
-Tool: shopware-flow-actions
-```
-Returns all registered flow actions (core and app-provided).
+**Find sales channel IDs:**
+Read the `shopware://sales-channels` resource.
+
+**Check valid state transitions:**
+Read the `shopware://state-machines` resource to see all states and transitions for order, delivery, and transaction state machines.
 
 ## Running console commands
 
@@ -103,6 +114,12 @@ Returns all registered flow actions (core and app-provided).
 ```
 Tool: shopware-console-command
 Input: {"command": "plugin:list", "arguments": "{\"--format\": \"json\"}"}
+```
+
+**List API routes:**
+```
+Tool: shopware-console-command
+Input: {"command": "debug:router", "arguments": "{\"--format\": \"json\"}"}
 ```
 
 **Clear the cache:**

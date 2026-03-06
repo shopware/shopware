@@ -12,16 +12,19 @@ use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
+use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
+use Shopware\Core\Framework\Mcp\Resource\CurrencyListResource;
 use Shopware\Core\Framework\Mcp\Resource\EntityListResource;
-use Shopware\Core\Framework\Mcp\Tool\ApiRoutesTool;
-use Shopware\Core\Framework\Mcp\Tool\BusinessEventsTool;
+use Shopware\Core\Framework\Mcp\Resource\FlowActionsResource;
+use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
+use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
+use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
-use Shopware\Core\Framework\Mcp\Tool\FlowActionsTool;
 use Shopware\Core\Framework\Mcp\Tool\StateMachineTransitionTool;
 use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
@@ -56,13 +59,16 @@ class McpFeatureFlagTest extends TestCase
             [SystemConfigReadTool::class],
             [SystemConfigWriteTool::class],
             [StateMachineTransitionTool::class],
-            [ApiRoutesTool::class],
-            [BusinessEventsTool::class],
-            [FlowActionsTool::class],
             [ConsoleCommandTool::class],
             [StorefrontSearchTool::class],
             [ShopwareContextPrompt::class],
             [EntityListResource::class],
+            [BusinessEventsResource::class],
+            [FlowActionsResource::class],
+            [SalesChannelListResource::class],
+            [CurrencyListResource::class],
+            [LanguageListResource::class],
+            [StateMachineResource::class],
             [AppMcpToolExecutor::class],
             [AppMcpToolLoader::class],
         ];

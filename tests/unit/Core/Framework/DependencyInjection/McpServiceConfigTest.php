@@ -9,8 +9,13 @@ use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
+use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
+use Shopware\Core\Framework\Mcp\Resource\CurrencyListResource;
 use Shopware\Core\Framework\Mcp\Resource\EntityListResource;
-use Shopware\Core\Framework\Mcp\Tool\ApiRoutesTool;
+use Shopware\Core\Framework\Mcp\Resource\FlowActionsResource;
+use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
+use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
+use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
@@ -46,11 +51,16 @@ class McpServiceConfigTest extends TestCase
             EntityDeleteTool::class,
             SystemConfigReadTool::class,
             SystemConfigWriteTool::class,
-            ApiRoutesTool::class,
             ConsoleCommandTool::class,
             StorefrontSearchTool::class,
             ShopwareContextPrompt::class,
             EntityListResource::class,
+            BusinessEventsResource::class,
+            FlowActionsResource::class,
+            SalesChannelListResource::class,
+            CurrencyListResource::class,
+            LanguageListResource::class,
+            StateMachineResource::class,
             AppMcpToolExecutor::class,
             AppMcpToolLoader::class,
         ];
@@ -74,7 +84,6 @@ class McpServiceConfigTest extends TestCase
             EntityDeleteTool::class,
             SystemConfigReadTool::class,
             SystemConfigWriteTool::class,
-            ApiRoutesTool::class,
             ConsoleCommandTool::class,
             StorefrontSearchTool::class,
         ];
@@ -96,14 +105,27 @@ class McpServiceConfigTest extends TestCase
         static::assertTrue($definition->hasTag('mcp.prompt'));
     }
 
-    public function testResourceServiceIsTagged(): void
+    public function testResourceServicesAreTagged(): void
     {
         $container = new ContainerBuilder();
         $loader = new PhpFileLoader($container, new FileLocator());
         $loader->load(__DIR__ . '/../../../../../src/Core/Framework/DependencyInjection/mcp.php');
 
-        $definition = $container->getDefinition(EntityListResource::class);
-        static::assertTrue($definition->hasTag('mcp.resource'));
+        $resourceServices = [
+            EntityListResource::class,
+            BusinessEventsResource::class,
+            FlowActionsResource::class,
+            SalesChannelListResource::class,
+            CurrencyListResource::class,
+            LanguageListResource::class,
+            StateMachineResource::class,
+        ];
+
+        foreach ($resourceServices as $serviceId) {
+            $definition = $container->getDefinition($serviceId);
+            static::assertTrue($definition->hasTag('mcp.resource'), \sprintf('Service "%s" is not tagged with mcp.resource', $serviceId));
+            static::assertTrue($definition->hasTag('shopware.feature'), \sprintf('Service "%s" is not tagged with shopware.feature', $serviceId));
+        }
     }
 
     public function testAppMcpToolLoaderIsTaggedAsMcpLoader(): void

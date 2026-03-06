@@ -116,6 +116,56 @@ class EntitySearchToolTest extends TestCase
         static::assertSame(10, $data['_meta']['limit']);
     }
 
+    public function testTopLevelParamsMergeIntoCriteria(): void
+    {
+        $context = Context::createDefaultContext();
+        $definition = $this->createMock(EntityDefinition::class);
+
+        $criteria = new Criteria();
+        $criteria->setLimit(5);
+
+        $result = new EntitySearchResult(
+            'product',
+            3,
+            new EntityCollection(),
+            null,
+            $criteria,
+            $context,
+        );
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn($result);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
+
+        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder->expects($this->once())
+            ->method('fromArray')
+            ->with(
+                static::callback(function (array $payload): bool {
+                    return $payload['limit'] === 5 && $payload['page'] === 2 && $payload['term'] === 'shirt';
+                }),
+                static::anything(),
+                static::anything(),
+                static::anything(),
+            )
+            ->willReturn($criteria);
+
+        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder->method('encode')->willReturn([]);
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $output = ($tool)('product', '{}', 5, 2, 'shirt');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($data['success']);
+    }
+
     public function testDeniesAccessWithoutReadPermission(): void
     {
         $source = new AdminApiSource(null, null);

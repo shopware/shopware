@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Api\MediaUploadV2Controller;

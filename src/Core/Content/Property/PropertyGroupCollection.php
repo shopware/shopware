@@ -60,38 +60,33 @@ class PropertyGroupCollection extends EntityCollection
                 continue;
             }
 
-            $entities = [];
+            $entities = iterator_to_array($options->getIterator());
             $sortingByPosition = $group->getSortingType() !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
             $posititionCol = [];
             $nameCol = [];
 
-            foreach ($options->getIterator() as $option) {
+            foreach ($entities as $option) {
+                $name = $option->getTranslation('name') ?? '';
+                $nameCol[] = (string) $collator->getSortKey($name);
+
                 if ($sortingByPosition) {
                     $posititionCol[] = (int) ($option->getTranslation('position') ?? $option->getPosition() ?? 0);
                 }
-
-                $nameCol[] = (string) $collator->getSortKey($option->getTranslation('name') ?? '');
-                $entities[] = $option;
             }
 
+            $sortArgs = [];
             if ($sortingByPosition) {
-                array_multisort(
-                    $posititionCol,
-                    \SORT_ASC,
-                    \SORT_NUMERIC,
-                    $nameCol,
-                    \SORT_ASC,
-                    \SORT_STRING,
-                    $entities,
-                );
-            } else {
-                array_multisort(
-                    $nameCol,
-                    \SORT_ASC,
-                    \SORT_STRING,
-                    $entities,
-                );
+                $sortArgs[] = &$posititionCol;
+                $sortArgs[] = \SORT_ASC;
+                $sortArgs[] = \SORT_NUMERIC;
             }
+
+            $sortArgs[] = &$nameCol;
+            $sortArgs[] = \SORT_ASC;
+            $sortArgs[] = \SORT_STRING;
+            $sortArgs[] = &$entities;
+
+            array_multisort(...$sortArgs);
 
             $sortedOptions = new PropertyGroupOptionCollection();
             // Bypass expected class validation for performance optimization

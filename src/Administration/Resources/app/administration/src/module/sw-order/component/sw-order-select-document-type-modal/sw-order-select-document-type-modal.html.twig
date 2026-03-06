@@ -6,12 +6,19 @@
     class="sw-order-select-document-type-modal"
     @modal-close="$emit('modal-close', false)"
 >
+    <mt-switch
+        v-model="showZugferd"
+        class="sw-order-select-document-type-modal__type-switch"
+        label="Show ZUGFeRD Variants"
+    />
+
+    <div class="sw-order-select-document-type-modal__divider"></div>
 
     {% block sw_order_select_document_type_modal_document_types %}
     <sw-radio-field
         v-if="!isLoading && documentTypes.length"
         v-model:value="documentType"
-        :options="documentTypes"
+        :options="filteredDocumentTypes"
         class="sw-order-select-document-type-modal__radio-field"
         @update:value="onRadioFieldChange"
     />

@@ -7,6 +7,11 @@ import './sw-order-select-document-type-modal.scss';
 
 const { Criteria } = Shopware.Data;
 
+/**
+ * @private
+ */
+export const ZUGFERD_DOCUMENT_TYPES = ['zugferd_invoice', 'zugferd_embedded_invoice'];
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -40,6 +45,7 @@ export default {
             documentType: null,
             invoiceExists: false,
             isLoading: false,
+            showZugferd: false,
         };
     },
 
@@ -81,6 +87,14 @@ export default {
 
             return criteria;
         },
+
+        filteredDocumentTypes() {
+            return this.documentTypes.filter(type => {
+                const isZugferd = ZUGFERD_DOCUMENT_TYPES.includes(type.technicalName);
+
+                return this.showZugferd ? isZugferd : !isZugferd;
+            });
+        },
     },
 
     created() {
@@ -100,6 +114,7 @@ export default {
                         const option = {
                             value: documentType.id,
                             name: documentType.translated.name,
+                            technicalName: documentType.technicalName,
                             disabled: !this.documentTypeAvailable(documentType),
                         };
 

@@ -28,10 +28,12 @@ class ExternalThumbnailCollectionNormalizer implements DenormalizerInterface, De
     {
         $thumbnails = new ExternalThumbnailCollection();
 
-        if (\is_array($data)) {
-            foreach ($data as $thumbnailData) {
-                $thumbnails->add($this->denormalizer->denormalize($thumbnailData, ExternalThumbnailData::class, $format, $context));
-            }
+        if (!\is_array($data)) {
+            return $thumbnails;
+        }
+
+        foreach ($data as $thumbnailData) {
+            $thumbnails->add($this->denormalizer->denormalize($thumbnailData, ExternalThumbnailData::class, $format, $context));
         }
 
         return $thumbnails;

@@ -59,7 +59,6 @@ class MediaUploadV2ControllerTest extends TestCase
         );
     }
 
-    #[TestDox()]
     public function testExternalLinkWithThumbnailsCreatesMediaAndPersistsThumbnails(): void
     {
         $context = Context::createDefaultContext();

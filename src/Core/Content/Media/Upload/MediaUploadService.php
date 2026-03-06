@@ -196,7 +196,9 @@ readonly class MediaUploadService
 
         $deletePayload = \array_map(static fn (string $id) => ['id' => $id], $thumbnailIds);
 
-        $this->thumbnailRepository->delete($deletePayload, $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($deletePayload): void {
+            $this->thumbnailRepository->delete($deletePayload, $context);
+        });
     }
 
     /**

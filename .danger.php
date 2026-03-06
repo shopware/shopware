@@ -136,7 +136,10 @@ return (new Config())
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
-        if ($files->matches('*/shopware.yaml')->count() > 0 && $files->matches('*/config-schema.json')->count() === 0) {
+        $shopwareYamlTouched = $files->matches('*/shopware.yaml')->count() > 0;
+        $configSchemaTouched = $files->matches('config-schema.json')->count() > 0;
+
+        if ($shopwareYamlTouched && !$configSchemaTouched) {
             $context->warning('You updated the shopware.yaml, please consider to update the config-schema.json');
         }
     })
@@ -341,6 +344,11 @@ return (new Config())
             }
 
             if (\str_starts_with($class, 'Migration1')) {
+                continue;
+            }
+
+            // DependencyInjection config files only wire services; no unit tests required
+            if (str_contains($file->name, '/DependencyInjection/')) {
                 continue;
             }
 

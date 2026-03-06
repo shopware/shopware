@@ -119,3 +119,13 @@ All MCP tool operations respect the integration's ACL permissions. To restrict w
 1. Create an ACL role in the admin with only the desired permissions
 2. Assign that role to the integration
 3. Omit the `--admin` flag when creating the integration
+
+## Troubleshooting
+
+### Connection refused (ECONNREFUSED) or "fetch failed"
+
+If your MCP client shows errors like `ECONNREFUSED` or "fetch failed", the Shopware server is not running or not reachable at the URL in your MCP config (host and port depend on your setup).
+
+1. Start the Shopware server (e.g. Docker or your usual web setup).
+2. Ensure the URL in your MCP config matches how you access the shop (e.g. `http://localhost:<port>/api/_mcp` for local dev).
+3. Retry the MCP connection after the server is up.

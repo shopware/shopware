@@ -62,13 +62,13 @@ test(
 
                 await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));
 
-                const rowLocator = AdminOrderDetail.page.locator('.sw-data-grid__body .sw-data-grid__row').nth(0);
+                const firstDocumentRow = AdminOrderDetail.getDocumentRow(0);
 
-                await rowLocator.getByLabel('Open actions menu').click();
+                await firstDocumentRow.contextMenuButton.click();
                 await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
 
                 await screenshotPdfPopup(
-                    AdminOrderDetail.page.locator('.sw-context-menu').getByText('Open document'),
+                    AdminOrderDetail.contextMenuOpenDocument,
                     ShopAdmin.expects,
                     type,
                 );
@@ -78,18 +78,16 @@ test(
         await test.step('Go to documents tab and send invoice', async () => {
             await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));
 
-            const invoiceRow = AdminOrderDetail.page
-                .locator('.sw-data-grid__body .sw-data-grid__row')
-                .last();
+            const lastDocumentRow = AdminOrderDetail.getDocumentRow(4);
 
-            await ShopAdmin.expects(invoiceRow).toBeVisible();
-            await invoiceRow.getByLabel('Open actions menu').click();
+            await ShopAdmin.expects(lastDocumentRow.row).toBeVisible();
+            await lastDocumentRow.contextMenuButton.click();
 
             await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
-            await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Mark as sent').click();
+            await AdminOrderDetail.contextMenuMarkAsSent.click();
 
             await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
-            await ShopAdmin.expects(invoiceRow.locator('.icon--regular-checkmark-xs')).toBeVisible();
+            await ShopAdmin.expects(lastDocumentRow.sentCheckmark).toBeVisible();
         });
 
         await test.step('Log into customer account and check the order document', async () => {

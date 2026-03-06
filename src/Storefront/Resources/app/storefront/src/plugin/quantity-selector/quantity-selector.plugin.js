@@ -25,13 +25,14 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._input = this.el.querySelector('input.js-quantity-selector');
         this._btnPlus = this.el.querySelector('.js-btn-plus');
         this._btnMinus = this.el.querySelector('.js-btn-minus');
+        this._liveLimitsFetched = false;
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
         }
 
         this._registerEvents();
-        this._fetchLiveQuantityLimits();
+        this._registerLiveQuantityEvents();
     }
 
     /**
@@ -148,17 +149,51 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Fetch live quantity limits from the server and apply them to the input.
-     * Falls back silently to rendered values on failure.
+     * Register one-time interaction listeners that trigger the live quantity fetch.
+     * The fetch fires once on the first focus or button click, then listeners are removed.
      *
      * @private
      */
-    _fetchLiveQuantityLimits() {
+    _registerLiveQuantityEvents() {
         const url = this.el.getAttribute(this.options.liveQuantityUrlAttribute);
 
         if (!url) {
             return;
         }
+
+        this._onFirstInteraction = this._fetchLiveQuantityLimits.bind(this, url);
+
+        this._input.addEventListener('focus', this._onFirstInteraction);
+        this._btnPlus.addEventListener('click', this._onFirstInteraction, true);
+        this._btnMinus.addEventListener('click', this._onFirstInteraction, true);
+    }
+
+    /**
+     * Remove the one-time interaction listeners for live quantity fetching.
+     *
+     * @private
+     */
+    _removeLiveQuantityEvents() {
+        this._input.removeEventListener('focus', this._onFirstInteraction);
+        this._btnPlus.removeEventListener('click', this._onFirstInteraction, true);
+        this._btnMinus.removeEventListener('click', this._onFirstInteraction, true);
+    }
+
+    /**
+     * Fetch live quantity limits from the server and apply them to the input.
+     * Fires only once – subsequent calls are no-ops. Falls back silently on failure.
+     *
+     * @param {string} url
+     * @private
+     */
+    _fetchLiveQuantityLimits(url) {
+        if (this._liveLimitsFetched) {
+            return;
+        }
+
+        this._liveLimitsFetched = true;
+
+        this._removeLiveQuantityEvents();
 
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },

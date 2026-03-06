@@ -47,13 +47,11 @@
         <service id="Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderSpecificationSource">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver"/>
             <argument type="service" id="header_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
         </service>
 
         <service id="Shopware\Storefront\ContentSystem\FooterContentLayout\FooterSpecificationSource">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver"/>
             <argument type="service" id="footer_content_layout.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor"/>
         </service>
     </services>
 </container>

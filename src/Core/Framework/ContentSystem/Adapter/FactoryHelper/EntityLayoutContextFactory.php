@@ -3,12 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -32,7 +27,6 @@ class EntityLayoutContextFactory
 {
     public function __construct(
         private readonly EntityLayoutResolver $layoutResolver,
-        private readonly RequestDataExtractor $requestDataExtractor
     ) {
     }
 
@@ -93,20 +87,18 @@ class EntityLayoutContextFactory
             $definition
         );
 
-        $dataRequirements = $this->transformDataRequirements($layoutData->assignment, $context, $definition);
-
         return new SpecificationData(
-            dataRequirements: $dataRequirements,
+            dataRequirements: array_values($definition->getPageDataRequirements($context)),
             placeholderValues: $layoutData->placeholderValues,
         );
     }
 
     public function resolveTargetElementId(Request $request): ?string
     {
-        $params = $this->requestDataExtractor->extractData($request, null);
+        $elementId = $request->query->get('elementId');
 
-        if (\array_key_exists('elementId', $params) && \is_string($params['elementId']) && $params['elementId'] !== '') {
-            return $params['elementId'];
+        if (\is_string($elementId) && $elementId !== '') {
+            return $elementId;
         }
 
         return null;
@@ -154,63 +146,5 @@ class EntityLayoutContextFactory
         $entityIdField = $definition->getContentLayoutEntityIdField();
 
         return $parameters[$entityIdField];
-    }
-
-    /**
-     * When bindings remap property names (productId -> product_id),
-     * data requirements must reference the remapped placeholder names.
-     *
-     * @return list<DataRequirement>
-     */
-    private function transformDataRequirements(
-        AbstractContentLayoutAssignmentEntity $assignment,
-        SalesChannelContext $context,
-        AbstractContentLayoutAssignableDefinition $definition
-    ): array {
-        $requirements = $definition->getPageDataRequirements($context);
-        $bindings = $assignment->getParameterBindings();
-
-        if ($bindings === null || $bindings === []) {
-            return array_values($requirements);
-        }
-
-        $fieldToPlaceholder = [];
-        foreach ($bindings as $fieldName => $binding) {
-            $placeholder = $binding->placeholder ?? $fieldName;
-            if ($placeholder === '') {
-                continue;
-            }
-            $fieldToPlaceholder[$fieldName] = $placeholder;
-        }
-
-        $transformed = [];
-        foreach ($requirements as $requirement) {
-            if ($requirement->source !== EntityLoader::SOURCE) {
-                $transformed[] = $requirement;
-                continue;
-            }
-
-            $config = $requirement->config;
-            if (!($config instanceof EntityLoaderConfig)) {
-                $transformed[] = $requirement;
-                continue;
-            }
-
-            $propertyName = $config->property;
-            if (!\array_key_exists($propertyName, $fieldToPlaceholder)) {
-                $transformed[] = $requirement;
-                continue;
-            }
-
-            $newConfig = new EntityLoaderConfig(
-                $config->entity,
-                $fieldToPlaceholder[$propertyName],
-                $config->associations
-            );
-
-            $transformed[] = new DataRequirement($requirement->key, $requirement->source, $newConfig);
-        }
-
-        return $transformed;
     }
 }

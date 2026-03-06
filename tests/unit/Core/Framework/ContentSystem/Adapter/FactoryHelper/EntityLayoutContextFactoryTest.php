@@ -8,17 +8,10 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\LayoutResolutionResult;
-use Shopware\Core\Framework\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -40,7 +33,6 @@ class EntityLayoutContextFactoryTest extends TestCase
         $this->layoutResolver = static::createStub(EntityLayoutResolver::class);
         $this->factory = new EntityLayoutContextFactory(
             $this->layoutResolver,
-            new RequestDataExtractor()
         );
     }
 
@@ -101,124 +93,14 @@ class EntityLayoutContextFactoryTest extends TestCase
         $this->factory->resolveLayoutId('/product/' . $entityId, $context, $repository, $definition);
     }
 
-    #[TestDox('remaps EntityLoaderConfig property when parameter bindings define a placeholder')]
-    public function testRemapsEntityLoaderConfigPropertyWhenBindingIsDefined(): void
+    #[TestDox('resolves specification data with requirements from definition')]
+    public function testReturnsSpecificationDataFromDefinition(): void
     {
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
 
-        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
-        $assignment->method('getParameterBindings')->willReturn([
-            'productId' => new ParameterBinding('productId', 'product_id'),
-        ]);
-
         $this->layoutResolver->method('resolve')
-            ->willReturn(new LayoutResolutionResult($assignment, $placeholders));
-
-        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-        $definition->method('getPageDataRequirements')->willReturn([
-            new DataRequirement('product', EntityLoader::SOURCE, new EntityLoaderConfig('product', 'productId', [])),
-        ]);
-
-        $repository = $this->createRepository();
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $this->factory->resolveSpecificationData(
-            '/product/' . $entityId,
-            new Request(),
-            $context,
-            $repository,
-            $definition
-        );
-
-        static::assertCount(1, $result->dataRequirements);
-        $config = $result->dataRequirements[0]->config;
-        static::assertInstanceOf(EntityLoaderConfig::class, $config);
-        static::assertSame('product_id', $config->property);
-    }
-
-    #[TestDox('passes through non-entity-loader requirements unchanged when bindings are present')]
-    public function testPassesThroughNonEntityLoaderRequirementWhenBindingIsPresent(): void
-    {
-        $entityId = Uuid::randomHex();
-        $placeholders = PlaceholderValues::from(['productId' => $entityId]);
-
-        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
-        $assignment->method('getParameterBindings')->willReturn([
-            'productId' => new ParameterBinding('productId', 'product_id'),
-        ]);
-
-        $this->layoutResolver->method('resolve')
-            ->willReturn(new LayoutResolutionResult($assignment, $placeholders));
-
-        $navConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-        $definition->method('getPageDataRequirements')->willReturn([
-            new DataRequirement('nav', 'navigation', $navConfig),
-        ]);
-
-        $repository = $this->createRepository();
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $this->factory->resolveSpecificationData(
-            '/product/' . $entityId,
-            new Request(),
-            $context,
-            $repository,
-            $definition
-        );
-
-        static::assertCount(1, $result->dataRequirements);
-        static::assertSame('navigation', $result->dataRequirements[0]->source);
-        static::assertSame($navConfig, $result->dataRequirements[0]->config);
-    }
-
-    #[TestDox('passes through entity-loader-source requirement unchanged when config is not EntityLoaderConfig')]
-    public function testPassesThroughEntityLoaderSourceRequirementWhenConfigIsNotEntityLoaderConfig(): void
-    {
-        $entityId = Uuid::randomHex();
-        $placeholders = PlaceholderValues::from(['productId' => $entityId]);
-
-        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
-        $assignment->method('getParameterBindings')->willReturn([
-            'productId' => new ParameterBinding('productId', 'product_id'),
-        ]);
-
-        $this->layoutResolver->method('resolve')
-            ->willReturn(new LayoutResolutionResult($assignment, $placeholders));
-
-        // Config is NOT an EntityLoaderConfig but source IS EntityLoader::SOURCE
-        $nonEntityLoaderConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-        $definition->method('getPageDataRequirements')->willReturn([
-            new DataRequirement('product', EntityLoader::SOURCE, $nonEntityLoaderConfig),
-        ]);
-
-        $repository = $this->createRepository();
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $this->factory->resolveSpecificationData(
-            '/product/' . $entityId,
-            new Request(),
-            $context,
-            $repository,
-            $definition
-        );
-
-        static::assertCount(1, $result->dataRequirements);
-        static::assertSame($nonEntityLoaderConfig, $result->dataRequirements[0]->config);
-    }
-
-    #[TestDox('resolves specification data with empty requirements when no parameter bindings are configured')]
-    public function testReturnsSpecificationDataWithEmptyRequirementsWhenNoBindings(): void
-    {
-        $entityId = Uuid::randomHex();
-        $placeholders = PlaceholderValues::from(['productId' => $entityId]);
-        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
-        $assignment->method('getParameterBindings')->willReturn(null);
-
-        $this->layoutResolver->method('resolve')
-            ->willReturn(new LayoutResolutionResult($assignment, $placeholders));
+            ->willReturn(new LayoutResolutionResult(static::createStub(\Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity::class), $placeholders));
 
         $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
         $definition->method('getPageDataRequirements')->willReturn([]);
@@ -236,42 +118,6 @@ class EntityLayoutContextFactoryTest extends TestCase
 
         static::assertSame($placeholders, $result->placeholderValues);
         static::assertSame([], $result->dataRequirements);
-    }
-
-    #[TestDox('skips remapping when binding placeholder is empty string')]
-    public function testSkipsRemappingWhenBindingPlaceholderIsEmpty(): void
-    {
-        $entityId = Uuid::randomHex();
-        $placeholders = PlaceholderValues::from(['productId' => $entityId]);
-
-        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
-        $assignment->method('getParameterBindings')->willReturn([
-            'productId' => new ParameterBinding('productId', ''),
-        ]);
-
-        $this->layoutResolver->method('resolve')
-            ->willReturn(new LayoutResolutionResult($assignment, $placeholders));
-
-        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-        $definition->method('getPageDataRequirements')->willReturn([
-            new DataRequirement('product', EntityLoader::SOURCE, new EntityLoaderConfig('product', 'productId', [])),
-        ]);
-
-        $repository = $this->createRepository();
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $this->factory->resolveSpecificationData(
-            '/product/' . $entityId,
-            new Request(),
-            $context,
-            $repository,
-            $definition
-        );
-
-        static::assertCount(1, $result->dataRequirements);
-        $config = $result->dataRequirements[0]->config;
-        static::assertInstanceOf(EntityLoaderConfig::class, $config);
-        static::assertSame('productId', $config->property);
     }
 
     #[TestDox('returns element ID from request query when present')]

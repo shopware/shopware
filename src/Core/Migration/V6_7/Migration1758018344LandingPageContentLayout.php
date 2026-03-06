@@ -25,7 +25,6 @@ class Migration1758018344LandingPageContentLayout extends MigrationStep
                 `landing_page_id` BINARY(16) NOT NULL,
                 `sales_channel_id` BINARY(16) NULL,
                 `content_layout_id` BINARY(16) NOT NULL,
-                `parameter_bindings` JSON NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),

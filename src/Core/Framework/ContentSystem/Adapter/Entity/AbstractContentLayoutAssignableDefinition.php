@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Adapter\Entity;
 
-use Shopware\Core\Framework\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
@@ -128,7 +127,6 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
             (new FkField('content_layout_id', 'contentLayoutId', ContentLayoutDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new ParameterBindingsField('parameter_bindings', 'parameterBindings'))->addFlags(new ApiAware()),
 
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('contentLayout', 'content_layout_id', ContentLayoutDefinition::class, 'id', false),

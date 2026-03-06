@@ -10,7 +10,6 @@ use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAs
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -38,7 +37,6 @@ class HeaderSpecificationSourceTest extends TestCase
         $this->source = new HeaderSpecificationSource(
             $this->resolver,
             $repository,
-            new RequestDataExtractor()
         );
     }
 
@@ -67,11 +65,6 @@ class HeaderSpecificationSourceTest extends TestCase
     #[TestDox('returns empty data requirements in specification data')]
     public function testResolveSpecificationDataReturnsEmptyDataRequirements(): void
     {
-        $assignment = static::createStub(AbstractContentLayoutAssignmentEntity::class);
-        $assignment->method('getParameterBindings')->willReturn(null);
-
-        $this->resolver->method('resolve')->willReturn($assignment);
-
         $context = Generator::generateSalesChannelContext();
         $result = $this->source->resolveSpecificationData('', new Request(), $context);
 

@@ -4,7 +4,7 @@
 
 **Abstract Base Classes (entity/definition/collection concrete classes co-located with their domain entities):**
 - `AbstractContentLayoutAssignableDefinition` - Base definition with shared fields
-- `AbstractContentLayoutAssignmentEntity` - Base entity with shared properties (salesChannel, contentLayout, parameterBindings)
+- `AbstractContentLayoutAssignmentEntity` - Base entity with shared properties (salesChannel, contentLayout)
 
 **Concrete implementations (co-located with domain aggregates):**
 - `Content/Product/Aggregate/ProductContentLayout/` - Product entity-based assignments

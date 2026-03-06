@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\ContentSystem\FooterContentLayout;
 
-use Shopware\Core\Framework\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -59,7 +58,6 @@ class FooterContentLayoutDefinition extends EntityDefinition
             (new FkField('domain_id', 'domainId', SalesChannelDomainDefinition::class))->addFlags(new ApiAware()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
             (new FkField('content_layout_id', 'contentLayoutId', ContentLayoutDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new ParameterBindingsField('parameter_bindings', 'parameterBindings'))->addFlags(new ApiAware()),
 
             new ManyToOneAssociationField('domain', 'domain_id', SalesChannelDomainDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),

@@ -28,6 +28,12 @@ interface TokenResponse {
     /* eslint-enable camelcase */
 }
 
+interface RetryBackoffOptions {
+    maxRetries?: number;
+    initialDelay?: number;
+    factor?: number;
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
     loginByUsername: (user: string, pass: string) => Promise<AuthObject>;
@@ -73,16 +79,6 @@ export default function createLoginService(
      * network requests.
      */
     let refreshPromise: Promise<string> | null = null;
-    /**
-     * Counts the number of consecutive failed token refresh attempts for
-     * the current token before giving up or triggering a logout.
-     */
-    let refreshRetryCount = 0;
-    /**
-     * Maximum number of consecutive token refresh retries allowed before
-     * the refresh mechanism stops retrying.
-     */
-    const MAX_REFRESH_RETRIES = 5;
 
     // Subscriber pattern for token refresh events
     const refreshSubscribers: Array<(token: string) => void> = [];
@@ -192,14 +188,7 @@ export default function createLoginService(
                     // Another tab may have successfully refreshed while we waited for the lock
                     const currentAccessToken = getToken();
                     if (currentAccessToken && currentAccessToken !== accessTokenBeforeLock) {
-                        refreshRetryCount = 0;
-
-                        // Notify subscribers about the token refreshed by another tab
-                        refreshSubscribers.forEach((callback) => {
-                            callback(currentAccessToken);
-                        });
-                        refreshSubscribers.length = 0;
-                        refreshErrorSubscribers.length = 0;
+                        notifyRefreshSubscribers(currentAccessToken);
 
                         resolve(currentAccessToken);
                         return;
@@ -228,28 +217,34 @@ export default function createLoginService(
     /**
      * Performs the token refresh HTTP request with exponential backoff retry logic.
      *
-     * On success: updates authentication, resets retry counter and notifies subscribers.
-     * On failure: retries with exponential backoff up to {@link MAX_REFRESH_RETRIES} times,
-     * then triggers an inactivity logout. Also handles multi-tab token sync and
-     * schedules a fallback logout if no valid token is present after the delay.
+     * On success: updates authentication and notifies subscribers.
+     * On failure after all retries: triggers an inactivity logout and notifies error subscribers.
      *
      * @private
      */
     function retryRefreshWithBackoff(token: string): Promise<string> {
-        return httpClient
-            .post<TokenResponse>(
-                '/oauth/token',
-                {
-                    grant_type: 'refresh_token',
-                    client_id: 'administration',
-                    scope: 'write',
-                    refresh_token: token,
-                },
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    baseURL: context.apiPath!,
-                },
-            )
+        return retryPromiseWithBackoff(
+            () => {
+                return httpClient.post<TokenResponse>(
+                    '/oauth/token',
+                    {
+                        grant_type: 'refresh_token',
+                        client_id: 'administration',
+                        scope: 'write',
+                        refresh_token: token,
+                    },
+                    {
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        baseURL: context.apiPath!,
+                    },
+                );
+            },
+            {
+                maxRetries: 5,
+                initialDelay: 1000,
+                factor: 2,
+            },
+        )
             .then((response) => {
                 const expiry = response.data.expires_in;
                 const newToken = response.data.access_token;
@@ -260,27 +255,12 @@ export default function createLoginService(
                     refresh: response.data.refresh_token,
                 });
 
-                refreshRetryCount = 0;
-
-                // Notify all subscribers about successful token refresh
-                refreshSubscribers.forEach((callback) => {
-                    callback(newToken);
-                });
-                refreshSubscribers.length = 0;
-                refreshErrorSubscribers.length = 0;
+                notifyRefreshSubscribers(newToken);
 
                 return newToken;
             })
             .catch((error) => {
-                refreshRetryCount += 1;
-
-                if (refreshRetryCount >= MAX_REFRESH_RETRIES) {
-                    refreshRetryCount = 0;
-                    logout(true);
-                } else {
-                    const backoffMs = 2 ** refreshRetryCount * 1000;
-                    scheduleRefreshRetry(backoffMs);
-                }
+                logout(true);
 
                 // Notify all error subscribers
                 const errorObj = error instanceof Error ? error : new Error(String(error));
@@ -292,6 +272,56 @@ export default function createLoginService(
 
                 return Promise.reject(errorObj);
             });
+    }
+
+    /**
+     * Retries a promise-returning function with exponential backoff.
+     *
+     * @param fn - Function that returns the promise to execute
+     * @param options - Retry and backoff configuration
+     */
+    function retryPromiseWithBackoff<T>(fn: () => Promise<T>, options: RetryBackoffOptions = {}): Promise<T> {
+        const {
+            maxRetries = 3,
+            initialDelay = 1000,
+            factor = 2,
+        } = options;
+
+        return new Promise<T>((resolve, reject) => {
+            let attempt = 0;
+
+            const execute = (): void => {
+                Promise.resolve()
+                    .then(fn)
+                    .then(resolve)
+                    .catch((error) => {
+                        if (attempt >= maxRetries) {
+                            reject(error);
+                            return;
+                        }
+
+                        const delay = initialDelay * factor ** attempt;
+                        attempt += 1;
+
+                        setTimeout(execute, delay);
+                    });
+            };
+
+            execute();
+        });
+    }
+
+    /**
+     * Notifies all refresh subscribers with the latest token and clears all refresh subscriber queues.
+     *
+     * @param token - The refreshed access token
+     */
+    function notifyRefreshSubscribers(token: string): void {
+        refreshSubscribers.forEach((callback) => {
+            callback(token);
+        });
+        refreshSubscribers.length = 0;
+        refreshErrorSubscribers.length = 0;
     }
 
     /**
@@ -310,37 +340,6 @@ export default function createLoginService(
      */
     function isRefreshing(): boolean {
         return refreshPromise !== null;
-    }
-
-    /**
-     * Schedules a token refresh retry after a given delay.
-     * Unlike {@link restartAutoTokenRefresh}, this uses the delay directly
-     * without halving it, making it suitable for exponential backoff retry logic.
-     *
-     * @private
-     */
-    function scheduleRefreshRetry(delayMs: number): void {
-        if (autoRefreshTokenTimeoutId) {
-            clearTimeout(autoRefreshTokenTimeoutId);
-            autoRefreshTokenTimeoutId = undefined;
-        }
-
-        const tokenBeforeRetry = getToken();
-
-        autoRefreshTokenTimeoutId = setTimeout(() => {
-            autoRefreshTokenTimeoutId = undefined;
-
-            // Another tab may have already refreshed the token via cookie storage
-            const currentToken = getToken();
-            if (currentToken && currentToken !== tokenBeforeRetry) {
-                refreshRetryCount = 0;
-                return;
-            }
-
-            void refreshToken().catch(() => {
-                // Errors are handled by retryRefreshWithBackoff and token refresh subscribers.
-            });
-        }, delayMs);
     }
 
     function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {

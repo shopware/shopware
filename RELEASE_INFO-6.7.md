@@ -2,6 +2,11 @@
 
 ## Critical Fixes
 
+### Double signature verification in app-reregistration flow
+Introduces a secure, asynchronous app secret rotation feature to the app system, including both API and CLI interfaces.
+Added a new API endpoint and command for rotating app secrets, implemented the underlying rotation logic, and adjusted the app registration process to support secret updates and dual signature confirmation.
+This increases security by enforcing a two-step verification process during app re-registration, ensuring that only authorized parties can update app secrets.
+
 ### LoginRoute and AccountService don't throw CustomerNotFoundException
 The `LoginRoute` and `AccountService` have been updated to no longer throw a `CustomerNotFoundException` when a login attempt is made with an email address that does not exist in the system.
 Instead, they will now throw a generic `BadCredentialsException` without revealing whether the email address is registered or not.

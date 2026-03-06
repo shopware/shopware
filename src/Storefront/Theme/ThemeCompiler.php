@@ -226,7 +226,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $componentTargetPath = $themeComponentsPath . $component->getRelativeNamespacePath() . '.js';
 
-            $copyFiles[] = new CopyBatchInput($componentPath, [$componentTargetPath]);
+            $copyFiles[] = new CopyBatchInput($componentPath, [$componentTargetPath], $this->visibility);
         }
 
         return $copyFiles;

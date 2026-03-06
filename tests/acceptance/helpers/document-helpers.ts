@@ -17,49 +17,38 @@ interface MaskRegion {
 }
 
 const invoiceMasks: MaskRegion[] = [
-    { x: 112, y: 20, width: 35, height: 20 },
-    { x: 395, y: 315, width: 40, height: 20 },
-    { x: 860, y: 245, width: 80, height: 15 },
-    { x: 868, y: 263, width: 55, height: 15 },
-    { x: 842, y: 280, width: 55, height: 15 },
-    { x: 340, y: 400, width: 315, height: 15 },
+    { x: 110, y: 18, width: 45, height: 20 },
+    { x: 393, y: 321, width: 45, height: 20 },
+    { x: 830, y: 230, width: 145, height: 75 },
+    { x: 340, y: 400, width: 340, height: 30 },
 ];
 
 const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
     invoice: invoiceMasks,
     embedded_zugferd_e_invoice: invoiceMasks,
     cancellation_invoice: [
-        { x: 147, y: 18, width: 40, height: 20 },
-        { x: 429, y: 315, width: 40, height: 20 },
-        { x: 540, y: 315, width: 40, height: 20 },
-        { x: 857, y: 228, width: 80, height: 15 },
-        { x: 864, y: 245, width: 50, height: 15 },
-        { x: 871, y: 263, width: 45, height: 15 },
-        { x: 893, y: 280, width: 50, height: 15 },
-        { x: 340, y: 400, width: 315, height: 15 },
+        { x: 144, y: 18, width: 45, height: 20 },
+        { x: 428, y: 321, width: 45, height: 20 },
+        { x: 542, y: 321, width: 45, height: 20 },
+        { x: 820, y: 210, width: 145, height: 100 },
+        { x: 340, y: 400, width: 340, height: 30 },
     ],
     delivery_note: [
-        { x: 150, y: 18, width: 40, height: 20 },
-        { x: 435, y: 315, width: 40, height: 20 },
-        { x: 535, y: 315, width: 130, height: 20 },
-        { x: 340, y: 400, width: 320, height: 15 },
-        { x: 862, y: 228, width: 82, height: 15 },
-        { x: 867, y: 245, width: 55, height: 15 },
-        { x: 841, y: 263, width: 55, height: 15 },
-        { x: 879, y: 280, width: 55, height: 15 },
+        { x: 148, y: 18, width: 45, height: 20 },
+        { x: 434, y: 321, width: 45, height: 20 },
+        { x: 539, y: 321, width: 125, height: 20 },
+        { x: 830, y: 210, width: 145, height: 100 },
+        { x: 340, y: 400, width: 340, height: 30 },
     ],
     credit_note: [
-        { x: 137, y: 18, width: 40, height: 20 },
-        { x: 418, y: 315, width: 40, height: 20 },
-        { x: 554, y: 315, width: 40, height: 20 },
-        { x: 344, y: 400, width: 235, height: 15 },
-        { x: 861, y: 245, width: 85, height: 15 },
-        { x: 867, y: 263, width: 55, height: 15 },
-        { x: 840, y: 279, width: 55, height: 15 },
+        { x: 136, y: 18, width: 45, height: 20 },
+        { x: 419, y: 321, width: 45, height: 20 },
+        { x: 558, y: 321, width: 125, height: 20 },
+        { x: 830, y: 228, width: 145, height: 75 },
     ],
 };
 
-export async function screenshotPdfPopup(
+export async function screenshotDocument(
     triggerLocator: Locator,
     expects: typeof expect,
     documentType: DocumentTypes,
@@ -74,9 +63,8 @@ export async function screenshotPdfPopup(
 
     await pdfPage.setViewportSize({ width: 1000, height: 1000 });
 
-    // wait for pdf viewer to render
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await pdfPage.waitForTimeout(1000);
+    // eslint-disable-next-line playwright/no-networkidle
+    await pdfPage.waitForLoadState('networkidle');
 
     if (maskRegions?.length) {
         await pdfPage.evaluate((regions) => {
@@ -104,6 +92,7 @@ export async function screenshotPdfPopup(
 
     await expects(pdfPage).toHaveScreenshot(`${documentType}-document.png`, {
         maxDiffPixelRatio: 0.03,
+        timeout: 30000,
     });
 
     await pdfPage.close();

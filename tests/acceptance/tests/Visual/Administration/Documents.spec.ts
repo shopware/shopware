@@ -1,9 +1,9 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { screenshotPdfPopup, DocumentTypes } from '@helpers/document-helpers';
+import { screenshotDocument, DocumentTypes } from '@helpers/document-helpers';
 
 test(
     'Visual: Document PDFs should match expected appearance',
-    { tag: '@Visual' },
+    { tag: '@Visual @Documents' },
     async ({
         ShopAdmin,
         TestDataService,
@@ -52,7 +52,7 @@ test(
                 await firstDocumentRow.contextMenuButton.click();
                 await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
 
-                await screenshotPdfPopup(
+                await screenshotDocument(
                     AdminOrderDetail.contextMenuOpenDocument,
                     ShopAdmin.expects,
                     type,

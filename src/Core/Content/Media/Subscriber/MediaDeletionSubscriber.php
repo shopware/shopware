@@ -68,7 +68,8 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         /** @var array<string> $affected */
         $affected = $event->getIds(MediaFolderDefinition::ENTITY_NAME);
         if (\count($affected) > 0) {
-            $this->handleFolderDeletion($affected, $event->getContext());
+            $folderIds = $this->fetchChildrenIds($affected);
+            $this->handleFolderDeletion($folderIds, $event->getContext());
         }
 
         /** @var array<string> $affected */
@@ -125,19 +126,13 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $affected
+     * @param non-empty-list<string> $folderIds
      */
-    private function handleFolderDeletion(array $affected, Context $context): void
+    private function handleFolderDeletion(array $folderIds, Context $context): void
     {
-        $ids = $this->fetchChildrenIds($affected);
-
-        if ($ids === []) {
-            return; /** @codeCoverageIgnore - The way `handleFolderDeletion` and `fetchChildrenIds` are called, this can never happen  */
-        }
-
         $media = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM media WHERE media_folder_id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Uuid::fromHexToBytesList($folderIds)],
             ['ids' => ArrayParameterType::BINARY]
         );
 
@@ -149,12 +144,13 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param non-empty-array<string> $ids
      *
-     * @return array<string>
+     * @return non-empty-list<string>
      */
     private function fetchChildrenIds(array $ids): array
     {
+        $ids = \array_values($ids);
         $children = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) FROM media_folder WHERE parent_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -162,7 +158,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         );
 
         if ($children === []) {
-            return \array_merge($ids, $children);
+            return $ids;
         }
 
         $nested = $this->fetchChildrenIds($children);

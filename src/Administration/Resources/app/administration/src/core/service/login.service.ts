@@ -336,7 +336,7 @@ export default function createLoginService(
     }
 
     /**
-     * Returns whether a token refresh is currently in progress.
+     * Returns whether a token refresh is currently in progress in this tab.
      */
     function isRefreshing(): boolean {
         return refreshPromise !== null;

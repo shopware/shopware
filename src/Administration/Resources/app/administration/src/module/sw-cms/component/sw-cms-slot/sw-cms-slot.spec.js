@@ -474,6 +474,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         });
         await wrapper.setData({
             showElementSettings: true,
+            isElementSettingsInitialized: true,
         });
         await flushPromises();
 
@@ -492,6 +493,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         });
         await wrapper.setData({
             showElementSettings: false,
+            isElementSettingsInitialized: true,
         });
         await flushPromises();
 
@@ -499,6 +501,35 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         wrapper.vm.onCloseSettingsModal();
         expect(wrapper.vm.showElementSettings).toBe(false);
         expect(mockHandleUpdateContent).not.toHaveBeenCalled();
+    });
+
+    it('should keep the settings modal mounted after first close and allow reopening', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            element: {
+                type: 'with_config_and_unlocked',
+                locked: false,
+            },
+        });
+
+        wrapper.vm.onSettingsButtonClick();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+        expect(wrapper.vm.showElementSettings).toBe(true);
+
+        wrapper.vm.onCloseSettingsModal();
+        await flushPromises();
+
+        expect(wrapper.vm.showElementSettings).toBe(false);
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+
+        wrapper.vm.onSettingsButtonClick();
+        await flushPromises();
+
+        expect(wrapper.vm.showElementSettings).toBe(true);
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
     });
 
     it('should toggle the element being favorite', async () => {

@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -271,11 +272,17 @@ class ProductDefinition extends EntityDefinition
 
         if (Feature::isActive('v6.8.0.0')) {
             $fields->add(
-                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required())->setDescription('The type of the product, e.g., physical or digital.'),
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required(), new Choice([
+                    self::TYPE_PHYSICAL,
+                    self::TYPE_DIGITAL,
+                ]))->setDescription('The type of the product, e.g., physical or digital.'),
             );
         } else {
             $fields->add(
-                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable())->setDescription('The type of the product, e.g., physical or digital.'),
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Choice([
+                    self::TYPE_PHYSICAL,
+                    self::TYPE_DIGITAL,
+                ]))->setDescription('The type of the product, e.g., physical or digital.'),
             );
 
             $fields->add(

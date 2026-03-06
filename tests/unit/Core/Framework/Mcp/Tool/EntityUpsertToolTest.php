@@ -4,11 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -143,12 +146,17 @@ class EntityUpsertToolTest extends TestCase
         static::assertFalse($result['_meta']['dryRun']);
     }
 
+    /**
+     * @param (MockObject&EntityRepository<EntityCollection<Entity>>)|null $repository
+     */
     private function createTool(?EntityRepository $repository = null, ?Connection $connection = null): EntityUpsertTool
     {
-        $repository ??= $this->createMock(EntityRepository::class);
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
-        $events->method('getEvents')->willReturn(new NestedEventCollection());
-        $repository->method('upsert')->willReturn($events);
+        if ($repository === null) {
+            $repository = $this->createMock(EntityRepository::class);
+            $events = $this->createMock(EntityWrittenContainerEvent::class);
+            $events->method('getEvents')->willReturn(new NestedEventCollection());
+            $repository->method('upsert')->willReturn($events);
+        }
 
         $connection ??= $this->createMock(Connection::class);
 

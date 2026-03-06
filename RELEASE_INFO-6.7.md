@@ -1,4 +1,11 @@
-# 6.7.8.0 (upcoming)
+# 6.7.8.1 (upcoming)
+
+## Core
+
+### Improve OrderRoute deepLinkCode filter type validation
+Improve the logic in `\Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load` to ensure the `deepLinkCode` filter is an instance of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter`.
+
+# 6.7.8.0
 
 ## Features
 

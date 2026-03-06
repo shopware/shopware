@@ -582,7 +582,9 @@ describe('core/service/login.service.js', () => {
             }
         });
 
-        it('should continue with current token when refresh fails', async () => {
+        it('should clear token when refresh fails after all retries', async () => {
+            jest.useFakeTimers();
+
             const { loginService, clientMock } = loginServiceFactory();
 
             clientMock.onPost('/oauth/token').replyOnce(200, {
@@ -594,19 +596,24 @@ describe('core/service/login.service.js', () => {
 
             await loginService.loginByUsername('admin', 'shopware');
 
-            const initialExpiry = loginService.getBearerAuthentication('expiry');
-
-            clientMock.onPost('/oauth/token').replyOnce(400, {
+            clientMock.onPost('/oauth/token').reply(400, {
                 error: 'invalid_grant',
             });
 
-            await expect(loginService.refreshToken()).rejects.toThrow();
+            const refreshPromise = loginService.refreshToken();
+            const refreshExpectation = expect(refreshPromise).rejects.toThrow();
 
-            expect(loginService.getToken()).toBe('aCcEsS_tOkEn');
-            expect(loginService.getBearerAuthentication('expiry')).toBe(initialExpiry);
+            // 1 + 2 + 4 + 8 + 16 seconds backoff + 1 second buffer for async scheduling
+            await jest.advanceTimersByTimeAsync(31000);
+            await refreshExpectation;
+
+            expect(loginService.getToken()).toBe(false);
+            expect(loginService.isLoggedIn()).toBe(false);
+
+            jest.useRealTimers();
         });
 
-        it('should retry with interval when refresh fails', async () => {
+        it('should retry with interval when refresh fails once', async () => {
             jest.useFakeTimers();
 
             const { loginService, clientMock } = loginServiceFactory();
@@ -622,11 +629,6 @@ describe('core/service/login.service.js', () => {
             clientMock.resetHistory();
 
             clientMock.onPost('/oauth/token').replyOnce(400, { error: 'invalid_grant' });
-
-            await expect(loginService.refreshToken()).rejects.toThrow();
-
-            expect(clientMock.history.post).toHaveLength(1);
-
             clientMock.onPost('/oauth/token').replyOnce(200, {
                 token_type: 'Bearer',
                 expires_in: 600,
@@ -634,7 +636,11 @@ describe('core/service/login.service.js', () => {
                 refresh_token: 'new_refresh',
             });
 
-            await jest.advanceTimersByTimeAsync(2500);
+            const refreshPromise = loginService.refreshToken();
+            const refreshExpectation = expect(refreshPromise).resolves.toBe('new_token');
+
+            await jest.advanceTimersByTimeAsync(1000);
+            await refreshExpectation;
 
             expect(clientMock.history.post).toHaveLength(2);
             expect(loginService.getToken()).toBe('new_token');
@@ -670,10 +676,12 @@ describe('core/service/login.service.js', () => {
 
             await loginService.loginByUsername('admin', 'shopware');
 
-            await expect(loginService.refreshToken()).rejects.toThrow();
+            const refreshPromise = loginService.refreshToken();
+            const refreshExpectation = expect(refreshPromise).rejects.toThrow();
 
-            // 2 + 4 + 8 + 16 seconds for retries 2-5
-            await jest.advanceTimersByTimeAsync(30000);
+            // 1 + 2 + 4 + 8 + 16 seconds backoff + 1 second buffer for async scheduling
+            await jest.advanceTimersByTimeAsync(31000);
+            await refreshExpectation;
 
             expect(loginService.isLoggedIn()).toBe(false);
 

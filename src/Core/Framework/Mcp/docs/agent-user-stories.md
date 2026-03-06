@@ -53,12 +53,11 @@ This document defines user stories that describe what an AI agent should be able
 
 ## Category 4: Flow/Automation Discovery
 
-**Status: PARTIAL** -- can discover events and actions but cannot create flows.
+**Status: GOOD** -- can discover events/actions and create single-action flows.
 
 - **US-10**: "Set up an automation: when order status changes to 'shipped', send email to customer"
-  - Tools: `shopware://business-events` resource + `shopware://flow-actions` resource for discovery
-  - Feasibility: Can advise which event/action to use, but cannot create the flow
-  - Gap: No `shopware-flow-create` tool (postponed)
+  - Tools: `shopware://business-events` resource + `shopware://flow-actions` resource for discovery, then `shopware-flow-create` to create the flow
+  - Feasibility: Fully covered for single-action flows. Complex multi-action flows still require the admin UI
 
 - **US-11**: "What automations are currently configured?"
   - Tools: `shopware-entity-search` on `flow` entity with `sequences` association
@@ -102,4 +101,3 @@ This document defines user stories that describe what an AI agent should be able
 The following gaps have been identified but deferred to separate tasks:
 
 - **Storefront checkout flow**: `cart-manage`, `cart-checkout`, `checkout-methods`
-- **Flow creation**: `shopware-flow-create` for simple single-action flow automation

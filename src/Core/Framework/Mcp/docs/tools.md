@@ -113,6 +113,36 @@ Transition an entity's state machine state. See `shopware://state-machines` reso
 - `stateFieldName` (string, default: `stateId`) -- State field name
 - `dryRun` (bool, default: `true`) -- Validate without executing
 
+### shopware-flow-create
+Create a Flow Builder automation with a single event trigger and one action, optionally gated by a rule condition. Defaults to `dryRun=true`.
+
+**Parameters:**
+- `name` (string, required) -- Flow name
+- `eventName` (string, required) -- Triggering event (see `shopware://business-events` resource)
+- `actionName` (string, required) -- Action to execute (see `shopware://flow-actions` resource)
+- `actionConfig` (string, default: "{}") -- JSON object with action-specific config
+- `ruleId` (string, optional) -- Rule UUID for conditional execution (if-then)
+- `description` (string, optional) -- Flow description
+- `priority` (int, default: 1) -- Flow priority (higher = executes first)
+- `active` (bool, default: false) -- Whether to activate immediately
+- `dryRun` (bool, default: true) -- Preview without persisting
+
+**Common action configs:**
+
+| Action | Config |
+|---|---|
+| `action.add.order.tag` | `{"tagIds": {"<uuid>": "tag-name"}}` |
+| `action.set.order.state` | `{"order": "<state-id>"}` |
+| `action.mail.send` | `{"mailTemplateId": "<uuid>"}` |
+| `action.generate.document` | `{"documentType": "invoice"}` |
+| `action.change.customer.group` | `{"customerGroupId": "<uuid>"}` |
+| `action.stop.flow` | `{}` |
+
+**Example:**
+```json
+{"name": "Tag new orders", "eventName": "checkout.order.placed", "actionName": "action.add.order.tag", "actionConfig": "{\"tagIds\": {\"<tag-uuid>\": \"new-order\"}}"}
+```
+
 ---
 
 ## Outcome Tools

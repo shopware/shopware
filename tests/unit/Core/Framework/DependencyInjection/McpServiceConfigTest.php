@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
+use Shopware\Core\Framework\Mcp\Tool\FlowCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
 use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\RevenueReportTool;
@@ -61,6 +62,7 @@ class McpServiceConfigTest extends TestCase
             CustomerLookupTool::class,
             ProductCreateTool::class,
             RevenueReportTool::class,
+            FlowCreateTool::class,
             ShopwareContextPrompt::class,
             EntityListResource::class,
             BusinessEventsResource::class,
@@ -98,6 +100,7 @@ class McpServiceConfigTest extends TestCase
             CustomerLookupTool::class,
             ProductCreateTool::class,
             RevenueReportTool::class,
+            FlowCreateTool::class,
         ];
 
         foreach ($toolServices as $serviceId) {

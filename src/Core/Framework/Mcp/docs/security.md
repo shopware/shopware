@@ -11,6 +11,7 @@ Entity tools (`entity-search`, `entity-read`, `entity-upsert`, `entity-delete`),
 - `shopware-customer-lookup` -- `customer:read`
 - `shopware-product-create` -- `product:create`, `product:read`, `tax:read`, `currency:read`
 - `shopware-revenue-report` -- `order:read`
+- `shopware-flow-create` -- `flow:create`
 
 The `RequestCriteriaBuilder` additionally validates field-level `ApiAware` flags on criteria fields.
 

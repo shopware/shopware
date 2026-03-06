@@ -126,6 +126,39 @@ Tool: shopware-revenue-report
 Input: {"from": "2025-01-01", "to": "2025-03-31", "groupBy": "week", "salesChannelId": "<uuid>"}
 ```
 
+## Creating flow automations
+
+**Simple flow: tag all new orders (preview):**
+```
+Tool: shopware-flow-create
+Input: {
+    "name": "Tag new orders",
+    "eventName": "checkout.order.placed",
+    "actionName": "action.add.order.tag",
+    "actionConfig": "{\"tagIds\": {\"<tag-uuid>\": \"new-order\"}}"
+}
+```
+
+**Conditional flow: add VIP tag when order total exceeds rule threshold:**
+```
+Tool: shopware-flow-create
+Input: {
+    "name": "VIP tag for high-value orders",
+    "eventName": "checkout.order.placed",
+    "actionName": "action.add.order.tag",
+    "actionConfig": "{\"tagIds\": {\"<tag-uuid>\": \"vip\"}}",
+    "ruleId": "<rule-uuid>"
+}
+```
+
+**Discovery workflow -- find the right event, action, and config:**
+1. Read `shopware://business-events` resource to find available trigger events
+2. Read `shopware://flow-actions` resource to find available actions
+3. For tag actions: `shopware-entity-search` on `tag` entity to find tag IDs
+4. For state actions: read `shopware://state-machines` resource for valid state IDs
+5. For conditional flows: `shopware-entity-search` on `rule` entity to find an existing rule
+6. Call `shopware-flow-create` with dryRun=true to preview, then dryRun=false to persist
+
 ## System configuration
 
 **Read all listing settings:**

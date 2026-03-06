@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -62,26 +61,36 @@ class PropertyGroupCollection extends EntityCollection
             }
 
             $entities = [];
-
-            $sortingType = $group->getSortingType();
+            $sortingByPosition = $group->getSortingType() !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
+            $posititionCol = [];
+            $nameCol = [];
 
             foreach ($options->getIterator() as $option) {
+                if ($sortingByPosition) {
+                    $posititionCol[] = (int) ($option->getTranslation('position') ?? $option->getPosition() ?? 0);
+                }
+
+                $nameCol[] = (string) $collator->getSortKey($option->getTranslation('name') ?? '');
                 $entities[] = $option;
             }
 
-            if ($sortingType === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                usort($entities, fn (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b): int => $this->compareByName($collator, $a, $b));
+            if ($sortingByPosition) {
+                array_multisort(
+                    $posititionCol,
+                    \SORT_ASC,
+                    \SORT_NUMERIC,
+                    $nameCol,
+                    \SORT_ASC,
+                    \SORT_STRING,
+                    $entities,
+                );
             } else {
-                usort($entities, function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($collator): int {
-                    $posA = (int) ($a->getTranslation('position') ?? $a->getPosition() ?? 0);
-                    $posB = (int) ($b->getTranslation('position') ?? $b->getPosition() ?? 0);
-
-                    if ($posA !== $posB) {
-                        return $posA <=> $posB;
-                    }
-
-                    return $this->compareByName($collator, $a, $b);
-                });
+                array_multisort(
+                    $nameCol,
+                    \SORT_ASC,
+                    \SORT_STRING,
+                    $entities,
+                );
             }
 
             $sortedOptions = new PropertyGroupOptionCollection();
@@ -105,28 +114,16 @@ class PropertyGroupCollection extends EntityCollection
     private function createCollator(?string $localeCode = null): \Collator
     {
         $locale = ($localeCode !== null && $localeCode !== '') ? \Locale::canonicalize($localeCode) : null;
-
         if ($locale === null || $locale === '') {
             $locale = \Locale::getDefault() ?: 'en_US';
         }
 
         $collator = new \Collator($locale);
         $collator->setAttribute(\Collator::NUMERIC_COLLATION, \Collator::ON);
-        $collator->setAttribute(\Collator::STRENGTH, \Collator::SECONDARY);
+        $collator->setAttribute(\Collator::ALTERNATE_HANDLING, \Collator::SHIFTED);
+        $collator->setAttribute(\Collator::CASE_FIRST, \Collator::UPPER_FIRST);
+        $collator->setAttribute(\Collator::STRENGTH, \Collator::TERTIARY);
 
         return $collator;
-    }
-
-    private function compareByName(\Collator $collator, PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b): int
-    {
-        $nameA = (string) ($a->getTranslation('name') ?? '');
-        $nameB = (string) ($b->getTranslation('name') ?? '');
-
-        $result = $collator->compare($nameA, $nameB);
-        if ($result !== false && $result !== 0) {
-            return $result;
-        }
-
-        return strnatcmp($nameA, $nameB);
     }
 }

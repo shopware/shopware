@@ -138,7 +138,7 @@ class PropertySortTest extends TestCase
         $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(
-            ['1A', '2aa', '3-x$e', '3D', '3e', '20AA', '44f', '55g', 'A', 'a', 'Ä', 'ä', 'aa', 'Ab', 'B', 'b', 'h6', 'i7', 'j2', 'Ö', 'ö', 'Ü', 'ü'],
+            ['1A', '2aa', '3D', '3e', '3-x$e', '20AA', '44f', '55g', 'A', 'a', 'Ä', 'ä', 'aa', 'Ab', 'B', 'b', 'h6', 'i7', 'j2', 'Ö', 'ö', 'Ü', 'ü'],
             array_column($propertyOptionsArray, 'name')
         );
     }

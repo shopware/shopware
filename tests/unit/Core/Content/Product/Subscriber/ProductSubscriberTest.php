@@ -41,6 +41,7 @@ use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -231,8 +232,8 @@ class ProductSubscriberTest extends TestCase
             'cheapestPrice' => $cheapestPrice,
         ]);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getLanguageInfo')->willReturn(new LanguageInfo('English', 'en-GB'));
+        $languageInfo = new LanguageInfo('English', 'en-GB');
+        $salesChannelContext = Generator::generateSalesChannelContext(languageInfo: $languageInfo);
 
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(

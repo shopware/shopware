@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -20,13 +21,13 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnail extends Migrati
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'media_thumbnail', 'media_thumbnail_size_id')) {
+        if (!TableHelper::columnExists($connection, 'media_thumbnail', 'media_thumbnail_size_id')) {
             $this->addColumn($connection, 'media_thumbnail', 'media_thumbnail_size_id', 'BINARY(16)');
         }
 
         $this->migrateMediaThumbnailRows($connection);
 
-        if (!$this->indexExists($connection, 'media_thumbnail', 'fk.media_thumbnail.media_thumbnail_size_id')) {
+        if (!TableHelper::indexExists($connection, 'media_thumbnail', 'fk.media_thumbnail.media_thumbnail_size_id')) {
             $connection->executeStatement('
                 ALTER TABLE `media_thumbnail`
                 ADD CONSTRAINT `fk.media_thumbnail.media_thumbnail_size_id`
@@ -43,7 +44,7 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnail extends Migrati
     {
         $this->migrateMediaThumbnailRows($connection);
 
-        if ($this->indexExists($connection, 'media_thumbnail', 'fk.media_thumbnail.media_thumbnail_size_id')) {
+        if (TableHelper::indexExists($connection, 'media_thumbnail', 'fk.media_thumbnail.media_thumbnail_size_id')) {
             $connection->executeStatement('
                 ALTER TABLE `media_thumbnail`
                 DROP FOREIGN KEY `fk.media_thumbnail.media_thumbnail_size_id`

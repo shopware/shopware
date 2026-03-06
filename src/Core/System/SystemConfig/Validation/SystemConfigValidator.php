@@ -59,7 +59,7 @@ class SystemConfigValidator
                 }
             }
 
-            if (empty($subDefinition->getProperties())) {
+            if ($subDefinition->getProperties() === []) {
                 continue;
             }
 

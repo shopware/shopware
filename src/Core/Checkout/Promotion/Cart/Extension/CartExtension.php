@@ -26,7 +26,7 @@ class CartExtension extends Struct
 
     public function addCode(string $code): void
     {
-        if (empty($code)) {
+        if ($code === '') {
             return;
         }
 
@@ -42,7 +42,7 @@ class CartExtension extends Struct
 
     public function removeCode(string $code): void
     {
-        if (empty($code)) {
+        if ($code === '') {
             return;
         }
 
@@ -67,7 +67,7 @@ class CartExtension extends Struct
 
     public function blockPromotion(string $id): void
     {
-        if (empty($id)) {
+        if ($id === '') {
             return;
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,15 +36,16 @@ class SystemIsInstalledCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            $this->connection->fetchAllAssociative('SHOW COLUMNS FROM migration');
+            if (TableHelper::tableExists($this->connection, 'migration')) {
+                $io->success('Shopware is installed');
 
-            $io->success('Shopware is installed');
-
-            return self::SUCCESS;
-        } catch (\Exception) {
-            $io->error('Shopware is not installed');
-
-            return self::FAILURE;
+                return self::SUCCESS;
+            }
+        } catch (\Throwable) {
         }
+
+        $io->error('Shopware is not installed');
+
+        return self::FAILURE;
     }
 }

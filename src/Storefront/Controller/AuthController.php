@@ -191,7 +191,7 @@ class AuthController extends StorefrontController
             $token = $this->loginRoute->login($data, $context)->getToken();
             $cartBeforeNewContext = $this->cartFacade->get($token, $context);
 
-            if (!empty($token)) {
+            if ($token !== '') {
                 $this->addCartErrors($cartBeforeNewContext);
 
                 return $this->createActionResponse($request);
@@ -309,7 +309,7 @@ class AuthController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/reset-password.html.twig', [
             'page' => $page,
-            'formViolations' => $request->query->all()['formViolations'] ?? null,
+            'formViolations' => $request->attributes->get('formViolations') ?? ($request->query->all()['formViolations'] ?? null),
         ]);
     }
 

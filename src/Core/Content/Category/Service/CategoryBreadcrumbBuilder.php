@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -86,7 +87,7 @@ class CategoryBreadcrumbBuilder
         $categoryIds = $product->getCategoryIds() ?? [];
         $productStreamIds = $product->getStreamIds() ?? [];
 
-        if (empty($productStreamIds) && empty($categoryIds)) {
+        if ($productStreamIds === [] && $categoryIds === []) {
             return null;
         }
 
@@ -94,8 +95,9 @@ class CategoryBreadcrumbBuilder
         $criteria->setTitle('breadcrumb-builder');
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addFilter(new EqualsFilter('visible', true));
 
-        if (!empty($categoryIds)) {
+        if ($categoryIds !== []) {
             $criteria->setIds($categoryIds);
         } else {
             $criteria->addFilter(new EqualsAnyFilter('productStream.id', $productStreamIds));
@@ -103,6 +105,7 @@ class CategoryBreadcrumbBuilder
         }
 
         $criteria->addFilter($this->getSalesChannelFilter($context->getSalesChannel()));
+        $criteria->addSorting(new FieldSorting('level', FieldSorting::DESCENDING));
 
         return $this->categoryRepository->search($criteria, $context->getContext())->first();
     }
@@ -112,7 +115,7 @@ class CategoryBreadcrumbBuilder
         $seoBreadcrumb = $this->build($category, $salesChannel);
         $categoryIds = array_keys($seoBreadcrumb ?? []);
 
-        if (empty($categoryIds)) {
+        if ($categoryIds === []) {
             return new BreadcrumbCollection();
         }
 
@@ -295,7 +298,7 @@ class CategoryBreadcrumbBuilder
                 $translated,
             );
 
-            if (!$categorySeoUrls || \count($categorySeoUrls) === 0) {
+            if ($categorySeoUrls === []) {
                 $categoryBreadcrumb->path = 'navigation/' . $categoryId;
                 continue;
             }
@@ -324,7 +327,7 @@ class CategoryBreadcrumbBuilder
      */
     private function filterCategorySeoUrls(array $seoUrls, string $categoryId): array
     {
-        return array_filter($seoUrls, function (array $seoUrl) use ($categoryId) {
+        return array_filter($seoUrls, static function (array $seoUrl) use ($categoryId): bool {
             return $seoUrl['categoryId'] === $categoryId;
         });
     }

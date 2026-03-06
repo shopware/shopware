@@ -10,6 +10,8 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
 use Shopware\Core\PlatformRequest;
@@ -27,6 +29,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Group('cache')]
 class CacheInvalidatorTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testInvalidateNothingShouldNotCall(): void
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
@@ -51,7 +55,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate([]);
@@ -91,7 +96,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createBacktraceCollectorMock('Foo', 'a')
+            $this->createBacktraceCollectorMock('Foo', 'a'),
+            null
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -131,7 +137,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            $this->createBacktraceCollectorMock('Foo', 'a')
+            $this->createBacktraceCollectorMock('Foo', 'a'),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -166,7 +173,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             false,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -194,7 +202,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -225,7 +234,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidateExpired();
@@ -259,6 +269,9 @@ class CacheInvalidatorTest extends TestCase
                 ]
             );
 
+        $reverseProxyGateway = $this->createMock(AbstractReverseProxyGateway::class);
+        $reverseProxyGateway->expects($this->once())->method('flush');
+
         $invalidator = new CacheInvalidator(
             [
                 $tagAwareAdapter,
@@ -271,7 +284,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
+            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
+            $reverseProxyGateway
         );
 
         $invalidator->invalidateExpired();
@@ -309,7 +323,8 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
+            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
+            null
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -346,7 +361,8 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            $this->createBacktraceCollectorMock()
+            $this->createBacktraceCollectorMock(),
+            null
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -371,7 +387,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);
@@ -381,6 +398,8 @@ class CacheInvalidatorTest extends TestCase
 
     public function testStoreFailureFallsBackToImmediateInvalidation(): void
     {
+        $this->setEnvVars(['CI' => null]);
+
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
             ->expects($this->once())
@@ -409,7 +428,47 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            $this->createMock(BacktraceCollector::class),
+            null
+        );
+
+        $invalidator->invalidate(['foo']);
+    }
+
+    public function testStoreFailureLogsWarningInCiMode(): void
+    {
+        $this->setEnvVars(['CI' => '1']);
+
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects($this->once())
+            ->method('invalidateTags')
+            ->with(['foo']);
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects($this->once())
+            ->method('store')
+            ->willThrowException(new \RuntimeException('Redis connection failed'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with('Failed to store cache invalidation tags (CI mode; storage may be unavailable), invalidating immediately. Error: Redis connection failed');
+
+        $invalidator = new CacheInvalidator(
+            [$tagAwareAdapter],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            $logger,
+            new RequestStack([new Request()]),
+            $this->createMock(TagAwareAdapterInterface::class),
+            false,
+            true,
+            true,
+            $this->createMock(BacktraceCollector::class),
+            null
         );
 
         $invalidator->invalidate(['foo']);

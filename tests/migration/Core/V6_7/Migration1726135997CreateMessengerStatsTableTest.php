@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1726135997CreateMessengerStatsTable;
 
 /**
@@ -37,14 +38,10 @@ class Migration1726135997CreateMessengerStatsTableTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $schemaManager = $this->connection->createSchemaManager();
-        $columns = $schemaManager->listTableColumns('messenger_stats');
-
-        static::assertNotEmpty($columns);
-        static::assertArrayHasKey('id', $columns);
-        static::assertArrayHasKey('message_type', $columns);
-        static::assertArrayHasKey('time_in_queue', $columns);
-        static::assertArrayHasKey('created_at', $columns);
+        static::assertTrue(TableHelper::columnExists($this->connection, 'messenger_stats', 'id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'messenger_stats', 'message_type'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'messenger_stats', 'time_in_queue'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'messenger_stats', 'created_at'));
     }
 
     private function rollback(): void

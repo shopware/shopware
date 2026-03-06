@@ -10,11 +10,15 @@ on:
     paths:
       - "**/package.json"
       - "**/package-lock.json"
+      - "**/scripts/runNpmAudit.ts"
+      - ".github/bin/js/run-npm-audit.ts"
   pull_request:
     types: [opened, synchronize]
     paths:
       - "**/package.json"
       - "**/package-lock.json"
+      - "**/scripts/runNpmAudit.ts"
+      - ".github/bin/js/run-npm-audit.ts"
 
 jobs:
   check-package-completeness:
@@ -23,14 +27,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 24
 
       - name: Validate package.json completeness
-        run: npx esno ./.github/bin/js/package-discovery.ts validate
+        run: node ./.github/bin/js/package-discovery.ts validate
 
   check-pinned-dependencies:
     name: Check pinned dependencies
@@ -38,14 +42,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 24
 
       - name: Check for unpinned dependencies
-        run: npx esno ./.github/bin/js/check-pinned-dependencies.ts
+        run: node ./.github/bin/js/check-pinned-dependencies.ts
 
   generate-audit-matrix:
     name: Generate audit matrix
@@ -55,16 +59,16 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 24
 
       - name: Generate matrix
         id: generate-matrix
         run: |
-          matrix=$(npx esno ./.github/bin/js/package-discovery.ts matrix)
+          matrix=$(node ./.github/bin/js/package-discovery.ts matrix)
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   audit-packages:
@@ -77,9 +81,9 @@ jobs:
       matrix: ${{ fromJson(needs.generate-audit-matrix.outputs.matrix) }}
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 24
 
@@ -94,5 +98,5 @@ jobs:
 
       - name: Run audit (custom script)
         if: ${{ matrix.hasCustomAuditScript }}
-        run: npx esno ./scripts/runNpmAudit.ts
+        run: node ./scripts/runNpmAudit.ts
         working-directory: ${{ matrix.workingDirectory }}

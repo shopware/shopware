@@ -1,8 +1,12 @@
 {
+  "type": "module",
   "dependencies": {
-    "@shopware-ag/gh-project-automation": "1.14.0"
+    "@shopware-ag/gh-project-automation": "1.14.1"
   },
   "devDependencies": {
     "@types/node": "24.10.0"
+  },
+  "overrides": {
+    "minimatch": "10.2.2"
   }
 }

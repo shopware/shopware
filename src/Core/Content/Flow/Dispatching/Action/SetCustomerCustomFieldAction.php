@@ -65,7 +65,7 @@ class SetCustomerCustomFieldAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $customFields = empty($customFields) ? null : $customFields;
+        $customFields = $customFields === [] ? null : $customFields;
 
         $this->customerRepository->update([
             [

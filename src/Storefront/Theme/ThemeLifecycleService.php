@@ -102,7 +102,7 @@ class ThemeLifecycleService
 
         $themeData = array_merge($themeData, $updatedData);
 
-        if (!empty($configuration->getConfigInheritance())) {
+        if ($configuration->getConfigInheritance() !== []) {
             $themeData = $this->addParentTheme($configuration, $themeData, $context);
         }
 
@@ -335,7 +335,7 @@ class ThemeLifecycleService
             $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $id];
         }
 
-        if (empty($themeMediaData)) {
+        if ($themeMediaData === []) {
             return;
         }
 
@@ -401,8 +401,8 @@ class ThemeLifecycleService
         $installedBaseConfig = $installedConfiguration?->getThemeConfig() ?? [];
 
         $currentThemeMedia = null;
-        $currentMediaIds = null;
-        $toDeleteIds = null;
+        $currentMediaIds = [];
+        $toDeleteIds = [];
         // get existing MediaFiles
         if ($theme !== null && \array_key_exists('fields', $theme->getBaseConfig() ?? [])) {
             foreach ($theme->getBaseConfig()['fields'] as $key => $field) {
@@ -412,7 +412,7 @@ class ThemeLifecycleService
                 $currentMediaIds[$key] = $field['value'];
             }
 
-            if (!empty($currentMediaIds)) {
+            if ($currentMediaIds !== []) {
                 $currentThemeMedia = $this->mediaRepository->search(new Criteria($currentMediaIds), $context)->getEntities();
             }
         }
@@ -435,9 +435,8 @@ class ThemeLifecycleService
                 $path = $field['value'];
 
                 if (!\array_key_exists($path, $media)) {
-                    if (
-                        $currentThemeMedia
-                        && !empty($currentMediaIds)
+                    if ($currentThemeMedia !== null
+                        && $currentMediaIds !== []
                         && isset($currentMediaIds[$key])
                         && $currentThemeMedia->get($currentMediaIds[$key])?->getFileNameIncludingExtension() === basename($path)) {
                         continue;
@@ -472,7 +471,7 @@ class ThemeLifecycleService
 
         $mediaIds = [];
 
-        if (!empty($media)) {
+        if ($media !== []) {
             $mediaIds = array_column($media, 'media');
 
             $this->mediaRepository->create($mediaIds, $context);
@@ -502,7 +501,7 @@ class ThemeLifecycleService
 
         $themeData['media'] = $mediaIds;
 
-        if ($theme && \is_array($toDeleteIds)) {
+        if ($theme !== null) {
             $toDeleteIds = array_unique($toDeleteIds);
             foreach ($toDeleteIds as $id) {
                 if (Uuid::isValid($id)) {
@@ -547,7 +546,7 @@ class ThemeLifecycleService
             $result[$locale] = [$property => $translation];
         }
 
-        if (!$containsSystemLanguage && \count($translations) > 0) {
+        if (!$containsSystemLanguage && $translations !== []) {
             $translation = array_shift($translations);
             if (\array_key_exists('en-GB', $translations)) {
                 $translation = $translations['en-GB'];

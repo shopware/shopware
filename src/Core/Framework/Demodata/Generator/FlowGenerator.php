@@ -196,7 +196,7 @@ class FlowGenerator implements DemodataGeneratorInterface
             }
         }
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             $this->write($payload, $context);
         }
 
@@ -274,7 +274,7 @@ class FlowGenerator implements DemodataGeneratorInterface
      */
     private function getActions(): array
     {
-        if (!empty($this->actions)) {
+        if ($this->actions !== []) {
             return $this->actions;
         }
 
@@ -330,7 +330,7 @@ class FlowGenerator implements DemodataGeneratorInterface
      */
     private function getTags(): array
     {
-        if (!empty($this->tags)) {
+        if ($this->tags !== []) {
             return $this->tags;
         }
 

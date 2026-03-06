@@ -31,7 +31,7 @@
         :show-settings="false"
         :show-selection="false"
         :is-loading="isLoading"
-        :items="searchConfigs"
+        :data-source="searchConfigs"
         :skeleton-item-amount="searchConfigs && searchConfigs.length"
         :allow-inline-edit="acl.can('product_search_config.editor')"
         @inline-edit-save="onInlineEditSave"

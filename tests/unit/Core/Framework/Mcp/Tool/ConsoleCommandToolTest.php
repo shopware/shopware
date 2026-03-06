@@ -6,6 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -41,5 +44,60 @@ class ConsoleCommandToolTest extends TestCase
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
         static::assertFalse($data['success']);
         static::assertSame('Command "any:command" is not in the allowlist. Allowed commands: ', $data['error']);
+    }
+
+    public function testThrowsWhenArgumentsIsInvalidJson(): void
+    {
+        $kernel = $this->createMock(KernelInterface::class);
+        $tool = new ConsoleCommandTool($kernel, ['debug:router']);
+
+        $this->expectException(\JsonException::class);
+
+        ($tool)('debug:router', 'not json');
+    }
+
+    public function testSuccessPathReturnsExitCodeAndOutput(): void
+    {
+        $kernel = $this->createMock(KernelInterface::class);
+        $application = $this->createMock(Application::class);
+        $application->method('run')
+            ->willReturnCallback(function (InputInterface $input, OutputInterface $output): int {
+                $output->writeln('Route list output');
+
+                return 0;
+            });
+
+        $tool = new ConsoleCommandTool($kernel, ['debug:router']);
+        $this->injectApplication($tool, $application);
+
+        $output = ($tool)('debug:router', '{}');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($data['success']);
+        static::assertSame(0, $data['data']['exitCode']);
+        static::assertStringContainsString('Route list output', $data['data']['output']);
+        static::assertArrayHasKey('durationMs', $data['data']);
+    }
+
+    public function testReturnsErrorWhenApplicationRunThrows(): void
+    {
+        $kernel = $this->createMock(KernelInterface::class);
+        $application = $this->createMock(Application::class);
+        $application->method('run')->willThrowException(new \RuntimeException('Command failed'));
+
+        $tool = new ConsoleCommandTool($kernel, ['debug:router']);
+        $this->injectApplication($tool, $application);
+
+        $output = ($tool)('debug:router', '{}');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
+        static::assertSame('Command failed', $data['error']);
+    }
+
+    private function injectApplication(ConsoleCommandTool $tool, Application $application): void
+    {
+        $ref = new \ReflectionProperty(ConsoleCommandTool::class, 'application');
+        $ref->setValue($tool, $application);
     }
 }

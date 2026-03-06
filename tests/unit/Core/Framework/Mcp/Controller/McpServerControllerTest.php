@@ -72,4 +72,18 @@ class McpServerControllerTest extends TestCase
 
         $this->controller->handle($request);
     }
+
+    public function testRateLimitUsesUnknownWhenNoTokenOrIp(): void
+    {
+        $request = new Request();
+
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP, 'unknown')
+            ->willThrowException(new RateLimitExceededException(time() + 60));
+
+        $this->expectException(McpException::class);
+
+        $this->controller->handle($request);
+    }
 }

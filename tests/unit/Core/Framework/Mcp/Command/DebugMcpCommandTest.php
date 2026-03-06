@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Command;
 
+use Mcp\Capability\Attribute\McpTool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -43,5 +44,23 @@ class DebugMcpCommandTest extends TestCase
 
         static::assertStringContainsString('No capabilities registered', $output);
         static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testOutputsTableRowsForItemsWithMcpAttributes(): void
+    {
+        $toolWithAttr = new #[McpTool(name: 'test-tool', description: 'A test tool')] class {
+        };
+
+        $command = new DebugMcpCommand([$toolWithAttr], [], []);
+        $tester = new CommandTester($command);
+
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('test-tool', $output);
+        static::assertStringContainsString('A test tool', $output);
+        static::assertStringContainsString('Name', $output);
+        static::assertStringContainsString('Description', $output);
+        static::assertStringContainsString('Class', $output);
     }
 }

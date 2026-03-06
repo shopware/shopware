@@ -160,7 +160,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths
         $this->assertSnapshot('routes_without_schema', [
             [
-                'type' => 'json',
+                'type' => self::TYPE_JSON,
                 'actual' => $missingRoutes,
             ],
         ]);

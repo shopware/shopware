@@ -167,17 +167,21 @@ export default Shopware.Component.wrapComponentConfig({
             this.showElementSettings = true;
         },
 
-        onCloseSettingsModal() {
+        async onCloseSettingsModal() {
             if (!this.showElementSettings) {
                 return;
             }
 
             const childComponent = this.$refs.elementComponentRef as {
-                handleUpdateContent: () => void;
+                handleUpdateContent: () => boolean | void | Promise<boolean | void>;
             };
 
             if (childComponent?.handleUpdateContent) {
-                childComponent.handleUpdateContent();
+                const result = await childComponent.handleUpdateContent();
+
+                if (result === false) {
+                    return;
+                }
             }
 
             this.showElementSettings = false;

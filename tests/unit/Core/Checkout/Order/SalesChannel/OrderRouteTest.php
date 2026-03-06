@@ -23,7 +23,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -216,6 +222,37 @@ class OrderRouteTest extends TestCase
             'valid guest uppercase email' => [true, 'Test@Example.Com', 'AA-345', null],
             'valid guest lowercase postal code' => [true, 'Test@Example.Com', 'aa-345', null],
             'valid guest with login' => [true, 'Test@Example.Com', 'aa-345', null, true],
+        ];
+    }
+
+    #[DataProvider('deeplinkFilterProvider')]
+    public function testWronglyDeeplinkFilter(Filter $filter): void
+    {
+        $this->expectException(OrderException::class);
+
+        $route = new OrderRoute(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(RateLimiter::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(AccountService::class),
+            new GuestAuthenticator(),
+        );
+
+        $route->load(new Request(), $this->createMock(SalesChannelContext::class), (new Criteria())->addFilter($filter));
+    }
+
+    /**
+     * @return array<string, array{Filter}>
+     */
+    public static function deeplinkFilterProvider(): array
+    {
+        return [
+            'deeplink equalsAny' => [new EqualsAnyFilter('deepLinkCode', ['deepLinkCode'])],
+            'deeplink multi' => [new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('deepLinkCode', 'deepLinkCode')])],
+            'deeplink not' => [new NotFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('deepLinkCode', 'deepLinkCode')])],
+            'deeplink suffix' => [new SuffixFilter('deepLinkCode', 'Code')],
+            'deeplink prefix' => [new PrefixFilter('deepLinkCode', 'deep')],
         ];
     }
 }

@@ -7,6 +7,9 @@ The `LoginRoute` and `AccountService` have been updated to no longer throw a `Cu
 Instead, they will now throw a generic `BadCredentialsException` without revealing whether the email address is registered or not.
 This change enhances security by preventing potential attackers from enumerating valid email addresses through error messages.
 
+### Improve OrderRoute deepLinkCode filter type validation
+Improve the logic in `\Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load` to ensure the `deepLinkCode` filter is an instance of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter`.
+
 # 6.7.8.0
 
 ## Features

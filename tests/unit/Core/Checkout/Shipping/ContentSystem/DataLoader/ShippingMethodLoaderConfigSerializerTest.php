@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Shipping\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfig;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -87,7 +87,7 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+            ShippingException::invalidFieldValueType('associations', 'array', 'string')
         );
 
         $this->serializer->decode(['associations' => 'country']);
@@ -97,7 +97,7 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNullAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'NULL')
+            ShippingException::invalidFieldValueType('associations.0', 'non-empty string', 'NULL')
         );
 
         $this->serializer->decode(['associations' => [null]]);
@@ -107,7 +107,7 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithEmptyStringAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+            ShippingException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
         );
 
         $this->serializer->decode(['associations' => ['']]);
@@ -117,7 +117,7 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNonBoolOnlyAvailableThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('onlyAvailable', 'bool', 'string')
+            ShippingException::invalidFieldValueType('onlyAvailable', 'bool', 'string')
         );
 
         $this->serializer->decode(['onlyAvailable' => 'yes']);
@@ -200,7 +200,7 @@ class ShippingMethodLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', ShippingMethodLoaderConfig::class, StubLoaderConfig::class)
+            ShippingException::invalidFieldValueType('config', ShippingMethodLoaderConfig::class, StubLoaderConfig::class)
         );
 
         $this->serializer->encode(new StubLoaderConfig());

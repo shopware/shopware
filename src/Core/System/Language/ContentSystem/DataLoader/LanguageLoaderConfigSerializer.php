@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\System\Language\ContentSystem\DataLoader;
 
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageException;
 
 /**
  * @phpstan-import-type LanguageLoaderConfigData from LanguageLoaderConfig
@@ -27,11 +27,11 @@ class LanguageLoaderConfigSerializer extends AbstractContentDataLoaderConfigSeri
         $associations = [];
         if (\array_key_exists('associations', $data) && $data['associations'] !== null) {
             if (!\is_array($data['associations'])) {
-                throw ContentSystemException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
+                throw LanguageException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
             }
             foreach ($data['associations'] as $i => $association) {
                 if (!\is_string($association) || $association === '') {
-                    throw ContentSystemException::invalidFieldValueType('associations.' . $i, 'non-empty string', \gettype($association));
+                    throw LanguageException::invalidFieldValueType('associations.' . $i, 'non-empty string', \gettype($association));
                 }
                 $associations[] = $association;
             }
@@ -46,7 +46,7 @@ class LanguageLoaderConfigSerializer extends AbstractContentDataLoaderConfigSeri
     public function encode(AbstractContentDataLoaderConfig $config): array
     {
         if (!$config instanceof LanguageLoaderConfig) {
-            throw ContentSystemException::invalidFieldValueType('config', LanguageLoaderConfig::class, $config::class);
+            throw LanguageException::invalidFieldValueType('config', LanguageLoaderConfig::class, $config::class);
         }
 
         $data = [];

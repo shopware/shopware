@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\System\Language\LanguageException;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -66,7 +66,7 @@ class LanguageLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+            LanguageException::invalidFieldValueType('associations', 'array', 'string')
         );
 
         $this->serializer->decode(['associations' => 'locale']);
@@ -76,7 +76,7 @@ class LanguageLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNonStringAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
+            LanguageException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
         );
 
         $this->serializer->decode(['associations' => [42]]);
@@ -86,7 +86,7 @@ class LanguageLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithEmptyStringAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+            LanguageException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
         );
 
         $this->serializer->decode(['associations' => ['']]);
@@ -116,7 +116,7 @@ class LanguageLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', LanguageLoaderConfig::class, StubLoaderConfig::class)
+            LanguageException::invalidFieldValueType('config', LanguageLoaderConfig::class, StubLoaderConfig::class)
         );
 
         $this->serializer->encode(new StubLoaderConfig());

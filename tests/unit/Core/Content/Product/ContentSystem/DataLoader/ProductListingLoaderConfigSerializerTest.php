@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -91,7 +91,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithInvalidPropertyThrowsException(array $data, string $actualType): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('property', 'non-empty string', $actualType)
+            ProductException::invalidFieldValueType('property', 'non-empty string', $actualType)
         );
 
         $this->serializer->decode($data);
@@ -101,7 +101,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+            ProductException::invalidFieldValueType('associations', 'array', 'string')
         );
 
         $this->serializer->decode(['associations' => 'manufacturer']);
@@ -111,7 +111,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithEmptyStringFirstAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+            ProductException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
         );
 
         $this->serializer->decode(['associations' => ['']]);
@@ -121,7 +121,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithEmptyStringSecondAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.1', 'non-empty string', 'string')
+            ProductException::invalidFieldValueType('associations.1', 'non-empty string', 'string')
         );
 
         $this->serializer->decode(['associations' => ['manufacturer', '']]);
@@ -131,7 +131,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNonStringFirstAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
+            ProductException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
         );
 
         $this->serializer->decode(['associations' => [42]]);
@@ -213,7 +213,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', ProductListingLoaderConfig::class, StubLoaderConfig::class)
+            ProductException::invalidFieldValueType('config', ProductListingLoaderConfig::class, StubLoaderConfig::class)
         );
 
         $this->serializer->encode(new StubLoaderConfig());

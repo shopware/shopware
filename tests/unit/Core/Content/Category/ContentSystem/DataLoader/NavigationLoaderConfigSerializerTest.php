@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfig;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -98,7 +98,7 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithInvalidRootIdThrowsException(array $data, string $actualType): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('rootId', 'non-empty string', $actualType)
+            CategoryException::invalidFieldValueType('rootId', 'non-empty string', $actualType)
         );
 
         $this->serializer->decode($data);
@@ -114,7 +114,7 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithInvalidDepthThrowsException(array $data, string $actualType): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('depth', 'positive int', $actualType)
+            CategoryException::invalidFieldValueType('depth', 'positive int', $actualType)
         );
 
         $this->serializer->decode($data);
@@ -129,7 +129,7 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithInvalidActivePropertyThrowsException(array $data, string $actualType): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('activeProperty', 'non-empty string', $actualType)
+            CategoryException::invalidFieldValueType('activeProperty', 'non-empty string', $actualType)
         );
 
         $this->serializer->decode($data);
@@ -197,7 +197,7 @@ class NavigationLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', NavigationLoaderConfig::class, StubLoaderConfig::class)
+            CategoryException::invalidFieldValueType('config', NavigationLoaderConfig::class, StubLoaderConfig::class)
         );
 
         $this->serializer->encode(new StubLoaderConfig());

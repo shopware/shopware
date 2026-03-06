@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Category\ContentSystem\DataLoader;
 
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +27,7 @@ class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
         $rootId = null;
         if (\array_key_exists('rootId', $data)) {
             if (!\is_string($data['rootId']) || $data['rootId'] === '') {
-                throw ContentSystemException::invalidFieldValueType('rootId', 'non-empty string', \gettype($data['rootId']));
+                throw CategoryException::invalidFieldValueType('rootId', 'non-empty string', \gettype($data['rootId']));
             }
             $rootId = $data['rootId'];
         }
@@ -35,7 +35,7 @@ class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
         $depth = NavigationLoaderConfig::DEFAULT_DEPTH;
         if (\array_key_exists('depth', $data)) {
             if (!\is_int($data['depth']) || $data['depth'] < 1) {
-                throw ContentSystemException::invalidFieldValueType('depth', 'positive int', \gettype($data['depth']));
+                throw CategoryException::invalidFieldValueType('depth', 'positive int', \gettype($data['depth']));
             }
             $depth = $data['depth'];
         }
@@ -43,7 +43,7 @@ class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
         $activeProperty = 'activeId';
         if (\array_key_exists('activeProperty', $data)) {
             if (!\is_string($data['activeProperty']) || $data['activeProperty'] === '') {
-                throw ContentSystemException::invalidFieldValueType('activeProperty', 'non-empty string', \gettype($data['activeProperty']));
+                throw CategoryException::invalidFieldValueType('activeProperty', 'non-empty string', \gettype($data['activeProperty']));
             }
             $activeProperty = $data['activeProperty'];
         }
@@ -57,7 +57,7 @@ class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
     public function encode(AbstractContentDataLoaderConfig $config): array
     {
         if (!$config instanceof NavigationLoaderConfig) {
-            throw ContentSystemException::invalidFieldValueType('config', NavigationLoaderConfig::class, $config::class);
+            throw CategoryException::invalidFieldValueType('config', NavigationLoaderConfig::class, $config::class);
         }
 
         $data = [];

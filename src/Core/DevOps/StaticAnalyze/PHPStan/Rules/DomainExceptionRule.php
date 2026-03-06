@@ -12,15 +12,10 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfigSerializer;
-use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfigSerializer;
-use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\HttpException;
@@ -30,8 +25,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\Migration\Traits\StateMachineMigrationImporter;
 use Shopware\Core\Migration\V6_4\Migration1632721037OrderDocumentMailTemplate;
 use Shopware\Core\Migration\V6_5\Migration1672931011ReviewFormMailTemplate;
-use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfigSerializer;
-use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfigSerializer;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -71,13 +64,6 @@ class DomainExceptionRule implements Rule
         Migration1672931011ReviewFormMailTemplate::class => MigrationException::class,
         Migration1632721037OrderDocumentMailTemplate::class => MigrationException::class,
         StateMachineMigrationImporter::class => MigrationException::class,
-        // Content system data loader config serializers distributed to domain modules
-        CurrencyLoaderConfigSerializer::class => ContentSystemException::class,
-        LanguageLoaderConfigSerializer::class => ContentSystemException::class,
-        NavigationLoaderConfigSerializer::class => ContentSystemException::class,
-        PaymentMethodLoaderConfigSerializer::class => ContentSystemException::class,
-        ProductListingLoaderConfigSerializer::class => ContentSystemException::class,
-        ShippingMethodLoaderConfigSerializer::class => ContentSystemException::class,
     ];
 
     /**

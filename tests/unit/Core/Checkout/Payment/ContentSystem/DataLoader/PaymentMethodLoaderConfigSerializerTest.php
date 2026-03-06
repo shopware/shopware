@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfig;
 use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -160,7 +160,7 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations', 'array', 'string')
+            PaymentException::invalidFieldValueType('associations', 'array', 'string')
         );
 
         $this->serializer->decode(['associations' => 'country']);
@@ -170,7 +170,7 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNullAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'NULL')
+            PaymentException::invalidFieldValueType('associations.0', 'non-empty string', 'NULL')
         );
 
         $this->serializer->decode(['associations' => [null]]);
@@ -180,7 +180,7 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithEmptyStringAssociationItemThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+            PaymentException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
         );
 
         $this->serializer->decode(['associations' => ['']]);
@@ -190,7 +190,7 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
     public function testDecodeWithNonBoolOnlyAvailableThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('onlyAvailable', 'bool', 'string')
+            PaymentException::invalidFieldValueType('onlyAvailable', 'bool', 'string')
         );
 
         $this->serializer->decode(['onlyAvailable' => 'yes']);
@@ -200,7 +200,7 @@ class PaymentMethodLoaderConfigSerializerTest extends TestCase
     public function testEncodeWithWrongConfigTypeThrowsException(): void
     {
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('config', PaymentMethodLoaderConfig::class, StubLoaderConfig::class)
+            PaymentException::invalidFieldValueType('config', PaymentMethodLoaderConfig::class, StubLoaderConfig::class)
         );
 
         $this->serializer->encode(new StubLoaderConfig());

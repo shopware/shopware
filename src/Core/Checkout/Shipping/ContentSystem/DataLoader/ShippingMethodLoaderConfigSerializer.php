@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader;
 
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\Log\Package;
@@ -27,11 +27,11 @@ class ShippingMethodLoaderConfigSerializer extends AbstractContentDataLoaderConf
         $associations = [];
         if (\array_key_exists('associations', $data) && $data['associations'] !== null) {
             if (!\is_array($data['associations'])) {
-                throw ContentSystemException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
+                throw ShippingException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
             }
             foreach ($data['associations'] as $i => $association) {
                 if (!\is_string($association) || $association === '') {
-                    throw ContentSystemException::invalidFieldValueType('associations.' . $i, 'non-empty string', \gettype($association));
+                    throw ShippingException::invalidFieldValueType('associations.' . $i, 'non-empty string', \gettype($association));
                 }
                 $associations[] = $association;
             }
@@ -40,7 +40,7 @@ class ShippingMethodLoaderConfigSerializer extends AbstractContentDataLoaderConf
         $onlyAvailable = true;
         if (\array_key_exists('onlyAvailable', $data)) {
             if (!\is_bool($data['onlyAvailable'])) {
-                throw ContentSystemException::invalidFieldValueType('onlyAvailable', 'bool', \gettype($data['onlyAvailable']));
+                throw ShippingException::invalidFieldValueType('onlyAvailable', 'bool', \gettype($data['onlyAvailable']));
             }
             $onlyAvailable = $data['onlyAvailable'];
         }
@@ -54,7 +54,7 @@ class ShippingMethodLoaderConfigSerializer extends AbstractContentDataLoaderConf
     public function encode(AbstractContentDataLoaderConfig $config): array
     {
         if (!$config instanceof ShippingMethodLoaderConfig) {
-            throw ContentSystemException::invalidFieldValueType('config', ShippingMethodLoaderConfig::class, $config::class);
+            throw ShippingException::invalidFieldValueType('config', ShippingMethodLoaderConfig::class, $config::class);
         }
 
         $data = [];

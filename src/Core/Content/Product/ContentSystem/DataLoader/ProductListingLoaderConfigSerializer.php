@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +27,7 @@ class ProductListingLoaderConfigSerializer extends AbstractContentDataLoaderConf
         $property = null;
         if (\array_key_exists('property', $data)) {
             if (!\is_string($data['property']) || $data['property'] === '') {
-                throw ContentSystemException::invalidFieldValueType('property', 'non-empty string', \gettype($data['property']));
+                throw ProductException::invalidFieldValueType('property', 'non-empty string', \gettype($data['property']));
             }
             $property = $data['property'];
         }
@@ -35,11 +35,11 @@ class ProductListingLoaderConfigSerializer extends AbstractContentDataLoaderConf
         $associations = [];
         if (\array_key_exists('associations', $data) && $data['associations'] !== null) {
             if (!\is_array($data['associations'])) {
-                throw ContentSystemException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
+                throw ProductException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
             }
             foreach ($data['associations'] as $i => $association) {
                 if (!\is_string($association) || $association === '') {
-                    throw ContentSystemException::invalidFieldValueType('associations.' . $i, 'non-empty string', \gettype($association));
+                    throw ProductException::invalidFieldValueType('associations.' . $i, 'non-empty string', \gettype($association));
                 }
 
                 $associations[] = $association;
@@ -55,7 +55,7 @@ class ProductListingLoaderConfigSerializer extends AbstractContentDataLoaderConf
     public function encode(AbstractContentDataLoaderConfig $config): array
     {
         if (!$config instanceof ProductListingLoaderConfig) {
-            throw ContentSystemException::invalidFieldValueType('config', ProductListingLoaderConfig::class, $config::class);
+            throw ProductException::invalidFieldValueType('config', ProductListingLoaderConfig::class, $config::class);
         }
 
         $data = [];

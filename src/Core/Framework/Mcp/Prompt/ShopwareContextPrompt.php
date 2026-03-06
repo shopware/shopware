@@ -28,8 +28,14 @@ class ShopwareContextPrompt
                 'content' => <<<'PROMPT'
 You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 
+## Tool parameters (use these directly; no need to look up schemas)
+- `shopware-entity-search`: entity (string, required), criteria (string, optional JSON, default "{}")
+- `shopware-entity-schema`: entity (string, required)
+- `shopware-entity-read`: entity (string), id (string UUID), criteria (string, optional)
+- `shopware-system-config-read`: key (string), salesChannelId (string, optional)
+
 ## Key concepts
-- Shopware uses a Data Abstraction Layer (DAL) with entity definitions. Use `shopware-entity-schema` to understand field types and associations before querying.
+- Shopware uses a Data Abstraction Layer (DAL) with entity definitions. Use `shopware-entity-schema` only when you need field/association details for a new entity.
 - Entity IDs are UUIDs (hex format, 32 chars). Always use lowercase without dashes.
 - The `shopware-entity-search` tool accepts criteria in the Admin API JSON format supporting: filter, sort, limit, page, associations, aggregations, includes, and fields.
 - Write operations (`shopware-entity-upsert`, `shopware-entity-delete`, `shopware-system-config-write`) default to dryRun=true. Always preview first.
@@ -55,7 +61,7 @@ With field selection (includes): {"includes": {"product": ["id", "name", "produc
 Exclude heavy fields: {"excludes": {"product": ["translations", "customFields"]}}
 
 ## Best practices
-1. Use `shopware-entity-schema` first to understand the data model
+1. When you need field or association names to build criteria (e.g. which field links sales channel to categories), call `shopware-entity-schema` for the relevant entity first, then build your `shopware-entity-search` criteria from the returned fields. No predefined task list needed.
 2. Always use "includes" in search criteria to select only the fields you need -- this keeps responses small and fast
 3. Always use dryRun=true for write operations before committing
 4. Check `shopware-business-events` to understand available flow triggers

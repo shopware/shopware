@@ -4,11 +4,11 @@ This document defines user stories that describe what an AI agent should be able
 
 ## Category 1: Admin Data Exploration
 
-**Status: GOOD** -- covered by generic entity tools, but requires the AI to construct criteria JSON.
+**Status: GOOD** -- covered by generic entity tools and outcome tools.
 
 - **US-1**: "Show me the 10 most recent orders with their status and totals"
-  - Tools: `shopware-entity-search` with sort, limit, and associations for `stateMachineState`
-  - Feasibility: Works, but the AI must know the order schema and build nested criteria JSON
+  - Tools: `shopware-order-summary` for individual orders, or `shopware-entity-search` with sort/limit for lists
+  - Feasibility: Fully covered. For individual orders, `shopware-order-summary` returns all data in one call
 
 - **US-2**: "What products are low on stock (below 5 units)?"
   - Tools: `shopware-entity-search` with range filter on `stock`
@@ -23,9 +23,8 @@ This document defines user stories that describe what an AI agent should be able
 **Status: PARTIAL** -- write tools exist but complex payloads have high hallucination risk.
 
 - **US-4**: "Create a new product with price 29.99, tax rate 19%, and assign it to category 'Clothing'"
-  - Tools: `shopware-entity-search` (find tax, currency, category IDs) + `shopware-entity-upsert`
-  - Feasibility: Multiple steps, nested price structure `[{currencyId, gross, net, linked}]` is error-prone
-  - Gap: No outcome-oriented `shopware-product-create` tool (postponed)
+  - Tools: `shopware-product-create` with `name`, `productNumber`, `grossPrice`, `taxRate`, `categories`
+  - Feasibility: Fully covered. Tax/currency/category resolution is automatic
 
 - **US-5**: "Ship order #12345 and send the customer a notification"
   - Tools: `shopware-state-machine-transition`
@@ -83,28 +82,24 @@ This document defines user stories that describe what an AI agent should be able
   - Gap: Storefront tools (postponed)
 
 - **US-15**: "Track order status for customer email john@example.com"
-  - Tools: `shopware-entity-search` on `customer` by email, then `shopware-entity-search` on `order` by customerId
-  - Feasibility: Requires two coordinated searches
-  - Gap: No `shopware-customer-lookup` outcome tool (postponed)
+  - Tools: `shopware-customer-lookup` with `email` -- returns profile with recent orders and statuses
+  - Feasibility: Fully covered in a single call
 
 ## Category 6: Analytics / Reporting
 
-**Status: WEAK** -- technically possible via aggregations but very complex criteria.
+**Status: PARTIAL** -- revenue reporting is covered, product-level analytics still requires manual criteria.
 
 - **US-16**: "What was the revenue for last month?"
-  - Tools: `shopware-entity-search` with aggregations on `order`
-  - Feasibility: Requires complex aggregation criteria with date range filters
-  - Gap: No dedicated reporting tool (postponed)
+  - Tools: `shopware-revenue-report` with `from`, `to`, and optional `groupBy`
+  - Feasibility: Fully covered. Returns total revenue, order count, average order value, and timeline
 
 - **US-17**: "Which products are bestsellers this week?"
   - Tools: `shopware-entity-search` with aggregation on `order_line_item` grouped by product
-  - Feasibility: Very complex aggregation criteria
-  - Gap: No dedicated reporting tool (postponed)
+  - Feasibility: Requires complex aggregation criteria (no dedicated tool yet)
 
 ## Postponed Improvements
 
 The following gaps have been identified but deferred to separate tasks:
 
-- **Outcome tools**: `shopware-order-summary`, `shopware-customer-lookup`, `shopware-product-create`, `shopware-revenue-report`
-- **Storefront checkout flow**: `cart-create`, `cart-add-item`, `cart-checkout`, `payment-methods-list`, `shipping-methods-list`
+- **Storefront checkout flow**: `cart-manage`, `cart-checkout`, `checkout-methods`
 - **Flow creation**: `shopware-flow-create` for simple single-action flow automation

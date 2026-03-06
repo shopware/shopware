@@ -78,23 +78,38 @@ These are static reference data you can read without calling a tool:
 - customer -> group, defaultBillingAddress, defaultShippingAddress, orders
 - sales_channel -> domains, languages, currencies, countries
 
+## Outcome tools
+These tools simplify common multi-step workflows:
+- `shopware-order-summary` -- look up order by number or ID, returns customer/items/status in one call
+- `shopware-customer-lookup` -- look up customer by email/number/ID, returns profile with order history
+- `shopware-product-create` -- create product with human-readable tax rate and currency code, auto-resolves IDs
+- `shopware-revenue-report` -- revenue report for a date range with timeline breakdown
+
 ## Common workflows
 
-### Create a product
+### Create a product (simplified)
+1. `shopware-product-create` with name, productNumber, grossPrice, taxRate, currencyCode, categories
+2. dryRun=true first (default), then dryRun=false to persist
+
+### Create a product (manual)
 1. `shopware-entity-search` on `tax` to find the tax ID for your rate
 2. `shopware-entity-search` on `currency` to find the currency ID (or read `shopware://currencies`)
 3. `shopware-entity-upsert` on `product` with payload including name, productNumber, stock, taxId, and price array: `[{"currencyId": "...", "gross": 29.99, "net": 25.20, "linked": true}]`
 4. Always use dryRun=true first
 
+### Look up an order
+1. `shopware-order-summary` with orderNumber or orderId -- returns everything in one call
+
 ### Process an order
-1. `shopware-entity-search` on `order` to find the order (include associations: stateMachineState, transactions, deliveries)
-2. Check current state via `stateMachineState.technicalName`
-3. `shopware-state-machine-transition` with dryRun=true to validate the transition
-4. Set dryRun=false to execute
+1. `shopware-order-summary` to see current state, line items, and payment/delivery status
+2. `shopware-state-machine-transition` with dryRun=true to validate the transition
+3. Set dryRun=false to execute
 
 ### Find customer orders
-1. `shopware-entity-search` on `customer` with filter `{"type": "equals", "field": "email", "value": "..."}`
-2. `shopware-entity-search` on `order` with filter `{"type": "equals", "field": "orderCustomer.customerId", "value": "..."}` and associations for lineItems, stateMachineState
+1. `shopware-customer-lookup` with email -- returns profile with recent orders in one call
+
+### Revenue report
+1. `shopware-revenue-report` with from/to dates and optional groupBy (day, week, month)
 
 ## Error recovery
 - If search returns 0 results: check the entity name (use `shopware://entities`), broaden filters, or try a term search

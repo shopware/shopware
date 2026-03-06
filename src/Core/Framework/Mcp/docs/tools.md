@@ -115,6 +115,75 @@ Transition an entity's state machine state. See `shopware://state-machines` reso
 
 ---
 
+## Outcome Tools
+
+Outcome tools encapsulate common multi-step workflows into a single call with flattened, human-readable parameters.
+
+### shopware-order-summary
+Look up an order by order number or UUID and get a pre-formatted summary with customer info, line items, payment status, and delivery status.
+
+**Parameters:**
+- `orderNumber` (string, optional) -- Order number (e.g., "10001"). Mutually exclusive with `orderId`
+- `orderId` (string, optional) -- Order UUID. Mutually exclusive with `orderNumber`
+
+At least one parameter must be provided.
+
+**Example:**
+```json
+{"orderNumber": "10001"}
+```
+
+### shopware-customer-lookup
+Look up a customer by email, customer number, or UUID and get profile with order history.
+
+**Parameters:**
+- `email` (string, optional) -- Customer email address
+- `customerNumber` (string, optional) -- Customer number
+- `customerId` (string, optional) -- Customer UUID
+
+At least one parameter must be provided.
+
+**Example:**
+```json
+{"email": "john@example.com"}
+```
+
+### shopware-product-create
+Create a product with human-readable inputs. Automatically resolves tax rate to tax ID, currency ISO code to currency ID, and builds the nested price structure. Defaults to `dryRun=true`.
+
+**Parameters:**
+- `name` (string, required) -- Product name
+- `productNumber` (string, required) -- Unique product number (SKU)
+- `grossPrice` (float, required) -- Gross price
+- `taxRate` (float, default: 19) -- Tax percentage (e.g., `19` for 19%)
+- `currencyCode` (string, default: "EUR") -- ISO 4217 currency code
+- `stock` (int, default: 0) -- Initial stock
+- `description` (string, optional) -- Product description (HTML)
+- `categories` (string, optional) -- Comma-separated category names to assign
+- `active` (bool, default: true) -- Whether product is active
+- `dryRun` (bool, default: true) -- Preview without persisting
+
+**Example:**
+```json
+{"name": "Blue T-Shirt", "productNumber": "SW-BLUE-001", "grossPrice": 29.99, "stock": 100}
+```
+
+### shopware-revenue-report
+Generate a revenue report for a date range. Excludes cancelled orders.
+
+**Parameters:**
+- `from` (string, required) -- Start date (ISO 8601, e.g., "2025-01-01")
+- `to` (string, required) -- End date (ISO 8601, e.g., "2025-01-31")
+- `groupBy` (string, default: "day") -- Grouping: `day`, `week`, `month`
+- `salesChannelId` (string, optional) -- Filter by sales channel
+
+**Example:**
+```json
+{"from": "2025-03-01", "to": "2025-03-31", "groupBy": "week"}
+```
+
+---
+
 ## Resources
 
 Resources are static reference data available via MCP resource URIs. They do not require tool calls.

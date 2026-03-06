@@ -20,11 +20,15 @@ use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
+use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
+use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
+use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
+use Shopware\Core\Framework\Mcp\Tool\RevenueReportTool;
 use Shopware\Core\Framework\Mcp\Tool\StateMachineTransitionTool;
 use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
@@ -61,6 +65,10 @@ class McpFeatureFlagTest extends TestCase
             [StateMachineTransitionTool::class],
             [ConsoleCommandTool::class],
             [StorefrontSearchTool::class],
+            [OrderSummaryTool::class],
+            [CustomerLookupTool::class],
+            [ProductCreateTool::class],
+            [RevenueReportTool::class],
             [ShopwareContextPrompt::class],
             [EntityListResource::class],
             [BusinessEventsResource::class],

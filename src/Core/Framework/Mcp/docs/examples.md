@@ -56,7 +56,20 @@ Input: {
 
 ## Working with orders
 
-**Recent orders with line items:**
+**Quick order lookup by order number:**
+```
+Tool: shopware-order-summary
+Input: {"orderNumber": "10001"}
+```
+Returns order with customer info, line items, payment status, and delivery status in a single call.
+
+**Quick order lookup by UUID:**
+```
+Tool: shopware-order-summary
+Input: {"orderId": "<uuid>"}
+```
+
+**Recent orders with line items (generic search):**
 ```
 Tool: shopware-entity-search
 Input: {
@@ -69,6 +82,48 @@ Input: {
 ```
 Tool: shopware-state-machine-transition
 Input: {"entityName": "order", "entityId": "<uuid>", "actionName": "process", "dryRun": true}
+```
+
+## Customer lookup
+
+**Find customer by email with order history:**
+```
+Tool: shopware-customer-lookup
+Input: {"email": "john@example.com"}
+```
+
+**Find customer by customer number:**
+```
+Tool: shopware-customer-lookup
+Input: {"customerNumber": "SW10001"}
+```
+
+## Creating products (simplified)
+
+**Preview a new product (dryRun):**
+```
+Tool: shopware-product-create
+Input: {"name": "Blue T-Shirt", "productNumber": "SW-BLUE-001", "grossPrice": 29.99, "stock": 100}
+```
+
+**Create with custom tax rate and categories:**
+```
+Tool: shopware-product-create
+Input: {"name": "Organic Tea", "productNumber": "SW-TEA-001", "grossPrice": 12.99, "taxRate": 7, "categories": "Food, Beverages", "dryRun": false}
+```
+
+## Revenue reporting
+
+**Monthly revenue report:**
+```
+Tool: shopware-revenue-report
+Input: {"from": "2025-03-01", "to": "2025-03-31"}
+```
+
+**Weekly revenue report for a specific sales channel:**
+```
+Tool: shopware-revenue-report
+Input: {"from": "2025-01-01", "to": "2025-03-31", "groupBy": "week", "salesChannelId": "<uuid>"}
 ```
 
 ## System configuration

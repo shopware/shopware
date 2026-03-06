@@ -156,9 +156,7 @@ function getWorker(): SharedWorker {
 
         const loginService = Shopware.Service('loginService');
 
-        if (!loginService.isRefreshing()) {
-            void loginService.refreshToken();
-        }
+        void loginService.refreshToken();
     };
 
     return worker;

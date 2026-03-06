@@ -142,31 +142,6 @@ class SystemConfigServiceTest extends TestCase
         static::assertFalse($dispatchedHook->silent);
     }
 
-    public function testSetMultipleUnchangedValues(): void
-    {
-        $this->configLoader->method('load')->willReturn([
-            'foo' => ['bar' => 'current'],
-        ]);
-
-        $changedKeys = null;
-        $this->eventDispatcher
-            ->method('dispatch')
-            ->willReturnCallback(function (Event|Hookable $event) use (&$changedKeys) {
-                if ($event instanceof SystemConfigChangedHook) {
-                    $changedKeys = $event->getWebhookPayload()['changes'];
-                }
-
-                return $event;
-            });
-
-        $this->configService->setMultiple([
-            'foo.bar' => 'current',
-            'baz.qux' => 'new-value',
-        ]);
-        static::assertIsArray($changedKeys);
-        static::assertSame(['baz.qux'], $changedKeys);
-    }
-
     public static function provideTracingExamples(): \Generator
     {
         yield 'disabled' => [

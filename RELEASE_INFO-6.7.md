@@ -52,8 +52,6 @@ This prevents "invalidation storms" where writing internal config values (e.g. t
 
 Internal Shopware call sites that write non-storefront config values now pass `silent=true`. The `ConfigSet` CLI command accepts `--silent`, and the Admin API `POST /_action/system-config` and `POST /_action/system-config/batch` accept a `?silent` query parameter.
 
-Additionally, `setMultiple()` now skips writing values that are identical to the current state. When the admin saves a settings page without changes, no DB writes, events, or cache invalidation occur.
-
 In v6.8.0.0, `silent` parameter in SystemConfigService methods will default to `true`. Clients should pass value explicitly to prepare for changes.
 
 ### Scheduled cleanup of expired customer recovery records

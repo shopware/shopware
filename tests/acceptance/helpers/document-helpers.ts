@@ -16,15 +16,18 @@ interface MaskRegion {
     height: number;
 }
 
+const invoiceMasks: MaskRegion[] = [
+    { x: 112, y: 20, width: 35, height: 20 },
+    { x: 395, y: 315, width: 40, height: 20 },
+    { x: 860, y: 245, width: 80, height: 15 },
+    { x: 868, y: 263, width: 55, height: 15 },
+    { x: 842, y: 280, width: 55, height: 15 },
+    { x: 340, y: 400, width: 315, height: 15 },
+];
+
 const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
-    invoice: [
-        { x: 860, y: 245, width: 80, height: 15 },
-        { x: 868, y: 263, width: 55, height: 15 },
-        { x: 842, y: 280, width: 55, height: 15 },
-        { x: 340, y: 400, width: 315, height: 15 },
-        { x: 395, y: 315, width: 40, height: 20 },
-        { x: 112, y: 20, width: 35, height: 20 },
-    ],
+    invoice: invoiceMasks,
+    embedded_zugferd_e_invoice: invoiceMasks,
     cancellation_invoice: [
         { x: 147, y: 18, width: 40, height: 20 },
         { x: 429, y: 315, width: 40, height: 20 },
@@ -35,9 +38,25 @@ const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
         { x: 893, y: 280, width: 50, height: 15 },
         { x: 340, y: 400, width: 315, height: 15 },
     ],
-    credit_note: [],
-    delivery_note: [],
-    embedded_zugferd_e_invoice: [],
+    delivery_note: [
+        { x: 150, y: 18, width: 40, height: 20 },
+        { x: 435, y: 315, width: 40, height: 20 },
+        { x: 535, y: 315, width: 130, height: 20 },
+        { x: 340, y: 400, width: 320, height: 15 },
+        { x: 862, y: 228, width: 82, height: 15 },
+        { x: 867, y: 245, width: 55, height: 15 },
+        { x: 841, y: 263, width: 55, height: 15 },
+        { x: 879, y: 280, width: 55, height: 15 },
+    ],
+    credit_note: [
+        { x: 137, y: 18, width: 40, height: 20 },
+        { x: 418, y: 315, width: 40, height: 20 },
+        { x: 554, y: 315, width: 40, height: 20 },
+        { x: 344, y: 400, width: 235, height: 15 },
+        { x: 861, y: 245, width: 85, height: 15 },
+        { x: 867, y: 263, width: 55, height: 15 },
+        { x: 840, y: 279, width: 55, height: 15 },
+    ],
 };
 
 export async function screenshotPdfPopup(

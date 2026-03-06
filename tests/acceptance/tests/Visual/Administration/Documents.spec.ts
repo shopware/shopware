@@ -36,15 +36,26 @@ test(
             await AdminDocumentDetail.saveButton.click();
         });
 
-        await test.step('Create documents and verify PDF screenshots', async () => {
-            for (const type of ['invoice', 'cancellation_invoice'] as DocumentTypes[]) {
+        await test.step('Create documents and verify pdf', async () => {
+            const documents = [
+                'invoice',
+                'credit_note',
+                'delivery_note',
+                'cancellation_invoice',
+                'embedded_zugferd_e_invoice',
+            ];
+
+            for (const type of documents as DocumentTypes[]) {
+                if (type === 'credit_note') {
+                    await ShopAdmin.attemptsTo(AddCreditItem(order.id));
+                }
+
                 const { documentId } = await CreateDocument({
                     orderId: order.id,
                     type,
                     referencedDocumentId: invoiceDocumentId,
                 })();
 
-                // eslint-disable-next-line playwright/no-conditional-in-test
                 if (type === 'invoice') {
                     invoiceDocumentId = documentId;
                 }
@@ -64,7 +75,24 @@ test(
             }
         });
 
-        await test.step.skip('Log into customer account and check the order document', async () => {
+        await test.step('Go to documents tab and send invoice', async () => {
+            await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));
+
+            const invoiceRow = AdminOrderDetail.page
+                .locator('.sw-data-grid__body .sw-data-grid__row')
+                .last();
+
+            await ShopAdmin.expects(invoiceRow).toBeVisible();
+            await invoiceRow.getByLabel('Open actions menu').click();
+
+            await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
+            await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Mark as sent').click();
+
+            await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
+            await ShopAdmin.expects(invoiceRow.locator('.icon--regular-checkmark-xs')).toBeVisible();
+        });
+
+        await test.step('Log into customer account and check the order document', async () => {
             await ShopCustomer.attemptsTo(Login());
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
 

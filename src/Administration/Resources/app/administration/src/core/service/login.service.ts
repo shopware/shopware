@@ -56,7 +56,7 @@ export interface LoginService {
     setRememberMe: (active?: boolean) => void;
     getLoginTemplateConfig: () => Promise<LoginConfig>;
     subscribeToTokenRefresh: (successCallback: (token: string) => void, errorCallback: (error: Error) => void) => void;
-    isRefreshing: () => boolean;
+    isRefreshing: () => Promise<boolean>;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -336,10 +336,30 @@ export default function createLoginService(
     }
 
     /**
-     * Returns whether a token refresh is currently in progress in this tab.
+     * Returns whether a token refresh is currently in progress.
+     *
+     * Checks both this tab's in-flight refresh promise and, where supported,
+     * the shared Web Lock used for cross-tab refresh synchronization.
      */
-    function isRefreshing(): boolean {
-        return refreshPromise !== null;
+    async function isRefreshing(): Promise<boolean> {
+        if (refreshPromise !== null) {
+            return true;
+        }
+
+        if (typeof navigator === 'undefined' || typeof navigator.locks?.query !== 'function') {
+            return false;
+        }
+
+        try {
+            const lockState = await navigator.locks.query();
+            const heldLocks = lockState.held ?? [];
+            const pendingLocks = lockState.pending ?? [];
+
+            return heldLocks.some((lock) => lock.name === 'sw-admin-token-refresh')
+                || pendingLocks.some((lock) => lock.name === 'sw-admin-token-refresh');
+        } catch {
+            return false;
+        }
     }
 
     function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {

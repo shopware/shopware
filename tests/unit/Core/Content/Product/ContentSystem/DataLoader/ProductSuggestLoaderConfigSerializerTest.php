@@ -1,0 +1,222 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWithJson;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestLoaderConfig;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
+
+/**
+ * @internal
+ */
+#[CoversClass(ProductSuggestLoaderConfigSerializer::class)]
+class ProductSuggestLoaderConfigSerializerTest extends TestCase
+{
+    private ProductSuggestLoaderConfigSerializer $serializer;
+
+    protected function setUp(): void
+    {
+        $this->serializer = new ProductSuggestLoaderConfigSerializer();
+    }
+
+    #[TestDox('returns product_suggest source identifier')]
+    public function testGetSourceReturnsProductSuggestString(): void
+    {
+        static::assertSame('product_suggest', ProductSuggestLoaderConfigSerializer::getSource());
+    }
+
+    #[TestDox('decodes empty array into ProductSuggestLoaderConfig with null searchTermProperty')]
+    public function testDecodeEmptyArrayReturnsConfigWithNullSearchTermProperty(): void
+    {
+        $result = $this->serializer->decode([]);
+
+        static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
+        static::assertNull($result->searchTermProperty);
+        static::assertSame([], $result->associations);
+    }
+
+    #[TestDox('decodes config with valid searchTermProperty into config with property set')]
+    public function testDecodeWithValidSearchTermPropertySetsProperty(): void
+    {
+        $result = $this->serializer->decode(['searchTermProperty' => 'query']);
+
+        static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
+        static::assertSame('query', $result->searchTermProperty);
+        static::assertSame([], $result->associations);
+    }
+
+    #[TestDox('decodes config with valid associations into config with associations set')]
+    public function testDecodeWithValidAssociationsSetsAssociations(): void
+    {
+        $result = $this->serializer->decode(['associations' => ['manufacturer', 'categories']]);
+
+        static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
+        static::assertNull($result->searchTermProperty);
+        static::assertSame(['manufacturer', 'categories'], $result->associations);
+    }
+
+    #[TestDox('decodes config with both searchTermProperty and associations into config with all values')]
+    public function testDecodeWithAllFieldsReturnsConfigWithAllValues(): void
+    {
+        $result = $this->serializer->decode([
+            'searchTermProperty' => 'suggestQuery',
+            'associations' => ['media', 'options'],
+        ]);
+
+        static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
+        static::assertSame('suggestQuery', $result->searchTermProperty);
+        static::assertSame(['media', 'options'], $result->associations);
+    }
+
+    #[TestDox('decodes null associations into config with empty associations')]
+    public function testDecodeNullAssociationsReturnsEmptyAssociations(): void
+    {
+        $result = $this->serializer->decode(['associations' => null]);
+
+        static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
+        static::assertSame([], $result->associations);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[TestWithJson('[{"searchTermProperty": ""}, "string"]', 'searchTermProperty is empty string')]
+    #[TestWithJson('[{"searchTermProperty": 42}, "integer"]', 'searchTermProperty is non-string type')]
+    #[TestDox('throws exception when searchTermProperty is invalid')]
+    public function testDecodeWithInvalidSearchTermPropertyThrowsException(array $data, string $actualType): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('searchTermProperty', 'non-empty string', $actualType)
+        );
+
+        $this->serializer->decode($data);
+    }
+
+    #[TestDox('throws exception when associations is not an array')]
+    public function testDecodeWithNonArrayAssociationsThrowsException(): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('associations', 'array', 'string')
+        );
+
+        $this->serializer->decode(['associations' => 'manufacturer']);
+    }
+
+    #[TestDox('throws exception when first association item is an empty string')]
+    public function testDecodeWithEmptyStringFirstAssociationItemThrowsException(): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+        );
+
+        $this->serializer->decode(['associations' => ['']]);
+    }
+
+    #[TestDox('throws exception when second association item is an empty string')]
+    public function testDecodeWithEmptyStringSecondAssociationItemThrowsException(): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('associations.1', 'non-empty string', 'string')
+        );
+
+        $this->serializer->decode(['associations' => ['manufacturer', '']]);
+    }
+
+    #[TestDox('throws exception when first association item is a non-string type')]
+    public function testDecodeWithNonStringFirstAssociationItemThrowsException(): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
+        );
+
+        $this->serializer->decode(['associations' => [42]]);
+    }
+
+    #[TestDox('encodes config with defaults into empty array')]
+    public function testEncodeConfigWithDefaultsReturnsEmptyArray(): void
+    {
+        $config = new ProductSuggestLoaderConfig();
+
+        $result = $this->serializer->encode($config);
+
+        static::assertSame([], $result);
+    }
+
+    #[TestDox('encodes config with searchTermProperty into array containing searchTermProperty key')]
+    public function testEncodeConfigWithSearchTermPropertyIncludesKey(): void
+    {
+        $config = new ProductSuggestLoaderConfig(searchTermProperty: 'query');
+
+        $result = $this->serializer->encode($config);
+
+        static::assertSame(['searchTermProperty' => 'query'], $result);
+    }
+
+    #[TestDox('encodes config with associations into array containing associations key')]
+    public function testEncodeConfigWithAssociationsIncludesAssociationsKey(): void
+    {
+        $config = new ProductSuggestLoaderConfig(associations: ['media', 'options']);
+
+        $result = $this->serializer->encode($config);
+
+        static::assertSame(['associations' => ['media', 'options']], $result);
+    }
+
+    #[TestDox('encodes config with searchTermProperty and associations into full array')]
+    public function testEncodeConfigWithAllFieldsReturnsFullArray(): void
+    {
+        $config = new ProductSuggestLoaderConfig(
+            searchTermProperty: 'query',
+            associations: ['manufacturer', 'categories'],
+        );
+
+        $result = $this->serializer->encode($config);
+
+        static::assertSame([
+            'searchTermProperty' => 'query',
+            'associations' => ['manufacturer', 'categories'],
+        ], $result);
+    }
+
+    /**
+     * @param array<string, mixed> $original
+     */
+    #[DataProvider('roundTripProvider')]
+    #[TestDox('round-trips $_dataName without data loss')]
+    public function testDecodeAndEncodeAreInverse(array $original): void
+    {
+        $config = $this->serializer->decode($original);
+        $encoded = $this->serializer->encode($config);
+
+        static::assertSame($original, $encoded);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function roundTripProvider(): iterable
+    {
+        yield 'empty config' => [[]];
+        yield 'searchTermProperty only' => [['searchTermProperty' => 'query']];
+        yield 'associations only' => [['associations' => ['options', 'cover']]];
+        yield 'full config' => [
+            ['searchTermProperty' => 'myQuery', 'associations' => ['manufacturer', 'media']],
+        ];
+    }
+
+    #[TestDox('throws exception when encoding a non-ProductSuggestLoaderConfig config instance')]
+    public function testEncodeWithWrongConfigTypeThrowsException(): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('config', ProductSuggestLoaderConfig::class, StubLoaderConfig::class)
+        );
+
+        $this->serializer->encode(new StubLoaderConfig());
+    }
+}

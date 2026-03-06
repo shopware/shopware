@@ -609,6 +609,42 @@
             <tag name="content_system.config_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestDataLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductSpecificationSource">
             <argument type="service" id="product_content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition"/>

@@ -281,11 +281,7 @@ export default function createLoginService(
      * @param options - Retry and backoff configuration
      */
     function retryPromiseWithBackoff<T>(fn: () => Promise<T>, options: RetryBackoffOptions = {}): Promise<T> {
-        const {
-            maxRetries = 3,
-            initialDelay = 1000,
-            factor = 2,
-        } = options;
+        const { maxRetries = 3, initialDelay = 1000, factor = 2 } = options;
 
         return new Promise<T>((resolve, reject) => {
             let attempt = 0;
@@ -355,8 +351,10 @@ export default function createLoginService(
             const heldLocks = lockState.held ?? [];
             const pendingLocks = lockState.pending ?? [];
 
-            return heldLocks.some((lock) => lock.name === 'sw-admin-token-refresh')
-                || pendingLocks.some((lock) => lock.name === 'sw-admin-token-refresh');
+            return (
+                heldLocks.some((lock) => lock.name === 'sw-admin-token-refresh') ||
+                pendingLocks.some((lock) => lock.name === 'sw-admin-token-refresh')
+            );
         } catch {
             return false;
         }

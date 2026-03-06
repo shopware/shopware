@@ -124,45 +124,49 @@
             <tag name="content_system.data_loader"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingDataLoader">
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" />
             <tag name="content_system.data_loader"/>
         </service>
 
-        <!-- Route Aliases for Decoration Pattern -->
+        <!-- Route Aliases for Domain Data Loaders -->
         <service id="Shopware\Core\Content\Category\Service\NavigationLoaderInterface"
                  alias="Shopware\Core\Content\Category\Service\NavigationLoader"/>
-        <service id="Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute"
-                 alias="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/>
-        <service id="Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute"
-                 alias="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute"/>
-        <service id="Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute"
-                 alias="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
-        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute"
-                 alias="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationDataLoader">
+        <service id="Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader">
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver"/>
             <tag name="content_system.data_loader"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LanguageLoader\LanguageDataLoader">
+        <service id="Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute"
+                 alias="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/>
+
+        <service id="Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader">
             <argument type="service" id="Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute"/>
             <tag name="content_system.data_loader"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\CurrencyLoader\CurrencyDataLoader">
+        <service id="Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute"
+                 alias="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute"/>
+
+        <service id="Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyDataLoader">
             <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute"/>
             <tag name="content_system.data_loader"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\PaymentMethodLoader\PaymentMethodDataLoader">
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute"
+                 alias="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+
+        <service id="Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodDataLoader">
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute"/>
             <tag name="content_system.data_loader"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ShippingMethodLoader\ShippingMethodDataLoader">
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute"
+                 alias="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
+
+        <service id="Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader">
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute"/>
             <tag name="content_system.data_loader"/>
         </service>
@@ -182,27 +186,27 @@
             <tag name="content_system.config_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfigSerializer">
+        <service id="Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer">
             <tag name="content_system.config_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\NavigationLoader\NavigationLoaderConfigSerializer">
+        <service id="Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer">
             <tag name="content_system.config_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LanguageLoader\LanguageLoaderConfigSerializer">
+        <service id="Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfigSerializer">
             <tag name="content_system.config_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\CurrencyLoader\CurrencyLoaderConfigSerializer">
+        <service id="Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfigSerializer">
             <tag name="content_system.config_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\PaymentMethodLoader\PaymentMethodLoaderConfigSerializer">
+        <service id="Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfigSerializer">
             <tag name="content_system.config_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ShippingMethodLoader\ShippingMethodLoaderConfigSerializer">
+        <service id="Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfigSerializer">
             <tag name="content_system.config_serializer"/>
         </service>
 

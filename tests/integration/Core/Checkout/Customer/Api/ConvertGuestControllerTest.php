@@ -80,7 +80,6 @@ class ConvertGuestControllerTest extends TestCase
 
         $customerId = $this->createCustomer('test@test.com', guest: true);
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository
             ->search(new Criteria([$customerId]), $context)
             ->first();

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMai
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Random;
@@ -19,6 +20,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,9 +44,8 @@ class ConvertGuestController
     }
 
     #[Route(path: '/api/_action/customer-convert/{customerId}', name: 'api.action.customer.convert', methods: ['POST'])]
-    public function convert(#[\SensitiveParameter] Request $request, Context $context, string $customerId): SuccessResponse
+    public function convert(#[\SensitiveParameter] Request $request, Context $context, string $customerId): NoContentResponse
     {
-        /** @var CustomerEntity|null $customer */
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->first();
 
         if (!$customer instanceof CustomerEntity) {
@@ -69,7 +70,7 @@ class ConvertGuestController
         $this->convertGuestRoute->convertGuest($requestBag, $salesChannelContext, $customer);
 
         if ($request->request->has('password')) {
-            return new SuccessResponse();
+            return new NoContentResponse();
         }
 
         $recoveryData = new RequestDataBag([
@@ -78,7 +79,7 @@ class ConvertGuestController
         ]);
         $this->sendPasswordRecoveryMailRoute->sendRecoveryMail($recoveryData, $salesChannelContext);
 
-        return new SuccessResponse();
+        return new NoContentResponse();
     }
 
     private function getSalesChannelDomain(SalesChannelContext $context): string

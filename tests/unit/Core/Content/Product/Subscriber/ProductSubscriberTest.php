@@ -37,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -230,11 +231,14 @@ class ProductSubscriberTest extends TestCase
             'cheapestPrice' => $cheapestPrice,
         ]);
 
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getLanguageInfo')->willReturn(new LanguageInfo('English', 'en-GB'));
+
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
             $this->createMock(ProductDefinition::class),
             [$entity],
-            $this->createMock(SalesChannelContext::class)
+            $salesChannelContext
         );
 
         $subscriber->salesChannelLoaded($event);

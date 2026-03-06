@@ -46,9 +46,14 @@ class PropertyGroupCollection extends EntityCollection
         });
     }
 
-    public function sortByConfig(): void
+    /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $localeCode will be added
+     */
+    public function sortByConfig(/* ?string $localeCode = null */): void
     {
-        $collator = $this->createCollator();
+        $localeCode = \func_num_args() === 1 ? func_get_arg(0) : null;
+
+        $collator = $this->createCollator($localeCode);
 
         foreach ($this->elements as $group) {
             $options = $group->getOptions();
@@ -97,11 +102,11 @@ class PropertyGroupCollection extends EntityCollection
         return PropertyGroupEntity::class;
     }
 
-    private function createCollator(): \Collator
+    private function createCollator(?string $localeCode = null): \Collator
     {
-        $acceptLanguage = (string) ($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
-        $locale = \Locale::acceptFromHttp($acceptLanguage);
-        if ($locale === false || $locale === '') {
+        $locale = ($localeCode !== null && $localeCode !== '') ? \Locale::canonicalize($localeCode) : null;
+
+        if ($locale === null || $locale === '') {
             $locale = \Locale::getDefault() ?: 'en_US';
         }
 

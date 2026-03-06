@@ -120,7 +120,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
         }
 
         $groups->sortByPositions();
-        $groups->sortByConfig();
+        $groups->sortByConfig($context->getLanguageInfo()->localeCode);
 
         $aggregations = $result->getAggregations();
 

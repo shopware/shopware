@@ -131,33 +131,22 @@ class PropertySortTest extends TestCase
 
     public function testAlphaNumericSortingMixedCases(): void
     {
-        $previousAcceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
-        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7';
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        try {
-            $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
-            $propertyGroups->sortByConfig();
-            $propertyGroup = $propertyGroups->first();
-            static::assertNotNull($propertyGroup);
-            $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
-
-            static::assertSame(
-                ['1A', '2aa', '3-x$e', '3D', '3e', '20AA', '44f', '55g', 'A', 'a', 'Ä', 'ä', 'aa', 'Ab', 'B', 'b', 'h6', 'i7', 'j2', 'Ö', 'ö', 'Ü', 'ü'],
-                array_column($propertyOptionsArray, 'name')
-            );
-        } finally {
-            if ($previousAcceptLanguage === null) {
-                unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-            } else {
-                $_SERVER['HTTP_ACCEPT_LANGUAGE'] = $previousAcceptLanguage;
-            }
-        }
+        static::assertSame(
+            ['1A', '2aa', '3-x$e', '3D', '3e', '20AA', '44f', '55g', 'A', 'a', 'Ä', 'ä', 'aa', 'Ab', 'B', 'b', 'h6', 'i7', 'j2', 'Ö', 'ö', 'Ü', 'ü'],
+            array_column($propertyOptionsArray, 'name')
+        );
     }
 
     public function testAlphaNumericSortingMixedCasesPositionFirst(): void
     {
         $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCasesPositionFirst();
-        $propertyGroups->sortByConfig();
+        $propertyGroups->sortByConfig('de-DE');
         $propertyGroup = $propertyGroups->first();
         static::assertNotNull($propertyGroup);
         $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
@@ -170,77 +159,55 @@ class PropertySortTest extends TestCase
 
     public function testPositionSortingWithAlphanumericTiebreaker(): void
     {
-        $previousAcceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
-        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7';
+        $propertyGroups = $this->getPropertyGroupPositionWithTiedPositions();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        try {
-            $propertyGroups = $this->getPropertyGroupPositionWithTiedPositions();
-            $propertyGroups->sortByConfig();
-            $propertyGroup = $propertyGroups->first();
-            static::assertNotNull($propertyGroup);
-            $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
-
-            static::assertSame(
-                ['ä', 'b', 'ü', 'A', 'a', 'Ö', 'ö', 'z'],
-                array_column($propertyOptionsArray, 'name')
-            );
-        } finally {
-            if ($previousAcceptLanguage === null) {
-                unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-            } else {
-                $_SERVER['HTTP_ACCEPT_LANGUAGE'] = $previousAcceptLanguage;
-            }
-        }
+        static::assertSame(
+            ['ä', 'b', 'ü', 'A', 'a', 'Ö', 'ö', 'z'],
+            array_column($propertyOptionsArray, 'name')
+        );
     }
 
     public function testPositionSortingAllSamePositionFallsBackToAlphanumeric(): void
     {
-        $previousAcceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
-        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7';
+        $propertyGroups = $this->getPropertyGroupPositionAllSame();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        try {
-            $propertyGroups = $this->getPropertyGroupPositionAllSame();
-            $propertyGroups->sortByConfig();
-            $propertyGroup = $propertyGroups->first();
-            static::assertNotNull($propertyGroup);
-            $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
-
-            static::assertSame(
-                ['a', 'ä', 'b', 'ö', 'ü', 'z'],
-                array_column($propertyOptionsArray, 'name')
-            );
-        } finally {
-            if ($previousAcceptLanguage === null) {
-                unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-            } else {
-                $_SERVER['HTTP_ACCEPT_LANGUAGE'] = $previousAcceptLanguage;
-            }
-        }
+        static::assertSame(
+            ['a', 'ä', 'b', 'ö', 'ü', 'z'],
+            array_column($propertyOptionsArray, 'name')
+        );
     }
 
     public function testPositionSortingWithEmptyNamesAndNullPositions(): void
     {
-        $previousAcceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
-        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7';
+        $propertyGroups = $this->getPropertyGroupPositionWithEmptyNames();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        try {
-            $propertyGroups = $this->getPropertyGroupPositionWithEmptyNames();
-            $propertyGroups->sortByConfig();
-            $propertyGroup = $propertyGroups->first();
-            static::assertNotNull($propertyGroup);
-            $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(
+            ['', '', 'a', 'ä', 'b'],
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
 
-            static::assertSame(
-                ['', '', 'a', 'ä', 'b'],
-                array_column($propertyOptionsArray, 'name')
-            );
-        } finally {
-            if ($previousAcceptLanguage === null) {
-                unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-            } else {
-                $_SERVER['HTTP_ACCEPT_LANGUAGE'] = $previousAcceptLanguage;
-            }
-        }
+    public function testAlphaNumericSortingWorksWithoutLocaleParameter(): void
+    {
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
+        $propertyGroups->sortByConfig();
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(23, $propertyOptionsArray);
     }
 
     private function getPropertyGroupAlphaNumericOnlyNumbers(): PropertyGroupCollection

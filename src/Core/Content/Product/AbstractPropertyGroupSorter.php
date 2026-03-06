@@ -14,7 +14,9 @@ abstract class AbstractPropertyGroupSorter
     abstract public function getDecorated(): AbstractPropertyGroupSorter;
 
     /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $localeCode will be added
+     *
      * @param EntityCollection<PropertyGroupOptionEntity|PartialEntity> $options
      */
-    abstract public function sort(EntityCollection $options): PropertyGroupCollection;
+    abstract public function sort(EntityCollection $options /* ?string $localeCode = null */): PropertyGroupCollection;
 }

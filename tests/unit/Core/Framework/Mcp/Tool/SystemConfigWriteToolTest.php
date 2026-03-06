@@ -57,4 +57,31 @@ class SystemConfigWriteToolTest extends TestCase
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
         static::assertTrue($data['data']['newValue']);
     }
+
+    public function testNonJsonValueIsUsedAsString(): void
+    {
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->method('get')->willReturn(null);
+        $configService->expects($this->once())->method('set')->with('core.text.key', 'plain text value', null);
+
+        $tool = new SystemConfigWriteTool($configService);
+        $output = ($tool)('core.text.key', 'plain text value', null, false);
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($data['success']);
+        static::assertSame('plain text value', $data['data']['newValue']);
+    }
+
+    public function testWriteWithSalesChannelId(): void
+    {
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->method('get')->with('core.test.key', 'sc-1')->willReturn('old');
+        $configService->expects($this->once())->method('set')->with('core.test.key', 'new', 'sc-1');
+
+        $tool = new SystemConfigWriteTool($configService);
+        $output = ($tool)('core.test.key', '"new"', 'sc-1', false);
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('sc-1', $data['_meta']['salesChannelId']);
+    }
 }

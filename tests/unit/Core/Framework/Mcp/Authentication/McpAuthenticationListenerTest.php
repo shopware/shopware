@@ -65,14 +65,18 @@ class McpAuthenticationListenerTest extends TestCase
         $listener->authenticate($event);
     }
 
-    public function testRejectsInvalidCredentials(): void
+    public function testRejectsInvalidCredentialsAndDoesNotResetRateLimiter(): void
     {
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientRepository->method('validateClient')
             ->with('SWIAvalidintegrationkey12', 'wrong-secret', 'client_credentials')
             ->willReturn(false);
 
-        $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted');
+        $rateLimiter->expects($this->never())->method('reset');
+
+        $listener = new McpAuthenticationListener($clientRepository, $rateLimiter);
         $event = $this->createControllerEvent('api.mcp.endpoint', [
             'sw-access-key' => 'SWIAvalidintegrationkey12',
             'sw-secret-access-key' => 'wrong-secret',
@@ -84,7 +88,7 @@ class McpAuthenticationListenerTest extends TestCase
         $listener->authenticate($event);
     }
 
-    public function testAuthenticatesSuccessfully(): void
+    public function testAuthenticatesSuccessfullyAndResetsRateLimiter(): void
     {
         $accessKey = 'SWIAvalidintegrationkey12';
         $secret = 'my-secret-key';
@@ -96,6 +100,8 @@ class McpAuthenticationListenerTest extends TestCase
 
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::OAUTH, $accessKey);
+        $rateLimiter->expects($this->once())->method('reset')
             ->with(RateLimiter::OAUTH, $accessKey);
 
         $listener = new McpAuthenticationListener($clientRepository, $rateLimiter);

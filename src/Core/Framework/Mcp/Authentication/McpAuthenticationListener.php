@@ -77,6 +77,8 @@ class McpAuthenticationListener implements EventSubscriberInterface
             throw McpException::invalidCredentials();
         }
 
+        $this->rateLimiter->reset(RateLimiter::OAUTH, $accessKey);
+
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'mcp-' . $accessKey);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $accessKey);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, true);

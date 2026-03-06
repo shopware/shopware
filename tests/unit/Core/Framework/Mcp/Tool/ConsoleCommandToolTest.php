@@ -56,13 +56,29 @@ class ConsoleCommandToolTest extends TestCase
         ($tool)('debug:router', 'not json');
     }
 
-    public function testSuccessPathReturnsExitCodeAndOutput(): void
+    public function testNonArrayJsonDecodesGracefully(): void
+    {
+        $kernel = $this->createMock(KernelInterface::class);
+        $application = $this->createMock(Application::class);
+        $application->method('run')->willReturn(0);
+
+        $tool = new ConsoleCommandTool($kernel, ['debug:router']);
+        $this->injectApplication($tool, $application);
+
+        $output = ($tool)('debug:router', '"just a string"');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($data['success']);
+        static::assertSame(0, $data['data']['exitCode']);
+    }
+
+    public function testSuccessPathReturnsExitCodeAndStripsAnsiCodes(): void
     {
         $kernel = $this->createMock(KernelInterface::class);
         $application = $this->createMock(Application::class);
         $application->method('run')
             ->willReturnCallback(function (InputInterface $input, OutputInterface $output): int {
-                $output->writeln('Route list output');
+                $output->writeln("\033[32mSuccess\033[0m output");
 
                 return 0;
             });
@@ -75,8 +91,29 @@ class ConsoleCommandToolTest extends TestCase
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
         static::assertTrue($data['success']);
         static::assertSame(0, $data['data']['exitCode']);
-        static::assertStringContainsString('Route list output', $data['data']['output']);
+        static::assertStringContainsString('Success output', $data['data']['output']);
+        static::assertStringNotContainsString("\033[", $data['data']['output']);
         static::assertArrayHasKey('durationMs', $data['data']);
+    }
+
+    public function testSuccessPathWithCustomArguments(): void
+    {
+        $kernel = $this->createMock(KernelInterface::class);
+        $application = $this->createMock(Application::class);
+        $application->method('run')
+            ->willReturnCallback(function (InputInterface $input, OutputInterface $output): int {
+                $output->writeln('formatted');
+
+                return 0;
+            });
+
+        $tool = new ConsoleCommandTool($kernel, ['debug:router']);
+        $this->injectApplication($tool, $application);
+
+        $output = ($tool)('debug:router', '{"--format": "json"}');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($data['success']);
     }
 
     public function testReturnsErrorWhenApplicationRunThrows(): void

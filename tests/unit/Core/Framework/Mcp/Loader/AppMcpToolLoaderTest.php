@@ -125,4 +125,79 @@ class AppMcpToolLoaderTest extends TestCase
 
         $this->loader->load($registry);
     }
+
+    public function testLoadWithEmptyAllowlistRegistersAllAppTools(): void
+    {
+        $toolRow = [
+            'name' => 'sync-orders',
+            'url' => 'https://app.example.com/mcp/sync',
+            'input_schema' => null,
+            'app_name' => 'my-app',
+            'app_secret' => 'secret',
+            'label' => 'Sync',
+            'description' => 'Sync',
+        ];
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([$toolRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())->method('registerTool');
+
+        $loader = new AppMcpToolLoader($this->connection, $this->executor, []);
+        $loader->load($registry);
+    }
+
+    public function testLoadWithAllowlistRegistersOnlyAllowedAppTools(): void
+    {
+        $toolRow = [
+            'name' => 'sync-orders',
+            'url' => 'https://app.example.com/mcp/sync',
+            'input_schema' => null,
+            'app_name' => 'my-app',
+            'app_secret' => 'secret',
+            'label' => 'Sync',
+            'description' => 'Sync',
+        ];
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([$toolRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerTool')
+            ->with(
+                static::callback(fn (Tool $tool): bool => $tool->name === 'my-app-sync-orders'),
+                static::isCallable(),
+                true,
+            );
+
+        $loader = new AppMcpToolLoader($this->connection, $this->executor, ['my-app-sync-orders']);
+        $loader->load($registry);
+    }
+
+    public function testLoadWithAllowlistSkipsAppToolNotInList(): void
+    {
+        $toolRow = [
+            'name' => 'sync-orders',
+            'url' => 'https://app.example.com/mcp/sync',
+            'input_schema' => null,
+            'app_name' => 'my-app',
+            'app_secret' => 'secret',
+            'label' => 'Sync',
+            'description' => 'Sync',
+        ];
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([$toolRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->never())->method('registerTool');
+
+        $loader = new AppMcpToolLoader($this->connection, $this->executor, ['other-tool-only']);
+        $loader->load($registry);
+    }
 }

@@ -22,10 +22,13 @@ class AppMcpToolLoader implements LoaderInterface
 {
     /**
      * @internal
+     *
+     * @param list<string> $allowedTools When non-empty, only these tool names are registered. Empty = all allowed.
      */
     public function __construct(
         private readonly Connection $connection,
         private readonly AppMcpToolExecutor $executor,
+        private readonly array $allowedTools = [],
     ) {
     }
 
@@ -41,6 +44,10 @@ class AppMcpToolLoader implements LoaderInterface
             $appName = (string) $toolData['app_name'];
             $name = (string) $toolData['name'];
             $toolName = $appName . '-' . $name;
+
+            if ($this->allowedTools !== [] && !\in_array($toolName, $this->allowedTools, true)) {
+                continue;
+            }
             $description = (string) ($toolData['label'] ?? $toolData['description'] ?? $toolName);
             $inputSchema = $this->buildInputSchema(isset($toolData['input_schema']) ? (string) $toolData['input_schema'] : null);
 

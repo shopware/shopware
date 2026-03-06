@@ -72,4 +72,38 @@ class ApiRoutesToolTest extends TestCase
         static::assertSame(0, $data['_meta']['total']);
         static::assertSame([], $data['data']);
     }
+
+    public function testRouteWithNoMethodsReturnsAny(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('api.wildcard', new Route('/api/wildcard'));
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn($routes);
+
+        $tool = new ApiRoutesTool($router);
+        $output = ($tool)();
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(['ANY'], $data['data'][0]['methods']);
+    }
+
+    public function testRoutesSortedByPath(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('api.z', new Route('/api/z'));
+        $routes->add('api.a', new Route('/api/a'));
+        $routes->add('api.m', new Route('/api/m'));
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn($routes);
+
+        $tool = new ApiRoutesTool($router);
+        $output = ($tool)();
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('/api/a', $data['data'][0]['path']);
+        static::assertSame('/api/m', $data['data'][1]['path']);
+        static::assertSame('/api/z', $data['data'][2]['path']);
+    }
 }

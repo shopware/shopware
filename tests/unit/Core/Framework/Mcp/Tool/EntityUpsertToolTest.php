@@ -10,7 +10,9 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -23,64 +25,6 @@ use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
 #[CoversClass(EntityUpsertTool::class)]
 class EntityUpsertToolTest extends TestCase
 {
-    public function testDryRunRollsBack(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())->method('beginTransaction');
-        $connection->expects($this->once())->method('rollBack');
-
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
-        $events->method('getEvents')->willReturn(new NestedEventCollection());
-
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('upsert')->willReturn($events);
-
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
-
-        $contextProvider = $this->createMock(McpContextProvider::class);
-        $contextProvider->method('getContext')->willReturn($context);
-
-        $tool = new EntityUpsertTool($registry, $contextProvider, $connection);
-        $output = ($tool)('product', '{"name": "Test"}', true);
-
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertArrayHasKey('data', $data);
-        static::assertTrue($data['_meta']['dryRun']);
-    }
-
-    public function testRealUpsertDoesNotRollBack(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('beginTransaction');
-        $connection->expects($this->never())->method('rollBack');
-
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
-        $events->method('getEvents')->willReturn(new NestedEventCollection());
-
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('upsert')->willReturn($events);
-
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
-
-        $contextProvider = $this->createMock(McpContextProvider::class);
-        $contextProvider->method('getContext')->willReturn($context);
-
-        $tool = new EntityUpsertTool($registry, $contextProvider, $connection);
-        $output = ($tool)('product', '{"name": "Test"}', false);
-
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertArrayHasKey('data', $data);
-        static::assertFalse($data['_meta']['dryRun']);
-    }
-
     public function testDeniesAccessWithoutCreatePermission(): void
     {
         $source = new AdminApiSource(null, null);
@@ -94,12 +38,134 @@ class EntityUpsertToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
-        $output = ($tool)('product', '{"name": "Test"}');
+        $result = $this->decode(($tool)('product', '{"name": "Test"}'));
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('product:create', $result['error']);
+    }
 
-        static::assertFalse($data['success']);
-        static::assertArrayHasKey('error', $data);
-        static::assertStringContainsString('product:create', $data['error']);
+    public function testDeniesAccessWithoutUpdatePermission(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['product:read', 'product:create']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->expects($this->never())->method('getRepository');
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $result = $this->decode(($tool)('product', '{"name": "Test"}'));
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('product:update', $result['error']);
+    }
+
+    public function testReturnsErrorForNonArrayPayload(): void
+    {
+        $tool = $this->createTool();
+        $result = $this->decode(($tool)('product', '"just a string"'));
+
+        static::assertFalse($result['success']);
+        static::assertSame('Payload must be a JSON object or array of objects.', $result['error']);
+    }
+
+    public function testNormalizesObjectPayloadToList(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
+            ->method('upsert')
+            ->with(static::callback(fn (array $data): bool => \array_is_list($data) && \count($data) === 1));
+
+        $tool = $this->createTool($repository);
+        $result = $this->decode(($tool)('product', '{"name": "Test"}', false));
+
+        static::assertTrue($result['success']);
+    }
+
+    public function testDryRunRollsBackAndReturnsWriteResult(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('beginTransaction');
+        $connection->expects($this->once())->method('rollBack');
+
+        $writeResult = new EntityWriteResult('abc', [], 'product', EntityWriteResult::OPERATION_INSERT);
+        $writtenEvent = new EntityWrittenEvent('product', [$writeResult], Context::createDefaultContext());
+        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events->method('getEvents')->willReturn(new NestedEventCollection([$writtenEvent]));
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('upsert')->willReturn($events);
+
+        $tool = $this->createTool($repository, $connection);
+        $result = $this->decode(($tool)('product', '[{"name": "Test"}]', true));
+
+        static::assertTrue($result['success']);
+        static::assertTrue($result['_meta']['dryRun']);
+        static::assertSame('product', $result['data'][0]['entity']);
+        static::assertSame(['abc'], $result['data'][0]['ids']);
+    }
+
+    public function testDryRunReturnsErrorWhenUpsertThrows(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('beginTransaction');
+        $connection->expects($this->once())->method('rollBack');
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('upsert')->willThrowException(new \RuntimeException('Constraint violation'));
+
+        $tool = $this->createTool($repository, $connection);
+        $result = $this->decode(($tool)('product', '[{"name": "Test"}]', true));
+
+        static::assertFalse($result['success']);
+        static::assertSame('Constraint violation', $result['error']);
+    }
+
+    public function testRealUpsertDoesNotRollBack(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('beginTransaction');
+        $connection->expects($this->never())->method('rollBack');
+
+        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events->method('getEvents')->willReturn(new NestedEventCollection());
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('upsert')->willReturn($events);
+
+        $tool = $this->createTool($repository, $connection);
+        $result = $this->decode(($tool)('product', '{"name": "Test"}', false));
+
+        static::assertTrue($result['success']);
+        static::assertFalse($result['_meta']['dryRun']);
+    }
+
+    private function createTool(?EntityRepository $repository = null, ?Connection $connection = null): EntityUpsertTool
+    {
+        $repository ??= $this->createMock(EntityRepository::class);
+        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events->method('getEvents')->willReturn(new NestedEventCollection());
+        $repository->method('upsert')->willReturn($events);
+
+        $connection ??= $this->createMock(Connection::class);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturn($repository);
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        return new EntityUpsertTool($registry, $contextProvider, $connection);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decode(string $json): array
+    {
+        return json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

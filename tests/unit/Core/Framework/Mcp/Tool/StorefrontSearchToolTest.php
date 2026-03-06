@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -73,5 +74,52 @@ class StorefrontSearchToolTest extends TestCase
         static::assertArrayHasKey('_meta', $data);
         static::assertSame('sales-channel-123', $data['_meta']['salesChannelId']);
         static::assertSame('currency-123', $data['_meta']['currencyId']);
+        static::assertNull($data['_meta']['customerId']);
+    }
+
+    public function testPassesCustomerIdToContext(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getContext')->willReturn($context);
+        $salesChannelContext->method('getCurrencyId')->willReturn('eur');
+
+        $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $contextService->expects($this->once())
+            ->method('get')
+            ->with(static::callback(function (SalesChannelContextServiceParameters $params): bool {
+                return $params->getSalesChannelId() === 'sc-1' && $params->getCustomerId() === 'cust-1';
+            }))
+            ->willReturn($salesChannelContext);
+
+        $result = new EntitySearchResult(
+            'product',
+            0,
+            new ProductCollection(),
+            null,
+            new Criteria(),
+            $context,
+        );
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->method('search')->willReturn($result);
+
+        $definition = $this->createMock(EntityDefinition::class);
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getByEntityName')->willReturn($definition);
+
+        $criteria = new Criteria();
+        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willReturn($criteria);
+
+        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder->method('encode')->willReturn([]);
+
+        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder);
+        $output = ($tool)('sc-1', '{}', 'cust-1');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($data['success']);
+        static::assertSame('cust-1', $data['_meta']['customerId']);
     }
 }

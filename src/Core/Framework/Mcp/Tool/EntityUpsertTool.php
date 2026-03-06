@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
@@ -37,8 +38,6 @@ class EntityUpsertTool
             }
         }
 
-        $repository = $this->registry->getRepository($entity);
-
         $data = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\is_array($data)) {
@@ -49,22 +48,15 @@ class EntityUpsertTool
             $data = [$data];
         }
 
+        $repository = $this->registry->getRepository($entity);
+
         if ($dryRun) {
             $this->connection->beginTransaction();
 
             try {
                 $events = $repository->upsert($data, $context);
 
-                $written = [];
-                foreach ($events->getEvents()?->getElements() ?? [] as $event) {
-                    $written[] = [
-                        'entity' => $event->getEntityName(),
-                        'ids' => $event->getIds(),
-                        'operation' => 'upsert',
-                    ];
-                }
-
-                return $this->success($written, ['dryRun' => true]);
+                return $this->success($this->formatWriteResult($events), ['dryRun' => true]);
             } catch (\Throwable $e) {
                 return $this->error($e->getMessage());
             } finally {
@@ -74,6 +66,14 @@ class EntityUpsertTool
 
         $events = $repository->upsert($data, $context);
 
+        return $this->success($this->formatWriteResult($events), ['dryRun' => false]);
+    }
+
+    /**
+     * @return list<array{entity: string, ids: list<string>, operation: string}>
+     */
+    private function formatWriteResult(EntityWrittenContainerEvent $events): array
+    {
         $written = [];
         foreach ($events->getEvents()?->getElements() ?? [] as $event) {
             $written[] = [
@@ -83,6 +83,6 @@ class EntityUpsertTool
             ];
         }
 
-        return $this->success($written, ['dryRun' => false]);
+        return $written;
     }
 }

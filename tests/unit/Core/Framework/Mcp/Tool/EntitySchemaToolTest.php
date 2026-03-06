@@ -7,9 +7,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -22,55 +29,89 @@ use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 #[CoversClass(EntitySchemaTool::class)]
 class EntitySchemaToolTest extends TestCase
 {
-    public function testReturnsFieldsAndAssociations(): void
+    public function testReturnsAllFieldTypesCorrectly(): void
     {
-        $definition = new TestEntityDefinition();
+        $definition = new RichTestEntityDefinition();
         $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
 
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $registry->method('getByEntityName')->with('test_entity')->willReturn($definition);
+        $registry->method('getByEntityName')->with('rich_test')->willReturn($definition);
 
         $tool = new EntitySchemaTool($registry);
-        $result = json_decode(($tool)('test_entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = json_decode(($tool)('rich_test'), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($result['success']);
-        static::assertSame('test_entity', $result['data']['entity']);
-        static::assertNotEmpty($result['data']['fields']);
+        static::assertSame('rich_test', $result['data']['entity']);
 
-        $fieldNames = array_column($result['data']['fields'], 'name');
-        static::assertContains('id', $fieldNames);
-        static::assertContains('name', $fieldNames);
-        static::assertContains('active', $fieldNames);
+        $fields = $result['data']['fields'];
+        $fieldMap = [];
+        foreach ($fields as $field) {
+            $fieldMap[$field['name']] = $field;
+        }
+
+        static::assertSame('uuid', $fieldMap['id']['type']);
+        static::assertTrue($fieldMap['id']['required']);
+        static::assertSame('string', $fieldMap['name']['type']);
+        static::assertSame('bool', $fieldMap['active']['type']);
+        static::assertSame('int', $fieldMap['position']['type']);
+        static::assertSame('float', $fieldMap['price']['type']);
+        static::assertSame('datetime', $fieldMap['createdAt']['type']);
+        static::assertSame('json', $fieldMap['config']['type']);
+        static::assertSame('fk', $fieldMap['parentId']['type']);
     }
 
-    public function testOutputIsValidJson(): void
+    public function testReturnsAssociationsCorrectly(): void
     {
-        $definition = new TestEntityDefinition();
+        $definition = new RichTestEntityDefinition();
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definition->compile($registry);
+        $registry->method('getByEntityName')->with('rich_test')->willReturn($definition);
+
+        $tool = new EntitySchemaTool($registry);
+        $result = json_decode(($tool)('rich_test'), true, 512, \JSON_THROW_ON_ERROR);
+
+        $associations = $result['data']['associations'];
+        $assocMap = [];
+        foreach ($associations as $assoc) {
+            $assocMap[$assoc['name']] = $assoc;
+        }
+
+        static::assertSame('many-to-one', $assocMap['parent']['type']);
+        static::assertSame('one-to-many', $assocMap['children']['type']);
+    }
+
+    public function testFieldWithoutRequiredFlagIsNotRequired(): void
+    {
+        $definition = new RichTestEntityDefinition();
         $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
 
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $registry->method('getByEntityName')->with('test_entity')->willReturn($definition);
+        $registry->method('getByEntityName')->willReturn($definition);
 
         $tool = new EntitySchemaTool($registry);
-        $result = ($tool)('test_entity');
+        $result = json_decode(($tool)('rich_test'), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertJson($result);
-        $data = json_decode($result, true);
-        static::assertTrue($data['success']);
-        static::assertArrayHasKey('entity', $data['data']);
-        static::assertArrayHasKey('fields', $data['data']);
-        static::assertArrayHasKey('associations', $data['data']);
+        $fields = $result['data']['fields'];
+        $activeField = null;
+        foreach ($fields as $field) {
+            if ($field['name'] === 'active') {
+                $activeField = $field;
+            }
+        }
+
+        static::assertNotNull($activeField);
+        static::assertFalse($activeField['required']);
     }
 }
 
 /**
  * @internal
  */
-class TestEntityDefinition extends EntityDefinition
+class RichTestEntityDefinition extends EntityDefinition
 {
     public function getEntityName(): string
     {
-        return 'test_entity';
+        return 'rich_test';
     }
 
     protected function defineFields(): FieldCollection
@@ -79,6 +120,13 @@ class TestEntityDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new BoolField('active', 'active'),
+            new IntField('position', 'position'),
+            new FloatField('price', 'price'),
+            new DateTimeField('created_at', 'createdAt'),
+            new JsonField('config', 'config'),
+            new FkField('parent_id', 'parentId', self::class),
+            new ManyToOneAssociationField('parent', 'parent_id', self::class),
+            new OneToManyAssociationField('children', self::class, 'parent_id'),
         ]);
     }
 }

@@ -209,6 +209,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service('Doctrine\DBAL\Connection'),
             service(AppMcpToolExecutor::class),
+            param('shopware.mcp.allowed_tools'),
         ])
         ->tag('mcp.loader')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);

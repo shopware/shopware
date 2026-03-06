@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
@@ -35,8 +36,6 @@ class EntityDeleteTool
             return $this->error(\sprintf('Missing privilege: %s:delete', $entity));
         }
 
-        $repository = $this->registry->getRepository($entity);
-
         $idList = json_decode($ids, true);
         if (!\is_array($idList)) {
             $idList = array_map('trim', explode(',', $ids));
@@ -51,6 +50,7 @@ class EntityDeleteTool
             return $this->error('No valid IDs provided.');
         }
 
+        $repository = $this->registry->getRepository($entity);
         $deletePayload = array_map(static fn (string $id): array => ['id' => $id], $idList);
 
         if ($dryRun) {
@@ -59,15 +59,7 @@ class EntityDeleteTool
             try {
                 $events = $repository->delete($deletePayload, $context);
 
-                $deleted = [];
-                foreach ($events->getEvents()?->getElements() ?? [] as $event) {
-                    $deleted[] = [
-                        'entity' => $event->getEntityName(),
-                        'ids' => $event->getIds(),
-                    ];
-                }
-
-                return $this->success($deleted, ['dryRun' => true]);
+                return $this->success($this->formatDeleteResult($events), ['dryRun' => true]);
             } catch (\Throwable $e) {
                 return $this->error($e->getMessage());
             } finally {
@@ -77,6 +69,14 @@ class EntityDeleteTool
 
         $events = $repository->delete($deletePayload, $context);
 
+        return $this->success($this->formatDeleteResult($events), ['dryRun' => false]);
+    }
+
+    /**
+     * @return list<array{entity: string, ids: list<string>}>
+     */
+    private function formatDeleteResult(EntityWrittenContainerEvent $events): array
+    {
         $deleted = [];
         foreach ($events->getEvents()?->getElements() ?? [] as $event) {
             $deleted[] = [
@@ -85,6 +85,6 @@ class EntityDeleteTool
             ];
         }
 
-        return $this->success($deleted, ['dryRun' => false]);
+        return $deleted;
     }
 }

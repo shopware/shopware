@@ -17,8 +17,8 @@
   "devDependencies": {
     "@types/node": "20.6.5",
     "@types/uuid": "9.0.2",
-    "@typescript-eslint/eslint-plugin": "8.54.0",
-    "@typescript-eslint/parser": "8.54.0",
+    "@typescript-eslint/eslint-plugin": "8.56.1",
+    "@typescript-eslint/parser": "8.56.1",
     "dotenv": "16.6.1",
     "eslint": "8.57.1",
     "eslint-plugin-playwright": "1.6.2",

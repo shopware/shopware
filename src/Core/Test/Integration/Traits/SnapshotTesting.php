@@ -3,7 +3,7 @@
 namespace Shopware\Core\Test\Integration\Traits;
 
 /**
- * Trait to snapshot test various file types (JSON, HTML, XML, PDF, etc.).
+ * Trait to snapshot test various file types (JSON, HTML, XML).
  *
  * On first run (UPDATE_SNAPSHOTS=1), writes the snapshot file.
  * On subsequent runs, asserts current output matches the stored snapshot.

@@ -398,9 +398,8 @@ function refreshTokenInterceptor(client) {
             if (status === 401) {
                 const loginService = Shopware.Service('loginService');
 
-                loginService.refreshToken().catch(() => {
-                    return Promise.reject(error);
-                });
+                // Intentionally ignore refresh token errors here; they are handled via subscribeToTokenRefresh.
+                void loginService.refreshToken();
 
                 return new Promise((resolve, reject) => {
                     loginService.subscribeToTokenRefresh(

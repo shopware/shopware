@@ -32,7 +32,7 @@ test(
             await AdminDocumentListing.invoiceLink.click();
             await ShopAdmin.expects(AdminDocumentDetail.documentTypeSelect).toContainText('Invoice');
 
-            await AdminDocumentDetail.showInAccountSwitch.check();
+            await AdminDocumentDetail.displayDocumentInMyAccountSwitch.check();
             await AdminDocumentDetail.saveButton.click();
         });
 

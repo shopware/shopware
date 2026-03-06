@@ -26,13 +26,13 @@
   },
   "dependencies": {
     "@currents/playwright": "1.21.1",
-    "@shopware-ag/acceptance-test-suite": "12.6.0",
+    "@shopware-ag/acceptance-test-suite": "12.7.0",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.8.2",
     "playwright-lighthouse": "4.0.0"
   },
   "overrides": {
     "axios": "^1.13.5",
-    "minimatch": "10.2.2"
+    "minimatch": "10.2.3"
   }
 }

@@ -13,6 +13,11 @@ Entity tools (`entity-search`, `entity-read`, `entity-upsert`, `entity-delete`),
 - `shopware-revenue-report` -- `order:read`
 - `shopware-flow-create` -- `flow:create`
 
+**Storefront tools (Store API context):**
+- `shopware-cart-manage` -- No admin ACL; requires a valid sales channel ID
+- `shopware-cart-checkout` -- No admin ACL; requires a valid sales channel ID and registered customer
+- `shopware-checkout-methods` -- No admin ACL; requires a valid sales channel ID
+
 The `RequestCriteriaBuilder` additionally validates field-level `ApiAware` flags on criteria fields.
 
 **Tools without ACL checks:**

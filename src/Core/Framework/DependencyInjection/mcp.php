@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
@@ -22,6 +25,9 @@ use Shopware\Core\Framework\Mcp\Resource\FlowActionsResource;
 use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
+use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
+use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
+use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
 use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
@@ -207,6 +213,31 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service('flow.repository'),
             service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(CartManageTool::class)
+        ->args([
+            service(SalesChannelContextService::class),
+            service(CartService::class),
+        ])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(CartCheckoutTool::class)
+        ->args([
+            service(SalesChannelContextService::class),
+            service(CartService::class),
+        ])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(CheckoutMethodsTool::class)
+        ->args([
+            service(SalesChannelContextService::class),
+            service(PaymentMethodRoute::class),
+            service(ShippingMethodRoute::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);

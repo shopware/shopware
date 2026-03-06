@@ -185,6 +185,43 @@ Input: {
 }
 ```
 
+## Storefront checkout flow
+
+**Step 1: Create a cart:**
+```
+Tool: shopware-cart-manage
+Input: {"salesChannelId": "<uuid>", "action": "create"}
+-> Returns {"token": "abc123", ...}
+```
+
+**Step 2: Add products to the cart:**
+```
+Tool: shopware-cart-manage
+Input: {"salesChannelId": "<uuid>", "action": "add", "token": "abc123", "productId": "<product-uuid>", "quantity": 2}
+-> Returns cart with line items and totals
+```
+
+**Step 3: Check available payment and shipping methods:**
+```
+Tool: shopware-checkout-methods
+Input: {"salesChannelId": "<uuid>", "type": "all"}
+-> Returns available payment and shipping methods with IDs
+```
+
+**Step 4: Preview the order (dryRun):**
+```
+Tool: shopware-cart-checkout
+Input: {"salesChannelId": "<uuid>", "token": "abc123", "customerId": "<customer-uuid>", "paymentMethodId": "<payment-uuid>", "dryRun": true}
+-> Returns order preview with totals
+```
+
+**Step 5: Place the order:**
+```
+Tool: shopware-cart-checkout
+Input: {"salesChannelId": "<uuid>", "token": "abc123", "customerId": "<customer-uuid>", "paymentMethodId": "<payment-uuid>", "dryRun": false}
+-> Returns {"orderId": "<uuid>"}
+```
+
 ## Using resources
 
 **List available events and flow actions:**

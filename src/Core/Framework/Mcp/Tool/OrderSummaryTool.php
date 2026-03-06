@@ -49,7 +49,7 @@ class OrderSummaryTool
             ? new Criteria([$orderId])
             : new Criteria();
 
-        if ($orderNumber !== '') {
+        if ($orderId === '' && $orderNumber !== '') {
             $criteria->addFilter(new EqualsFilter('orderNumber', $orderNumber));
         }
 

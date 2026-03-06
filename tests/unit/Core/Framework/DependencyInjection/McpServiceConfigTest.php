@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Mcp\Resource\FlowActionsResource;
 use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
+use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
+use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
+use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
 use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
@@ -63,6 +66,9 @@ class McpServiceConfigTest extends TestCase
             ProductCreateTool::class,
             RevenueReportTool::class,
             FlowCreateTool::class,
+            CartManageTool::class,
+            CartCheckoutTool::class,
+            CheckoutMethodsTool::class,
             ShopwareContextPrompt::class,
             EntityListResource::class,
             BusinessEventsResource::class,
@@ -101,6 +107,9 @@ class McpServiceConfigTest extends TestCase
             ProductCreateTool::class,
             RevenueReportTool::class,
             FlowCreateTool::class,
+            CartManageTool::class,
+            CartCheckoutTool::class,
+            CheckoutMethodsTool::class,
         ];
 
         foreach ($toolServices as $serviceId) {

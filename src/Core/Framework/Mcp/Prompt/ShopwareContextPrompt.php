@@ -85,6 +85,9 @@ These tools simplify common multi-step workflows:
 - `shopware-product-create` -- create product with human-readable tax rate and currency code, auto-resolves IDs
 - `shopware-revenue-report` -- revenue report for a date range with timeline breakdown
 - `shopware-flow-create` -- create Flow Builder automations from flattened event/action/rule params
+- `shopware-cart-manage` -- manage storefront carts (create, add, remove, update, get)
+- `shopware-cart-checkout` -- place an order from a cart with payment/shipping method selection
+- `shopware-checkout-methods` -- list available payment and shipping methods for a sales channel
 
 ## Common workflows
 
@@ -118,6 +121,13 @@ These tools simplify common multi-step workflows:
 3. If conditional: `shopware-entity-search` on `rule` entity to find an existing rule
 4. `shopware-flow-create` with event, action, actionConfig, and optional ruleId
 5. Start with dryRun=true to preview the flow structure
+
+### Storefront checkout
+1. `shopware-cart-manage` with action "create" and salesChannelId to get a cart token
+2. `shopware-cart-manage` with action "add", the token, and productId to add items
+3. `shopware-checkout-methods` to list available payment and shipping methods
+4. `shopware-cart-checkout` with dryRun=true to preview the order
+5. `shopware-cart-checkout` with dryRun=false to place the order
 
 ## Error recovery
 - If search returns 0 results: check the entity name (use `shopware://entities`), broaden filters, or try a term search

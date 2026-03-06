@@ -214,6 +214,62 @@ Generate a revenue report for a date range. Excludes cancelled orders.
 
 ---
 
+## Storefront Tools
+
+Storefront tools use the Store API / SalesChannelContext layer for customer-facing operations. They require a `salesChannelId` (see `shopware://sales-channels` resource).
+
+### shopware-cart-manage
+Manage a storefront shopping cart. Supports creating carts, adding/removing/updating line items, and viewing cart state.
+
+**Parameters:**
+- `salesChannelId` (string, required) -- Sales channel UUID
+- `action` (string, required) -- One of: `create`, `add`, `remove`, `update`, `get`
+- `token` (string, required for non-create) -- Cart token returned by `create`
+- `productId` (string, required for `add`) -- Product UUID
+- `quantity` (int, default: 1) -- Quantity for `add` and `update`
+- `lineItemId` (string, required for `remove`/`update`) -- Line item identifier
+- `customerId` (string, optional) -- Customer UUID for customer-specific pricing
+
+**Example (create):**
+```json
+{"salesChannelId": "<uuid>", "action": "create"}
+```
+
+**Example (add):**
+```json
+{"salesChannelId": "<uuid>", "action": "add", "token": "<token>", "productId": "<uuid>", "quantity": 2}
+```
+
+### shopware-cart-checkout
+Place an order from an existing cart. Requires a registered customer. Defaults to `dryRun=true`.
+
+**Parameters:**
+- `salesChannelId` (string, required) -- Sales channel UUID
+- `token` (string, required) -- Cart token from `shopware-cart-manage`
+- `customerId` (string, required) -- Customer UUID
+- `paymentMethodId` (string, optional) -- Payment method UUID (defaults to sales channel default)
+- `shippingMethodId` (string, optional) -- Shipping method UUID (defaults to sales channel default)
+- `dryRun` (bool, default: true) -- Preview order without placing it
+
+**Example:**
+```json
+{"salesChannelId": "<uuid>", "token": "<token>", "customerId": "<uuid>", "dryRun": true}
+```
+
+### shopware-checkout-methods
+List available payment and shipping methods for a sales channel.
+
+**Parameters:**
+- `salesChannelId` (string, required) -- Sales channel UUID
+- `type` (string, default: "all") -- One of: `payment`, `shipping`, `all`
+
+**Example:**
+```json
+{"salesChannelId": "<uuid>", "type": "all"}
+```
+
+---
+
 ## Resources
 
 Resources are static reference data available via MCP resource URIs. They do not require tool calls.

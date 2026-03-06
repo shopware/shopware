@@ -65,20 +65,19 @@ This document defines user stories that describe what an AI agent should be able
 
 ## Category 5: Storefront / Customer-Facing
 
-**Status: WEAK** -- only `shopware-storefront-search` exists.
+**Status: GOOD** -- storefront search, cart management, checkout, and method listing all covered.
 
 - **US-12**: "Help a customer find red shoes in size 42"
   - Tools: `shopware-storefront-search` with property group filters
   - Feasibility: Possible but requires complex criteria with property group associations
 
 - **US-13**: "Create a cart, add 2x product SW-001, and start checkout"
-  - Feasibility: **Not possible.** No cart/checkout tools exist
-  - Gap: Storefront checkout flow (postponed)
+  - Tools: `shopware-cart-manage` (create + add) then `shopware-cart-checkout` (dryRun + order)
+  - Feasibility: Fully covered. Complete checkout flow in 4-5 tool calls
 
 - **US-14**: "What payment/shipping methods are available in sales channel X?"
-  - Tools: `shopware-entity-search` on `payment_method` / `shipping_method` with sales channel associations
-  - Feasibility: Possible but indirect, no dedicated listing tool
-  - Gap: Storefront tools (postponed)
+  - Tools: `shopware-checkout-methods` with type "all"
+  - Feasibility: Fully covered. Returns IDs, names, and descriptions for all available methods
 
 - **US-15**: "Track order status for customer email john@example.com"
   - Tools: `shopware-customer-lookup` with `email` -- returns profile with recent orders and statuses
@@ -98,6 +97,4 @@ This document defines user stories that describe what an AI agent should be able
 
 ## Postponed Improvements
 
-The following gaps have been identified but deferred to separate tasks:
-
-- **Storefront checkout flow**: `cart-manage`, `cart-checkout`, `checkout-methods`
+No outstanding gaps. All identified user stories are fully or partially covered.

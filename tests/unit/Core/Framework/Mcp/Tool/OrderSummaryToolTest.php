@@ -75,6 +75,36 @@ class OrderSummaryToolTest extends TestCase
         static::assertSame($orderId, $data['data']['id']);
     }
 
+    public function testOrderIdTakesPriorityWhenBothProvided(): void
+    {
+        $orderId = Uuid::randomHex();
+        $order = $this->buildOrder($orderId, '10001');
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(function (Criteria $criteria, Context $context) use ($order, $orderId): EntitySearchResult {
+            static::assertSame([$orderId], $criteria->getIds());
+            static::assertEmpty($criteria->getFilters(), 'orderNumber filter must not be applied when orderId is set');
+
+            $collection = new OrderCollection([$order]);
+
+            return new EntitySearchResult('order', 1, $collection, null, $criteria, $context);
+        });
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->with('order')->willReturn($repository);
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new OrderSummaryTool($registry, $contextProvider);
+        $output = ($tool)(orderNumber: '99999', orderId: $orderId);
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertSame($orderId, $data['data']['id']);
+    }
+
     public function testNotFoundReturnsError(): void
     {
         $tool = $this->createTool(null);

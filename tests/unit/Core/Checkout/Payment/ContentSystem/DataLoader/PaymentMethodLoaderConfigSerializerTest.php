@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfig;
 use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfigSerializer;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**

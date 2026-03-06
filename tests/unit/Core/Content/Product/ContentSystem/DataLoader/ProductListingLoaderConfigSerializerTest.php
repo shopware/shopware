@@ -7,9 +7,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**

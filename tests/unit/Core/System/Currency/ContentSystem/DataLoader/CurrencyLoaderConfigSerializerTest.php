@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Currency\CurrencyException;
 use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfig;
 use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfigSerializer;
+use Shopware\Core\System\Currency\CurrencyException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**

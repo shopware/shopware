@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\Shipping\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfig;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfigSerializer;
+use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**

@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Language\LanguageException;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfigSerializer;
+use Shopware\Core\System\Language\LanguageException;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**

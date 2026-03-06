@@ -5,10 +5,8 @@ namespace Shopware\Core\Content\Product\SalesChannel\QuantityLimits;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
-use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -77,10 +75,6 @@ class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
 
     private function addFilters(SalesChannelContext $context, Criteria $criteria): void
     {
-        $criteria->addFilter(
-            new ProductAvailableFilter($context->getSalesChannelId(), ProductVisibilityDefinition::VISIBILITY_LINK)
-        );
-
         $salesChannelId = $context->getSalesChannelId();
 
         $hideCloseoutProductsWhenOutOfStock = $this->config->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);

@@ -24,7 +24,7 @@
                                         {{ 'component.product.quantitySelect.legend'|trans|striptags }}
                                     </legend>
 
-                                    <div id="product-detail-quantity-group-{{ product.id }}" class="input-group product-detail-quantity-group quantity-selector-group" data-quantity-selector="true" data-live-quantity-url="{{ path('frontend.product.quantity-limits', { productId: product.id }) }}">
+                                    <div id="product-detail-quantity-group-{{ product.id }}" class="input-group product-detail-quantity-group quantity-selector-group" data-quantity-selector="true"{% if product.isCloseout %} data-live-quantity-url="{{ path('frontend.product.quantity-limits', { productId: product.id }) }}"{% endif %}>
                                         <button type="button" class="btn btn-outline-light btn-minus js-btn-minus" aria-label="{{ 'component.product.quantitySelect.decrease'|trans|striptags }}">
                                             {% sw_icon 'minus' style {size: 'xs'} %}
                                         </button>

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
+use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\AbstractProductQuantityLimitsRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -57,6 +58,8 @@ class ProductControllerTest extends TestCase
 
     private MockObject&ProductReviewLoader $productReviewLoaderMock;
 
+    private MockObject&AbstractProductQuantityLimitsRoute $productQuantityLimitsRouteMock;
+
     private ProductControllerStub $controller;
 
     protected function setUp(): void
@@ -67,6 +70,7 @@ class ProductControllerTest extends TestCase
         $this->minimalQuickViewPageLoaderMock = $this->createMock(MinimalQuickViewPageLoader::class);
         $this->productReviewSaveRouteMock = $this->createMock(AbstractProductReviewSaveRoute::class);
         $this->productReviewLoaderMock = $this->createMock(ProductReviewLoader::class);
+        $this->productQuantityLimitsRouteMock = $this->createMock(AbstractProductQuantityLimitsRoute::class);
 
         $this->controller = new ProductControllerStub(
             $this->productPageLoaderMock,
@@ -75,6 +79,7 @@ class ProductControllerTest extends TestCase
             $this->productReviewSaveRouteMock,
             $this->seoUrlPlaceholderHandlerMock,
             $this->productReviewLoaderMock,
+            $this->productQuantityLimitsRouteMock,
         );
     }
 

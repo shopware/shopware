@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
+use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\UX\TwigComponent\ComponentFactory;
@@ -48,13 +50,13 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'EmptyBundle' => ['path' => $bundlePath],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents();
@@ -83,13 +85,13 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents();
@@ -120,13 +122,13 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents();
@@ -162,13 +164,13 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents();
@@ -205,13 +207,13 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents(includeMetadata: true);
@@ -246,13 +248,13 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents();
@@ -276,16 +278,21 @@ class TwigComponentHelperTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['namespace' => 'TestApp', 'appPath' => $appRelPath],
+            ['namespace' => 'TestApp'],
         ]);
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->method('filesystemForAppName')
+            ->with('TestApp')
+            ->willReturn(new Filesystem($this->tempDir . '/' . $appRelPath));
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
-            $connection
+            $connection,
+            $sourceResolver
         );
 
         $components = $helper->getComponents();
@@ -318,16 +325,21 @@ class TwigComponentHelperTest extends TestCase
         $connection = $this->createMock(Connection::class);
         // DISTINCT in the query means both templates produce one row per app.
         $connection->method('fetchAllAssociative')->willReturn([
-            ['namespace' => 'MultiTemplateApp', 'appPath' => $appRelPath],
+            ['namespace' => 'MultiTemplateApp'],
         ]);
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->method('filesystemForAppName')
+            ->with('MultiTemplateApp')
+            ->willReturn(new Filesystem($this->tempDir . '/' . $appRelPath));
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
-            $connection
+            $connection,
+            $sourceResolver
         );
 
         $components = $helper->getComponents();
@@ -346,11 +358,11 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(SourceResolver::class)
         );
 
         $component = $helper->getComponentFromTemplate($splFileInfo, 'TestNamespace');
@@ -372,11 +384,11 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(SourceResolver::class)
         );
 
         $component = $helper->getComponentFromTemplate($splFileInfo, 'TestNamespace');
@@ -398,11 +410,11 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(SourceResolver::class)
         );
 
         $component = $helper->getComponentFromTemplate($splFileInfo, 'TestNamespace');
@@ -436,14 +448,14 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'Bundle1' => ['path' => $bundle1Path],
                 'Bundle2' => ['path' => $bundle2Path],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents();
@@ -476,14 +488,14 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'Bundle1' => ['path' => $bundle1Path],
                 'Bundle2' => ['path' => $bundle2Path],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents();
@@ -512,13 +524,13 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             'Resources/views/storefront/components',
-            $this->tempDir,
             [
                 'Storefront' => ['path' => $storefrontPath],
             ],
             $namespaceHierarchyBuilder,
             $componentFactory,
-            $connection
+            $connection,
+            $this->createMock(SourceResolver::class)
         );
 
         $components = $helper->getComponents();

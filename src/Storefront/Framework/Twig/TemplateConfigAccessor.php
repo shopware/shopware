@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Twig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
 use Symfony\Component\Asset\Packages;
@@ -21,7 +20,6 @@ class TemplateConfigAccessor
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
         private readonly Packages $packages,
-        private readonly TwigComponentHelper $twigComponentHelper
     ) {
     }
 
@@ -71,39 +69,31 @@ class TemplateConfigAccessor
         $componentImportMap = [];
         $themeScripts = $this->themeScripts->getThemeScripts();
 
-        foreach ($this->twigComponentHelper->getComponents() as $component) {
-            $relativeNamespacePath = $component->getRelativeNamespacePath();
-            $scriptPath = 'js/components/' . $relativeNamespacePath . '.js';
+        // Filter theme scripts to component scripts only.
+        $componentScripts = array_filter($themeScripts, function ($script) {
+            return str_contains($script, 'js/components/');
+        });
 
-            if (!\in_array($scriptPath, $themeScripts, true)) {
-                continue;
-            }
-
-            $componentImportMap[$component->getTag()] = $this->packages->getUrl($scriptPath, 'theme');
+        // Create import map based on component tag.
+        foreach ($componentScripts as $componentScript) {
+            $componentTag = $this->getComponentTagFromScriptPath($componentScript);
+            $componentImportMap[$componentTag] = $this->packages->getUrl($componentScript, 'theme');
         }
 
         return $componentImportMap;
     }
 
     /**
-     * @return string[]
+     * Derives the component tag from the script path.
+     * Example: js/components/Sw/Product/BuyButton.js => Sw:Product:BuyButton
      */
-    public function componentStyles(): array
+    private function getComponentTagFromScriptPath(string $path): string
     {
-        $styles = [];
+        $tag = str_replace('js/components/', '', $path);
+        $tag = str_replace('.js', '', $tag);
+        $tag = str_replace('/', ':', $tag);
 
-        foreach ($this->twigComponentHelper->getComponents() as $component) {
-            $relativeNamespacePath = $component->getRelativeNamespacePath();
-            $stylePath = 'css/components/' . $relativeNamespacePath . '.css';
-
-            if ($component->getStylePath() === null) {
-                continue;
-            }
-
-            $styles[] = $stylePath;
-        }
-
-        return $styles;
+        return $tag;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Twig\Components;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -25,11 +26,11 @@ class TwigComponentHelper
      */
     public function __construct(
         private string $componentDirectory,
-        private string $projectDir,
         private array $bundlesMetadata,
         private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
         private readonly ComponentFactory $componentFactory,
         private readonly Connection $connection,
+        private readonly SourceResolver $sourceResolver,
     ) {
     }
 
@@ -150,8 +151,7 @@ class TwigComponentHelper
 
         $apps = $this->connection->fetchAllAssociative('
             SELECT DISTINCT
-                `app`.`name` AS `namespace`,
-                `app`.`path` AS `appPath`
+                `app`.`name` AS `namespace`
             FROM `app_template`
             INNER JOIN `app` ON `app_template`.`app_id` = `app`.`id`
             WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
@@ -159,8 +159,13 @@ class TwigComponentHelper
         ');
 
         foreach ($apps as $app) {
-            $absoluteAppPath = Path::join($this->projectDir, $app['appPath']);
-            $componentDir = Path::join($absoluteAppPath, $this->componentDirectory);
+            try {
+                $filesystem = $this->sourceResolver->filesystemForAppName($app['namespace']);
+            } catch (\Throwable) {
+                continue;
+            }
+
+            $componentDir = $filesystem->path($this->componentDirectory);
 
             if (!is_dir($componentDir)) {
                 continue;

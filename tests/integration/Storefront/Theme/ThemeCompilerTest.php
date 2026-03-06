@@ -994,100 +994,8 @@ SCSS;
         static::assertTrue($this->filesystem->fileExists($cssPath));
     }
 
-    public function testCompilationWritesBaseStyleFile(): void
-    {
-        if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-            static::markTestSkipped('STOREFRONT_COMPONENTS feature is not active');
-        }
-
-        // Create base style file content
-        $baseStyleScss = '.base-reset { margin: 0; padding: 0; }';
-        $tempBaseStyleFile = sys_get_temp_dir() . '/base-style-' . uniqid() . '.scss';
-        file_put_contents($tempBaseStyleFile, $baseStyleScss);
-
-        // Mock ThemeFileResolver to return base style files
-        $mockResolver = $this->createMock(ThemeFileResolver::class);
-        $mockResolver->method('resolveStyleFiles')->willReturn(new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection());
-        $mockResolver->method('resolveBaseStyleFiles')->willReturn(
-            \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection::createFromArray([
-                $tempBaseStyleFile,
-            ])
-        );
-        $mockResolver->method('resolveFiles')->willReturn([
-            ThemeFileResolver::SCRIPT_FILES => new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection(),
-            ThemeFileResolver::STYLE_FILES => new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection(),
-        ]);
-
-        /** @var TwigComponentHelper $twigComponentHelper */
-        $twigComponentHelper = static::getContainer()->get(TwigComponentHelper::class);
-
-        $compiler = new ThemeCompiler(
-            $this->filesystem,
-            $this->tempFilesystem,
-            new CopyBatchInputFactory(),
-            $mockResolver,
-            $twigComponentHelper,
-            true,
-            $this->eventDispatcher,
-            static::getContainer()->get(ThemeFilesystemResolver::class),
-            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
-            static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
-        );
-
-        $config = new StorefrontPluginConfiguration('TestTheme');
-        $config->setThemeConfig([
-            'fields' => [
-                'sw-color-primary' => [
-                    'type' => 'color',
-                    'value' => '#ff0000',
-                ],
-            ],
-        ]);
-
-        try {
-            $compiler->compileTheme(
-                $this->mockSalesChannelId,
-                'test-theme-id',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                false,
-                Context::createDefaultContext()
-            );
-
-            $pathBuilder = new MD5ThemePathBuilder();
-            $themeBasePath = 'theme/' . $pathBuilder->assemblePath($this->mockSalesChannelId, 'test-theme-id');
-
-            // Verify main CSS file exists
-            static::assertTrue($this->filesystem->fileExists($themeBasePath . '/css/all.css'));
-
-            // Verify base/minimal CSS file exists
-            static::assertTrue(
-                $this->filesystem->fileExists($themeBasePath . '/css/minimal.css'),
-                'minimal.css should be created when STOREFRONT_COMPONENTS is active'
-            );
-
-            // Verify minimal.css contains the base styles
-            $minimalCss = $this->filesystem->read($themeBasePath . '/css/minimal.css');
-            static::assertStringContainsString('.base-reset', $minimalCss);
-        } finally {
-            // Clean up temp file
-            if (is_file($tempBaseStyleFile)) {
-                unlink($tempBaseStyleFile);
-            }
-        }
-    }
-
     public function testCompilationWritesComponentStyleFiles(): void
     {
-        if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-            static::markTestSkipped('STOREFRONT_COMPONENTS feature is not active');
-        }
-
         // Create a test component with a real style file
         $testComponentScss = '.test-component { color: $sw-color-primary; background: #fff; }';
 
@@ -1115,7 +1023,6 @@ SCSS;
         // Mock ThemeFileResolver to return empty collections (we're only testing component compilation)
         $mockResolver = $this->createMock(ThemeFileResolver::class);
         $mockResolver->method('resolveStyleFiles')->willReturn(new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection());
-        $mockResolver->method('resolveBaseStyleFiles')->willReturn(new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection());
         $mockResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection(),
             ThemeFileResolver::STYLE_FILES => new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection(),
@@ -1206,99 +1113,8 @@ SCSS;
         }
     }
 
-    public function testBaseStylesContainMinimalContent(): void
-    {
-        if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-            static::markTestSkipped('STOREFRONT_COMPONENTS feature is not active');
-        }
-
-        // Create a custom ThemeCompiler with mocked ThemeFileResolver that returns base styles
-        $baseStyleScss = '.base-minimal { font-family: Arial; margin: 0; }';
-        $tempBaseStyleFile = sys_get_temp_dir() . '/base-' . uniqid() . '.scss';
-        file_put_contents($tempBaseStyleFile, $baseStyleScss);
-
-        $mockResolver = $this->createMock(ThemeFileResolver::class);
-        $mockResolver->method('resolveStyleFiles')->willReturn(new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection());
-        $mockResolver->method('resolveBaseStyleFiles')->willReturn(
-            \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection::createFromArray([
-                $tempBaseStyleFile,
-            ])
-        );
-        $mockResolver->method('resolveFiles')->willReturn([
-            ThemeFileResolver::SCRIPT_FILES => new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection(),
-            ThemeFileResolver::STYLE_FILES => new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection(),
-        ]);
-
-        $twigComponentHelperReal = $this->createMock(TwigComponentHelper::class);
-        $twigComponentHelperReal->method('getComponents')->willReturn(new \Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection());
-
-        $compiler = new ThemeCompiler(
-            $this->filesystem,
-            $this->tempFilesystem,
-            new CopyBatchInputFactory(),
-            $mockResolver,
-            $twigComponentHelperReal,
-            true,
-            $this->eventDispatcher,
-            static::getContainer()->get(ThemeFilesystemResolver::class),
-            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
-            static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
-        );
-
-        $config = new StorefrontPluginConfiguration('TestTheme');
-
-        try {
-            $compiler->compileTheme(
-                $this->mockSalesChannelId,
-                'test-theme-id',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                false,
-                Context::createDefaultContext()
-            );
-
-            $pathBuilder = new MD5ThemePathBuilder();
-            $minimalCssPath = 'theme/' . $pathBuilder->assemblePath($this->mockSalesChannelId, 'test-theme-id') . '/css/minimal.css';
-
-            static::assertTrue(
-                $this->filesystem->fileExists($minimalCssPath),
-                'minimal.css should be created'
-            );
-
-            $minimalCss = $this->filesystem->read($minimalCssPath);
-
-            // Base styles should be compiled CSS (not empty)
-            static::assertNotEmpty($minimalCss, 'minimal.css should contain CSS content');
-
-            // Should contain the compiled base styles
-            static::assertStringContainsString('.base-minimal', $minimalCss);
-            static::assertStringContainsString('Arial', $minimalCss);
-
-            // Should be valid CSS (no SCSS variables left uncompiled)
-            static::assertStringNotContainsString(
-                '$sw-',
-                $minimalCss,
-                'minimal.css should not contain uncompiled SCSS variables'
-            );
-        } finally {
-            // Clean up temp file
-            if (is_file($tempBaseStyleFile)) {
-                unlink($tempBaseStyleFile);
-            }
-        }
-    }
-
     public function testComponentStylesAreIndependent(): void
     {
-        if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-            static::markTestSkipped('STOREFRONT_COMPONENTS feature is not active');
-        }
-
         // Create two test components with different styles
         $component1Scss = '.button-component { color: $sw-color-primary; padding: 10px; }';
         $component2Scss = '.card-component { background: $sw-color-secondary; margin: 20px; }';
@@ -1344,7 +1160,6 @@ SCSS;
         // Mock ThemeFileResolver to return empty collections (we're only testing component compilation)
         $mockResolver = $this->createMock(ThemeFileResolver::class);
         $mockResolver->method('resolveStyleFiles')->willReturn(new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection());
-        $mockResolver->method('resolveBaseStyleFiles')->willReturn(new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection());
         $mockResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection(),
             ThemeFileResolver::STYLE_FILES => new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection(),
@@ -1455,10 +1270,6 @@ SCSS;
 
     public function testCompilationCopiesComponentScriptFiles(): void
     {
-        if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-            static::markTestSkipped('STOREFRONT_COMPONENTS feature is not active');
-        }
-
         // Create test component JavaScript content
         $componentJs = 'console.log("test component");';
 

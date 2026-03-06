@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
@@ -184,7 +183,6 @@ class ThemeCompilerTest extends TestCase
     {
         $styleFiles = FileCollection::createFromArray(['test.scss']);
         $this->themeFileResolver->method('resolveStyleFiles')->willReturn($styleFiles);
-        $this->themeFileResolver->method('resolveBaseStyleFiles')->willReturn(new FileCollection());
         $this->themeFileResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
             ThemeFileResolver::STYLE_FILES => $styleFiles,
@@ -229,7 +227,6 @@ class ThemeCompilerTest extends TestCase
     {
         $styleFiles = FileCollection::createFromArray(['test.scss']);
         $this->themeFileResolver->method('resolveStyleFiles')->willReturn($styleFiles);
-        $this->themeFileResolver->method('resolveBaseStyleFiles')->willReturn(new FileCollection());
         $this->themeFileResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
             ThemeFileResolver::STYLE_FILES => $styleFiles,
@@ -712,7 +709,6 @@ class ThemeCompilerTest extends TestCase
     {
         $styleFiles = FileCollection::createFromArray(['test.scss']);
         $this->themeFileResolver->method('resolveStyleFiles')->willReturn($styleFiles);
-        $this->themeFileResolver->method('resolveBaseStyleFiles')->willReturn(new FileCollection());
         $this->themeFileResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
             ThemeFileResolver::STYLE_FILES => $styleFiles,
@@ -874,90 +870,6 @@ class ThemeCompilerTest extends TestCase
     }
 
     // ===================================
-    // Storefront Components Tests
-    // ===================================
-
-    public function testCompilesBaseStyles(): void
-    {
-        if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-            static::markTestSkipped('STOREFRONT_COMPONENTS feature not active');
-        }
-
-        $baseStyleFiles = FileCollection::createFromArray(['base.scss']);
-        $this->themeFileResolver->method('resolveStyleFiles')->willReturn(new FileCollection());
-        $this->themeFileResolver->method('resolveBaseStyleFiles')->willReturn($baseStyleFiles);
-        $this->themeFileResolver->method('resolveFiles')->willReturn([
-            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-            ThemeFileResolver::STYLE_FILES => new FileCollection(),
-        ]);
-
-        $compileCount = 0;
-        $this->scssPhpCompiler
-            ->method('compileString')
-            ->willReturnCallback(function () use (&$compileCount) {
-                ++$compileCount;
-
-                return 'compiled css';
-            });
-
-        $compiler = $this->createThemeCompiler();
-        $config = $this->createThemeConfig('TestTheme');
-
-        $compiler->compileTheme(
-            TestDefaults::SALES_CHANNEL,
-            'theme-id',
-            $config,
-            new StorefrontPluginConfigurationCollection(),
-            false,
-            Context::createDefaultContext()
-        );
-
-        // Should compile both main styles and base styles
-        static::assertGreaterThanOrEqual(2, $compileCount);
-    }
-
-    public function testThrowsExceptionWhenBaseStyleCompilationFails(): void
-    {
-        if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
-            static::markTestSkipped('STOREFRONT_COMPONENTS feature not active');
-        }
-
-        $baseStyleFiles = FileCollection::createFromArray(['base.scss']);
-        $this->themeFileResolver->method('resolveStyleFiles')->willReturn(new FileCollection());
-        $this->themeFileResolver->method('resolveBaseStyleFiles')->willReturn($baseStyleFiles);
-        $this->themeFileResolver->method('resolveFiles')->willReturn([
-            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-            ThemeFileResolver::STYLE_FILES => new FileCollection(),
-        ]);
-
-        $callCount = 0;
-        $this->scssPhpCompiler
-            ->method('compileString')
-            ->willReturnCallback(function () use (&$callCount) {
-                ++$callCount;
-                if ($callCount === 2) {
-                    throw new \Exception('Base style compilation failed');
-                }
-
-                return 'compiled css';
-            });
-
-        $compiler = $this->createThemeCompiler();
-        $config = $this->createThemeConfig('TestTheme');
-
-        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Base style compilation failed'));
-
-        $compiler->compileTheme(
-            TestDefaults::SALES_CHANNEL,
-            'theme-id',
-            $config,
-            new StorefrontPluginConfigurationCollection(),
-            false,
-            Context::createDefaultContext()
-        );
-    }
-
-    // ===================================
     // Helper Methods
     // ===================================
 
@@ -1009,10 +921,6 @@ class ThemeCompilerTest extends TestCase
     {
         $this->themeFileResolver
             ->method('resolveStyleFiles')
-            ->willReturn(new FileCollection());
-
-        $this->themeFileResolver
-            ->method('resolveBaseStyleFiles')
             ->willReturn(new FileCollection());
 
         $this->themeFileResolver

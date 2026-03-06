@@ -27,7 +27,6 @@ class ConfigExtension extends AbstractExtension
             new TwigFunction('theme_config', $this->theme(...), ['needs_context' => true]),
             new TwigFunction('theme_scripts', $this->scripts(...), ['needs_context' => true]),
             new TwigFunction('component_import_map', $this->componentImportMap(...), ['needs_context' => true]),
-            new TwigFunction('component_styles', $this->componentStyles(...), ['needs_context' => true]),
         ];
     }
 
@@ -69,16 +68,6 @@ class ConfigExtension extends AbstractExtension
     public function componentImportMap(): array
     {
         return $this->config->componentImportMap();
-    }
-
-    /**
-     * Returns all styles of components.
-     *
-     * @return array<int, string>
-     */
-    public function componentStyles(): array
-    {
-        return $this->config->componentStyles();
     }
 
     /**

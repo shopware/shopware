@@ -349,7 +349,7 @@ class ThemeFileResolver
         return $resolvedFiles;
     }
 
-    private function resolveComponentSingleFile($filepath, $fileType): ?File
+    private function resolveComponentSingleFile(string $filepath, string $fileType): ?File
     {
         $processedFilepath = $filepath;
         $componentBundleNamespace = null;

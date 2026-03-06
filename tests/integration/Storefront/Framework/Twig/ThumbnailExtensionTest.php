@@ -20,8 +20,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
@@ -239,8 +237,6 @@ class ThumbnailExtensionTest extends TestCase
         );
 
         $packages = $this->createMock(Packages::class);
-        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
-        $twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection());
 
         // Needed for the ConfigExtension, so the theme_config('breakpoint.sm') calls return the actual breakpoints.
         $templateConfigAccessor = new TemplateConfigAccessor(
@@ -251,7 +247,6 @@ class ThumbnailExtensionTest extends TestCase
             ),
             $this->createMock(ThemeScripts::class),
             $packages,
-            $twigComponentHelper
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

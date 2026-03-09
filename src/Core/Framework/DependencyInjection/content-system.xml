@@ -237,5 +237,15 @@
             <argument/>
             <tag name="routing.loader"/>
         </service>
+
+        <!-- Demo Command -->
+        <service id="Shopware\Core\Framework\ContentSystem\Command\GenerateDemoDataCommand">
+            <argument type="service" id="content_layout.repository"/>
+            <argument type="service" id="landing_page_content_layout.repository"/>
+            <argument type="service" id="landing_page.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="cms_page.repository"/>
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

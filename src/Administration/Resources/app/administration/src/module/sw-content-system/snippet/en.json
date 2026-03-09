@@ -1,0 +1,25 @@
+{
+  "sw-content-system": {
+    "general": {
+      "mainMenuItemGeneral": "Content System",
+      "descriptionTextModule": "Custom Experience Studio module",
+      "headline": "Content System",
+      "description": "Storyblok-like live preview via iframe for Content API driven storefront rendering.",
+      "previewTitle": "Live storefront preview",
+      "landingPageIdLabel": "Landing page ID",
+      "previewPathLabel": "Preview path",
+      "refreshPreviewButton": "Refresh preview",
+      "openInNewTabButton": "Open in new tab",
+      "previewIFrameTitle": "Content System live storefront preview",
+      "treeTitle": "Persisted layout tree",
+      "treeLoading": "Loading layout structure...",
+      "treeError": "Could not load layout tree",
+      "treeEmpty": "No layout elements available for this entity.",
+      "layoutNameLabel": "Layout",
+      "layoutIdLabel": "Layout ID",
+      "treeSourceLabel": "Source",
+      "moveUpLabel": "Move up",
+      "moveDownLabel": "Move down"
+    }
+  }
+}

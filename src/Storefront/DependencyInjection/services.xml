@@ -145,6 +145,15 @@
             <argument type="service" id="twig"/>
         </service>
 
+        <service id="Shopware\Storefront\ContentSystem\Rendering\StorefrontContentRenderer">
+            <argument type="service" id="twig"/>
+        </service>
+
+        <service id="Shopware\Storefront\ContentSystem\Rendering\ContentSystemDemoPageLoader">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="Shopware\Storefront\ContentSystem\Rendering\StorefrontContentRenderer"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter" public="false">
             <tag name="twig.extension"/>
         </service>

@@ -1,0 +1,116 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    <div class="container-main content-main">
+        <div class="container py-4">
+            {% if fullError %}
+                <div class="alert alert-danger mb-3">
+                    Could not load Content API payload: {{ fullError }}
+                </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Rendered layout playground preview</h2>
+                <small class="text-muted">
+                    Landing page: <code>{{ landingPageId }}</code>
+                </small>
+            </div>
+
+            <div class="border rounded p-3">
+                {{ renderedLayoutHtml|raw }}
+            </div>
+
+            <div class="mt-3 text-muted">
+                <small>Source: <code>{{ fullEndpoint }}</code></small>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        [data-content-element-id] {
+            transition: outline-color 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .content-system-preview-is-selected {
+            outline: 2px solid #3b82f6;
+            outline-offset: 4px;
+            box-shadow: 0 0 0 4px rgb(59 130 246 / 15%);
+        }
+    </style>
+
+    <script>
+        (() => {
+            const isEmbeddedPreview = window.parent && window.parent !== window;
+
+            if (!isEmbeddedPreview) {
+                return;
+            }
+
+            const parentOrigin = window.location.origin;
+            let selectedElement = null;
+
+            const selectElement = (elementId) => {
+                if (selectedElement) {
+                    selectedElement.classList.remove('content-system-preview-is-selected');
+                }
+
+                if (!elementId) {
+                    selectedElement = null;
+                    return;
+                }
+
+                selectedElement = document.querySelector(`[data-content-element-id="${CSS.escape(elementId)}"]`);
+
+                if (!selectedElement) {
+                    return;
+                }
+
+                selectedElement.classList.add('content-system-preview-is-selected');
+                selectedElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+            };
+
+            window.addEventListener('message', (event) => {
+                if (event.origin !== parentOrigin || !event.data || typeof event.data !== 'object') {
+                    return;
+                }
+
+                if (event.data.type === 'content-system:select-element' && typeof event.data.elementId === 'string') {
+                    selectElement(event.data.elementId);
+                }
+            });
+
+            document.addEventListener('click', (event) => {
+                const target = event.target instanceof Element ? event.target.closest('[data-content-element-id]') : null;
+
+                if (!target) {
+                    return;
+                }
+
+                const elementId = target.getAttribute('data-content-element-id');
+
+                if (!elementId) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                selectElement(elementId);
+
+                window.parent.postMessage({
+                    type: 'content-system:element-selected',
+                    elementId,
+                }, parentOrigin);
+            });
+
+            window.addEventListener('load', () => {
+                window.parent.postMessage({
+                    type: 'content-system:preview-ready',
+                }, parentOrigin);
+            });
+        })();
+    </script>
+{% endblock %}

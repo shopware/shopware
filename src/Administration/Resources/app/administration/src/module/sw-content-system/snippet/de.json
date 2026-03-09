@@ -1,0 +1,25 @@
+{
+  "sw-content-system": {
+    "general": {
+      "mainMenuItemGeneral": "Content System",
+      "descriptionTextModule": "Benutzerdefiniertes Erlebniswelten-Modul",
+      "headline": "Content System",
+      "description": "Storyblok-ähnliche Live-Vorschau via iFrame für Content-API-basiertes Storefront-Rendering.",
+      "previewTitle": "Live Storefront Vorschau",
+      "landingPageIdLabel": "Landing-Page-ID",
+      "previewPathLabel": "Preview-Pfad",
+      "refreshPreviewButton": "Vorschau aktualisieren",
+      "openInNewTabButton": "In neuem Tab öffnen",
+      "previewIFrameTitle": "Content System Live Storefront Vorschau",
+      "treeTitle": "Persistierter Layout-Baum",
+      "treeLoading": "Layout-Struktur wird geladen...",
+      "treeError": "Layout-Baum konnte nicht geladen werden",
+      "treeEmpty": "Keine Layout-Elemente für diese Entity vorhanden.",
+      "layoutNameLabel": "Layout",
+      "layoutIdLabel": "Layout-ID",
+      "treeSourceLabel": "Quelle",
+      "moveUpLabel": "Nach oben verschieben",
+      "moveDownLabel": "Nach unten verschieben"
+    }
+  }
+}

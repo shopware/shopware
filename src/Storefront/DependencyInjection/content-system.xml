@@ -53,5 +53,10 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver"/>
             <argument type="service" id="footer_content_layout.repository"/>
         </service>
+
+        <service id="Shopware\Storefront\ContentSystem\Rendering\ContentSystemDemoLayoutManager">
+            <argument type="service" id="landing_page_content_layout.repository"/>
+            <argument type="service" id="content_layout.repository"/>
+        </service>
     </services>
 </container>

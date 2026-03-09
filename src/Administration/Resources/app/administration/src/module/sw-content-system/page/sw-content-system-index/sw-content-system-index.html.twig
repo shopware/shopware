@@ -1,0 +1,147 @@
+{% block sw_content_system_index %}
+<sw-page class="sw-content-system-index">
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-content-system.general.headline') }}
+        </h2>
+    </template>
+
+    <template #side-content>
+        <aside class="sw-content-system-index__tree">
+            <div class="sw-content-system-index__tree-header">
+                <h3>{{ $tc('sw-content-system.general.treeTitle') }}</h3>
+            </div>
+
+            <div
+                v-if="isTreeLoading"
+                class="sw-content-system-index__tree-state sw-content-system-index__tree-state--muted"
+            >
+                {{ $tc('sw-content-system.general.treeLoading') }}
+            </div>
+
+            <div
+                v-else-if="treeError"
+                class="sw-content-system-index__tree-state sw-content-system-index__tree-state--error"
+            >
+                {{ $tc('sw-content-system.general.treeError') }}: {{ treeError }}
+            </div>
+
+            <div
+                v-else-if="!layoutTreeRows.length"
+                class="sw-content-system-index__tree-state sw-content-system-index__tree-state--muted"
+            >
+                {{ $tc('sw-content-system.general.treeEmpty') }}
+            </div>
+
+            <template v-else>
+                <component
+                    :is="row.kind === 'element' ? 'button' : 'div'"
+                    v-for="row in layoutTreeRows"
+                    :key="row.key"
+                    class="sw-content-system-index__tree-row"
+                    :class="{ 'is-selected': isTreeRowSelected(row), 'is-clickable': row.kind === 'element' }"
+                    :style="{ paddingLeft: `${(row.depth * 14) + 8}px` }"
+                    :type="row.kind === 'element' ? 'button' : null"
+                    @click="row.kind === 'element' ? selectTreeRow(row) : null"
+                >
+                    <span
+                        class="sw-content-system-index__tree-badge"
+                        :class="`is-${row.kind}`"
+                    >
+                        {{ row.kind }}
+                    </span>
+                    <span class="sw-content-system-index__tree-label">{{ row.label }}</span>
+                    <div
+                        v-if="row.kind === 'element'"
+                        class="sw-content-system-index__tree-actions"
+                    >
+                        <button
+                            type="button"
+                            class="sw-content-system-index__tree-action"
+                            :disabled="!row.canMoveUp || isTreeRowMovePending(row)"
+                            :title="$tc('sw-content-system.general.moveUpLabel')"
+                            @click.stop="moveTreeRow(row, 'up')"
+                        >
+                            ↑
+                        </button>
+                        <button
+                            type="button"
+                            class="sw-content-system-index__tree-action"
+                            :disabled="!row.canMoveDown || isTreeRowMovePending(row)"
+                            :title="$tc('sw-content-system.general.moveDownLabel')"
+                            @click.stop="moveTreeRow(row, 'down')"
+                        >
+                            ↓
+                        </button>
+                    </div>
+                </component>
+            </template>
+
+            <div
+                v-if="layoutMeta"
+                class="sw-content-system-index__tree-meta"
+            >
+                <small v-if="layoutMeta.layoutName">{{ $tc('sw-content-system.general.layoutNameLabel') }}: {{ layoutMeta.layoutName }}</small>
+                <small v-if="layoutMeta.layoutId">{{ $tc('sw-content-system.general.layoutIdLabel') }}: {{ layoutMeta.layoutId }}</small>
+                <small v-if="layoutMeta.endpoint">{{ $tc('sw-content-system.general.treeSourceLabel') }}: {{ layoutMeta.endpoint }}</small>
+            </div>
+        </aside>
+    </template>
+
+    <template #content>
+        <div class="sw-content-system-index__builder-shell">
+            <h3 class="sw-content-system-index__title">
+                {{ $tc('sw-content-system.general.previewTitle') }}
+            </h3>
+
+            <p class="sw-content-system-index__intro">
+                {{ $tc('sw-content-system.general.description') }}
+            </p>
+
+            <div class="sw-content-system-index__controls">
+                <mt-text-field
+                    v-model="landingPageId"
+                    :label="$tc('sw-content-system.general.landingPageIdLabel')"
+                />
+
+                <mt-text-field
+                    v-model="previewPath"
+                    :label="$tc('sw-content-system.general.previewPathLabel')"
+                />
+
+                <div class="sw-content-system-index__actions">
+                    <mt-button
+                        variant="primary"
+                        size="small"
+                        @click="refreshPreview"
+                    >
+                        {{ $tc('sw-content-system.general.refreshPreviewButton') }}
+                    </mt-button>
+
+                    <mt-button
+                        variant="secondary"
+                        size="small"
+                        @click="openPreviewInNewTab"
+                    >
+                        {{ $tc('sw-content-system.general.openInNewTabButton') }}
+                    </mt-button>
+                </div>
+            </div>
+
+            <div class="sw-content-system-index__meta">
+                <small>{{ previewUrl }}</small>
+            </div>
+
+            <div class="sw-content-system-index__iframe-wrapper">
+                <iframe
+                    ref="previewFrame"
+                    class="sw-content-system-index__iframe"
+                    :src="previewUrl"
+                    :title="$tc('sw-content-system.general.previewIFrameTitle')"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                ></iframe>
+            </div>
+        </div>
+    </template>
+</sw-page>
+{% endblock %}

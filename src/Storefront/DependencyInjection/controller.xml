@@ -163,6 +163,15 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\ContentSystemDemoController">
+            <argument type="service" id="Shopware\Storefront\ContentSystem\Rendering\ContentSystemDemoPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\ContentSystem\Rendering\ContentSystemDemoLayoutManager"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\MaintenanceController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Page\Maintenance\MaintenancePageLoader"/>

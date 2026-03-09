@@ -1,0 +1,14 @@
+{% set style = element.properties.style|default('body') %}
+{% set text = element.properties.text|default('') %}
+
+<div
+    class="content-system-text"
+    data-component="Sw:Content:Text"
+    data-content-element-id="{{ element.id|default('')|e('html_attr') }}"
+>
+    {% if style == 'heading' %}
+        <h2 class="h4">{{ text }}</h2>
+    {% else %}
+        <p class="mb-0">{{ text }}</p>
+    {% endif %}
+</div>

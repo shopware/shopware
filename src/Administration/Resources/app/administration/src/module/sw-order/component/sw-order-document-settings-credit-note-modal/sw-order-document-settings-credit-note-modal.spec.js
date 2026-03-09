@@ -18,9 +18,9 @@ const orderFixture = {
                 technicalName: 'invoice',
             },
             config: {
-                documentNumber: 1000,
+                documentNumber: '1000',
                 custom: {
-                    invoiceNumber: 1000,
+                    invoiceNumber: '1000',
                 },
             },
         },
@@ -35,9 +35,9 @@ const orderFixture = {
                 technicalName: 'invoice',
             },
             config: {
-                documentNumber: 1001,
+                documentNumber: '1001',
                 custom: {
-                    invoiceNumber: 1001,
+                    invoiceNumber: '1001',
                 },
             },
         },
@@ -390,7 +390,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
             documentConfig: {
                 documentNumber: 'PREVIEW_NUM_002',
                 custom: {
-                    invoiceNumber: 1000,
+                    invoiceNumber: '1000',
                 },
             },
         });
@@ -407,7 +407,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
             documentConfig: {
                 documentNumber: 'PREVIEW_NUM_002',
                 custom: {
-                    invoiceNumber: 1001,
+                    invoiceNumber: '1001',
                 },
             },
         });

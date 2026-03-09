@@ -33,6 +33,6 @@
   },
   "overrides": {
     "axios": "^1.13.5",
-    "minimatch": "10.2.2"
+    "minimatch": "10.2.3"
   }
 }

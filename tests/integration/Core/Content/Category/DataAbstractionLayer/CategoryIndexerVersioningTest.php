@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class CategoryIndexerVersioningTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository<CategoryCollection>

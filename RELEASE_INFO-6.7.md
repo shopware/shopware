@@ -40,7 +40,7 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 ### Product stream deletion is blocked while product exports exist
 
 Deleting a product stream that's been used in a product export raises a dedicated delete restriction.
-In 6.7, this rule is additionally enforced on database level by changing the foreign key delete action from `CASCADE` to `RESTRICT`.
+This rule is additionally enforced on database level by changing the foreign key delete action from `CASCADE` to `RESTRICT`.
 
 ### Inheritance added to product main categories
 

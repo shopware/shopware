@@ -55,14 +55,6 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 <details>
 
-## Product export foreign key now restricts product stream deletion
-
-The foreign key `fk.product_export.product_stream_id` now uses `ON DELETE RESTRICT` instead of `ON DELETE CASCADE`.
-
-This aligns database behavior with the DAL `RestrictDelete` rule on `product_stream.productExports`, so deleting a product stream with existing product exports is consistently blocked across administration, API, and direct SQL operations.
-
-**Migration impact**: before deleting a product stream, remove or reassign all related `product_export` entries.
-
 ## Multiple payment finalize calls allowed
 
 Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.

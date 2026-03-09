@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
-use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -97,13 +96,17 @@ class StoreLoginCommand extends Command
         $userContext = new Context(new AdminApiSource($userId));
 
         if ($shopwareId === null || $password === null) {
-            throw StoreException::invalidCredentials();
+            $io->error('Shopware ID and password are required.');
+
+            return self::FAILURE;
         }
 
         try {
             $this->storeClient->loginWithShopwareId($shopwareId, $password, $userContext);
         } catch (ClientException $exception) {
-            throw StoreException::storeError($exception);
+            $io->error(\sprintf('Store login failed: %s', $exception->getMessage()));
+
+            return self::FAILURE;
         }
 
         $io->success('Successfully logged in.');

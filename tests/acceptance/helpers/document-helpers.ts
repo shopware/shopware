@@ -28,15 +28,17 @@ const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
     embedded_zugferd_e_invoice: invoiceMasks,
     cancellation_invoice: [
         { x: 144, y: 18, width: 45, height: 20 },
+        { x: 245, y: 18, width: 45, height: 20 },
         { x: 428, y: 321, width: 45, height: 20 },
         { x: 542, y: 321, width: 45, height: 20 },
         { x: 820, y: 210, width: 145, height: 100 },
         { x: 340, y: 400, width: 340, height: 30 },
     ],
     delivery_note: [
-        { x: 148, y: 18, width: 45, height: 20 },
+        { x: 145, y: 18, width: 45, height: 20 },
+        { x: 238, y: 18, width: 45, height: 20 },
         { x: 434, y: 321, width: 45, height: 20 },
-        { x: 539, y: 321, width: 125, height: 20 },
+        { x: 539, y: 321, width: 130, height: 20 },
         { x: 830, y: 210, width: 145, height: 100 },
         { x: 340, y: 400, width: 340, height: 30 },
     ],
@@ -92,7 +94,7 @@ export async function screenshotDocument(
 
     await expects(pdfPage).toHaveScreenshot(`${documentType}-document.png`, {
         maxDiffPixelRatio: 0.03,
-        timeout: 30000,
+        timeout: 5000,
     });
 
     await pdfPage.close();

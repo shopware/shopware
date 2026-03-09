@@ -137,11 +137,6 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
-        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
-        if ($profilerNeedsToBeDisabledAgain) {
-            self::getContainer()->get('profiler')->enable();
-        }
-
         $this->listener->addSubscriber(new StockSubscriber());
 
         $productId = Uuid::randomHex();
@@ -158,19 +153,10 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $csv = $this->getCsvContent($progress->getLogId());
         static::assertStringContainsString(\sprintf(';%s;', $newStock), $csv);
-
-        if ($profilerNeedsToBeDisabledAgain) {
-            self::getContainer()->get('profiler')->disable();
-        }
     }
 
     public function testImportEvents(): void
     {
-        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
-        if ($profilerNeedsToBeDisabledAgain) {
-            self::getContainer()->get('profiler')->enable();
-        }
-
         $this->listener->addSubscriber(new TestSubscriber());
         $this->importCategoryCsv();
         $events = array_column($this->listener->getCalledListeners(), 'event');
@@ -178,10 +164,6 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertContains(ImportExportBeforeImportRecordEvent::class, $events);
         static::assertContains(ImportExportAfterImportRecordEvent::class, $events);
         static::assertNotContains(ImportExportExceptionImportRecordEvent::class, $events);
-
-        if ($profilerNeedsToBeDisabledAgain) {
-            self::getContainer()->get('profiler')->disable();
-        }
     }
 
     public function testImportExport(): void

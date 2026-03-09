@@ -61,31 +61,66 @@ class ExternalThumbnailDataNormalizerTest extends TestCase
 
     public function testDenormalizeThrowsOnNonArray(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionCode(0);
+        $this->expectExceptionObject(
+            MediaException::invalidThumbnailData(
+                'Thumbnail data must be an object with "url", "width" and "height" fields'
+            )
+        );
 
         $this->denormalizer->denormalize('not-an-array', ExternalThumbnailData::class);
     }
 
     public function testDenormalizeThrowsOnMissingUrl(): void
     {
-        $this->expectException(MediaException::class);
+        $this->expectExceptionObject(
+            MediaException::invalidThumbnailData('Each thumbnail must have "url", "width" and "height" fields')
+        );
 
         $this->denormalizer->denormalize(['width' => 200, 'height' => 200], ExternalThumbnailData::class);
     }
 
     public function testDenormalizeThrowsOnMissingWidth(): void
     {
-        $this->expectException(MediaException::class);
+        $this->expectExceptionObject(
+            MediaException::invalidThumbnailData('Each thumbnail must have "url", "width" and "height" fields')
+        );
 
         $this->denormalizer->denormalize(['url' => 'http://localhost:8000/thumb.jpg', 'height' => 200], ExternalThumbnailData::class);
     }
 
     public function testDenormalizeThrowsOnMissingHeight(): void
     {
-        $this->expectException(MediaException::class);
+        $this->expectExceptionObject(
+            MediaException::invalidThumbnailData('Each thumbnail must have "url", "width" and "height" fields')
+        );
 
         $this->denormalizer->denormalize(['url' => 'http://localhost:8000/thumb.jpg', 'width' => 200], ExternalThumbnailData::class);
+    }
+
+    public function testDenormalizeThrowsOnInvalidWidth(): void
+    {
+        $data = [
+            'url' => 'http://localhost:8000/thumb.jpg',
+            'width' => '0',
+            'height' => '600',
+        ];
+
+        $this->expectExceptionObject(MediaException::invalidDimension('width', 0));
+
+        $this->denormalizer->denormalize($data, ExternalThumbnailData::class);
+    }
+
+    public function testDenormalizeThrowsOnInvalidHeight(): void
+    {
+        $data = [
+            'url' => 'http://localhost:8000/thumb.jpg',
+            'width' => '800',
+            'height' => '0',
+        ];
+
+        $this->expectExceptionObject(MediaException::invalidDimension('height', 0));
+
+        $this->denormalizer->denormalize($data, ExternalThumbnailData::class);
     }
 
     public function testNormalizeDelegatesToInnerNormalizer(): void

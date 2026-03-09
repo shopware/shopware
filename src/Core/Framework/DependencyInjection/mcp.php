@@ -48,6 +48,7 @@ use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
@@ -57,6 +58,10 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
+
+    $services->set('shopware.mcp.discovery_cache', Psr16Cache::class)
+        ->args([service('cache.system')])
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     $services->set(McpContextProvider::class)
         ->args([service('request_stack')])
@@ -121,7 +126,10 @@ return static function (ContainerConfigurator $container): void {
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     $services->set(SystemConfigReadTool::class)
-        ->args([service(SystemConfigService::class)])
+        ->args([
+            service(SystemConfigService::class),
+            service(McpContextProvider::class),
+        ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
@@ -144,7 +152,10 @@ return static function (ContainerConfigurator $container): void {
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     $services->set(SystemConfigWriteTool::class)
-        ->args([service(SystemConfigService::class)])
+        ->args([
+            service(SystemConfigService::class),
+            service(McpContextProvider::class),
+        ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
@@ -173,6 +184,7 @@ return static function (ContainerConfigurator $container): void {
             service(DefinitionInstanceRegistry::class),
             service('api.request_criteria_builder'),
             service(JsonEntityEncoder::class),
+            service(McpContextProvider::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
@@ -197,7 +209,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),
-            service('Doctrine\DBAL\Connection'),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
@@ -231,6 +242,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(SalesChannelContextService::class),
             service(CartService::class),
+            service(McpContextProvider::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
@@ -239,6 +251,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(SalesChannelContextService::class),
             service(CartService::class),
+            service(McpContextProvider::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
@@ -248,6 +261,7 @@ return static function (ContainerConfigurator $container): void {
             service(SalesChannelContextService::class),
             service(PaymentMethodRoute::class),
             service(ShippingMethodRoute::class),
+            service(McpContextProvider::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);

@@ -15,7 +15,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -145,7 +147,10 @@ class CartCheckoutToolTest extends TestCase
         $cartService ??= $this->createMock(CartService::class);
         $cartService->method('getCart')->willReturn($cart);
 
-        return new CartCheckoutTool($contextService, $cartService);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        return new CartCheckoutTool($contextService, $cartService, $contextProvider);
     }
 
     private function createCart(string $productId, string $label, int $quantity, float $unitPrice, float $totalPrice): Cart

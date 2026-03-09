@@ -39,8 +39,8 @@ class BestsellerReportTool
     {
         $context = $this->contextProvider->getContext();
 
-        if (!$context->isAllowed('order:read')) {
-            return $this->error('Missing privilege: order:read');
+        if ($error = $this->requirePrivilege($context, 'order:read')) {
+            return $error;
         }
 
         if ($limit < 1 || $limit > 100) {

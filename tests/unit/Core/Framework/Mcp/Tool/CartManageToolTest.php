@@ -13,7 +13,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -196,7 +198,10 @@ class CartManageToolTest extends TestCase
 
         $this->cartService = $this->createMock(CartService::class);
 
-        return new CartManageTool($this->contextService, $this->cartService);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        return new CartManageTool($this->contextService, $this->cartService, $contextProvider);
     }
 
     /**

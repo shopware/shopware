@@ -34,8 +34,8 @@ class EntitySearchTool
     {
         $context = $this->contextProvider->getContext();
 
-        if (!$context->isAllowed($entity . ':read')) {
-            return $this->error(\sprintf('Missing privilege: %s:read', $entity));
+        if ($error = $this->requirePrivilege($context, $entity . ':read')) {
+            return $error;
         }
 
         $definition = $this->registry->getByEntityName($entity);

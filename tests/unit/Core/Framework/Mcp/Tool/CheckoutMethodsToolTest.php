@@ -12,9 +12,11 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -138,7 +140,10 @@ class CheckoutMethodsToolTest extends TestCase
         $shippingRoute = $this->createMock(AbstractShippingMethodRoute::class);
         $shippingRoute->method('load')->willReturn($shippingResponse);
 
-        return new CheckoutMethodsTool($contextService, $paymentRoute, $shippingRoute);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        return new CheckoutMethodsTool($contextService, $paymentRoute, $shippingRoute, $contextProvider);
     }
 
     private function createPaymentMethods(): PaymentMethodCollection

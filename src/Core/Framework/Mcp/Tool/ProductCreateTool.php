@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\Mcp\Tool;
 
-use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -15,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-product-create', description: 'Create a product with human-readable inputs. Automatically resolves tax rate to tax ID, currency ISO code to currency ID, category names to category IDs, and builds the nested price structure. Defaults to dryRun=true. Returns the generated payload in dryRun mode, or the created product ID on commit.')]
+#[McpTool(name: 'shopware-product-create', description: 'Create a product with human-readable inputs. Automatically resolves tax rate to tax ID, currency ISO code to currency ID, exact category names to category IDs, and builds the nested price structure. Defaults to dryRun=true. Returns the generated payload in dryRun mode, or the created product ID on commit.')]
 #[Package('framework')]
 class ProductCreateTool
 {
@@ -27,7 +25,6 @@ class ProductCreateTool
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
         private readonly McpContextProvider $contextProvider,
-        private readonly Connection $connection,
     ) {
     }
 
@@ -45,10 +42,8 @@ class ProductCreateTool
     ): string {
         $context = $this->contextProvider->getContext();
 
-        foreach (['product:create', 'product:read', 'tax:read', 'currency:read'] as $privilege) {
-            if (!$context->isAllowed($privilege)) {
-                return $this->error(\sprintf('Missing privilege: %s', $privilege));
-            }
+        if ($error = $this->requirePrivilege($context, 'product:create', 'product:read', 'tax:read', 'currency:read')) {
+            return $error;
         }
 
         $taxId = $this->resolveTaxId($taxRate, $context);
@@ -98,14 +93,9 @@ class ProductCreateTool
 
         $repository = $this->registry->getRepository('product');
 
-        $this->connection->beginTransaction();
-
         try {
             $repository->upsert([$payload], $context);
-            $this->connection->commit();
         } catch (\Throwable $e) {
-            $this->connection->rollBack();
-
             return $this->error($e->getMessage());
         }
 
@@ -149,7 +139,7 @@ class ProductCreateTool
             }
 
             $criteria = new Criteria();
-            $criteria->addFilter(new ContainsFilter('name', $categoryName));
+            $criteria->addFilter(new EqualsFilter('name', $categoryName));
             $criteria->setLimit(1);
 
             $id = $repository->searchIds($criteria, $context)->firstId();

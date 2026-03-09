@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -64,7 +65,10 @@ class StorefrontSearchToolTest extends TestCase
         $encoder = $this->createMock(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([['id' => 'prod-1']]);
 
-        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder, $contextProvider);
         $output = ($tool)('sales-channel-123');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -115,7 +119,10 @@ class StorefrontSearchToolTest extends TestCase
         $encoder = $this->createMock(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder, $contextProvider);
         $output = ($tool)('sc-1', '{}', 'cust-1');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);

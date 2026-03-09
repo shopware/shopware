@@ -46,15 +46,13 @@ class OrderCancelTool
 
         $context = $this->contextProvider->getContext();
 
-        if (!$context->isAllowed('order:read')) {
-            return $this->error('Missing privilege: order:read');
+        if ($error = $this->requirePrivilege($context, 'order:read')) {
+            return $error;
         }
 
         if (!$dryRun) {
-            foreach (['order:update', 'order_transaction:update', 'order_delivery:update'] as $privilege) {
-                if (!$context->isAllowed($privilege)) {
-                    return $this->error('Missing privilege: ' . $privilege);
-                }
+            if ($error = $this->requirePrivilege($context, 'order:update', 'order_transaction:update', 'order_delivery:update')) {
+                return $error;
             }
         }
 
@@ -73,36 +71,8 @@ class OrderCancelTool
             $dryRun,
         );
 
-        $transactionResults = [];
-        foreach ($order->getTransactions()?->getElements() ?? [] as $tx) {
-            \assert($tx instanceof OrderTransactionEntity);
-            $currentState = $tx->getStateMachineState()?->getTechnicalName() ?? 'unknown';
-            $action = $this->resolveTransactionAction($currentState, $refundTransactions);
-
-            $transactionResults[] = $this->resolveTransition(
-                'order_transaction',
-                $tx->getId(),
-                $action,
-                $currentState,
-                $context,
-                $dryRun,
-            );
-        }
-
-        $deliveryResults = [];
-        foreach ($order->getDeliveries()?->getElements() ?? [] as $delivery) {
-            \assert($delivery instanceof OrderDeliveryEntity);
-            $currentState = $delivery->getStateMachineState()?->getTechnicalName() ?? 'unknown';
-
-            $deliveryResults[] = $this->resolveTransition(
-                'order_delivery',
-                $delivery->getId(),
-                'cancel',
-                $currentState,
-                $context,
-                $dryRun,
-            );
-        }
+        $transactionResults = $this->cancelTransactions($order, $refundTransactions, $context, $dryRun);
+        $deliveryResults = $this->cancelDeliveries($order, $context, $dryRun);
 
         return $this->success([
             'orderId' => $order->getId(),
@@ -111,6 +81,39 @@ class OrderCancelTool
             'transactions' => $transactionResults,
             'deliveries' => $deliveryResults,
         ], ['dryRun' => $dryRun]);
+    }
+
+    /**
+     * @return list<array{id: string, from: string, to: string, action: string, executed: bool, note?: string}>
+     */
+    private function cancelTransactions(OrderEntity $order, bool $refundTransactions, Context $context, bool $dryRun): array
+    {
+        $results = [];
+        foreach ($order->getTransactions()?->getElements() ?? [] as $tx) {
+            \assert($tx instanceof OrderTransactionEntity);
+            $currentState = $tx->getStateMachineState()?->getTechnicalName() ?? 'unknown';
+            $action = $this->resolveTransactionAction($currentState, $refundTransactions);
+
+            $results[] = $this->resolveTransition('order_transaction', $tx->getId(), $action, $currentState, $context, $dryRun);
+        }
+
+        return $results;
+    }
+
+    /**
+     * @return list<array{id: string, from: string, to: string, action: string, executed: bool, note?: string}>
+     */
+    private function cancelDeliveries(OrderEntity $order, Context $context, bool $dryRun): array
+    {
+        $results = [];
+        foreach ($order->getDeliveries()?->getElements() ?? [] as $delivery) {
+            \assert($delivery instanceof OrderDeliveryEntity);
+            $currentState = $delivery->getStateMachineState()?->getTechnicalName() ?? 'unknown';
+
+            $results[] = $this->resolveTransition('order_delivery', $delivery->getId(), 'cancel', $currentState, $context, $dryRun);
+        }
+
+        return $results;
     }
 
     private function loadOrder(string $orderId, string $orderNumber, Context $context): ?OrderEntity

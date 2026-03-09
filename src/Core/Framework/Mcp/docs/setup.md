@@ -1,7 +1,7 @@
 # MCP Server Setup
 
 ## Prerequisites
-- Shopware 6.7+
+- Shopware 6.7+ (experimental, stable in 6.8)
 - `symfony/mcp-bundle` installed (`composer require symfony/mcp-bundle`)
 
 ## Enabling the feature

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -20,11 +21,18 @@ class SystemConfigWriteTool
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
+        private readonly McpContextProvider $contextProvider,
     ) {
     }
 
     public function __invoke(string $key, string $value, ?string $salesChannelId = null, bool $dryRun = true): string
     {
+        $context = $this->contextProvider->getContext();
+
+        if ($error = $this->requirePrivilege($context, 'system_config:update')) {
+            return $error;
+        }
+
         $decodedValue = json_decode($value, true);
         $actualValue = json_last_error() === \JSON_ERROR_NONE ? $decodedValue : $value;
 

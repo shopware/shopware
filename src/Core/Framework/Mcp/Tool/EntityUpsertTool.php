@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
@@ -32,10 +31,8 @@ class EntityUpsertTool
     {
         $context = $this->contextProvider->getContext();
 
-        foreach (['create', 'update'] as $privilege) {
-            if (!$context->isAllowed($entity . ':' . $privilege)) {
-                return $this->error(\sprintf('Missing privilege: %s:%s', $entity, $privilege));
-            }
+        if ($error = $this->requirePrivilege($context, $entity . ':create', $entity . ':update')) {
+            return $error;
         }
 
         $data = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
@@ -51,38 +48,15 @@ class EntityUpsertTool
         $repository = $this->registry->getRepository($entity);
 
         if ($dryRun) {
-            $this->connection->beginTransaction();
-
-            try {
+            return $this->executeWithDryRun($this->connection, function () use ($repository, $data, $context) {
                 $events = $repository->upsert($data, $context);
 
-                return $this->success($this->formatWriteResult($events), ['dryRun' => true]);
-            } catch (\Throwable $e) {
-                return $this->error($e->getMessage());
-            } finally {
-                $this->connection->rollBack();
-            }
+                return $this->success($this->formatWriteEvents($events, 'upsert'), ['dryRun' => true]);
+            });
         }
 
         $events = $repository->upsert($data, $context);
 
-        return $this->success($this->formatWriteResult($events), ['dryRun' => false]);
-    }
-
-    /**
-     * @return list<array{entity: string, ids: list<string>, operation: string}>
-     */
-    private function formatWriteResult(EntityWrittenContainerEvent $events): array
-    {
-        $written = [];
-        foreach ($events->getEvents()?->getElements() ?? [] as $event) {
-            $written[] = [
-                'entity' => $event->getEntityName(),
-                'ids' => $event->getIds(),
-                'operation' => 'upsert',
-            ];
-        }
-
-        return $written;
+        return $this->success($this->formatWriteEvents($events, 'upsert'), ['dryRun' => false]);
     }
 }

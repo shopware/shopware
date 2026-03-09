@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -30,6 +31,7 @@ class CheckoutMethodsTool
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
         private readonly AbstractShippingMethodRoute $shippingMethodRoute,
+        private readonly McpContextProvider $contextProvider,
     ) {
     }
 
@@ -37,9 +39,15 @@ class CheckoutMethodsTool
         string $salesChannelId,
         string $type = 'all',
     ): string {
-        $validTypes = ['payment', 'shipping', 'all'];
-        if (!\in_array($type, $validTypes, true)) {
-            return $this->error('Invalid type "' . $type . '". Must be one of: ' . implode(', ', $validTypes));
+        $context = $this->contextProvider->getContext();
+
+        if ($error = $this->requirePrivilege($context, 'sales_channel:read')) {
+            return $error;
+        }
+
+        $methodType = CheckoutMethodType::tryFrom($type);
+        if ($methodType === null) {
+            return $this->error(\sprintf('Invalid type "%s". Must be one of: %s', $type, implode(', ', array_column(CheckoutMethodType::cases(), 'value'))));
         }
 
         try {
@@ -51,7 +59,7 @@ class CheckoutMethodsTool
             $request = new Request(['onlyAvailable' => 1]);
             $result = [];
 
-            if ($type === 'payment' || $type === 'all') {
+            if ($methodType === CheckoutMethodType::Payment || $methodType === CheckoutMethodType::All) {
                 $paymentMethods = $this->paymentMethodRoute->load($request, $context, new Criteria())->getPaymentMethods();
                 $result['paymentMethods'] = array_values(array_map(
                     static fn (PaymentMethodEntity $method) => [
@@ -65,7 +73,7 @@ class CheckoutMethodsTool
                 ));
             }
 
-            if ($type === 'shipping' || $type === 'all') {
+            if ($methodType === CheckoutMethodType::Shipping || $methodType === CheckoutMethodType::All) {
                 $shippingMethods = $this->shippingMethodRoute->load($request, $context, new Criteria())->getShippingMethods();
                 $result['shippingMethods'] = array_values(array_map(
                     static fn (ShippingMethodEntity $method) => [

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -95,9 +94,8 @@ class ProductCreateToolTest extends TestCase
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
-        $connection = $this->createMock(Connection::class);
 
-        $tool = new ProductCreateTool($registry, $contextProvider, $connection);
+        $tool = new ProductCreateTool($registry, $contextProvider);
         $output = ($tool)(
             name: 'Test Product',
             productNumber: 'SW-TEST-004',
@@ -162,8 +160,6 @@ class ProductCreateToolTest extends TestCase
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $connection = $this->createMock(Connection::class);
-
-        return new ProductCreateTool($registry, $contextProvider, $connection);
+        return new ProductCreateTool($registry, $contextProvider);
     }
 }

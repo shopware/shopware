@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,7 +68,7 @@ class McpServerController
 
     private function rateLimit(Request $request): void
     {
-        $key = $request->attributes->getString('oauth_access_token_id')
+        $key = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)
             ?: $request->getClientIp()
             ?: 'unknown';
 

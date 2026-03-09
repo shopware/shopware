@@ -71,5 +71,5 @@ Storefront tools use the Store API / SalesChannelContext layer for customer-faci
 1. Create a class in this directory
 2. Add `#[McpTool(name: 'shopware-{tool-name}', description: '...')]` on the class
 3. Add `use McpToolResponse;` and return via `$this->success()` / `$this->error()`
-4. Register in `src/Core/Framework/DependencyInjection/mcp.php` with `mcp.tool` and `shopware.feature` tags
+4. Register in `src/Core/Framework/DependencyInjection/mcp.php` with `mcp.tool` and `shopware.feature` (flag: `MCP_SERVER`) tags
 5. Add unit test in `tests/unit/Core/Framework/Mcp/Tool/`

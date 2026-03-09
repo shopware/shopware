@@ -37,8 +37,8 @@ class CustomerLookupTool
 
         $context = $this->contextProvider->getContext();
 
-        if (!$context->isAllowed('customer:read')) {
-            return $this->error('Missing privilege: customer:read');
+        if ($error = $this->requirePrivilege($context, 'customer:read')) {
+            return $error;
         }
 
         $repository = $this->registry->getRepository('customer');

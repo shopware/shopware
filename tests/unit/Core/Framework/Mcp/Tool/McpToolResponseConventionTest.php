@@ -105,7 +105,7 @@ class McpToolResponseConventionTest extends TestCase
         static::assertArrayHasKey('truncatedMessage', $result['_meta']);
     }
 
-    public function testOversizedAssocResponseKeepsAllKeysButAddsTruncationMeta(): void
+    public function testOversizedAssocResponseStillTooLargeClearsData(): void
     {
         $helper = new McpToolResponseTestHelper();
 
@@ -114,8 +114,9 @@ class McpToolResponseConventionTest extends TestCase
         $result = json_decode($helper->callSuccess($largeAssoc), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($result['success']);
-        static::assertArrayHasKey('content', $result['data']);
+        static::assertSame([], $result['data']);
         static::assertTrue($result['_meta']['truncated']);
+        static::assertStringContainsString('still too large', $result['_meta']['truncatedMessage']);
     }
 }
 

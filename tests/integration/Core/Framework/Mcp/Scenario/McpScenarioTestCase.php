@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Mcp\Scenario;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
@@ -95,17 +94,14 @@ abstract class McpScenarioTestCase extends TestCase
         /** @var JsonEntityEncoder $encoder */
         $encoder = $container->get(JsonEntityEncoder::class);
 
-        /** @var Connection $connection */
-        $connection = $container->get(Connection::class);
-
         $this->entitySearchTool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
         $this->entitySchemaTool = new EntitySchemaTool($registry);
         $this->entityReadTool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
 
         /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $container->get(SystemConfigService::class);
-        $this->systemConfigReadTool = new SystemConfigReadTool($systemConfigService);
-        $this->systemConfigWriteTool = new SystemConfigWriteTool($systemConfigService);
+        $this->systemConfigReadTool = new SystemConfigReadTool($systemConfigService, $contextProvider);
+        $this->systemConfigWriteTool = new SystemConfigWriteTool($systemConfigService, $contextProvider);
 
         /** @var StateMachineRegistry $stateMachineRegistry */
         $stateMachineRegistry = $container->get(StateMachineRegistry::class);
@@ -120,7 +116,7 @@ abstract class McpScenarioTestCase extends TestCase
 
         $this->orderSummaryTool = new OrderSummaryTool($registry, $contextProvider);
         $this->customerLookupTool = new CustomerLookupTool($registry, $contextProvider);
-        $this->productCreateTool = new ProductCreateTool($registry, $contextProvider, $connection);
+        $this->productCreateTool = new ProductCreateTool($registry, $contextProvider);
         $this->revenueReportTool = new RevenueReportTool($registry, $contextProvider);
         $this->orderCancelTool = new OrderCancelTool($registry, $contextProvider, $stateMachineRegistry);
         $this->bestsellerReportTool = new BestsellerReportTool($registry, $contextProvider);
@@ -130,15 +126,15 @@ abstract class McpScenarioTestCase extends TestCase
 
         /** @var CartService $cartService */
         $cartService = $container->get(CartService::class);
-        $this->cartManageTool = new CartManageTool($salesChannelContextService, $cartService);
-        $this->cartCheckoutTool = new CartCheckoutTool($salesChannelContextService, $cartService);
+        $this->cartManageTool = new CartManageTool($salesChannelContextService, $cartService, $contextProvider);
+        $this->cartCheckoutTool = new CartCheckoutTool($salesChannelContextService, $cartService, $contextProvider);
 
         /** @var PaymentMethodRoute $paymentMethodRoute */
         $paymentMethodRoute = $container->get(PaymentMethodRoute::class);
 
         /** @var ShippingMethodRoute $shippingMethodRoute */
         $shippingMethodRoute = $container->get(ShippingMethodRoute::class);
-        $this->checkoutMethodsTool = new CheckoutMethodsTool($salesChannelContextService, $paymentMethodRoute, $shippingMethodRoute);
+        $this->checkoutMethodsTool = new CheckoutMethodsTool($salesChannelContextService, $paymentMethodRoute, $shippingMethodRoute, $contextProvider);
     }
 
     /**

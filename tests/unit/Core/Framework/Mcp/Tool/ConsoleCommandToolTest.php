@@ -46,14 +46,16 @@ class ConsoleCommandToolTest extends TestCase
         static::assertSame('Command "any:command" is not in the allowlist. Allowed commands: ', $data['error']);
     }
 
-    public function testThrowsWhenArgumentsIsInvalidJson(): void
+    public function testReturnsErrorWhenArgumentsIsInvalidJson(): void
     {
         $kernel = $this->createMock(KernelInterface::class);
         $tool = new ConsoleCommandTool($kernel, ['debug:router']);
 
-        $this->expectException(\JsonException::class);
+        $output = ($tool)('debug:router', 'not json');
 
-        ($tool)('debug:router', 'not json');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Invalid JSON', $data['error']);
     }
 
     public function testNonArrayJsonDecodesGracefully(): void

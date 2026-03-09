@@ -39,7 +39,11 @@ class ConsoleCommandTool
             return $this->error(\sprintf('Command "%s" is not in the allowlist. Allowed commands: %s', $command, implode(', ', $this->allowedCommands)));
         }
 
-        $args = json_decode($arguments, true, 512, \JSON_THROW_ON_ERROR);
+        try {
+            $args = json_decode($arguments, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return $this->error(\sprintf('Invalid JSON arguments: %s', $e->getMessage()));
+        }
 
         if (!\is_array($args)) {
             $args = [];

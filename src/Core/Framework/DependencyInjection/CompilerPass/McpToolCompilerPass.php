@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
@@ -43,6 +44,7 @@ class McpToolCompilerPass implements CompilerPassInterface
         $this->collectAllowedConsoleCommands($container);
         $this->enforceToolAllowlist($container);
         $this->detectToolNameConflicts($container);
+        $this->enableDiscoveryCache($container);
     }
 
     /**
@@ -112,7 +114,7 @@ class McpToolCompilerPass implements CompilerPassInterface
             $class = $definition->getClass() ?? $serviceId;
             $toolName = $this->resolveToolName($class);
 
-            if ($toolName !== null && !\in_array($toolName, $allowedTools, true)) {
+            if ($toolName === null || !\in_array($toolName, $allowedTools, true)) {
                 $container->removeDefinition($serviceId);
             }
         }
@@ -156,5 +158,30 @@ class McpToolCompilerPass implements CompilerPassInterface
         }
 
         return null;
+    }
+
+    /**
+     * Adds a PSR-16 cache to the MCP SDK's discovery process so file scanning
+     * and reflection are only performed once instead of on every request.
+     */
+    private function enableDiscoveryCache(ContainerBuilder $container): void
+    {
+        $builderDef = $container->getDefinition('mcp.server.builder');
+
+        if (!$container->hasDefinition('shopware.mcp.discovery_cache')) {
+            return;
+        }
+
+        foreach ($builderDef->getMethodCalls() as $index => [$method, $args]) {
+            if ($method !== 'setDiscovery') {
+                continue;
+            }
+
+            $args[3] = new Reference('shopware.mcp.discovery_cache');
+            $builderDef->removeMethodCall($method);
+            $builderDef->addMethodCall($method, $args);
+
+            break;
+        }
     }
 }

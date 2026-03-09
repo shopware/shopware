@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
@@ -32,8 +31,8 @@ class EntityDeleteTool
     {
         $context = $this->contextProvider->getContext();
 
-        if (!$context->isAllowed($entity . ':delete')) {
-            return $this->error(\sprintf('Missing privilege: %s:delete', $entity));
+        if ($error = $this->requirePrivilege($context, $entity . ':delete')) {
+            return $error;
         }
 
         $idList = json_decode($ids, true);
@@ -54,37 +53,15 @@ class EntityDeleteTool
         $deletePayload = array_map(static fn (string $id): array => ['id' => $id], $idList);
 
         if ($dryRun) {
-            $this->connection->beginTransaction();
-
-            try {
+            return $this->executeWithDryRun($this->connection, function () use ($repository, $deletePayload, $context) {
                 $events = $repository->delete($deletePayload, $context);
 
-                return $this->success($this->formatDeleteResult($events), ['dryRun' => true]);
-            } catch (\Throwable $e) {
-                return $this->error($e->getMessage());
-            } finally {
-                $this->connection->rollBack();
-            }
+                return $this->success($this->formatWriteEvents($events, 'delete'), ['dryRun' => true]);
+            });
         }
 
         $events = $repository->delete($deletePayload, $context);
 
-        return $this->success($this->formatDeleteResult($events), ['dryRun' => false]);
-    }
-
-    /**
-     * @return list<array{entity: string, ids: list<string>}>
-     */
-    private function formatDeleteResult(EntityWrittenContainerEvent $events): array
-    {
-        $deleted = [];
-        foreach ($events->getEvents()?->getElements() ?? [] as $event) {
-            $deleted[] = [
-                'entity' => $event->getEntityName(),
-                'ids' => $event->getIds(),
-            ];
-        }
-
-        return $deleted;
+        return $this->success($this->formatWriteEvents($events, 'delete'), ['dryRun' => false]);
     }
 }

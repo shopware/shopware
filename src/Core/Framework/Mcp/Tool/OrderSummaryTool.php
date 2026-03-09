@@ -39,8 +39,8 @@ class OrderSummaryTool
 
         $context = $this->contextProvider->getContext();
 
-        if (!$context->isAllowed('order:read')) {
-            return $this->error('Missing privilege: order:read');
+        if ($error = $this->requirePrivilege($context, 'order:read')) {
+            return $error;
         }
 
         $repository = $this->registry->getRepository('order');

@@ -20,6 +20,10 @@ class Mcp
 
     public static function createFromXmlFile(string $xmlFile): self
     {
+        if (!is_readable($xmlFile)) {
+            throw AppException::xmlParsingException($xmlFile, \sprintf('File "%s" is not readable or does not exist.', $xmlFile));
+        }
+
         try {
             $doc = new \DOMDocument();
             $doc->loadXML((string) file_get_contents($xmlFile));

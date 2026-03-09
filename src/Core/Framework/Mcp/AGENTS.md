@@ -56,7 +56,8 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 The `McpToolCompilerPass` enforces unique names and throws on conflicts.
 
 ## Folder structure
-- `Context/` -- Authentication and context bridging
+- `Authentication/` -- MCP authentication listener
+- `Context/` -- Context bridging (McpContextProvider)
 - `Controller/` -- HTTP endpoint for MCP protocol
 - `Tool/` -- Individual MCP tool implementations
 - `Prompt/` -- System prompts for AI context

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -24,6 +25,7 @@ class CartCheckoutTool
     public function __construct(
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly CartService $cartService,
+        private readonly McpContextProvider $contextProvider,
     ) {
     }
 
@@ -35,6 +37,12 @@ class CartCheckoutTool
         string $shippingMethodId = '',
         bool $dryRun = true,
     ): string {
+        $context = $this->contextProvider->getContext();
+
+        if ($error = $this->requirePrivilege($context, 'sales_channel:read')) {
+            return $error;
+        }
+
         try {
             $context = $this->contextService->get(new SalesChannelContextServiceParameters(
                 salesChannelId: $salesChannelId,

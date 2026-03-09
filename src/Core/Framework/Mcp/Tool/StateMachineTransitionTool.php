@@ -35,15 +35,13 @@ class StateMachineTransitionTool
     ): string {
         $context = $this->contextProvider->getContext();
 
-        $readPermission = $entityName . ':read';
-        if (!$context->isAllowed($readPermission)) {
-            return $this->error('Missing privilege: ' . $readPermission);
+        if ($error = $this->requirePrivilege($context, $entityName . ':read')) {
+            return $error;
         }
 
         if (!$dryRun) {
-            $updatePermission = $entityName . ':update';
-            if (!$context->isAllowed($updatePermission)) {
-                return $this->error('Missing privilege: ' . $updatePermission);
+            if ($error = $this->requirePrivilege($context, $entityName . ':update')) {
+                return $error;
             }
         }
 

@@ -14,18 +14,25 @@ Entity tools (`entity-search`, `entity-read`, `entity-upsert`, `entity-delete`),
 - `shopware-order-cancel` -- `order:read` (dry-run), plus `order:update`, `order_transaction:update`, `order_delivery:update` (commit)
 - `shopware-bestseller-report` -- `order:read`
 
-**Storefront tools (Store API context):**
-- `shopware-cart-manage` -- No admin ACL; requires a valid sales channel ID
-- `shopware-cart-checkout` -- No admin ACL; requires a valid sales channel ID and registered customer
-- `shopware-checkout-methods` -- No admin ACL; requires a valid sales channel ID
+**System config tools:**
+- `shopware-system-config-read` -- `system_config:read`
+- `shopware-system-config-write` -- `system_config:update`
+
+Note: system config can contain sensitive values (SMTP credentials, payment API keys). Restrict integration permissions accordingly.
+
+**Storefront tools (Store API context + admin ACL):**
+- `shopware-cart-manage` -- `sales_channel:read`
+- `shopware-cart-checkout` -- `sales_channel:read`
+- `shopware-checkout-methods` -- `sales_channel:read`
+- `shopware-storefront-search` -- `sales_channel:read`
+
+These tools use the Store API / `SalesChannelContext` layer for data access, but require `sales_channel:read` admin ACL to prevent unauthorized integrations from operating on sales channels.
 
 The `RequestCriteriaBuilder` additionally validates field-level `ApiAware` flags on criteria fields.
 
 **Tools without ACL checks:**
 - `shopware-entity-schema` -- schema introspection only, no data access
 - `shopware-console-command` -- restricted by the command allowlist, not by ACL roles
-- `shopware-system-config-read` / `shopware-system-config-write` -- `SystemConfigService` has no built-in ACL; restrict via the tool allowlist
-- `shopware-storefront-search` -- uses its own `SalesChannelContext`, not the admin ACL
 
 For these tools, use `shopware.mcp.allowed_tools` to control access.
 

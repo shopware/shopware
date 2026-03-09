@@ -14,6 +14,8 @@ Design tools around what the agent wants to achieve, not around raw CRUD operati
 
 Example: Creating a product in Shopware requires resolving a tax ID from a tax rate, a currency ID from an ISO code, and building a nested price array. Instead of making the agent do three lookups and construct the payload, `shopware-product-create` accepts `grossPrice: 29.99, taxRate: 19, currencyCode: "EUR"` and handles the rest.
 
+Similarly, `shopware-order-cancel` wraps order cancellation, transaction refund/cancel, and delivery cancellation into a single call with `orderNumber` and `refundTransactions` parameters, instead of requiring 3+ separate state-machine-transition calls.
+
 **When to add an outcome tool:** If an agent needs 3+ tool calls to accomplish a single user intent, that workflow is a candidate for an outcome tool.
 
 ### Keep the generic tools too

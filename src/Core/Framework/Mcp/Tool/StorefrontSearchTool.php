@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -37,11 +38,18 @@ class StorefrontSearchTool
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly JsonEntityEncoder $encoder,
+        private readonly McpContextProvider $contextProvider,
     ) {
     }
 
     public function __invoke(string $salesChannelId, string $criteria = '{}', ?string $customerId = null): string
     {
+        $context = $this->contextProvider->getContext();
+
+        if ($error = $this->requirePrivilege($context, 'sales_channel:read')) {
+            return $error;
+        }
+
         $params = new SalesChannelContextServiceParameters(
             salesChannelId: $salesChannelId,
             token: Random::getAlphanumericString(32),

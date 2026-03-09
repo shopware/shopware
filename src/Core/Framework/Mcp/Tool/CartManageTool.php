@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -26,6 +27,7 @@ class CartManageTool
     public function __construct(
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly CartService $cartService,
+        private readonly McpContextProvider $contextProvider,
     ) {
     }
 
@@ -38,9 +40,15 @@ class CartManageTool
         string $lineItemId = '',
         ?string $customerId = null,
     ): string {
-        $validActions = ['create', 'add', 'remove', 'update', 'get'];
-        if (!\in_array($action, $validActions, true)) {
-            return $this->error('Invalid action "' . $action . '". Must be one of: ' . implode(', ', $validActions));
+        $context = $this->contextProvider->getContext();
+
+        if ($error = $this->requirePrivilege($context, 'sales_channel:read')) {
+            return $error;
+        }
+
+        $cartAction = CartAction::tryFrom($action);
+        if ($cartAction === null) {
+            return $this->error(\sprintf('Invalid action "%s". Must be one of: %s', $action, implode(', ', array_column(CartAction::cases(), 'value'))));
         }
 
         if ($action !== 'create' && $token === '') {

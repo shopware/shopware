@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -20,11 +21,18 @@ class SystemConfigReadTool
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
+        private readonly McpContextProvider $contextProvider,
     ) {
     }
 
     public function __invoke(string $key, ?string $salesChannelId = null): string
     {
+        $context = $this->contextProvider->getContext();
+
+        if ($error = $this->requirePrivilege($context, 'system_config:read')) {
+            return $error;
+        }
+
         if (str_contains($key, '.') && substr_count($key, '.') >= 2) {
             $value = $this->systemConfigService->get($key, $salesChannelId);
 

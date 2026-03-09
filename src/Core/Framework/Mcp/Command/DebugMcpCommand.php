@@ -93,16 +93,23 @@ class DebugMcpCommand extends Command
      */
     private function extractMcpAttributes(\ReflectionClass $ref): array
     {
+        return [
+            ...$this->extractClassAttributes($ref),
+            ...$this->extractMethodAttributes($ref),
+        ];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $ref
+     *
+     * @return list<array{name: string, description: ?string, class: string}>
+     */
+    private function extractClassAttributes(\ReflectionClass $ref): array
+    {
         $result = [];
 
-        $mcpAttributeClasses = [
-            McpTool::class,
-            McpPrompt::class,
-            McpResource::class,
-        ];
-
-        foreach ($ref->getAttributes() as $attr) {
-            if (\in_array($attr->getName(), $mcpAttributeClasses, true)) {
+        foreach ([McpTool::class, McpPrompt::class, McpResource::class] as $attrClass) {
+            foreach ($ref->getAttributes($attrClass) as $attr) {
                 /** @var McpTool|McpPrompt|McpResource $instance */
                 $instance = $attr->newInstance();
                 $result[] = [
@@ -113,9 +120,21 @@ class DebugMcpCommand extends Command
             }
         }
 
+        return $result;
+    }
+
+    /**
+     * @param \ReflectionClass<object> $ref
+     *
+     * @return list<array{name: string, description: ?string, class: string}>
+     */
+    private function extractMethodAttributes(\ReflectionClass $ref): array
+    {
+        $result = [];
+
         foreach ($ref->getMethods() as $method) {
-            foreach ($method->getAttributes() as $attr) {
-                if (\in_array($attr->getName(), $mcpAttributeClasses, true)) {
+            foreach ([McpTool::class, McpPrompt::class, McpResource::class] as $attrClass) {
+                foreach ($method->getAttributes($attrClass) as $attr) {
                     /** @var McpTool|McpPrompt|McpResource $instance */
                     $instance = $attr->newInstance();
                     $result[] = [

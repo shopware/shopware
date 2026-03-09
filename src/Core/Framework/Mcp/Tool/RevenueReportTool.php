@@ -42,14 +42,13 @@ class RevenueReportTool
     {
         $context = $this->contextProvider->getContext();
 
-        if (!$context->isAllowed('order:read')) {
-            return $this->error('Missing privilege: order:read');
+        if ($error = $this->requirePrivilege($context, 'order:read')) {
+            return $error;
         }
 
-        $allowedIntervals = ['day', 'week', 'month'];
-
-        if (!\in_array($groupBy, $allowedIntervals, true)) {
-            return $this->error(\sprintf('Invalid groupBy value "%s". Allowed: %s', $groupBy, implode(', ', $allowedIntervals)));
+        $interval = RevenueGroupBy::tryFrom($groupBy);
+        if ($interval === null) {
+            return $this->error(\sprintf('Invalid groupBy value "%s". Allowed: %s', $groupBy, implode(', ', array_column(RevenueGroupBy::cases(), 'value'))));
         }
 
         $criteria = new Criteria();
@@ -76,7 +75,7 @@ class RevenueReportTool
             new DateHistogramAggregation(
                 'revenueOverTime',
                 'orderDateTime',
-                $groupBy,
+                $interval->value,
                 null,
                 new SumAggregation('dayRevenue', 'amountTotal'),
             )

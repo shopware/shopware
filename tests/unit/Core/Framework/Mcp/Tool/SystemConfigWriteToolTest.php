@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -21,7 +23,10 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->with('core.test.key', null)->willReturn('old-value');
         $configService->expects($this->never())->method('set');
 
-        $tool = new SystemConfigWriteTool($configService);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.test.key', '"new-value"');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -37,7 +42,10 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->with('core.test.key', null)->willReturn('old-value');
         $configService->expects($this->once())->method('set')->with('core.test.key', 'new-value', null);
 
-        $tool = new SystemConfigWriteTool($configService);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.test.key', '"new-value"', null, false);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -51,7 +59,10 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->willReturn(false);
         $configService->expects($this->once())->method('set')->with('core.bool.key', true, null);
 
-        $tool = new SystemConfigWriteTool($configService);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.bool.key', 'true', null, false);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -64,7 +75,10 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->willReturn(null);
         $configService->expects($this->once())->method('set')->with('core.text.key', 'plain text value', null);
 
-        $tool = new SystemConfigWriteTool($configService);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.text.key', 'plain text value', null, false);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -78,7 +92,10 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->with('core.test.key', 'sc-1')->willReturn('old');
         $configService->expects($this->once())->method('set')->with('core.test.key', 'new', 'sc-1');
 
-        $tool = new SystemConfigWriteTool($configService);
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.test.key', '"new"', 'sc-1', false);
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);

@@ -159,7 +159,7 @@ Create a product with human-readable inputs. Automatically resolves tax rate to 
 - `currencyCode` (string, default: "EUR") -- ISO 4217 currency code
 - `stock` (int, default: 0) -- Initial stock
 - `description` (string, optional) -- Product description (HTML)
-- `categories` (string, optional) -- Comma-separated category names to assign
+- `categories` (string, optional) -- Comma-separated exact category names to assign
 - `active` (bool, default: true) -- Whether product is active
 - `dryRun` (bool, default: true) -- Preview without persisting
 

@@ -866,6 +866,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 Promise.resolve({
                     id: 'test',
                     parentId: 'parent-id',
+                    price: null,
                     purchasePrices: null,
                 }),
         );
@@ -888,6 +889,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 Promise.resolve({
                     id: 'test',
                     parentId: 'parent-id',
+                    price: null,
                     purchasePrices: undefined,
                 }),
         );
@@ -900,7 +902,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeUndefined();
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
     });
 
     it('should keep existing purchase price for variant products with their own values', async () => {

@@ -837,32 +837,18 @@ export default {
         },
 
         syncVariantPriceInheritance() {
-            const productPrice = this.product.price;
-            const productPurchasePrices = this.product.purchasePrices;
+            const priceInherited = this.product.price === null;
+            const purchasePricesInherited = this.product.purchasePrices === null;
 
-            const priceInherited = !productPrice || !Array.isArray(productPrice) || productPrice.length === 0;
-            const purchasePricesInherited =
-                !productPurchasePrices || !Array.isArray(productPurchasePrices) || productPurchasePrices.length === 0;
-
-            if (priceInherited && !purchasePricesInherited) {
+            // Price is inherited — purchasePrices must also inherit
+            if (priceInherited) {
                 this.product.purchasePrices = null;
                 return;
             }
 
-            if (!priceInherited && purchasePricesInherited) {
-                const defaultCurrencyId = this.defaultCurrency?.id;
-                const parentPurchasePrice = this.parentProduct.purchasePrices?.find(
-                    (p) => p.currencyId === defaultCurrencyId,
-                );
-
-                this.product.purchasePrices = [
-                    {
-                        currencyId: defaultCurrencyId,
-                        gross: parentPurchasePrice?.gross ?? 0,
-                        net: parentPurchasePrice?.net ?? 0,
-                        linked: parentPurchasePrice?.linked ?? true,
-                    },
-                ];
+            // Price is overridden but purchasePrices still inherited — copy from parent
+            if (purchasePricesInherited) {
+                this.product.purchasePrices = cloneDeep(this.parentProduct.purchasePrices);
             }
         },
 

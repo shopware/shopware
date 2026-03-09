@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Tool\BestsellerReportTool;
 use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
+use Shopware\Core\Framework\Mcp\Tool\OrderCancelTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
 use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\RevenueReportTool;
@@ -66,6 +68,10 @@ abstract class McpScenarioTestCase extends TestCase
     protected CustomerLookupTool $customerLookupTool;
 
     protected RevenueReportTool $revenueReportTool;
+
+    protected OrderCancelTool $orderCancelTool;
+
+    protected BestsellerReportTool $bestsellerReportTool;
 
     protected CartManageTool $cartManageTool;
 
@@ -116,6 +122,8 @@ abstract class McpScenarioTestCase extends TestCase
         $this->customerLookupTool = new CustomerLookupTool($registry, $contextProvider);
         $this->productCreateTool = new ProductCreateTool($registry, $contextProvider, $connection);
         $this->revenueReportTool = new RevenueReportTool($registry, $contextProvider);
+        $this->orderCancelTool = new OrderCancelTool($registry, $contextProvider, $stateMachineRegistry);
+        $this->bestsellerReportTool = new BestsellerReportTool($registry, $contextProvider);
 
         /** @var SalesChannelContextService $salesChannelContextService */
         $salesChannelContextService = $container->get(SalesChannelContextService::class);

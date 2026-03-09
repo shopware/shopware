@@ -182,6 +182,36 @@ Generate a revenue report for a date range. Excludes cancelled orders.
 {"from": "2025-03-01", "to": "2025-03-31", "groupBy": "week"}
 ```
 
+### shopware-order-cancel
+Cancel an order including its transactions and deliveries in one call. Looks up the order, cancels the order state, refunds or cancels each transaction, and cancels each delivery. Defaults to `dryRun=true`.
+
+**Parameters:**
+- `orderNumber` (string, optional) -- Order number (e.g., "10001"). Mutually exclusive with `orderId`
+- `orderId` (string, optional) -- Order UUID. Mutually exclusive with `orderNumber`
+- `refundTransactions` (bool, default: `false`) -- If true, refund paid transactions instead of cancelling them
+- `dryRun` (bool, default: `true`) -- Preview transitions without executing
+
+At least one of `orderNumber` or `orderId` must be provided.
+
+**Example:**
+```json
+{"orderNumber": "10001", "refundTransactions": true, "dryRun": true}
+```
+
+### shopware-bestseller-report
+Get the top-selling products by quantity in a date range. Excludes cancelled orders.
+
+**Parameters:**
+- `from` (string, required) -- Start date (ISO 8601, e.g., "2025-01-01")
+- `to` (string, required) -- End date (ISO 8601, e.g., "2025-01-31")
+- `limit` (int, default: 10) -- Number of top products to return (1-100)
+- `salesChannelId` (string, optional) -- Filter by sales channel
+
+**Example:**
+```json
+{"from": "2025-03-01", "to": "2025-03-31", "limit": 5}
+```
+
 ---
 
 ## Storefront Tools

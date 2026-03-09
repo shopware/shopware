@@ -11,6 +11,9 @@ Entity tools (`entity-search`, `entity-read`, `entity-upsert`, `entity-delete`),
 - `shopware-customer-lookup` -- `customer:read`
 - `shopware-product-create` -- `product:create`, `product:read`, `tax:read`, `currency:read`
 - `shopware-revenue-report` -- `order:read`
+- `shopware-order-cancel` -- `order:read` (dry-run), plus `order:update`, `order_transaction:update`, `order_delivery:update` (commit)
+- `shopware-bestseller-report` -- `order:read`
+
 **Storefront tools (Store API context):**
 - `shopware-cart-manage` -- No admin ACL; requires a valid sales channel ID
 - `shopware-cart-checkout` -- No admin ACL; requires a valid sales channel ID and registered customer

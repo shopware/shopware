@@ -23,9 +23,8 @@ This document defines user stories that describe what an AI agent should be able
 - **US-5** [COVERED]: "Ship order #12345 and send the customer a notification"
   - Tools: `shopware-state-machine-transition` for the state change, `shopware-entity-search` on `flow` to verify notification flows exist
 
-- **US-6** [GAP]: "Cancel all line items from order X and process the refund"
-  - Tools: Multiple `shopware-entity-upsert` + `shopware-state-machine-transition` calls
-  - Gap: High failure risk, requires coordinated multi-entity operations. Needs a dedicated `shopware-order-cancel` tool
+- **US-6** [COVERED]: "Cancel all line items from order X and process the refund"
+  - Tools: `shopware-order-cancel` with `orderNumber` or `orderId`, optional `refundTransactions=true` for refunding paid transactions
 
 ## Category 3: Configuration and Troubleshooting
 
@@ -68,12 +67,9 @@ This document defines user stories that describe what an AI agent should be able
 - **US-16** [COVERED]: "What was the revenue for last month?"
   - Tools: `shopware-revenue-report` with `from`, `to`, and optional `groupBy`
 
-- **US-17** [PARTIAL]: "Which products are bestsellers this week?"
-  - Tools: `shopware-entity-search` with aggregation on `order_line_item` grouped by product
-  - Note: Possible but requires complex aggregation criteria. A dedicated tool would improve reliability
+- **US-17** [COVERED]: "Which products are bestsellers this week?"
+  - Tools: `shopware-bestseller-report` with `from`, `to`, and optional `limit`
 
 ## Postponed Improvements
 
-- **US-6** (cancel + refund): Needs a dedicated `shopware-order-cancel` tool to safely coordinate multi-entity writes
 - **US-10** (flow creation): Postponed until event/action validation and multi-action flow support are implemented together
-- **US-17** (bestsellers): Would benefit from a dedicated reporting tool similar to `shopware-revenue-report`

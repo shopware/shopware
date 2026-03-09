@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
+use Shopware\Core\Framework\Mcp\Tool\OrderCancelTool;
 use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\StateMachineTransitionTool;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,7 @@ use Shopware\Core\Test\TestDefaults;
 #[CoversClass(ProductCreateTool::class)]
 #[CoversClass(StateMachineTransitionTool::class)]
 #[CoversClass(EntityReadTool::class)]
+#[CoversClass(OrderCancelTool::class)]
 class AdminOperationsScenarioTest extends McpScenarioTestCase
 {
     public function testUS4ProductCreateDryRun(): void
@@ -144,5 +146,89 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
 
         $readData = $this->decodeToolOutput($readOutput);
         static::assertSame('shipped', $readData['data']['stateMachineState']['technicalName']);
+    }
+
+    public function testUS6CancelOrderWithRefund(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $orderNumber = 'MCP-US6-' . Uuid::randomHex();
+
+        $deliveryId = $ids->create('delivery');
+        $transactionId = $ids->create('transaction');
+
+        $customer = (new CustomerBuilder($ids, 'US6-cust'))
+            ->add('email', 'mcp-us6@example.com')
+            ->add('password', TestDefaults::HASHED_PASSWORD)
+            ->build();
+
+        static::getContainer()->get('customer.repository')->create([$customer], $context);
+
+        $order = (new OrderBuilder($ids, $orderNumber))
+            ->add('orderCustomer', [
+                'id' => $ids->get('orderCustomer'),
+                'customerId' => $ids->get('US6-cust'),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'mcp-us6@example.com',
+            ])
+            ->addAddress('billing-address')
+            ->addTransaction('transaction')
+            ->add('deliveries', [[
+                'id' => $deliveryId,
+                'stateId' => $this->getStateMachineState(
+                    OrderDeliveryStates::STATE_MACHINE,
+                    OrderDeliveryStates::STATE_OPEN,
+                ),
+                'shippingMethodId' => $this->getValidShippingMethodId(),
+                'shippingCosts' => ['unitPrice' => 0, 'totalPrice' => 0, 'quantity' => 1, 'calculatedTaxes' => [], 'taxRules' => []],
+                'shippingDateEarliest' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'shippingDateLatest' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'shippingOrderAddress' => [
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'city' => 'Berlin',
+                    'street' => 'Teststr. 1',
+                    'zipcode' => '10115',
+                    'country' => ['id' => $ids->create('country'), 'name' => 'Germany'],
+                ],
+            ]])
+            ->build();
+
+        static::getContainer()->get('order.repository')->upsert([$order], $context);
+
+        $dryRunOutput = ($this->orderCancelTool)(
+            orderNumber: $orderNumber,
+            dryRun: true,
+        );
+
+        $dryRunData = $this->decodeToolOutput($dryRunOutput);
+        static::assertTrue($dryRunData['_meta']['dryRun']);
+        static::assertSame('cancel', $dryRunData['data']['order']['action']);
+        static::assertFalse($dryRunData['data']['order']['executed']);
+
+        $commitOutput = ($this->orderCancelTool)(
+            orderNumber: $orderNumber,
+            dryRun: false,
+        );
+
+        $commitData = $this->decodeToolOutput($commitOutput);
+        static::assertFalse($commitData['_meta']['dryRun']);
+        static::assertTrue($commitData['data']['order']['executed']);
+        static::assertSame('cancelled', $commitData['data']['order']['to']);
+
+        foreach ($commitData['data']['transactions'] as $tx) {
+            static::assertTrue($tx['executed']);
+            static::assertSame('cancelled', $tx['to']);
+        }
+
+        foreach ($commitData['data']['deliveries'] as $del) {
+            static::assertTrue($del['executed']);
+            static::assertSame('cancelled', $del['to']);
+        }
+
+        $summaryOutput = ($this->orderSummaryTool)(orderNumber: $orderNumber);
+        $summaryData = $this->decodeToolOutput($summaryOutput);
+        static::assertSame('cancelled', $summaryData['data']['status']);
     }
 }

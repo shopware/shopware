@@ -126,6 +126,35 @@ Tool: shopware-revenue-report
 Input: {"from": "2025-01-01", "to": "2025-03-31", "groupBy": "week", "salesChannelId": "<uuid>"}
 ```
 
+## Cancelling an order
+
+**Preview cancellation (dryRun):**
+```
+Tool: shopware-order-cancel
+Input: {"orderNumber": "10001", "dryRun": true}
+```
+Returns a preview of which transitions will execute for the order, its transactions, and deliveries.
+
+**Cancel and refund paid transactions:**
+```
+Tool: shopware-order-cancel
+Input: {"orderNumber": "10001", "refundTransactions": true, "dryRun": false}
+```
+
+## Bestseller reporting
+
+**Top 10 bestsellers this month:**
+```
+Tool: shopware-bestseller-report
+Input: {"from": "2025-03-01", "to": "2025-03-31"}
+```
+
+**Top 5 bestsellers for a specific sales channel:**
+```
+Tool: shopware-bestseller-report
+Input: {"from": "2025-01-01", "to": "2025-03-31", "limit": 5, "salesChannelId": "<uuid>"}
+```
+
 ## System configuration
 
 **Read all listing settings:**

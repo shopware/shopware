@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Mcp\Resource\FlowActionsResource;
 use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
+use Shopware\Core\Framework\Mcp\Tool\BestsellerReportTool;
 use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
+use Shopware\Core\Framework\Mcp\Tool\OrderCancelTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
 use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\RevenueReportTool;
@@ -201,6 +203,23 @@ return static function (ContainerConfigurator $container): void {
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     $services->set(RevenueReportTool::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(OrderCancelTool::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+            service(McpContextProvider::class),
+            service(StateMachineRegistry::class),
+        ])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(BestsellerReportTool::class)
         ->args([
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),

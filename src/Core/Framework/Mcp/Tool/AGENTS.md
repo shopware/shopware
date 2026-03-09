@@ -58,6 +58,8 @@ Outcome tools encapsulate common multi-step workflows into a single call with hu
 - `CustomerLookupTool` (`shopware-customer-lookup`) -- look up a customer by email, customer number, or UUID with order history
 - `ProductCreateTool` (`shopware-product-create`) -- create a product with auto-resolution of tax, currency, and categories
 - `RevenueReportTool` (`shopware-revenue-report`) -- generate revenue reports with date range, aggregations, and timeline
+- `OrderCancelTool` (`shopware-order-cancel`) -- cancel an order with all transactions and deliveries in one call, with optional refund
+- `BestsellerReportTool` (`shopware-bestseller-report`) -- top-selling products by quantity in a date range with revenue data
 
 ## Storefront tools
 Storefront tools use the Store API / SalesChannelContext layer for customer-facing operations:

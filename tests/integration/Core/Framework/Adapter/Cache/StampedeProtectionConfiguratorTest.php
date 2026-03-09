@@ -17,7 +17,7 @@ class StampedeProtectionConfiguratorTest extends TestCase
     private const TEST_LOCK_FILES = ['/tmp/test-lock-1'];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $originalLockFiles = [];
 

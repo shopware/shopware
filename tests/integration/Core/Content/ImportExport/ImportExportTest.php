@@ -70,7 +70,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Test\ImportExport\MockRepository;
 use Shopware\Core\Content\Test\ImportExport\StockSubscriber;
-use Shopware\Core\Content\Test\ImportExport\TestSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -137,12 +136,21 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
-        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
-        if ($profilerNeedsToBeDisabledAgain) {
-            self::getContainer()->get('profiler')->enable();
-        }
-
         $this->listener->addSubscriber(new StockSubscriber());
+
+        $enrichExportCriteriaCalled = false;
+        $beforeExportRecordCalled = false;
+        $exceptionExportRecordCalled = false;
+
+        $this->addEventListener($this->listener, EnrichExportCriteriaEvent::class, function () use (&$enrichExportCriteriaCalled): void {
+            $enrichExportCriteriaCalled = true;
+        });
+        $this->addEventListener($this->listener, ImportExportBeforeExportRecordEvent::class, function () use (&$beforeExportRecordCalled): void {
+            $beforeExportRecordCalled = true;
+        });
+        $this->addEventListener($this->listener, ImportExportExceptionExportRecordEvent::class, function () use (&$exceptionExportRecordCalled): void {
+            $exceptionExportRecordCalled = true;
+        });
 
         $productId = Uuid::randomHex();
         $product = $this->getTestProduct($productId);
@@ -151,37 +159,35 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria = new Criteria([$productId]);
         $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, $criteria);
 
-        $events = array_column($this->listener->getCalledListeners(), 'event');
-        static::assertContains(EnrichExportCriteriaEvent::class, $events);
-        static::assertContains(ImportExportBeforeExportRecordEvent::class, $events);
-        static::assertNotContains(ImportExportExceptionExportRecordEvent::class, $events);
+        static::assertTrue($enrichExportCriteriaCalled, 'EnrichExportCriteriaEvent should have been dispatched');
+        static::assertTrue($beforeExportRecordCalled, 'ImportExportBeforeExportRecordEvent should have been dispatched');
+        static::assertFalse($exceptionExportRecordCalled, 'ImportExportExceptionExportRecordEvent should not have been dispatched');
 
         $csv = $this->getCsvContent($progress->getLogId());
         static::assertStringContainsString(\sprintf(';%s;', $newStock), $csv);
-
-        if ($profilerNeedsToBeDisabledAgain) {
-            self::getContainer()->get('profiler')->disable();
-        }
     }
 
     public function testImportEvents(): void
     {
-        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
-        if ($profilerNeedsToBeDisabledAgain) {
-            self::getContainer()->get('profiler')->enable();
-        }
+        $beforeImportRecordCalled = false;
+        $afterImportRecordCalled = false;
+        $exceptionImportRecordCalled = false;
 
-        $this->listener->addSubscriber(new TestSubscriber());
+        $this->addEventListener($this->listener, ImportExportBeforeImportRecordEvent::class, function () use (&$beforeImportRecordCalled): void {
+            $beforeImportRecordCalled = true;
+        });
+        $this->addEventListener($this->listener, ImportExportAfterImportRecordEvent::class, function () use (&$afterImportRecordCalled): void {
+            $afterImportRecordCalled = true;
+        });
+        $this->addEventListener($this->listener, ImportExportExceptionImportRecordEvent::class, function () use (&$exceptionImportRecordCalled): void {
+            $exceptionImportRecordCalled = true;
+        });
+
         $this->importCategoryCsv();
-        $events = array_column($this->listener->getCalledListeners(), 'event');
 
-        static::assertContains(ImportExportBeforeImportRecordEvent::class, $events);
-        static::assertContains(ImportExportAfterImportRecordEvent::class, $events);
-        static::assertNotContains(ImportExportExceptionImportRecordEvent::class, $events);
-
-        if ($profilerNeedsToBeDisabledAgain) {
-            self::getContainer()->get('profiler')->disable();
-        }
+        static::assertTrue($beforeImportRecordCalled, 'ImportExportBeforeImportRecordEvent should have been dispatched');
+        static::assertTrue($afterImportRecordCalled, 'ImportExportAfterImportRecordEvent should have been dispatched');
+        static::assertFalse($exceptionImportRecordCalled, 'ImportExportExceptionImportRecordEvent should not have been dispatched');
     }
 
     public function testImportExport(): void

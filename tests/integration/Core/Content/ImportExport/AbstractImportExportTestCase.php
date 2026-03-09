@@ -37,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
@@ -55,6 +56,7 @@ abstract class AbstractImportExportTestCase extends TestCase
 {
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use EventDispatcherBehaviour;
     use FilesystemBehaviour;
     use KernelTestBehaviour;
     use RequestStackTestBehaviour;

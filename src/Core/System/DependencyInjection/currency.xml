@@ -43,5 +43,18 @@
             <argument type="service" id="sales_channel.currency.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
+
+        <!-- Content System -->
+        <service id="Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute"
+                 alias="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute"/>
+
+        <service id="Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyDataLoader">
+            <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
     </services>
 </container>

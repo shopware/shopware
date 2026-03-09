@@ -20,5 +20,5 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 1. Extend `AbstractContentDataLoader`, implement `getRequirementType()` returning your source identifier
 2. Create config class extending `AbstractContentDataLoaderConfig` with matching serializer
-3. Tag with `content_system.data_loader` in DI — service locator uses `getRequirementType()` as key
+3. Tag with `content_system.data_loader` in the owning domain's DI — service locator uses `getRequirementType()` as key
 4. Return `ContentDataLoaderResult` with appropriate cache info — never throw exceptions

@@ -43,5 +43,18 @@
             <argument type="service" id="validator"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!-- Content System -->
+        <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageSpecificationSource">
+            <argument type="service" id="landing_page_content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
+            <tag name="content_system.context_factory" priority="100"/>
+        </service>
     </services>
 </container>

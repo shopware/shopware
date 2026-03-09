@@ -40,5 +40,18 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!-- Content System -->
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute"
+                 alias="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
+
+        <service id="Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader">
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
     </services>
 </container>

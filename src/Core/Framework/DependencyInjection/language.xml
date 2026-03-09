@@ -50,5 +50,18 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <!-- Content System -->
+        <service id="Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute"
+                 alias="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/>
+
+        <service id="Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader">
+            <argument type="service" id="Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
     </services>
 </container>

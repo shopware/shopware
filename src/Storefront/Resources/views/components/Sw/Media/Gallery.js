@@ -4,11 +4,24 @@ export default class MediaGallery extends ShopwareComponent {
     };
 
     init() {
-        this.thumbnailButtons = this.el.querySelectorAll('.sw-media-gallery__thumbnail-button');
+        this.thumbnailButtons = this.el.querySelectorAll('[data-gallery-thumbnail-button]');
         this.previewsElements = this.el.querySelectorAll('.sw-media-gallery__preview');
 
         this._initThumbnailSwitching();
         this._initPreviewZoom();
+
+        this._initModalZoom();
+    }
+
+    _initModalZoom() {
+        const modalImgs = document.querySelectorAll('.sw-media-gallery__fullscreen-image-media');
+        modalImgs.forEach((img) => {
+            
+            img.addEventListener('click', () => {
+                // img.style.transform = `scale(1.8)`;
+                img.classList.toggle('is--zoomed');
+            });
+        });
     }
 
     _initThumbnailSwitching() {

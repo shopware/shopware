@@ -8,7 +8,7 @@
             {% if feature('STOREFRONT_COMPONENTS') %}
                 {% set mediaItems = element.data.sliderItems|map(item => item.media) %}
                 <twig:Sw:Media:Gallery :mediaItems="mediaItems" />
-            {% else %}
+            {% else %} 
                 {% block block_gallery_buybox_column_left_inner %}
                     {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing
                         with {

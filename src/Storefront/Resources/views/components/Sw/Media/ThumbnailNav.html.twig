@@ -1,0 +1,37 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    mediaItems,
+    thumbnailSize = 70,
+%}
+
+{% set defaultAttributes = {
+    class: 'sw-thumbnail-nav',
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <button type="button" class="sw-thumbnail-nav__scroll-control is--backward btn btn-light">
+        <twig:Sw:Icon name="arrow-head-up" size="sm" />
+    </button>
+    <div class="sw-thumbnail-nav__inner">
+        {% for mediaItem in mediaItems %}
+            <button 
+                class="sw-thumbnail-nav__button {% if loop.first %}is--active{% endif %}" 
+                type="button"
+                data-gallery-thumbnail-button="true"
+                data-target="{{ mediaItem.id }}"
+            >
+                <twig:Sw:Media 
+                    class="sw-thumbnail-nav__media"
+                    :media="mediaItem" 
+                    :title="null"
+                />
+            </button>
+        {% endfor %}
+    </div>
+    <button type="button" class="sw-thumbnail-nav__scroll-control is--forward btn btn-light">
+        <twig:Sw:Icon name="arrow-head-down" size="sm" />
+    </button>
+</div>

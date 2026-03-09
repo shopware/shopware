@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
-use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
@@ -22,27 +21,12 @@ use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
-use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
@@ -77,19 +61,12 @@ class AppLifecycle extends AbstractAppLifecycle
      * @param EntityRepository<IntegrationCollection> $integrationRepository
      * @param EntityRepository<AclRoleCollection> $aclRoleRepository
      * @param EntityRepository<CustomEntityCollection> $customEntityRepository
+     * @param iterable<PersisterInterface> $persisters
      */
     public function __construct(
+        private readonly iterable $persisters,
         private readonly EntityRepository $appRepository,
         private readonly PermissionPersister $permissionPersister,
-        private readonly CustomFieldPersister $customFieldPersister,
-        private readonly ActionButtonPersister $actionButtonPersister,
-        private readonly TemplatePersister $templatePersister,
-        private readonly ScriptPersister $scriptPersister,
-        private readonly WebhookPersister $webhookPersister,
-        private readonly PaymentMethodPersister $paymentMethodPersister,
-        private readonly TaxProviderPersister $taxProviderPersister,
-        private readonly RuleConditionPersister $ruleConditionPersister,
-        private readonly CmsBlockPersister $cmsBlockPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppStateService $appStateService,
@@ -102,13 +79,10 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly ScriptExecutor $scriptExecutor,
         private readonly string $projectDir,
         private readonly Connection $connection,
-        private readonly FlowActionPersister $flowBuilderActionPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
-        private readonly FlowEventPersister $flowEventPersister,
         private readonly string $env,
-        private readonly ShippingMethodPersister $shippingMethodPersister,
         private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
@@ -274,45 +248,16 @@ class AppLifecycle extends AbstractAppLifecycle
             throw $e;
         }
 
-        $flowActions = $this->getFlowActions($app);
+        $this->runPersisters(new AppLifecycleContext(
+            manifest: $manifest,
+            app: $app,
+            context: $context,
+            appFilesystem: $this->sourceResolver->filesystemForManifest($manifest),
+            defaultLocale: $defaultLocale,
+            isInstall: $install,
+        ));
 
-        if ($flowActions) {
-            $this->flowBuilderActionPersister->updateActions($app, $flowActions, $context, $defaultLocale);
-        }
-
-        $webhooks = $this->getWebhooks($manifest, $flowActions, $id, $defaultLocale, (bool) $app->getAppSecret());
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($webhooks, $id): void {
-            $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
-        });
-
-        $flowEvents = $this->getFlowEvents($app);
-
-        if ($flowEvents) {
-            $this->flowEventPersister->updateEvents($flowEvents, $id, $context, $defaultLocale);
-        }
-
-        // we need an app secret to securely communicate with apps
-        // therefore we only install webhooks, modules, tax providers and payment methods if we have a secret
-        if ($app->getAppSecret()) {
-            $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
-            $this->taxProviderPersister->updateTaxProviders($manifest, $id, $defaultLocale, $context);
-
-            $this->updateModules($manifest, $id, $defaultLocale, $context);
-        }
-
-        $this->shippingMethodPersister->updateShippingMethods($manifest, $id, $defaultLocale, $context);
-        $this->ruleConditionPersister->updateConditions($manifest, $id, $defaultLocale, $context);
-        $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
-        $this->templatePersister->updateTemplates($manifest, $id, $context, $install);
-        $this->scriptPersister->updateScripts($id, $context);
-        $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
-
-        $cmsExtensions = $this->getCmsExtensions($app);
-
-        if ($cmsExtensions) {
-            $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
-        }
 
         $updatePayload = [
             'id' => $app->getId(),
@@ -322,39 +267,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->updateMetadata($updatePayload, $context);
 
         return $app;
-    }
-
-    private function getCmsExtensions(AppEntity $app): ?CmsManifest
-    {
-        $fs = $this->sourceResolver->filesystemForApp($app);
-
-        if (!$fs->has('Resources/cms.xml')) {
-            return null;
-        }
-
-        return CmsManifest::createFromXmlFile($fs->path('Resources/cms.xml'));
-    }
-
-    private function getFlowEvents(AppEntity $app): ?Event
-    {
-        $fs = $this->sourceResolver->filesystemForApp($app);
-
-        if (!$fs->has('Resources/flow.xml')) {
-            return null;
-        }
-
-        return Event::createFromXmlFile($fs->path('Resources/flow.xml'));
-    }
-
-    private function getFlowActions(AppEntity $app): ?Action
-    {
-        $fs = $this->sourceResolver->filesystemForApp($app);
-
-        if (!$fs->has('Resources/flow.xml')) {
-            return null;
-        }
-
-        return Action::createFromXmlFile($fs->path('Resources/flow.xml'));
     }
 
     /**
@@ -502,35 +414,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $criteria->addFilter(new EqualsFilter('name', $name));
 
         return $this->appRepository->search($criteria, $context)->getEntities()->first();
-    }
-
-    private function updateModules(Manifest $manifest, string $id, string $defaultLocale, Context $context): void
-    {
-        $payload = [
-            'id' => $id,
-            'mainModule' => null,
-            'modules' => [],
-        ];
-
-        if ($manifest->getAdmin() !== null) {
-            if ($manifest->getAdmin()->getMainModule() !== null) {
-                $payload['mainModule'] = [
-                    'source' => $manifest->getAdmin()->getMainModule()->getSource(),
-                ];
-            }
-
-            $payload['modules'] = array_reduce(
-                $manifest->getAdmin()->getModules(),
-                static function (array $modules, Module $module) use ($defaultLocale) {
-                    $modules[] = $module->toArray($defaultLocale);
-
-                    return $modules;
-                },
-                []
-            );
-        }
-
-        $this->appRepository->update([$payload], $context);
     }
 
     private function getDefaultLocale(Context $context): string
@@ -691,46 +574,6 @@ class AppLifecycle extends AbstractAppLifecycle
         return false;
     }
 
-    /**
-     * @return array<array{name: string, eventName: string, url: string, appId: string, active?: bool, errorCount?: int}>
-     */
-    private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
-    {
-        $actions = [];
-
-        if ($flowActions) {
-            $actions = $flowActions->getActions()?->getActions() ?? [];
-        }
-
-        $webhooks = array_map(static function ($action) use ($appId) {
-            $name = $action->getMeta()->getName();
-
-            return [
-                'name' => $name,
-                'eventName' => $name,
-                'url' => $action->getMeta()->getUrl(),
-                'appId' => $appId,
-                'active' => true,
-                'errorCount' => 0,
-            ];
-        }, $actions);
-
-        if (!$hasAppSecret) {
-            return $webhooks;
-        }
-
-        $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
-
-        return array_merge($webhooks, array_map(static function (Webhook $webhook) use ($defaultLocale, $appId) {
-            /** @var array{name: string, event: string, url: string} $payload */
-            $payload = $webhook->toArray($defaultLocale);
-            $payload['appId'] = $appId;
-            $payload['eventName'] = $webhook->getEvent();
-
-            return $payload;
-        }, $manifestWebhooks));
-    }
-
     private function getIcon(Manifest $manifest): ?string
     {
         if (!$iconPath = $manifest->getMetadata()->getIcon()) {
@@ -740,6 +583,13 @@ class AppLifecycle extends AbstractAppLifecycle
         $fs = $this->sourceResolver->filesystemForManifest($manifest);
 
         return $fs->has($iconPath) ? $fs->read($iconPath) : null;
+    }
+
+    private function runPersisters(AppLifecycleContext $context): void
+    {
+        foreach ($this->persisters as $persister) {
+            $persister->persist($context);
+        }
     }
 
     /**

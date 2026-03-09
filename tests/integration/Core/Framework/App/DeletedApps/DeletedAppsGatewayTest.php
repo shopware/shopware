@@ -40,6 +40,29 @@ class DeletedAppsGatewayTest extends TestCase
         static::assertSame($appSecret, $retrievedSecret);
     }
 
+    public function testInsertWithDuplicateKeyUpdatesSecret(): void
+    {
+        $appName = 'test-app';
+        $appSecret = 'secret-123';
+        $this->deletedAppsGateway->insertSecretForDeletedApp($appName, $appSecret);
+
+        $retrievedSecret = $this->connection->fetchOne(
+            'SELECT app_secret FROM deleted_apps WHERE name = :name',
+            ['name' => $appName]
+        );
+
+        static::assertSame($appSecret, $retrievedSecret);
+
+        $this->deletedAppsGateway->insertSecretForDeletedApp($appName, 'new-secret');
+
+        $retrievedSecret = $this->connection->fetchOne(
+            'SELECT app_secret FROM deleted_apps WHERE name = :name',
+            ['name' => $appName]
+        );
+
+        static::assertSame('new-secret', $retrievedSecret);
+    }
+
     public function testGetSecretWhenNoEntryExistsReturnsNull(): void
     {
         static::assertNull($this->deletedAppsGateway->getDeletedAppSecret('test-app'));

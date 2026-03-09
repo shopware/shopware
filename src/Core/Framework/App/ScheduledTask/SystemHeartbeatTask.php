@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\SystemCheck\ScheduledTask;
+namespace Shopware\Core\Framework\App\ScheduledTask;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
@@ -9,16 +9,16 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class SystemCheckTask extends ScheduledTask
+class SystemHeartbeatTask extends ScheduledTask
 {
     public static function getTaskName(): string
     {
-        return 'system_check.run';
+        return 'app.system_heartbeat';
     }
 
     public static function getDefaultInterval(): int
     {
-        return self::HOURLY;
+        return self::WEEKLY;
     }
 
     public static function shouldRescheduleOnFailure(): bool

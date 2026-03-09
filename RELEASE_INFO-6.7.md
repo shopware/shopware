@@ -9,13 +9,13 @@ It can be found in the state machine state history modal (state change modal) on
 
 ### [Experimental] Use OpenSearch for Admin API searches
 
-When the data in your store grows larger the administration might become slower, especially when searching for entities in lists.
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 
 This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
 Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
 To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
 
 ### Online revocation request form
-Customers can now conveniently submit revocation requests through an online form.
+Customers can now conveniently submit revocation requests through an online form. 
 Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
 
 ## API
@@ -79,13 +79,6 @@ Two new events are dispatched when the product slider CMS element resolves its p
 
 - `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
 - `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
--
-### New recurrent System Heartbeat health check
-
-Shopware now includes a recurrent `System Heartbeat` system check that runs via scheduled tasks and reports whether the instance is still alive.
-This gives operators an additional runtime signal that core infrastructure paths are functioning.
-
-Because this heartbeat depends on essential internals such as scheduled task execution and cache interaction, a missing heartbeat can also indicate a degraded system state and should be treated as an operational warning signal.
 
 ## Administration
 
@@ -100,14 +93,6 @@ Because this heartbeat depends on essential internals such as scheduled task exe
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
 ## App System
-
-### New webhook event: `system.health.heartbeat`
-
-A new hookable event `system.health.heartbeat` was added to indicate that a Shopware instance is up and running.
-This gives app developers a lightweight, platform-native heartbeat signal they can use for operational monitoring or connectivity checks without relying on custom polling.
-
-The heartbeat is emitted by a recurrent system check task and intentionally throttled, so apps should treat it as a periodic liveness signal, not as a strict scheduling mechanism.
-No additional ACL privileges are required for this event.
 
 ## Hosting & Configuration
 

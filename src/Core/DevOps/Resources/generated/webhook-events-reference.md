@@ -118,4 +118,4 @@
 |`app.permissions.updated` | Fires when an apps permissions were updated with a list of the currently accepted permissions, eg after new were accepted or revoked | - | 
 |`shopware.updated` | Fires after an shopware update has been finished | - | 
 |`app.config.changed` | Fires when a system config value is changed | `system_config:read` | 
-|`system.health.heartbeat` | Fires as a recurrent system health check. Indicates that the system is up and running. | - | 
+|`app.system_heartbeat` | Fires as a recurrent task. Indicates to the app that the system is up and running. | - | 

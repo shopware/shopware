@@ -14,24 +14,5 @@
             <argument type="tagged_iterator" tag="shopware.system_check"/>
         </service>
 
-        <service id="Shopware\Core\Framework\SystemCheck\SystemHeartbeat">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="cache.system"/>
-
-            <tag name="shopware.system_check"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\SystemCheck\ScheduledTask\SystemCheckTask">
-            <tag name="shopware.scheduled.task"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\SystemCheck\ScheduledTask\SystemCheckTaskHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\Framework\SystemCheck\SystemChecker"/>
-
-            <tag name="messenger.message_handler" />
-        </service>
-
     </services>
 </container>

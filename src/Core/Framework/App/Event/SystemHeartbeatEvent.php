@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\SystemCheck\Event;
+namespace Shopware\Core\Framework\App\Event;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Webhook\Hookable;
 #[Package('framework')]
 class SystemHeartbeatEvent implements Hookable
 {
-    final public const NAME = 'system.health.heartbeat';
+    final public const NAME = 'app.system_heartbeat';
 
     public function getName(): string
     {

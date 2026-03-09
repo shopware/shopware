@@ -56,12 +56,12 @@ class HookableBusinessEvent implements Hookable
     }
 
     /**
-     * @param array<mixed> $dataType
+     * @param array<string, mixed> $dataType
      */
     private function checkPermissionsForDataType(array $dataType, AclPrivilegeCollection $permissions): bool
     {
-        $type = $dataType['type'];
-        $data = $dataType['data'];
+        $type = $dataType['type'] ?? null;
+        $data = $dataType['data'] ?? null;
         if ($type === ObjectType::TYPE && \is_array($data) && $data !== []) {
             foreach ($data as $nested) {
                 if (!$this->checkPermissionsForDataType($nested, $permissions)) {
@@ -70,15 +70,18 @@ class HookableBusinessEvent implements Hookable
             }
         }
 
-        if ($type === ArrayType::TYPE && $dataType['of'] && !$this->checkPermissionsForDataType($dataType['of'], $permissions)) {
+        $of = $dataType['of'] ?? null;
+        if ($type === ArrayType::TYPE && \is_array($of) && $of !== [] && !$this->checkPermissionsForDataType($of, $permissions)) {
             return false;
         }
 
         if ($type === EntityType::TYPE || $type === EntityCollectionType::TYPE) {
-            /** @var EntityDefinition $definition */
-            $definition = new $dataType['entityClass']();
-            if (!$permissions->isAllowed($definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ)) {
-                return false;
+            $entityDefinitionClass = $dataType['entityClass'] ?? null;
+            if (\is_string($entityDefinitionClass) && is_a($entityDefinitionClass, EntityDefinition::class, true)) {
+                $definition = new $entityDefinitionClass();
+                if (!$permissions->isAllowed($definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ)) {
+                    return false;
+                }
             }
         }
 

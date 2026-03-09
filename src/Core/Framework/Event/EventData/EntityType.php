@@ -35,6 +35,9 @@ class EntityType implements EventDataType
         $this->entityName = $entityDefinition->getEntityName();
     }
 
+    /**
+     * @return array{type: string, entityClass: class-string<EntityDefinition>, entityName: string}
+     */
     public function toArray(): array
     {
         return [

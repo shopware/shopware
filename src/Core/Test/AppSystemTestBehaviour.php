@@ -28,7 +28,10 @@ trait AppSystemTestBehaviour
         );
     }
 
-    protected function loadAppsFromDir(string $appDir, bool $activateApps = true): void
+    /**
+     * @param array<string> $installAppNames if provided, only these apps will be installed and existing apps won't be deleted
+     */
+    protected function loadAppsFromDir(string $appDir, bool $activateApps = true, array $installAppNames = []): void
     {
         $appService = new AppService(
             new AppLifecycleIterator(
@@ -38,7 +41,7 @@ trait AppSystemTestBehaviour
             static::getContainer()->get(AppLifecycle::class)
         );
 
-        $fails = $appService->doRefreshApps(new AppInstallParameters(activate: $activateApps), Context::createDefaultContext());
+        $fails = $appService->doRefreshApps(new AppInstallParameters(activate: $activateApps), Context::createDefaultContext(), $installAppNames);
 
         if ($fails !== []) {
             $errors = \array_map(function (array $fail): string {

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -111,6 +112,44 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $moveShopPermanentlyResolver->resolve($this->context);
 
         static::assertSame($shopId, $this->shopIdProvider->getShopId());
+    }
+
+    public function testItContinuesWithOtherAppsWhenOneRegistrationFails(): void
+    {
+        $testAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/test');
+        $withConfigAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->loadAppsFromDir($testAppDir);
+        $this->loadAppsFromDir($withConfigAppDir, true, ['withConfig']);
+
+        $this->changeAppUrl();
+
+        $registrationsService = $this->createMock(AppRegistrationService::class);
+        $calls = 0;
+        $registrationsService->expects($this->exactly(2))
+            ->method('registerApp')
+            ->willReturnCallback(static function () use (&$calls): void {
+                ++$calls;
+
+                if ($calls === 1) {
+                    throw new \RuntimeException('Could not reach app server');
+                }
+            });
+
+        $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
+            new StaticSourceResolver([
+                'test' => new Filesystem($testAppDir),
+                'withConfig' => new Filesystem($withConfigAppDir),
+            ]),
+            static::getContainer()->get('app.repository'),
+            $registrationsService,
+            $this->shopIdProvider
+        );
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Failed to re-register 1 app(s):');
+
+        $moveShopPermanentlyResolver->resolve($this->context);
     }
 
     private function changeAppUrl(bool $expectsToThrow = true): string

@@ -67,6 +67,7 @@ class AppException extends HttpException
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
+    final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -555,6 +556,20 @@ class AppException extends HttpException
             self::MANIFEST_NOT_FOUND,
             'No "manifest.xml" file in path "{{ path }}" found. (The file must be placed in the app root folder.)',
             ['path' => $path],
+        );
+    }
+
+    /**
+     * @param array<string> $failedAppNames
+     */
+    public static function reRegistrationFailed(array $failedAppNames, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RE_REGISTRATION_FAILED,
+            'Failed to re-register {{ count }} app(s): {{ apps }}',
+            ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)],
+            $previous
         );
     }
 }

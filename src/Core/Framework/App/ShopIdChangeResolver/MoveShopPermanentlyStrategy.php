@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -64,8 +65,18 @@ class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
             $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
         }
 
-        $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {
-            $this->reRegisterApp($manifest, $app, $context);
+        $failedApps = [];
+
+        $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context) use (&$failedApps): void {
+            try {
+                $this->reRegisterApp($manifest, $app, $context);
+            } catch (\Throwable $e) {
+                $failedApps[$app->getName()] = $e;
+            }
         });
+
+        if ($failedApps !== []) {
+            throw AppException::reRegistrationFailed(array_keys($failedApps), current($failedApps) ?: null);
+        }
     }
 }

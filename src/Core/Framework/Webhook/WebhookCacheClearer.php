@@ -23,6 +23,7 @@ class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
     public static function getSubscribedEvents(): array
     {
         return [
+            'app.written' => 'clearWebhookCache',
             'acl_role.written' => 'clearPrivilegesCache',
         ];
     }

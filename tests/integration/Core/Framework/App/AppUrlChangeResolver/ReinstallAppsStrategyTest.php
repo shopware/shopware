@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -71,9 +73,20 @@ class ReinstallAppsStrategyTest extends TestCase
             );
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects($this->once())
+        $eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
-            ->with(static::isInstanceOf(AppInstalledEvent::class));
+            ->willReturnCallback(function (object $event): object {
+                static $calls = 0;
+                ++$calls;
+
+                if ($calls === 1) {
+                    static::assertInstanceOf(AppInstalledEvent::class, $event);
+                } else {
+                    static::assertInstanceOf(AppActivatedEvent::class, $event);
+                }
+
+                return $event;
+            });
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
             new StaticSourceResolver(['test' => new Filesystem($appDir)]),
@@ -124,6 +137,61 @@ class ReinstallAppsStrategyTest extends TestCase
         $reinstallAppsResolver->resolve($this->context);
 
         static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
+    }
+
+    public function testItContinuesWithOtherAppsWhenOneRegistrationFails(): void
+    {
+        $testAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/test');
+        $withConfigAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->loadAppsFromDir($testAppDir);
+        $this->loadAppsFromDir($withConfigAppDir, true, ['withConfig']);
+
+        $this->changeAppUrl();
+
+        $registrationsService = $this->createMock(AppRegistrationService::class);
+        $calls = 0;
+        $registrationsService->expects($this->exactly(2))
+            ->method('registerApp')
+            ->willReturnCallback(static function () use (&$calls): void {
+                ++$calls;
+
+                if ($calls === 1) {
+                    throw new \RuntimeException('Could not reach app server');
+                }
+            });
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(2))
+            ->method('dispatch')
+            ->willReturnCallback(function (object $event): object {
+                static $calls = 0;
+                ++$calls;
+
+                if ($calls === 1) {
+                    static::assertInstanceOf(AppInstalledEvent::class, $event);
+                } else {
+                    static::assertInstanceOf(AppActivatedEvent::class, $event);
+                }
+
+                return $event;
+            });
+
+        $reinstallAppsResolver = new ReinstallAppsStrategy(
+            new StaticSourceResolver([
+                'test' => new Filesystem($testAppDir),
+                'withConfig' => new Filesystem($withConfigAppDir),
+            ]),
+            static::getContainer()->get('app.repository'),
+            $registrationsService,
+            $this->shopIdProvider,
+            $eventDispatcher
+        );
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Failed to re-register 1 app(s):');
+
+        $reinstallAppsResolver->resolve($this->context);
     }
 
     private function changeAppUrl(bool $expectToThrow = true): string

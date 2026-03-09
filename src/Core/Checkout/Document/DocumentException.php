@@ -42,6 +42,8 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_FILE_TYPE_NOT_SUPPORTED = 'DOCUMENT__FILE_TYPE_NOT_SUPPORTED';
 
+    public const DOCUMENT_BASE_INVOICE_NOT_FOUND = 'DOCUMENT__BASE_INVOICE_NOT_FOUND';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -254,6 +256,19 @@ class DocumentException extends HttpException
             'The requested file type is not supported: {{ requestedFileType }}.',
             [
                 'requestedFileType' => $fileType,
+            ]
+        );
+    }
+
+    public static function baseInvoiceNotFound(string $documentType, string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_BASE_INVOICE_NOT_FOUND,
+            'Could not generate document of type "{{ documentType }}" for order "{{ orderId }}" because no base invoice could be found.',
+            [
+                'documentType' => $documentType,
+                'orderId' => $orderId,
             ]
         );
     }

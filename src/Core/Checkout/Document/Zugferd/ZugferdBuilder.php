@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Zugferd;
 
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use horstoeko\zugferd\codelistsenum\ZugferdPaymentMeans;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
@@ -32,8 +33,13 @@ class ZugferdBuilder
     ) {
     }
 
-    public function buildDocument(OrderEntity $order, DocumentConfiguration $config, Context $context): string
-    {
+    public function buildDocument(
+        OrderEntity $order,
+        DocumentConfiguration $config,
+        Context $context,
+        string $documentType = ZugferdInvoiceType::INVOICE,
+        string $invoiceReferenceId = null,
+    ): string {
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
         if (!$billingAddress) {
             throw DocumentException::generationError('Billing address not found');
@@ -62,8 +68,17 @@ class ZugferdBuilder
             ->withSellerInformation($config)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())
-            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '')
+            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withBuyerReference($order->getOrderNumber() ?? '');
+
+        if ($invoiceReferenceId) {
+            $document->withInvoiceReference($invoiceReferenceId);
+        }
+
+        if ($order->getAmountTotal() < 0.0) {
+            $document->allowNegativeProductLineItems();
+            $document->withPaidAmount($order->getAmountTotal());
+        }
 
         $this->addLineItems($document, $order->getLineItems());
 
@@ -73,6 +88,7 @@ class ZugferdBuilder
             }
 
             $paymentMethod = $transaction->getPaymentMethod();
+
             if ($paymentMethod !== null) {
                 $this->addPaymentInfo($document, $config, $paymentMethod);
             }

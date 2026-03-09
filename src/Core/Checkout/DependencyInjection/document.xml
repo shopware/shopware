@@ -182,6 +182,18 @@
             <tag name="document.renderer"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder"/>
+
+            <tag name="document.renderer"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>

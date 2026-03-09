@@ -4,6 +4,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -671,7 +672,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             currentDocumentType: {
                 id: '5',
                 name: 'E-Invoice (ZUGFeRD)',
-                technicalName: 'zugferd_invoice',
+                technicalName: DOCUMENT_TYPES.ZUGFERD_INVOICE,
                 translated: { name: 'E-Invoice (ZUGFeRD)' },
             },
             showModal: true,

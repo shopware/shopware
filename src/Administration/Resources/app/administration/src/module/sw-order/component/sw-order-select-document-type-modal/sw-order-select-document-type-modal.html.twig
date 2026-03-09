@@ -1,15 +1,16 @@
 {% block sw_order_select_document_type_modal %}
 <sw-modal
     v-bind="$attrs"
-    :title="$tc('sw-order.components.selectDocumentTypeModal.title')"
+    :title="$t('sw-order.components.selectDocumentTypeModal.title')"
     variant="small"
     class="sw-order-select-document-type-modal"
     @modal-close="$emit('modal-close', false)"
 >
     <mt-switch
-        v-model="showZugferd"
+        :model-value="showZugferd"
         class="sw-order-select-document-type-modal__type-switch"
-        label="Show ZUGFeRD Variants"
+        :label="$t('sw-order.components.selectDocumentTypeModal.showZugferd')"
+        @update:model-value="onChangeShowZugferd"
     />
 
     <div class="sw-order-select-document-type-modal__divider"></div>
@@ -31,7 +32,7 @@
             data-analytics-id="sw-order-select-document-type-modal.cancel"
             @click="$emit('modal-close', false)"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -41,10 +42,9 @@
             data-analytics-id="sw-order-select-document-type-modal.select"
             @click="$emit('modal-close', true)"
         >
-            {{ $tc('sw-order.components.selectDocumentTypeModal.primaryAction') }}
+            {{ $t('sw-order.components.selectDocumentTypeModal.primaryAction') }}
         </mt-button>
         {% endblock %}
-
     </template>
 </sw-modal>
 {% endblock %}

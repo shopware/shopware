@@ -371,4 +371,36 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-youtube-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
         );
     });
+
+    it('should trigger full page reload when iframe is reloaded after initial load', async () => {
+        const reloadMock = jest.fn();
+        const originalReload = window.location.reload;
+        window.location.reload = reloadMock;
+
+        Shopware.Store.get('extensions').addExtension({
+            name: 'foo',
+            baseUrl: 'https://example.com',
+            permissions: [],
+            version: '1.0.0',
+            type: 'app',
+            active: true,
+        });
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        // First load (initial): should not reload the page
+        const iframe = wrapper.find('iframe');
+        expect(iframe.exists()).toBe(true);
+
+        await iframe.trigger('load');
+        expect(reloadMock).not.toHaveBeenCalled();
+
+        // Second load (iframe reload): should trigger full page reload
+        await iframe.trigger('load');
+        expect(reloadMock).toHaveBeenCalledTimes(1);
+
+        // clean up
+        window.location.reload = originalReload;
+    });
 });

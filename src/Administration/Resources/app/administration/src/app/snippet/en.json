@@ -1605,7 +1605,6 @@
   },
   "sw-wizard": {
     "backButton": "Back",
-    "closeButton": "Close",
     "finishButton": "Finish",
     "nextButton": "Next"
   },
@@ -1722,5 +1721,32 @@
   },
   "sw-context-button": {
     "ariaLabel": "Open context menu"
+  },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Lock uniform scale",
+    "unlock-uniform-scale": "Unlock uniform scale"
+  },
+  "sw-model-editor": {
+    "titleModal": "Model Editor",
+    "open-model-editor-tooltip": "Open Model Editor",
+    "edit-options": {
+      "move-tooltip": "Move object",
+      "rotate-tooltip": "Rotate object",
+      "scale-tooltip": "Scale object"
+    },
+    "properties": {
+      "transformation": {
+        "label":"Transformation",
+        "position": {
+          "label": "Position"
+        },
+        "rotation": {
+          "label": "Rotation"
+        },
+        "scale": {
+          "label": "Scale"
+        }
+      }
+    }
   }
 }

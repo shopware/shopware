@@ -21,6 +21,18 @@ Thumbs.db
 /.vscode/
 !/.vscode/settings.json
 
+# AI/LLM Development Tools
+.claude/
+.cursor/
+.cursorrules
+.tabnine/
+.ai/
+.llm/
+.aider/
+.aiderignore
+.kite/
+.codewhispererignore
+
 # Composer
 /composer.phar
 /auth.json

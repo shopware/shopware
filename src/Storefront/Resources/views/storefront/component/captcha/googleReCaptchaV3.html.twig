@@ -3,6 +3,8 @@
         siteKey: config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.config.siteKey')
     } %}
 
+    {% set feedbackId = "#{formId}-grecaptcha-feedback" %}
+
     <div class="captcha-google-re-captcha-v3"
          data-google-re-captcha-v3="true"
          data-google-re-captcha-v3-options="{{ googleReCaptchaV3Options|json_encode }}">
@@ -10,12 +12,16 @@
             type="text"
             class="d-none grecaptcha_v3-input"
             name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER') }}"
-            {% if feature('ACCESSIBILITY_TWEAKS') %}data-validation="required" data-validate-hidden="true"{% endif %}
+            {% if feature('ACCESSIBILITY_TWEAKS') %}data-validation="required" data-validate-hidden="true" aria-describedby="{{ feedbackId }}"{% endif %}
             {% if not feature('ACCESSIBILITY_TWEAKS') %}data-skip-report-validity="true"{% endif %}
             {% if not feature('ACCESSIBILITY_TWEAKS') %}required{% endif %}>
 
         <div class="data-protection-information grecaptcha-protection-information">
             {{ 'captcha.googleReCaptcha.dataProtectionInformation'|trans|sw_sanitize }}
         </div>
+
+        {% if feature('ACCESSIBILITY_TWEAKS') %}
+            <div id="{{ feedbackId }}" class="form-field-feedback"></div>
+        {% endif %}
     </div>
 {% endblock %}

@@ -20,7 +20,11 @@ class DeletedAppsGateway
 
     public function insertSecretForDeletedApp(string $appName, string $appSecret): void
     {
-        $this->connection->insert('deleted_apps', [
+        $this->connection->executeStatement('
+            INSERT INTO deleted_apps (name, app_secret)
+            VALUES (:name, :app_secret)
+            ON DUPLICATE KEY UPDATE app_secret = VALUES(app_secret)
+        ', [
             'name' => $appName,
             'app_secret' => $appSecret,
         ]);

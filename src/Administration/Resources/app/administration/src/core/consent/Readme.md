@@ -6,13 +6,13 @@ In the Administration, we can now use this system to read and update the consent
 
 ## Read a consent state
 
-Everything you need to read a consent state and react to consent changes is available in the `useConsentState` composable.
+Everything you need to read a consent state and react to consent changes is available in the `useConsentStore` composable.
 The pinia store returned from it, gives you access to read a consent's state.
 
 ```ts
-import useConsentState from '/src/core/consent/store'
+import useConsentStore from 'src/core/consent/consent.store'
 
-const consentStore = useConsentState;
+const consentStore = useConsentStore();
 
 // create reactive state of your consent
 const consentState = computed(() => consentStore.consents?.your_consent.status ?? false);
@@ -25,14 +25,13 @@ if (consentStore.isAccepted('your_consent')) {
 
 ## Update a consent state
 
-To update the current state of a consent, it is mandatory to use the pinia actions `accept` and `revoke`.
+To update the current state of a consent, it is mandatory to use the actions `accept` and `revoke` from the store.
 This will also update the state across all tabs in the browser. Don't use the api services directly.
 
 ```ts
-import useConsentState from '/src/core/consent/store'
-import consentStore from './consent.store';
+import useConsentStore from 'src/core/consent/consent.store'
 
-const consentStore = useConsentState;
+const consentStore = useConsentStore();
 
 // accept a consent
 consentStore.accept('your_consent');

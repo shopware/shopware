@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\Definition;
  */
 #[Package('framework')]
 #[CoversClass(NumberRangeIncrementerCompilerPass::class)]
-class RedisNumberRangeIncrementerCompilerPassTest extends TestCase
+class NumberRangeIncrementerCompilerPassTest extends TestCase
 {
     private ContainerBuilder $container;
 
@@ -56,7 +56,7 @@ class RedisNumberRangeIncrementerCompilerPassTest extends TestCase
 
         static::assertTrue($container->hasDefinition(IncrementRedisStorage::class));
         static::assertTrue($container->hasDefinition('shopware.number_range.redis'));
-        static::assertFalse($container->hasDefinition(IncrementSqlStorage::class));
+        static::assertTrue($container->hasDefinition(IncrementSqlStorage::class));
     }
 
     public function testProcessRedisNoConnection(): void

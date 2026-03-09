@@ -305,11 +305,10 @@ export default {
             return this.updateAnalytics();
         },
 
-        async saveSalesChannel({ shouldReloadEntityData = false } = {}) {
+        async saveSalesChannel() {
             this.isLoading = true;
             this.isSaveSuccessful = false;
             const analyticsId = this.prepareSaveData();
-            let saveSuccessful = false;
 
             try {
                 await this.salesChannelRepository.save(this.salesChannel, Context.api);
@@ -319,7 +318,6 @@ export default {
                 }
 
                 this.isSaveSuccessful = true;
-                saveSuccessful = true;
 
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
             } catch (error) {
@@ -332,17 +330,23 @@ export default {
                         0,
                     ),
                 });
+
+                this.isLoading = false;
+
+                return false;
             }
 
             this.isLoading = false;
 
-            if (saveSuccessful && shouldReloadEntityData) {
-                this.loadEntityData();
-            }
+            return true;
         },
 
         async onSave() {
-            await this.saveSalesChannel({ shouldReloadEntityData: true });
+            const saveSuccessful = await this.saveSalesChannel();
+
+            if (saveSuccessful) {
+                this.loadEntityData();
+            }
         },
 
         updateAnalytics() {

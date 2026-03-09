@@ -167,6 +167,19 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockGet).not.toHaveBeenCalled();
     });
 
+    it('should save and reload entity data when onSave is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGet).toHaveBeenCalledTimes(1);
+    });
+
     it('should handle errors in saveOnLanguageChange without reloading entity data', async () => {
         mockSave.mockRejectedValueOnce(new Error('Save failed'));
 
@@ -176,6 +189,22 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         mockGet.mockClear();
 
         await wrapper.vm.saveOnLanguageChange();
+        await flushPromises();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors in onSave without reloading entity data', async () => {
+        mockSave.mockRejectedValueOnce(new Error('Save failed'));
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.onSave();
         await flushPromises();
 
         expect(wrapper.vm.isSaveSuccessful).toBe(false);

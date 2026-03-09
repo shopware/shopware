@@ -158,7 +158,6 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-
         mockGet.mockClear();
 
         await wrapper.vm.saveOnLanguageChange();

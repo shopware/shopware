@@ -38,7 +38,7 @@ class AppPrinter
     {
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
-        if (empty($apps->getElements())) {
+        if ($apps->getElements() === []) {
             return;
         }
 
@@ -65,7 +65,7 @@ class AppPrinter
      */
     public function printIncompleteInstallations(ShopwareStyle $io, array $fails): void
     {
-        if (empty($fails)) {
+        if ($fails === []) {
             return;
         }
 
@@ -110,7 +110,7 @@ class AppPrinter
     public function checkHosts(Manifest $manifest, ShopwareStyle $io): void
     {
         $hosts = $manifest->getAllHosts();
-        if (empty($hosts)) {
+        if ($hosts === []) {
             return;
         }
 

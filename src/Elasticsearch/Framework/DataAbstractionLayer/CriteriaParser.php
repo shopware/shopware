@@ -151,7 +151,7 @@ class CriteriaParser
         $fields = $aggregation->getFields();
 
         $path = null;
-        if (\count($fields) > 0) {
+        if ($fields !== []) {
             $path = $this->getNestedPath($definition, $fields[0]);
         }
 
@@ -233,7 +233,7 @@ class CriteriaParser
 
         // nested aggregation should have filters - we have to remap the nesting
         $mapped = $nested;
-        if (\count($bool->getQueries()) > 0 && $nested instanceof NestedAggregation) {
+        if ($bool->getQueries() !== [] && $nested instanceof NestedAggregation) {
             $real = $nested->getAggregation($nested->getName());
             if (!$real instanceof AbstractAggregation) {
                 throw ElasticsearchException::nestedAggregationParseError($aggregation->getName());
@@ -567,11 +567,21 @@ class CriteriaParser
                 foreach ($context->getLanguageIdChain() as $languageId) {
                     $query->add(new ExistsQuery($this->getTranslatedFieldName($fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
-            } else {
-                $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+                return $this->createNestedQuery($query, $definition, $filter->getField());
             }
 
-            return $this->createNestedQuery($query, $definition, $filter->getField());
+            $path = $this->getNestedPath($definition, $filter->getField());
+
+            if ($path) {
+                $query->add(new NestedQuery($path, new ExistsQuery($fieldName)), BoolQuery::MUST_NOT);
+
+                return $query;
+            }
+
+            $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+            return $query;
         }
 
         $value = $this->parseValue($definition, $filter, $filter->getValue());
@@ -639,7 +649,7 @@ class CriteriaParser
         }
 
         $boolQuery = new BoolQuery();
-        if (!empty($nonNullValues)) {
+        if ($nonNullValues !== []) {
             $boolQuery->add(new TermsQuery($fieldName, $nonNullValues), BoolQuery::SHOULD);
         }
 
@@ -817,7 +827,7 @@ class CriteriaParser
     private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
         $bool = new BoolQuery();
-        if (\count($filter->getQueries()) === 0) {
+        if ($filter->getQueries() === []) {
             return $bool;
         }
 
@@ -968,7 +978,7 @@ class CriteriaParser
             $path[] = $field->getPropertyName();
         }
 
-        if (empty($path)) {
+        if ($path === []) {
             return null;
         }
 

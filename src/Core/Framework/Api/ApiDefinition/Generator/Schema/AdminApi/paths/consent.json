@@ -156,7 +156,8 @@
           "identifier",
           "status",
           "actor",
-          "updatedAt"
+          "updatedAt",
+          "acceptedUntil"
         ],
         "properties": {
           "name": {
@@ -194,6 +195,14 @@
             ],
             "format": "date-time",
             "description": "The timestamp of when the consent status was last updated. null if never updated"
+          },
+          "acceptedUntil": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The timestamp until when the consent is accepted. null if never accepted"
           }
         }
       }

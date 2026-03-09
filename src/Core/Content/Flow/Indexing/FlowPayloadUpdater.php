@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Flow\Indexing;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
-use Shopware\Core\Content\Flow\Dispatching\FlowBuilder;
+use Shopware\Core\Content\Flow\Indexing\FlowBuilder\Sequence;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -25,6 +25,11 @@ class FlowPayloadUpdater
     ) {
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, array{payload: string|null, invalid: bool}>
+     */
     public function update(array $ids): array
     {
         $listFlowSequence = $this->connection->fetchAllAssociative(
@@ -57,8 +62,24 @@ class FlowPayloadUpdater
 
         $updated = [];
         foreach ($listFlowSequence as $flowId => $flowSequences) {
-            usort($flowSequences, fn (array $first, array $second) => [$first['display_group'], $first['parent_id'], $first['true_case'], $first['position']]
-                <=> [$second['display_group'], $second['parent_id'], $second['true_case'], $second['position']]);
+            $flowSequences = array_map(static fn (array $flowSequence) => Sequence::createFromDb($flowSequence), $flowSequences);
+            usort($flowSequences, static function (Sequence $a, Sequence $b): int {
+                $result = $a->displayGroup <=> $b->displayGroup;
+
+                if ($result === 0) {
+                    $result = $a->parentId <=> $b->parentId;
+                }
+
+                if ($result === 0) {
+                    $result = $a->trueCase <=> $b->trueCase;
+                }
+
+                if ($result === 0) {
+                    $result = $a->position <=> $b->position;
+                }
+
+                return $result;
+            });
 
             $invalid = false;
             $serialized = null;

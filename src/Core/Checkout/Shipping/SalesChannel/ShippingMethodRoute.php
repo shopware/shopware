@@ -67,7 +67,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
-        if (empty($criteria->getSorting())) {
+        if ($criteria->getSorting() === []) {
             $criteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
         }
 

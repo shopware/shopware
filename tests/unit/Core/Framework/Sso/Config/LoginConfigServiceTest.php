@@ -20,9 +20,7 @@ class LoginConfigServiceTest extends TestCase
 {
     public function testGetConfigWithEmptyRawConfig(): void
     {
-        $configService = $this->createLoginConfigService([]);
-
-        $config = $configService->getConfig();
+        $config = $this->createLoginConfigService([])->getConfig();
 
         static::assertNull($config);
     }
@@ -33,13 +31,13 @@ class LoginConfigServiceTest extends TestCase
             'use_default' => true,
             'client_id' => 'clientId',
             'client_secret' => 'clientSecret',
-            'redirect_uri' => 'http://redirect.url',
-            'base_url' => 'http://base.url',
+            'redirect_uri' => 'https://redirect.url',
+            'base_url' => 'https://base.url',
             'authorize_path' => '/authorize',
             'token_path' => '/token',
             'jwks_path' => '/jwks.json',
             'scope' => 'scope',
-            'register_url' => 'http://register.url',
+            'register_url' => 'https://register.url',
         ];
 
         $configService = $this->createLoginConfigService($rawConfig);
@@ -181,7 +179,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'base_url ends with slash' => [
-                'rawConfig' => self::createConfig(['base_url' => 'http://base.url/']),
+                'rawConfig' => self::createConfig(['base_url' => 'https://base.url/']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] should not end with "/"',
             ],
 
@@ -201,7 +199,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'authorize_path not start with slash' => [
-                'rawConfig' => self::createConfig(['authorize_path' => 'http://authorize']),
+                'rawConfig' => self::createConfig(['authorize_path' => 'https://authorize']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
             ],
 
@@ -293,13 +291,13 @@ class LoginConfigServiceTest extends TestCase
             'use_default' => false,
             'client_id' => 'clientId',
             'client_secret' => 'clientSecret',
-            'redirect_uri' => 'http://redirect.url',
-            'base_url' => 'http://base.url',
+            'redirect_uri' => 'https://redirect.url',
+            'base_url' => 'https://base.url',
             'authorize_path' => '/authorize',
             'token_path' => '/token',
             'jwks_path' => '/jwks.json',
             'scope' => 'scope',
-            'register_url' => 'http://register.url',
+            'register_url' => 'https://register.url',
         ];
 
         $configService = $this->createLoginConfigService($rawConfig);
@@ -314,13 +312,13 @@ class LoginConfigServiceTest extends TestCase
      * @param array<string, string|bool> $rawConfig
      */
     #[DataProvider('createRedirectUrlTestDataProvider')]
-    public function testCreateRedirectUrl(string $random, array $rawConfig, string $expectedUrl): void
+    public function testCreateRedirectUrl(string $random, array $rawConfig, string $expectedUrl, bool $addLoginPrompt = false): void
     {
         $configService = $this->createLoginConfigService($rawConfig);
         $loginConfig = $configService->getConfig();
         static::assertInstanceOf(LoginConfig::class, $loginConfig);
 
-        $result = $configService->createRedirectUrl($random);
+        $result = $configService->createRedirectUrl($random, $addLoginPrompt);
         static::assertStringStartsWith($loginConfig->baseUrl, $result);
 
         // check query parameter
@@ -348,38 +346,39 @@ class LoginConfigServiceTest extends TestCase
     public static function createRedirectUrlTestDataProvider(): array
     {
         return [
-            'Test case one' => [
+            'default test case' => [
                 'random' => 'justARandomString',
                 'rawConfig' => [
                     'use_default' => true,
                     'client_id' => 'justAClientID',
                     'client_secret' => 'justAClientSecret',
-                    'redirect_uri' => 'http://justARedirectUri.org',
-                    'base_url' => 'http://justABaseUrl.net',
+                    'redirect_uri' => 'https://justARedirectUri.org',
+                    'base_url' => 'https://justABaseUrl.net',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
                     'jwks_path' => '/jwks.json',
                     'scope' => 'scope',
-                    'register_url' => 'http://register.url',
+                    'register_url' => 'https://register.url',
                 ],
-                'expectedUrl' => 'http://justABaseUrl.net/authorize?client_id=justAClientID&redirect_uri=http%3A%2F%2FjustARedirectUri.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString',
+                'expectedUrl' => 'https://justABaseUrl.net/authorize?client_id=justAClientID&redirect_uri=https%3A%2F%2FjustARedirectUri.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString',
             ],
 
-            'Test case two' => [
+            'with login prompt' => [
                 'random' => 'justARandomString',
                 'rawConfig' => [
                     'use_default' => true,
                     'client_id' => 'anotherClientID',
                     'client_secret' => 'anotherClientSecret',
-                    'redirect_uri' => 'http://another-redirect-url.org',
-                    'base_url' => 'http://another-base-url.net',
+                    'redirect_uri' => 'https://another-redirect-url.org',
+                    'base_url' => 'https://another-base-url.net',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
                     'jwks_path' => '/jwks.json',
                     'scope' => 'scope',
-                    'register_url' => 'http://register.url',
+                    'register_url' => 'https://register.url',
                 ],
-                'expectedUrl' => 'http://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=http%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString',
+                'expectedUrl' => 'https://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=https%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString&prompt=login',
+                'addLoginPrompt' => true,
             ],
         ];
     }
@@ -410,13 +409,13 @@ class LoginConfigServiceTest extends TestCase
             'use_default' => true,
             'client_id' => 'clientId',
             'client_secret' => 'clientSecret',
-            'redirect_uri' => 'http://redirect.url',
-            'base_url' => 'http://base.url',
+            'redirect_uri' => 'https://redirect.url',
+            'base_url' => 'https://base.url',
             'authorize_path' => '/authorize',
             'token_path' => '/token',
             'jwks_path' => '/jwks.json',
             'scope' => 'scope',
-            'register_url' => 'http://register.url',
+            'register_url' => 'https://register.url',
         ];
 
         foreach ($unset as $key) {

@@ -189,7 +189,7 @@ class Migration1744203319MailTemplate extends MigrationStep
             ]
         );
 
-        return !empty($result);
+        return $result !== [];
     }
 
     private function getMailTemplateId(Connection $connection, string $mailTemplateTypeId): string

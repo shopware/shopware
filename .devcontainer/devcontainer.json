@@ -1,0 +1,57 @@
+{
+    "name": "Shopware Development",
+    "dockerComposeFile": "../compose.yaml",
+    "service": "web",
+    "workspaceFolder": "/var/www/html",
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "bmewburn.vscode-intelephense-client",
+          "devsense.composer-php-vscode",
+          "xdebug.php-debug",
+          "swordev.phpstan",
+          "junstyle.php-cs-fixer",
+          "esbenp.prettier-vscode",
+          "dbaeumer.vscode-eslint",
+          "stylelint.vscode-stylelint",
+          "Vue.volar",
+          "mblode.twig-language-2",
+          "thenouillet.symfony-vscode",
+          "eamodio.gitlens"
+        ],
+        "settings": {
+          "php.suggest.basic": false,
+          "intelephense.environment.phpVersion": "8.4.0",
+          "intelephense.environment.includePaths": [
+            "/var/www/html/vendor"
+          ],
+          "terminal.integrated.defaultProfile.linux": "bash"
+        }
+      }
+    },
+    "forwardPorts": [8000, 5173, 9998, 9999, 9080, 8025],
+    "portsAttributes": {
+      "8000": {
+        "label": "Shopware",
+        "onAutoForward": "notify"
+      },
+      "5173": {
+        "label": "Admin Watcher",
+        "onAutoForward": "silent"
+      },
+      "9998": {
+        "label": "Storefront Watcher",
+        "onAutoForward": "silent"
+      },
+      "9080": {
+        "label": "Adminer (Database UI)",
+        "onAutoForward": "silent"
+      },
+      "8025": {
+        "label": "Mailpit (Mail Testing)",
+        "onAutoForward": "silent"
+      }
+    },
+    "shutdownAction": "none",
+    "remoteUser": "www-data"
+  }

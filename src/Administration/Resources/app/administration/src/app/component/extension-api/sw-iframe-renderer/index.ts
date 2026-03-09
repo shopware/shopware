@@ -38,12 +38,14 @@ export default Shopware.Component.wrapComponentConfig({
         urlHandler: null | (() => void);
         locationHeight: null | number;
         signedIframeSrc: null | string;
+        isFirstLoad: boolean;
     } {
         return {
             heightHandler: null,
             urlHandler: null,
             locationHeight: null,
             signedIframeSrc: null,
+            isFirstLoad: true,
         };
     },
 
@@ -165,6 +167,16 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        onIframeLoad() {
+            // Hard dev server reload of a plugin was triggered. To ensure consistency, we need to reload the entire page.
+            // This also fixes a crash where ui components are added in an endless loop. See PR #14347.
+            if (this.isFirstLoad) {
+                this.isFirstLoad = false;
+            } else {
+                window.location.reload();
+            }
+        },
+
         signIframeSrc() {
             if (!this.extension || !this.extensionIsApp) {
                 return;

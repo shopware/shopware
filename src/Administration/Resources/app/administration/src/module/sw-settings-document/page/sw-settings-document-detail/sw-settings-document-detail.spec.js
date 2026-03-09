@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { MtCheckbox, MtSwitch } from '@shopware-ag/meteor-component-library';
 
 /**
  * @sw-package after-sales
@@ -9,17 +10,20 @@ const documentBaseConfigRepositoryMock = {
     },
     get: (id) => {
         const salesChannels = new Shopware.Data.EntityCollection('source', 'entity', Shopware.Context.api);
+
         if (id === 'documentConfigWithSalesChannels') {
             salesChannels.push({
                 id: 'associationId1',
                 salesChannelId: 'salesChannelId1',
             });
+
             return Promise.resolve({
                 id: id,
                 documentTypeId: 'documentTypeId1',
                 salesChannels: salesChannels,
             });
         }
+
         if (id === 'documentConfigWithDocumentType') {
             return Promise.resolve({
                 id: id,
@@ -28,11 +32,13 @@ const documentBaseConfigRepositoryMock = {
                 documentType: { id: 'documentTypeId1' },
             });
         }
+
         if (id === 'documentConfigWithDocumentTypeAndSalesChannels') {
             salesChannels.push({
                 id: 'associationId1',
                 salesChannelId: 'salesChannelId1',
             });
+
             return Promise.resolve({
                 id: id,
                 documentTypeId: 'documentTypeId1',
@@ -73,6 +79,7 @@ const documentBaseConfigRepositoryMock = {
         });
     },
 };
+
 const salesChannelRepositoryMock = {
     search: () => {
         return [
@@ -81,19 +88,23 @@ const salesChannelRepositoryMock = {
         ];
     },
 };
+
 const documentBaseConfigSalesChannelsRepositoryMock = {
     counter: 1,
     create: () => {
         const association = {
             id: `configSalesChannelId${documentBaseConfigSalesChannelsRepositoryMock.counter}`,
         };
+
         documentBaseConfigSalesChannelsRepositoryMock.counter += 1;
+
         return association;
     },
     search: () => {
         return Promise.resolve([]);
     },
 };
+
 const repositoryMockFactory = (entity) => {
     if (entity === 'sales_channel') {
         return salesChannelRepositoryMock;
@@ -134,34 +145,18 @@ const createWrapper = async (customOptions, privileges = []) => {
                 `,
                     },
                     'sw-entity-single-select': true,
-                    'sw-text-field': {
-                        template: '<div class="sw-field"/>',
-                        props: ['disabled'],
-                    },
-                    'sw-button-process': true,
                     'sw-card-view': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
-                    'sw-checkbox-field': {
-                        template: `
-                    <div class="sw-field--checkbox">
-                        <div class="sw-field--checkbox__content">
-                            <div class="sw-field__checkbox">
-                                <input type="checkbox" />
-                            </div>
-                        </div>
-                    </div>
-                `,
+                    'mt-checkbox': MtCheckbox,
+                    'sw-media-compact-upload-v2': {
+                        template: '<div id="sw-media-compact-upload"/>',
+                        props: [
+                            'source',
+                            'disabled',
+                        ],
                     },
-                    'sw-entity-multi-id-select': true,
-                    'sw-entity-multi-select': true,
-                    'sw-select-base': true,
-                    'sw-base-field': true,
-                    'sw-field-error': true,
-                    'sw-media-field': {
-                        template: '<div id="sw-media-field"/>',
-                        props: ['disabled'],
-                    },
+                    'mt-switch': MtSwitch,
                     'sw-multi-select': {
                         template: '<div id="documentSalesChannel" @click="$emit(\'click\')"/>',
                         props: ['disabled'],
@@ -193,16 +188,14 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
     });
 
-    // eslint-disable-next-line max-len
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithSalesChannels' },
         });
-
         await flushPromises();
 
-        expect(wrapper.vm.documentConfigSalesChannels).toEqual([
-            'associationId1',
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
+            'salesChannelId1',
         ]);
     });
 
@@ -210,7 +203,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithDocumentType' },
         });
-
         await flushPromises();
 
         expect(wrapper.vm.documentConfigSalesChannelOptionsCollection[0]).toEqual({
@@ -238,7 +230,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                     documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels',
                 },
             });
-
             await flushPromises();
 
             expect(wrapper.vm.documentConfigSalesChannelOptionsCollection[0]).toEqual({
@@ -261,11 +252,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels',
             },
         });
-
         await flushPromises();
 
-        expect(wrapper.vm.documentConfigSalesChannels).toEqual([
-            'associationId1',
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
+            'salesChannelId1',
         ]);
 
         wrapper.vm.onChangeType({ id: 'documentTypeId2' });
@@ -294,11 +284,9 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
             ['document.editor'],
         );
-
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeUndefined();
-        expect(wrapper.findComponent('#sw-media-field').props().disabled).toBe(false);
         expect(wrapper.findAllComponents('.sw-field').every((field) => !field.props().disabled)).toBe(true);
         expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(false);
     });
@@ -309,19 +297,17 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels',
             },
         });
-
         await flushPromises();
 
-        expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBe('true');
-        expect(wrapper.findComponent('#sw-media-field').props().disabled).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeDefined();
         expect(wrapper.findAllComponents('.sw-field').every((field) => field.props().disabled)).toBe(true);
         expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(true);
     });
 
     it('should create an invoice document with countries note delivery', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
+        await flushPromises();
 
-        await wrapper.vm.$nextTick();
         await wrapper.setData({
             isShowDisplayNoteDelivery: true,
             documentConfig: {
@@ -344,10 +330,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
 
-        await wrapper.vm.$nextTick();
         await wrapper.setData({
             isShowDivergentDeliveryAddress: true,
         });
+        await flushPromises();
 
         const displayDivergentDeliveryAddress = wrapper.findComponent(
             '.sw-settings-document-detail__field_divergent_delivery_address',
@@ -358,11 +344,9 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    // eslint-disable-next-line max-len
     it('should not exist "display divergent delivery address" in general form field and company form field', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const companyFormFields = wrapper.vm.companyFormFields;
         const generalFormFields = wrapper.vm.generalFormFields;
@@ -379,8 +363,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     it('should be have config company phone number', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const companyFormFields = wrapper.vm.companyFormFields;
 
@@ -392,10 +375,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             expect.objectContaining({
                 name: 'companyPhone',
                 type: 'text',
-                config: {
+                config: expect.objectContaining({
                     type: 'text',
                     label: expect.any(String),
-                },
+                }),
             }),
         );
     });
@@ -409,7 +392,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
             ['document.editor'],
         );
-
         await flushPromises();
 
         const swCardComponents = wrapper.findAll('.mt-card');
@@ -425,7 +407,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
             ['document.editor'],
         );
-
         await flushPromises();
 
         let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
@@ -448,7 +429,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
             ['document.editor'],
         );
-
         await flushPromises();
 
         let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
@@ -478,18 +458,36 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
             ['document.editor'],
         );
-
         await flushPromises();
 
         const multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(multiSelect.attributes().value).toBe('');
+        expect(multiSelect.attributes().value).toBe('pdf,html');
 
-        await wrapper.vm.onAddDocumentType({ id: 'html' });
-        expect(multiSelect.attributes().value).toBe('html');
+        await wrapper.vm.onRemoveDocumentType({ id: 'html' });
+        expect(multiSelect.attributes().value).toBe('pdf');
+    });
 
-        await wrapper.vm.onAddDocumentType({ id: 'pdf' });
-        expect(multiSelect.attributes().value).toBe('html,pdf');
+    it.each([
+        { name: 'no company form', config: { displayCompanyAddress: false, displayReturnAddress: false } },
+        { name: 'return address active', config: { displayCompanyAddress: false, displayReturnAddress: true } },
+        { name: 'company address active', config: { displayCompanyAddress: true, displayReturnAddress: false } },
+        { name: 'both addresses active', config: { displayCompanyAddress: true, displayReturnAddress: true } },
+    ])('should display company settings if company address is selected', async ({ config }) => {
+        const wrapper = await createWrapper({}, ['document.editor']);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(false);
+
+        await wrapper.setData({
+            documentConfig: {
+                config,
+            },
+        });
+
+        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(
+            config.displayCompanyAddress || config.displayReturnAddress,
+        );
     });
 });

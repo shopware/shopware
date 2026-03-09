@@ -60,17 +60,17 @@ class PropertyGroupCollection extends EntityCollection
                 continue;
             }
 
-            $entities = iterator_to_array($options->getIterator());
+            $elements = $options->getElements();
             $sortingByPosition = $group->getSortingType() !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
             $posititionCol = [];
             $nameCol = [];
 
-            foreach ($entities as $option) {
-                $name = $option->getTranslation('name') ?? '';
+            foreach ($elements as $element) {
+                $name = $element->getTranslation('name') ?? '';
                 $nameCol[] = (string) $collator->getSortKey($name);
 
                 if ($sortingByPosition) {
-                    $posititionCol[] = (int) ($option->getTranslation('position') ?? $option->getPosition() ?? 0);
+                    $posititionCol[] = (int) ($element->getTranslation('position') ?? $element->getPosition() ?? 0);
                 }
             }
 
@@ -84,13 +84,13 @@ class PropertyGroupCollection extends EntityCollection
             $sortArgs[] = &$nameCol;
             $sortArgs[] = \SORT_ASC;
             $sortArgs[] = \SORT_STRING;
-            $sortArgs[] = &$entities;
+            $sortArgs[] = &$elements;
 
             array_multisort(...$sortArgs);
 
             $sortedOptions = new PropertyGroupOptionCollection();
             // Bypass expected class validation for performance optimization
-            $sortedOptions->fillOptions($entities);
+            $sortedOptions->fillOptions($elements);
 
             $group->setOptions($sortedOptions);
         }
@@ -116,8 +116,6 @@ class PropertyGroupCollection extends EntityCollection
         $collator = new \Collator($locale);
         $collator->setAttribute(\Collator::NUMERIC_COLLATION, \Collator::ON);
         $collator->setAttribute(\Collator::ALTERNATE_HANDLING, \Collator::SHIFTED);
-        $collator->setAttribute(\Collator::CASE_FIRST, \Collator::UPPER_FIRST);
-        $collator->setAttribute(\Collator::STRENGTH, \Collator::TERTIARY);
 
         return $collator;
     }

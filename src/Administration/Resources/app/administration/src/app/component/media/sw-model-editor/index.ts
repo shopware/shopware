@@ -263,6 +263,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
+         * Changes whether the scale is linked or not. Will be called when the user changes the linked state in the UI.
+         * @param value - boolean value indicating whether the scale should be linked or not
+         */
+        changeModelScaleLinked(value: boolean): void {
+            if (!this.toolbox) return;
+
+            this.toolbox.getTool('transform').setGizmoScaleLinked(value);
+        },
+
+        /**
          * Saves the model to the media library.
          */
         async save(): Promise<void> {

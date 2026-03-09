@@ -305,11 +305,11 @@ export default {
             return this.updateAnalytics();
         },
 
-        async onSave() {
+        async saveSalesChannel({ shouldReloadEntityData = false } = {}) {
             this.isLoading = true;
-
             this.isSaveSuccessful = false;
             const analyticsId = this.prepareSaveData();
+            let saveSuccessful = false;
 
             try {
                 await this.salesChannelRepository.save(this.salesChannel, Context.api);
@@ -318,14 +318,11 @@ export default {
                     await this.salesChannelAnalyticsRepository.delete(analyticsId, Context.api);
                 }
 
-                this.isLoading = false;
                 this.isSaveSuccessful = true;
+                saveSuccessful = true;
 
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
-                this.loadEntityData();
             } catch (error) {
-                this.isLoading = false;
-
                 this.createNotificationError({
                     message: this.$tc(
                         'sw-sales-channel.detail.messageSaveError',
@@ -336,6 +333,16 @@ export default {
                     ),
                 });
             }
+
+            this.isLoading = false;
+
+            if (saveSuccessful && shouldReloadEntityData) {
+                this.loadEntityData();
+            }
+        },
+
+        async onSave() {
+            await this.saveSalesChannel({ shouldReloadEntityData: true });
         },
 
         updateAnalytics() {
@@ -353,33 +360,7 @@ export default {
         },
 
         async saveOnLanguageChange() {
-            this.isLoading = true;
-            this.isSaveSuccessful = false;
-
-            const analyticsId = this.prepareSaveData();
-
-            try {
-                await this.salesChannelRepository.save(this.salesChannel, Context.api);
-
-                if (analyticsId && !this.salesChannel?.analytics?.trackingId) {
-                    await this.salesChannelAnalyticsRepository.delete(analyticsId, Context.api);
-                }
-
-                this.isSaveSuccessful = true;
-                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
-            } catch (error) {
-                this.createNotificationError({
-                    message: this.$tc(
-                        'sw-sales-channel.detail.messageSaveError',
-                        {
-                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
-                        },
-                        0,
-                    ),
-                });
-            } finally {
-                this.isLoading = false;
-            }
+            await this.saveSalesChannel();
         },
 
         onChangeLanguage() {

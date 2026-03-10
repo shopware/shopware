@@ -688,7 +688,7 @@ describe('core/service/login.service.js', () => {
             jest.useRealTimers();
         });
 
-        it('should handle concurrent refresh calls with singleton promise', async () => {
+        it('should handle concurrent refresh calls in the same tab with singleton promise', async () => {
             jest.useFakeTimers();
 
             const { loginService, clientMock } = loginServiceFactory();
@@ -711,11 +711,11 @@ describe('core/service/login.service.js', () => {
                 refresh_token: 'tab1_new_refresh',
             });
 
-            const tab1Promise = loginService.refreshToken();
-            const tab2Promise = loginService.refreshToken();
+            const firstRefreshCallPromise = loginService.refreshToken();
+            const secondRefreshCallPromise = loginService.refreshToken();
 
-            await expect(tab1Promise).resolves.toBe('tab1_new_token');
-            await expect(tab2Promise).resolves.toBe('tab1_new_token');
+            await expect(firstRefreshCallPromise).resolves.toBe('tab1_new_token');
+            await expect(secondRefreshCallPromise).resolves.toBe('tab1_new_token');
 
             const refreshRequests = clientMock.history.post.filter(
                 (req) => JSON.parse(req.data).grant_type === 'refresh_token',
@@ -770,6 +770,75 @@ describe('core/service/login.service.js', () => {
 
             expect(loginServiceTab2.getToken()).toBe('test_token');
             expect(loginServiceTab2.getBearerAuthentication('refresh')).toBe('test_refresh');
+        });
+
+        it('should share refreshed token when two tabs refresh concurrently', async () => {
+            jest.useFakeTimers();
+
+            const originalLocks = navigator.locks;
+            let lockQueue = Promise.resolve();
+
+            Object.defineProperty(navigator, 'locks', {
+                value: {
+                    request: jest.fn((_name, callback) => {
+                        const run = lockQueue.then(() => callback());
+                        lockQueue = run.catch(() => undefined);
+
+                        return run;
+                    }),
+                },
+                configurable: true,
+            });
+
+            const tab1 = loginServiceFactory();
+            const tab2 = loginServiceFactory();
+
+            try {
+                tab1.clientMock.onPost('/oauth/token').replyOnce(200, {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'initial_access_token',
+                    refresh_token: 'initial_refresh_token',
+                });
+
+                await tab1.loginService.loginByUsername('admin', 'shopware');
+
+                tab1.clientMock.resetHistory();
+                tab2.clientMock.resetHistory();
+
+                tab1.clientMock.onPost('/oauth/token').replyOnce(200, {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'refreshed_access_token',
+                    refresh_token: 'refreshed_refresh_token',
+                });
+
+                const tab1RefreshPromise = tab1.loginService.refreshToken();
+                const tab2RefreshPromise = tab2.loginService.refreshToken();
+
+                await Promise.all([
+                    expect(tab1RefreshPromise).resolves.toBe('refreshed_access_token'),
+                    expect(tab2RefreshPromise).resolves.toBe('refreshed_access_token'),
+                ]);
+
+                const tab1RefreshRequests = tab1.clientMock.history.post.filter(
+                    (req) => JSON.parse(req.data).grant_type === 'refresh_token',
+                );
+                const tab2RefreshRequests = tab2.clientMock.history.post.filter(
+                    (req) => JSON.parse(req.data).grant_type === 'refresh_token',
+                );
+
+                expect(tab1RefreshRequests).toHaveLength(1);
+                expect(tab2RefreshRequests).toHaveLength(0);
+                expect(tab2.loginService.getToken()).toBe('refreshed_access_token');
+            } finally {
+                Object.defineProperty(navigator, 'locks', {
+                    value: originalLocks,
+                    configurable: true,
+                });
+
+                jest.useRealTimers();
+            }
         });
     });
 });

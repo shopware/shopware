@@ -292,7 +292,8 @@ export default function createLoginService(
                     .then(resolve)
                     .catch((error) => {
                         if (attempt >= maxRetries) {
-                            reject(error);
+                            const errorObj = error instanceof Error ? error : new Error(String(error));
+                            reject(errorObj);
                             return;
                         }
 

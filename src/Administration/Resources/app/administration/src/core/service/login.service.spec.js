@@ -601,11 +601,11 @@ describe('core/service/login.service.js', () => {
             });
 
             const refreshPromise = loginService.refreshToken();
-            const refreshExpectation = expect(refreshPromise).rejects.toThrow();
+            const advanceTimePromise = jest.advanceTimersByTimeAsync(31000);
 
             // 1 + 2 + 4 + 8 + 16 seconds backoff + 1 second buffer for async scheduling
-            await jest.advanceTimersByTimeAsync(31000);
-            await refreshExpectation;
+            await expect(refreshPromise).rejects.toThrow();
+            await advanceTimePromise;
 
             expect(loginService.getToken()).toBe(false);
             expect(loginService.isLoggedIn()).toBe(false);
@@ -637,10 +637,10 @@ describe('core/service/login.service.js', () => {
             });
 
             const refreshPromise = loginService.refreshToken();
-            const refreshExpectation = expect(refreshPromise).resolves.toBe('new_token');
+            const advanceTimePromise = jest.advanceTimersByTimeAsync(1000);
 
-            await jest.advanceTimersByTimeAsync(1000);
-            await refreshExpectation;
+            await expect(refreshPromise).resolves.toBe('new_token');
+            await advanceTimePromise;
 
             expect(clientMock.history.post).toHaveLength(2);
             expect(loginService.getToken()).toBe('new_token');
@@ -677,11 +677,11 @@ describe('core/service/login.service.js', () => {
             await loginService.loginByUsername('admin', 'shopware');
 
             const refreshPromise = loginService.refreshToken();
-            const refreshExpectation = expect(refreshPromise).rejects.toThrow();
+            const advanceTimePromise = jest.advanceTimersByTimeAsync(31000);
 
             // 1 + 2 + 4 + 8 + 16 seconds backoff + 1 second buffer for async scheduling
-            await jest.advanceTimersByTimeAsync(31000);
-            await refreshExpectation;
+            await expect(refreshPromise).rejects.toThrow();
+            await advanceTimePromise;
 
             expect(loginService.isLoggedIn()).toBe(false);
 

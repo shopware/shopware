@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
+namespace Shopware\Tests\Unit\Core\Framework\Webhook\Hookable;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\EntityBusinessEvent;
@@ -27,21 +29,22 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
+#[CoversClass(HookableBusinessEvent::class)]
 class HookableBusinessEventTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testGetter(): void
     {
         $scalarEvent = new ScalarBusinessEvent();
         $event = HookableBusinessEvent::fromBusinessEvent(
             $scalarEvent,
-            static::getContainer()->get(BusinessEventEncoder::class)
+            new BusinessEventEncoder(
+                $this->createMock(JsonEntityEncoder::class),
+                $this->createMock(DefinitionInstanceRegistry::class)
+            )
         );
 
         static::assertSame($scalarEvent->getName(), $event->getName());
-        $shopwareVersion = static::getContainer()->getParameter('kernel.shopware_version');
-        static::assertSame($scalarEvent->getEncodeValues($shopwareVersion), $event->getWebhookPayload());
+        static::assertSame($scalarEvent->getEncodeValues(''), $event->getWebhookPayload());
     }
 
     #[DataProvider('getEventsWithoutPermissions')]
@@ -49,29 +52,10 @@ class HookableBusinessEventTest extends TestCase
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
-            static::getContainer()->get(BusinessEventEncoder::class)
+            $this->createMock(BusinessEventEncoder::class)
         );
 
         static::assertTrue($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection([])));
-    }
-
-    #[DataProvider('getEventsWithPermissions')]
-    public function testIsAllowedForEntityBasedEvents(FlowEventAware $rootEvent): void
-    {
-        $event = HookableBusinessEvent::fromBusinessEvent(
-            $rootEvent,
-            static::getContainer()->get(BusinessEventEncoder::class)
-        );
-
-        $allowedPermissions = new AclPrivilegeCollection([
-            TaxDefinition::ENTITY_NAME . ':' . AclRoleDefinition::PRIVILEGE_READ,
-        ]);
-        static::assertTrue($event->isAllowed(Uuid::randomHex(), $allowedPermissions));
-
-        $notAllowedPermissions = new AclPrivilegeCollection([
-            ProductDefinition::ENTITY_NAME . ':' . AclRoleDefinition::PRIVILEGE_READ,
-        ]);
-        static::assertFalse($event->isAllowed(Uuid::randomHex(), $notAllowedPermissions));
     }
 
     /**
@@ -85,6 +69,25 @@ class HookableBusinessEventTest extends TestCase
             [new StructuredArrayObjectBusinessEvent()],
             [new UnstructuredObjectBusinessEvent()],
         ];
+    }
+
+    #[DataProvider('getEventsWithPermissions')]
+    public function testIsAllowedForEntityBasedEvents(FlowEventAware $rootEvent): void
+    {
+        $event = HookableBusinessEvent::fromBusinessEvent(
+            $rootEvent,
+            $this->createMock(BusinessEventEncoder::class)
+        );
+
+        $allowedPermissions = new AclPrivilegeCollection([
+            TaxDefinition::ENTITY_NAME . ':' . AclRoleDefinition::PRIVILEGE_READ,
+        ]);
+        static::assertTrue($event->isAllowed(Uuid::randomHex(), $allowedPermissions));
+
+        $notAllowedPermissions = new AclPrivilegeCollection([
+            ProductDefinition::ENTITY_NAME . ':' . AclRoleDefinition::PRIVILEGE_READ,
+        ]);
+        static::assertFalse($event->isAllowed(Uuid::randomHex(), $notAllowedPermissions));
     }
 
     /**

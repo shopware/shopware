@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\BestsellerReportTool;
@@ -172,6 +173,63 @@ class BestsellerReportToolTest extends TestCase
         static::assertCount(1, $data['data']['bestsellers']);
         static::assertSame(0, $data['data']['bestsellers'][0]['totalQuantity']);
         static::assertSame(0, $data['data']['bestsellers'][0]['totalRevenue']);
+    }
+
+    public function testSalesChannelIdFilterIsApplied(): void
+    {
+        $productId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $aggregations = new AggregationResultCollection([
+            new TermsResult('bestsellers', [
+                new Bucket($productId, 1, new SumResult('totalQuantity', 5.0)),
+            ]),
+            new TermsResult('revenue', [
+                new Bucket($productId, 1, new SumResult('totalRevenue', 100.0)),
+            ]),
+        ]);
+
+        $lineItemResult = new EntitySearchResult('order_line_item', 0, new EntityCollection(), $aggregations, new Criteria(), $context);
+
+        $lineItemRepo = $this->createMock(EntityRepository::class);
+        $lineItemRepo->expects($this->once())
+            ->method('search')
+            ->with(static::callback(function (Criteria $criteria) use ($salesChannelId): bool {
+                foreach ($criteria->getFilters() as $filter) {
+                    if ($filter instanceof EqualsFilter
+                        && $filter->getField() === 'order.salesChannelId'
+                        && $filter->getValue() === $salesChannelId) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }))
+            ->willReturn($lineItemResult);
+
+        $product = $this->buildProduct($productId, 'SW-001', 'Test');
+        $productResult = new EntitySearchResult('product', 1, new ProductCollection([$product]), null, new Criteria(), $context);
+
+        $productRepo = static::createStub(EntityRepository::class);
+        $productRepo->method('search')->willReturn($productResult);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturnMap([
+            ['order_line_item', $lineItemRepo],
+            ['product', $productRepo],
+        ]);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new BestsellerReportTool($registry, $contextProvider);
+        $output = ($tool)('2025-01-01', '2025-01-31', 10, $salesChannelId);
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertCount(1, $data['data']['bestsellers']);
     }
 
     public function testEmptyResultReturnsEmptyBestsellers(): void

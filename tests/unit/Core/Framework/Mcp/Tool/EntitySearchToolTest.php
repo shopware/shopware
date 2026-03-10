@@ -171,6 +171,88 @@ class EntitySearchToolTest extends TestCase
         static::assertTrue($data['success']);
     }
 
+    public function testDefaultLimitIsAlwaysAppliedToPayload(): void
+    {
+        $context = Context::createDefaultContext();
+        $definition = $this->createMock(EntityDefinition::class);
+
+        $criteria = new Criteria();
+        $criteria->setLimit(25);
+        $criteria->setIncludes([]);
+
+        $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn($result);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
+
+        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder->expects($this->once())
+            ->method('fromArray')
+            ->with(
+                static::callback(function (array $payload): bool {
+                    return isset($payload['limit']) && $payload['limit'] === 25;
+                }),
+                static::anything(),
+                static::anything(),
+                static::anything(),
+            )
+            ->willReturn($criteria);
+
+        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder->method('encode')->willReturn([]);
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        ($tool)('product');
+    }
+
+    public function testCriteriaJsonLimitTakesPrecedenceOverDefault(): void
+    {
+        $context = Context::createDefaultContext();
+        $definition = $this->createMock(EntityDefinition::class);
+
+        $criteria = new Criteria();
+        $criteria->setLimit(50);
+        $criteria->setIncludes([]);
+
+        $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn($result);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
+
+        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder->expects($this->once())
+            ->method('fromArray')
+            ->with(
+                static::callback(function (array $payload): bool {
+                    return $payload['limit'] === 50;
+                }),
+                static::anything(),
+                static::anything(),
+                static::anything(),
+            )
+            ->willReturn($criteria);
+
+        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder->method('encode')->willReturn([]);
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        ($tool)('product', '{"limit": 50}');
+    }
+
     public function testDeniesAccessWithoutReadPermission(): void
     {
         $source = new AdminApiSource(null, null);

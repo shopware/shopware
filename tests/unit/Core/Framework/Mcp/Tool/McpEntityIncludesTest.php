@@ -331,6 +331,40 @@ class McpEntityIncludesTest extends TestCase
         static::assertArrayHasKey('product', $includes);
     }
 
+    public function testEnsureTranslatedRecursivelyTraversesManyToManyAssociations(): void
+    {
+        [$product] = $this->compileDefinitions([
+            'product' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                new TranslatedField('name'),
+                (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new ApiAware()),
+                new ManyToManyAssociationField('tags', 'tag', 'product_tag', 'product_id', 'tag_id'),
+            ],
+            'tag' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                new TranslatedField('name'),
+            ],
+            'product_tag' => [
+                (new FkField('product_id', 'productId', 'product'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new FkField('tag_id', 'tagId', 'tag'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            ],
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('tags');
+        $criteria->setIncludes([
+            'product' => ['id', 'name', 'tags'],
+            'tag' => ['id', 'name'],
+        ]);
+
+        $this->applyDefaultIncludes($product, $criteria);
+
+        $includes = $criteria->getIncludes();
+        static::assertNotNull($includes);
+        static::assertContains('translated', $includes['product']);
+        static::assertContains('translated', $includes['tag']);
+    }
+
     public function testEnsureTranslatedSkipsEntityNotInIncludesMap(): void
     {
         [$product] = $this->compileDefinitions([

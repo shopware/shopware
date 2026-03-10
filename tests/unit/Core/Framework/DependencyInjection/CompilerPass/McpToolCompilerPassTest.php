@@ -166,6 +166,33 @@ class McpToolCompilerPassTest extends TestCase
         static::assertSame('shopware.mcp.discovery_cache', (string) $lastCall[1][3]);
     }
 
+    public function testDiscoveryCacheSkipsNonSetDiscoveryMethodCalls(): void
+    {
+        $container = $this->createContainer();
+
+        $container->register('shopware.mcp.discovery_cache');
+
+        $builderDef = $container->getDefinition('mcp.server.builder');
+        $builderDef->addMethodCall('setSomethingElse', ['arg1']);
+        $builderDef->addMethodCall('setDiscovery', [
+            new Reference('mcp.discovery.reflection'),
+            [],
+            [],
+        ]);
+
+        $pass = new McpToolCompilerPass();
+        $pass->process($container);
+
+        $calls = $builderDef->getMethodCalls();
+        $setDiscoveryCalls = array_filter($calls, fn ($c) => $c[0] === 'setDiscovery');
+
+        static::assertNotEmpty($setDiscoveryCalls);
+
+        $lastCall = end($setDiscoveryCalls);
+        static::assertInstanceOf(Reference::class, $lastCall[1][3]);
+        static::assertSame('shopware.mcp.discovery_cache', (string) $lastCall[1][3]);
+    }
+
     public function testDiscoveryCacheSkippedWhenNoCacheService(): void
     {
         $container = $this->createContainer();

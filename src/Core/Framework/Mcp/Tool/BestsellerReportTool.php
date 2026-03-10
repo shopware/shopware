@@ -154,10 +154,6 @@ class BestsellerReportTool
      */
     private function loadProducts(array $productIds, \Shopware\Core\Framework\Context $context): array
     {
-        if ($productIds === []) {
-            return [];
-        }
-
         $productRepository = $this->registry->getRepository('product');
         $criteria = new Criteria($productIds);
 

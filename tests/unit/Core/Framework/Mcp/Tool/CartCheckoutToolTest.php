@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -77,6 +78,48 @@ class CartCheckoutToolTest extends TestCase
             salesChannelId: Uuid::randomHex(),
             token: 'test-token',
             customerId: Uuid::randomHex(),
+            dryRun: false,
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($data['success']);
+        static::assertFalse($data['_meta']['dryRun']);
+        static::assertSame($orderId, $data['data']['orderId']);
+    }
+
+    public function testOrderPlacementWithCustomPaymentAndShippingIds(): void
+    {
+        $productId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $customPaymentId = Uuid::randomHex();
+        $customShippingId = Uuid::randomHex();
+
+        $cart = $this->createCart($productId, 'Blue T-Shirt', 1, 29.99, 29.99);
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->method('getCart')->willReturn($cart);
+        $cartService->expects($this->once())
+            ->method('order')
+            ->with(
+                $cart,
+                static::anything(),
+                static::callback(function (RequestDataBag $bag) use ($customPaymentId, $customShippingId): bool {
+                    static::assertSame($customPaymentId, $bag->get('paymentMethodId'));
+                    static::assertSame($customShippingId, $bag->get('shippingMethodId'));
+
+                    return true;
+                }),
+            )
+            ->willReturn($orderId);
+
+        $tool = $this->createTool($cart, Uuid::randomHex(), Uuid::randomHex(), $cartService);
+
+        $output = ($tool)(
+            salesChannelId: Uuid::randomHex(),
+            token: 'test-token',
+            customerId: Uuid::randomHex(),
+            paymentMethodId: $customPaymentId,
+            shippingMethodId: $customShippingId,
             dryRun: false,
         );
 

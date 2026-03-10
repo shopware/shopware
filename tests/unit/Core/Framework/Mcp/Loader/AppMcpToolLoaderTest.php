@@ -5,7 +5,10 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\RegistryInterface;
+use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Schema\Tool;
+use Mcp\Server\RequestContext;
+use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -236,6 +239,82 @@ class AppMcpToolLoaderTest extends TestCase
             );
 
         $this->loader->load($registry);
+    }
+
+    public function testRegisteredCallbackInvokesExecutorWithArguments(): void
+    {
+        $toolRow = [
+            'name' => 'sync-orders',
+            'url' => 'https://app.example.com/mcp/sync',
+            'input_schema' => null,
+            'app_name' => 'my-app',
+            'app_secret' => 'test-secret',
+            'label' => 'Sync Orders',
+            'description' => 'Syncs orders',
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+
+        $this->executor->expects($this->once())
+            ->method('execute')
+            ->with('my-app-sync-orders', 'test-secret', 'https://app.example.com/mcp/sync', ['since' => '2025-01-01'])
+            ->willReturn('{"success":true}');
+
+        $capturedCallback = null;
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerTool')
+            ->willReturnCallback(function (Tool $tool, callable $callback) use (&$capturedCallback): void {
+                $capturedCallback = $callback;
+            });
+
+        $this->loader->load($registry);
+
+        static::assertNotNull($capturedCallback);
+
+        $request = new CallToolRequest('my-app-sync-orders', ['since' => '2025-01-01']);
+        $context = new RequestContext(static::createStub(SessionInterface::class), $request);
+
+        $result = ($capturedCallback)($context);
+        static::assertSame('{"success":true}', $result);
+    }
+
+    public function testRegisteredCallbackWithNonCallToolRequestPassesEmptyArguments(): void
+    {
+        $toolRow = [
+            'name' => 'sync-orders',
+            'url' => 'https://app.example.com/mcp/sync',
+            'input_schema' => null,
+            'app_name' => 'my-app',
+            'app_secret' => 'test-secret',
+            'label' => 'Sync Orders',
+            'description' => 'Syncs orders',
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+
+        $this->executor->expects($this->once())
+            ->method('execute')
+            ->with('my-app-sync-orders', 'test-secret', 'https://app.example.com/mcp/sync', [])
+            ->willReturn('{"success":true}');
+
+        $capturedCallback = null;
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerTool')
+            ->willReturnCallback(function (Tool $tool, callable $callback) use (&$capturedCallback): void {
+                $capturedCallback = $callback;
+            });
+
+        $this->loader->load($registry);
+
+        static::assertNotNull($capturedCallback);
+
+        $request = static::createStub(\Mcp\Schema\JsonRpc\Request::class);
+        $context = new RequestContext(static::createStub(SessionInterface::class), $request);
+
+        $result = ($capturedCallback)($context);
+        static::assertSame('{"success":true}', $result);
     }
 
     public function testLoadWithAllowlistSkipsAppToolNotInList(): void

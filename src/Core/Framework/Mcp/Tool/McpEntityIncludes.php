@@ -57,9 +57,7 @@ trait McpEntityIncludes
     private function ensureTranslatedIncludes(EntityDefinition $definition, Criteria $criteria): void
     {
         $includes = $criteria->getIncludes();
-        if ($includes === null) {
-            return;
-        }
+        \assert($includes !== null, 'ensureTranslatedIncludes is only called when includes are set');
 
         $this->addTranslatedToIncludes($includes, $definition, $criteria);
         $criteria->setIncludes($includes);

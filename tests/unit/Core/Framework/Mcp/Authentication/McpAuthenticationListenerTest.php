@@ -10,10 +10,12 @@ use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
@@ -22,6 +24,20 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 #[CoversClass(McpAuthenticationListener::class)]
 class McpAuthenticationListenerTest extends TestCase
 {
+    public function testSubscribedEventsContainsControllerEvent(): void
+    {
+        $events = McpAuthenticationListener::getSubscribedEvents();
+
+        static::assertArrayHasKey(KernelEvents::CONTROLLER, $events);
+
+        $controllerListeners = $events[KernelEvents::CONTROLLER];
+        static::assertIsArray($controllerListeners);
+        static::assertIsArray($controllerListeners[0]);
+        static::assertSame('authenticate', $controllerListeners[0][0]);
+        static::assertArrayHasKey(1, $controllerListeners[0]);
+        static::assertSame(KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_PRIORITY_AUTH_VALIDATE_PRE, $controllerListeners[0][1]);
+    }
+
     public function testSkipsNonMcpRoutes(): void
     {
         $clientRepository = $this->createMock(ClientRepository::class);

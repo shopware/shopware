@@ -44,9 +44,7 @@ class EntitySearchTool
 
         $payload = json_decode($criteria, true, 512, \JSON_THROW_ON_ERROR);
 
-        if ($limit !== 25) {
-            $payload['limit'] = $limit;
-        }
+        $payload['limit'] ??= $limit;
         if ($page > 1) {
             $payload['page'] = $page;
         }

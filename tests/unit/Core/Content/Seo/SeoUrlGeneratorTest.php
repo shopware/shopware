@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Cms\CmsPageDefinition;
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
@@ -19,7 +17,6 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -57,19 +54,14 @@ class SeoUrlGeneratorTest extends TestCase
         $this->salesChannel->setId('sales-channel-id');
     }
 
-    public function testGenerateLoadsMissingCmsPageDataAndGeneratesSeoUrl(): void
+    public function testGenerateProducesSeoUrlWithCorrectFields(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1', 'cmsPageId' => 'cms-1']);
-        $cmsPage = new CmsPageEntity();
-        $cmsPage->setId('cms-1');
+        $entity = new ArrayEntity(['id' => 'entity-1']);
 
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
             new EntityCollection(),
         ], $this->createTestDefinition());
-        $cmsPageRepository = new StaticEntityRepository([
-            new EntityCollection([$cmsPage]),
-        ], new CmsPageDefinition());
 
         $parser = $this->createMock(TwigVariableParser::class);
         $parser->method('parse')->willReturn([]);
@@ -86,23 +78,14 @@ class SeoUrlGeneratorTest extends TestCase
 
         $config = new SeoUrlRouteConfig($this->createTestDefinition(), 'frontend.detail.page', '  seo-path  ', true);
         $route = $this->createMock(SeoUrlRouteInterface::class);
-        $route->expects($this->once())
-            ->method('prepareCriteria')
-            ->willReturnCallback(static fn (\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria $criteria): mixed => $criteria->addAssociation('cmsPage'));
+        $route->method('prepareCriteria');
         $route->method('getConfig')->willReturn($config);
         $route->expects($this->once())
             ->method('getMapping')
-            ->willReturnCallback(function (ArrayEntity $mappedEntity): SeoUrlMapping {
-                static::assertInstanceOf(CmsPageEntity::class, $mappedEntity->get('cmsPage'));
-
-                return new SeoUrlMapping($mappedEntity, ['id' => 'entity-1'], ['name' => 'seo'], 'mapping-warning');
-            });
+            ->willReturn(new SeoUrlMapping($entity, ['id' => 'entity-1'], ['name' => 'seo'], 'mapping-warning'));
 
         $generator = $this->createGenerator(
-            [
-                self::TEST_ENTITY_NAME => $entityRepository,
-                CmsPageDefinition::ENTITY_NAME => $cmsPageRepository,
-            ],
+            [self::TEST_ENTITY_NAME => $entityRepository],
             $twig,
             $parser,
             new NullLogger(),
@@ -280,12 +263,12 @@ class SeoUrlGeneratorTest extends TestCase
         new StaticEntityRepository([], $categoryDefinition);
 
         $parser = $this->createMock(TwigVariableParser::class);
-        $parser->method('parse')->willReturn(['cmsPageIdSwitched', 'cmsPageIdSwitched']);
+        $parser->method('parse')->willReturn(['visibleChildCount', 'visibleChildCount']);
 
         $generator = $this->createGenerator([], parser: $parser);
 
         /** @var array<string> $associations */
-        $associations = $this->invokePrivate($generator, 'getAssociations', ['{{ category.cmsPageIdSwitched }}', $categoryDefinition]);
+        $associations = $this->invokePrivate($generator, 'getAssociations', ['{{ category.visibleChildCount }}', $categoryDefinition]);
         static::assertSame([], array_values($associations));
     }
 
@@ -301,24 +284,6 @@ class SeoUrlGeneratorTest extends TestCase
 
         $this->expectExceptionObject(SeoException::invalidTemplate('broken parser'));
         $this->invokePrivate($generator, 'getAssociations', ['{{ category.name }}', $categoryDefinition]);
-    }
-
-    public function testGetMissingCmsPageDataReturnsEmptyCollectionWhenNoMissingPages(): void
-    {
-        $cmsPage = new CmsPageEntity();
-        $cmsPage->setId('cms-1');
-
-        $entities = new EntityCollection([
-            new ArrayEntity(['id' => 'entity-1', 'cmsPageId' => null]),
-            new ArrayEntity(['id' => 'entity-2', 'cmsPageId' => 'cms-1', 'cmsPage' => $cmsPage]),
-        ]);
-
-        $generator = $this->createGenerator([]);
-
-        /** @var EntityCollection<Entity> $result */
-        $result = $this->invokePrivate($generator, 'getMissingCmsPageData', [$entities, $this->context]);
-
-        static::assertCount(0, $result);
     }
 
     /**

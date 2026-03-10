@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Seo;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Cms\CmsPageDefinition;
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -78,7 +76,7 @@ class SeoUrlGenerator
             $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
             while ($searchResult = $iterator->fetch()) {
-                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template), $criteria, $context);
+                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template));
             }
         }
     }
@@ -94,16 +92,12 @@ class SeoUrlGenerator
         SalesChannelEntity $salesChannel,
         EntitySearchResult $searchResult,
         string $templateName,
-        Criteria $criteria,
-        Context $context
     ): iterable {
         $request = $this->requestStack->getMainRequest();
 
         $basePath = $request ? $request->getBasePath() : '';
 
         $entities = $searchResult->getEntities();
-
-        $cmsPages = $criteria->hasAssociation('cmsPage') ? $this->getMissingCmsPageData($entities, $context) : new EntityCollection();
 
         foreach ($entities as $entity) {
             $seoUrl = new SeoUrlEntity();
@@ -112,16 +106,6 @@ class SeoUrlGenerator
             $seoUrl->setIsCanonical(true);
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
-
-            $cmsPageId = $entity->get('cmsPageId');
-
-            if (
-                $cmsPageId !== null
-                && !$entity->get('cmsPage') instanceof CmsPageEntity
-                && $cmsPages->has($cmsPageId)
-            ) {
-                $entity->assign(['cmsPage' => $cmsPages->get($cmsPageId)]);
-            }
 
             $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
@@ -235,30 +219,5 @@ class SeoUrlGenerator
         }
 
         return array_filter(array_unique($associations));
-    }
-
-    /**
-     * @param EntityCollection<covariant Entity> $entities
-     *
-     * @return EntityCollection<covariant Entity>
-     */
-    private function getMissingCmsPageData(EntityCollection $entities, Context $context): EntityCollection
-    {
-        $cmsPageIds = [];
-
-        foreach ($entities as $entity) {
-            $cmsPageId = $entity->get('cmsPageId');
-
-            if ($cmsPageId !== null && !$entity->get('cmsPage') instanceof CmsPageEntity) {
-                $cmsPageIds[$cmsPageId] = true;
-            }
-        }
-
-        if (!empty($cmsPageIds)) {
-            $cmsPageRepository = $this->definitionRegistry->getRepository(CmsPageDefinition::ENTITY_NAME);
-            $cmsPages = $cmsPageRepository->search(new Criteria(\array_keys($cmsPageIds)), $context);
-        }
-
-        return $cmsPages ?? new EntityCollection();
     }
 }

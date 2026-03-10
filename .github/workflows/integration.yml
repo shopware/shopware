@@ -298,6 +298,7 @@ jobs:
       SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
       S3_BUCKET: "shopware-ci-playwright-traces"
       REPORT_PREFIX: "playwright-reports"
+      DO_NOT_TRACK: 1
     steps:
       - name: Create shopware dirs
         run: mkdir -p old-shopware new-shopware
@@ -471,6 +472,7 @@ jobs:
       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      DO_NOT_TRACK: 1
 
     services:
       elasticsearch:
@@ -529,6 +531,7 @@ jobs:
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
       PREVIOUS_MAJOR_VERSION_BRANCH: "6.6.x"
+      DO_NOT_TRACK: 1
 
     services:
       elasticsearch:
@@ -609,6 +612,7 @@ jobs:
           BLUE_GREEN_DEPLOYMENT: 1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
           PREVIOUS_MAJOR_VERSION_BRANCH: "6.6.x"
+          DO_NOT_TRACK: 1
 
       services:
           elasticsearch:

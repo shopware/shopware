@@ -64,7 +64,7 @@
     {% endif %}
 
     {% if fallbackImageTitle is not defined %}
-        {% set fallbackImageTitle = '' %}
+        {% set fallbackImageTitle = page.product.translated.name|default('') %}
     {% endif %}
 
     {# @var mediaItems \Shopware\Core\Content\Media\MediaCollection #}

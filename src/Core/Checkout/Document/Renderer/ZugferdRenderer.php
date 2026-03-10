@@ -116,11 +116,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
 
         try {
-            $content = $this->documentBuilder->buildDocument(
-                $order,
-                $config,
-                $context,
-            );
+            $content = $this->documentBuilder->buildDocument($order, $config, $context);
 
             $renderResult->addSuccess(
                 $order->getId(),

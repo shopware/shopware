@@ -186,7 +186,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             $order,
             $config,
             $context,
-            ZugferdInvoiceType::CREDITNOTE,
+            ZugferdInvoiceType::CORRECTION,
             $referenceDocumentNumber,
         );
 

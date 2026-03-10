@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('fundamentals@after-sales')]
+#[Package('framework')]
 class ScalarValueType implements EventDataType
 {
     final public const TYPE_STRING = 'string';

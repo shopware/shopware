@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
@@ -77,11 +78,17 @@ class HookableBusinessEvent implements Hookable
 
         if ($type === EntityType::TYPE || $type === EntityCollectionType::TYPE) {
             $entityDefinitionClass = $dataType['entityClass'] ?? null;
-            if (\is_string($entityDefinitionClass) && is_a($entityDefinitionClass, EntityDefinition::class, true)) {
-                $definition = new $entityDefinitionClass();
-                if (!$permissions->isAllowed($definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ)) {
-                    return false;
-                }
+            if (!\is_string($entityDefinitionClass) || !is_a($entityDefinitionClass, EntityDefinition::class, true)) {
+                throw FrameworkException::invalidEventData(\sprintf(
+                    '"entityClass" value of flow event data type "%s" must be a class string of type "%s"',
+                    EntityType::TYPE,
+                    EntityDefinition::class
+                ));
+            }
+
+            $definition = new $entityDefinitionClass();
+            if (!$permissions->isAllowed($definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ)) {
+                return false;
             }
         }
 

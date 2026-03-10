@@ -260,12 +260,15 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function documentHasDependencies(): self
+    public static function documentHasDependencies(array $dependingDocumentNumbers): self
     {
         return new self(
             Response::HTTP_UNPROCESSABLE_ENTITY,
             self::DOCUMENT_HAS_DEPENDENCIES,
-            'The document cannot be deleted because other documents depend on it.'
+            'The document cannot be deleted because other documents depend on it: : {{ documentNumbers }}.',
+            [
+                'documentNumbers' => implode(', ', $dependingDocumentNumbers),
+            ]
         );
     }
 }

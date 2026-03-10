@@ -16,10 +16,13 @@ use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -34,6 +37,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class DocumentDeleteSubscriberTest extends TestCase
 {
     use DocumentTrait;
+    use AdminFunctionalTestBehaviour;
 
     private Context $context;
 
@@ -87,17 +91,8 @@ class DocumentDeleteSubscriberTest extends TestCase
         $a11yMediaId = $documentGenerationResult->getA11yMediaId();
         static::assertNotNull($a11yMediaId);
 
-        $mediaEntity = $this->connection->fetchOne(
-            'SELECT 1 FROM media WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($mediaId)],
-        );
-        static::assertNotFalse($mediaEntity);
-
-        $a11yMediaEntity = $this->connection->fetchOne(
-            'SELECT 1 FROM media WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($a11yMediaId)],
-        );
-        static::assertNotFalse($a11yMediaEntity);
+        static::assertTrue($this->hasMediaEntity($mediaId));
+        static::assertTrue($this->hasMediaEntity($a11yMediaId));
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
@@ -142,17 +137,8 @@ class DocumentDeleteSubscriberTest extends TestCase
             'MediaDeletionSubscriber should be triggered and delete media files.'
         );
 
-        $mediaEntity = $this->connection->fetchOne(
-            'SELECT 1 FROM media WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($mediaId)],
-        );
-        static::assertFalse($mediaEntity, 'Media entity should be deleted when document is deleted.');
-
-        $a11yMediaEntity = $this->connection->fetchOne(
-            'SELECT 1 FROM media WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($a11yMediaId)],
-        );
-        static::assertFalse($a11yMediaEntity, 'Media entity should be deleted when document is deleted.');
+        static::assertFalse($this->hasMediaEntity($mediaId), 'Media entity should be deleted when document is deleted.');
+        static::assertFalse($this->hasMediaEntity($a11yMediaId), 'Media entity should be deleted when document is deleted.');
     }
 
     public function testDeleteDocumentWhichDependsOnOtherDocumentShouldThrowException(): void
@@ -183,6 +169,74 @@ class DocumentDeleteSubscriberTest extends TestCase
         $this->documentRepository->delete([['id' => $invoiceDocumentId]], $this->context);
     }
 
+    public function testDeleteDocumentsInBulkShouldNotThrowExceptionWhenDependentDocumentsShallBeDeletedToo(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCart(1));
+        $invoiceGenerationResult = $this->createDocument(
+            InvoiceRenderer::TYPE,
+            $orderId,
+            [],
+            $this->context,
+        )->first();
+        static::assertNotNull($invoiceGenerationResult);
+
+        $invoiceDocumentId = $invoiceGenerationResult->getId();
+        $invoiceMediaId = $invoiceGenerationResult->getMediaId();
+        static::assertNotNull($invoiceMediaId);
+        $invoiceA11yMediaId = $invoiceGenerationResult->getA11yMediaId();
+        static::assertNotNull($invoiceA11yMediaId);
+
+        static::assertTrue($this->hasMediaEntity($invoiceMediaId));
+        static::assertTrue($this->hasMediaEntity($invoiceA11yMediaId));
+
+        $this->addCreditItemToOrder($orderId);
+
+        $creditNoteDocumentGenerationResult = $this->createDocument(
+            CreditNoteRenderer::TYPE,
+            $orderId,
+            ['referencedDocumentId' => $invoiceDocumentId],
+            $this->context,
+        )->first();
+        static::assertNotNull($creditNoteDocumentGenerationResult);
+
+        $creditNoteDocumentId = $creditNoteDocumentGenerationResult->getId();
+        $creditNoteMediaId = $creditNoteDocumentGenerationResult->getMediaId();
+        static::assertNotNull($creditNoteMediaId);
+        $creditNoteA11yMediaId = $creditNoteDocumentGenerationResult->getA11yMediaId();
+        static::assertNotNull($creditNoteA11yMediaId);
+
+        static::assertTrue($this->hasMediaEntity($creditNoteMediaId));
+        static::assertTrue($this->hasMediaEntity($creditNoteA11yMediaId));
+
+        $data = [
+            [
+                'key' => 'test',
+                'action' => SyncController::ACTION_DELETE,
+                'entity' => static::getContainer()->get(DocumentDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $invoiceDocumentId,
+                    ],
+                    [
+                        'id' => $creditNoteDocumentId,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/sync',
+            [],
+            [],
+            [],
+            json_encode($data, \JSON_THROW_ON_ERROR)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        var_dump($response);
+    }
+
     private function addCreditItemToOrder(string $orderId): void
     {
         $this->orderRepository->upsert(
@@ -201,6 +255,14 @@ class DocumentDeleteSubscriberTest extends TestCase
                 ],
             ]],
             Context::createDefaultContext()
+        );
+    }
+
+    private function hasMediaEntity(string $mediaId): bool
+    {
+        return (bool) $this->connection->fetchAssociative(
+            'SELECT * FROM media WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($mediaId)],
         );
     }
 }

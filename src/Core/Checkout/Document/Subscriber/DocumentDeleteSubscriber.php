@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Subscriber;
 
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -53,7 +55,7 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->checkDependenciesOnDocuments($ids, $context);
+        $this->checkForDependentDocuments($ids, $context);
 
         $criteria = new Criteria($ids);
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
@@ -86,17 +88,34 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
     /**
      * @param list<string> $ids
      */
-    private function checkDependenciesOnDocuments(array $ids, Context $context): void
+    private function checkForDependentDocuments(array $ids, Context $context): void
     {
         $criteria = new Criteria();
         $criteria
+            ->addAssociation('documentType')
             ->addFilter(new EqualsAnyFilter('referencedDocumentId', $ids))
-            ->setLimit(1);
+            ->addFilter(new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [
+                    new EqualsAnyFilter('id', $ids),
+                ]
+            ));
 
-        $dependency = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        $dependentDocuments = $this->documentRepository->search($criteria, $context)->getEntities();
 
-        if ($dependency !== null) {
-            throw DocumentException::documentHasDependencies();
+        if($dependentDocuments->count() === 0) {
+            return;
+        }
+
+        $documentNumbers = $dependentDocuments->fmap(function (DocumentEntity $document) {
+            $id = $document->getId();
+            $type = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
+            $number = $document->getDocumentNumber() ?? 'unknown';
+            return sprintf('%s %s (%s)', $type, $number, $id);
+        });
+
+        if ($documentNumbers !== null) {
+            throw DocumentException::documentHasDependencies($documentNumbers);
         }
     }
 }

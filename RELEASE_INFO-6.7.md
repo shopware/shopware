@@ -293,6 +293,14 @@ This is done by changing the DOM within the `aria-live` region after a short del
 
 Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
 
+### New webhook event: `app.system_heartbeat`
+
+A new hookable event `app.system_heartbeat` was added to indicate that a Shopware instance is up and running.
+This gives app developers a lightweight, platform-native heartbeat signal they can use for operational monitoring or connectivity checks without relying on custom polling.
+
+The heartbeat is emitted by a recurrent scheduled task on a weekly basis, so apps should treat it as a periodic liveness signal, not as a strict scheduling mechanism or real-time telemetry signal.
+No additional ACL privileges are required for this event.
+
 ## Hosting & Configuration
 
 ### Feature flag for enabling OpenSearch globally in the Admin API

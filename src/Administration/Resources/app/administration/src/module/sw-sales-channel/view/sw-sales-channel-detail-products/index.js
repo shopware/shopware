@@ -12,7 +12,11 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+        'acl',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 

@@ -79,7 +79,11 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                     'sw-context-menu-item': {
                         template:
                             '<div class="sw-context-menu-item-stub" :disabled="disabled ? \'true\' : undefined"><slot /></div>',
-                        props: ['disabled', 'routerLink', 'variant'],
+                        props: [
+                            'disabled',
+                            'routerLink',
+                            'variant',
+                        ],
                     },
                     'sw-user-sso-invitation-modal': true,
                     'sw-container': true,

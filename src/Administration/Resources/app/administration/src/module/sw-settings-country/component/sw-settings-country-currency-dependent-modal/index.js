@@ -12,7 +12,11 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    emits: ['modal-close', 'modal-save', 'base-item-change'],
+    emits: [
+        'modal-close',
+        'modal-save',
+        'base-item-change',
+    ],
 
     props: {
         currencyDependsValue: {

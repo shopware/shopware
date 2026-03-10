@@ -15,7 +15,11 @@ type SettingsItemHere = Omit<SettingsItem, 'label'> & {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['acl', 'feature', 'userConfigService'],
+    inject: [
+        'acl',
+        'feature',
+        'userConfigService',
+    ],
 
     data() {
         return {

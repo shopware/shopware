@@ -417,7 +417,11 @@ describe('src/app/service/privileges.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingOne);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingTwo);
 
-        const testPrivileges = ['system.clear_cache', 'system:clear:cache', 'orders:read'];
+        const testPrivileges = [
+            'system.clear_cache',
+            'system:clear:cache',
+            'orders:read',
+        ];
 
         expect(privilegesService.filterPrivilegesRoles(testPrivileges)).toContain('system.clear_cache');
         expect(privilegesService.filterPrivilegesRoles(testPrivileges)).not.toContain('system:clear:cache.');

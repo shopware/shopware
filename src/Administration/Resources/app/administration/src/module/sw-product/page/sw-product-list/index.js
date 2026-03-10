@@ -22,7 +22,11 @@ export default {
         'filterFactory',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing'), Mixin.getByName('placeholder')],
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('listing'),
+        Mixin.getByName('placeholder'),
+    ],
 
     data() {
         const data = {

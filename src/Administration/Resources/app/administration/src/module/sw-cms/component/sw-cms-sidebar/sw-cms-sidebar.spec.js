@@ -359,10 +359,38 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         ['update + create', ['system_config:update', 'system_config:create']],
         ['update + delete', ['system_config:update', 'system_config:delete']],
         ['create + delete', ['system_config:create', 'system_config:delete']],
-        ['read + update + create', ['system_config:read', 'system_config:update', 'system_config:create']],
-        ['read + update + delete', ['system_config:read', 'system_config:update', 'system_config:delete']],
-        ['read + create + delete', ['system_config:read', 'system_config:create', 'system_config:delete']],
-        ['update + create + delete', ['system_config:update', 'system_config:create', 'system_config:delete']],
+        [
+            'read + update + create',
+            [
+                'system_config:read',
+                'system_config:update',
+                'system_config:create',
+            ],
+        ],
+        [
+            'read + update + delete',
+            [
+                'system_config:read',
+                'system_config:update',
+                'system_config:delete',
+            ],
+        ],
+        [
+            'read + create + delete',
+            [
+                'system_config:read',
+                'system_config:create',
+                'system_config:delete',
+            ],
+        ],
+        [
+            'update + create + delete',
+            [
+                'system_config:update',
+                'system_config:create',
+                'system_config:delete',
+            ],
+        ],
     ];
     it.each(defaultLayoutSelectionDataProvider)(
         'should not show the default layout selection with insufficient privileges. [Case: %s]',
@@ -447,7 +475,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
 
         const sections = wrapper.vm.page.sections;
-        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
+        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual([
+            '3cd4',
+            '5ef6',
+            '7gh8',
+        ]);
         expect(Array.from(sections[1].blocks.getIds())).toStrictEqual(['abcd', '1a2b']);
 
         sections[0].blocks.forEach((block, index) => {
@@ -458,7 +490,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             expect(block.position).toBe(index);
         });
 
-        expect(Array.from(sections[0]._origin.blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
+        expect(Array.from(sections[0]._origin.blocks.getIds())).toStrictEqual([
+            '3cd4',
+            '5ef6',
+            '7gh8',
+        ]);
 
         expect(blockDrag.block.sectionId).toBe('2222');
     });

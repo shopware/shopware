@@ -105,7 +105,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
         });
 
         const cases = [
-            ['empty changes', [], {}],
+            [
+                'empty changes',
+                [],
+                {},
+            ],
             [
                 'invalid field',
                 [
@@ -751,7 +755,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'categories',
-                        value: [{ id: 'category_1' }, { id: 'category_2' }, { id: 'category_3' }],
+                        value: [
+                            { id: 'category_1' },
+                            { id: 'category_2' },
+                            { id: 'category_3' },
+                        ],
                     },
                 ],
                 {

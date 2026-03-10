@@ -21,7 +21,11 @@ import template from './sw-confirm-modal.html.twig';
 export default {
     template,
 
-    emits: ['close', 'cancel', 'confirm'],
+    emits: [
+        'close',
+        'cancel',
+        'confirm',
+    ],
 
     props: {
         title: {

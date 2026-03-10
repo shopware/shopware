@@ -66,7 +66,11 @@ export default {
             return Shopware.Store.get('swProductDetail').currencies;
         },
 
-        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
+        ...mapPropertyErrors('product', [
+            'taxId',
+            'price',
+            'purchasePrices',
+        ]),
 
         taxRateHelpText() {
             const link = {

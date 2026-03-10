@@ -10,7 +10,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['excludedSearchTermService', 'repositoryFactory', 'acl'],
+    inject: [
+        'excludedSearchTermService',
+        'repositoryFactory',
+        'acl',
+    ],
 
     emits: ['edit-change', 'data-load'],
 

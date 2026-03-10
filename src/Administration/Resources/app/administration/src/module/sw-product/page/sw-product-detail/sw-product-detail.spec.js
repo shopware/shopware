@@ -269,7 +269,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should always show the correct menu, even with the defaults not matching the userConfig', async () => {
-        const keys = ['general_information', 'prices', 'deliverability'];
+        const keys = [
+            'general_information',
+            'prices',
+            'deliverability',
+        ];
         const mockKey = 'mock_key_without_result';
         const settings = [...keys].map((key) => {
             return {

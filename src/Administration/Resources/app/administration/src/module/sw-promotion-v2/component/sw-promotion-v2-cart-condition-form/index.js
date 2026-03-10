@@ -10,7 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'promotionSyncService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'promotionSyncService',
+    ],
 
     props: {
         promotion: {

@@ -9,7 +9,11 @@ import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.const
 export default {
     template,
 
-    inject: ['ruleConditionDataProviderService', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'ruleConditionDataProviderService',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     emits: ['conditions-changed', 'tree-finished-loading'],
 

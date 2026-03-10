@@ -14,7 +14,11 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'importExport', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'importExport',
+        'feature',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 

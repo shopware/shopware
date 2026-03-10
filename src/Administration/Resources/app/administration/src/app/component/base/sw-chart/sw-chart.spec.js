@@ -348,7 +348,11 @@ describe('asyncComponent/base/sw-chart', () => {
     it('should load the fallback locale when default locale does not exist', async () => {
         Shopware.Store.get('session').setAdminLocaleState({
             locale: 'foo-BAR',
-            locales: ['en-GB', 'nl-NL', 'foo-BAR'],
+            locales: [
+                'en-GB',
+                'nl-NL',
+                'foo-BAR',
+            ],
         });
 
         const wrapper = await setup();

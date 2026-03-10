@@ -312,7 +312,11 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     it('property_group_option: should list all required fields with depth 1', async () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('property_group_option', 1);
 
-        expect(Object.keys(systemRequiredFields)).toEqual(['id', 'group.id', 'translations.DEFAULT.name']);
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'group.id',
+            'translations.DEFAULT.name',
+        ]);
     });
 
     it('property_group_option: should list all required fields with depth 3', async () => {
@@ -334,7 +338,11 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             1,
         );
 
-        expect(Object.keys(systemRequiredFields)).toEqual(['id', 'product.id', 'option.id']);
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'product.id',
+            'option.id',
+        ]);
     });
 
     it('product_configurator_setting: should list all required fields with depth 3', async () => {

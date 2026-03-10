@@ -25,7 +25,11 @@ export default {
             salesChannelOptions: [],
             selectedSalesChannelId: '',
             showLayoutSelectionModal: false,
-            pageTypes: ['page', 'landingpage', 'product_list'],
+            pageTypes: [
+                'page',
+                'landingpage',
+                'product_list',
+            ],
             nextRoute: null,
             isDisplayingLeavePageWarning: false,
         };

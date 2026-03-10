@@ -233,7 +233,11 @@ describe('components/sw-filter-panel', () => {
         const wrapper = await createWrapper();
 
         const itemWithBreadcrumb = {
-            breadcrumb: ['Category 1', 'Category 2', 'Category 3'],
+            breadcrumb: [
+                'Category 1',
+                'Category 2',
+                'Category 3',
+            ],
             name: 'Product Name',
             translated: {
                 name: 'Translated Product Name',

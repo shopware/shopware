@@ -28,7 +28,11 @@ export default {
 
     inject: ['feature'],
 
-    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     props: {
         error: {

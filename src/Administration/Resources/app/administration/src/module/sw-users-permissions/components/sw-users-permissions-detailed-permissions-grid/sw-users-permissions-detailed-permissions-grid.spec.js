@@ -72,7 +72,13 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             expect(entityTitle.text()).toBe(entityName);
 
             // skip default values
-            if (['language', 'locale', 'message_queue_stats'].includes(entityName)) {
+            if (
+                [
+                    'language',
+                    'locale',
+                    'message_queue_stats',
+                ].includes(entityName)
+            ) {
                 return;
             }
 

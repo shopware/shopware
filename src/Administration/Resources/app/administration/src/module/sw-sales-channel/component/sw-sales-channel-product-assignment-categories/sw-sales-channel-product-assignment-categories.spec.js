@@ -99,7 +99,11 @@ async function createWrapper() {
                 `,
                 },
                 'sw-tree-item': {
-                    props: ['item', 'activeItemIds', 'activeParentIds'],
+                    props: [
+                        'item',
+                        'activeItemIds',
+                        'activeParentIds',
+                    ],
                     data() {
                         return {
                             checked: false,

@@ -13,7 +13,11 @@ export default {
 
     inject: ['extensionStoreActionService', 'repositoryFactory'],
 
-    emits: ['buttons-update', 'frw-set-title', 'extension-activated'],
+    emits: [
+        'buttons-update',
+        'frw-set-title',
+        'extension-activated',
+    ],
 
     data() {
         return {

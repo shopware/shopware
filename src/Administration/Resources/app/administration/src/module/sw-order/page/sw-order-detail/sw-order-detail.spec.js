@@ -207,7 +207,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         };
 
         wrapper = await createWrapper({
-            lineItems: [lineItemWithMissingProduct, lineItemWithExistingProduct, previouslyConvertedLineItem],
+            lineItems: [
+                lineItemWithMissingProduct,
+                lineItemWithExistingProduct,
+                previouslyConvertedLineItem,
+            ],
         });
         await flushPromises();
 

@@ -91,7 +91,11 @@ export default {
             this.ensureValueExist();
 
             if (this.condition.value.operator !== undefined) {
-                this.isNumeric = !['=', '!=', 'empty'].includes(this.condition.value.operator);
+                this.isNumeric = ![
+                    '=',
+                    '!=',
+                    'empty',
+                ].includes(this.condition.value.operator);
             }
         },
         onChangeNumeric(value) {

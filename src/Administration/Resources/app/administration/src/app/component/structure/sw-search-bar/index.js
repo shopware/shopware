@@ -40,7 +40,11 @@ export default {
         };
     },
 
-    emits: ['search', 'active-item-index-select', 'keyup-enter'],
+    emits: [
+        'search',
+        'active-item-index-select',
+        'keyup-enter',
+    ],
 
     shortcuts: {
         f: 'setFocus',

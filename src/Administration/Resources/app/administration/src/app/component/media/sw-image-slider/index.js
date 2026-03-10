@@ -80,7 +80,11 @@ export default {
             required: false,
             default: 'arrow',
             validator(value) {
-                return ['arrow', 'button', 'all'].includes(value);
+                return [
+                    'arrow',
+                    'button',
+                    'all',
+                ].includes(value);
             },
         },
 
@@ -142,7 +146,11 @@ export default {
             required: false,
             default: 'inside',
             validator(value) {
-                return ['inside', 'outside', 'none'].includes(value);
+                return [
+                    'inside',
+                    'outside',
+                    'none',
+                ].includes(value);
             },
         },
 
@@ -151,7 +159,11 @@ export default {
             required: false,
             default: 'outside',
             validator(value) {
-                return ['inside', 'outside', 'none'].includes(value);
+                return [
+                    'inside',
+                    'outside',
+                    'none',
+                ].includes(value);
             },
         },
 
@@ -160,7 +172,11 @@ export default {
             required: false,
             default: 'cover',
             validator(value) {
-                return ['contain', 'cover', 'none'].includes(value);
+                return [
+                    'contain',
+                    'cover',
+                    'none',
+                ].includes(value);
             },
         },
     },

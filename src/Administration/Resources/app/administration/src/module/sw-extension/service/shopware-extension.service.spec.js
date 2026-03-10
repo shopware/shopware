@@ -110,9 +110,30 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
         it.each([
             ['installExtension', ['someExtension', 'app']],
-            ['updateExtension', ['someExtension', 'app', true]],
-            ['uninstallExtension', ['someExtension', 'app', true]],
-            ['removeExtension', ['someExtension', 'app', true]],
+            [
+                'updateExtension',
+                [
+                    'someExtension',
+                    'app',
+                    true,
+                ],
+            ],
+            [
+                'uninstallExtension',
+                [
+                    'someExtension',
+                    'app',
+                    true,
+                ],
+            ],
+            [
+                'removeExtension',
+                [
+                    'someExtension',
+                    'app',
+                    true,
+                ],
+            ],
         ])('delegates %s correctly', async (lifecycleMethod, parameters) => {
             await mockedShopwareExtensionService[lifecycleMethod](...parameters);
 

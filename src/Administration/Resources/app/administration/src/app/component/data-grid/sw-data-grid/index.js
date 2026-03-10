@@ -30,7 +30,11 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: ['acl', 'repositoryFactory', 'feature'],
+    inject: [
+        'acl',
+        'repositoryFactory',
+        'feature',
+    ],
 
     emits: [
         'selection-change',

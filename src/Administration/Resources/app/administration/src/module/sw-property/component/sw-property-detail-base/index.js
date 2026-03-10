@@ -67,7 +67,11 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('propertyGroup', ['name', 'displayType', 'sortingType']),
+        ...mapPropertyErrors('propertyGroup', [
+            'name',
+            'displayType',
+            'sortingType',
+        ]),
 
         displayTypeOptions() {
             return this.displayTypes.map((displayType) => {

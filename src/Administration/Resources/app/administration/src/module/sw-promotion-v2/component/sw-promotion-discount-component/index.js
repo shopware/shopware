@@ -15,7 +15,11 @@ const discountHandler = new DiscountHandler();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'ruleConditionDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'ruleConditionDataProviderService',
+    ],
 
     emits: ['discount-delete'],
 

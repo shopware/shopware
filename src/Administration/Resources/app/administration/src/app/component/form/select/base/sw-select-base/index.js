@@ -14,7 +14,11 @@ export default {
 
     inheritAttrs: false,
 
-    emits: ['select-expanded', 'select-collapsed', 'clear'],
+    emits: [
+        'select-expanded',
+        'select-collapsed',
+        'clear',
+    ],
 
     props: {
         isLoading: {

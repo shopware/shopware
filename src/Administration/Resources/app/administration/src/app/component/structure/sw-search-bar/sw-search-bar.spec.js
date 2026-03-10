@@ -841,7 +841,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(module.entities[0].route.name).toBe('sw.sales.channel.create');
     });
 
-    ['order', 'product', 'customer'].forEach((term) => {
+    [
+        'order',
+        'product',
+        'customer',
+    ].forEach((term) => {
         it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
@@ -895,7 +899,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         });
     });
 
-    ['order', 'product', 'customer'].forEach((term) => {
+    [
+        'order',
+        'product',
+        'customer',
+    ].forEach((term) => {
         it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,

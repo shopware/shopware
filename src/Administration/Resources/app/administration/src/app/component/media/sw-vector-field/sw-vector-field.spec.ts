@@ -22,7 +22,11 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
                             <slot name="sw-field-input" />
                         </div>
                     `,
-                    props: ['label', 'description', 'disabled'],
+                    props: [
+                        'label',
+                        'description',
+                        'disabled',
+                    ],
                 },
                 'mt-number-field': {
                     template: '<input class="mt-number-field" :value="modelValue" @input="onInput" @change="onChange" />',

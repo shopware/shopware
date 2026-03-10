@@ -10,9 +10,17 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['acl', 'promotionCodeApiService', 'customFieldDataProviderService'],
+    inject: [
+        'acl',
+        'promotionCodeApiService',
+        'customFieldDataProviderService',
+    ],
 
-    emits: ['generate-individual-codes-finish', 'delete-individual-codes-finish', 'clean-up-codes'],
+    emits: [
+        'generate-individual-codes-finish',
+        'delete-individual-codes-finish',
+        'clean-up-codes',
+    ],
 
     mixins: [Mixin.getByName('placeholder')],
 

@@ -17,7 +17,11 @@ const { snakeCase } = utils.string;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'flowBuilderService',
+        'feature',
+    ],
 
     mixins: [Mixin.getByName('sw-inline-snippet')],
 

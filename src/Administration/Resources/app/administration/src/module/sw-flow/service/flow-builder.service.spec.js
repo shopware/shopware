@@ -302,7 +302,11 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                 datetime: '2023-03-23T12:00:00.000Z',
                 float: 5,
                 int: 1000,
-                multiSelect: ['2', '3', '5'],
+                multiSelect: [
+                    '2',
+                    '3',
+                    '5',
+                ],
                 password: 'shopware',
                 singleSelect: '3',
                 textEditor: 'editor',

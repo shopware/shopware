@@ -100,9 +100,17 @@ export default {
             type: String,
             required: false,
             default: 'right',
-            validValues: ['bottom', 'right', 'left'],
+            validValues: [
+                'bottom',
+                'right',
+                'left',
+            ],
             validator(value) {
-                return ['bottom', 'right', 'left'].includes(value);
+                return [
+                    'bottom',
+                    'right',
+                    'left',
+                ].includes(value);
             },
         },
         allowEntityCreation: {

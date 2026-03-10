@@ -89,7 +89,14 @@ export default {
             return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
-        ...mapState(() => Store.get('swFlow'), ['flow', 'triggerEvents', 'isSequenceEmpty']),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'flow',
+                'triggerEvents',
+                'isSequenceEmpty',
+            ],
+        ),
         ...mapPropertyErrors('flow', ['eventName']),
     },
 

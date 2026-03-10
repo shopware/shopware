@@ -251,7 +251,11 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         expect(wrapper.vm.getCount('products')).toBe(1);
 
         expect(wrapper.emitted('remove-assignment')).toHaveLength(1);
-        expect(wrapper.emitted('remove-assignment')[0]).toEqual(['products', '0', { id: '0' }]);
+        expect(wrapper.emitted('remove-assignment')[0]).toEqual([
+            'products',
+            '0',
+            { id: '0' },
+        ]);
 
         await parentComponent.vm.removeAssignment('products', '0', { id: '0' });
         await flushPromises();
@@ -270,13 +274,21 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         wrapper.vm.onSelectionChange([], { id: '2' }, false);
 
         expect(wrapper.emitted('remove-assignment')).toHaveLength(2);
-        expect(wrapper.emitted('remove-assignment')[1]).toEqual(['products', '2', { id: '2' }]);
+        expect(wrapper.emitted('remove-assignment')[1]).toEqual([
+            'products',
+            '2',
+            { id: '2' },
+        ]);
 
         await parentComponent.vm.removeAssignment('products', '2', { id: '2' });
         await flushPromises();
 
         expect(wrapper.emitted('add-assignment')).toHaveLength(1);
-        expect(wrapper.emitted('add-assignment')[0]).toEqual(['products', '0', { id: '0' }]);
+        expect(wrapper.emitted('add-assignment')[0]).toEqual([
+            'products',
+            '0',
+            { id: '0' },
+        ]);
 
         await parentComponent.vm.addAssignment('products', '0', { id: '0' });
         await flushPromises();

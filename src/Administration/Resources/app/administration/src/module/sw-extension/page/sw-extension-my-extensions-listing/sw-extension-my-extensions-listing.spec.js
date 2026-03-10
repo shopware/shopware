@@ -340,7 +340,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should sort the extensions by their name in an ascending order', async () => {
         const wrapper = await createWrapper();
 
-        const extensionNames = ['very smart plugin', '#1 best plugin', 'semi good plugin'];
+        const extensionNames = [
+            'very smart plugin',
+            '#1 best plugin',
+            'semi good plugin',
+        ];
         const extensions = extensionNames.map((name, i) => {
             return {
                 name,
@@ -361,7 +365,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             '.mt-select__selection',
         );
 
-        const correctOrder = ['very smart plugin', 'semi good plugin', '#1 best plugin'];
+        const correctOrder = [
+            'very smart plugin',
+            'semi good plugin',
+            '#1 best plugin',
+        ];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         orderedExtensions.forEach((currentWrapper, i) => {
             const currentWrapperLabel = currentWrapper.text();
@@ -373,7 +381,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should sort the extensions by their name in an decending order', async () => {
         const wrapper = await createWrapper();
 
-        const extensionNames = ['very smart plugin', '#1 best plugin', 'semi good plugin'];
+        const extensionNames = [
+            'very smart plugin',
+            '#1 best plugin',
+            'semi good plugin',
+        ];
         const extensions = extensionNames.map((name, i) => {
             return {
                 name,
@@ -392,7 +404,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             '.mt-select__selection',
         );
 
-        const correctOrder = ['#1 best plugin', 'semi good plugin', 'very smart plugin'];
+        const correctOrder = [
+            '#1 best plugin',
+            'semi good plugin',
+            'very smart plugin',
+        ];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         orderedExtensions.forEach((currentWrapper, i) => {
             const currentWrapperLabel = currentWrapper.text();
@@ -404,7 +420,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should sort the extensions by their updatedAt property', async () => {
         const wrapper = await createWrapper();
 
-        const unsortedUpdatedAtValues = ['2021-04-22T23:00:00.000Z', '2021-01-22T23:00:00.000Z', '2021-05-22T23:00:00.000Z'];
+        const unsortedUpdatedAtValues = [
+            '2021-04-22T23:00:00.000Z',
+            '2021-01-22T23:00:00.000Z',
+            '2021-05-22T23:00:00.000Z',
+        ];
         const extensions = unsortedUpdatedAtValues.map((updatedAtValue, i) => {
             const extensionName = `extension no. ${i}`;
 
@@ -423,7 +443,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         // not setting the sorting option via the dropdown because the default sorting is by their updatedAt value
 
-        const correctOrder = ['extension no. 2', 'extension no. 0', 'extension no. 1'];
+        const correctOrder = [
+            'extension no. 2',
+            'extension no. 0',
+            'extension no. 1',
+        ];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
 
         orderedExtensions.forEach((currentWrapper, i) => {

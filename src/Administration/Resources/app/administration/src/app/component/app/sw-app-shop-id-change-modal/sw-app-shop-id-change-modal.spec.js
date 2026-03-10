@@ -56,7 +56,11 @@ describe('sw-app-shop-id-change-modal', () => {
                             score: 225,
                             threshold: 75,
                         },
-                        apps: ['Test Foo App', 'Test Bar App', 'Test Baz App'],
+                        apps: [
+                            'Test Foo App',
+                            'Test Bar App',
+                            'Test Baz App',
+                        ],
                     },
                 },
                 global: {

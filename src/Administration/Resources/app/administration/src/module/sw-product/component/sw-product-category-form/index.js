@@ -13,7 +13,11 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+        'feature',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 

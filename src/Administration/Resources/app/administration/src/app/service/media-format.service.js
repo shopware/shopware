@@ -7,7 +7,11 @@
  * @type {string[]}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export const PLAYABLE_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm'];
+export const PLAYABLE_VIDEO_FORMATS = [
+    'video/mp4',
+    'video/ogg',
+    'video/webm',
+];
 
 /**
  * List of audio formats that are playable in most browsers

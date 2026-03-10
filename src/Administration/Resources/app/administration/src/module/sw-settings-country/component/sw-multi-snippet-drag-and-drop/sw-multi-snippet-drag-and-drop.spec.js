@@ -51,7 +51,11 @@ async function createWrapper(customPropsData = {}) {
             },
 
             props: {
-                value: ['address/company', 'symbol/dash', 'address/department'],
+                value: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
                 totalLines: 3,
                 linePosition: 0,
                 ...customPropsData,
@@ -160,7 +164,14 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await flushPromises();
 
         expect(wrapper.emitted('update:value')).toBeTruthy();
-        expect(wrapper.emitted('update:value')[0]).toEqual([0, ['symbol/dash', 'address/company', 'address/department']]);
+        expect(wrapper.emitted('update:value')[0]).toEqual([
+            0,
+            [
+                'symbol/dash',
+                'address/company',
+                'address/department',
+            ],
+        ]);
     });
 
     it('should disable "delete item" menu context if totalLines is equal or less than default min lines', async () => {

@@ -100,7 +100,11 @@ export default {
         },
 
         getTranslations() {
-            return ['label', 'placeholder', 'helpText']
+            return [
+                'label',
+                'placeholder',
+                'helpText',
+            ]
                 .filter((name) => !!this.$attrs[name])
                 .reduce(
                     (translations, name) => ({

@@ -19,7 +19,11 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification'), Mixin.getByName('user-settings')],
+    mixins: [
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
+        Mixin.getByName('user-settings'),
+    ],
 
     data() {
         return {
@@ -44,7 +48,11 @@ export default {
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
-            assignablePageTypes: ['categories', 'products', 'landingPages'],
+            assignablePageTypes: [
+                'categories',
+                'products',
+                'landingPages',
+            ],
             searchConfigEntity: 'cms_page',
             showLayoutSetAsDefaultModal: false,
             defaultCategoryId: '',

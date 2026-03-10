@@ -32,7 +32,11 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [
+        Mixin.getByName('cms-state'),
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
+    ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -1182,7 +1186,11 @@ export default {
         },
 
         resetRelatedStores() {
-            const stores = ['cmsPage', 'swCategoryDetail', 'swProductDetail'];
+            const stores = [
+                'cmsPage',
+                'swCategoryDetail',
+                'swProductDetail',
+            ];
 
             stores.forEach((name) => {
                 try {

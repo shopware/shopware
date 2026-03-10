@@ -157,14 +157,28 @@ export default {
                 ];
             }
 
-            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe'].includes(this.triggerEvent.name)) {
-                return [...this.recipientCustomer, ...this.recipientAdmin, ...this.recipientCustom];
+            if (
+                [
+                    'newsletter.confirm',
+                    'newsletter.register',
+                    'newsletter.unsubscribe',
+                ].includes(this.triggerEvent.name)
+            ) {
+                return [
+                    ...this.recipientCustomer,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
             }
 
             const hasEntityAware = allowAwareConverted.some((allowedAware) => this.entityAware.includes(allowedAware));
 
             if (hasEntityAware) {
-                return [...this.recipientCustomer, ...this.recipientAdmin, ...this.recipientCustom];
+                return [
+                    ...this.recipientCustomer,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
             }
 
             return [...this.recipientAdmin, ...this.recipientCustom];
@@ -187,7 +201,11 @@ export default {
 
         replyToOptions() {
             if (this.triggerEvent.name === 'contact_form.send') {
-                return [...this.recipientDefault, ...this.recipientContactFormMail, ...this.recipientCustom];
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientContactFormMail,
+                    ...this.recipientCustom,
+                ];
             }
 
             return [...this.recipientDefault, ...this.recipientCustom];
@@ -208,7 +226,14 @@ export default {
             return !(this.replyTo === null || this.replyTo === 'contactFormMail');
         },
 
-        ...mapState(() => Store.get('swFlow'), ['mailTemplates', 'triggerEvent', 'triggerActions']),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'mailTemplates',
+                'triggerEvent',
+                'triggerActions',
+            ],
+        ),
     },
 
     created() {

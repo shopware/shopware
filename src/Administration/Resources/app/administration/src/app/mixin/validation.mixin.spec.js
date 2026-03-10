@@ -44,22 +44,68 @@ describe('src/app/mixin/validation.mixin.ts', () => {
     });
 
     [
-        [true, undefined, true],
-        [false, undefined, false],
-        [[true, true, true], undefined, true],
-        [[true, true, false], undefined, false],
-        ['ruleOne,ruleTwo,ruleThree', undefined, true],
-        ['ruleOne,ruleTwo,ruleFour', undefined, false],
-        ['ruleOne', undefined, true],
-        ['ruleFour', undefined, false],
-    ].forEach(([validation, value, expected]) => {
-        it(`should validate correctly. Input: "${validation}" Value: "${value}" Expect: "${expected}"`, async () => {
-            await wrapper.setProps({
-                validation: validation,
-            });
-            wrapper.vm.value = value;
+        [
+            true,
+            undefined,
+            true,
+        ],
+        [
+            false,
+            undefined,
+            false,
+        ],
+        [
+            [
+                true,
+                true,
+                true,
+            ],
+            undefined,
+            true,
+        ],
+        [
+            [
+                true,
+                true,
+                false,
+            ],
+            undefined,
+            false,
+        ],
+        [
+            'ruleOne,ruleTwo,ruleThree',
+            undefined,
+            true,
+        ],
+        [
+            'ruleOne,ruleTwo,ruleFour',
+            undefined,
+            false,
+        ],
+        [
+            'ruleOne',
+            undefined,
+            true,
+        ],
+        [
+            'ruleFour',
+            undefined,
+            false,
+        ],
+    ].forEach(
+        ([
+            validation,
+            value,
+            expected,
+        ]) => {
+            it(`should validate correctly. Input: "${validation}" Value: "${value}" Expect: "${expected}"`, async () => {
+                await wrapper.setProps({
+                    validation: validation,
+                });
+                wrapper.vm.value = value;
 
-            expect(wrapper.vm.isValid).toBe(expected);
-        });
-    });
+                expect(wrapper.vm.isValid).toBe(expected);
+            });
+        },
+    );
 });

@@ -10,7 +10,11 @@ const { Filter } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['feature', 'cmsPageTypeService', 'customEntityDefinitionService'],
+    inject: [
+        'feature',
+        'cmsPageTypeService',
+        'customEntityDefinitionService',
+    ],
 
     emits: ['on-section-select', 'wizard-complete'],
 

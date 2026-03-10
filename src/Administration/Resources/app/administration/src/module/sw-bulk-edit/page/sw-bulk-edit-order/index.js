@@ -13,7 +13,11 @@ const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 export default {
     template,
 
-    inject: ['bulkEditApiFactory', 'repositoryFactory', 'orderDocumentApiService'],
+    inject: [
+        'bulkEditApiFactory',
+        'repositoryFactory',
+        'orderDocumentApiService',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -282,7 +286,11 @@ export default {
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [this.statusFormFields, this.documentsFormFields, this.tagsFormFields];
+            const bulkEditFormGroups = [
+                this.statusFormFields,
+                this.documentsFormFields,
+                this.tagsFormFields,
+            ];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
@@ -436,7 +444,11 @@ export default {
                 syncData: [],
             };
 
-            const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
+            const dataPush = [
+                'orderTransactions',
+                'orderDeliveries',
+                'orders',
+            ];
 
             Object.entries(this.bulkEditData).forEach(([key, item]) => {
                 if (item.isChanged || (key === 'customFields' && item.value)) {

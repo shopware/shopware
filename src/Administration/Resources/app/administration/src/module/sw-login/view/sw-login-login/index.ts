@@ -24,7 +24,11 @@ interface LoginData {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: ['loginService', 'userService', 'licenseViolationService'],
+    inject: [
+        'loginService',
+        'userService',
+        'licenseViolationService',
+    ],
 
     emits: [
         'is-loading',

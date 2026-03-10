@@ -395,7 +395,13 @@ export default class FlowBuilderService {
             return option.label[context.translator.currentLocale] ?? config.label['en-GB'] ?? value;
         }
 
-        if (['datetime', 'date', 'time'].includes(config.type)) {
+        if (
+            [
+                'datetime',
+                'date',
+                'time',
+            ].includes(config.type)
+        ) {
             return new Date(value);
         }
 

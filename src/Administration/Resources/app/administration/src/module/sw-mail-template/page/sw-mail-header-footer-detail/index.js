@@ -17,7 +17,11 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
+    inject: [
+        'entityMappingService',
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 

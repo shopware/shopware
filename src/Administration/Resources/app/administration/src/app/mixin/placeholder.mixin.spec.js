@@ -44,8 +44,22 @@ describe('src/app/mixin/placeholder.mixin.ts', () => {
     });
 
     [
-        [[{ description: 'The product description' }, 'description', 'fallbackSnippet'], 'The product description'],
-        [[undefined, 'description', 'fallbackSnippet'], 'fallbackSnippet'],
+        [
+            [
+                { description: 'The product description' },
+                'description',
+                'fallbackSnippet',
+            ],
+            'The product description',
+        ],
+        [
+            [
+                undefined,
+                'description',
+                'fallbackSnippet',
+            ],
+            'fallbackSnippet',
+        ],
         [
             [
                 {

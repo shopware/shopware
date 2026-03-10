@@ -337,7 +337,11 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     SwExtensionPermissionsModal: {
                         name: 'sw-extension-permissions-modal',
                         template: '<div>permissions modal stub</div>',
-                        props: ['extension-label', 'permissions', 'domains'],
+                        props: [
+                            'extension-label',
+                            'permissions',
+                            'domains',
+                        ],
                     },
                 },
             },

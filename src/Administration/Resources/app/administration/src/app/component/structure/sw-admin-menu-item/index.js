@@ -12,7 +12,11 @@ export default {
 
     inject: ['acl', 'feature'],
 
-    emits: ['menu-item-click', 'menu-item-enter', 'sub-menu-item-enter'],
+    emits: [
+        'menu-item-click',
+        'menu-item-enter',
+        'sub-menu-item-enter',
+    ],
 
     props: {
         entry: {

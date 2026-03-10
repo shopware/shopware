@@ -192,7 +192,13 @@ export default Mixin.register(
                 if (fieldClone.type === 'single-select' && fieldClone.config.options) {
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
                         return {
-                            label: this.$tc([...snippetBasePath, 'options', value].join('.')),
+                            label: this.$tc(
+                                [
+                                    ...snippetBasePath,
+                                    'options',
+                                    value,
+                                ].join('.'),
+                            ),
                             value,
                         };
                     });

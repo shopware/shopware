@@ -3,7 +3,7 @@ module.exports = {
     tabWidth: 4,
     printWidth: 125,
     trailingComma: 'all',
-    multilineArraysWrapThreshold: 3,
+    multilineArraysWrapThreshold: 2,
     plugins: [
         'prettier-plugin-multiline-arrays',
     ],

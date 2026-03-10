@@ -61,7 +61,13 @@ export default {
         },
 
         categoryTypeHelpText() {
-            if (['page', 'folder', 'link'].includes(this.category.type)) {
+            if (
+                [
+                    'page',
+                    'folder',
+                    'link',
+                ].includes(this.category.type)
+            ) {
                 return this.$tc(`sw-category.base.general.types.helpText.${this.category.type}`);
             }
 

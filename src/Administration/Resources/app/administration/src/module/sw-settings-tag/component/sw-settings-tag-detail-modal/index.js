@@ -11,7 +11,11 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'syncService', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'syncService',
+        'acl',
+    ],
 
     emits: ['close', 'finish'],
 

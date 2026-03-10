@@ -68,17 +68,29 @@ async function createWrapper(startingValue) {
                     props: ['value'],
                 },
                 'sw-email-field': {
-                    props: ['value', 'label', 'placeholder'],
+                    props: [
+                        'value',
+                        'label',
+                        'placeholder',
+                    ],
                     template:
                         '<input class="sw-email-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
                 },
                 'sw-text-field': {
-                    props: ['value', 'label', 'placeholder'],
+                    props: [
+                        'value',
+                        'label',
+                        'placeholder',
+                    ],
                     template:
                         '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
                 },
                 'sw-entity-single-select': {
-                    props: ['value', 'label', 'placeholder'],
+                    props: [
+                        'value',
+                        'label',
+                        'placeholder',
+                    ],
                     template:
                         '<input class="sw-entity-single-select" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
                 },

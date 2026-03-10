@@ -10,7 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'syncService', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'syncService',
+        'acl',
+    ],
 
     emits: ['landing-page-checked-elements-count', 'unsaved-changes'],
 

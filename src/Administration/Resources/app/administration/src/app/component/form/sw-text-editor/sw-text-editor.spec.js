@@ -1118,7 +1118,11 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.selection).not.toBeNull();
         expect(wrapper.vm.hasSelection).toBe(true);
 
-        const popoverClasses = ['sw-popover__wrapper', 'mt-popover-deprecated__wrapper', 'mt-floating-ui__content'];
+        const popoverClasses = [
+            'sw-popover__wrapper',
+            'mt-popover-deprecated__wrapper',
+            'mt-floating-ui__content',
+        ];
 
         popoverClasses.forEach((popoverClass) => {
             const popoverElement = document.createElement('div');

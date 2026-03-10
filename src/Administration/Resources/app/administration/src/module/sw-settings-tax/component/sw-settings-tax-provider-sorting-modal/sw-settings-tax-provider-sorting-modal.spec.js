@@ -74,7 +74,11 @@ describe('module/sw-settings-tax/component/sw-settings-tax-provider-sorting-moda
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const sortedItems = ['item-1', 'item-2', 'item-3'];
+        const sortedItems = [
+            'item-1',
+            'item-2',
+            'item-3',
+        ];
         wrapper.vm.onSort(sortedItems);
 
         expect(wrapper.vm.sortedTaxProviders).toEqual(sortedItems);

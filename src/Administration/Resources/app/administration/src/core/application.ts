@@ -647,7 +647,11 @@ class ApplicationBootstrapper {
             .filter(([pluginName]) => {
                 // Filter the swag-commercial bundle because it was loaded beforehand
                 // Filter the Administration bundle because it is the main application
-                return !['swag-commercial', 'SwagCommercial', 'Administration'].includes(pluginName);
+                return ![
+                    'swag-commercial',
+                    'SwagCommercial',
+                    'Administration',
+                ].includes(pluginName);
             })
             .map(([, plugin]) => this.injectPlugin(plugin));
 

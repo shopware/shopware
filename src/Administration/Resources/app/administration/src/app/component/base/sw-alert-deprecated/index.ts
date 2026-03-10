@@ -51,9 +51,17 @@ export default Shopware.Component.wrapComponentConfig({
             type: String as PropType<AppearanceType>,
             required: false,
             default: 'default',
-            validValues: ['default', 'notification', 'system'],
+            validValues: [
+                'default',
+                'notification',
+                'system',
+            ],
             validator(value: string) {
-                return ['default', 'notification', 'system'].includes(value);
+                return [
+                    'default',
+                    'notification',
+                    'system',
+                ].includes(value);
             },
         },
         title: {

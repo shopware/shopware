@@ -30,7 +30,11 @@ async function createWrapper() {
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot></slot></div>',
-                    props: ['title', 'name', 'activeTab'],
+                    props: [
+                        'title',
+                        'name',
+                        'activeTab',
+                    ],
                 },
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
@@ -38,7 +42,11 @@ async function createWrapper() {
                 'mt-select': {
                     template:
                         '<select class="mt-select" :value="modelValue" @change="$emit(`update:modelValue`, $event.target.value)"><slot></slot></select>',
-                    props: ['modelValue', 'options', 'disabled'],
+                    props: [
+                        'modelValue',
+                        'options',
+                        'disabled',
+                    ],
                 },
                 'mt-text-field': {
                     template:

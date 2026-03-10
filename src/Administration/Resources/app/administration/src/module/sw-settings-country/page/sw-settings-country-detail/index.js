@@ -12,7 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -134,7 +138,11 @@ export default {
 
             this.countryId = this.$route.params.id.toLowerCase();
 
-            Promise.all([this.loadEntityData(), this.loadCustomFieldSets(), this.loadUserConfig()]);
+            Promise.all([
+                this.loadEntityData(),
+                this.loadCustomFieldSets(),
+                this.loadUserConfig(),
+            ]);
         },
 
         loadEntityData() {

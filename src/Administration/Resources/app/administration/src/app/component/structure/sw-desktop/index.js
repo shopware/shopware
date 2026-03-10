@@ -11,7 +11,11 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: ['feature', 'shopIdChangeService', 'userActivityApiService'],
+    inject: [
+        'feature',
+        'shopIdChangeService',
+        'userActivityApiService',
+    ],
 
     data() {
         return {

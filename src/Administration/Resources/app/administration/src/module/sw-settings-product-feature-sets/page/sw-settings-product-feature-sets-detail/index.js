@@ -10,7 +10,11 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+    ],
 
     mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
@@ -74,7 +78,11 @@ export default {
             };
         },
 
-        ...mapPropertyErrors('productFeatureSet', ['name', 'description', 'features.id']),
+        ...mapPropertyErrors('productFeatureSet', [
+            'name',
+            'description',
+            'features.id',
+        ]),
     },
 
     watch: {

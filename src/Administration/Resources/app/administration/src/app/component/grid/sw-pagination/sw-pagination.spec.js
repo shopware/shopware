@@ -246,7 +246,11 @@ describe('src/component/grid/sw-pagination', () => {
     it('should return correct range', async () => {
         const range = wrapper.vm.range(1, 3);
 
-        expect(range).toEqual([1, 2, 3]);
+        expect(range).toEqual([
+            1,
+            2,
+            3,
+        ]);
     });
 
     it('should be visible when autoHide is set to false', async () => {

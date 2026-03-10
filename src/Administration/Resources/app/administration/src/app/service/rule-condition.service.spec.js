@@ -123,7 +123,11 @@ describe('src/app/service/rule-condition.service.js', () => {
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [{ type: 'andContainer' }, { type: 'conditionType1' }, { type: 'conditionType2' }];
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType1' },
+            { type: 'conditionType2' },
+        ];
 
         const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
 
@@ -174,7 +178,11 @@ describe('src/app/service/rule-condition.service.js', () => {
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [{ type: 'andContainer' }, { type: 'conditionType2' }, { type: 'conditionType3' }];
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType2' },
+            { type: 'conditionType3' },
+        ];
 
         const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
 
@@ -204,7 +212,11 @@ describe('src/app/service/rule-condition.service.js', () => {
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [{ type: 'andContainer' }, { type: 'conditionType2' }, { type: 'conditionType3' }];
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType2' },
+            { type: 'conditionType3' },
+        ];
 
         const restricted = ruleConditionService.getRestrictedAssociations(conditions);
 
@@ -216,7 +228,11 @@ describe('src/app/service/rule-condition.service.js', () => {
         const ruleConditionService = new RuleConditionService();
 
         let translatedViolations = ruleConditionService.getTranslatedConditionViolationList(
-            [{ label: 'violation1' }, { label: 'violation2' }, { label: 'violation3' }],
+            [
+                { label: 'violation1' },
+                { label: 'violation2' },
+                { label: 'violation3' },
+            ],
             'and',
         );
         expect(translatedViolations).toBe('"violation1", "violation2" and "violation3"');
@@ -234,7 +250,11 @@ describe('src/app/service/rule-condition.service.js', () => {
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [{ type: 'andContainer' }, { type: 'conditionType2' }, { type: 'conditionType3' }];
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType2' },
+            { type: 'conditionType3' },
+        ];
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
         expect(tooltipConfig.disabled).toBeTruthy();
@@ -268,7 +288,11 @@ describe('src/app/service/rule-condition.service.js', () => {
             label: 'conditionType3Label',
         });
 
-        const conditions = [{ type: 'andContainer' }, { type: 'conditionType1' }, { type: 'conditionType3' }];
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType1' },
+            { type: 'conditionType3' },
+        ];
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
         expect(tooltipConfig.disabled).toBeFalsy();

@@ -21,7 +21,11 @@ export default {
         'systemConfigApiService',
     ],
 
-    emits: ['media-item-rename-success', 'media-item-replaced', 'update:item'],
+    emits: [
+        'media-item-rename-success',
+        'media-item-replaced',
+        'update:item',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

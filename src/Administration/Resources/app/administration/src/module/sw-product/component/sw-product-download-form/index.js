@@ -14,7 +14,11 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'configService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'configService',
+    ],
 
     emits: ['media-open'],
 

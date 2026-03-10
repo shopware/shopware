@@ -101,7 +101,11 @@ async function createWrapper(privileges = []) {
 
                 'sw-entity-multi-select': true,
                 'sw-entity-listing': {
-                    props: ['items', 'dataSource', 'detailRoute'],
+                    props: [
+                        'items',
+                        'dataSource',
+                        'detailRoute',
+                    ],
                     template: `
                         <div>
                             <template v-for="item in (dataSource || items)" :key="item.id">
@@ -230,7 +234,11 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should not be able add an integration with admin-role as a non-admin', async () => {
-        const wrapper = await createWrapper(['integration.viewer', 'integration.editor', 'integration.deleter']);
+        const wrapper = await createWrapper([
+            'integration.viewer',
+            'integration.editor',
+            'integration.deleter',
+        ]);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         await editMenuItem.trigger('click');

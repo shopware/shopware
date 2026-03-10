@@ -16,7 +16,11 @@ const { CUSTOMER } = Shopware.Constants;
 export default {
     template,
 
-    inject: ['acl', 'contextStoreService', 'repositoryFactory'],
+    inject: [
+        'acl',
+        'contextStoreService',
+        'repositoryFactory',
+    ],
 
     mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 

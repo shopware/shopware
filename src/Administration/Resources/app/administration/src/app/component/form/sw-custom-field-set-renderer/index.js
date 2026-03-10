@@ -31,7 +31,11 @@ export default {
         };
     },
 
-    emits: ['process-finish', 'save', 'change-active-selection'],
+    emits: [
+        'process-finish',
+        'save',
+        'change-active-selection',
+    ],
 
     mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('placeholder')],
 

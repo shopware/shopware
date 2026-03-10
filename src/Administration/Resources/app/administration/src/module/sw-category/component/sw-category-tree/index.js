@@ -554,9 +554,11 @@ export default {
         isErrorNavigationEntryPoint(category) {
             const { navigationSalesChannels, serviceSalesChannels, footerSalesChannels } = category;
 
-            return [navigationSalesChannels, serviceSalesChannels, footerSalesChannels].some(
-                (navigation) => navigation !== null && navigation?.length > 0,
-            );
+            return [
+                navigationSalesChannels,
+                serviceSalesChannels,
+                footerSalesChannels,
+            ].some((navigation) => navigation !== null && navigation?.length > 0);
         },
 
         entryPointWarningMessage(category) {

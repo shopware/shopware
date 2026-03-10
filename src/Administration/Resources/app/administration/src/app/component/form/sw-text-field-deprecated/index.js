@@ -21,9 +21,17 @@ export default {
 
     inject: ['feature'],
 
-    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
-    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error'), Mixin.getByName('validation')],
+    mixins: [
+        Mixin.getByName('sw-form-field'),
+        Mixin.getByName('remove-api-error'),
+        Mixin.getByName('validation'),
+    ],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types, vue/require-default-prop

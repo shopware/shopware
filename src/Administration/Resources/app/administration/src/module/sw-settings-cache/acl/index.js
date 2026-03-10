@@ -7,7 +7,11 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     key: 'system',
     roles: {
         clear_cache: {
-            privileges: ['system:clear:cache', 'system:cache:info', 'api_action_cache_index'],
+            privileges: [
+                'system:clear:cache',
+                'system:cache:info',
+                'api_action_cache_index',
+            ],
             dependencies: [],
         },
     },

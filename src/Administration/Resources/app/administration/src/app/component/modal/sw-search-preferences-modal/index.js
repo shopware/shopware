@@ -14,7 +14,11 @@ const { Mixin, Module } = Shopware;
 export default {
     template,
 
-    inject: ['searchPreferencesService', 'searchRankingService', 'userConfigService'],
+    inject: [
+        'searchPreferencesService',
+        'searchRankingService',
+        'userConfigService',
+    ],
 
     emits: ['modal-close'],
 

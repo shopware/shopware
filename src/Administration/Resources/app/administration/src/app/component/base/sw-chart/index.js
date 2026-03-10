@@ -131,7 +131,11 @@ export default {
             required: false,
             default: null,
             validator(givenValue) {
-                return ['minute', 'hour', 'day'].includes(givenValue);
+                return [
+                    'minute',
+                    'hour',
+                    'day',
+                ].includes(givenValue);
             },
         },
 

@@ -139,7 +139,13 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
  * @returns {[[object,boolean, boolean]]} [i][0] Array of options for the mockItem, [i][1] flag for if 'isSpatial', [i][2] flag for if 'isArReady'
  */
 function provide2DMockOptions() {
-    return [[{}, false, false]];
+    return [
+        [
+            {},
+            false,
+            false,
+        ],
+    ];
 }
 
 /**

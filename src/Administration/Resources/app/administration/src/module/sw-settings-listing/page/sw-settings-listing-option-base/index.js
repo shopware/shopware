@@ -74,7 +74,11 @@ export default {
 
     methods: {
         createdComponent() {
-            Promise.all([this.fetchProductSortingEntity(), this.fetchCustomFields(), this.fetchDefaultSorting()]);
+            Promise.all([
+                this.fetchProductSortingEntity(),
+                this.fetchCustomFields(),
+                this.fetchDefaultSorting(),
+            ]);
         },
 
         fetchProductSortingEntity() {

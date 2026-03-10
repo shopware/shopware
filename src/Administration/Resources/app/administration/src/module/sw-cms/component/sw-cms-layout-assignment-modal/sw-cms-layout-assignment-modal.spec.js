@@ -931,7 +931,13 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper('landingpage');
 
         expect(wrapper.vm.previousLandingPages).toEqual(mockLandingPages);
-        expect(wrapper.vm.previousLandingPageIds).toEqual(expect.arrayContaining(['uuidLand1', 'uuidLand2', 'uuidLand3']));
+        expect(wrapper.vm.previousLandingPageIds).toEqual(
+            expect.arrayContaining([
+                'uuidLand1',
+                'uuidLand2',
+                'uuidLand3',
+            ]),
+        );
     });
 
     it('should add landing pages', async () => {

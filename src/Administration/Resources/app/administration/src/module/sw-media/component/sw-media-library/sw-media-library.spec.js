@@ -92,7 +92,11 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
 describe('src/module/sw-media/component/sw-media-library/index', () => {
     it('should allow loading of additional folders', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [5, 5, 3],
+            folderAmount: [
+                5,
+                5,
+                3,
+            ],
             mediaAmount: [5, 3],
         });
         await flushPromises();
@@ -144,7 +148,11 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     it('should allow loading of additional media', async () => {
         const wrapper = await createWrapper({
             folderAmount: [5, 3],
-            mediaAmount: [5, 5, 3],
+            mediaAmount: [
+                5,
+                5,
+                3,
+            ],
         });
         await flushPromises();
 

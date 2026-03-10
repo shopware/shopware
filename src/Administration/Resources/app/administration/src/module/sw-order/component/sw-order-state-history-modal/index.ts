@@ -66,7 +66,11 @@ export default Component.wrapComponentConfig({
             limit: 10,
             page: 1,
             total: 0,
-            steps: [5, 10, 25],
+            steps: [
+                5,
+                10,
+                25,
+            ],
         };
     },
 
@@ -90,7 +94,11 @@ export default Component.wrapComponentConfig({
 
             criteria.addFilter(Criteria.equalsAny('state_machine_history.referencedId', entityIds));
             criteria.addFilter(
-                Criteria.equalsAny('state_machine_history.entityName', ['order', 'order_transaction', 'order_delivery']),
+                Criteria.equalsAny('state_machine_history.entityName', [
+                    'order',
+                    'order_transaction',
+                    'order_delivery',
+                ]),
             );
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');

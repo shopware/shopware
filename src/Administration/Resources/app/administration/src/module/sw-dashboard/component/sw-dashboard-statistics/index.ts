@@ -54,7 +54,11 @@ interface ComponentData {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory', 'stateStyleDataProviderService', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'stateStyleDataProviderService',
+        'acl',
+    ],
 
     data(): ComponentData {
         return {

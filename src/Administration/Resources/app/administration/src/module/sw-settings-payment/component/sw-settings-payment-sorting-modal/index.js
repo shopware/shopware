@@ -10,7 +10,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['acl', 'repositoryFactory', 'feature'],
+    inject: [
+        'acl',
+        'repositoryFactory',
+        'feature',
+    ],
 
     emits: ['modal-close', 'modal-save'],
 

@@ -89,7 +89,11 @@ describe('shopIdChangeService', () => {
                 score: 225,
                 threshold: 75,
             },
-            apps: ['Test Foo App', 'Test Bar App', 'Test Baz App'],
+            apps: [
+                'Test Foo App',
+                'Test Bar App',
+                'Test Baz App',
+            ],
         };
 
         clientMock.onPost('app-system/shop-id/check').reply(200, response);

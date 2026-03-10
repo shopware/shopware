@@ -86,7 +86,14 @@ export default {
         },
 
         onToggleMenu(event, button) {
-            if (!['link', 'table', 'foreColor'].includes(button.type) && !button.children) {
+            if (
+                ![
+                    'link',
+                    'table',
+                    'foreColor',
+                ].includes(button.type) &&
+                !button.children
+            ) {
                 return;
             }
 

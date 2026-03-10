@@ -103,7 +103,11 @@ export default {
 
             criteria.addFilter(Criteria.equalsAny('state_machine_history.referencedId', entityIds));
             criteria.addFilter(
-                Criteria.equalsAny('state_machine_history.entityName', ['order', 'order_transaction', 'order_delivery']),
+                Criteria.equalsAny('state_machine_history.entityName', [
+                    'order',
+                    'order_transaction',
+                    'order_delivery',
+                ]),
             );
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');

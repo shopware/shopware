@@ -19,7 +19,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                     },
                     'sw-category-tree': {
                         template: '<div class="sw-category-tree"></div>',
-                        props: ['allowEdit', 'allowCreate', 'allowDelete'],
+                        props: [
+                            'allowEdit',
+                            'allowCreate',
+                            'allowDelete',
+                        ],
                     },
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot></slot></div>',
@@ -166,7 +170,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should allow to delete', async () => {
-        global.activeAclRoles = ['category.creator', 'category.editor', 'category.deleter'];
+        global.activeAclRoles = [
+            'category.creator',
+            'category.editor',
+            'category.deleter',
+        ];
 
         const wrapper = await createWrapper();
 
@@ -190,7 +198,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should set default layout', async () => {
-        global.activeAclRoles = ['category.creator', 'category.editor', 'category.deleter'];
+        global.activeAclRoles = [
+            'category.creator',
+            'category.editor',
+            'category.deleter',
+        ];
 
         const wrapper = await createWrapper();
 

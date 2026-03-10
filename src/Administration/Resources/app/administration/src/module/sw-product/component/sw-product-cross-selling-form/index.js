@@ -53,7 +53,11 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('crossSelling', ['name', 'type', 'position']),
+        ...mapPropertyErrors('crossSelling', [
+            'name',
+            'type',
+            'position',
+        ]),
 
         product() {
             return Shopware.Store.get('swProductDetail').product;

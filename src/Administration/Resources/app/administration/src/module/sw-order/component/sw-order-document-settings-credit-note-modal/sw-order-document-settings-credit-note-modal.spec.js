@@ -291,7 +291,11 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.vm.createdComponent();
 
         // Filtered and sorted
-        expect(wrapper.vm.invoiceNumbers).toEqual(['INVOICE_001', 'INVOICE_002', 'INVOICE_003']);
+        expect(wrapper.vm.invoiceNumbers).toEqual([
+            'INVOICE_001',
+            'INVOICE_002',
+            'INVOICE_003',
+        ]);
     });
 
     it('should emit loading-document onCreateDocument', async () => {

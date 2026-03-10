@@ -12,7 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'domainLinkService',
+    ],
 
     mixins: [Mixin.getByName('listing')],
 

@@ -197,7 +197,11 @@ const swProductDetail = Shopware.Store.register({
                 return true;
             }
 
-            const cardKeys = ['essential_characteristics', 'custom_fields', 'labelling'];
+            const cardKeys = [
+                'essential_characteristics',
+                'custom_fields',
+                'labelling',
+            ];
 
             if (cardKeys.includes(key) && !this.showModeSetting) {
                 return false;

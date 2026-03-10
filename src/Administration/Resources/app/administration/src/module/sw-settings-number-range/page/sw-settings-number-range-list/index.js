@@ -13,7 +13,11 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing'), Mixin.getByName('placeholder')],
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('listing'),
+        Mixin.getByName('placeholder'),
+    ],
 
     data() {
         return {

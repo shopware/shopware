@@ -404,7 +404,11 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('salesChannel', ['name', 'customerGroupId', 'navigationCategoryId']),
+        ...mapPropertyErrors('salesChannel', [
+            'name',
+            'customerGroupId',
+            'navigationCategoryId',
+        ]),
 
         ...mapPropertyErrors('productExport', [
             'productStreamId',

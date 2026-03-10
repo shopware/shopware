@@ -7,7 +7,11 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     key: 'custom_field',
     roles: {
         viewer: {
-            privileges: ['custom_field_set:read', 'custom_field_set_relation:read', 'custom_field:read'],
+            privileges: [
+                'custom_field_set:read',
+                'custom_field_set_relation:read',
+                'custom_field:read',
+            ],
             dependencies: [],
         },
         editor: {

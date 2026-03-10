@@ -12,7 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'systemConfigApiService',
+    ],
 
     mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 

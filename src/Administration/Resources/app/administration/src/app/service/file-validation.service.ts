@@ -30,7 +30,11 @@ export default function fileValidationService(): FileValidationService {
         'video/x-matroska': ['mkv'],
         'video/x-flv': ['flv'],
         'video/ogg': ['ogv'],
-        'audio/ogg': ['ogg', 'ogv', 'oga'],
+        'audio/ogg': [
+            'ogg',
+            'ogv',
+            'oga',
+        ],
         'video/quicktime': ['mov'],
         'video/mp4': ['mp4'],
         'audio/mp4': ['mp4'],

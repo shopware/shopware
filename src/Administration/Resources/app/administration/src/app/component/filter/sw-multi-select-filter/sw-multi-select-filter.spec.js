@@ -94,7 +94,11 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         await wrapper.getComponent('.sw-entity-multi-select').vm.$emit('update:entity-collection', entities);
 
-        const [name, criteria, value] = wrapper.emitted('filter-update')[0];
+        const [
+            name,
+            criteria,
+            value,
+        ] = wrapper.emitted('filter-update')[0];
 
         expect(name).toBe('category-filter');
         expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
@@ -108,7 +112,11 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         await wrapper.getComponent('.sw-entity-multi-select').vm.$emit('update:entity-collection', translatedEntities);
 
-        const [name, criteria, value] = wrapper.emitted('filter-update')[0];
+        const [
+            name,
+            criteria,
+            value,
+        ] = wrapper.emitted('filter-update')[0];
 
         expect(name).toBe('category-filter');
         expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
@@ -218,7 +226,11 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         await wrapper.getComponent('.sw-multi-select').vm.$emit('update:value', [filter.options[0].key]);
         expect(wrapper.emitted('filter-update')).toEqual([
-            ['category-filter', [Criteria.equalsAny('category', ['option1'])], ['option1']],
+            [
+                'category-filter',
+                [Criteria.equalsAny('category', ['option1'])],
+                ['option1'],
+            ],
         ]);
     });
 

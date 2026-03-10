@@ -49,7 +49,13 @@ async function createWrapper(customPropsData = {}) {
                     },
                 ],
                 currentPosition: 0,
-                addressFormat: [['address/company', 'symbol/dash', 'address/department']],
+                addressFormat: [
+                    [
+                        'address/company',
+                        'symbol/dash',
+                        'address/department',
+                    ],
+                ],
                 ...customPropsData,
             },
 

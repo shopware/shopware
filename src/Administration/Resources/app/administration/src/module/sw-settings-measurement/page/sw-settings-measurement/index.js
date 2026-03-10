@@ -11,7 +11,11 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+        'acl',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 

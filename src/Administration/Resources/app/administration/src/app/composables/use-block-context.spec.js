@@ -40,7 +40,11 @@ describe('use-block-context', () => {
         addBlock('test', testSlot3);
 
         expect(blockContext).toStrictEqual({
-            test: [testSlot1, testSlot2, testSlot3],
+            test: [
+                testSlot1,
+                testSlot2,
+                testSlot3,
+            ],
         });
     });
 

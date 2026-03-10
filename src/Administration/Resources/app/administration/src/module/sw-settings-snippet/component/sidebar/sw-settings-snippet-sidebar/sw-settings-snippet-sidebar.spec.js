@@ -83,7 +83,11 @@ describe('sw-settings-snippet-sidebar', () => {
                 order: false,
                 customer: false,
             },
-            filterItems: ['product', 'order', 'customer'],
+            filterItems: [
+                'product',
+                'order',
+                'customer',
+            ],
         });
         expect(wrapper.vm.isExpandedMoreFilters).toBe(true);
     });

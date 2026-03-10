@@ -16,7 +16,11 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: ['selection-add', 'selection-remove', 'categories-load-more'],
+    emits: [
+        'selection-add',
+        'selection-remove',
+        'categories-load-more',
+    ],
 
     props: {
         categoriesCollection: {

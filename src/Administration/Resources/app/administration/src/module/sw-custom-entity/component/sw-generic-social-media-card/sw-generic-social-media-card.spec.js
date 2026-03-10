@@ -59,7 +59,11 @@ async function createWrapper() {
                 },
                 'sw-media-modal-v2': {
                     template: '<div class="sw-media-modal-v2"></div>',
-                    props: ['variant', 'caption', 'allowMultiSelect'],
+                    props: [
+                        'variant',
+                        'caption',
+                        'allowMultiSelect',
+                    ],
                 },
             },
             provide: {

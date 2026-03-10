@@ -19,14 +19,22 @@ describe('src/core/service/timezone.service.ts', () => {
 
         it('returns data correctly', async () => {
             jest.mock('@vvo/tzdb/time-zones-names.json', () => ({
-                default: ['America/New_York', 'Europe/Berlin', 'Asia/Ho_Chi_Minh'],
+                default: [
+                    'America/New_York',
+                    'Europe/Berlin',
+                    'Asia/Ho_Chi_Minh',
+                ],
             }));
 
             const timezoneService = new TimezoneService();
 
             const timeZoneResult = await timezoneService.loadTimezones();
             expect(timeZoneResult.default).toEqual(
-                expect.arrayContaining(['America/New_York', 'Europe/Berlin', 'Asia/Ho_Chi_Minh']),
+                expect.arrayContaining([
+                    'America/New_York',
+                    'Europe/Berlin',
+                    'Asia/Ho_Chi_Minh',
+                ]),
             );
         });
     });

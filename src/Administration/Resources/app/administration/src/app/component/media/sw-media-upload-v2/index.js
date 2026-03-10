@@ -43,7 +43,11 @@ export default {
 
     props: {
         source: {
-            type: [Object, String, File],
+            type: [
+                Object,
+                String,
+                File,
+            ],
             required: false,
             default: null,
         },
@@ -51,9 +55,17 @@ export default {
         variant: {
             type: String,
             required: false,
-            validValues: ['compact', 'regular', 'small'],
+            validValues: [
+                'compact',
+                'regular',
+                'small',
+            ],
             validator(value) {
-                return ['compact', 'regular', 'small'].includes(value);
+                return [
+                    'compact',
+                    'regular',
+                    'small',
+                ].includes(value);
             },
             default: 'regular',
         },

@@ -22,7 +22,11 @@ export default {
             type: String,
             required: true,
             validator(value) {
-                return ['basic', 'buy-x-get-y', 'shipping-discount'].includes(value);
+                return [
+                    'basic',
+                    'buy-x-get-y',
+                    'shipping-discount',
+                ].includes(value);
             },
         },
 
@@ -73,7 +77,11 @@ export default {
         },
 
         showAdvancedPricesLink() {
-            return ['absolute', 'fixed', 'fixed_unit'].includes(this.discount.type);
+            return [
+                'absolute',
+                'fixed',
+                'fixed_unit',
+            ].includes(this.discount.type);
         },
 
         currencyPriceColumns() {

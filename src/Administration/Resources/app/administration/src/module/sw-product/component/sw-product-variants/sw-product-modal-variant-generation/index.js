@@ -13,7 +13,11 @@ const { Mixin, Context } = Shopware;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'mediaService', 'swProductDetailLoadAll'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+        'swProductDetailLoadAll',
+    ],
 
     emits: ['modal-close', 'variations-finish-generate'],
 

@@ -12,7 +12,11 @@ export default {
 
     inheritAttrs: false,
 
-    inject: ['shopwareExtensionService', 'extensionStoreActionService', 'cacheApiService'],
+    inject: [
+        'shopwareExtensionService',
+        'extensionStoreActionService',
+        'cacheApiService',
+    ],
 
     emits: ['update-list'],
 

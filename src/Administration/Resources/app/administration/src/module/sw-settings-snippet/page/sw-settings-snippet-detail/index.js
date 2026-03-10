@@ -14,7 +14,11 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: ['snippetSetService', 'repositoryFactory', 'acl'],
+    inject: [
+        'snippetSetService',
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 

@@ -56,8 +56,18 @@ describe('components/sw-string-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'promotionCode',
-            [Criteria.equalsAny('code', ['1111', '2222', '3333'])],
-            ['1111', '2222', '3333'],
+            [
+                Criteria.equalsAny('code', [
+                    '1111',
+                    '2222',
+                    '3333',
+                ]),
+            ],
+            [
+                '1111',
+                '2222',
+                '3333',
+            ],
         ]);
     });
 

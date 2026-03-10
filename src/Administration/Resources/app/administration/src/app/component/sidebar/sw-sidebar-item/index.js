@@ -27,7 +27,11 @@ export default {
         },
     },
 
-    emits: ['toggle-active', 'close-content', 'click'],
+    emits: [
+        'toggle-active',
+        'close-content',
+        'click',
+    ],
 
     props: {
         title: {

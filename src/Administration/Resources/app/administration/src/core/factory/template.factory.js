@@ -453,7 +453,11 @@ function resolveToken(token, itemTokens, name) {
     }
 
     // Vue 3 - if/else token support
-    const ifElseTokenTypes = ['Twig.logic.type.if', 'Twig.logic.type.else', 'Twig.logic.type.endif'];
+    const ifElseTokenTypes = [
+        'Twig.logic.type.if',
+        'Twig.logic.type.else',
+        'Twig.logic.type.endif',
+    ];
     if (token.type === 'logic' && ifElseTokenTypes.includes(token.token.type)) {
         return token;
     }

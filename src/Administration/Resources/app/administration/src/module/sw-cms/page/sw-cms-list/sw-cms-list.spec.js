@@ -88,7 +88,11 @@ async function createWrapper(
                         props: ['text'],
                     },
                     'sw-text-field': {
-                        props: ['value', 'label', 'placeholder'],
+                        props: [
+                            'value',
+                            'label',
+                            'placeholder',
+                        ],
                         template:
                             '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
                     },
@@ -519,7 +523,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in data grid view', async () => {
-        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
+        const wrapper = await createWrapper([
+            'user_config:read',
+            'user_config:create',
+            'user_config:update',
+        ]);
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
@@ -681,7 +689,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in normal view', async () => {
-        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
+        const wrapper = await createWrapper([
+            'user_config:read',
+            'user_config:create',
+            'user_config:update',
+        ]);
         await flushPromises();
 
         await wrapper.setData({
@@ -888,7 +900,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const expectedCategories = ['Category 1', 'Category 3', 'Category 2'];
+        const expectedCategories = [
+            'Category 1',
+            'Category 3',
+            'Category 2',
+        ];
         const categoryObjects = expectedCategories.map((category, key) => {
             return {
                 key,
@@ -899,14 +915,22 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             };
         });
 
-        const expectedProducts = ['Product 1', 'Product 2', 'Product 3'];
+        const expectedProducts = [
+            'Product 1',
+            'Product 2',
+            'Product 3',
+        ];
         const productObjects = expectedProducts.map((product) => {
             return {
                 name: product,
             };
         });
 
-        const expectedLandingPages = ['LandingPage 1', 'LandingPage 2', 'LandingPage 3'];
+        const expectedLandingPages = [
+            'LandingPage 1',
+            'LandingPage 2',
+            'LandingPage 3',
+        ];
         const landingPageObjects = expectedLandingPages.map((landingPage) => {
             return {
                 name: landingPage,

@@ -126,7 +126,11 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have creator fields enabled', async () => {
-        const wrapper = await createWrapper(['shipping.editor', 'shipping.deleter', 'shipping.creator']);
+        const wrapper = await createWrapper([
+            'shipping.editor',
+            'shipping.deleter',
+            'shipping.creator',
+        ]);
         await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');

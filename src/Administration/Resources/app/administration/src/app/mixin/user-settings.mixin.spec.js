@@ -39,7 +39,11 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
 
     beforeEach(async () => {
         createRepositoryFactoryMock = undefined;
-        global.activeAclRoles = ['user_config:read', 'user_config:create', 'user_config:update'];
+        global.activeAclRoles = [
+            'user_config:read',
+            'user_config:create',
+            'user_config:update',
+        ];
         wrapper = await createWrapper();
 
         await flushPromises();

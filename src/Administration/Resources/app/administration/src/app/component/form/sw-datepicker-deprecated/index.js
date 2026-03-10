@@ -47,7 +47,11 @@ export default {
     template,
     inheritAttrs: false,
 
-    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     inject: ['feature'],
 
@@ -70,9 +74,17 @@ export default {
         dateType: {
             type: String,
             default: 'date',
-            validValues: ['time', 'date', 'datetime'],
+            validValues: [
+                'time',
+                'date',
+                'datetime',
+            ],
             validator(value) {
-                return ['time', 'date', 'datetime'].includes(value);
+                return [
+                    'time',
+                    'date',
+                    'datetime',
+                ].includes(value);
             },
         },
 

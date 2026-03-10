@@ -45,7 +45,11 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
                                     updateCurrentValue: (val) => $emit('update:value', val)
                                 }"></slot>
                             </div>`,
-                        props: ['value', 'hasParent', 'inheritedValue'],
+                        props: [
+                            'value',
+                            'hasParent',
+                            'inheritedValue',
+                        ],
                     },
                     'mt-unit-field': {
                         template: `

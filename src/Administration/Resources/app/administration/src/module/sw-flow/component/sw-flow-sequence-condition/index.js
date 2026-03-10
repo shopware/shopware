@@ -14,7 +14,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'flowBuilderService',
+        'feature',
+    ],
 
     props: {
         sequence: {

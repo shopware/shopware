@@ -14,7 +14,11 @@ const format = Shopware.Utils.format;
 export default {
     template,
 
-    inject: ['customSnippetApiService', 'orderService', 'repositoryFactory'],
+    inject: [
+        'customSnippetApiService',
+        'orderService',
+        'repositoryFactory',
+    ],
 
     emits: [
         'error',

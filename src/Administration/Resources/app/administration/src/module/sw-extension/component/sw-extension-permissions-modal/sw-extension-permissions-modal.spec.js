@@ -121,7 +121,11 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
     [
         ['http://www.google.com'],
         ['http://www.google.com', 'https://www.facebook.com'],
-        ['http://www.google.com', 'https://www.facebook.com', 'https://www.amazon.com'],
+        [
+            'http://www.google.com',
+            'https://www.facebook.com',
+            'https://www.amazon.com',
+        ],
     ].forEach((domains) => {
         it(`should display domains hint with domain length of ${domains.length}`, async () => {
             const wrapper = await createWrapper({
@@ -140,7 +144,11 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
     [
         ['http://www.google.com'],
         ['http://www.google.com', 'https://www.facebook.com'],
-        ['http://www.google.com', 'https://www.facebook.com', 'https://www.amazon.com'],
+        [
+            'http://www.google.com',
+            'https://www.facebook.com',
+            'https://www.amazon.com',
+        ],
     ].forEach((domains) => {
         it('should display category domains', async () => {
             const wrapper = await createWrapper({
@@ -160,7 +168,11 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
         });
     });
 
-    [[], null, undefined].forEach((domains) => {
+    [
+        [],
+        null,
+        undefined,
+    ].forEach((domains) => {
         it(`should not display domains hint when prop domains contains ${domains}`, async () => {
             const wrapper = await createWrapper({
                 extensionLabel: 'Sample Extension Label',
@@ -175,7 +187,11 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
         });
     });
 
-    [[], null, undefined].forEach((domains) => {
+    [
+        [],
+        null,
+        undefined,
+    ].forEach((domains) => {
         it('should not display category domains', async () => {
             const wrapper = await createWrapper({
                 extensionLabel: 'Sample Extension Label',

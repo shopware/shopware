@@ -13,7 +13,11 @@ const {
 export default {
     template,
 
-    inject: ['integrationService', 'repositoryFactory', 'acl'],
+    inject: [
+        'integrationService',
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 

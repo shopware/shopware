@@ -11,7 +11,11 @@ const { Criteria } = Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'ssoSettingsService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'ssoSettingsService',
+    ],
 
     emits: ['get-list'],
 

@@ -155,7 +155,13 @@ export default {
                 return !!value;
             }
 
-            if (['date', 'datetime', 'time'].includes(type)) {
+            if (
+                [
+                    'date',
+                    'datetime',
+                    'time',
+                ].includes(type)
+            ) {
                 return null;
             }
 

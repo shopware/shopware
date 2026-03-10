@@ -358,13 +358,21 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return valid translation properties on `getTranslationProperties', async () => {
-        const mockProperties = ['metaDescription', 'keywords', 'description'];
+        const mockProperties = [
+            'metaDescription',
+            'keywords',
+            'description',
+        ];
 
         const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setProps({
-            languages: [{ locale: { code: 'en-GB' } }, { locale: { code: 'de-DE' } }, { locale: { code: 'DEFAULT' } }],
+            languages: [
+                { locale: { code: 'en-GB' } },
+                { locale: { code: 'de-DE' } },
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         const actual = wrapper.vm.getTranslationProperties('', mockProperties);
@@ -417,7 +425,11 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         await wrapper.setProps({
             value: 'cover.media.',
-            languages: [{ locale: { code: 'en-GB' } }, { locale: { code: 'de-DE' } }, { locale: { code: 'DEFAULT' } }],
+            languages: [
+                { locale: { code: 'en-GB' } },
+                { locale: { code: 'de-DE' } },
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         const actual = wrapper.vm.visibleResults;
@@ -450,7 +462,11 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         await wrapper.setProps({
             value: 'parent.parent.translations.name',
-            languages: [{ locale: { code: 'en-GB' } }, { locale: { code: 'de-DE' } }, { locale: { code: 'DEFAULT' } }],
+            languages: [
+                { locale: { code: 'en-GB' } },
+                { locale: { code: 'de-DE' } },
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         const actual = wrapper.vm.visibleResults;

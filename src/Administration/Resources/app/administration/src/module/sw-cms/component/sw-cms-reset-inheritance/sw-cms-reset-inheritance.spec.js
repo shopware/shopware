@@ -27,7 +27,11 @@ async function createWrapper(props = {}) {
                 stubs: {
                     'mt-icon': {
                         template: '<i class="mt-icon" :name="name"></i>',
-                        props: ['name', 'size', 'color'],
+                        props: [
+                            'name',
+                            'size',
+                            'color',
+                        ],
                     },
                     'mt-link': {
                         template: '<button class="mt-link" @click="$emit(\'click\')"><slot /></button>',

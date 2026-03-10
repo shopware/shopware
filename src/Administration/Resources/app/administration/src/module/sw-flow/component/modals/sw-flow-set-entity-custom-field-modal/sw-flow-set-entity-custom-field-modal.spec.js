@@ -273,7 +273,11 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         expect(wrapper.vm.fieldOptions).toHaveLength(3);
 
         wrapper.vm.fieldOptions.forEach((option) => {
-            expect(['upsert', 'create', 'clear']).toContain(option.value);
+            expect([
+                'upsert',
+                'create',
+                'clear',
+            ]).toContain(option.value);
         });
 
         expect(wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-value').attributes().disabled).toBeFalsy();

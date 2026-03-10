@@ -89,8 +89,16 @@ describe('src/app/component/form/sw-snippet-field-edit-modal', () => {
 
     it.each([
         ['snippet.viewer', 'snippet.editor'],
-        ['snippet.viewer', 'snippet.editor', 'snippet.creator'],
-        ['snippet.viewer', 'snippet.editor', 'snippet.deleter'],
+        [
+            'snippet.viewer',
+            'snippet.editor',
+            'snippet.creator',
+        ],
+        [
+            'snippet.viewer',
+            'snippet.editor',
+            'snippet.deleter',
+        ],
     ])('should have enabled inputs when the user has the appropriate roles', async (...roles) => {
         global.activeAclRoles = roles;
         const wrapper = await createWrapper();

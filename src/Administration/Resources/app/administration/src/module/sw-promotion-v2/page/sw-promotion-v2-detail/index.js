@@ -14,7 +14,11 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: ['notification', 'placeholder', Mixin.getByName('discard-detail-page-changes')('promotion')],
+    mixins: [
+        'notification',
+        'placeholder',
+        Mixin.getByName('discard-detail-page-changes')('promotion'),
+    ],
 
     shortcuts: {
         'SYSTEMKEY+S': {

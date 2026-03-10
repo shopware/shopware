@@ -14,7 +14,11 @@ const FlatTree = Shopware.Helper.FlatTreeHelper;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'domainLinkService',
+    ],
 
     data() {
         return {

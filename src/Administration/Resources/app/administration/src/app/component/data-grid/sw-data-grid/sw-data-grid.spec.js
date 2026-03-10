@@ -577,11 +577,19 @@ describe('components/data-grid/sw-data-grid', () => {
                     'order_transaction',
                     {},
                     {},
-                    [{ name: 'first' }, { name: 'second' }, { name: 'last' }],
+                    [
+                        { name: 'first' },
+                        { name: 'second' },
+                        { name: 'last' },
+                    ],
                     1,
                     null,
                 ),
-                arrayField: [1, 2, 3],
+                arrayField: [
+                    1,
+                    2,
+                    3,
+                ],
                 payload: null,
                 customer: { type: null },
             };
@@ -616,11 +624,19 @@ describe('components/data-grid/sw-data-grid', () => {
                     'order_transaction',
                     {},
                     {},
-                    [{ name: 'first' }, { name: 'second' }, { name: 'last' }],
+                    [
+                        { name: 'first' },
+                        { name: 'second' },
+                        { name: 'last' },
+                    ],
                     1,
                     null,
                 ),
-                arrayField: [1, 2, 3],
+                arrayField: [
+                    1,
+                    2,
+                    3,
+                ],
                 payload: null,
                 customer: { type: null },
             };

@@ -19,7 +19,11 @@ Mixin.register('sw-settings-list', {
             isLoading: false,
             showDeleteModal: false,
             deleteEntity: null,
-            steps: [10, 25, 50],
+            steps: [
+                10,
+                25,
+                50,
+            ],
         };
     },
 

@@ -221,7 +221,11 @@ export default class PrivilegesService {
 
             const privileges = this._getPrivilegesWithDependencies(adminPrivilegeKey);
 
-            return [...acc, adminPrivilegeKey, ...privileges];
+            return [
+                ...acc,
+                adminPrivilegeKey,
+                ...privileges,
+            ];
         }, []);
 
         return [

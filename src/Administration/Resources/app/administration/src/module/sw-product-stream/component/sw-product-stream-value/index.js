@@ -21,7 +21,11 @@ export default {
         'feature',
     ],
 
-    emits: ['empty-change', 'type-change', 'boolean-change'],
+    emits: [
+        'empty-change',
+        'type-change',
+        'boolean-change',
+    ],
 
     props: {
         condition: {

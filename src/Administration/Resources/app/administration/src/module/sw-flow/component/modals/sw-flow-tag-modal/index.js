@@ -12,7 +12,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['acl', 'repositoryFactory', 'flowBuilderService'],
+    inject: [
+        'acl',
+        'repositoryFactory',
+        'flowBuilderService',
+    ],
 
     emits: ['process-finish', 'modal-close'],
 

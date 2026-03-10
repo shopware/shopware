@@ -222,7 +222,11 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     });
 
     it('should change translationKey while saving', async () => {
-        const wrapper = await createWrapper(['snippet.viewer', 'snippet.editor', 'snippet.creator']);
+        const wrapper = await createWrapper([
+            'snippet.viewer',
+            'snippet.editor',
+            'snippet.creator',
+        ]);
         await flushPromises();
 
         await wrapper.setData({

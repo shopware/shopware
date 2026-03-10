@@ -24,7 +24,11 @@ export default {
 
     inject: ['feature', 'userInputSanitizeService'],
 
-    emits: ['mounted', 'update:value', 'blur'],
+    emits: [
+        'mounted',
+        'update:value',
+        'blur',
+    ],
 
     props: {
         value: {

@@ -26,7 +26,11 @@ export default {
             return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
         },
 
-        ...mapPropertyErrors('landingPage', ['name', 'url', 'salesChannels']),
+        ...mapPropertyErrors('landingPage', [
+            'name',
+            'url',
+            'salesChannels',
+        ]),
 
         landingPage() {
             return Shopware.Store.get('swCategoryDetail').landingPage;

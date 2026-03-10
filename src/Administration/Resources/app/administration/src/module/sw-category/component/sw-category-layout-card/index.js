@@ -32,7 +32,11 @@ export default {
             type: Array,
             required: false,
             default() {
-                return ['page', 'landingpage', 'product_list'];
+                return [
+                    'page',
+                    'landingpage',
+                    'product_list',
+                ];
             },
         },
 

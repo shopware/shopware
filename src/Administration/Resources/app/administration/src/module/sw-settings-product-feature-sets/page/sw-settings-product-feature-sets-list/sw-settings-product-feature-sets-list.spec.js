@@ -156,7 +156,11 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         ]);
 
         // Assert that the column types are correct
-        expect(list.props().columns.map((column) => column.property)).toEqual(['name', 'description', 'features']);
+        expect(list.props().columns.map((column) => column.property)).toEqual([
+            'name',
+            'description',
+            'features',
+        ]);
 
         // Assert that the template's name links to the detail page
         expect(list.props().columns.shift().routerLink).toEqual(text.featureSetDetailRouterLink);
@@ -168,7 +172,11 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             .filter((val) => val !== '');
 
         // Assert that the template is rendered correctly
-        expect(firstRowContent).toEqual([text.featureSetName, text.featureSetDescription, text.referencePriceLabel]);
+        expect(firstRowContent).toEqual([
+            text.featureSetName,
+            text.featureSetDescription,
+            text.referencePriceLabel,
+        ]);
     });
 
     it('should disable all fields when acl privileges are missing', async () => {

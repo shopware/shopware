@@ -2905,21 +2905,33 @@ describe('core/factory/async-component.factory.ts', () => {
         // Expected behaviour is that on each button change and initial the criteria has all associations
         const wrapper = mount(await ComponentFactory.build('sw-order-list'));
         expect(wrapper.vm).toBeTruthy();
-        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual([
+            'override2',
+            'override3',
+            'override4',
+        ]);
 
         // Click next page button
         const nextButton = wrapper.find('#next');
         await nextButton.trigger('click');
         await flushPromises();
 
-        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual([
+            'override2',
+            'override3',
+            'override4',
+        ]);
 
         // Click previous page button
         const previousButton = wrapper.find('#previous');
         await previousButton.trigger('click');
         await flushPromises();
 
-        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual([
+            'override2',
+            'override3',
+            'override4',
+        ]);
     });
 
     describe('returns a component that overrides a method which is called multiple times with parameters', () => {

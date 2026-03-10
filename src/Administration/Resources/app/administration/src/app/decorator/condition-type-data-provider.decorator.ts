@@ -659,12 +659,20 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     });
 
     ruleConditionService.addAwarenessConfiguration('orderPromotions', {
-        notEquals: ['cartCartAmount', 'cartShippingCost', ...ruleConditionService.getRestrictionsByGroup('order')],
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+            ...ruleConditionService.getRestrictionsByGroup('order'),
+        ],
         snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
     });
 
     ruleConditionService.addAwarenessConfiguration('cartPromotions', {
-        notEquals: ['cartCartAmount', 'cartShippingCost', ...ruleConditionService.getRestrictionsByGroup('order')],
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+            ...ruleConditionService.getRestrictionsByGroup('order'),
+        ],
         snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
     });
 

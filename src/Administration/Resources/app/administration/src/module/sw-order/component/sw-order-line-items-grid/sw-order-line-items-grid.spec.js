@@ -628,7 +628,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new credit line item', async () => {
-        global.activeAclRoles = ['order.viewer', 'order.editor', 'orders.create_discounts'];
+        global.activeAclRoles = [
+            'order.viewer',
+            'order.editor',
+            'orders.create_discounts',
+        ];
         const wrapper = await createWrapper();
 
         const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');

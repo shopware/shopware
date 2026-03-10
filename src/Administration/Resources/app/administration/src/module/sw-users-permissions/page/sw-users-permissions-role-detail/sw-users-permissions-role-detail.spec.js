@@ -325,7 +325,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should save privileges with all privileges, admin privilege key combinations and detailed privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
+            privileges: [
+                'system.clear_cache',
+                'orders.create_discounts',
+                'product:read',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -378,7 +382,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should merge privileges and detailed privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
+            privileges: [
+                'system.clear_cache',
+                'orders.create_discounts',
+                'product:read',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -434,7 +442,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should save privileges with all privileges from getPrivileges() method', async () => {
         wrapper = await createWrapper({
-            privileges: ['promotion.viewer', 'promotion.editor', 'promotion.creator'],
+            privileges: [
+                'promotion.viewer',
+                'promotion.editor',
+                'promotion.creator',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'permissions',

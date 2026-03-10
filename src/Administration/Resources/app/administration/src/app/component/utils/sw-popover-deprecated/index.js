@@ -29,7 +29,11 @@ export default {
             default: false,
         },
         popoverClass: {
-            type: [String, Array, Object],
+            type: [
+                String,
+                Array,
+                Object,
+            ],
             required: false,
             default: '',
         },

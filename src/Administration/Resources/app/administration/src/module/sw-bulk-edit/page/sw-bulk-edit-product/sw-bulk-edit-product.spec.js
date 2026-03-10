@@ -952,8 +952,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 net: '2',
             },
         ],
-        [true, 'price', true],
-        [true, 'price', null],
+        [
+            true,
+            'price',
+            true,
+        ],
+        [
+            true,
+            'price',
+            null,
+        ],
     ];
 
     it.each(dataProvider)('should have set price to product when value is not boolean', async (isChanged, item, value) => {

@@ -39,7 +39,11 @@ export default {
 
     inject: ['feature'],
 
-    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types

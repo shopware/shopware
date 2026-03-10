@@ -134,7 +134,11 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPageTypes: ['page', 'landingpage', 'product_list'],
+            cmsPageTypes: [
+                'page',
+                'landingpage',
+                'product_list',
+            ],
         });
         await wrapper.vm.getList();
 

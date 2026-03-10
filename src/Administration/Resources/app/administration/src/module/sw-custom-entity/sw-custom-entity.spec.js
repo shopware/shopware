@@ -23,7 +23,11 @@ describe('src/module/sw-custom-entity', () => {
 
     it('should register the custom entity module correctly', async () => {
         const customEntityModule = Shopware.Module.getModuleRegistry().get('sw-custom-entity');
-        const expectedRoutes = ['sw.custom.entity.index', 'sw.custom.entity.detail', 'sw.custom.entity.create'];
+        const expectedRoutes = [
+            'sw.custom.entity.index',
+            'sw.custom.entity.detail',
+            'sw.custom.entity.create',
+        ];
 
         expect(customEntityModule.routes.size).toBe(3);
         customEntityModule.routes.forEach((route) => {

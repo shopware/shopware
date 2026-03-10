@@ -183,7 +183,11 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     });
 
     it('should be able to save the language', async () => {
-        const wrapper = await createWrapper(['language.editor', null, false]);
+        const wrapper = await createWrapper([
+            'language.editor',
+            null,
+            false,
+        ]);
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-language-detail__save-action');

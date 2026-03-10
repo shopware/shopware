@@ -98,7 +98,11 @@ function initVisibility(element) {
         element.visibility = {};
     }
 
-    const visibilityProperties = ['mobile', 'tablet', 'desktop'];
+    const visibilityProperties = [
+        'mobile',
+        'tablet',
+        'desktop',
+    ];
 
     visibilityProperties.forEach((key) => {
         if (typeof element.visibility[key] === 'boolean') {

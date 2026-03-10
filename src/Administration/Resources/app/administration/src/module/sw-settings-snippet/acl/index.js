@@ -11,7 +11,11 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: ['snippet_set:update', 'snippet:create', 'snippet:update'],
+            privileges: [
+                'snippet_set:update',
+                'snippet:create',
+                'snippet:update',
+            ],
             dependencies: ['snippet.viewer'],
         },
         creator: {

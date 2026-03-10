@@ -53,11 +53,19 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: ['media.viewer'],
         },
         creator: {
-            privileges: ['media:create', 'media_folder:create', 'media_default_folder:create'],
+            privileges: [
+                'media:create',
+                'media_folder:create',
+                'media_default_folder:create',
+            ],
             dependencies: ['media.viewer', 'media.editor'],
         },
         deleter: {
-            privileges: ['media:delete', 'media_folder:delete', 'media_default_folder:delete'],
+            privileges: [
+                'media:delete',
+                'media_folder:delete',
+                'media_default_folder:delete',
+            ],
             dependencies: ['media.viewer'],
         },
     },

@@ -162,7 +162,11 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 },
                 'sw-generic-social-media-card': {
                     template: '<div class="sw-generic-social-media-card"></div>',
-                    props: ['og-title', 'og-description', 'og-image-id'],
+                    props: [
+                        'og-title',
+                        'og-description',
+                        'og-image-id',
+                    ],
                 },
             },
             provide: {

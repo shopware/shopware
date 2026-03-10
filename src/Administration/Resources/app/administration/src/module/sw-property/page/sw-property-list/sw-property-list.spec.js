@@ -75,7 +75,11 @@ async function createWrapper() {
                 },
                 'sw-search-bar': true,
                 'sw-entity-listing': {
-                    props: ['items', 'dataSource', 'allow-inline-edit'],
+                    props: [
+                        'items',
+                        'dataSource',
+                        'allow-inline-edit',
+                    ],
                     template: `
                         <div>
                             <template v-for="item in (dataSource || items)">

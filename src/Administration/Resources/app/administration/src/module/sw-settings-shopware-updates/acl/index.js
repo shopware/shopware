@@ -28,7 +28,11 @@ Shopware.Service('privileges')
                 dependencies: [],
             },
             plugin_upload: {
-                privileges: ['user_config:read', 'user_config:update', 'user_config:create'],
+                privileges: [
+                    'user_config:read',
+                    'user_config:update',
+                    'user_config:create',
+                ],
                 dependencies: ['system.plugin_maintain'],
             },
         },

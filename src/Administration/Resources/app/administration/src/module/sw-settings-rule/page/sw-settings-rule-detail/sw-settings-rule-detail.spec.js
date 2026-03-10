@@ -1039,7 +1039,11 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         };
         await wrapper.setData({
             ...conditionTreeWithInvalidDateRanges,
-            conditions: [{ id: 'some-id' }, { id: 'another-id' }, { id: 'date-range-condition' }],
+            conditions: [
+                { id: 'some-id' },
+                { id: 'another-id' },
+                { id: 'date-range-condition' },
+            ],
         });
         wrapper.vm.createNotificationError = jest.fn();
 

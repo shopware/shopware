@@ -13,7 +13,11 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
+    inject: [
+        'mailService',
+        'entityMappingService',
+        'repositoryFactory',
+    ],
 
     emits: ['modal-close', 'process-finish'],
 

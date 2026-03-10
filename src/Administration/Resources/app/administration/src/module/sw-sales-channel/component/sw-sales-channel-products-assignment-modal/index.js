@@ -70,7 +70,14 @@ export default {
         },
 
         products() {
-            return uniqBy([...this.singleProducts, ...this.categoryProducts, ...this.groupProducts], 'id');
+            return uniqBy(
+                [
+                    ...this.singleProducts,
+                    ...this.categoryProducts,
+                    ...this.groupProducts,
+                ],
+                'id',
+            );
         },
     },
 

@@ -7,7 +7,11 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     key: 'measurement',
     roles: {
         viewer: {
-            privileges: ['system_config:read', 'measurement_system:read', 'measurement_display_unit:read'],
+            privileges: [
+                'system_config:read',
+                'measurement_system:read',
+                'measurement_display_unit:read',
+            ],
             dependencies: [],
         },
         editor: {

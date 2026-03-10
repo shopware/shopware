@@ -12,7 +12,11 @@ export default {
 
     inject: ['orderDocumentApiService'],
 
-    emits: ['changes-apply', 'title-set', 'buttons-update'],
+    emits: [
+        'changes-apply',
+        'title-set',
+        'buttons-update',
+    ],
 
     data() {
         return {

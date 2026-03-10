@@ -25,7 +25,11 @@ type GenericCustomEntityDetailData = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['customEntityDefinitionService', 'repositoryFactory', 'acl'],
+    inject: [
+        'customEntityDefinitionService',
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
@@ -178,7 +182,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getFieldTranslation(namespace: string, name: string, suffix = '', checkExistence = false): string {
-            const snippetKey = [this.customEntityName, namespace, name].join('.').concat(suffix);
+            const snippetKey = [
+                this.customEntityName,
+                namespace,
+                name,
+            ]
+                .join('.')
+                .concat(suffix);
             if (checkExistence && !this.$te(snippetKey)) {
                 return '';
             }

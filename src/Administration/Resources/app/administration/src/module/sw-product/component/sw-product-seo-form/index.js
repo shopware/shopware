@@ -100,7 +100,11 @@ export default {
             return Shopware.Store.get('swProductDetail').isLoading;
         },
 
-        ...mapPropertyErrors('product', ['keywords', 'metaDescription', 'metaTitle']),
+        ...mapPropertyErrors('product', [
+            'keywords',
+            'metaDescription',
+            'metaTitle',
+        ]),
     },
 
     watch: {

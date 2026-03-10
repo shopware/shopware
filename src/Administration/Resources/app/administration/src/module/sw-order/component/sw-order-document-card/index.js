@@ -24,7 +24,11 @@ export default {
 
     emits: ['update-loading', 'document-save'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [
+        Mixin.getByName('listing'),
+        Mixin.getByName('placeholder'),
+        Mixin.getByName('notification'),
+    ],
 
     props: {
         order: {

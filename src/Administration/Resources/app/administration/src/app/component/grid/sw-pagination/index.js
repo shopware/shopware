@@ -85,11 +85,19 @@ export default {
             const right = this.maxPage - left + 1 + even;
 
             if (currentPage === left || (left === 1 && currentPage === left + 1)) {
-                return [...this.range(1, left + 1), '...', ...this.range(right, this.maxPage)];
+                return [
+                    ...this.range(1, left + 1),
+                    '...',
+                    ...this.range(right, this.maxPage),
+                ];
             }
 
             if (currentPage === right || (right === this.maxPage && currentPage === this.maxPage - 1)) {
-                return [...this.range(1, left), '...', ...this.range(right - 1, this.maxPage)];
+                return [
+                    ...this.range(1, left),
+                    '...',
+                    ...this.range(right - 1, this.maxPage),
+                ];
             }
 
             if (currentPage > left && currentPage < right) {
@@ -105,7 +113,11 @@ export default {
                 ];
             }
 
-            return [...this.range(1, left), '...', ...this.range(right, this.maxPage)];
+            return [
+                ...this.range(1, left),
+                '...',
+                ...this.range(right, this.maxPage),
+            ];
         },
 
         shouldBeVisible() {

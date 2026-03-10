@@ -1,4 +1,8 @@
-const uniqueSlotsKebab = ['buy-box', 'product-description-reviews', 'cross-selling'];
+const uniqueSlotsKebab = [
+    'buy-box',
+    'product-description-reviews',
+    'cross-selling',
+];
 
 /**
  * @sw-package discovery

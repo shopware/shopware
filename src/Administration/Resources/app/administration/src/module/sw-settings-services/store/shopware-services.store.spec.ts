@@ -15,7 +15,11 @@ describe('src/module/sw-settings-services/store/shopware-services.store.ts', () 
     });
 
     it.each([
-        [undefined, null, false],
+        [
+            undefined,
+            null,
+            false,
+        ],
         [
             {
                 identifier: 'id',

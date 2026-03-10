@@ -12,7 +12,11 @@ const { Component } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['userActivityService', 'loginService', 'feature'],
+    inject: [
+        'userActivityService',
+        'loginService',
+        'feature',
+    ],
 
     metaInfo() {
         return {

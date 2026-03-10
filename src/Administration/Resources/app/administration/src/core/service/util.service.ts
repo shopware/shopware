@@ -200,7 +200,11 @@ export function moveItem(entity: MutationObserver[], oldIndex: number, newIndex:
 
     const remainingItems = entity.filter((_, index) => index !== oldIndex);
 
-    const orderedItems = [...remainingItems.slice(0, newIndex), movedItem, ...remainingItems.slice(newIndex)];
+    const orderedItems = [
+        ...remainingItems.slice(0, newIndex),
+        movedItem,
+        ...remainingItems.slice(newIndex),
+    ];
 
     entity.splice(0, entity.length, ...orderedItems);
 }

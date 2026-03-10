@@ -69,7 +69,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         getTranslations() {
-            const translatableFields = ['label', 'placeholder', 'helpText'];
+            const translatableFields = [
+                'label',
+                'placeholder',
+                'helpText',
+            ];
 
             const translations: {
                 [key: string]:

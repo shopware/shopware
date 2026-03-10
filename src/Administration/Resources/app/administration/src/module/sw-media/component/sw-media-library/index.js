@@ -143,7 +143,11 @@ export default {
         },
 
         selectableItems() {
-            return [...this.subFolders, ...this.pendingUploads, ...this.items];
+            return [
+                ...this.subFolders,
+                ...this.pendingUploads,
+                ...this.items,
+            ];
         },
 
         rootFolder() {

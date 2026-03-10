@@ -77,7 +77,11 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             await wrapper.setProps(mockData);
 
             const inputField = wrapper.getComponent(`.sw-custom-entity-input-field__${type}`);
-            const modelValueTypes = ['text', 'string', 'date'];
+            const modelValueTypes = [
+                'text',
+                'string',
+                'date',
+            ];
             let propType = modelValueTypes.includes(type) ? 'modelValue' : 'value';
 
             if (type === 'boolean') {

@@ -121,7 +121,11 @@ export default {
                 'listPrice.gross',
                 'listPrice.linked',
             ],
-            visibilityProperties: ['all', 'link', 'search'],
+            visibilityProperties: [
+                'all',
+                'link',
+                'search',
+            ],
             notMappedItem: {
                 label: this.$t('sw-import-export.profile.mapping.notMapped'),
                 relation: undefined,

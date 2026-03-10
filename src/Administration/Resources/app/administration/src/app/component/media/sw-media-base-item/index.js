@@ -18,7 +18,11 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    emits: ['media-item-click', 'media-item-selection-add', 'media-item-selection-remove'],
+    emits: [
+        'media-item-click',
+        'media-item-selection-add',
+        'media-item-selection-remove',
+    ],
 
     props: {
         item: {

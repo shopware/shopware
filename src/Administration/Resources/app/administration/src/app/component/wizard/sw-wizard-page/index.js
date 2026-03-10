@@ -13,7 +13,11 @@ import template from './sw-wizard-page.html.twig';
 export default {
     template,
 
-    inject: ['feature', 'swWizardPageAdd', 'swWizardPageRemove'],
+    inject: [
+        'feature',
+        'swWizardPageAdd',
+        'swWizardPageRemove',
+    ],
 
     props: {
         isActive: {

@@ -187,7 +187,6 @@ export default function createLoginService(
             const currentAccessToken = getToken();
             if (currentAccessToken && currentAccessToken !== accessTokenBeforeLock) {
                 notifyRefreshSubscribers(currentAccessToken);
-
                 return currentAccessToken;
             }
 

@@ -9,13 +9,13 @@ It can be found in the state machine state history modal (state change modal) on
 
 ### [Experimental] Use OpenSearch for Admin API searches
 
-When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists.
 This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
 Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
 To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
 
 ### Online revocation request form
-Customers can now conveniently submit revocation requests through an online form. 
+Customers can now conveniently submit revocation requests through an online form.
 Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
 
 ## API
@@ -64,7 +64,7 @@ Product main categories are now inherited from parent product if not explicitly 
 
 ### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
 
-The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed. 
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed.
 But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
 This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
 Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
@@ -83,6 +83,86 @@ Two new events are dispatched when the product slider CMS element resolves its p
 ## Administration
 
 ## Storefront
+
+### New Component System
+
+We introduced a new component system to the Storefront, which makes it easier to create reusable templates. It is one foundation of a new content system, which will be released at a later stage, but components can also be used anywhere in existing templates. The component system is based on [Twig UX components](https://symfony.com/bundles/ux-twig-component/current/index.html), plus some additional features like SCSS and JS handling for your components.
+
+To dive into the full possibilities, please refer to the [official documentation]().
+
+### Single file references in theme.json
+
+The `theme.json` file now supports single file references, allowing you to include individual files from other bundles or components rather than pulling in an entire theme or plugin. This gives themes fine-grained control over exactly which files are compiled.
+
+There are three reference formats available for both `style` and `script` entries:
+
+**Bundle-relative references** — Include a single specific file from another bundle or theme using `@BundleName/path/to/file`:
+
+```json
+{
+  "style": [
+    "@MyTheme/app/storefront/src/scss/overrides.scss",
+    "@MyTheme"
+  ],
+  "script": [
+    "@MyPlugin/app/storefront/dist/storefront/my-plugin.js",
+    "@Plugins"
+  ]
+}
+```
+
+**Component single file references** — Include the script or style file of a single registered component using `@Components/ComponentPath/file`:
+
+```json
+{
+  "style": [
+    "@Components/Sw/Alert/index.scss",
+    "@Components/Sw/Filter/Panel/index.scss"
+  ],
+  "script": [
+    "@Components/Sw/Filter/ActiveFilters/index.js"
+  ]
+}
+```
+
+**Namespaced component references** — Scope the component lookup to a specific bundle using `@Components:BundleName/ComponentPath/file`. This is useful when multiple bundles register components under the same relative path:
+
+```json
+{
+  "style": [
+    "@Components:MyPlugin/Custom/Slider/index.scss"
+  ],
+  "script": [
+    "@Components:MyPlugin/Custom/Slider/index.js"
+  ]
+}
+```
+
+All three formats can be mixed freely with the existing `@ThemeName`, `@Plugins`, and `@Components` wildcard references within the same `theme.json`.
+
+### New global JavaScript event system
+
+With the new component system we also start to improve the general possibilities in the Storefront. One of these improvements is a new global event system that is available via a new central `Shopware` object. This system is easier to use than the instance scoped events from the current JS plugin system. The event system is based on the native Node [event emitter](https://nodejs.org/en/learn/asynchronous-work/the-nodejs-event-emitter) and can be used in a similar way. You will find some additional features, like interceptable events which can be used to hook into certain methods, like changing request parameters before they get send. We want to offer this as a new extension system, especially for the new component system.
+
+```JavaScript
+window.Shopware.emit('Filter:Change', { foo: 'bar' });
+```
+
+```JavaScript
+window.Shopware.on('Filter:Change', ({ foo }) => {
+    // do something
+});
+```
+
+For more detailed information, refer to the [documentation](./src/Storefront/Resources/app/storefront/src/component-system/README.md).
+
+### New plugin manager function to call plugin methods
+
+We added a new method to the Storefront plugin manager which allows to call a specific plugin method on all existing instances of that plugin.
+
+```JavaScript
+window.PluginManager.callPluginMethod(pluginName, methodName, ...args)
+```
 
 ### Block renaming
 
@@ -241,86 +321,6 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 **Migration:** If you relied on the previous behavior where the clearable button was hidden by default, explicitly set `:show-clearable-button="false"` on your select components.
 
 ## Storefront
-
-### New Component System
-
-We introduced a new component system to the Storefront, which makes it easier to create reusable templates. It is one foundation of a new content system, which will be released at a later stage, but components can also be used anywhere in existing templates. The component system is based on [Twig UX components](https://symfony.com/bundles/ux-twig-component/current/index.html), plus some additional features like SCSS and JS handling for your components.
-
-To dive into the full possibilities, please refer to the [official documentation]().
-
-### Single file references in theme.json
-
-The `theme.json` file now supports single file references, allowing you to include individual files from other bundles or components rather than pulling in an entire theme or plugin. This gives themes fine-grained control over exactly which files are compiled.
-
-There are three reference formats available for both `style` and `script` entries:
-
-**Bundle-relative references** — Include a single specific file from another bundle or theme using `@BundleName/path/to/file`:
-
-```json
-{
-  "style": [
-    "@MyTheme/app/storefront/src/scss/overrides.scss",
-    "@MyTheme"
-  ],
-  "script": [
-    "@MyPlugin/app/storefront/dist/storefront/my-plugin.js",
-    "@Plugins"
-  ]
-}
-```
-
-**Component single file references** — Include the script or style file of a single registered component using `@Components/ComponentPath/file`:
-
-```json
-{
-  "style": [
-    "@Components/Sw/Alert/index.scss",
-    "@Components/Sw/Filter/Panel/index.scss"
-  ],
-  "script": [
-    "@Components/Sw/Filter/ActiveFilters/index.js"
-  ]
-}
-```
-
-**Namespaced component references** — Scope the component lookup to a specific bundle using `@Components:BundleName/ComponentPath/file`. This is useful when multiple bundles register components under the same relative path:
-
-```json
-{
-  "style": [
-    "@Components:MyPlugin/Custom/Slider/index.scss"
-  ],
-  "script": [
-    "@Components:MyPlugin/Custom/Slider/index.js"
-  ]
-}
-```
-
-All three formats can be mixed freely with the existing `@ThemeName`, `@Plugins`, and `@Components` wildcard references within the same `theme.json`.
-
-### New global JavaScript event system
-
-With the new component system we also start to improve the general possibilities in the Storefront. One of these improvements is a new global event system that is available via a new central `Shopware` object. This system is easier to use than the instance scoped events from the current JS plugin system. The event system is based on the native Node [event emitter](https://nodejs.org/en/learn/asynchronous-work/the-nodejs-event-emitter) and can be used in a similar way. You will find some additional features, like interceptable events which can be used to hook into certain methods, like changing request parameters before they get send. We want to offer this as a new extension system, especially for the new component system.
-
-```JavaScript
-window.Shopware.emit('Filter:Change', { foo: 'bar' });
-```
-
-```JavaScript
-window.Shopware.on('Filter:Change', ({ foo }) => {
-    // do something
-});
-```
-
-For more detailed information, refer to the [documentation](./src/Storefront/Resources/app/storefront/src/component-system/README.md).
-
-### New plugin manager function to call plugin methods
-
-We added a new method to the Storefront plugin manager which allows to call a specific plugin method on all existing instances of that plugin.
-
-```JavaScript
-window.PluginManager.callPluginMethod(pluginName, methodName, ...args)
-```
 
 ### `HEAD`-requests do not trigger the registration double-opt-in
 

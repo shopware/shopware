@@ -22,6 +22,11 @@ jest.mock('@amplitude/analytics-browser', () => ({
         .fn()
         .mockImplementationOnce(() => mockAnonymousAmplitudeClient)
         .mockImplementationOnce(() => mockDeleteUserAmplitudeClient),
+    Types: {
+        LogLevel: {
+            None: 0,
+        },
+    },
     add: jest.fn(),
     init: jest.fn(),
     track: jest.fn(),
@@ -128,6 +133,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     autocapture: false,
                     serverZone: 'EU',
                     appVersion: Shopware.Store.get('context').app.config.version,
+                    flushMaxRetries: 3,
+                    logLevel: 0,
                     trackingOptions: {
                         ipAddress: false,
                         language: false,

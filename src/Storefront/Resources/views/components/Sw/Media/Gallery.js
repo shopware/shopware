@@ -1,6 +1,7 @@
 export default class MediaGallery extends ShopwareComponent {
     static options = {
         zoomScale: 2.5,
+        showMagnifier: true,
     };
 
     init() {
@@ -11,14 +12,13 @@ export default class MediaGallery extends ShopwareComponent {
         this._initPreviewZoom();
 
         this._initModalZoom();
+        this._initThumbnailNavScroller();
     }
 
     _initModalZoom() {
         const modalImgs = document.querySelectorAll('.sw-media-gallery__fullscreen-image-media');
         modalImgs.forEach((img) => {
-            
-            img.addEventListener('click', () => {
-                // img.style.transform = `scale(1.8)`;
+                img.addEventListener('click', () => {
                 img.classList.toggle('is--zoomed');
             });
         });
@@ -84,6 +84,21 @@ export default class MediaGallery extends ShopwareComponent {
                 img.style.transform = 'scale(1) translate(0px, 0px)';
                 img.style.cursor = 'default';
             }
+        });
+    }
+
+    _initThumbnailNavScroller() {
+        // Vertical nav scroller
+        // When scrollbar is visible, show the scroll controls
+        const verticalNav = this.el.querySelector('.sw-media-gallery__thumbnail-nav');
+        const verticalNavInner = this.el.querySelector('.sw-thumbnail-nav__inner');
+        const verticalNavScrollControl = this.el.querySelector('.sw-thumbnail-nav__scroll-control');
+
+        verticalNavInner.addEventListener('scroll', () => {
+            console.log('scrolling', verticalNavInner.scrollHeight, verticalNavInner.clientHeight);
+
+            const isScrollbarVisible = verticalNavInner.scrollHeight > verticalNavInner.clientHeight;
+            verticalNavScrollControl.style.display = isScrollbarVisible ? 'block' : 'none';
         });
     }
 }

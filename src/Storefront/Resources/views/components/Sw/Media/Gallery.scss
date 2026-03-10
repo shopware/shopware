@@ -1,12 +1,15 @@
 .sw-media-gallery {
-    --sw-media-gallery-thumbnail-size: 70;
     --sw-media-thumbnail-border-color: var(--bs-gray-300);
     --sw-media-thumbnail-hover-border-color: var(--bs-primary);
 
     display: grid;
     grid-template-columns: max-content 1fr;
     grid-gap: map-get($spacers, 2);
+}
 
+.sw-media-gallery--thumbnail-nav-underneath {
+    grid-template-columns: 1fr;
+    grid-template-rows: max-content 1fr;
 }
 
 .sw-media-gallery__previews {
@@ -21,7 +24,6 @@
 }
 
 .sw-media-gallery__preview {
-    // overflow: hidden;
     cursor: zoom-in;
 }
 

@@ -1,14 +1,20 @@
 .sw-thumbnail-nav {
+    --sw-thumbnail-nav-thumbnail-size: var(--sw-media-gallery-thumbnail-size, 70px);
+    --sw-thumbnail-nav-thumbnail-border-color: var(--bs-gray-300);
+    --sw-thumbnail-nav-thumbnail-hover-border-color: var(--bs-primary);
+    --sw-thumbnail-nav-thumbnail-border-width: 2px;
+    --sw-thumbnail-nav-scroll-control-size: 40px;
+    --sw-thumbnail-nav-gap: #{map-get($spacers, 2)};
     align-self: stretch; 
     height: 100%;
     position: relative;
-    width: var(--sw-media-gallery-thumbnail-size);
+    width: var(--sw-thumbnail-nav-thumbnail-size);
 }
 
 .sw-thumbnail-nav__inner {
     display: flex;
     flex-direction: column;
-    gap: map-get($spacers, 2);
+    gap: var(--sw-thumbnail-nav-gap);
     position: absolute;
     overflow-y: auto;
     overflow-x: hidden;
@@ -22,18 +28,19 @@
 .sw-thumbnail-nav__button {
     padding: 2px;
     margin: 0;
-    border: 2px solid var(--sw-media-thumbnail-border-color);
-    width: var(--sw-media-gallery-thumbnail-size);
-    height: var(--sw-media-gallery-thumbnail-size);
+    border: var(--sw-thumbnail-nav-thumbnail-border-width) solid var(--sw-thumbnail-nav-thumbnail-border-color);
+    width: var(--sw-thumbnail-nav-thumbnail-size);
+    height: var(--sw-thumbnail-nav-thumbnail-size);
     background-color: transparent;
     cursor: pointer;
     display: block;
     font-size: 0;
     line-height: 0;
+    flex-shrink: 0;
 
     &:hover,
     &.is--active {
-        border-color: var(--sw-media-thumbnail-hover-border-color);
+        border-color: var(--sw-thumbnail-nav-thumbnail-hover-border-color);
     }
 }
 
@@ -41,8 +48,8 @@
     --bs-btn-border-color: var(--bs-gray-300);
     position: absolute;
     z-index: 1;
-    width: 40px;
-    height: 40px;
+    width: var(--sw-thumbnail-nav-scroll-control-size);
+    height: var(--sw-thumbnail-nav-scroll-control-size);
     padding: 0;
     line-height: 1;
     left: 50%;
@@ -54,5 +61,35 @@
 
     &.is--forward {
         bottom: 0;
+    }
+}
+
+/**
+ * Horizontal layout (Vertical layout is the default)
+ */
+.sw-thumbnail-nav--horizontal {
+    width: 100%;
+
+    .sw-thumbnail-nav__inner {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        overflow-y: hidden;
+        overflow-x: auto;
+        position: relative;
+    }
+
+    .sw-thumbnail-nav__scroll-control {
+        top: 50%;
+        transform: translateY(-50%);
+        left: auto;
+    }
+
+    .sw-thumbnail-nav__scroll-control.is--forward {
+        right: 0;
+    }
+
+    .sw-thumbnail-nav__scroll-control.is--backward {
+        left: 0;
     }
 }

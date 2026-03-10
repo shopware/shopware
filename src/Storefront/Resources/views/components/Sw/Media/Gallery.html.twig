@@ -12,7 +12,10 @@
     displayMode = 'original',
     thumbnailSize = 70,
     thumbnailNavigationPosition = 'left',
-    showArrowNavigation = false,
+    showNavigationArrows = false,
+    showMagnifier = true,
+    useSchemaMarkup = false,
+    showFullScreenGallery = true,
 %}
 
 {% set mediaGalleryCVA = cva({
@@ -25,17 +28,22 @@
     },
 }) %}
 
+{% set mediaGalleryOptions = {
+    showMagnifier,
+} %}
+
 {% set defaultAttributes = {
     class: mediaGalleryCVA.apply({ thumbnailNavigationPosition }),
     'data-component': 'Sw:Media:Gallery',
-    style: "--sw-media-gallery-thumbnail-size: " ~ thumbnailSize ~ "px;",
+    'data-component-options': mediaGalleryOptions|json_encode,
 } %}
 
 <div {{ attributes.defaults(defaultAttributes) }}>
     <twig:Sw:Media:ThumbnailNav
         class="sw-media-gallery__thumbnail-nav"
         :mediaItems="mediaItems" 
-        :thumbnailSize="thumbnailSize" 
+        :thumbnailSize="thumbnailSize"
+        :isHorizontal="thumbnailNavigationPosition == 'underneath'"
     />
 
     <div class="sw-media-gallery__previews">
@@ -48,6 +56,7 @@
                 data-media-id="{{ mediaItem.id }}"
                 data-bs-toggle="modal"
                 data-bs-target="#sw-media-gallery-modal"
+                :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
             />
         {% endfor %}
     </div>
@@ -74,7 +83,7 @@
 
             <twig:Sw:Media:ThumbnailNav 
                 :mediaItems="mediaItems" 
-                :thumbnailSize="thumbnailSize" 
+                :thumbnailSize="thumbnailSize"
             />
 
             <div class="sw-media-gallery__fullscreen-image" style="overflow: scroll;">

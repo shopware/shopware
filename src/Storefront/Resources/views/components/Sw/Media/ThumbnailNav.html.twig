@@ -5,15 +5,37 @@
 {% props
     mediaItems,
     thumbnailSize = 70,
+    isHorizontal = false,
 %}
 
+{% set thumbnailNavCVA = cva({
+    base: 'sw-thumbnail-nav',
+    variants: {
+        isHorizontal: {
+            true: 'sw-thumbnail-nav--horizontal',
+        },
+    },
+}) %}
+
 {% set defaultAttributes = {
-    class: 'sw-thumbnail-nav',
+    class: thumbnailNavCVA.apply({ isHorizontal }),
 } %}
 
+{% set scrollBackwardIcon = isHorizontal ? 'arrow-head-left' : 'arrow-head-up' %}
+{% set scrollForwardIcon = isHorizontal ? 'arrow-head-right' : 'arrow-head-down' %}
+{% set scrollForwardText = isHorizontal ? 'Scroll right' : 'Scroll down' %}
+{% set scrollBackwardText = isHorizontal ? 'Scroll left' : 'Scroll up' %}
+
 <div {{ attributes.defaults(defaultAttributes) }}>
-    <button type="button" class="sw-thumbnail-nav__scroll-control is--backward btn btn-light">
-        <twig:Sw:Icon name="arrow-head-up" size="sm" />
+    <button
+        type="button" 
+        class="sw-thumbnail-nav__scroll-control is--backward btn btn-light"
+        aria-label="{{ scrollBackwardText }}"
+    >
+        <twig:Sw:Icon 
+            :name="scrollBackwardIcon" 
+            size="sm" 
+        />
     </button>
     <div class="sw-thumbnail-nav__inner">
         {% for mediaItem in mediaItems %}
@@ -31,7 +53,14 @@
             </button>
         {% endfor %}
     </div>
-    <button type="button" class="sw-thumbnail-nav__scroll-control is--forward btn btn-light">
-        <twig:Sw:Icon name="arrow-head-down" size="sm" />
+    <button 
+        type="button" 
+        class="sw-thumbnail-nav__scroll-control is--forward btn btn-light"
+        aria-label="{{ scrollForwardText }}"
+    >
+        <twig:Sw:Icon 
+            :name="scrollForwardIcon" 
+            size="sm" 
+        />
     </button>
 </div>

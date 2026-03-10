@@ -893,7 +893,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.find('.mt-button--critical').exists()).toBe(true);
     });
 
-    it('should remove the document from the list when delete was succesfull', async () => {
+    it('should remove the document from the list when delete was successful', async () => {
         global.activeAclRoles = ['document.deleter'];
         wrapper = await createWrapper();
 

@@ -1,7 +1,7 @@
 .sw-settings-usage-data-consent-check-list {
     display: flex;
     flex-direction: column;
-    row-gap: var(--scale-size-16);
+    row-gap: var(--scale-size-10);
     list-style: none;
     margin: 0;
     padding: var(--scale-size-24) var(--scale-size-16);
@@ -12,6 +12,14 @@
     li {
         display: flex;
         align-items: center;
-        column-gap: var(--scale-size-8);
+        list-style: none;
+        column-gap: var(--scale-size-10);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-md);
+    }
+
+    .sw-settings-usage-data-consent-check-list__icon {
+        flex-shrink: 0;
     }
 }

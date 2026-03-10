@@ -14,11 +14,12 @@ This allows us to track clicks on buttons that are not present at the time of in
 ## Telemetry events
 
 While shaping the API we decided to be as close as possible to the Segment API, which is a widely used analytics API.
-As a result there are four main types of events that can be tracked:
+As a result there are five main types of events that can be tracked:
 
 * `identify` (a user logs in)
 * `page_change`
 * `user_interaction` (usually called track in the Segment API)
+* `programmatic`
 * `reset` (a user logs out)
 
 For better differentiation of user interactions and events fired inside event handlers, JavaScript services or workers
@@ -53,12 +54,12 @@ Currently, we track the following interactions:
 
 ### Change the tracked event
 
-By default, we add click listeners to the elements that pass the tests. If you want to track a different event, you can add the `data-analytics-event` attribute to the element and specify the event name.
+By default, we add click listeners to the elements that pass the tests. If you want to track a different event, you can add the `data-product-analytics-event` attribute to the element and specify the event name.
 
 ```js
 <mt-button
     data-analytics-id="my-button"
-    data-analytics-event="mouseover"
+    data-product-analytics-event="mouseover"
 >
 Some button in the Admin    
 </mt-button>

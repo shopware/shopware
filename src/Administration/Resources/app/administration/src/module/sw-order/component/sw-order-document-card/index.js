@@ -7,7 +7,7 @@ import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import EntityCollection from '../../../../core/data/entity-collection.data';
-import { DOCUMENT_TYPES, ZUGFERD_DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -246,7 +246,10 @@ export default {
         },
 
         isXmlDocument() {
-            return ZUGFERD_DOCUMENT_TYPES.includes(this.currentDocumentType?.technicalName);
+            return [
+                DOCUMENT_TYPES.ZUGFERD_INVOICE,
+                DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+            ].includes(this.currentDocumentType?.technicalName);
         },
     },
 
@@ -306,6 +309,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         documentTypeAvailable(documentType) {
             return (
                 (documentType.technicalName !== DOCUMENT_TYPES.CANCELLATION_INVOICE &&
@@ -316,6 +322,9 @@ export default {
             );
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         invoiceExists() {
             return this.documents.some((document) => {
                 return (

@@ -33,12 +33,15 @@ class ZugferdBuilder
     ) {
     }
 
+    /**
+     * @param array<string, mixed>|null $invoiceReference
+     */
     public function buildDocument(
         OrderEntity $order,
         DocumentConfiguration $config,
         Context $context,
         string $documentType = ZugferdInvoiceType::INVOICE,
-        array $invoiceReference = null,
+        ?array $invoiceReference = null,
     ): string {
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
         if (!$billingAddress) {

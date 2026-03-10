@@ -138,6 +138,9 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
         return $result;
     }
 
+    /**
+     * @param array<string, mixed> $referenceDocument
+     */
     protected function createDocument(
         RendererResult $renderResult,
         OrderEntity $order,

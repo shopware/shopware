@@ -8,6 +8,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolExecutor;
@@ -78,6 +79,66 @@ class AppMcpToolExecutorTest extends TestCase
         static::assertFalse($decoded['success']);
         static::assertStringContainsString('sync-orders', $decoded['error']);
         static::assertStringContainsString('Connection refused', $decoded['error']);
+    }
+
+    public function testResponseWithoutSuccessKeyLogsWarning(): void
+    {
+        $mock = new MockHandler();
+        $mock->append(new Response(200, [], '{"result":"ok"}'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('info');
+        $logger->expects($this->once())->method('warning')
+            ->with(static::stringContains('missing "success" key'));
+
+        $executor = new AppMcpToolExecutor(
+            new Client(['handler' => HandlerStack::create($mock)]),
+            'https://shop.example.com',
+            30,
+            $logger,
+        );
+
+        $executor->execute('my-tool', 'secret', 'https://example.com', []);
+    }
+
+    public function testExceptionWithLoggerLogsError(): void
+    {
+        $mock = new MockHandler();
+        $mock->append(new \RuntimeException('timeout'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')
+            ->with(static::stringContains('execution failed'));
+
+        $executor = new AppMcpToolExecutor(
+            new Client(['handler' => HandlerStack::create($mock)]),
+            'https://shop.example.com',
+            30,
+            $logger,
+        );
+
+        $result = $executor->execute('my-tool', 'secret', 'https://example.com', []);
+        $data = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
+    }
+
+    public function testSuccessResponseWithSuccessKeyDoesNotLogWarning(): void
+    {
+        $mock = new MockHandler();
+        $mock->append(new Response(200, [], '{"success":true,"data":{}}'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('info');
+        $logger->expects($this->never())->method('warning');
+
+        $executor = new AppMcpToolExecutor(
+            new Client(['handler' => HandlerStack::create($mock)]),
+            'https://shop.example.com',
+            30,
+            $logger,
+        );
+
+        $executor->execute('my-tool', 'secret', 'https://example.com', []);
     }
 
     public function testHmacSignatureIsSentInHeader(): void

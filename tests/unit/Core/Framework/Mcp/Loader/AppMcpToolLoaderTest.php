@@ -178,6 +178,66 @@ class AppMcpToolLoaderTest extends TestCase
         $loader->load($registry);
     }
 
+    public function testInvalidInputSchemaJsonFallsBackToEmptySchema(): void
+    {
+        $toolRow = [
+            'name' => 'broken-tool',
+            'url' => 'https://app.example.com/mcp/broken',
+            'input_schema' => 'not-valid-json',
+            'app_name' => 'my-app',
+            'app_secret' => 'secret',
+            'label' => 'Broken',
+            'description' => 'Broken tool',
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerTool')
+            ->with(
+                static::callback(function (Tool $tool): bool {
+                    static::assertSame(['type' => 'object', 'properties' => [], 'required' => []], $tool->inputSchema);
+
+                    return true;
+                }),
+                static::isCallable(),
+                true,
+            );
+
+        $this->loader->load($registry);
+    }
+
+    public function testDescriptionFallsBackToToolNameWhenNoLabelOrDescription(): void
+    {
+        $toolRow = [
+            'name' => 'mystery-tool',
+            'url' => 'https://app.example.com/mcp/mystery',
+            'input_schema' => null,
+            'app_name' => 'my-app',
+            'app_secret' => 'secret',
+            'label' => null,
+            'description' => null,
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerTool')
+            ->with(
+                static::callback(function (Tool $tool): bool {
+                    static::assertSame('my-app-mystery-tool', $tool->description);
+
+                    return true;
+                }),
+                static::isCallable(),
+                true,
+            );
+
+        $this->loader->load($registry);
+    }
+
     public function testLoadWithAllowlistSkipsAppToolNotInList(): void
     {
         $toolRow = [

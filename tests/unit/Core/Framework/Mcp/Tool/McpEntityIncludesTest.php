@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -270,6 +272,63 @@ class McpEntityIncludesTest extends TestCase
         static::assertNotNull($includes);
         static::assertContains('translated', $includes['product']);
         static::assertContains('translated', $includes['manufacturer']);
+    }
+
+    public function testManyToManyAssociationResolvesReferenceDefinition(): void
+    {
+        [$product] = $this->compileDefinitions([
+            'product' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new StringField('name', 'name'))->addFlags(new ApiAware()),
+                (new ManyToManyIdField('category_ids', 'categoryIds', 'categories'))->addFlags(new ApiAware()),
+                new ManyToManyAssociationField('categories', 'category', 'product_category', 'product_id', 'category_id'),
+            ],
+            'category' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            ],
+            'product_category' => [
+                (new FkField('product_id', 'productId', 'product'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new FkField('category_id', 'categoryId', 'category'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            ],
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('categories');
+
+        $includes = $this->buildDefaultIncludes($product, $criteria);
+
+        static::assertContains('categories', $includes['product']);
+        static::assertArrayHasKey('category', $includes);
+        static::assertContains('id', $includes['category']);
+        static::assertContains('name', $includes['category']);
+    }
+
+    public function testRecursionGuardPreventsInfiniteLoop(): void
+    {
+        [$product] = $this->compileDefinitions([
+            'product' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new StringField('name', 'name'))->addFlags(new ApiAware()),
+                (new FkField('manufacturer_id', 'manufacturerId', 'manufacturer'))->addFlags(new ApiAware()),
+                new ManyToOneAssociationField('manufacturer', 'manufacturer_id', 'manufacturer'),
+            ],
+            'manufacturer' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new StringField('name', 'name'))->addFlags(new ApiAware()),
+                new OneToManyAssociationField('products', 'product', 'manufacturer_id'),
+            ],
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->getAssociation('manufacturer')->addAssociation('products');
+
+        $includes = $this->buildDefaultIncludes($product, $criteria);
+
+        static::assertContains('manufacturer', $includes['product']);
+        static::assertArrayHasKey('manufacturer', $includes);
+        static::assertContains('products', $includes['manufacturer']);
+        static::assertArrayHasKey('product', $includes);
     }
 
     public function testEnsureTranslatedSkipsEntityNotInIncludesMap(): void

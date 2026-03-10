@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Mcp;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Mcp\Mcp;
 use Shopware\Core\Framework\App\Mcp\Xml\McpTools;
 use Shopware\Core\Framework\Log\Package;
@@ -39,6 +40,14 @@ class McpTest extends TestCase
         $mcp->setPath('/new/path');
 
         static::assertSame('/new/path', $mcp->getPath());
+    }
+
+    public function testFileNotReadableThrowsException(): void
+    {
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessageMatches('/not readable/');
+
+        Mcp::createFromXmlFile('/non/existent/path/mcp.xml');
     }
 
     public function testGetToolsReturnsCorrectToolNames(): void

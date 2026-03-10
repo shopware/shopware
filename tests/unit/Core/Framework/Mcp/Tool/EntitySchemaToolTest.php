@@ -15,8 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -78,6 +80,8 @@ class EntitySchemaToolTest extends TestCase
 
         static::assertSame('many-to-one', $assocMap['parent']['type']);
         static::assertSame('one-to-many', $assocMap['children']['type']);
+        static::assertSame('many-to-many', $assocMap['tags']['type']);
+        static::assertSame('one-to-one', $assocMap['detail']['type']);
     }
 
     public function testFieldWithoutRequiredFlagIsNotRequired(): void
@@ -127,6 +131,8 @@ class RichTestEntityDefinition extends EntityDefinition
             new FkField('parent_id', 'parentId', self::class),
             new ManyToOneAssociationField('parent', 'parent_id', self::class),
             new OneToManyAssociationField('children', self::class, 'parent_id'),
+            new ManyToManyAssociationField('tags', self::class, self::class, 'source_id', 'target_id'),
+            new OneToOneAssociationField('detail', 'detail_id', 'id', self::class),
         ]);
     }
 }

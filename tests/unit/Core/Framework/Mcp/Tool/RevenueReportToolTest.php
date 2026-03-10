@@ -85,6 +85,52 @@ class RevenueReportToolTest extends TestCase
         static::assertStringContainsString('order:read', $data['error']);
     }
 
+    public function testSalesChannelIdFilterIsApplied(): void
+    {
+        $tool = $this->createTool(500.0, 5, 100.0, [
+            new Bucket('2025-03-01', 5, new SumResult('dayRevenue', 500.0)),
+        ]);
+
+        $output = ($tool)('2025-03-01', '2025-03-31', 'day', 'sc-123');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertEqualsWithDelta(500.0, $data['data']['totalRevenue'], 0.01);
+    }
+
+    public function testNonSumResultTimelineBucketFallsBackToZero(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $aggregations = new AggregationResultCollection([
+            new SumResult('revenue', 100.0),
+            new CountResult('orderCount', 1),
+            new AvgResult('avgOrderValue', 100.0),
+            new DateHistogramResult('revenueOverTime', [
+                new Bucket('2025-03-01', 1, new CountResult('dayRevenue', 1)),
+            ]),
+        ]);
+
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), $aggregations, new Criteria(), $context);
+
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('search')->willReturn($result);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturn($repository);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new RevenueReportTool($registry, $contextProvider);
+        $output = ($tool)('2025-03-01', '2025-03-31');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertCount(1, $data['data']['timeline']);
+        static::assertSame(0, $data['data']['timeline'][0]['revenue']);
+    }
+
     public function testEmptyResultReturnsZeros(): void
     {
         $tool = $this->createTool(0, 0, 0, []);

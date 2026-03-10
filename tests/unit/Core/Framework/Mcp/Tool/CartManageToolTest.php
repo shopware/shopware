@@ -13,6 +13,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -187,6 +189,78 @@ class CartManageToolTest extends TestCase
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
         static::assertFalse($data['success']);
         static::assertStringContainsString('Invalid action', $data['error']);
+    }
+
+    public function testExceptionInCartServiceReturnsError(): void
+    {
+        $tool = $this->createTool();
+
+        $this->cartService->method('getCart')->willThrowException(new \RuntimeException('Cart expired'));
+
+        $output = ($tool)(
+            salesChannelId: Uuid::randomHex(),
+            action: 'get',
+            token: 'expired-token',
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Cart expired', $data['error']);
+    }
+
+    public function testDeniesAccessWithoutPermission(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions([]);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new CartManageTool(
+            static::createStub(SalesChannelContextServiceInterface::class),
+            static::createStub(CartService::class),
+            $contextProvider,
+        );
+
+        $output = ($tool)(
+            salesChannelId: Uuid::randomHex(),
+            action: 'create',
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege', $data['error']);
+    }
+
+    public function testMissingLineItemIdForRemoveReturnsError(): void
+    {
+        $tool = $this->createTool();
+
+        $output = ($tool)(
+            salesChannelId: Uuid::randomHex(),
+            action: 'remove',
+            token: 'test-token',
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('lineItemId is required', $data['error']);
+    }
+
+    public function testMissingLineItemIdForUpdateReturnsError(): void
+    {
+        $tool = $this->createTool();
+
+        $output = ($tool)(
+            salesChannelId: Uuid::randomHex(),
+            action: 'update',
+            token: 'test-token',
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('lineItemId is required', $data['error']);
     }
 
     private function createTool(): CartManageTool

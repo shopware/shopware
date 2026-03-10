@@ -118,6 +118,62 @@ class BestsellerReportToolTest extends TestCase
         static::assertStringContainsString('order:read', $data['error']);
     }
 
+    public function testLimitOutOfRangeReturnsError(): void
+    {
+        $tool = $this->createTool(bestsellerBuckets: [], revenueBuckets: [], products: []);
+
+        $output = ($tool)('2025-01-01', '2025-01-31', limit: 0);
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('between 1 and 100', $data['error']);
+    }
+
+    public function testNonSumResultAggregationFallsBackToZero(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $aggregations = new AggregationResultCollection([
+            new TermsResult('bestsellers', [
+                new Bucket($productId, 3, new TermsResult('totalQuantity', [])),
+            ]),
+            new TermsResult('revenue', [
+                new Bucket($productId, 3, new TermsResult('totalRevenue', [])),
+            ]),
+        ]);
+
+        $lineItemResult = new EntitySearchResult('order_line_item', 0, new EntityCollection(), $aggregations, new Criteria(), $context);
+
+        $lineItemRepo = static::createStub(EntityRepository::class);
+        $lineItemRepo->method('search')->willReturn($lineItemResult);
+
+        $product = $this->buildProduct($productId, 'SW-001', 'Test');
+        $productResult = new EntitySearchResult('product', 1, new ProductCollection([$product]), null, new Criteria(), $context);
+
+        $productRepo = static::createStub(EntityRepository::class);
+        $productRepo->method('search')->willReturn($productResult);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturnMap([
+            ['order_line_item', $lineItemRepo],
+            ['product', $productRepo],
+        ]);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new BestsellerReportTool($registry, $contextProvider);
+        $output = ($tool)('2025-01-01', '2025-01-31');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertCount(1, $data['data']['bestsellers']);
+        static::assertSame(0, $data['data']['bestsellers'][0]['totalQuantity']);
+        static::assertSame(0, $data['data']['bestsellers'][0]['totalRevenue']);
+    }
+
     public function testEmptyResultReturnsEmptyBestsellers(): void
     {
         $tool = $this->createTool(bestsellerBuckets: [], revenueBuckets: [], products: []);

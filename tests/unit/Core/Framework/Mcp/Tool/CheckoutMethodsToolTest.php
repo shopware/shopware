@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -91,6 +93,51 @@ class CheckoutMethodsToolTest extends TestCase
         static::assertTrue($data['success']);
         static::assertSame([], $data['data']['paymentMethods']);
         static::assertSame([], $data['data']['shippingMethods']);
+    }
+
+    public function testDeniesAccessWithoutPermission(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions([]);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new CheckoutMethodsTool(
+            static::createStub(SalesChannelContextServiceInterface::class),
+            static::createStub(AbstractPaymentMethodRoute::class),
+            static::createStub(AbstractShippingMethodRoute::class),
+            $contextProvider,
+        );
+
+        $output = ($tool)(salesChannelId: Uuid::randomHex(), type: 'all');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege', $data['error']);
+    }
+
+    public function testExceptionInRouteReturnsError(): void
+    {
+        $contextService = static::createStub(SalesChannelContextServiceInterface::class);
+        $contextService->method('get')->willThrowException(new \RuntimeException('Sales channel not found'));
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new CheckoutMethodsTool(
+            $contextService,
+            static::createStub(AbstractPaymentMethodRoute::class),
+            static::createStub(AbstractShippingMethodRoute::class),
+            $contextProvider,
+        );
+
+        $output = ($tool)(salesChannelId: 'bad-id', type: 'all');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Sales channel not found', $data['error']);
     }
 
     public function testInvalidTypeReturnsError(): void

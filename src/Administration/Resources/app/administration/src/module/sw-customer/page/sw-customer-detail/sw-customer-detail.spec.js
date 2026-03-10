@@ -135,9 +135,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should be able to edit the customer', async () => {
-        const wrapperWithPrivileges = await createWrapper([
-            'customer.editor',
-        ]);
+        const wrapperWithPrivileges = await createWrapper(['customer.editor']);
 
         await flushPromises();
 
@@ -185,12 +183,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should have company validation when customer type is commercial', async () => {
-        const wrapperWithPrivileges = await createWrapper(
-            [
-                'customer.editor',
-            ],
-            true,
-        );
+        const wrapperWithPrivileges = await createWrapper(['customer.editor'], true);
 
         await flushPromises();
 

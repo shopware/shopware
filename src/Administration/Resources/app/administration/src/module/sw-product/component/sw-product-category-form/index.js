@@ -13,15 +13,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         allowEdit: {
@@ -62,10 +56,7 @@ export default {
             return Shopware.Store.get('swProductDetail').showModeSetting;
         },
 
-        ...mapPropertyErrors('product', [
-            'tags',
-            'active',
-        ]),
+        ...mapPropertyErrors('product', ['tags', 'active']),
 
         hasSelectedVisibilities() {
             if (this.product && this.product.visibilities) {

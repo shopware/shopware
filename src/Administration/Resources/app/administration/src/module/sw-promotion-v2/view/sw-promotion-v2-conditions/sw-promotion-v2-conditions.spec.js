@@ -15,38 +15,23 @@ async function createWrapper() {
                 },
                 'sw-text-field': {
                     template: '<input type="text" class="sw-field sw-text-field"></input>',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
+                    props: ['value', 'disabled'],
                 },
                 'mt-number-field': {
                     template: '<input type="number" class="sw-field mt-number-field"></input>',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
+                    props: ['value', 'disabled'],
                 },
                 'sw-entity-multi-select': {
                     template: '<input type="select" multiple="true" class="sw-field sw-entity-multi-select"></input>',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
+                    props: ['value', 'disabled'],
                 },
                 'sw-promotion-v2-sales-channel-select': {
                     template: '<input type="select" class="sw-field sw-promotion-v2-sales-channel-select"></input>',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
+                    props: ['value', 'disabled'],
                 },
                 'sw-select-rule-create': {
                     template: '<input type="select" class="sw-field sw-select-rule-create"></input>',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
+                    props: ['value', 'disabled'],
                 },
                 'sw-promotion-v2-cart-condition-form': true,
             },

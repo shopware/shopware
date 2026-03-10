@@ -232,12 +232,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
             const inputField = wrapper.find(link.selector);
 
             // sw-entity-single-select only uses the input field for the search
-            if (
-                ![
-                    'detail',
-                    'media',
-                ].includes(link.type)
-            ) {
+            if (!['detail', 'media'].includes(link.type)) {
                 // eslint-disable-next-line jest/no-conditional-expect
                 expect(inputField.element.value).toBe(link.value);
             }

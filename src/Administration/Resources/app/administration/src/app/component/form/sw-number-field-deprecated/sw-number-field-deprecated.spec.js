@@ -347,9 +347,7 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         const input = wrapper.find('input');
         await input.setValue('5.');
 
-        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
-            [true],
-        ]);
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([[true]]);
     });
 
     it('should emit "ends-with-decimal-separator" event with false value when input does not end with decimal separator', async () => {
@@ -359,9 +357,7 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         const input = wrapper.find('input');
         await input.setValue('5');
 
-        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
-            [false],
-        ]);
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([[false]]);
     });
 
     it('injects ariaLabel prop from global injection', async () => {

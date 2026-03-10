@@ -27,16 +27,9 @@ export default {
 
     inject: ['feature'],
 
-    emits: [
-        'update:value',
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
-    mixins: [
-        Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error')],
 
     props: {
         value: {
@@ -84,10 +77,7 @@ export default {
         },
 
         zIndex: {
-            type: [
-                Number,
-                null,
-            ],
+            type: [Number, null],
             required: false,
             default: null,
         },
@@ -421,11 +411,7 @@ export default {
         },
 
         setSingleRGBValue(newColorValue, type) {
-            const validTypes = [
-                'red',
-                'green',
-                'blue',
-            ];
+            const validTypes = ['red', 'green', 'blue'];
 
             if (validTypes.indexOf(type) === -1) {
                 return;
@@ -522,10 +508,7 @@ export default {
         },
 
         convertHSL(mode, color) {
-            const validModes = [
-                'hex',
-                'rgb',
-            ];
+            const validModes = ['hex', 'rgb'];
             if (!validModes.includes(mode)) {
                 return {};
             }

@@ -2,10 +2,7 @@
  * @sw-package discovery
  */
 Shopware.Mixin.register('video-cover', {
-    inject: [
-        'mediaService',
-        'acl',
-    ],
+    inject: ['mediaService', 'acl'],
 
     data() {
         return {

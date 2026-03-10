@@ -143,10 +143,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         expect(spyPreviewProduct).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.systemCurrency).toStrictEqual(mockCurrency);
         expect(wrapper.vm.filters).toStrictEqual(mockFilter);
-        expect(wrapper.vm.criteria.filters).toEqual([
-            ...wrapper.vm.filters,
-            displayGroupFilter,
-        ]);
+        expect(wrapper.vm.criteria.filters).toEqual([...wrapper.vm.filters, displayGroupFilter]);
         expect(wrapper.vm.criteria.associations[0].association).toBe('manufacturer');
     });
 

@@ -55,11 +55,7 @@ async function createWrapper(propsOverride) {
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
                     'sw-text-editor': {
                         props: ['value'],
-                        emits: [
-                            'blur',
-                            'update:value',
-                            'change',
-                        ],
+                        emits: ['blur', 'update:value', 'change'],
                         template:
                             '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                     },

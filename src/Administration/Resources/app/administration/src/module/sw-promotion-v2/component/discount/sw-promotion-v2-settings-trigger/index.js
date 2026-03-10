@@ -9,9 +9,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
     props: {
         discount: {

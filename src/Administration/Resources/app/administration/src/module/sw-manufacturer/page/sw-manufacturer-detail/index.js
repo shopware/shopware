@@ -116,11 +116,7 @@ export default {
             };
         },
 
-        ...mapPropertyErrors('manufacturer', [
-            'description',
-            'link',
-            'name',
-        ]),
+        ...mapPropertyErrors('manufacturer', ['description', 'link', 'name']),
     },
 
     watch: {
@@ -153,10 +149,7 @@ export default {
         async loadEntityData() {
             this.isLoading = true;
 
-            const [
-                manufacturerResponse,
-                customFieldResponse,
-            ] = await Promise.allSettled([
+            const [manufacturerResponse, customFieldResponse] = await Promise.allSettled([
                 this.manufacturerRepository.get(this.manufacturerId),
                 this.customFieldSetRepository.search(this.customFieldSetCriteria),
                 this.getMediaDefaultFolderId(),

@@ -35,10 +35,7 @@ type MEModelProperties = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'mediaService',
-        'repositoryFactory',
-    ],
+    inject: ['mediaService', 'repositoryFactory'],
 
     props: {
         source: {

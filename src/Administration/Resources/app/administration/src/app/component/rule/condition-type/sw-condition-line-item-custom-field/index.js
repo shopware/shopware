@@ -12,9 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet')],
 
     computed: {
         customFieldCriteria() {

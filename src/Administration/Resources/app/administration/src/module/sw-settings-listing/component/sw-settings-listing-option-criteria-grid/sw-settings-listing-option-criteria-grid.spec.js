@@ -224,9 +224,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
             field: 'customFields.custom_movies_aspernatur_enim_error',
         });
 
-        expect(getProductSortingFieldsByName).toEqual([
-            '8d863f0747d84544a767ea77a239b0ec',
-        ]);
+        expect(getProductSortingFieldsByName).toEqual(['8d863f0747d84544a767ea77a239b0ec']);
     });
 
     it('should change productSortingEntity when add custom field', async () => {

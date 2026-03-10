@@ -101,27 +101,19 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                 return {
                     search: () => {
                         if (entityName === 'product') {
-                            return Promise.resolve([
-                                { id: 'a', translated: { name: 'Product Media Test' } },
-                            ]);
+                            return Promise.resolve([{ id: 'a', translated: { name: 'Product Media Test' } }]);
                         }
 
                         if (entityName === 'category') {
-                            return Promise.resolve([
-                                { id: 'b', translated: { name: 'Category Media Test' } },
-                            ]);
+                            return Promise.resolve([{ id: 'b', translated: { name: 'Category Media Test' } }]);
                         }
 
                         if (entityName === 'landing_page') {
-                            return Promise.resolve([
-                                { id: 'c', translated: { name: 'Landing Page Media Test' } },
-                            ]);
+                            return Promise.resolve([{ id: 'c', translated: { name: 'Landing Page Media Test' } }]);
                         }
 
                         if (entityName === 'cms_page') {
-                            return Promise.resolve([
-                                { id: 'd', name: 'CMS Page Media Test' },
-                            ]);
+                            return Promise.resolve([{ id: 'd', name: 'CMS Page Media Test' }]);
                         }
 
                         return Promise.resolve([]);

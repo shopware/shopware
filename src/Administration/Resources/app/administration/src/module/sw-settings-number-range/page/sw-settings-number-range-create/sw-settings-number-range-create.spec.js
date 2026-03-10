@@ -77,10 +77,7 @@ async function createWrapper() {
                     'sw-help-text': true,
                     'sw-multi-select': true,
                     'sw-entity-single-select': {
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
+                        props: ['value', 'disabled'],
                         template: `
                         <input
                            class="sw-entity-single-select"

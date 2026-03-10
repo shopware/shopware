@@ -140,14 +140,9 @@ export default class ImportExportService extends ApiService {
             formData.append('dryRun', 'true');
         }
 
-        Object.entries(config).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                formData.append(`config[${key}]`, JSON.stringify(value));
-            },
-        );
+        Object.entries(config).forEach(([key, value]) => {
+            formData.append(`config[${key}]`, JSON.stringify(value));
+        });
 
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {
             headers: this.getBasicHeaders({ 'Content-Type': 'multipart/form-data' }),

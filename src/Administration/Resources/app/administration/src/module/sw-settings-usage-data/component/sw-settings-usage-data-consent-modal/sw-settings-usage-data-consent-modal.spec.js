@@ -31,10 +31,7 @@ function createConsentModal(storeDataConsent, userDataConsent) {
 
 describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal', () => {
     beforeEach(() => {
-        global.activeAclRoles = [
-            'system.system_config',
-            'user.update_profile',
-        ];
+        global.activeAclRoles = ['system.system_config', 'user.update_profile'];
     });
 
     describe('save preferences', () => {
@@ -60,10 +57,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         it('shows save preferences when one or both consent states changes', async () => {
             const wrapper = await createConsentModal(false, false);
 
-            const [
-                shareStoreDataSwitch,
-                shareUserDataSwitch,
-            ] = wrapper.findAllComponents(MtSwitch);
+            const [shareStoreDataSwitch, shareUserDataSwitch] = wrapper.findAllComponents(MtSwitch);
 
             await shareStoreDataSwitch.get('input').trigger('change');
 

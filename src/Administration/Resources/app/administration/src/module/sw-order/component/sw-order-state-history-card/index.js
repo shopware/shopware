@@ -22,14 +22,9 @@ export default {
         'acl',
     ],
 
-    emits: [
-        'options-change',
-        'order-state-change',
-    ],
+    emits: ['options-change', 'order-state-change'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         title: {
@@ -78,12 +73,7 @@ export default {
         transaction() {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 for (let i = 0; i < this.order.transactions.length; i += 1) {
-                    if (
-                        ![
-                            'cancelled',
-                            'failed',
-                        ].includes(this.order.transactions[i].stateMachineState.technicalName)
-                    ) {
+                    if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
                         return this.order.transactions[i];
                     }
                 }
@@ -113,11 +103,7 @@ export default {
 
             criteria.addFilter(Criteria.equalsAny('state_machine_history.referencedId', entityIds));
             criteria.addFilter(
-                Criteria.equalsAny('state_machine_history.entityName', [
-                    'order',
-                    'order_transaction',
-                    'order_delivery',
-                ]),
+                Criteria.equalsAny('state_machine_history.entityName', ['order', 'order_transaction', 'order_delivery']),
             );
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
@@ -145,10 +131,7 @@ export default {
             this.statesLoading = true;
             this.modalConfirmed = false;
 
-            Promise.all([
-                this.getStateHistoryEntries(),
-                this.getTransitionOptions(),
-            ])
+            Promise.all([this.getStateHistoryEntries(), this.getTransitionOptions()])
                 .then(() => {
                     this.$emit('options-change', 'order.states', this.orderOptions);
                     if (this.transaction) {
@@ -230,9 +213,7 @@ export default {
         },
 
         getTransitionOptions() {
-            const statePromises = [
-                this.stateMachineService.getState('order', this.order.id),
-            ];
+            const statePromises = [this.stateMachineService.getState('order', this.order.id)];
             if (this.transaction) {
                 statePromises.push(this.stateMachineService.getState('order_transaction', this.transaction.id));
             }
@@ -240,10 +221,7 @@ export default {
                 statePromises.push(this.stateMachineService.getState('order_delivery', this.delivery.id));
             }
 
-            return Promise.all([
-                this.getAllStates(),
-                ...statePromises,
-            ]).then((data) => {
+            return Promise.all([this.getAllStates(), ...statePromises]).then((data) => {
                 const allStates = data[0];
                 const orderState = data[1];
                 this.orderOptions = this.buildTransitionOptions('order.state', allStates, orderState.data.transitions);

@@ -33,20 +33,14 @@ describe('app/service/map-errors.service.js', () => {
     });
 
     it('mapPropertyErrors: should return an object with properties in camel case', async () => {
-        const computedValues = mapErrors.mapPropertyErrors('testEntity', [
-            'name',
-            'id',
-        ]);
+        const computedValues = mapErrors.mapPropertyErrors('testEntity', ['name', 'id']);
 
         expect(computedValues).toHaveProperty('testEntityNameError');
         expect(computedValues).toHaveProperty('testEntityIdError');
     });
 
     it('mapPropertyErrors: should return the getterPropertyError function', async () => {
-        const computedValues = mapErrors.mapPropertyErrors('testEntity', [
-            'name',
-            'id',
-        ]);
+        const computedValues = mapErrors.mapPropertyErrors('testEntity', ['name', 'id']);
 
         expect(computedValues.testEntityNameError.name).toBe('getterPropertyError');
         expect(computedValues.testEntityIdError.name).toBe('getterPropertyError');
@@ -55,10 +49,7 @@ describe('app/service/map-errors.service.js', () => {
     it('mapPropertyErrors: the getterPropertyError should get the entity name from the vue instance', async () => {
         const spyGetEntityName = jest.fn(() => 'test_entity');
 
-        const computedValues = mapErrors.mapPropertyErrors('testEntity', [
-            'name',
-            'id',
-        ]);
+        const computedValues = mapErrors.mapPropertyErrors('testEntity', ['name', 'id']);
         const computedValueTestEntityNameError = computedValues.testEntityNameError.bind({
             testEntity: {
                 getEntityName: spyGetEntityName,
@@ -73,30 +64,21 @@ describe('app/service/map-errors.service.js', () => {
     });
 
     it('mapPropertyErrors: the getterPropertyError should return null when entity is not in the vue instance', async () => {
-        const computedValues = mapErrors.mapPropertyErrors('testEntity', [
-            'name',
-            'id',
-        ]);
+        const computedValues = mapErrors.mapPropertyErrors('testEntity', ['name', 'id']);
         const computedValueTestEntityNameError = computedValues.testEntityNameError.bind({});
 
         expect(computedValueTestEntityNameError()).toBeNull();
     });
 
     it('mapCollectionPropertyErrors: should return an object with properties in camel case', async () => {
-        const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', [
-            'name',
-            'id',
-        ]);
+        const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', ['name', 'id']);
 
         expect(computedValues).toHaveProperty('testEntityCollectionNameError');
         expect(computedValues).toHaveProperty('testEntityCollectionIdError');
     });
 
     it('mapCollectionPropertyErrors: should return the getterCollectionError function', async () => {
-        const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', [
-            'name',
-            'id',
-        ]);
+        const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', ['name', 'id']);
 
         expect(computedValues.testEntityCollectionNameError.name).toBe('getterCollectionError');
         expect(computedValues.testEntityCollectionIdError.name).toBe('getterCollectionError');
@@ -107,10 +89,7 @@ describe('app/service/map-errors.service.js', () => {
         const spyGetEntityNameOne = jest.fn(() => 'test_entity');
         const spyGetEntityNameTwo = jest.fn(() => 'test_entity');
 
-        const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', [
-            'name',
-            'id',
-        ]);
+        const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', ['name', 'id']);
         const computedValueTestEntityCollectionNameError = computedValues.testEntityCollectionNameError.bind({
             testEntityCollection: [
                 {
@@ -135,10 +114,7 @@ describe('app/service/map-errors.service.js', () => {
         'mapCollectionPropertyErrors: the getterCollectionError should return null ' +
             'when entityCollection is not in the vue instance',
         async () => {
-            const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', [
-                'name',
-                'id',
-            ]);
+            const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', ['name', 'id']);
             const computedValueTestEntityNameError = computedValues.testEntityCollectionNameError.bind({});
 
             expect(computedValueTestEntityNameError()).toBeNull();

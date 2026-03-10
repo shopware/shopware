@@ -11,14 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'update:value',
-    ],
+    emits: ['modal-close', 'update:value'],
 
     props: {
         order: {
@@ -72,11 +67,7 @@ export default {
             const criteria = new Criteria(1, 100);
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
             criteria.addFilter(
-                Criteria.equalsAny('documentType.technicalName', [
-                    'invoice',
-                    'zugferd_invoice',
-                    'zugferd_embedded_invoice',
-                ]),
+                Criteria.equalsAny('documentType.technicalName', ['invoice', 'zugferd_invoice', 'zugferd_embedded_invoice']),
             );
 
             return criteria;

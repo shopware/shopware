@@ -8,11 +8,7 @@ import template from './sw-user-sso-access-key-create-modal.html.twig';
 export default {
     template,
 
-    emits: [
-        'access-key-modal-create:cancel',
-        'access-key-modal-create:save',
-        'access-key-modal-create:generate',
-    ],
+    emits: ['access-key-modal-create:cancel', 'access-key-modal-create:save', 'access-key-modal-create:generate'],
 
     props: {
         isLoading: {
@@ -37,11 +33,7 @@ export default {
 
         mode: {
             validator(value) {
-                return [
-                    'view',
-                    'edit',
-                    'create',
-                ].includes(value);
+                return ['view', 'edit', 'create'].includes(value);
             },
         },
     },

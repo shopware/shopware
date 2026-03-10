@@ -240,10 +240,7 @@ export default function createLicenseViolationsService(storeService) {
             message: warning.text,
             autoClose: false,
             variant: 'warning',
-            actions: [
-                ...notificationActions,
-                ignorePluginAction,
-            ],
+            actions: [...notificationActions, ignorePluginAction],
         });
     }
 

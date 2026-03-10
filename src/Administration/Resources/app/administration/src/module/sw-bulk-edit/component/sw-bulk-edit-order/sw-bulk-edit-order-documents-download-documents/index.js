@@ -12,9 +12,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     computed: {
         documentTypeRepository() {

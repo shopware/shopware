@@ -12,16 +12,9 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        'notification',
-        'placeholder',
-        Mixin.getByName('discard-detail-page-changes')('promotion'),
-    ],
+    mixins: ['notification', 'placeholder', Mixin.getByName('discard-detail-page-changes')('promotion')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -156,9 +149,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('shopwareApps').selectedIds = [
-                this.promotionId,
-            ];
+            Shopware.Store.get('shopwareApps').selectedIds = [this.promotionId];
 
             this.loadEntityData();
         },
@@ -202,12 +193,7 @@ export default {
                 return;
             }
 
-            if (
-                ![
-                    this.cleanUpIndividualCodes,
-                    this.cleanUpFixedCode,
-                ].some((check) => check)
-            ) {
+            if (![this.cleanUpIndividualCodes, this.cleanUpFixedCode].some((check) => check)) {
                 this.savePromotion();
 
                 return;

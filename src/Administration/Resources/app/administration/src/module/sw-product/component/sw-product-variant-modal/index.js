@@ -12,16 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     emits: ['modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         // this is the parent product entity from wich we will get all the variants
@@ -293,17 +288,11 @@ export default {
                         };
                     });
 
-                return [
-                    ...result,
-                    ...optionsForGroup,
-                ];
+                return [...result, ...optionsForGroup];
             }, []);
 
             // Assign groups and children to order objects
-            return [
-                ...groups,
-                ...children,
-            ];
+            return [...groups, ...children];
         },
 
         stockColorVariantFilter() {

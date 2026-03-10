@@ -348,9 +348,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     it('should filter slots based on pageType compatibility', async () => {
         const wrapper = await createWrapper();
 
-        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual([
-            'product_list_slot',
-        ]);
+        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_slot']);
     });
 
     it('should show an error state after 10s when element is not existing', async () => {
@@ -376,14 +374,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     const toggleElementSelectionModalDataProvider = [
-        [
-            'onElementButtonClick',
-            true,
-        ],
-        [
-            'onCloseElementModal',
-            false,
-        ],
+        ['onElementButtonClick', true],
+        ['onCloseElementModal', false],
     ];
     it.each(toggleElementSelectionModalDataProvider)(
         'should toggle the element selection modal according to %s',
@@ -395,10 +387,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should not toggle the element settings modal without defaultConfig and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
@@ -418,10 +407,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should not toggle the element settings modal with a locked element and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
@@ -441,10 +427,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should show the element settings modal with a defaultConfig, no locked element and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();

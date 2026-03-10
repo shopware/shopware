@@ -37,10 +37,7 @@ export default {
         'domain-changed',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types
@@ -122,10 +119,7 @@ export default {
         },
 
         isDomainAware() {
-            const domainAware = [
-                Defaults.storefrontSalesChannelTypeId,
-                Defaults.apiSalesChannelTypeId,
-            ];
+            const domainAware = [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId];
             return domainAware.includes(this.salesChannel.typeId);
         },
 
@@ -248,12 +242,7 @@ export default {
 
         mainNavigationCriteria() {
             const criteria = new Criteria(1, 10);
-            return criteria.addFilter(
-                Criteria.equalsAny('type', [
-                    'page',
-                    'folder',
-                ]),
-            );
+            return criteria.addFilter(Criteria.equalsAny('type', ['page', 'folder']));
         },
 
         getIntervalOptions() {
@@ -415,11 +404,7 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('salesChannel', [
-            'name',
-            'customerGroupId',
-            'navigationCategoryId',
-        ]),
+        ...mapPropertyErrors('salesChannel', ['name', 'customerGroupId', 'navigationCategoryId']),
 
         ...mapPropertyErrors('productExport', [
             'productStreamId',
@@ -738,9 +723,7 @@ export default {
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('fileName', this.productExport.fileName),
-                    Criteria.not('AND', [
-                        Criteria.equals('id', this.productExport.id),
-                    ]),
+                    Criteria.not('AND', [Criteria.equals('id', this.productExport.id)]),
                 ]),
             );
 

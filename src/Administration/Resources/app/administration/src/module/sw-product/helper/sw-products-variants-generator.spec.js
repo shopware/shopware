@@ -206,11 +206,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
     });
 
     it('should filter variants correctly', async () => {
-        const newVariations = [
-            [
-                'e10fed21a07149958427cb5339ee4c31',
-            ],
-        ];
+        const newVariations = [['e10fed21a07149958427cb5339ee4c31']];
 
         const variationOnServer = {
             '455ff20cec764a2aab42d2282d08456c': {
@@ -232,9 +228,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
         expect(variants).toEqual({
             createQueue: [],
-            deleteQueue: [
-                '455ff20cec764a2aab42d2282d08456c',
-            ],
+            deleteQueue: ['455ff20cec764a2aab42d2282d08456c'],
         });
     });
 
@@ -242,24 +236,15 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         const mockCreateQueue = [
             {
                 parentId: 'parent1',
-                options: [
-                    { id: 'option1' },
-                    { id: 'option2' },
-                ],
+                options: [{ id: 'option1' }, { id: 'option2' }],
             },
             {
                 parentId: 'parent1',
-                options: [
-                    { id: 'option1' },
-                    { id: 'option3' },
-                ],
+                options: [{ id: 'option1' }, { id: 'option3' }],
             },
             {
                 parentId: 'parent1',
-                options: [
-                    { id: 'option2' },
-                    { id: 'option3' },
-                ],
+                options: [{ id: 'option2' }, { id: 'option3' }],
             },
         ];
 
@@ -287,9 +272,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 variantRestrictions: [
                     {
                         id: 'restriction1',
-                        values: [
-                            { id: 'value1', group: 'group1', options: [] },
-                        ],
+                        values: [{ id: 'value1', group: 'group1', options: [] }],
                     },
                     {
                         id: 'restriction2',
@@ -329,17 +312,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(result).toEqual([
                 {
                     parentId: 'parent1',
-                    options: [
-                        { id: 'option1' },
-                        { id: 'option3' },
-                    ],
+                    options: [{ id: 'option1' }, { id: 'option3' }],
                 },
                 {
                     parentId: 'parent1',
-                    options: [
-                        { id: 'option2' },
-                        { id: 'option3' },
-                    ],
+                    options: [{ id: 'option2' }, { id: 'option3' }],
                 },
             ]);
         });
@@ -362,17 +339,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(result).toEqual([
                 {
                     parentId: 'parent1',
-                    options: [
-                        { id: 'option1' },
-                        { id: 'option2' },
-                    ],
+                    options: [{ id: 'option1' }, { id: 'option2' }],
                 },
                 {
                     parentId: 'parent1',
-                    options: [
-                        { id: 'option2' },
-                        { id: 'option3' },
-                    ],
+                    options: [{ id: 'option2' }, { id: 'option3' }],
                 },
             ]);
         });
@@ -578,10 +549,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
             const createQueue = [
                 {
-                    options: [
-                        { id: 'new-option-1' },
-                        { id: 'new-option-2' },
-                    ],
+                    options: [{ id: 'new-option-1' }, { id: 'new-option-2' }],
                 },
             ];
 
@@ -630,10 +598,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             const calledPayload = syncSpy.mock.calls[0][0][0].payload;
 
             expect(calledPayload).toHaveLength(2);
-            expect(calledPayload.map((s) => s.optionId).sort()).toEqual([
-                'option-existing',
-                'option-new-in-queue',
-            ]);
+            expect(calledPayload.map((s) => s.optionId).sort()).toEqual(['option-existing', 'option-new-in-queue']);
 
             syncSpy.mockRestore();
         });

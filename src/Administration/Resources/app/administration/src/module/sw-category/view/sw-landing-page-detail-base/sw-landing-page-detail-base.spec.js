@@ -32,10 +32,7 @@ async function createWrapper({
                 'sw-text-field': {
                     template:
                         '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
+                    props: ['value', 'disabled'],
                 },
                 'sw-entity-tag-select': {
                     template: '<input type="select" class="sw-entity-tag-select"/>',

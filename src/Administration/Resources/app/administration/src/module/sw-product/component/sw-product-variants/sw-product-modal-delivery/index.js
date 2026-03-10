@@ -9,15 +9,9 @@ import './sw-product-modal-delivery.scss';
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    emits: [
-        'modal-close',
-        'configuration-close',
-    ],
+    emits: ['modal-close', 'configuration-close'],
 
     props: {
         product: {

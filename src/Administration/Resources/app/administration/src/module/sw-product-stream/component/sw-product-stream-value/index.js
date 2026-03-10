@@ -21,11 +21,7 @@ export default {
         'feature',
     ],
 
-    emits: [
-        'empty-change',
-        'type-change',
-        'boolean-change',
-    ],
+    emits: ['empty-change', 'type-change', 'boolean-change'],
 
     props: {
         condition: {
@@ -69,10 +65,7 @@ export default {
         },
 
         componentClasses() {
-            return [
-                this.growthClass,
-                this.disabledClass,
-            ];
+            return [this.growthClass, this.disabledClass];
         },
 
         growthClass() {
@@ -179,10 +172,7 @@ export default {
 
         productTypeOptions() {
             const providedTypes = this.productTypes?.value ?? this.productTypes;
-            const defaultTypes = [
-                'digital',
-                'physical',
-            ];
+            const defaultTypes = ['digital', 'physical'];
             const types = Array.isArray(providedTypes) && providedTypes.length > 0 ? providedTypes : defaultTypes;
 
             return types.map((type) => {
@@ -336,12 +326,7 @@ export default {
 
         stringValue: {
             get() {
-                if (
-                    [
-                        'int',
-                        'float',
-                    ].includes(this.fieldType)
-                ) {
+                if (['int', 'float'].includes(this.fieldType)) {
                     return Number.parseFloat(this.actualCondition.value);
                 }
                 if (typeof this.actualCondition.value !== 'string') {

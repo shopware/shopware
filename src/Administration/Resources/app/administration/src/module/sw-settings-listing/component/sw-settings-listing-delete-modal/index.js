@@ -8,10 +8,7 @@ import './sw-settings-listing-delete-modal.scss';
 export default {
     template,
 
-    emits: [
-        'cancel',
-        'delete',
-    ],
+    emits: ['cancel', 'delete'],
 
     props: {
         title: {

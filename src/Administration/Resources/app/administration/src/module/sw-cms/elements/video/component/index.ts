@@ -11,14 +11,9 @@ const { Component, Mixin, Filter } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['feature', 'repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     computed: {
         mediaRepository(): RepositoryType<'media'> {

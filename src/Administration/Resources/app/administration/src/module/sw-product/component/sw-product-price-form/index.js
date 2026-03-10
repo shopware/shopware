@@ -12,9 +12,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         allowEdit: {
@@ -68,11 +66,7 @@ export default {
             return Shopware.Store.get('swProductDetail').currencies;
         },
 
-        ...mapPropertyErrors('product', [
-            'taxId',
-            'price',
-            'purchasePrices',
-        ]),
+        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
 
         taxRateHelpText() {
             const link = {

@@ -10,15 +10,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'syncService',
-    ],
+    inject: ['repositoryFactory', 'syncService'],
 
-    emits: [
-        'category-checked-elements-count',
-        'unsaved-changes',
-    ],
+    emits: ['category-checked-elements-count', 'unsaved-changes'],
 
     mixins: ['notification'],
 
@@ -231,10 +225,7 @@ export default {
                 const promise = this.categoryRepository
                     .get(id, Shopware.Context.api, this.criteriaWithChildren)
                     .then((result) => {
-                        this.addCategories([
-                            result,
-                            ...result.children,
-                        ]);
+                        this.addCategories([result, ...result.children]);
                     });
                 parentPromises.push(promise);
             });
@@ -478,10 +469,7 @@ export default {
             newCategory.save = () => {
                 return this.categoryRepository.save(newCategory).then(() => {
                     const criteria = Criteria.fromCriteria(this.criteria).setIds(
-                        [
-                            newCategory.id,
-                            parentId,
-                        ].filter((id) => id !== null),
+                        [newCategory.id, parentId].filter((id) => id !== null),
                     );
                     this.categoryRepository.search(criteria).then((categories) => {
                         this.addCategories(categories);
@@ -566,11 +554,9 @@ export default {
         isErrorNavigationEntryPoint(category) {
             const { navigationSalesChannels, serviceSalesChannels, footerSalesChannels } = category;
 
-            return [
-                navigationSalesChannels,
-                serviceSalesChannels,
-                footerSalesChannels,
-            ].some((navigation) => navigation !== null && navigation?.length > 0);
+            return [navigationSalesChannels, serviceSalesChannels, footerSalesChannels].some(
+                (navigation) => navigation !== null && navigation?.length > 0,
+            );
         },
 
         entryPointWarningMessage(category) {

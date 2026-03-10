@@ -8,10 +8,7 @@ import template from './sw-order-save-changes-beforehand-modal.html.twig';
 export default {
     template,
 
-    emits: [
-        'confirm',
-        'cancel',
-    ],
+    emits: ['confirm', 'cancel'],
 
     methods: {
         onConfirm() {

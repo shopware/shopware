@@ -8,10 +8,7 @@ import './sw-plugin-box.scss';
 export default {
     template,
 
-    inject: [
-        'systemConfigApiService',
-        'repositoryFactory',
-    ],
+    inject: ['systemConfigApiService', 'repositoryFactory'],
 
     props: {
         pluginId: {

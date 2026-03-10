@@ -101,9 +101,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-search/component/sw-settings-search-search-index', () => {
     it('should not able to rebuild the search index', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await wrapper.vm.$nextTick();
 
         const rebuildButton = wrapper.find('.sw-settings-search__search-index-rebuild-button');
@@ -112,9 +110,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
 
     it('should rebuild search index and show the notification on clicking the rebuild button', async () => {
         let response = {};
-        const wrapper = await createWrapper([
-            'product_search_config.editor',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.editor']);
         await wrapper.vm.$nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -159,9 +155,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
     });
 
     it('should display the notification success when the rebuild button process finish successfully', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.editor',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.editor']);
         wrapper.vm.createNotificationSuccess = jest.fn();
         expect(wrapper.vm.isRebuildSuccess).toBeFalsy();
 

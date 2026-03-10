@@ -124,9 +124,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should have enabled fields for creator', async () => {
-        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
-            'rule.creator',
-        ]);
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper(['rule.creator']);
 
         expect(buttonAddRule.attributes('disabled')).toBeUndefined();
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
@@ -136,9 +134,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('only should have enabled fields for editor', async () => {
-        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
-            'rule.editor',
-        ]);
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper(['rule.editor']);
 
         expect(buttonAddRule.attributes('disabled') !== undefined).toBe(true);
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
@@ -148,9 +144,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should have enabled fields for deleter', async () => {
-        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
-            'rule.deleter',
-        ]);
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper(['rule.deleter']);
 
         expect(buttonAddRule.attributes('disabled') !== undefined).toBe(true);
         expect(entityListing.attributes()['show-selection']).toBe('true');
@@ -182,9 +176,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await flushPromises();
         const conditionFilterOptions = wrapper.vm.conditionFilterOptions;
 
-        expect(conditionFilterOptions).toEqual([
-            { label: 'bar', value: 'foo' },
-        ]);
+        expect(conditionFilterOptions).toEqual([{ label: 'bar', value: 'foo' }]);
     });
 
     it('should get filter options for groups', async () => {

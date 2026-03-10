@@ -145,18 +145,8 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await wrapper.get('.sw-select-option--0').trigger('click');
         await wrapper.get('.sw-select-option--1').trigger('click');
 
-        expect(wrapper.vm.condition.value.customerGroupIds).toEqual(
-            expect.arrayContaining([
-                'g.a',
-                'g.b',
-            ]),
-        );
-        expect(wrapper.vm.values.customerGroupIds).toEqual(
-            expect.arrayContaining([
-                'g.a',
-                'g.b',
-            ]),
-        );
+        expect(wrapper.vm.condition.value.customerGroupIds).toEqual(expect.arrayContaining(['g.a', 'g.b']));
+        expect(wrapper.vm.values.customerGroupIds).toEqual(expect.arrayContaining(['g.a', 'g.b']));
     });
 
     it('should render condition with null operator', async () => {

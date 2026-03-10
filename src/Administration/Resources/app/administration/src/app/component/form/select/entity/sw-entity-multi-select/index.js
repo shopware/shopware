@@ -17,10 +17,7 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'search',
@@ -31,16 +28,11 @@ export default {
         'search-term-change',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         labelProperty: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'name',
         },
@@ -126,15 +118,9 @@ export default {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-            ],
+            validValues: ['bottom', 'right'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                ].includes(value);
+                return ['bottom', 'right'].includes(value);
             },
         },
 

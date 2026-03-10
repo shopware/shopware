@@ -14,9 +14,7 @@ export default {
 
     emits: ['sorting-delete'],
 
-    mixins: [
-        'sw-inline-snippet',
-    ],
+    mixins: ['sw-inline-snippet'],
 
     props: {
         productSortings: {

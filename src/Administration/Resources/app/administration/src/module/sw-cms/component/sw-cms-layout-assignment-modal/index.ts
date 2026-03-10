@@ -14,17 +14,11 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService', 'acl'],
 
     emits: ['modal-close'],
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {
         page: {

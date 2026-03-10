@@ -31,14 +31,9 @@ export default function createContext(context = {}) {
     }
 
     // assign unknown context information
-    Object.entries(context).forEach(
-        ([
-            key,
-            value,
-        ]) => {
-            contextStore.addApiValue({ key, value });
-        },
-    );
+    Object.entries(context).forEach(([key, value]) => {
+        contextStore.addApiValue({ key, value });
+    });
 
     return Shopware.Context.api;
 }

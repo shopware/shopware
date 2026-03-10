@@ -15,10 +15,7 @@ export default Shopware.Component.wrapComponentConfig({
         SwSettingsUsageDataStoreDataConsent,
     },
 
-    inject: [
-        'usageDataService',
-        'feature',
-    ],
+    inject: ['usageDataService', 'feature'],
 
     methods: {
         async createdComponent() {

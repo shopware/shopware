@@ -46,10 +46,7 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.identifiers',
-        ]),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.identifiers']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;

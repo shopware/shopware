@@ -182,10 +182,7 @@ export default class VariantsGenerator extends EventEmitter {
             const numberMap = {};
 
             // eslint-disable-next-line
-            for (const [
-                key,
-                variant,
-            ] of Object.entries(variationOnServer)) {
+            for (const [key, variant] of Object.entries(variationOnServer)) {
                 const hash = md5(JSON.stringify(variant.options.sort()));
                 hashed[hash] = key;
                 numberMap[hash] = variant.productNumber;

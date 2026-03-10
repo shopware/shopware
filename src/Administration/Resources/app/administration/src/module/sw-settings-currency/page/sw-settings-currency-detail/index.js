@@ -20,10 +20,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         currencyId: {
@@ -199,10 +196,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.currencyId) {
-                return Promise.all([
-                    this.loadEntityData(),
-                    this.loadCustomFieldSets(),
-                ]);
+                return Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
             Shopware.Store.get('context').resetLanguageToDefault();
@@ -231,10 +225,7 @@ export default {
                 .then((currency) => {
                     this.currency = currency;
                     return this.loadCurrencyCountryRoundings().then((currencyCountryRoundings) => {
-                        return [
-                            currency,
-                            currencyCountryRoundings,
-                        ];
+                        return [currency, currencyCountryRoundings];
                     });
                 })
                 .finally(() => {

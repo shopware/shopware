@@ -16,14 +16,9 @@ const {
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     data() {
         return {
@@ -114,11 +109,7 @@ export default {
 
             const criteria = new Criteria(1, 100);
             try {
-                const [
-                    languages,
-                    salesChannels,
-                    tags,
-                ] = await Promise.all([
+                const [languages, salesChannels, tags] = await Promise.all([
                     this.repositoryFactory.create('language').search(criteria, Shopware.Context.api),
                     this.salesChannelRepository.search(criteria),
                     this.tagRepository.search(criteria),

@@ -19,9 +19,7 @@ export default {
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         value: {

@@ -21,10 +21,7 @@ export default {
         'inline-edit-cancel',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
 
     props: {
         productSortingEntity: {
@@ -63,11 +60,7 @@ export default {
         customFieldCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('and', [
-                    Criteria.equalsAny('type', this.notSortableCustomFields),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('and', [Criteria.equalsAny('type', this.notSortableCustomFields)]));
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
@@ -403,11 +396,7 @@ export default {
         customFieldCriteriaSingleSelect(customField) {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('and', [
-                    Criteria.equalsAny('type', this.notSortableCustomFields),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('and', [Criteria.equalsAny('type', this.notSortableCustomFields)]));
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
@@ -415,9 +404,7 @@ export default {
 
             if (this.getProductSortingFieldsByName(customField).length) {
                 criteria.addFilter(
-                    Criteria.not('AND', [
-                        Criteria.equalsAny('id', this.getProductSortingFieldsByName(customField)),
-                    ]),
+                    Criteria.not('AND', [Criteria.equalsAny('id', this.getProductSortingFieldsByName(customField))]),
                 );
             }
 

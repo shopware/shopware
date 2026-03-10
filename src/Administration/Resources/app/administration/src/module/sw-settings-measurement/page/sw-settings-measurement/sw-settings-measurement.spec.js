@@ -255,12 +255,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
         });
 
         expect(wrapper.vm.defaultDisplayUnits).toBeInstanceOf(EntityCollection);
-        expect(wrapper.vm.defaultDisplayUnits.getIds()).toEqual(
-            expect.arrayContaining([
-                'cm',
-                'g',
-            ]),
-        );
+        expect(wrapper.vm.defaultDisplayUnits.getIds()).toEqual(expect.arrayContaining(['cm', 'g']));
 
         await wrapper.vm.onChangeMeasurementSystem('imperial');
 

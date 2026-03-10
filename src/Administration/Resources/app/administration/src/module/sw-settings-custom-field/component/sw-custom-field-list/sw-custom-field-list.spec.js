@@ -284,9 +284,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.editor',
-        ]);
+        const wrapper = await createWrapper(['custom_field.editor']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');

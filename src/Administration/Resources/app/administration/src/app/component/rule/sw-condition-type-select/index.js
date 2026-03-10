@@ -182,35 +182,25 @@ export default {
                 return accumulator;
             }, {});
 
-            return Object.entries(groups).reduce(
-                (
-                    accumulator,
-                    [
-                        key,
-                        value,
-                    ],
-                    index,
-                ) => {
-                    let snippet = '';
+            return Object.entries(groups).reduce((accumulator, [key, value], index) => {
+                let snippet = '';
 
-                    value.forEach((currentValue, currentIndex) => {
-                        if (currentIndex > 0) {
-                            snippet += '<br />';
-                        }
-
-                        snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
-                            assignments: `"${this.$tc(currentValue.snippet, 1)}"`,
-                        });
-                    });
-
-                    if (index > 0) {
-                        return `${accumulator} </br> ${snippet}`;
+                value.forEach((currentValue, currentIndex) => {
+                    if (currentIndex > 0) {
+                        snippet += '<br />';
                     }
 
-                    return `${accumulator} ${snippet}`;
-                },
-                '',
-            );
+                    snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
+                        assignments: `"${this.$tc(currentValue.snippet, 1)}"`,
+                    });
+                });
+
+                if (index > 0) {
+                    return `${accumulator} </br> ${snippet}`;
+                }
+
+                return `${accumulator} ${snippet}`;
+            }, '');
         },
     },
 };

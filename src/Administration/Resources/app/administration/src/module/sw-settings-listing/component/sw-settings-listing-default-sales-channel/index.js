@@ -13,10 +13,7 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService'],
 
     props: {
         isLoading: {

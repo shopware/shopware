@@ -19,10 +19,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['feature', 'repositoryFactory'],
 
     // Grant access to some variables to the child form render components
     provide() {
@@ -34,16 +31,9 @@ export default {
         };
     },
 
-    emits: [
-        'process-finish',
-        'save',
-        'change-active-selection',
-    ],
+    emits: ['process-finish', 'save', 'change-active-selection'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('placeholder')],
 
     props: {
         sets: {
@@ -63,18 +53,12 @@ export default {
             type: String,
             required: false,
             default: 'tabs',
-            validValues: [
-                'tabs',
-                'media-collapse',
-            ],
+            validValues: ['tabs', 'media-collapse'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'tabs',
-                    'media-collapse',
-                ].includes(value);
+                return ['tabs', 'media-collapse'].includes(value);
             },
         },
         disabled: {

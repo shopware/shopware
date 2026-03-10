@@ -14,10 +14,7 @@ export default {
     template,
     inject: ['repositoryFactory'],
 
-    emits: [
-        'update-prices',
-        'modal-close',
-    ],
+    emits: ['update-prices', 'modal-close'],
 
     props: {
         currencies: {

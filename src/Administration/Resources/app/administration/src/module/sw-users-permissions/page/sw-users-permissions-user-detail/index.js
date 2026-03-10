@@ -24,10 +24,7 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

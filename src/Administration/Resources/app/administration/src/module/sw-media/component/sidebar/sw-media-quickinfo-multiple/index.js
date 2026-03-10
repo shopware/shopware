@@ -12,9 +12,7 @@ export default {
 
     emits: ['media-item-selection-remove'],
 
-    mixins: [
-        Mixin.getByName('media-sidebar-modal-mixin'),
-    ],
+    mixins: [Mixin.getByName('media-sidebar-modal-mixin')],
 
     props: {
         items: {

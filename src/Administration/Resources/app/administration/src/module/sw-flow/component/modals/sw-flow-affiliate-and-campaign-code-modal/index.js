@@ -13,15 +13,9 @@ export default {
 
     inject: ['flowBuilderService'],
 
-    emits: [
-        'process-finish',
-        'modal-close',
-    ],
+    emits: ['process-finish', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -62,13 +56,7 @@ export default {
             return this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, properties);
         },
 
-        ...mapState(
-            () => Store.get('swFlow'),
-            [
-                'triggerEvent',
-                'triggerActions',
-            ],
-        ),
+        ...mapState(() => Store.get('swFlow'), ['triggerEvent', 'triggerActions']),
     },
 
     watch: {

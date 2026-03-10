@@ -41,11 +41,7 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.isNet',
-            'value.amount',
-        ]),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.isNet', 'value.amount']),
 
         currentError() {
             return this.conditionValueIsNetError || this.conditionValueOperatorError || this.conditionValueAmountError;

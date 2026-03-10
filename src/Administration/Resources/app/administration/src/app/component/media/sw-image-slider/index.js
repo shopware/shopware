@@ -80,11 +80,7 @@ export default {
             required: false,
             default: 'arrow',
             validator(value) {
-                return [
-                    'arrow',
-                    'button',
-                    'all',
-                ].includes(value);
+                return ['arrow', 'button', 'all'].includes(value);
             },
         },
 
@@ -99,10 +95,7 @@ export default {
             required: false,
             default: 'hidden',
             validator(value) {
-                return [
-                    'hidden',
-                    'visible',
-                ].includes(value);
+                return ['hidden', 'visible'].includes(value);
             },
         },
 
@@ -149,11 +142,7 @@ export default {
             required: false,
             default: 'inside',
             validator(value) {
-                return [
-                    'inside',
-                    'outside',
-                    'none',
-                ].includes(value);
+                return ['inside', 'outside', 'none'].includes(value);
             },
         },
 
@@ -162,11 +151,7 @@ export default {
             required: false,
             default: 'outside',
             validator(value) {
-                return [
-                    'inside',
-                    'outside',
-                    'none',
-                ].includes(value);
+                return ['inside', 'outside', 'none'].includes(value);
             },
         },
 
@@ -175,11 +160,7 @@ export default {
             required: false,
             default: 'cover',
             validator(value) {
-                return [
-                    'contain',
-                    'cover',
-                    'none',
-                ].includes(value);
+                return ['contain', 'cover', 'none'].includes(value);
             },
         },
     },
@@ -269,21 +250,12 @@ export default {
             return (
                 this.images.length >= 2 &&
                 this.images.length > this.itemPerPage &&
-                [
-                    'button',
-                    'all',
-                ].includes(this.navigationType)
+                ['button', 'all'].includes(this.navigationType)
             );
         },
 
         showArrows() {
-            return (
-                this.images.length > this.itemPerPage &&
-                [
-                    'arrow',
-                    'all',
-                ].includes(this.navigationType)
-            );
+            return this.images.length > this.itemPerPage && ['arrow', 'all'].includes(this.navigationType);
         },
     },
 

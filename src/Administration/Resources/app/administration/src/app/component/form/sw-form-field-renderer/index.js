@@ -72,16 +72,11 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet')],
 
     props: {
         type: {
@@ -216,13 +211,7 @@ export default {
         },
 
         optionTranslations() {
-            if (
-                [
-                    'sw-single-select',
-                    'sw-multi-select',
-                    'mt-select',
-                ].includes(this.componentName)
-            ) {
+            if (['sw-single-select', 'sw-multi-select', 'mt-select'].includes(this.componentName)) {
                 if (!this.config.hasOwnProperty('options')) {
                     return {};
                 }
@@ -296,15 +285,7 @@ export default {
             this.$emit('update:value', data);
         },
 
-        getTranslations(
-            componentName,
-            config = this.config,
-            translatableFields = [
-                'label',
-                'placeholder',
-                'helpText',
-            ],
-        ) {
+        getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {
             if (!translatableFields) {
                 return {};
             }

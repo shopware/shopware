@@ -51,14 +51,9 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     }
 
     async function createWrapper(profile) {
-        Object.entries(entitySchemaMock).forEach(
-            ([
-                entityName,
-                entityDefinition,
-            ]) => {
-                Shopware.EntityDefinition.add(entityName, entityDefinition);
-            },
-        );
+        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
+            Shopware.EntityDefinition.add(entityName, entityDefinition);
+        });
 
         return mount(
             await wrapTestComponent('sw-import-export-edit-profile-modal-identifiers', {

@@ -11,10 +11,7 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    inject: [
-        'numberRangeService',
-        'repositoryFactory',
-    ],
+    inject: ['numberRangeService', 'repositoryFactory'],
 
     emits: [
         'loading-document',
@@ -24,9 +21,7 @@ export default {
         'page-leave',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         order: {

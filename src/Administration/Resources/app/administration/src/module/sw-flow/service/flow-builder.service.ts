@@ -269,21 +269,16 @@ export default class FlowBuilderService {
     public getDescription(format: { [key: string]: string }) {
         const description: string[] = [];
 
-        Object.entries(format).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                let label = value;
+        Object.entries(format).forEach(([key, value]) => {
+            let label = value;
 
-                if (Utils.types.isPlainObject(value)) {
-                    label = Object.values(value).join(', ');
-                }
+            if (Utils.types.isPlainObject(value)) {
+                label = Object.values(value).join(', ');
+            }
 
-                const text = `<span>${key}:</span> <span>${label}</span></br>`;
-                description.push(`<p class="${key.toLowerCase().replace(/ /g, '_')}">${text}</p>`);
-            },
-        );
+            const text = `<span>${key}:</span> <span>${label}</span></br>`;
+            description.push(`<p class="${key.toLowerCase().replace(/ /g, '_')}">${text}</p>`);
+        });
 
         return description.join('');
     }
@@ -292,26 +287,21 @@ export default class FlowBuilderService {
         const description = {};
         const entries = Object.entries(config);
 
-        entries.forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                if (!this.isKeyOfActionLabel(key)) {
-                    return;
-                }
+        entries.forEach(([key, value]) => {
+            if (!this.isKeyOfActionLabel(key)) {
+                return;
+            }
 
-                const snippet = translator.$tc(this.$labelSnippet[key]);
+            const snippet = translator.$tc(this.$labelSnippet[key]);
 
-                if (!snippet) {
-                    return;
-                }
+            if (!snippet) {
+                return;
+            }
 
-                Object.assign(description, {
-                    [snippet]: value,
-                });
-            },
-        );
+            Object.assign(description, {
+                [snippet]: value,
+            });
+        });
 
         return description;
     }
@@ -349,27 +339,22 @@ export default class FlowBuilderService {
         const cloneConfig = { ...config } as SequenceConfigValues;
         let descriptions = '';
 
-        Object.entries(cloneConfig).forEach(
-            ([
-                fieldName,
-                fieldValue,
-            ]) => {
-                if (Array.isArray(fieldValue) && fieldValue.length > 1) {
-                    let html = '';
+        Object.entries(cloneConfig).forEach(([fieldName, fieldValue]) => {
+            if (Array.isArray(fieldValue) && fieldValue.length > 1) {
+                let html = '';
 
-                    fieldValue.forEach((val) => {
-                        const valPreview = this.formatValuePreview(context, fieldName, val);
-                        html = `${html}- ${valPreview.toString()}<br/>`;
-                    });
+                fieldValue.forEach((val) => {
+                    const valPreview = this.formatValuePreview(context, fieldName, val);
+                    html = `${html}- ${valPreview.toString()}<br/>`;
+                });
 
-                    descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}:<br/> ${html}`;
-                } else {
-                    const valPreview = this.formatValuePreview(context, fieldName, fieldValue);
-                    // eslint-disable-next-line max-len
-                    descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}: ${valPreview.toString()}<br/>`;
-                }
-            },
-        );
+                descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}:<br/> ${html}`;
+            } else {
+                const valPreview = this.formatValuePreview(context, fieldName, fieldValue);
+                // eslint-disable-next-line max-len
+                descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}: ${valPreview.toString()}<br/>`;
+            }
+        });
 
         return descriptions;
     }
@@ -400,12 +385,7 @@ export default class FlowBuilderService {
             return value?.replace(/([^;])/g, '*');
         }
 
-        if (
-            [
-                'single-select',
-                'multi-select',
-            ].includes(config.type)
-        ) {
+        if (['single-select', 'multi-select'].includes(config.type)) {
             const option = config.options.find((opt) => opt.value === value);
 
             if (option === undefined) {
@@ -415,13 +395,7 @@ export default class FlowBuilderService {
             return option.label[context.translator.currentLocale] ?? config.label['en-GB'] ?? value;
         }
 
-        if (
-            [
-                'datetime',
-                'date',
-                'time',
-            ].includes(config.type)
-        ) {
+        if (['datetime', 'date', 'time'].includes(config.type)) {
             return new Date(value);
         }
 

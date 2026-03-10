@@ -71,10 +71,7 @@ export default Shopware.Component.wrapComponentConfig({
         'open-layout-set-as-default',
     ],
 
-    mixins: [
-        Mixin.getByName('cms-state'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('placeholder')],
 
     props: {
         page: {
@@ -148,14 +145,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return {};
             }
 
-            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(
-                ([
-                    name,
-                    block,
-                ]) => {
-                    return block && !block.hidden && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
-                },
-            );
+            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
+                return block && !block.hidden && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
+            });
 
             return Object.fromEntries(blocks);
         },
@@ -612,12 +604,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                     const slotDefaultData = slotConfig.default?.data;
 
-                    if (
-                        [
-                            slotDefaultData?.media?.source,
-                            slotDefaultData?.sliderItems?.source,
-                        ].includes('default')
-                    ) {
+                    if ([slotDefaultData?.media?.source, slotDefaultData?.sliderItems?.source].includes('default')) {
                         element.config = {
                             ...(element.config as object),
                             ...slotDefaultData,

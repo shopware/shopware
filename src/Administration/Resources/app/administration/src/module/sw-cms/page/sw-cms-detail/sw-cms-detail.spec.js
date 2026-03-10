@@ -250,10 +250,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                                     };
                                 case 'product':
                                     return {
-                                        search: () =>
-                                            Promise.resolve([
-                                                { id: productID },
-                                            ]),
+                                        search: () => Promise.resolve([{ id: productID }]),
                                     };
                                 default:
                                     return repositoryFactoryDefaultMock;
@@ -307,9 +304,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should enable all fields when ACL rights are missing', async () => {
-        global.activeAclRoles = [
-            'cms.editor',
-        ];
+        global.activeAclRoles = ['cms.editor'];
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -350,15 +345,10 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                     {
                         blocks: [
                             {
-                                slots: [
-                                    { type: 'buy-box' },
-                                    { type: 'buy-box' },
-                                ],
+                                slots: [{ type: 'buy-box' }, { type: 'buy-box' }],
                             },
                         ],
-                        visibility: [
-                            { mobile: true, tablet: true, desktop: true },
-                        ],
+                        visibility: [{ mobile: true, tablet: true, desktop: true }],
                     },
                 ],
             },
@@ -373,9 +363,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should not show layout assignment when saving', async () => {
-        global.activeAclRoles = [
-            'cms.editor',
-        ];
+        global.activeAclRoles = ['cms.editor'];
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -400,9 +388,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                                 slots: [],
                             },
                         ],
-                        visibility: [
-                            { mobile: true, tablet: true, desktop: true },
-                        ],
+                        visibility: [{ mobile: true, tablet: true, desktop: true }],
                     },
                 ],
             },

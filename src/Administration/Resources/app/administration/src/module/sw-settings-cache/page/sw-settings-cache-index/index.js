@@ -11,14 +11,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'cacheApiService',
-        'feature',
-    ],
+    inject: ['cacheApiService', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -42,17 +37,10 @@ export default {
                     'category.breadcrumb',
                     'category.seo-url',
                 ],
-                'customer.indexer': [
-                    'customer.many-to-many-id-field',
-                ],
-                'landing_page.indexer': [
-                    'landing_page.many-to-many-id-field',
-                    'landing_page.seo-url',
-                ],
+                'customer.indexer': ['customer.many-to-many-id-field'],
+                'landing_page.indexer': ['landing_page.many-to-many-id-field', 'landing_page.seo-url'],
                 'media.indexer': [],
-                'media_folder.indexer': [
-                    'media_folder.child-count',
-                ],
+                'media_folder.indexer': ['media_folder.child-count'],
                 'media_folder_configuration.indexer': [],
                 'payment_method.indexer': [],
                 'product.indexer': [
@@ -70,16 +58,9 @@ export default {
                 ],
                 'product_stream.indexer': [],
                 'product_stream_mapping.indexer': [],
-                'promotion.indexer': [
-                    'promotion.exclusion',
-                    'promotion.redemption',
-                ],
-                'rule.indexer': [
-                    'rule.payload',
-                ],
-                'sales_channel.indexer': [
-                    'sales_channel.many-to-many',
-                ],
+                'promotion.indexer': ['promotion.exclusion', 'promotion.redemption'],
+                'rule.indexer': ['rule.payload'],
+                'sales_channel.indexer': ['sales_channel.many-to-many'],
                 'flow.indexer': [],
                 'newsletter_recipient.indexer': [],
             },
@@ -264,10 +245,7 @@ export default {
 
         createOnlySelection(only) {
             // eslint-disable-next-line no-restricted-syntax
-            for (const [
-                indexerName,
-                updaters,
-            ] of Object.entries(this.indexers)) {
+            for (const [indexerName, updaters] of Object.entries(this.indexers)) {
                 if (this.indexerSelection.indexOf(indexerName) > -1) {
                     only.push(indexerName);
                 }

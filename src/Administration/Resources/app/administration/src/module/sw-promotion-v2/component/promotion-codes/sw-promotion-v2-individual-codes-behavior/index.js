@@ -10,20 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'promotionCodeApiService',
-    ],
+    inject: ['acl', 'repositoryFactory', 'promotionCodeApiService'],
 
-    emits: [
-        'delete-finish',
-        'generate-finish',
-    ],
+    emits: ['delete-finish', 'generate-finish'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         promotion: {

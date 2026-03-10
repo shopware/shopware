@@ -24,15 +24,9 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'cartStoreService',
-    ],
+    inject: ['repositoryFactory', 'cartStoreService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('cart-notification'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;

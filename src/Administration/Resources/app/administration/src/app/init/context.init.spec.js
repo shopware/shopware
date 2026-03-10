@@ -129,9 +129,7 @@ describe('src/app/init/context.init.ts', () => {
             name: 'jestapp',
             baseUrl: '',
             permissions: {
-                read: [
-                    'user',
-                ],
+                read: ['user'],
             },
             version: '1.0.0',
             type: 'app',

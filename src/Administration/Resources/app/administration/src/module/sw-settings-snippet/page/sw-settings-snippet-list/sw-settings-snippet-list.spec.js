@@ -147,22 +147,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
     }
 
     it.each([
-        [
-            true,
-            'snippet.viewer',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor, snippet.creator',
-        ],
-        [
-            false,
-            'snippet.viewer, snippet.editor, snippet.deleter',
-        ],
+        [true, 'snippet.viewer'],
+        [true, 'snippet.viewer, snippet.editor'],
+        [true, 'snippet.viewer, snippet.editor, snippet.creator'],
+        [false, 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should have a reset button with an disabled state of %p with the roles: %s', async (state, role) => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
@@ -187,22 +175,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
     });
 
     it.each([
-        [
-            true,
-            'snippet.viewer',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor',
-        ],
-        [
-            false,
-            'snippet.viewer, snippet.editor, snippet.creator',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor, snippet.deleter',
-        ],
+        [true, 'snippet.viewer'],
+        [true, 'snippet.viewer, snippet.editor'],
+        [false, 'snippet.viewer, snippet.editor, snippet.creator'],
+        [true, 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should have a disabled state of %p on the new snippet button when using role: %s', async (state, role) => {
         const roles = role.split(', ');
 

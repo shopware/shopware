@@ -14,14 +14,9 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         /**
@@ -50,10 +45,7 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        ...mapPropertyErrors('unit', [
-            'name',
-            'shortCode',
-        ]),
+        ...mapPropertyErrors('unit', ['name', 'shortCode']),
     },
 
     data(): {

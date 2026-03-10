@@ -30,9 +30,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-order', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': true,
@@ -688,9 +686,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderTransactionStateCriteria = new Criteria(1, null);
         orderTransactionStateCriteria.addFilter(
             Criteria.multi('AND', [
-                Criteria.equalsAny('orderTransactions.orderId', [
-                    selectedOrderId,
-                ]),
+                Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]),
                 Criteria.equals('orderTransactions.orderVersionId', liveVersionId),
             ]),
         );
@@ -699,9 +695,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderDeliveryStateCriteria = new Criteria(1, null);
         orderDeliveryStateCriteria.addFilter(
             Criteria.multi('AND', [
-                Criteria.equalsAny('orderDeliveries.orderId', [
-                    selectedOrderId,
-                ]),
+                Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]),
                 Criteria.equals('orderDeliveries.orderVersionId', liveVersionId),
             ]),
         );

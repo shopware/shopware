@@ -35,26 +35,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'shipping_method_price:delete',
                 'shipping_method_tag:create',
             ],
-            dependencies: [
-                'shipping.viewer',
-            ],
+            dependencies: ['shipping.viewer'],
         },
         creator: {
-            privileges: [
-                'shipping_method:create',
-            ],
-            dependencies: [
-                'shipping.viewer',
-                'shipping.editor',
-            ],
+            privileges: ['shipping_method:create'],
+            dependencies: ['shipping.viewer', 'shipping.editor'],
         },
         deleter: {
-            privileges: [
-                'shipping_method:delete',
-            ],
-            dependencies: [
-                'shipping.viewer',
-            ],
+            privileges: ['shipping_method:delete'],
+            dependencies: ['shipping.viewer'],
         },
     },
 });

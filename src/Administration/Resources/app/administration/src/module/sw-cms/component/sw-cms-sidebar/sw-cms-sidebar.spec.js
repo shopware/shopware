@@ -348,100 +348,21 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     const defaultLayoutSelectionDataProvider = [
-        [
-            'no privileges',
-            [],
-        ],
-        [
-            'only read',
-            ['system_config:read'],
-        ],
-        [
-            'only update',
-            ['system_config:update'],
-        ],
-        [
-            'only create',
-            ['system_config:create'],
-        ],
-        [
-            'only delete',
-            ['system_config:delete'],
-        ],
-        [
-            'read + update',
-            [
-                'system_config:read',
-                'system_config:update',
-            ],
-        ],
-        [
-            'read + create',
-            [
-                'system_config:read',
-                'system_config:create',
-            ],
-        ],
-        [
-            'read + delete',
-            [
-                'system_config:read',
-                'system_config:delete',
-            ],
-        ],
-        [
-            'update + create',
-            [
-                'system_config:update',
-                'system_config:create',
-            ],
-        ],
-        [
-            'update + delete',
-            [
-                'system_config:update',
-                'system_config:delete',
-            ],
-        ],
-        [
-            'create + delete',
-            [
-                'system_config:create',
-                'system_config:delete',
-            ],
-        ],
-        [
-            'read + update + create',
-            [
-                'system_config:read',
-                'system_config:update',
-                'system_config:create',
-            ],
-        ],
-        [
-            'read + update + delete',
-            [
-                'system_config:read',
-                'system_config:update',
-                'system_config:delete',
-            ],
-        ],
-        [
-            'read + create + delete',
-            [
-                'system_config:read',
-                'system_config:create',
-                'system_config:delete',
-            ],
-        ],
-        [
-            'update + create + delete',
-            [
-                'system_config:update',
-                'system_config:create',
-                'system_config:delete',
-            ],
-        ],
+        ['no privileges', []],
+        ['only read', ['system_config:read']],
+        ['only update', ['system_config:update']],
+        ['only create', ['system_config:create']],
+        ['only delete', ['system_config:delete']],
+        ['read + update', ['system_config:read', 'system_config:update']],
+        ['read + create', ['system_config:read', 'system_config:create']],
+        ['read + delete', ['system_config:read', 'system_config:delete']],
+        ['update + create', ['system_config:update', 'system_config:create']],
+        ['update + delete', ['system_config:update', 'system_config:delete']],
+        ['create + delete', ['system_config:create', 'system_config:delete']],
+        ['read + update + create', ['system_config:read', 'system_config:update', 'system_config:create']],
+        ['read + update + delete', ['system_config:read', 'system_config:update', 'system_config:delete']],
+        ['read + create + delete', ['system_config:read', 'system_config:create', 'system_config:delete']],
+        ['update + create + delete', ['system_config:update', 'system_config:create', 'system_config:delete']],
     ];
     it.each(defaultLayoutSelectionDataProvider)(
         'should not show the default layout selection with insufficient privileges. [Case: %s]',
@@ -526,15 +447,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
 
         const sections = wrapper.vm.page.sections;
-        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual([
-            '3cd4',
-            '5ef6',
-            '7gh8',
-        ]);
-        expect(Array.from(sections[1].blocks.getIds())).toStrictEqual([
-            'abcd',
-            '1a2b',
-        ]);
+        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
+        expect(Array.from(sections[1].blocks.getIds())).toStrictEqual(['abcd', '1a2b']);
 
         sections[0].blocks.forEach((block, index) => {
             expect(block.position).toBe(index);
@@ -544,11 +458,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             expect(block.position).toBe(index);
         });
 
-        expect(Array.from(sections[0]._origin.blocks.getIds())).toStrictEqual([
-            '3cd4',
-            '5ef6',
-            '7gh8',
-        ]);
+        expect(Array.from(sections[0]._origin.blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
 
         expect(blockDrag.block.sectionId).toBe('2222');
     });
@@ -675,9 +585,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         wrapper.findComponent('.sw-cms-sidebar__layout-set-as-default-open').vm.$emit('click');
 
-        expect(wrapper.emitted('open-layout-set-as-default')).toStrictEqual([
-            [],
-        ]);
+        expect(wrapper.emitted('open-layout-set-as-default')).toStrictEqual([[]]);
     });
 
     it('should filter blocks based on pageType, category and visibility', async () => {

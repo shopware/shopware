@@ -62,9 +62,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-search/component/sw-settings-search-search-behaviour', () => {
     it('should not be able to change the behaviour search which includes and, or', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
         const andBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(0);
         expect(andBehaviourElement.attributes().disabled).toBeDefined();
@@ -81,9 +79,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
     });
 
     it('should be able to change minimal search term length between limit value', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.editor',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.editor']);
         await flushPromises();
 
         expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(2);

@@ -27,9 +27,7 @@ export default {
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         maxFileSize: {
@@ -93,10 +91,7 @@ export default {
     methods: {
         mountedComponent() {
             if (this.$refs.dropzone) {
-                [
-                    'dragover',
-                    'drop',
-                ].forEach((event) => {
+                ['dragover', 'drop'].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
@@ -108,10 +103,7 @@ export default {
 
         beforeUnmountComponent() {
             if (this.$refs.dropzone) {
-                [
-                    'dragover',
-                    'drop',
-                ].forEach((event) => {
+                ['dragover', 'drop'].forEach((event) => {
                     window.removeEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.removeEventListener('drop', this.onDrop);

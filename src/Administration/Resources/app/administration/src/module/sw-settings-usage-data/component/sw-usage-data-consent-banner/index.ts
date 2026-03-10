@@ -11,10 +11,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     template,
 
-    inject: [
-        'acl',
-        'usageDataService',
-    ],
+    inject: ['acl', 'usageDataService'],
 
     props: {
         canBeHidden: {

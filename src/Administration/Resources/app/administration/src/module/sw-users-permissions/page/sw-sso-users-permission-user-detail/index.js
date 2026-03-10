@@ -25,10 +25,7 @@ export default {
         'userService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -127,11 +124,7 @@ export default {
             this.userId = this.$route.params.id;
 
             this.isLoading = true;
-            await Promise.all([
-                this.loadUser(),
-                this.loadCurrentUser(),
-                this.loadLanguages(),
-            ]);
+            await Promise.all([this.loadUser(), this.loadCurrentUser(), this.loadLanguages()]);
             this.isLoading = false;
 
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();

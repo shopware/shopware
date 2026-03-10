@@ -89,9 +89,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
     });
 
     it('should be able to save the currency', async () => {
-        const wrapper = await createWrapper([
-            'currencies.editor',
-        ]);
+        const wrapper = await createWrapper(['currencies.editor']);
 
         const saveButton = wrapper.find('.sw-settings-currency-detail__save-action');
 

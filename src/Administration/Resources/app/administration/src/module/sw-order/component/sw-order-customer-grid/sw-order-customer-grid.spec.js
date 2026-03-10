@@ -124,10 +124,7 @@ async function createWrapper() {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-select-result': {
-                    props: [
-                        'item',
-                        'index',
-                    ],
+                    props: ['item', 'index'],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>

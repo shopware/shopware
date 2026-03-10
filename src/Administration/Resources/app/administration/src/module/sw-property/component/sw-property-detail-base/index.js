@@ -11,9 +11,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         propertyGroup: {
@@ -69,11 +67,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('propertyGroup', [
-            'name',
-            'displayType',
-            'sortingType',
-        ]),
+        ...mapPropertyErrors('propertyGroup', ['name', 'displayType', 'sortingType']),
 
         displayTypeOptions() {
             return this.displayTypes.map((displayType) => {

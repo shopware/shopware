@@ -9,19 +9,11 @@ import type MediaUploadResult from '../../../shared/MediaUploadResult';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'cmsService',
-    ],
+    inject: ['repositoryFactory', 'cmsService'],
 
-    emits: [
-        'block-delete',
-        'block-duplicate',
-    ],
+    emits: ['block-delete', 'block-duplicate'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-state')],
 
     props: {
         block: {

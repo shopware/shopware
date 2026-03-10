@@ -11,16 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'extensionStoreActionService',
-        'repositoryFactory',
-    ],
+    inject: ['extensionStoreActionService', 'repositoryFactory'],
 
-    emits: [
-        'buttons-update',
-        'frw-set-title',
-        'extension-activated',
-    ],
+    emits: ['buttons-update', 'frw-set-title', 'extension-activated'],
 
     data() {
         return {
@@ -155,18 +148,13 @@ export default {
         },
 
         findPluginKeyByName(name) {
-            const [pluginKey] = Object.entries(this.plugins).find(
-                ([
-                    key,
-                    state,
-                ]) => {
-                    if (state.name === name) {
-                        return key;
-                    }
+            const [pluginKey] = Object.entries(this.plugins).find(([key, state]) => {
+                if (state.name === name) {
+                    return key;
+                }
 
-                    return '';
-                },
-            );
+                return '';
+            });
 
             return pluginKey;
         },

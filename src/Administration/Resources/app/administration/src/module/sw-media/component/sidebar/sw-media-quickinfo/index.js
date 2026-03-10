@@ -21,11 +21,7 @@ export default {
         'systemConfigApiService',
     ],
 
-    emits: [
-        'media-item-rename-success',
-        'media-item-replaced',
-        'update:item',
-    ],
+    emits: ['media-item-rename-success', 'media-item-replaced', 'update:item'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -281,10 +277,7 @@ export default {
 
             try {
                 await this.mediaService.renameMedia(item.id, value).catch((error) => {
-                    const fileNameErrorCodes = [
-                        'CONTENT__MEDIA_EMPTY_FILE',
-                        'CONTENT__MEDIA_ILLEGAL_FILE_NAME',
-                    ];
+                    const fileNameErrorCodes = ['CONTENT__MEDIA_EMPTY_FILE', 'CONTENT__MEDIA_ILLEGAL_FILE_NAME'];
 
                     error.response.data.errors.forEach((e) => {
                         if (this.fileNameError || !fileNameErrorCodes.includes(e.code)) {

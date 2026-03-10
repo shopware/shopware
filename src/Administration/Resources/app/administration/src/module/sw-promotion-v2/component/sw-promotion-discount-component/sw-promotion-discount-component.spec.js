@@ -19,10 +19,7 @@ async function createWrapper() {
                     'sw-select-field': {
                         template:
                             '<select class="sw-field sw-select-field" :value="value" @change="$emit(\'update:value\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
+                        props: ['value', 'disabled'],
                     },
                     'sw-select-rule-create': {
                         template: '<div class="sw-select-rule-create"></div>',

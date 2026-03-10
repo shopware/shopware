@@ -65,9 +65,7 @@ async function createWrapper() {
                         },
                     },
                     customEntityDefinitionService: {
-                        getCmsAwareDefinitions: () => [
-                            'some-content-to-result-in-true',
-                        ],
+                        getCmsAwareDefinitions: () => ['some-content-to-result-in-true'],
                     },
                 },
             },
@@ -124,14 +122,8 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     });
 
     const pageTypeDataProvider = [
-        [
-            'page',
-            false,
-        ],
-        [
-            'custom-entity-detail',
-            true,
-        ],
+        ['page', false],
+        ['custom-entity-detail', true],
     ];
     it.each(pageTypeDataProvider)(
         'should show the correct pageType selection for type "%s"',

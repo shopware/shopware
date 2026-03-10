@@ -51,9 +51,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
 
     it('should have an enabled save button', async () => {
         global.activeAclRoles = ['product.editor'];
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        const wrapper = await createWrapper(['product.editor']);
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
@@ -64,9 +62,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
 
     it('should be able to allow save storefront presentation modal', async () => {
         global.activeAclRoles = ['product.editor'];
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        const wrapper = await createWrapper(['product.editor']);
         await flushPromises();
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 

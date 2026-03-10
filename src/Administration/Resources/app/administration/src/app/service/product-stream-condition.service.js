@@ -13,34 +13,16 @@ const utils = Shopware.Utils;
  * @returns {Object}
  */
 export default function conditionService() {
-    const allowedProperties = [
-        'id',
-    ];
+    const allowedProperties = ['id'];
 
     const entityAllowedProperties = {
-        tag: [
-            'id',
-        ],
-        category: [
-            'id',
-        ],
-        product_manufacturer: [
-            'id',
-        ],
-        property_group_option: [
-            'id',
-            'group',
-        ],
-        property_group: [
-            'id',
-        ],
-        product_visibility: [
-            'id',
-            'salesChannel',
-        ],
-        sales_channel: [
-            'id',
-        ],
+        tag: ['id'],
+        category: ['id'],
+        product_manufacturer: ['id'],
+        property_group_option: ['id', 'group'],
+        property_group: ['id'],
+        product_visibility: ['id', 'salesChannel'],
+        sales_channel: ['id'],
         product: [
             'id',
             'active',
@@ -191,13 +173,9 @@ export default function conditionService() {
     };
 
     const operatorSets = {
-        boolean: [
-            productFilterTypes.equals,
-        ],
+        boolean: [productFilterTypes.equals],
 
-        empty: [
-            productFilterTypes.equals,
-        ],
+        empty: [productFilterTypes.equals],
 
         string: [
             productFilterTypes.equals,
@@ -457,9 +435,6 @@ export default function conditionService() {
     }
 
     function isRelativeTimeType(type) {
-        return [
-            productFilterTypes.since.identifier,
-            productFilterTypes.until.identifier,
-        ].includes(type);
+        return [productFilterTypes.since.identifier, productFilterTypes.until.identifier].includes(type);
     }
 }

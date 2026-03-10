@@ -179,10 +179,7 @@ describe('components/sw-filter-panel', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            defaults: [
-                'filter1',
-                'filter2',
-            ],
+            defaults: ['filter1', 'filter2'],
         });
 
         expect(wrapper.find('.sw-boolean-filter').exists()).toBeTruthy();
@@ -236,11 +233,7 @@ describe('components/sw-filter-panel', () => {
         const wrapper = await createWrapper();
 
         const itemWithBreadcrumb = {
-            breadcrumb: [
-                'Category 1',
-                'Category 2',
-                'Category 3',
-            ],
+            breadcrumb: ['Category 1', 'Category 2', 'Category 3'],
             name: 'Product Name',
             translated: {
                 name: 'Translated Product Name',

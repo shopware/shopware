@@ -17,10 +17,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
@@ -52,10 +49,7 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.identifiers',
-        ]),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.identifiers']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;

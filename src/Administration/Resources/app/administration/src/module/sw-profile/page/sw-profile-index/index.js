@@ -27,9 +27,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -66,10 +64,7 @@ export default {
             return Store.get('swProfile').searchPreferences;
         },
 
-        ...mapPropertyErrors('user', [
-            'email',
-            'timeZone',
-        ]),
+        ...mapPropertyErrors('user', ['email', 'timeZone']),
 
         userSearchPreferences: {
             get() {
@@ -150,10 +145,7 @@ export default {
             this.userPromise = this.getUserData();
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
 
-            const promises = [
-                languagePromise,
-                this.userPromise,
-            ];
+            const promises = [languagePromise, this.userPromise];
 
             if (this.acl.can('media.creator')) {
                 this.getMediaDefaultFolderId()
@@ -244,10 +236,7 @@ export default {
 
         onSave() {
             if (this.$route.name === 'sw.profile.index.searchPreferences') {
-                Promise.all([
-                    this.saveMinSearchTermLength(),
-                    this.saveUserSearchPreferences(),
-                ]);
+                Promise.all([this.saveMinSearchTermLength(), this.saveUserSearchPreferences()]);
 
                 return;
             }
@@ -303,9 +292,7 @@ export default {
 
         saveUser(context) {
             if (!this.acl.can('user:editor')) {
-                const changes = this.userRepository.getSyncChangeset([
-                    this.user,
-                ]);
+                const changes = this.userRepository.getSyncChangeset([this.user]);
                 delete changes.changeset[0].changes.id;
 
                 this.userService

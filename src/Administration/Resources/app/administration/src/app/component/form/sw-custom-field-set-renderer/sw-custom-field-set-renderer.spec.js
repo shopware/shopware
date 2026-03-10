@@ -308,10 +308,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             customFieldConfigType: 'select',
             fieldName: 'custom_first_tab_i_am_a_multi_select',
             entityCustomFieldValueBefore: ['first_choice'],
-            entityCustomFieldValueAfter: [
-                'first_choice',
-                'second_choice',
-            ],
+            entityCustomFieldValueAfter: ['first_choice', 'second_choice'],
             componentName: 'sw-multi-select',
             componentLabel: 'I am a multi select field',
             componentConfigAddition: {

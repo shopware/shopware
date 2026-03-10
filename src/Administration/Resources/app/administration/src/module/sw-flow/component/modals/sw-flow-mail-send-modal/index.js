@@ -18,14 +18,9 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
     props: {
         sequence: {
@@ -162,34 +157,17 @@ export default {
                 ];
             }
 
-            if (
-                [
-                    'newsletter.confirm',
-                    'newsletter.register',
-                    'newsletter.unsubscribe',
-                ].includes(this.triggerEvent.name)
-            ) {
-                return [
-                    ...this.recipientCustomer,
-                    ...this.recipientAdmin,
-                    ...this.recipientCustom,
-                ];
+            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe'].includes(this.triggerEvent.name)) {
+                return [...this.recipientCustomer, ...this.recipientAdmin, ...this.recipientCustom];
             }
 
             const hasEntityAware = allowAwareConverted.some((allowedAware) => this.entityAware.includes(allowedAware));
 
             if (hasEntityAware) {
-                return [
-                    ...this.recipientCustomer,
-                    ...this.recipientAdmin,
-                    ...this.recipientCustom,
-                ];
+                return [...this.recipientCustomer, ...this.recipientAdmin, ...this.recipientCustom];
             }
 
-            return [
-                ...this.recipientAdmin,
-                ...this.recipientCustom,
-            ];
+            return [...this.recipientAdmin, ...this.recipientCustom];
         },
 
         recipientColumns() {
@@ -209,17 +187,10 @@ export default {
 
         replyToOptions() {
             if (this.triggerEvent.name === 'contact_form.send') {
-                return [
-                    ...this.recipientDefault,
-                    ...this.recipientContactFormMail,
-                    ...this.recipientCustom,
-                ];
+                return [...this.recipientDefault, ...this.recipientContactFormMail, ...this.recipientCustom];
             }
 
-            return [
-                ...this.recipientDefault,
-                ...this.recipientCustom,
-            ];
+            return [...this.recipientDefault, ...this.recipientCustom];
         },
 
         replyToSelection() {
@@ -237,14 +208,7 @@ export default {
             return !(this.replyTo === null || this.replyTo === 'contactFormMail');
         },
 
-        ...mapState(
-            () => Store.get('swFlow'),
-            [
-                'mailTemplates',
-                'triggerEvent',
-                'triggerActions',
-            ],
-        ),
+        ...mapState(() => Store.get('swFlow'), ['mailTemplates', 'triggerEvent', 'triggerActions']),
     },
 
     created() {
@@ -261,20 +225,15 @@ export default {
                 this.mailRecipient = config.recipient?.type;
 
                 if (config.recipient?.type === 'custom') {
-                    Object.entries(config.recipient.data).forEach(
-                        ([
-                            key,
-                            value,
-                        ]) => {
-                            const newId = Utils.createId();
-                            this.recipients.push({
-                                id: newId,
-                                email: key,
-                                name: value,
-                                isNew: false,
-                            });
-                        },
-                    );
+                    Object.entries(config.recipient.data).forEach(([key, value]) => {
+                        const newId = Utils.createId();
+                        this.recipients.push({
+                            id: newId,
+                            email: key,
+                            name: value,
+                            isNew: false,
+                        });
+                    });
 
                     this.addRecipient();
                     this.showRecipientEmails = true;
@@ -383,10 +342,7 @@ export default {
 
             const currentMailTemplate = this.mailTemplates.find((item) => item.id === id);
             if (!currentMailTemplate && mailTemplate) {
-                Shopware.Store.get('swFlow').mailTemplates = [
-                    ...this.mailTemplates,
-                    mailTemplate,
-                ];
+                Shopware.Store.get('swFlow').mailTemplates = [...this.mailTemplates, mailTemplate];
             }
         },
 

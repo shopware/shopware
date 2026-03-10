@@ -13,10 +13,7 @@ export default {
     template,
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
@@ -50,10 +47,7 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.categoryIds',
-        ]),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.categoryIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;

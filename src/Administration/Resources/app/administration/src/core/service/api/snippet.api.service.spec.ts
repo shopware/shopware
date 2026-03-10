@@ -396,20 +396,14 @@ describe('core/service/api/snippet.api.service.ts', () => {
 
             clientMock.onGet('/_action/snippet/filter').reply(200, {
                 total: 2,
-                data: [
-                    'filter1',
-                    'filter2',
-                ],
+                data: ['filter1', 'filter2'],
             });
 
             const result = await snippetApiService.getFilter();
 
             expect(result).toEqual({
                 total: 2,
-                data: [
-                    'filter1',
-                    'filter2',
-                ],
+                data: ['filter1', 'filter2'],
             });
         });
     });
@@ -418,19 +412,11 @@ describe('core/service/api/snippet.api.service.ts', () => {
         it('should get locales correctly', async () => {
             const { snippetApiService, clientMock } = createSnippetApiService();
 
-            clientMock.onGet('/_admin/locales').reply(200, [
-                'en-GB',
-                'de-DE',
-                'fr-FR',
-            ]);
+            clientMock.onGet('/_admin/locales').reply(200, ['en-GB', 'de-DE', 'fr-FR']);
 
             const result = await snippetApiService.getLocales();
 
-            expect(result).toEqual([
-                'en-GB',
-                'de-DE',
-                'fr-FR',
-            ]);
+            expect(result).toEqual(['en-GB', 'de-DE', 'fr-FR']);
         });
     });
 });

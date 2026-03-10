@@ -254,10 +254,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper();
         await wrapper.setData({
             usageOfFiles: {
-                'example.jpg': [
-                    'test-id-1',
-                    'test-id-2',
-                ],
+                'example.jpg': ['test-id-1', 'test-id-2'],
             },
 
             idToIndex: {
@@ -592,9 +589,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         );
 
         expect(item).toStrictEqual({
-            downloads: [
-                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
-            ],
+            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }],
         });
     });
 
@@ -858,9 +853,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         });
 
         const item = {
-            downloads: [
-                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
-            ],
+            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }],
         };
 
         await wrapper.vm.successfulUpload(
@@ -871,9 +864,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         );
 
         expect(item).toStrictEqual({
-            downloads: [
-                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
-            ],
+            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }],
         });
     });
 

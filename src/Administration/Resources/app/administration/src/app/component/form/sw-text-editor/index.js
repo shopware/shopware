@@ -383,16 +383,10 @@ export default {
             let mappings = [];
 
             Object.entries(this.cmsPageState.currentMappingTypes).forEach((entry) => {
-                const [
-                    type,
-                    value,
-                ] = entry;
+                const [type, value] = entry;
 
                 if (type === 'string') {
-                    mappings = [
-                        ...mappings,
-                        ...value,
-                    ];
+                    mappings = [...mappings, ...value];
                 }
             });
 
@@ -811,10 +805,7 @@ export default {
             }
 
             const classes = [];
-            const attributes = [
-                `target="${target}"`,
-                `href="${value}"`,
-            ];
+            const attributes = [`target="${target}"`, `href="${value}"`];
 
             if (target === '_blank') {
                 attributes.push('rel="noopener"');

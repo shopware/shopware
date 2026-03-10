@@ -16,10 +16,7 @@ type FileValidationService = {
  */
 export default function fileValidationService(): FileValidationService {
     const extensionByType: MimeTypes = {
-        'image/jpeg': [
-            'jpg',
-            'jpeg',
-        ],
+        'image/jpeg': ['jpg', 'jpeg'],
         'image/png': ['png'],
         'image/webp': ['webp'],
         'image/avif': ['avif'],
@@ -27,20 +24,13 @@ export default function fileValidationService(): FileValidationService {
         'image/svg+xml': ['svg'],
         'image/bmp': ['bmp'],
         'image/x-ms-bmp': ['bmp'],
-        'image/tiff': [
-            'tif',
-            'tiff',
-        ],
+        'image/tiff': ['tif', 'tiff'],
         'application/postscript': ['eps'],
         'video/webm': ['webm'],
         'video/x-matroska': ['mkv'],
         'video/x-flv': ['flv'],
         'video/ogg': ['ogv'],
-        'audio/ogg': [
-            'ogg',
-            'ogv',
-            'oga',
-        ],
+        'audio/ogg': ['ogg', 'ogv', 'oga'],
         'video/quicktime': ['mov'],
         'video/mp4': ['mp4'],
         'audio/mp4': ['mp4'],
@@ -82,9 +72,7 @@ export default function fileValidationService(): FileValidationService {
         'application/vnd.apple.pages': ['pages'],
         'application/vnd.apple.numbers': ['numbers'],
         'application/vnd.ms-excel': ['xls'],
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
-            'xlsx',
-        ],
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['xlsx'],
         'application/vnd.ms-powerpoint': ['ppt'],
         'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['pptx'],
         'application/vnd.oasis.opendocument.text': ['odt'],

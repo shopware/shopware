@@ -17,9 +17,7 @@ export default {
 
     emits: ['error'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -489,10 +487,7 @@ export default {
                 const matchedItem = this.promotionCodeTags.find((tag) => tag.code === lineItem.payload.code);
 
                 if (!matchedItem) {
-                    this.promotionCodeTags = [
-                        ...this.promotionCodeTags,
-                        { ...lineItem.payload, isInvalid: false },
-                    ];
+                    this.promotionCodeTags = [...this.promotionCodeTags, { ...lineItem.payload, isInvalid: false }];
                 }
             });
         },

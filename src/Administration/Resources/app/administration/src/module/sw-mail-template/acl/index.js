@@ -31,28 +31,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'sales_channel:update',
                 Shopware.Service('privileges').getPrivileges('media.creator'),
             ],
-            dependencies: [
-                'mail_templates.viewer',
-            ],
+            dependencies: ['mail_templates.viewer'],
         },
         creator: {
-            privileges: [
-                'mail_template:create',
-                'mail_header_footer:create',
-            ],
-            dependencies: [
-                'mail_templates.viewer',
-                'mail_templates.editor',
-            ],
+            privileges: ['mail_template:create', 'mail_header_footer:create'],
+            dependencies: ['mail_templates.viewer', 'mail_templates.editor'],
         },
         deleter: {
-            privileges: [
-                'mail_template:delete',
-                'mail_header_footer:delete',
-            ],
-            dependencies: [
-                'mail_templates.viewer',
-            ],
+            privileges: ['mail_template:delete', 'mail_header_footer:delete'],
+            dependencies: ['mail_templates.viewer'],
         },
     },
 });

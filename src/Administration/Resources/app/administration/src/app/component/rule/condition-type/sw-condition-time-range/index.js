@@ -63,11 +63,7 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.fromTime',
-            'value.toTime',
-            'value.timezone',
-        ]),
+        ...mapPropertyErrors('condition', ['value.fromTime', 'value.toTime', 'value.timezone']),
 
         timezoneOptions() {
             return Shopware.Service('timezoneService').getTimezoneOptions();

@@ -8,10 +8,7 @@ import './sw-bulk-edit-save-modal-confirm.scss';
 export default {
     template,
 
-    emits: [
-        'title-set',
-        'buttons-update',
-    ],
+    emits: ['title-set', 'buttons-update'],
 
     props: {
         itemTotal: {
@@ -61,19 +58,11 @@ export default {
         triggeredFlows() {
             const triggeredFlows = [];
 
-            Object.entries(this.bulkEditData).forEach(
-                ([
-                    key,
-                    value,
-                ]) => {
-                    if (
-                        key === this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.key`) &&
-                        value.isChanged === true
-                    ) {
-                        triggeredFlows.push(this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.label`));
-                    }
-                },
-            );
+            Object.entries(this.bulkEditData).forEach(([key, value]) => {
+                if (key === this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.key`) && value.isChanged === true) {
+                    triggeredFlows.push(this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.label`));
+                }
+            });
 
             return triggeredFlows;
         },

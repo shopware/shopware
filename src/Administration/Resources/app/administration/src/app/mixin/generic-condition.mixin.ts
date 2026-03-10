@@ -99,12 +99,7 @@ export default Mixin.register(
                             // @ts-expect-error
                             this.ensureValueExist();
 
-                            if (
-                                [
-                                    'multi-entity-id-select',
-                                    'multi-select',
-                                ].includes(type)
-                            ) {
+                            if (['multi-entity-id-select', 'multi-select'].includes(type)) {
                                 // @ts-expect-error
                                 return this.condition.value[name] || [];
                             }
@@ -185,16 +180,10 @@ export default Mixin.register(
                     this.condition.type,
                     fieldClone.name,
                 ];
-                const placeholderPath = [
-                    ...snippetBasePath,
-                    'placeholder',
-                ].join('.');
+                const placeholderPath = [...snippetBasePath, 'placeholder'].join('.');
 
                 if (
-                    [
-                        'multi-entity-id-select',
-                        'single-entity-id-select',
-                    ].includes(fieldClone.type) &&
+                    ['multi-entity-id-select', 'single-entity-id-select'].includes(fieldClone.type) &&
                     fieldClone.config.criteria
                 ) {
                     fieldClone.config.criteria = createCriteriaFromArray(fieldClone.config.criteria);
@@ -203,13 +192,7 @@ export default Mixin.register(
                 if (fieldClone.type === 'single-select' && fieldClone.config.options) {
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
                         return {
-                            label: this.$tc(
-                                [
-                                    ...snippetBasePath,
-                                    'options',
-                                    value,
-                                ].join('.'),
-                            ),
+                            label: this.$tc([...snippetBasePath, 'options', value].join('.')),
                             value,
                         };
                     });

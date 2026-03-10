@@ -121,9 +121,7 @@ async function createWrapper() {
 
     return mount(await wrapTestComponent('sw-desktop', { sync: true }), {
         global: {
-            plugins: [
-                router,
-            ],
+            plugins: [router],
             stubs: {
                 'sw-admin-menu': true,
                 'router-view': true,

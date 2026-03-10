@@ -108,10 +108,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     it('should emit process-finish when document multiple type is selected', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            documentTypesSelected: [
-                'invoice',
-                'delivery_note',
-            ],
+            documentTypesSelected: ['invoice', 'delivery_note'],
         });
 
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');

@@ -59,10 +59,7 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-search-bar': true,
                     'sw-entity-listing': {
-                        props: [
-                            'items',
-                            'dataSource',
-                        ],
+                        props: ['items', 'dataSource'],
                         template: `
 <div>
     <template v-for="item in (dataSource || items)">
@@ -90,9 +87,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to create a new currency', async () => {
-        const wrapper = await createWrapper([
-            'currencies.creator',
-        ]);
+        const wrapper = await createWrapper(['currencies.creator']);
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-currency-list__button-create');
@@ -110,9 +105,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = await createWrapper([
-            'currencies.editor',
-        ]);
+        const wrapper = await createWrapper(['currencies.editor']);
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-settings-currency-list-grid');
@@ -129,9 +122,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'currencies.deleter',
-        ]);
+        const wrapper = await createWrapper(['currencies.deleter']);
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-currency-list__delete-action');
@@ -147,9 +138,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'currencies.editor',
-        ]);
+        const wrapper = await createWrapper(['currencies.editor']);
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-currency-list__edit-action');

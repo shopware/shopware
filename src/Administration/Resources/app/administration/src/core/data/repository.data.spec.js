@@ -150,9 +150,7 @@ describe('repository.data.ts', () => {
         product.name = 'test';
         product.productNumber = ids.get('product');
         product.stock = 10;
-        product.price = [
-            { currencyId: DEFAULT_CURRENCY, gross: 15, net: 10, linked: false },
-        ];
+        product.price = [{ currencyId: DEFAULT_CURRENCY, gross: 15, net: 10, linked: false }];
         product.tax = { name: 'test', taxRate: 15 };
 
         const categories = new EntityCollection(

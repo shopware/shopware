@@ -12,9 +12,7 @@ export default Component.wrapComponentConfig({
 
     inject: ['updateService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
     data(): {
         isLoading: boolean;
         isSaveSuccessful: boolean;

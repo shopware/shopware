@@ -16,17 +16,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
     emits: ['on-update-total'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing')],
 
     props: {
         searchTerm: {

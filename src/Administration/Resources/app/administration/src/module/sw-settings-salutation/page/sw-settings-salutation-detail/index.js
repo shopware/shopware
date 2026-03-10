@@ -13,11 +13,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -116,11 +112,7 @@ export default {
             };
         },
 
-        ...mapPropertyErrors('salutation', [
-            'displayName',
-            'letterName',
-            'salutationKey',
-        ]),
+        ...mapPropertyErrors('salutation', ['displayName', 'letterName', 'salutationKey']),
 
         showCustomFields() {
             return this.salutation && this.customFieldSets && this.customFieldSets.length > 0;
@@ -224,9 +216,7 @@ export default {
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('salutationKey', this.salutation.salutationKey),
-                    Criteria.not('AND', [
-                        Criteria.equals('id', this.salutation.id),
-                    ]),
+                    Criteria.not('AND', [Criteria.equals('id', this.salutation.id)]),
                 ]),
             );
 

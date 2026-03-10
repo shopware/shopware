@@ -19,16 +19,9 @@ export default {
         'mediaService',
     ],
 
-    emits: [
-        'generator-open',
-        'delivery-open',
-        'variants-finish-update',
-    ],
+    emits: ['generator-open', 'delivery-open', 'variants-finish-update'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing')],
 
     props: {
         productEntity: {
@@ -309,10 +302,7 @@ export default {
                     return;
                 }
 
-                Shopware.Store.get('swProductDetail').setLoading([
-                    'variants',
-                    true,
-                ]);
+                Shopware.Store.get('swProductDetail').setLoading(['variants', true]);
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria(1, 25);
@@ -365,10 +355,7 @@ export default {
                 this.productRepository.search(searchCriteria).then((res) => {
                     this.total = res.total;
                     Shopware.Store.get('swProductDetail').variants = res;
-                    Shopware.Store.get('swProductDetail').setLoading([
-                        'variants',
-                        false,
-                    ]);
+                    Shopware.Store.get('swProductDetail').setLoading(['variants', false]);
                     this.$emit('variants-finish-update', this.variants);
                     resolve();
                 });
@@ -439,17 +426,11 @@ export default {
                         };
                     });
 
-                return [
-                    ...result,
-                    ...optionsForGroup,
-                ];
+                return [...result, ...optionsForGroup];
             }, []);
 
             // Assign groups and children to order objects
-            this.filterOptions = [
-                ...groups,
-                ...children,
-            ];
+            this.filterOptions = [...groups, ...children];
         },
 
         resetFilterOptions() {

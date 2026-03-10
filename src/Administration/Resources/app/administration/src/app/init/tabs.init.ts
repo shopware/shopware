@@ -34,10 +34,7 @@ export default function initializeTabs(): void {
 
             // Get all tab routes
             const tabRoutes = Object.values(Shopware.Store.get('tabs').tabItems).reduce<string[]>((acc, tabItems) => {
-                acc = [
-                    ...acc,
-                    ...tabItems.map((tabItem) => tabItem.componentSectionId),
-                ];
+                acc = [...acc, ...tabItems.map((tabItem) => tabItem.componentSectionId)];
                 return acc;
             }, []);
 

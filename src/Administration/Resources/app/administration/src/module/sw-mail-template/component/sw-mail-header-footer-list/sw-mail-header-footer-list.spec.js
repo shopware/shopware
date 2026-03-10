@@ -150,10 +150,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
     });
 
     it('should allow to edit with edit permission', async () => {
-        const wrapper = await createWrapper([
-            'mail_templates.viewer',
-            'mail_templates.editor',
-        ]);
+        const wrapper = await createWrapper(['mail_templates.viewer', 'mail_templates.editor']);
         await flushPromises();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');

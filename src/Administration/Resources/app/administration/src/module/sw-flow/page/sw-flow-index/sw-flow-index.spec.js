@@ -84,9 +84,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-flow/page/sw-flow-index', () => {
     it('should be able to create a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
+        const wrapper = await createWrapper(['flow.creator']);
 
         const createButton = wrapper.find('.sw-flow-list__create');
 

@@ -14,11 +14,7 @@ export default {
 
     inheritAttrs: false,
 
-    emits: [
-        'select-expanded',
-        'select-collapsed',
-        'clear',
-    ],
+    emits: ['select-expanded', 'select-collapsed', 'clear'],
 
     props: {
         isLoading: {
@@ -144,9 +140,9 @@ export default {
         focusPreviousFormElement() {
             const focusableSelector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
             const myFocusable = this.$el.querySelector(focusableSelector);
-            const keyboardFocusable = [
-                ...document.querySelectorAll(focusableSelector),
-            ].filter((el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined);
+            const keyboardFocusable = [...document.querySelectorAll(focusableSelector)].filter(
+                (el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined,
+            );
 
             keyboardFocusable.forEach((element, index) => {
                 if (index > 0 && element === myFocusable) {

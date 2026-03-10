@@ -92,9 +92,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     return param;
                 },
             },
-            mixins: [
-                Shopware.Mixin.getByName('sw-inline-snippet'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-inline-snippet')],
         },
         props: {
             productSortings,
@@ -189,10 +187,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             },
             {
                 id: 'bar',
-                fields: [
-                    { field: 'product.price' },
-                    { field: 'custom_field_0' },
-                ],
+                fields: [{ field: 'product.price' }, { field: 'custom_field_0' }],
                 locked: false,
                 priority: 3,
             },
@@ -228,10 +223,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             },
             {
                 id: 'bar',
-                fields: [
-                    { field: 'product.price' },
-                    { field: 'custom_field_0' },
-                ],
+                fields: [{ field: 'product.price' }, { field: 'custom_field_0' }],
                 locked: false,
                 priority: 3,
             },

@@ -31,10 +31,7 @@ export default {
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error')],
 
     props: {
         bordered: {

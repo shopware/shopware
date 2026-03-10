@@ -7,9 +7,7 @@ const { Mixin } = Shopware;
  * @sw-package discovery
  */
 export default {
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     computed: {
         isProductPage() {

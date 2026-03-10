@@ -10,10 +10,7 @@ import './sw-text-editor-table-toolbar.scss';
 export default {
     template,
 
-    emits: [
-        'table-modify',
-        'table-delete',
-    ],
+    emits: ['table-modify', 'table-delete'],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types

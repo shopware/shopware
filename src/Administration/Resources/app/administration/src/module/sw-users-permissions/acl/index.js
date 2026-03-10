@@ -33,28 +33,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'system_config:update',
                 'system_config:delete',
             ],
-            dependencies: [
-                'users_and_permissions.viewer',
-            ],
+            dependencies: ['users_and_permissions.viewer'],
         },
         creator: {
-            privileges: [
-                'user:create',
-                'acl_role:create',
-            ],
-            dependencies: [
-                'users_and_permissions.viewer',
-                'users_and_permissions.editor',
-            ],
+            privileges: ['user:create', 'acl_role:create'],
+            dependencies: ['users_and_permissions.viewer', 'users_and_permissions.editor'],
         },
         deleter: {
-            privileges: [
-                'user:delete',
-                'acl_role:delete',
-            ],
-            dependencies: [
-                'users_and_permissions.viewer',
-            ],
+            privileges: ['user:delete', 'acl_role:delete'],
+            dependencies: ['users_and_permissions.viewer'],
         },
     },
 });

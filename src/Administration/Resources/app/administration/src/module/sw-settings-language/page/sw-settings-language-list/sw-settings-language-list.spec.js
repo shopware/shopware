@@ -121,9 +121,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     it('should be able to create a new language', async () => {
-        const wrapper = await createWrapper([
-            'language.creator',
-        ]);
+        const wrapper = await createWrapper(['language.creator']);
         await flushPromises();
 
         const addButton = wrapper.find('.sw-settings-language-list__button-create');
@@ -141,9 +139,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to view a language', async () => {
-        const wrapper = await createWrapper([
-            'language.viewer',
-        ]);
+        const wrapper = await createWrapper(['language.viewer']);
         await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -153,9 +149,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to edit a language', async () => {
-        const wrapper = await createWrapper([
-            'language.editor',
-        ]);
+        const wrapper = await createWrapper(['language.editor']);
         await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -175,9 +169,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to delete a language', async () => {
-        const wrapper = await createWrapper([
-            'language.deleter',
-        ]);
+        const wrapper = await createWrapper(['language.deleter']);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-language-list__delete-action');
@@ -195,9 +187,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to inline edit a language', async () => {
-        const wrapper = await createWrapper([
-            'language.editor',
-        ]);
+        const wrapper = await createWrapper(['language.editor']);
         await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-language-list-grid');

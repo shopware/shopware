@@ -23,10 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
         SwSettingsUsageDataConsentCheckList,
     },
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
     props: {
         storedStoreDataConsent: {
@@ -72,12 +69,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         visibleOptions(): Array<'backend_data' | 'user_tracking'> {
-            return this.showStoreDataConsent
-                ? [
-                      'backend_data',
-                      'user_tracking',
-                  ]
-                : ['user_tracking'];
+            return this.showStoreDataConsent ? ['backend_data', 'user_tracking'] : ['user_tracking'];
         },
 
         showStoreDataConsent() {

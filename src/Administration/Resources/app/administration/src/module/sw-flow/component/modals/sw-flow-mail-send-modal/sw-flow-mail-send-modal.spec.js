@@ -102,10 +102,7 @@ async function createWrapper(sequence = {}) {
                 },
                 'sw-highlight-text': true,
                 'sw-select-result': {
-                    props: [
-                        'item',
-                        'index',
-                    ],
+                    props: ['item', 'index'],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -375,10 +372,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             extensions: [],
             mailAware: true,
             name: 'checkout.customer.login',
-            aware: [
-                'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                'Shopware\\Core\\Framework\\Event\\MailAware',
-            ],
+            aware: ['Shopware\\Core\\Framework\\Event\\CustomerAware', 'Shopware\\Core\\Framework\\Event\\MailAware'],
         };
 
         const wrapper = await createWrapper();
@@ -406,9 +400,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             extensions: [],
             mailAware: true,
             name: 'contact_form.send',
-            aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware',
-            ],
+            aware: ['Shopware\\Core\\Framework\\Event\\MailAware'],
         };
 
         const wrapper = await createWrapper();
@@ -438,9 +430,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             extensions: [],
             mailAware: true,
             name: 'checkout.customer.login',
-            aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware',
-            ],
+            aware: ['Shopware\\Core\\Framework\\Event\\MailAware'],
         };
 
         const wrapper = await createWrapper();
@@ -465,9 +455,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             extensions: [],
             mailAware: true,
             name: 'newsletter.confirm',
-            aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware',
-            ],
+            aware: ['Shopware\\Core\\Framework\\Event\\MailAware'],
         };
 
         const wrapper = await createWrapper();
@@ -492,9 +480,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             extensions: [],
             mailAware: true,
             name: 'newsletter.register',
-            aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware',
-            ],
+            aware: ['Shopware\\Core\\Framework\\Event\\MailAware'],
         };
 
         const wrapper = await createWrapper();
@@ -519,9 +505,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             extensions: [],
             mailAware: true,
             name: 'newsletter.unsubscribe',
-            aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware',
-            ],
+            aware: ['Shopware\\Core\\Framework\\Event\\MailAware'],
         };
 
         const wrapper = await createWrapper();

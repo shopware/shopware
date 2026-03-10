@@ -25,15 +25,9 @@ export default {
         'feature',
     ],
 
-    emits: [
-        'save',
-        'modal-close',
-    ],
+    emits: ['save', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         allowedRuleScopes: {
@@ -80,10 +74,7 @@ export default {
             return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));
         },
 
-        ...mapPropertyErrors('rule', [
-            'name',
-            'priority',
-        ]),
+        ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
     created() {

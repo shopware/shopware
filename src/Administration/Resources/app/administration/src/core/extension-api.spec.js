@@ -21,9 +21,7 @@ describe('src/core/extension-api.ts', () => {
         await expect(
             send('jest', {
                 message: 'foo',
-                privileges: [
-                    'read:user',
-                ],
+                privileges: ['read:user'],
             }),
         ).rejects.toThrow(new MissingPrivilegesError('jest', ['read:user']));
         expect(spy).not.toHaveBeenCalled();
@@ -46,9 +44,7 @@ describe('src/core/extension-api.ts', () => {
         await expect(
             send('jest', {
                 message: 'foo',
-                privileges: [
-                    'read:user',
-                ],
+                privileges: ['read:user'],
             }),
         ).resolves.toBe('UUID');
         expect(spy).toHaveBeenCalledTimes(1);
@@ -70,9 +66,7 @@ describe('src/core/extension-api.ts', () => {
         // Send handled message with privileges
         const result = send('jest', {
             message: 'foo',
-            privileges: [
-                'read:user',
-            ],
+            privileges: ['read:user'],
         });
         await flushPromises();
 

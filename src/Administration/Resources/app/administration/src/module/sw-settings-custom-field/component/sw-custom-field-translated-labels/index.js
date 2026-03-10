@@ -12,9 +12,7 @@ export default {
 
     inject: ['acl'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet')],
 
     props: {
         locales: {

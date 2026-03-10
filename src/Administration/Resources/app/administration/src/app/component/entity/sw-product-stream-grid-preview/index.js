@@ -14,10 +14,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'productStreamPreviewService',
-    ],
+    inject: ['repositoryFactory', 'productStreamPreviewService'],
 
     emits: ['selection-change'],
 
@@ -77,11 +74,7 @@ export default {
 
         salesChannelCriteria() {
             return new Criteria(1, 1)
-                .addFilter(
-                    Criteria.not('OR', [
-                        Criteria.equals('typeId', Defaults.productComparisonTypeId),
-                    ]),
-                )
+                .addFilter(Criteria.not('OR', [Criteria.equals('typeId', Defaults.productComparisonTypeId)]))
                 .addSorting(Criteria.sort('type.iconName', 'ASC'));
         },
 
@@ -198,11 +191,7 @@ export default {
             this.criteria.addAssociation('manufacturer');
             this.criteria.addAssociation('options.group');
             this.criteria.addGroupField('displayGroup');
-            this.criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('displayGroup', null),
-                ]),
-            );
+            this.criteria.addFilter(Criteria.not('AND', [Criteria.equals('displayGroup', null)]));
 
             return this.salesChannelRepository
                 .searchIds(this.salesChannelCriteria)

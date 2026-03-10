@@ -11,15 +11,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService'],
 
-    mixins: [
-        'notification',
-        'sw-inline-snippet',
-    ],
+    mixins: ['notification', 'sw-inline-snippet'],
 
     data() {
         return {
@@ -412,16 +406,11 @@ export default {
             const defaultSortingId = this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
 
             if (defaultSortingId) {
-                Object.entries(this.productSortingOptions).forEach(
-                    ([
-                        ,
-                        productSorting,
-                    ]) => {
-                        if (productSorting.id === defaultSortingId) {
-                            productSorting.active = true;
-                        }
-                    },
-                );
+                Object.entries(this.productSortingOptions).forEach(([, productSorting]) => {
+                    if (productSorting.id === defaultSortingId) {
+                        productSorting.active = true;
+                    }
+                });
             }
         },
 

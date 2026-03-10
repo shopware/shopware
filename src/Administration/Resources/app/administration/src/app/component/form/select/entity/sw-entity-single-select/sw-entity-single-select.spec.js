@@ -529,9 +529,7 @@ describe('components/sw-entity-single-select', () => {
         await swEntitySingleSelect.find('input').trigger('change');
         await swEntitySingleSelect.vm.$nextTick();
 
-        expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual([
-            'first',
-        ]);
+        expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
 
     it('should not display variations', async () => {

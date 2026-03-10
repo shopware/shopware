@@ -9,9 +9,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
     props: {
         role: {
@@ -21,9 +19,6 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('role', [
-            'name',
-            'description',
-        ]),
+        ...mapPropertyErrors('role', ['name', 'description']),
     },
 };

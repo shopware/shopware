@@ -174,9 +174,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: null,
-            aclRoles: [
-                { name: 'Copyreader' },
-            ],
+            aclRoles: [{ name: 'Copyreader' }],
         });
 
         await wrapper.vm.$nextTick();
@@ -193,14 +191,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         element1.classList.add('foo', 'bar');
         element2.classList.add('foo', 'bar');
 
-        wrapper.vm.removeClassesFromElements(
-            [
-                element1,
-                element2,
-            ],
-            ['foo'],
-            [element2],
-        );
+        wrapper.vm.removeClassesFromElements([element1, element2], ['foo'], [element2]);
 
         expect(element1.classList.contains('bar')).toBe(true);
         expect(element1.classList.contains('foo')).toBe(false);
@@ -211,22 +202,10 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
     it('should be able to check if a mouse position is in a polygon', async () => {
         const polygon = [
-            [
-                0,
-                287,
-            ],
-            [
-                0,
-                335,
-            ],
-            [
-                300,
-                431,
-            ],
-            [
-                300,
-                287,
-            ],
+            [0, 287],
+            [0, 335],
+            [300, 431],
+            [300, 287],
         ];
 
         const insideMousePosition = {
@@ -253,22 +232,10 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         };
 
         expect(wrapper.vm.getPolygonFromMenuItem(element, entry)).toStrictEqual([
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0],
         ]);
     });
 

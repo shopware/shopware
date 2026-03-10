@@ -10,16 +10,9 @@ const { createId, types } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
-    emits: [
-        'menu-item-click',
-        'menu-item-enter',
-        'sub-menu-item-enter',
-    ],
+    emits: ['menu-item-click', 'menu-item-enter', 'sub-menu-item-enter'],
 
     props: {
         entry: {

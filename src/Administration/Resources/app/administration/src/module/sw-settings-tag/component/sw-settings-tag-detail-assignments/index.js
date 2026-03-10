@@ -14,18 +14,11 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'remove-assignment',
-        'add-assignment',
-    ],
+    emits: ['remove-assignment', 'add-assignment'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     props: {
         tag: {
@@ -88,20 +81,15 @@ export default {
         assignmentAssociations() {
             const assignmentAssociations = [];
 
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation === 'many_to_many') {
-                        assignmentAssociations.push({
-                            name: this.$tc(`sw-settings-tag.detail.assignments.${propertyName}`),
-                            entity: property.entity,
-                            assignment: propertyName,
-                        });
-                    }
-                },
-            );
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation === 'many_to_many') {
+                    assignmentAssociations.push({
+                        name: this.$tc(`sw-settings-tag.detail.assignments.${propertyName}`),
+                        entity: property.entity,
+                        assignment: propertyName,
+                    });
+                }
+            });
 
             return assignmentAssociations;
         },
@@ -155,10 +143,7 @@ export default {
 
             if (toBeAdded.length) {
                 criteria.addFilter(
-                    Criteria.multi('OR', [
-                        Criteria.equals('tags.id', this.tag.id),
-                        Criteria.equalsAny('id', toBeAdded),
-                    ]),
+                    Criteria.multi('OR', [Criteria.equals('tags.id', this.tag.id), Criteria.equalsAny('id', toBeAdded)]),
                 );
             } else {
                 criteria.addFilter(Criteria.equals('tags.id', this.tag.id));
@@ -168,11 +153,7 @@ export default {
                 return criteria;
             }
 
-            criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equalsAny('id', toBeDeleted),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('AND', [Criteria.equalsAny('id', toBeDeleted)]));
 
             return criteria;
         },
@@ -342,10 +323,7 @@ export default {
             if (toBeAdded.length) {
                 const inheritedAddedCriteria = new Criteria(1, 25);
                 inheritedAddedCriteria.addFilter(
-                    Criteria.multi('AND', [
-                        Criteria.equals('tags.id', null),
-                        Criteria.equalsAny('parentId', toBeAdded),
-                    ]),
+                    Criteria.multi('AND', [Criteria.equals('tags.id', null), Criteria.equalsAny('parentId', toBeAdded)]),
                 );
 
                 addedPromise = this.entityRepository.searchIds(inheritedAddedCriteria).then(({ data, total }) => {
@@ -354,10 +332,7 @@ export default {
                     }
 
                     criteria.filters = [
-                        Criteria.multi('OR', [
-                            Criteria.multi('AND', criteria.filters),
-                            Criteria.equalsAny('id', data),
-                        ]),
+                        Criteria.multi('OR', [Criteria.multi('AND', criteria.filters), Criteria.equalsAny('id', data)]),
                     ];
                 });
             }
@@ -367,11 +342,7 @@ export default {
                 inheritedDeletedCriteria.addFilter(Criteria.equals('tags.id', null));
                 inheritedDeletedCriteria.addFilter(Criteria.equalsAny('parentId', toBeDeleted));
                 if (toBeAdded.length) {
-                    inheritedDeletedCriteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equalsAny('id', toBeAdded),
-                        ]),
-                    );
+                    inheritedDeletedCriteria.addFilter(Criteria.not('AND', [Criteria.equalsAny('id', toBeAdded)]));
                 }
 
                 deletedPromise = this.entityRepository.searchIds(inheritedDeletedCriteria).then(({ data, total }) => {
@@ -379,18 +350,11 @@ export default {
                         return;
                     }
 
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equalsAny('id', data),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equalsAny('id', data)]));
                 });
             }
 
-            return Promise.all([
-                addedPromise,
-                deletedPromise,
-            ]);
+            return Promise.all([addedPromise, deletedPromise]);
         },
 
         async onTermChange(term) {

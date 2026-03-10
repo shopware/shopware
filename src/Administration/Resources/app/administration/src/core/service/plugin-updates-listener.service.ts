@@ -58,10 +58,7 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
     }
 
     function canUpdateExtensions(): boolean {
-        const neededPrivileges = [
-            'plugin:update',
-            'app.all',
-        ];
+        const neededPrivileges = ['plugin:update', 'app.all'];
 
         return neededPrivileges.some((privilegeKey) => {
             return serviceContainer.acl.can(privilegeKey);

@@ -20,9 +20,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet')],
 
     computed: {
         customFieldCriteria() {

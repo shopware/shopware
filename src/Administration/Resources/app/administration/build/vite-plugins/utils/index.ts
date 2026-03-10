@@ -129,99 +129,78 @@ export function loadExtensions(): ExtensionDefinition[] {
     };
 
     const apps = Object.entries(extensionDefinitions)
-        .filter(
-            ([
-                name,
-                definition,
-            ]) => {
-                const appEntryPath = path.resolve(
-                    process.env.PROJECT_ROOT as string,
-                    definition.basePath,
-                    definition.administration?.path ?? '',
-                    '../..',
-                    'meteor-app',
-                );
+        .filter(([name, definition]) => {
+            const appEntryPath = path.resolve(
+                process.env.PROJECT_ROOT as string,
+                definition.basePath,
+                definition.administration?.path ?? '',
+                '../..',
+                'meteor-app',
+            );
 
-                return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
-            },
-        )
-        .map(
-            ([
-                name,
-                definition,
-            ]) => {
-                const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-                const appEntryPath = path.resolve(
-                    process.env.PROJECT_ROOT as string,
-                    definition.basePath,
-                    // @ts-expect-error - We know it is defined at this point because of the filter above
-                    definition.administration.path,
-                    '../..',
-                    'meteor-app',
-                );
+            return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
+        })
+        .map(([name, definition]) => {
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+            const appEntryPath = path.resolve(
+                process.env.PROJECT_ROOT as string,
+                definition.basePath,
+                // @ts-expect-error - We know it is defined at this point because of the filter above
+                definition.administration.path,
+                '../..',
+                'meteor-app',
+            );
 
-                return {
-                    name,
-                    isApp: true,
-                    isPlugin: false,
-                    basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
-                    path: appEntryPath,
-                    filePath: path.resolve(appEntryPath, 'index.html'),
-                    technicalName: technicalName,
-                    technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
-                } as ExtensionDefinition;
-            },
-        );
+            return {
+                name,
+                isApp: true,
+                isPlugin: false,
+                basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
+                path: appEntryPath,
+                filePath: path.resolve(appEntryPath, 'index.html'),
+                technicalName: technicalName,
+                technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
+            } as ExtensionDefinition;
+        });
 
     const plugins = Object.entries(extensionDefinitions)
         .filter(
-            ([
-                name,
-                definition,
-            ]) =>
+            ([name, definition]) =>
                 !!definition.administration &&
                 !!definition.administration.entryFilePath &&
                 !process.env.hasOwnProperty(`SKIP_${definition.technicalName.toUpperCase().replace(/-/g, '_')}`),
         )
-        .map(
-            ([
+        .map(([name, definition]) => {
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+            return {
                 name,
-                definition,
-            ]) => {
-                const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+                isPlugin: true,
+                isApp: false,
+                technicalName: technicalName,
+                // There is an edge case where symfony removes the "bundle" suffix from the bundle name
+                // @see \Shopware\Core\Framework\Plugin\Util\AssetService::getTargetDirectory
+                technicalFolderName: name
+                    .toLowerCase()
+                    .replace(/bundle$/, '')
+                    .replace(/(-)/g, ''),
+                basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
+                path: path.resolve(
+                    process.env.PROJECT_ROOT as string,
+                    definition.basePath,
+                    // @ts-expect-error - We know it is defined at this point because of the filter above
+                    definition.administration.path,
+                ),
+                filePath: path.resolve(
+                    process.env.PROJECT_ROOT as string,
+                    definition.basePath,
+                    // @ts-expect-error - We know it is defined at this point because of the filter above
+                    definition.administration.entryFilePath,
+                ),
+            } as ExtensionDefinition;
+        });
 
-                return {
-                    name,
-                    isPlugin: true,
-                    isApp: false,
-                    technicalName: technicalName,
-                    // There is an edge case where symfony removes the "bundle" suffix from the bundle name
-                    // @see \Shopware\Core\Framework\Plugin\Util\AssetService::getTargetDirectory
-                    technicalFolderName: name
-                        .toLowerCase()
-                        .replace(/bundle$/, '')
-                        .replace(/(-)/g, ''),
-                    basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
-                    path: path.resolve(
-                        process.env.PROJECT_ROOT as string,
-                        definition.basePath,
-                        // @ts-expect-error - We know it is defined at this point because of the filter above
-                        definition.administration.path,
-                    ),
-                    filePath: path.resolve(
-                        process.env.PROJECT_ROOT as string,
-                        definition.basePath,
-                        // @ts-expect-error - We know it is defined at this point because of the filter above
-                        definition.administration.entryFilePath,
-                    ),
-                } as ExtensionDefinition;
-            },
-        );
-
-    return [
-        ...plugins,
-        ...apps,
-    ].filter((extension) => {
+    return [...plugins, ...apps].filter((extension) => {
         return !process.env.hasOwnProperty('SKIP_' + extension.technicalName.toUpperCase().replace(/-/g, '_'));
     });
 }
@@ -295,10 +274,7 @@ export function getViteServerPorts(): Record<string, number> {
 
     const ports: Record<string, number> = {};
 
-    for (const [
-        key,
-        value,
-    ] of Object.entries(parsedData.extensions)) {
+    for (const [key, value] of Object.entries(parsedData.extensions)) {
         ports[key] = value.port;
     }
 
@@ -323,10 +299,7 @@ export function getMainViteServerConfig(): {
 
     const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
 
-    for (const [
-        key,
-        value,
-    ] of Object.entries(parsedData.extensions)) {
+    for (const [key, value] of Object.entries(parsedData.extensions)) {
         proxyConfig[value.basePath] = {
             target: `http://localhost:${value.port}`,
             changeOrigin: true,

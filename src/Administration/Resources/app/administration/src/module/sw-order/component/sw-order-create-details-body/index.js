@@ -11,10 +11,7 @@ import template from './sw-order-create-details-body.html.twig';
 export default {
     template,
 
-    emits: [
-        'on-edit-billing-address',
-        'on-edit-shipping-address',
-    ],
+    emits: ['on-edit-billing-address', 'on-edit-shipping-address'],
 
     props: {
         // eslint-disable-next-line vue/require-default-prop

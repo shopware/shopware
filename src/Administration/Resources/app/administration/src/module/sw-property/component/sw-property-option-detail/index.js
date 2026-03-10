@@ -11,15 +11,9 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         currentOption: {
@@ -36,10 +30,7 @@ export default {
         },
     },
 
-    emits: [
-        'cancel-option-edit',
-        'save-option-edit',
-    ],
+    emits: ['cancel-option-edit', 'save-option-edit'],
 
     data() {
         return {

@@ -12,10 +12,7 @@ const { uniqBy } = Shopware.Utils.array;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -102,12 +99,7 @@ export default {
             if (groupIds.length === 0) {
                 return [];
             }
-            const groupMap = new Map(
-                this.groups.map((group) => [
-                    group.id,
-                    group,
-                ]),
-            );
+            const groupMap = new Map(this.groups.map((group) => [group.id, group]));
             return groupIds.map((id) => groupMap.get(id)).filter(Boolean);
         },
     },
@@ -283,10 +275,7 @@ export default {
 
             const results = await Promise.all(promises);
 
-            return [
-                initialResult,
-                ...results,
-            ].flatMap((result) => result);
+            return [initialResult, ...results].flatMap((result) => result);
         },
     },
 };

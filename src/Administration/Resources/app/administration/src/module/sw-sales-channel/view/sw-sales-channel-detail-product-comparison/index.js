@@ -21,10 +21,7 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types

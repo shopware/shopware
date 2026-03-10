@@ -100,9 +100,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         function expectUpdateModulesCalled() {
             expect(mockedModuleService.fetchAppModules).toHaveBeenCalledTimes(1);
 
-            expect(Shopware.Store.get('shopwareApps').apps).toEqual([
-                'new app modules',
-            ]);
+            expect(Shopware.Store.get('shopwareApps').apps).toEqual(['new app modules']);
         }
 
         beforeEach(() => {
@@ -111,37 +109,10 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         });
 
         it.each([
-            [
-                'installExtension',
-                [
-                    'someExtension',
-                    'app',
-                ],
-            ],
-            [
-                'updateExtension',
-                [
-                    'someExtension',
-                    'app',
-                    true,
-                ],
-            ],
-            [
-                'uninstallExtension',
-                [
-                    'someExtension',
-                    'app',
-                    true,
-                ],
-            ],
-            [
-                'removeExtension',
-                [
-                    'someExtension',
-                    'app',
-                    true,
-                ],
-            ],
+            ['installExtension', ['someExtension', 'app']],
+            ['updateExtension', ['someExtension', 'app', true]],
+            ['uninstallExtension', ['someExtension', 'app', true]],
+            ['removeExtension', ['someExtension', 'app', true]],
         ])('delegates %s correctly', async (lifecycleMethod, parameters) => {
             await mockedShopwareExtensionService[lifecycleMethod](...parameters);
 
@@ -158,10 +129,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
             expect(mockedExtensionStoreActionService.cancelLicense).toHaveBeenCalledWith(5);
         });
 
-        it.each([
-            ['activateExtension'],
-            ['deactivateExtension'],
-        ])('delegates %s correctly', async (lifecycleMethod) => {
+        it.each([['activateExtension'], ['deactivateExtension']])('delegates %s correctly', async (lifecycleMethod) => {
             await mockedShopwareExtensionService[lifecycleMethod]('someExtension', 'app');
 
             expect(mockedExtensionStoreActionService[lifecycleMethod]).toHaveBeenCalledTimes(1);
@@ -178,16 +146,16 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
             Shopware.Store.get('shopwareExtensions').userInfo = true;
         });
 
-        it.each([
-            [{ userInfo: { email: 'user@shopware.com' } }],
-            [{ userInfo: null }],
-        ])('sets login status depending on checkLogin response', async (loginResponse) => {
-            checkLoginSpy.mockImplementationOnce(() => loginResponse);
+        it.each([[{ userInfo: { email: 'user@shopware.com' } }], [{ userInfo: null }]])(
+            'sets login status depending on checkLogin response',
+            async (loginResponse) => {
+                checkLoginSpy.mockImplementationOnce(() => loginResponse);
 
-            await shopwareExtensionService.checkLogin();
+                await shopwareExtensionService.checkLogin();
 
-            expect(Shopware.Store.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
-        });
+                expect(Shopware.Store.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
+            },
+        );
 
         it('sets login status to false if checkLogin request fails', async () => {
             checkLoginSpy.mockImplementationOnce(() => {
@@ -342,22 +310,10 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
     describe('mapVariantToRecommendation', () => {
         it.each([
-            [
-                'free',
-                0,
-            ],
-            [
-                'rent',
-                1,
-            ],
-            [
-                'buy',
-                2,
-            ],
-            [
-                'test',
-                3,
-            ],
+            ['free', 0],
+            ['rent', 1],
+            ['buy', 2],
+            ['test', 3],
         ])('maps variant %s to position %d', (type, expectedRecommendation) => {
             expect(shopwareExtensionService.mapVariantToRecommendation({ type })).toBe(expectedRecommendation);
         });

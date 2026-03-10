@@ -148,18 +148,9 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         });
 
         it.each([
-            [
-                'unset',
-                false,
-            ],
-            [
-                'revoked',
-                false,
-            ],
-            [
-                'accepted',
-                true,
-            ],
+            ['unset', false],
+            ['revoked', false],
+            ['accepted', true],
         ])('passes down the correct backend data consent', async (initialBackendDataConsent, backendDataConsent) => {
             const consentStore = useConsentStore();
             consentStore.consents = {

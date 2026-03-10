@@ -12,11 +12,7 @@ const { Component } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'userActivityService',
-        'loginService',
-        'feature',
-    ],
+    inject: ['userActivityService', 'loginService', 'feature'],
 
     metaInfo() {
         return {
@@ -72,10 +68,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
             const currentRouteName = this.$router.currentRoute.value.name as string;
-            const routeBlocklist = [
-                'sw.inactivity.login.index',
-                'sw.login.index.login',
-            ];
+            const routeBlocklist = ['sw.inactivity.login.index', 'sw.login.index.login'];
             if (!data.inactive || routeBlocklist.includes(currentRouteName || '')) {
                 return;
             }

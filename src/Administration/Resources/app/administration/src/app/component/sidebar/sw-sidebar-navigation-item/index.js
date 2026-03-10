@@ -20,9 +20,7 @@ export default {
 
     computed: {
         badgeTypeClasses() {
-            return [
-                `is--${this.sidebarItem.badgeType}`,
-            ];
+            return [`is--${this.sidebarItem.badgeType}`];
         },
     },
 

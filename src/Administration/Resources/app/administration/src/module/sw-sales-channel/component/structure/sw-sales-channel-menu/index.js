@@ -14,11 +14,7 @@ const FlatTree = Shopware.Helper.FlatTreeHelper;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'domainLinkService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
 
     data() {
         return {
@@ -49,10 +45,7 @@ export default {
                     'domains',
                 ],
                 sales_channel_type: ['iconName'],
-                sales_channel_domain: [
-                    'url',
-                    'languageId',
-                ],
+                sales_channel_domain: ['url', 'languageId'],
             });
 
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));

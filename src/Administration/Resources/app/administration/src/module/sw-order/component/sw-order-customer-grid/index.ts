@@ -28,14 +28,9 @@ interface CustomerFilterRef {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data(): {
         customers: EntityCollection<'customer'> | null;

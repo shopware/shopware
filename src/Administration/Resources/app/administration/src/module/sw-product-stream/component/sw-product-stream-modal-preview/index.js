@@ -16,10 +16,7 @@ const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e2688
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'productStreamPreviewService',
-    ],
+    inject: ['repositoryFactory', 'productStreamPreviewService'],
 
     emits: ['modal-close'],
 
@@ -62,11 +59,7 @@ export default {
 
         salesChannelCriteria() {
             return new Criteria(1, 1)
-                .addFilter(
-                    Criteria.not('OR', [
-                        Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
-                    ]),
-                )
+                .addFilter(Criteria.not('OR', [Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID)]))
                 .addSorting(Criteria.sort('type.iconName', 'ASC'));
         },
 
@@ -77,10 +70,7 @@ export default {
                 if (this.sorting === 'random') {
                     this.addRandomSort(criteria);
                 } else {
-                    const [
-                        field,
-                        direction,
-                    ] = this.sorting.split(':');
+                    const [field, direction] = this.sorting.split(':');
                     criteria.addSorting(Criteria.sort(field, direction));
                 }
             }
@@ -90,11 +80,7 @@ export default {
 
         previewSelectionCriteria() {
             return new Criteria()
-                .addFilter(
-                    Criteria.not('OR', [
-                        Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
-                    ]),
-                )
+                .addFilter(Criteria.not('OR', [Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID)]))
                 .addSorting(Criteria.sort('name', 'ASC'));
         },
 
@@ -219,10 +205,7 @@ export default {
                         operator: newOperator,
                         value: null,
                         parameters: null,
-                        queries: [
-                            mapped,
-                            { ...mapped, ...{ field: 'parentId' } },
-                        ],
+                        queries: [mapped, { ...mapped, ...{ field: 'parentId' } }],
                     };
                 }
 
@@ -291,10 +274,7 @@ export default {
 
             fields = shuffle(fields);
             const selectedFields = fields.slice(0, 2);
-            const directions = [
-                'ASC',
-                'DESC',
-            ];
+            const directions = ['ASC', 'DESC'];
             const randomDirection = directions[Math.floor(Math.random() * directions.length)];
 
             selectedFields.forEach((field) => {

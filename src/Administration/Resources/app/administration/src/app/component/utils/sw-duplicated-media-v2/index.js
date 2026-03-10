@@ -17,10 +17,7 @@ const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection'
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-    ],
+    inject: ['repositoryFactory', 'mediaService'],
 
     data() {
         return {
@@ -68,9 +65,7 @@ export default {
             if (!this.currentTask) {
                 return '';
             }
-            const metadata = [
-                this.dateFilter(new Date(), { month: 'long' }),
-            ];
+            const metadata = [this.dateFilter(new Date(), { month: 'long' })];
 
             if (this.currentTask.src instanceof File) {
                 metadata.push(this.fileSizeFilter(this.currentTask.src.size));

@@ -45,9 +45,7 @@ async function createWrapper(privileges = []) {
         }),
         {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
 
                 directives: {
                     tooltip: {},
@@ -175,9 +173,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should be render tab', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
 
         await wrapper.vm.$nextTick();
         const generalTab = wrapper.find('.sw-settings-country__setting-tab');
@@ -188,9 +184,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should be able to save the country', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-country-detail__save-action');

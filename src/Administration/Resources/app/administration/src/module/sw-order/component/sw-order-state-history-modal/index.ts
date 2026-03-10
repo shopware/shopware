@@ -37,14 +37,9 @@ interface CombinedStates {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'stateStyleDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'stateStyleDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         order: {
@@ -71,11 +66,7 @@ export default Component.wrapComponentConfig({
             limit: 10,
             page: 1,
             total: 0,
-            steps: [
-                5,
-                10,
-                25,
-            ],
+            steps: [5, 10, 25],
         };
     },
 
@@ -99,11 +90,7 @@ export default Component.wrapComponentConfig({
 
             criteria.addFilter(Criteria.equalsAny('state_machine_history.referencedId', entityIds));
             criteria.addFilter(
-                Criteria.equalsAny('state_machine_history.entityName', [
-                    'order',
-                    'order_transaction',
-                    'order_delivery',
-                ]),
+                Criteria.equalsAny('state_machine_history.entityName', ['order', 'order_transaction', 'order_delivery']),
             );
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
@@ -160,10 +147,7 @@ export default Component.wrapComponentConfig({
                 return Shopware.Store.get('swOrderDetail').loading.states;
             },
             set(value: boolean): void {
-                Shopware.Store.get('swOrderDetail').setLoading([
-                    'states',
-                    value,
-                ]);
+                Shopware.Store.get('swOrderDetail').setLoading(['states', value]);
             },
         },
     },

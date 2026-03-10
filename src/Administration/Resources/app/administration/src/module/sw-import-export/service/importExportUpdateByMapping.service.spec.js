@@ -9,14 +9,9 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     let importExportUpdateByMappingService;
 
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(
-            ([
-                entityName,
-                entityDefinition,
-            ]) => {
-                Shopware.EntityDefinition.add(entityName, entityDefinition);
-            },
-        );
+        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
+            Shopware.EntityDefinition.add(entityName, entityDefinition);
+        });
 
         importExportUpdateByMappingService = new ImportExportUpdateByMappingService(Shopware.EntityDefinition);
     });

@@ -50,10 +50,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                                 {
                                     id: 'value1',
                                     group: 'group1',
-                                    options: [
-                                        'option1',
-                                        'option2',
-                                    ],
+                                    options: ['option1', 'option2'],
                                 },
                             ],
                             translated: {
@@ -78,10 +75,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                 selectedGroups: [
                     {
                         id: 'group1',
-                        options: [
-                            'option1',
-                            'option2',
-                        ],
+                        options: ['option1', 'option2'],
                         translated: {
                             name: 'group1',
                         },
@@ -151,10 +145,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
             values: [
                 {
                     group: 'group1',
-                    options: [
-                        'option1',
-                        '45',
-                    ],
+                    options: ['option1', '45'],
                 },
             ],
         });
@@ -211,10 +202,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     {
                         id: 'value1',
                         group: 'group1',
-                        options: [
-                            'option1',
-                            'option2',
-                        ],
+                        options: ['option1', 'option2'],
                     },
                 ],
                 translated: {
@@ -289,10 +277,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                 {
                     id: 'value1',
                     group: 'group1',
-                    options: [
-                        'option1',
-                        'option2',
-                    ],
+                    options: ['option1', 'option2'],
                 },
             ],
             translated: {
@@ -476,10 +461,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     {
                         group: 'group1',
                         id: 'value1',
-                        options: [
-                            'option1',
-                            'option2',
-                        ],
+                        options: ['option1', 'option2'],
                     },
                 ],
             },
@@ -489,9 +471,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     {
                         group: 'group1',
                         id: expect.any(String),
-                        options: [
-                            'option1',
-                        ],
+                        options: ['option1'],
                     },
                 ],
             },

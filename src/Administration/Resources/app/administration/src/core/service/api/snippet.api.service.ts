@@ -47,28 +47,23 @@ class SnippetApiService extends ApiService {
             .then((snippetRegistry: SnippetRegistry) => {
                 const registry = localeFactory.getLocaleRegistry();
 
-                Object.entries(snippetRegistry).forEach(
-                    ([
-                        localeKey,
-                        snippets,
-                    ]) => {
-                        const fnName = registry.has(localeKey) ? 'extend' : 'register';
+                Object.entries(snippetRegistry).forEach(([localeKey, snippets]) => {
+                    const fnName = registry.has(localeKey) ? 'extend' : 'register';
 
-                        // Adding snippets to the locale factory
-                        localeFactory[fnName](localeKey, snippets);
+                    // Adding snippets to the locale factory
+                    localeFactory[fnName](localeKey, snippets);
 
-                        // Only update i18n instance when using register
-                        // (extend already handles this internally)
-                        if (fnName === 'register' && Shopware.Snippet?.setLocaleMessage) {
-                            // Get the merged new messages from the locale registry
-                            const allMessagesForLocale = registry.get(localeKey) || {};
+                    // Only update i18n instance when using register
+                    // (extend already handles this internally)
+                    if (fnName === 'register' && Shopware.Snippet?.setLocaleMessage) {
+                        // Get the merged new messages from the locale registry
+                        const allMessagesForLocale = registry.get(localeKey) || {};
 
-                            // Set empty messages first to trigger reactivity update
-                            Shopware.Snippet.setLocaleMessage?.(localeKey, {});
-                            Shopware.Snippet.setLocaleMessage?.(localeKey, allMessagesForLocale);
-                        }
-                    },
-                );
+                        // Set empty messages first to trigger reactivity update
+                        Shopware.Snippet.setLocaleMessage?.(localeKey, {});
+                        Shopware.Snippet.setLocaleMessage?.(localeKey, allMessagesForLocale);
+                    }
+                });
             });
     }
 

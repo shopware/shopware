@@ -24,15 +24,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    emits: [
-        'lower-position-value',
-        'position-changed',
-        'raise-position-value',
-    ],
+    emits: ['lower-position-value', 'position-changed', 'raise-position-value'],
 
-    mixins: [
-        Mixin.getByName('position'),
-    ],
+    mixins: [Mixin.getByName('position')],
 
     props: {
         value: {

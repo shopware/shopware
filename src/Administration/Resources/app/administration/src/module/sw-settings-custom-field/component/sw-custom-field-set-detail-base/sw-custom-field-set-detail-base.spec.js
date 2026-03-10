@@ -63,9 +63,7 @@ async function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base', () => {
     it('can edit fields', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.editor',
-        ]);
+        const wrapper = await createWrapper(['custom_field.editor']);
         await flushPromises();
 
         const technicalNameField = wrapper.findComponent('.sw-settings-custom-field-set-detail-base__technical-name');

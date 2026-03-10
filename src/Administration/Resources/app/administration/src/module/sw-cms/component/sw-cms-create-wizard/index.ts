@@ -10,16 +10,9 @@ const { Filter } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-        'cmsPageTypeService',
-        'customEntityDefinitionService',
-    ],
+    inject: ['feature', 'cmsPageTypeService', 'customEntityDefinitionService'],
 
-    emits: [
-        'on-section-select',
-        'wizard-complete',
-    ],
+    emits: ['on-section-select', 'wizard-complete'],
 
     props: {
         page: {
@@ -61,10 +54,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isCompletable() {
-            return [
-                this.page.name,
-                !this.isCustomEntityType || this.page.entity,
-            ].every((condition) => condition);
+            return [this.page.name, !this.isCustomEntityType || this.page.entity].every((condition) => condition);
         },
 
         customEntities() {

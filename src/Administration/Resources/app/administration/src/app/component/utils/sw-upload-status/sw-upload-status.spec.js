@@ -199,10 +199,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
         const file1 = createFile('test.jpg', 'content');
         const file2 = createFile('test2.jpg', 'content2');
 
-        const tasks = [
-            createUploadTask('target-123', file1),
-            createUploadTask('target-456', file2),
-        ];
+        const tasks = [createUploadTask('target-123', file1), createUploadTask('target-456', file2)];
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
         wrapper.vm.onUploadEvent(createUploadFinishedEvent('target-123'));
 
@@ -230,10 +227,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
         const file1 = createFile('test.jpg', 'content');
         const file2 = createFile('test2.jpg', 'content2');
 
-        const tasks = [
-            createUploadTask('target-123', file1),
-            createUploadTask('target-456', file2),
-        ];
+        const tasks = [createUploadTask('target-123', file1), createUploadTask('target-456', file2)];
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
 
         const error = createError('CONTENT__MEDIA_ILLEGAL_FILE_NAME', 'Illegal filename');
@@ -307,10 +301,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
         const file1 = createFile('test1.jpg', 'a'.repeat(100));
         const file2 = createFile('test2.jpg', 'b'.repeat(100));
 
-        const tasks = [
-            createUploadTask('target-1', file1),
-            createUploadTask('target-2', file2),
-        ];
+        const tasks = [createUploadTask('target-1', file1), createUploadTask('target-2', file2)];
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
 
         expect(wrapper.vm.uploadProgress).toBe(0);
@@ -351,10 +342,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
         const file1 = createFile('test1.jpg', 'content');
         const file2 = createFile('test2.jpg', 'content2');
 
-        const tasks = [
-            createUploadTask('target-123', file1),
-            createUploadTask('target-456', file2),
-        ];
+        const tasks = [createUploadTask('target-123', file1), createUploadTask('target-456', file2)];
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
         wrapper.vm.onUploadEvent(createUploadFinishedEvent('target-123'));
 
@@ -415,10 +403,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
         wrapper.vm.updateSnackbar = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
 
-        const tasks = [
-            createUploadTask('target-123', file1),
-            createUploadTask('target-456', file2),
-        ];
+        const tasks = [createUploadTask('target-123', file1), createUploadTask('target-456', file2)];
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
 
         const error = createError('CONTENT__MEDIA_ILLEGAL_FILE_NAME', 'Illegal filename');

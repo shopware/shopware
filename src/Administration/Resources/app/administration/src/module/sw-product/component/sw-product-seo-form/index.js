@@ -12,13 +12,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         allowEdit: {
@@ -104,11 +100,7 @@ export default {
             return Shopware.Store.get('swProductDetail').isLoading;
         },
 
-        ...mapPropertyErrors('product', [
-            'keywords',
-            'metaDescription',
-            'metaTitle',
-        ]),
+        ...mapPropertyErrors('product', ['keywords', 'metaDescription', 'metaTitle']),
     },
 
     watch: {

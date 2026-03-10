@@ -20,10 +20,7 @@ async function createWrapper(privileges = [], isSso = false) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-upload-listener': {
-                    emits: [
-                        'click',
-                        'media-upload-finish',
-                    ],
+                    emits: ['click', 'media-upload-finish'],
                     template: `<div
                         class="sw-upload-listener"
                         @click="$emit('click', $event)"
@@ -31,11 +28,7 @@ async function createWrapper(privileges = [], isSso = false) {
                     ></div>`,
                 },
                 'sw-media-upload-v2': {
-                    emits: [
-                        'media-drop',
-                        'media-upload-remove-image',
-                        'media-upload-sidebar-open',
-                    ],
+                    emits: ['media-drop', 'media-upload-remove-image', 'media-upload-sidebar-open'],
                     template: `<div
                         class="sw-media-upload-v2"
                         @media-drop="$emit('media-drop', $event)"

@@ -70,9 +70,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = await createWrapper([
-            'product_manufacturer.editor',
-        ]);
+        const wrapper = await createWrapper(['product_manufacturer.editor']);
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
@@ -90,9 +88,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to inline delete', async () => {
-        const wrapper = await createWrapper([
-            'product_manufacturer.deleter',
-        ]);
+        const wrapper = await createWrapper(['product_manufacturer.deleter']);
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');

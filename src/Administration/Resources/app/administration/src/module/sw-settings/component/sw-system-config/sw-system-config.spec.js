@@ -587,14 +587,8 @@ function createConfig() {
                         expect(field.find(`.mt-select-selection-list__item-holder--${index}`).text()).toBe(value);
                     });
                 },
-                afterValue: [
-                    'blue',
-                    'green',
-                ],
-                childValue: [
-                    'blue',
-                    'green',
-                ],
+                afterValue: ['blue', 'green'],
+                childValue: ['blue', 'green'],
                 fallbackValue: [],
                 changeValueFunction: async (field) => {
                     // open select field

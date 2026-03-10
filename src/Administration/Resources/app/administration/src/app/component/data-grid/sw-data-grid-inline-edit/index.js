@@ -9,9 +9,7 @@ import './sw-data-grid-inline-edit.scss';
 export default {
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     emits: ['update:value'],
 

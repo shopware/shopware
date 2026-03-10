@@ -22,10 +22,7 @@ export default {
         };
     },
 
-    inject: [
-        'setSwPageSidebarOffset',
-        'removeSwPageSidebarOffset',
-    ],
+    inject: ['setSwPageSidebarOffset', 'removeSwPageSidebarOffset'],
 
     emits: ['item-click'],
 

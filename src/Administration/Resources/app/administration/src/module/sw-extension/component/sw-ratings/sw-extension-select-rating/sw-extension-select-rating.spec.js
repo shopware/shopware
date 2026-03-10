@@ -28,26 +28,11 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-ratin
     }
 
     it.each([
-        [
-            0,
-            5,
-        ],
-        [
-            1,
-            4,
-        ],
-        [
-            2,
-            3,
-        ],
-        [
-            3,
-            2,
-        ],
-        [
-            4,
-            1,
-        ],
+        [0, 5],
+        [1, 4],
+        [2, 3],
+        [3, 2],
+        [4, 1],
     ])('should have %d yellow star(s)', async (starPosition, expectedValue) => {
         const wrapper = await createWrapper();
 

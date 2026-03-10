@@ -13,10 +13,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    emits: [
-        'shortcut-open',
-        'shortcut-close',
-    ],
+    emits: ['shortcut-open', 'shortcut-close'],
 
     shortcuts: {
         '?': 'onOpenShortcutOverviewModal',

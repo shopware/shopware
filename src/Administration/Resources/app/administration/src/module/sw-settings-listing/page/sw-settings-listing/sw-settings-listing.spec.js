@@ -446,10 +446,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                             batchSave: () => {},
                         },
                     },
-                    mixins: [
-                        notificationMixinMock,
-                        Shopware.Mixin.getByName('sw-inline-snippet'),
-                    ],
+                    mixins: [notificationMixinMock, Shopware.Mixin.getByName('sw-inline-snippet')],
                     stubs: {
                         'sw-page': {
                             template: '<div><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
@@ -457,10 +454,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-system-config': {
                             data() {
                                 return {
-                                    singleConfig: [
-                                        true,
-                                        true,
-                                    ],
+                                    singleConfig: [true, true],
                                     actualConfigData: {
                                         null: {
                                             'core.listing.defaultSorting': 'name-asc',
@@ -659,16 +653,11 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
 
         const productSortings = wrapper.vm.productSortingOptions;
 
-        Object.entries(productSortings).forEach(
-            ([
-                ,
-                productSorting,
-            ]) => {
-                if (productSorting.id === testedSortingId) {
-                    defaultSorting = productSorting;
-                }
-            },
-        );
+        Object.entries(productSortings).forEach(([, productSorting]) => {
+            if (productSorting.id === testedSortingId) {
+                defaultSorting = productSorting;
+            }
+        });
 
         expect(defaultSorting).toBeDefined();
         expect(defaultSorting.active).toBeFalsy();

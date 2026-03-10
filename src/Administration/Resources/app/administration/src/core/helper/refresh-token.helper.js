@@ -11,9 +11,7 @@ class RefreshTokenHelper {
         this._subscribers = [];
         this._errorSubscribers = [];
         // eslint-disable-next-line inclusive-language/use-inclusive-words
-        this._whitelist = [
-            '/oauth/token',
-        ];
+        this._whitelist = ['/oauth/token'];
     }
 
     /**

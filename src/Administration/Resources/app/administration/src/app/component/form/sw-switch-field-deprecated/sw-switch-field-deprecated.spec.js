@@ -83,11 +83,7 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
         expect(thirdSwitchInputId).toMatch(thirdLabelFor);
     });
 
-    [
-        'checkOne',
-        'checkTwo',
-        'checkThree',
-    ].forEach((checkboxId, index) => {
+    ['checkOne', 'checkTwo', 'checkThree'].forEach((checkboxId, index) => {
         it(`should update the value of the "${checkboxId} field when clicking its label"`, async () => {
             const wrapper = await createWrapper();
             await flushPromises();

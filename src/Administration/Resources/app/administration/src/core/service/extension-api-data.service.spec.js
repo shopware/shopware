@@ -582,10 +582,7 @@ describe('core/service/extension-api-data.service.ts', () => {
         expect(publishedDataSets).toHaveLength(0);
     });
 
-    it.each([
-        'dev',
-        'prod',
-    ])('should show deprecation warning in "%s" env', async (env) => {
+    it.each(['dev', 'prod'])('should show deprecation warning in "%s" env', async (env) => {
         // Setup
         const wrapper = mount({
             template: '<h1>jest</h1>',

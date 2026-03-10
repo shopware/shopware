@@ -11,19 +11,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderDocumentApiService',
-    ],
+    inject: ['repositoryFactory', 'orderDocumentApiService'],
 
-    emits: [
-        'title-set',
-        'buttons-update',
-    ],
+    emits: ['title-set', 'buttons-update'],
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     data() {
         return {

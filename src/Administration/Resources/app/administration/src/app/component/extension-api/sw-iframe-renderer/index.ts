@@ -209,14 +209,9 @@ export default Shopware.Component.wrapComponentConfig({
                     if (searchParams) {
                         const parsedSearchParams = JSON.parse(searchParams as string) as [string, string][];
 
-                        parsedSearchParams.forEach(
-                            ([
-                                key,
-                                value,
-                            ]) => {
-                                urlObject.searchParams.append(key, value);
-                            },
-                        );
+                        parsedSearchParams.forEach(([key, value]) => {
+                            urlObject.searchParams.append(key, value);
+                        });
                     }
 
                     this.signedIframeSrc = urlObject.toString();

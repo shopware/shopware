@@ -38,17 +38,12 @@ export default function initializeWorker() {
 
     function getConfig() {
         return configService.getConfig().then((response) => {
-            Object.entries(response as ContextAppConfig).forEach(
-                ([
-                    key,
+            Object.entries(response as ContextAppConfig).forEach(([key, value]) => {
+                Shopware.Store.get('context').addAppConfigValue({
+                    key: key as keyof ContextAppConfig,
                     value,
-                ]) => {
-                    Shopware.Store.get('context').addAppConfigValue({
-                        key: key as keyof ContextAppConfig,
-                        value,
-                    });
-                },
-            );
+                });
+            });
 
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 enableWorkerNotificationListener(loginService, Shopware.Context.api);

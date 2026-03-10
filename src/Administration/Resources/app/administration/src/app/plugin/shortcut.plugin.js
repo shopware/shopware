@@ -86,29 +86,22 @@ export default {
                 const initialLength = activeShortcuts.length;
 
                 // add shortcuts
-                Object.entries(shortcuts).forEach(
-                    ([
-                        key,
-                        value,
-                    ]) => {
-                        const shortcut = {
-                            key: key,
-                            instance: this,
-                        };
+                Object.entries(shortcuts).forEach(([key, value]) => {
+                    const shortcut = {
+                        key: key,
+                        instance: this,
+                    };
 
-                        if (typeof value !== 'string') {
-                            shortcut.functionName = value.method;
-                            shortcut.active = (typeof value.active === 'boolean' ? () => value.active : value.active).bind(
-                                this,
-                            );
-                        } else {
-                            shortcut.functionName = value;
-                            shortcut.active = () => true;
-                        }
+                    if (typeof value !== 'string') {
+                        shortcut.functionName = value.method;
+                        shortcut.active = (typeof value.active === 'boolean' ? () => value.active : value.active).bind(this);
+                    } else {
+                        shortcut.functionName = value;
+                        shortcut.active = () => true;
+                    }
 
-                        activeShortcuts.push(shortcut);
-                    },
-                );
+                    activeShortcuts.push(shortcut);
+                });
 
                 // add event listener only for the first component with shortcuts
                 if (initialLength === 0 && activeShortcuts.length > 0) {

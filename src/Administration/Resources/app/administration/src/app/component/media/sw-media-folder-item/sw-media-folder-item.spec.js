@@ -194,9 +194,7 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it('should be able to delete', async () => {
-        const aclWrapper = await createWrapper(null, [
-            'media.deleter',
-        ]);
+        const aclWrapper = await createWrapper(null, ['media.deleter']);
         await aclWrapper.vm.$nextTick();
 
         const deleteMenuItem = aclWrapper.find('.sw-media-context-item__delete-folder-action');
@@ -212,9 +210,7 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it('should be able to edit', async () => {
-        const aclWrapper = await createWrapper(null, [
-            'media.editor',
-        ]);
+        const aclWrapper = await createWrapper(null, ['media.editor']);
         await aclWrapper.vm.$nextTick();
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');

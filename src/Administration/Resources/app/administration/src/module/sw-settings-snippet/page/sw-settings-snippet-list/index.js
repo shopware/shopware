@@ -23,9 +23,7 @@ export default {
         'userConfigService',
     ],
 
-    mixins: [
-        Mixin.getByName('sw-settings-list'),
-    ],
+    mixins: [Mixin.getByName('sw-settings-list')],
 
     data() {
         return {
@@ -239,9 +237,7 @@ export default {
         },
 
         getUserConfig() {
-            return this.userConfigService.search([
-                'grid.filter.setting-snippet-list',
-            ]);
+            return this.userConfigService.search(['grid.filter.setting-snippet-list']);
         },
 
         saveUserConfig() {

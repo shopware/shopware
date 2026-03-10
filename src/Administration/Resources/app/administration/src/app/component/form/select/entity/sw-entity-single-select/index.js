@@ -15,10 +15,7 @@ const { debounce, get } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'update:value',
@@ -28,10 +25,7 @@ export default {
         'search-term-change',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error'), Mixin.getByName('notification')],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types
@@ -55,10 +49,7 @@ export default {
             default: '',
         },
         labelProperty: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'name',
         },
@@ -109,17 +100,9 @@ export default {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-                'left',
-            ],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         allowEntityCreation: {
@@ -398,10 +381,7 @@ export default {
 
             const criteria = new Criteria(1, this.resultLimit);
             criteria.addIncludes({
-                [this.entity]: [
-                    'id',
-                    'name',
-                ],
+                [this.entity]: ['id', 'name'],
             });
             criteria.addFilter(Criteria.equals('name', term));
 

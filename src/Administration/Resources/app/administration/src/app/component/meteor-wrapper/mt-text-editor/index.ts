@@ -43,9 +43,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    emits: [
-        'update:modelValue',
-    ],
+    emits: ['update:modelValue'],
 
     computed: {
         compatValue: {
@@ -60,19 +58,13 @@ export default Shopware.Component.wrapComponentConfig({
         mergedCustomButtons() {
             const editorButtons: CustomButton[] = [];
 
-            return [
-                ...editorButtons,
-                ...this.customButtons,
-            ];
+            return [...editorButtons, ...this.customButtons];
         },
 
         mergedExcludedButtons() {
             const excludedEditorButtons: string[] = [];
 
-            return [
-                ...excludedEditorButtons,
-                ...this.excludedButtons,
-            ];
+            return [...excludedEditorButtons, ...this.excludedButtons];
         },
     },
 

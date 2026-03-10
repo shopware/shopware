@@ -42,10 +42,7 @@ describe('src/app/service/file-helper.service.ts', () => {
         it('should be able to extend valid types with new extension', () => {
             expect(
                 checkByExtension({ ...fileMock, type: 'application/pdf', name: 'test.pdf' }, fileAcceptString, null, {
-                    'application/pdf': [
-                        'pdf',
-                        'test',
-                    ],
+                    'application/pdf': ['pdf', 'test'],
                 }),
             ).toBe(true);
         });

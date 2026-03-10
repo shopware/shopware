@@ -12,9 +12,7 @@ import { defineComponent } from 'vue';
 export default Shopware.Mixin.register(
     'user-settings',
     defineComponent({
-        inject: [
-            'acl',
-        ],
+        inject: ['acl'],
 
         computed: {
             userConfigRepository() {

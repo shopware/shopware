@@ -62,10 +62,7 @@ export default {
             return `${defaultPlaceholder} ${this.$tc('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.zipCodes',
-        ]),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.zipCodes']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueZipCodesError;
@@ -94,11 +91,7 @@ export default {
             this.ensureValueExist();
 
             if (this.condition.value.operator !== undefined) {
-                this.isNumeric = ![
-                    '=',
-                    '!=',
-                    'empty',
-                ].includes(this.condition.value.operator);
+                this.isNumeric = !['=', '!=', 'empty'].includes(this.condition.value.operator);
             }
         },
         onChangeNumeric(value) {

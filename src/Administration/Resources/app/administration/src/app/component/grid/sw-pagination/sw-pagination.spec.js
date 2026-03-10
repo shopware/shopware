@@ -77,10 +77,7 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should have two arrow icons', async () => {
-        const [
-            leftArrow,
-            rightArrow,
-        ] = wrapper.findAll('.mt-icon');
+        const [leftArrow, rightArrow] = wrapper.findAll('.mt-icon');
 
         expect(leftArrow.classes()).toContain('icon--regular-chevron-left-xs');
         expect(rightArrow.classes()).toContain('icon--regular-chevron-right-xs');
@@ -124,10 +121,7 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should navigate to another page via arrows', async () => {
-        const [
-            leftArrow,
-            rightArrow,
-        ] = wrapper.findAll('.mt-icon');
+        const [leftArrow, rightArrow] = wrapper.findAll('.mt-icon');
 
         expect(getActivePage().text()).toBe('1');
 
@@ -204,10 +198,7 @@ describe('src/component/grid/sw-pagination', () => {
 
     it('should navigate through complete pagination only with arrows', async () => {
         const startingPoint = wrapper.vm.currentPage;
-        const [
-            leftArrow,
-            rightArrow,
-        ] = wrapper.findAll('div.icon');
+        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
 
         await checkNextPage(startingPoint, 'right', rightArrow);
 
@@ -255,11 +246,7 @@ describe('src/component/grid/sw-pagination', () => {
     it('should return correct range', async () => {
         const range = wrapper.vm.range(1, 3);
 
-        expect(range).toEqual([
-            1,
-            2,
-            3,
-        ]);
+        expect(range).toEqual([1, 2, 3]);
     });
 
     it('should be visible when autoHide is set to false', async () => {

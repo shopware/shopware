@@ -13,13 +13,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types

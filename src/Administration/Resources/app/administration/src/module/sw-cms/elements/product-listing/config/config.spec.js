@@ -360,11 +360,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
-        const expectedOrderWhenNoPropertiesAreActive = [
-            'bar',
-            'baz',
-            'foo',
-        ];
+        const expectedOrderWhenNoPropertiesAreActive = ['bar', 'baz', 'foo'];
         const propertiesOrderByAPI = wrapper.vm.properties.map((item) => item.name);
 
         expect(expectedOrderWhenNoPropertiesAreActive).toEqual(propertiesOrderByAPI);
@@ -375,11 +371,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        const expectedOrderWhenPropertyBazIsActive = [
-            'baz',
-            'bar',
-            'foo',
-        ];
+        const expectedOrderWhenPropertyBazIsActive = ['baz', 'bar', 'foo'];
         const propertiesOrderBySortingViaActiveState = wrapper.vm.properties.map((item) => item.name);
 
         expect(expectedOrderWhenPropertyBazIsActive).toEqual(propertiesOrderBySortingViaActiveState);
@@ -391,11 +383,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await wrapper.vm.$nextTick(); // fetch property_group call
         await flushPromises();
 
-        const expectedToDisplayProperties = [
-            'bar',
-            'baz',
-            'foo',
-        ];
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
@@ -423,11 +411,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        const expectedToDisplayProperties = [
-            'bar',
-            'baz',
-            'foo',
-        ];
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
@@ -453,11 +437,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        const expectedToDisplayProperties = [
-            'bar',
-            'baz',
-            'foo',
-        ];
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
@@ -477,10 +457,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         // check that baz with the id x02 got added to the selection
         selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
-        expect(selectedProperties).toEqual([
-            'x03',
-            'x02',
-        ]);
+        expect(selectedProperties).toEqual(['x03', 'x02']);
 
         // simulate a click on a switch to deselect the property foo
         wrapper.vm.propertyStatusChanged(false, 'x03');

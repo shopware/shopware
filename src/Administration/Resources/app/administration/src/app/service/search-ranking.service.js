@@ -302,10 +302,7 @@ export default function createSearchRankingService() {
 
         Object.keys(fieldScores).forEach((field) => {
             terms.forEach((term) => {
-                queryScores.push([
-                    Criteria.contains(field, term),
-                    fieldScores[field],
-                ]);
+                queryScores.push([Criteria.contains(field, term), fieldScores[field]]);
             });
         });
 

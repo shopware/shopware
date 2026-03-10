@@ -22,10 +22,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -171,10 +168,7 @@ export default {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
 
-        ...mapPropertyErrors('numberRange', [
-            'name',
-            'typeId',
-        ]),
+        ...mapPropertyErrors('numberRange', ['name', 'typeId']),
 
         stateInput: {
             get() {
@@ -216,10 +210,7 @@ export default {
 
             if (this.$route.params.id && this.numberRange.isLoading !== true) {
                 this.numberRangeId = this.$route.params.id.toLowerCase();
-                await Promise.all([
-                    this.loadEntityData(),
-                    this.loadCustomFieldSets(),
-                ]);
+                await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
             this.isLoading = false;

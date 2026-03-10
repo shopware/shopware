@@ -107,9 +107,7 @@ async function createWrapper(privileges = [], resetError = false) {
 
 describe('module/sw-settings-search/component/sw-settings-search-excluded-search-terms', () => {
     it('should be show element no excluded search', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
         await wrapper.setProps({
             searchConfigs: {
@@ -124,9 +122,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should have pagination on list excluded terms', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
 
         const pagination = wrapper.find('.sw-data-grid__pagination');
@@ -136,9 +132,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should have listing excluded terms', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
 
         const firstValue = wrapper.vm.searchConfigs.excludedTerms[0];
@@ -148,9 +142,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to delete excluded terms', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
 
         const firstRowContext = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
@@ -164,9 +156,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should be able to delete excluded terms', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.deleter',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.deleter']);
         wrapper.vm.createNotificationSuccess = jest.fn();
         await flushPromises();
 
@@ -195,9 +185,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to add a new excluded terms', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
 
         const addExcludedTermButton = wrapper.findByText(
@@ -208,9 +196,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should allow add excluded terms', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.creator',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.creator']);
         await flushPromises();
 
         const firstValue = wrapper.vm.searchConfigs.excludedTerms[0];
@@ -225,9 +211,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should be render component', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
 
         const dataGridsFirstLoading = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -242,9 +226,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to reset excluded search term to default', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
 
         const btnResetToDefault = wrapper.find('.sw-settings-search-excluded-search-terms__reset-button');
@@ -252,9 +234,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should able to reset excluded search term to default with success message', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.creator',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.creator']);
         wrapper.vm.createNotificationSuccess = jest.fn();
         await flushPromises();
 
@@ -269,12 +249,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to reset excluded search term to default with error message', async () => {
-        const wrapper = await createWrapper(
-            [
-                'product_search_config.creator',
-            ],
-            true,
-        );
+        const wrapper = await createWrapper(['product_search_config.creator'], true);
 
         wrapper.vm.createNotificationError = jest.fn();
         await flushPromises();

@@ -57,19 +57,13 @@ export default {
             type: String,
             required: false,
             default: '',
-            validValues: [
-                'x-small',
-                'small',
-            ],
+            validValues: ['x-small', 'small'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
 
-                return [
-                    'x-small',
-                    'small',
-                ].includes(value);
+                return ['x-small', 'small'].includes(value);
             },
         },
         square: {

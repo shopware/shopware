@@ -329,10 +329,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await createWrapper();
         await flushPromises();
 
-        const association = [
-            'tags',
-            'flowSequences',
-        ];
+        const association = ['tags', 'flowSequences'];
 
         const aggregations = [
             'personaPromotions',
@@ -361,10 +358,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const expectedRepositories = [
             ['app_script_condition'],
             ['rule'],
-            [
-                ruleMock.conditions.entity,
-                ruleMock.conditions.source,
-            ],
+            [ruleMock.conditions.entity, ruleMock.conditions.source],
             ['language'],
         ];
 
@@ -428,10 +422,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         }
 
         expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(2);
-        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([
-            criteria,
-            Context.api,
-        ]);
+        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([criteria, Context.api]);
     });
 
     it.each([
@@ -581,10 +572,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should clone duplicate rule', async () => {
-        global.activeAclRoles = [
-            'rule.editor',
-            'rule.creator',
-        ];
+        global.activeAclRoles = ['rule.editor', 'rule.creator'];
 
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
@@ -878,9 +866,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: awarenessFunc,
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
             },
         });
 
@@ -906,9 +892,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: awarenessFunc,
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
             },
         });
 
@@ -929,9 +913,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: jest.fn(),
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
             },
         });
         await flushPromises();
@@ -1057,11 +1039,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         };
         await wrapper.setData({
             ...conditionTreeWithInvalidDateRanges,
-            conditions: [
-                { id: 'some-id' },
-                { id: 'another-id' },
-                { id: 'date-range-condition' },
-            ],
+            conditions: [{ id: 'some-id' }, { id: 'another-id' }, { id: 'date-range-condition' }],
         });
         wrapper.vm.createNotificationError = jest.fn();
 

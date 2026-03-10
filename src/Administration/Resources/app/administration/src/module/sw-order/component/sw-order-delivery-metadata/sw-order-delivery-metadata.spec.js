@@ -15,9 +15,7 @@ async function createWrapper() {
                 },
                 shippingOrderAddress: {
                     country: {
-                        addressFormat: [
-                            [{ type: 'snippet', value: 'address/company' }],
-                        ],
+                        addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
                     },
                 },
             },

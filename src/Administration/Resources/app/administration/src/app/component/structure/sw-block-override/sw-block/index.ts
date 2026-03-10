@@ -92,10 +92,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const blocks = getBlocks(props.name);
-            const blocksAndParent = [
-                slots.default ?? (() => []),
-                ...blocks,
-            ];
+            const blocksAndParent = [slots.default ?? (() => []), ...blocks];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
             // The last block is not parent of any other block, and it is the one that renders all the blocks

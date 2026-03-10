@@ -26,14 +26,9 @@ const { cloneDeep } = Shopware.Utils.object;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data(): {
         isLoading: boolean;

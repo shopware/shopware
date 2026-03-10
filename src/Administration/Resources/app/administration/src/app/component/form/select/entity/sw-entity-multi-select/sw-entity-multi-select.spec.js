@@ -138,9 +138,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual([
-            'first',
-        ]);
+        expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
 
     it('should not display variations', async () => {

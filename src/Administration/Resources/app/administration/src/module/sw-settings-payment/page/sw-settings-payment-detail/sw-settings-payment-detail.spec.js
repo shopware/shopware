@@ -117,9 +117,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     });
 
     it('should be able to save the settings-payment', async () => {
-        const wrapper = await createWrapper([
-            'payment.editor',
-        ]);
+        const wrapper = await createWrapper(['payment.editor']);
 
         await flushPromises();
 
@@ -152,9 +150,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     });
 
     it('should be able to edit payment fields', async () => {
-        const wrapper = await createWrapper([
-            'payment.editor',
-        ]);
+        const wrapper = await createWrapper(['payment.editor']);
 
         await flushPromises();
 

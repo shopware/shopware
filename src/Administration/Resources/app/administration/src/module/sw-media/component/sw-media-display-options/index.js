@@ -7,10 +7,7 @@ import template from './sw-media-display-options.html.twig';
 export default {
     template,
 
-    emits: [
-        'media-sorting-change',
-        'media-presentation-change',
-    ],
+    emits: ['media-sorting-change', 'media-presentation-change'],
 
     props: {
         presentation: {

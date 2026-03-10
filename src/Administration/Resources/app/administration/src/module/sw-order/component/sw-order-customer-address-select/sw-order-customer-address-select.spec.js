@@ -78,10 +78,7 @@ async function createWrapper() {
                     'sw-loader': true,
                     'sw-field-error': true,
                     'sw-select-result': {
-                        props: [
-                            'item',
-                            'index',
-                        ],
+                        props: ['item', 'index'],
                         template: `<li class="sw-select-result" @click.stop="onClickResult">
                                     <slot></slot>
                             </li>`,

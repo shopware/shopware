@@ -39,13 +39,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             // Create a new object with the slots we want to keep as deleting is not possible because of read only protection
             const filteredSlots = Object.entries(allSlots).reduce(
-                (
-                    acc,
-                    [
-                        key,
-                        value,
-                    ],
-                ) => {
+                (acc, [key, value]) => {
                     if (key !== 'before-card' && key !== 'after-card') {
                         acc[key] = value;
                     }

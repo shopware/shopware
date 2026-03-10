@@ -69,9 +69,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-product', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
@@ -250,10 +248,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
                             if (entity === 'custom_field_set') {
                                 return {
-                                    search: () =>
-                                        Promise.resolve([
-                                            { id: 'field-set-id-1' },
-                                        ]),
+                                    search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
                                     get: () => Promise.resolve({ id: '' }),
                                 };
                             }
@@ -438,9 +433,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 ],
             },
         });
-        Shopware.Store.get('swBulkEdit').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('swBulkEdit').selectedIds = [Shopware.Utils.createId()];
     });
 
     it('should be handled change data', async () => {
@@ -959,16 +952,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 net: '2',
             },
         ],
-        [
-            true,
-            'price',
-            true,
-        ],
-        [
-            true,
-            'price',
-            null,
-        ],
+        [true, 'price', true],
+        [true, 'price', null],
     ];
 
     it.each(dataProvider)('should have set price to product when value is not boolean', async (isChanged, item, value) => {

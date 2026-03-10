@@ -55,10 +55,7 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     'sw-select-field': {
                         template:
                             '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'options',
-                        ],
+                        props: ['value', 'options'],
                     },
                     'sw-container': true,
                     'sw-field': true,

@@ -19,10 +19,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -83,11 +80,7 @@ export default {
 
         usedLocaleCriteria() {
             return new Criteria(1, null)
-                .addFilter(
-                    Criteria.not('and', [
-                        Criteria.equals('id', this.languageId),
-                    ]),
-                )
+                .addFilter(Criteria.not('and', [Criteria.equals('id', this.languageId)]))
                 .addAggregation(Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null));
         },
 
@@ -141,10 +134,7 @@ export default {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
 
-        ...mapPropertyErrors('language', [
-            'localeId',
-            'name',
-        ]),
+        ...mapPropertyErrors('language', ['localeId', 'name']),
     },
 
     watch: {

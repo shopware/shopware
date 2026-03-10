@@ -81,36 +81,12 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
     });
 
     it.each([
-        [
-            'true',
-            'sw-context-button-stub',
-            'product_stream.viewer',
-        ],
-        [
-            undefined,
-            'sw-context-button-stub',
-            'product_stream.viewer, product_stream.editor',
-        ],
-        [
-            'true',
-            'sw-product-stream-value-stub',
-            'product_stream.viewer',
-        ],
-        [
-            undefined,
-            'sw-product-stream-value-stub',
-            'product_stream.viewer, product_stream.editor',
-        ],
-        [
-            'true',
-            'sw-product-stream-field-select-stub',
-            'product_stream.viewer',
-        ],
-        [
-            undefined,
-            'sw-product-stream-field-select-stub',
-            'product_stream.viewer, product_stream.editor',
-        ],
+        ['true', 'sw-context-button-stub', 'product_stream.viewer'],
+        [undefined, 'sw-context-button-stub', 'product_stream.viewer, product_stream.editor'],
+        ['true', 'sw-product-stream-value-stub', 'product_stream.viewer'],
+        [undefined, 'sw-product-stream-value-stub', 'product_stream.viewer, product_stream.editor'],
+        ['true', 'sw-product-stream-field-select-stub', 'product_stream.viewer'],
+        [undefined, 'sw-product-stream-field-select-stub', 'product_stream.viewer, product_stream.editor'],
     ])("should have %p as disabled state on '%s' when having %s role", async (state, element, role) => {
         const roles = role.split(', ');
 

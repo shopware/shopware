@@ -199,17 +199,7 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         await entryOne.trigger('click');
         await entryTwo.trigger('click');
 
-        expect(wrapper.vm.condition.value.productIds).toEqual(
-            expect.arrayContaining([
-                'p.a',
-                'p.b',
-            ]),
-        );
-        expect(wrapper.vm.values.productIds).toEqual(
-            expect.arrayContaining([
-                'p.a',
-                'p.b',
-            ]),
-        );
+        expect(wrapper.vm.condition.value.productIds).toEqual(expect.arrayContaining(['p.a', 'p.b']));
+        expect(wrapper.vm.values.productIds).toEqual(expect.arrayContaining(['p.a', 'p.b']));
     });
 });

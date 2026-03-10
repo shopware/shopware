@@ -800,10 +800,7 @@ export default {
             }
 
             return this.product?.prices.reduce((r, a) => {
-                r[a.ruleId] = [
-                    ...(r[a.ruleId] || []),
-                    a,
-                ];
+                r[a.ruleId] = [...(r[a.ruleId] || []), a];
                 return r;
             }, {});
         },
@@ -1437,12 +1434,7 @@ export default {
         },
 
         onInheritanceRemove(item) {
-            if (
-                [
-                    'properties',
-                    'prices',
-                ].includes(item.name)
-            ) {
+            if (['properties', 'prices'].includes(item.name)) {
                 this.setProductAssociation(item.name);
             }
 

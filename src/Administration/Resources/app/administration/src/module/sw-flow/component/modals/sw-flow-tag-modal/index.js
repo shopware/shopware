@@ -12,21 +12,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'flowBuilderService',
-    ],
+    inject: ['acl', 'repositoryFactory', 'flowBuilderService'],
 
-    emits: [
-        'process-finish',
-        'modal-close',
-    ],
+    emits: ['process-finish', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -85,13 +75,7 @@ export default {
             return '';
         },
 
-        ...mapState(
-            () => Store.get('swFlow'),
-            [
-                'triggerEvent',
-                'triggerActions',
-            ],
-        ),
+        ...mapState(() => Store.get('swFlow'), ['triggerEvent', 'triggerActions']),
     },
 
     watch: {

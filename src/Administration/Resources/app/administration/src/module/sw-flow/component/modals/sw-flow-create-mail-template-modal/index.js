@@ -13,21 +13,11 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'mailService',
-        'entityMappingService',
-        'repositoryFactory',
-    ],
+    inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     data() {
         return {

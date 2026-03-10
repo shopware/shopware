@@ -69,10 +69,7 @@ describe('src/app/state/session.store.js', () => {
         Shopware.Service = jest.fn().mockImplementation(() => ({
             isLoggedIn: jest.fn().mockReturnValue(false),
         }));
-        useSystem().locales.value = [
-            'en-GB',
-            'de-DE',
-        ];
+        useSystem().locales.value = ['en-GB', 'de-DE'];
 
         session.languageId.value = '123';
         session.currentLocale.value = 'en-GB';

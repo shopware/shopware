@@ -50,11 +50,7 @@ describe('sw-app-action-button', () => {
         wrapper = await createWrapper(baseAction);
         await flushPromises();
 
-        expect(wrapper.classes()).toEqual(
-            expect.arrayContaining([
-                'sw-context-menu-item--icon',
-            ]),
-        );
+        expect(wrapper.classes()).toEqual(expect.arrayContaining(['sw-context-menu-item--icon']));
 
         const icon = wrapper.find('img.sw-extension-icon__icon');
 
@@ -67,11 +63,7 @@ describe('sw-app-action-button', () => {
             icon: null,
         });
 
-        expect(wrapper.classes()).toEqual(
-            expect.not.arrayContaining([
-                'sw-context-menu-item--icon',
-            ]),
-        );
+        expect(wrapper.classes()).toEqual(expect.not.arrayContaining(['sw-context-menu-item--icon']));
 
         const icon = wrapper.find('img.sw-extension-icon__icon');
         expect(icon.exists()).toBe(false);
@@ -82,9 +74,7 @@ describe('sw-app-action-button', () => {
 
         await wrapper.trigger('click');
 
-        expect(wrapper.emitted('run-app-action')[0]).toStrictEqual([
-            baseAction,
-        ]);
+        expect(wrapper.emitted('run-app-action')[0]).toStrictEqual([baseAction]);
     });
 
     it('should show meteor icon if set and view is not item', async () => {

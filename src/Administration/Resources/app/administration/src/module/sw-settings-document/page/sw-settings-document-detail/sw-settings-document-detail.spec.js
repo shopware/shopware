@@ -52,10 +52,7 @@ const documentBaseConfigRepositoryMock = {
                 id: id,
                 documentTypeId: 'documentTypeId',
                 config: {
-                    fileTypes: [
-                        'pdf',
-                        'html',
-                    ],
+                    fileTypes: ['pdf', 'html'],
                 },
             });
         }
@@ -72,9 +69,7 @@ const documentBaseConfigRepositoryMock = {
             id: id,
             documentTypeId: 'documentTypeId',
             config: {
-                fileTypes: [
-                    'pdf',
-                ],
+                fileTypes: ['pdf'],
             },
         });
     },
@@ -151,10 +146,7 @@ const createWrapper = async (customOptions, privileges = []) => {
                     'mt-checkbox': MtCheckbox,
                     'sw-media-compact-upload-v2': {
                         template: '<div id="sw-media-compact-upload"/>',
-                        props: [
-                            'source',
-                            'disabled',
-                        ],
+                        props: ['source', 'disabled'],
                     },
                     'mt-switch': MtSwitch,
                     'sw-multi-select': {
@@ -194,9 +186,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         });
         await flushPromises();
 
-        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
-            'salesChannelId1',
-        ]);
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual(['salesChannelId1']);
     });
 
     it('should create an entity collection with document config sales channels associations', async () => {
@@ -254,9 +244,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         });
         await flushPromises();
 
-        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
-            'salesChannelId1',
-        ]);
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual(['salesChannelId1']);
 
         wrapper.vm.onChangeType({ id: 'documentTypeId2' });
 

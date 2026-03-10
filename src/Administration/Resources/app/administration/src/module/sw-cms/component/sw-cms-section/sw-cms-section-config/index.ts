@@ -11,18 +11,11 @@ const { Mixin } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'section-delete',
-        'section-duplicate',
-    ],
+    emits: ['section-delete', 'section-duplicate'],
 
-    mixins: [
-        Mixin.getByName('cms-state'),
-    ],
+    mixins: [Mixin.getByName('cms-state')],
 
     props: {
         section: {

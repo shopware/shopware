@@ -11,10 +11,7 @@ const { Context } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'extensionSdkService',
-    ],
+    inject: ['acl', 'extensionSdkService'],
 
     props: {
         appName: {
@@ -108,12 +105,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const moduleLabel = this.translate(this.moduleDefinition.label);
 
-            return [
-                appLabel,
-                moduleLabel,
-            ]
-                .filter((part) => !!part)
-                .join(' - ');
+            return [appLabel, moduleLabel].filter((part) => !!part).join(' - ');
         },
 
         entryPoint(): string | null {

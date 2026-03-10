@@ -63,9 +63,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-hamb
     });
 
     it('should able to edit on hamburger menu', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
         await wrapper.find('.sw-settings-country-currency-hamburger-menu__button').trigger('click');
@@ -79,9 +77,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-hamb
     });
 
     it('should not able to edit on hamburger menu', async () => {
-        const wrapper = await createWrapper([
-            'country.viewer',
-        ]);
+        const wrapper = await createWrapper(['country.viewer']);
         await flushPromises();
 
         await wrapper.find('.sw-settings-country-currency-hamburger-menu__button').trigger('click');

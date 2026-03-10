@@ -13,14 +13,9 @@ const { has, set, unset } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
@@ -55,11 +50,7 @@ export default {
         productSortingsCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.equalsAny('id', [
-                    ...Object.keys(this.productSortingsConfigValue),
-                ]),
-            );
+            criteria.addFilter(Criteria.equalsAny('id', [...Object.keys(this.productSortingsConfigValue)]));
             criteria.addSorting(Criteria.sort('priority', 'desc'));
 
             return criteria;
@@ -88,11 +79,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             if (this.defaultSorting.id) {
-                criteria.addFilter(
-                    Criteria.not('AND', [
-                        Criteria.equals('id', this.defaultSorting.id),
-                    ]),
-                );
+                criteria.addFilter(Criteria.not('AND', [Criteria.equals('id', this.defaultSorting.id)]));
             }
 
             criteria.addFilter(Criteria.equals('locked', false));
@@ -303,20 +290,15 @@ export default {
         },
 
         updateValuesFromConfig(productSortings) {
-            Object.entries(this.productSortingsConfigValue).forEach(
-                ([
-                    id,
-                    value,
-                ]) => {
-                    const matchingProductSorting = productSortings.find((productSorting) => productSorting.id === id);
+            Object.entries(this.productSortingsConfigValue).forEach(([id, value]) => {
+                const matchingProductSorting = productSortings.find((productSorting) => productSorting.id === id);
 
-                    if (!matchingProductSorting) {
-                        return;
-                    }
+                if (!matchingProductSorting) {
+                    return;
+                }
 
-                    matchingProductSorting.priority = value;
-                },
-            );
+                matchingProductSorting.priority = value;
+            });
 
             return productSortings;
         },
@@ -411,20 +393,14 @@ export default {
 
         updateFilters(item, active) {
             if (active) {
-                this.filters = [
-                    ...this.filters,
-                    item,
-                ];
+                this.filters = [...this.filters, item];
             } else {
                 this.filters = this.filters.reduce((acc, current) => {
                     if (current === item) {
                         return acc;
                     }
 
-                    return [
-                        ...acc,
-                        current,
-                    ];
+                    return [...acc, current];
                 }, []);
             }
 
@@ -464,10 +440,7 @@ export default {
 
             if (enable) {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
-                this.element.config.propertyWhitelist.value = [
-                    ...allowlist,
-                    id,
-                ];
+                this.element.config.propertyWhitelist.value = [...allowlist, id];
 
                 return;
             }
@@ -478,10 +451,7 @@ export default {
                     return acc;
                 }
 
-                return [
-                    ...acc,
-                    current,
-                ];
+                return [...acc, current];
             }, []);
         },
     },

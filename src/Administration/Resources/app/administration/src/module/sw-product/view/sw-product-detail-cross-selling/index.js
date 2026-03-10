@@ -11,10 +11,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         allowEdit: {

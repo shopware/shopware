@@ -92,11 +92,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
             {},
         ],
-        [
-            'empty search ranking fields',
-            {},
-            {},
-        ],
+        ['empty search ranking fields', {}, {}],
         [
             'entity is unsearchable',
             {

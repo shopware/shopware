@@ -23,9 +23,7 @@ export default {
         'media-folder-move',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         isParent: {

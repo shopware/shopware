@@ -997,9 +997,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(criteria.parse()).toEqual(
             expect.objectContaining({
-                sort: expect.arrayContaining([
-                    { field: 'name', order: 'ASC', naturalSorting: false },
-                ]),
+                sort: expect.arrayContaining([{ field: 'name', order: 'ASC', naturalSorting: false }]),
             }),
         );
     });
@@ -1106,9 +1104,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it('should build payment alert with correct pluralization for single item', async () => {
         const wrapper = await createWrapper();
-        const collection = [
-            { translated: { name: 'PayPal|Invoice' } },
-        ];
+        const collection = [{ translated: { name: 'PayPal|Invoice' } }];
 
         const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
 
@@ -1128,10 +1124,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it('should build payment alert with correct pluralization for multiple items', async () => {
         const wrapper = await createWrapper();
-        const collection = [
-            { translated: { name: 'PayPal|Invoice' } },
-            { translated: { name: 'Cash on delivery' } },
-        ];
+        const collection = [{ translated: { name: 'PayPal|Invoice' } }, { translated: { name: 'Cash on delivery' } }];
 
         const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
 
@@ -1151,9 +1144,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it('should build shipping alert with correct pluralization for single item', async () => {
         const wrapper = await createWrapper();
-        const collection = [
-            { translated: { name: 'Standard' } },
-        ];
+        const collection = [{ translated: { name: 'Standard' } }];
         collection.first = () => collection[0];
         collection.last = () => collection[0];
 
@@ -1174,10 +1165,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it('should build shipping alert with correct pluralization for multiple items', async () => {
         const wrapper = await createWrapper();
-        const collection = [
-            { translated: { name: 'Standard' } },
-            { translated: { name: 'Express' } },
-        ];
+        const collection = [{ translated: { name: 'Standard' } }, { translated: { name: 'Express' } }];
         collection.first = () => collection[0];
         collection.last = () => collection[1];
 
@@ -1342,14 +1330,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(wrapper.vm.salesChannelRepository.delete).toHaveBeenCalledWith('test-id', Shopware.Context.api);
         expect(wrapper.vm.$t.mock.calls).toEqual([
-            [
-                'global.entities.order',
-                0,
-            ],
-            [
-                'sw-sales-channel.detail.foreignKeyDelete',
-                { assignment: 'orders' },
-            ],
+            ['global.entities.order', 0],
+            ['sw-sales-channel.detail.foreignKeyDelete', { assignment: 'orders' }],
         ]);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-sales-channel.detail.foreignKeyDelete',

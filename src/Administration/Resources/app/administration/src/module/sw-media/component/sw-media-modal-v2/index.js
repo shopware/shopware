@@ -12,15 +12,9 @@ const { Context, Utils } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-    ],
+    inject: ['repositoryFactory', 'mediaService'],
 
-    emits: [
-        'modal-close',
-        'media-modal-selection-change',
-    ],
+    emits: ['modal-close', 'media-modal-selection-change'],
 
     props: {
         isOpen: {
@@ -45,16 +39,10 @@ export default {
         defaultTab: {
             type: String,
             required: false,
-            validValues: [
-                'upload',
-                'library',
-            ],
+            validValues: ['upload', 'library'],
             default: 'library',
             validator(value) {
-                return [
-                    'upload',
-                    'library',
-                ].includes(value);
+                return ['upload', 'library'].includes(value);
             },
         },
 

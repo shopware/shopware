@@ -12,15 +12,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -94,10 +88,7 @@ export default {
                 .then((items) => {
                     const allFeatures = items.reduce((features, featureSet) => {
                         if (featureSet.features && featureSet.features.length) {
-                            features = [
-                                ...features,
-                                ...(featureSet.features || []),
-                            ];
+                            features = [...features, ...(featureSet.features || [])];
                         }
                         return features;
                     }, []);

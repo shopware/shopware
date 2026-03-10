@@ -251,9 +251,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     [
         { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] },
         {
-            navigationSalesChannels: [
-                { id: '4d9ef75adbb149aa99785a0a969b3b7b' },
-            ],
+            navigationSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7b' }],
         },
         { footerSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7c' }] },
     ].forEach((entryPoint) => {

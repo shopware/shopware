@@ -119,18 +119,11 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType1' },
-            { type: 'conditionType2' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType1' }, { type: 'conditionType2' }];
 
         const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
 
@@ -151,17 +144,11 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType4' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType4' }];
 
         const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
 
@@ -183,18 +170,11 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType2' },
-            { type: 'conditionType3' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType2' }, { type: 'conditionType3' }];
 
         const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
 
@@ -214,27 +194,17 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
         ruleConditionService.addAwarenessConfiguration('assignmentTwo', {
             notEquals: ['conditionType2'],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType2' },
-            { type: 'conditionType3' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType2' }, { type: 'conditionType3' }];
 
         const restricted = ruleConditionService.getRestrictedAssociations(conditions);
 
@@ -246,21 +216,12 @@ describe('src/app/service/rule-condition.service.js', () => {
         const ruleConditionService = new RuleConditionService();
 
         let translatedViolations = ruleConditionService.getTranslatedConditionViolationList(
-            [
-                { label: 'violation1' },
-                { label: 'violation2' },
-                { label: 'violation3' },
-            ],
+            [{ label: 'violation1' }, { label: 'violation2' }, { label: 'violation3' }],
             'and',
         );
         expect(translatedViolations).toBe('"violation1", "violation2" and "violation3"');
 
-        translatedViolations = ruleConditionService.getTranslatedConditionViolationList(
-            [
-                { label: 'violation1' },
-            ],
-            'and',
-        );
+        translatedViolations = ruleConditionService.getTranslatedConditionViolationList([{ label: 'violation1' }], 'and');
         expect(translatedViolations).toBe('"violation1"');
     });
 
@@ -269,18 +230,11 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType2' },
-            { type: 'conditionType3' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType2' }, { type: 'conditionType3' }];
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
         expect(tooltipConfig.disabled).toBeTruthy();
@@ -300,10 +254,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
@@ -317,11 +268,7 @@ describe('src/app/service/rule-condition.service.js', () => {
             label: 'conditionType3Label',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType1' },
-            { type: 'conditionType3' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType1' }, { type: 'conditionType3' }];
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
         expect(tooltipConfig.disabled).toBeFalsy();
@@ -333,10 +280,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
@@ -350,10 +294,7 @@ describe('src/app/service/rule-condition.service.js', () => {
             label: 'conditionType3Label',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType1' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType1' }];
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
         expect(tooltipConfig.disabled).toBeFalsy();
@@ -365,10 +306,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
@@ -382,10 +320,7 @@ describe('src/app/service/rule-condition.service.js', () => {
             label: 'conditionType3Label',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType1' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType1' }];
 
         const result = ruleConditionService.isRuleRestricted(conditions, 'assignmentOne');
         expect(result).toBeTruthy();
@@ -396,10 +331,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
-            equalsAny: [
-                'conditionType2',
-                'conditionType3',
-            ],
+            equalsAny: ['conditionType2', 'conditionType3'],
             snippet: 'sw-assignment-one-snippet',
         });
 
@@ -413,10 +345,7 @@ describe('src/app/service/rule-condition.service.js', () => {
             label: 'conditionType3Label',
         });
 
-        const conditions = [
-            { type: 'andContainer' },
-            { type: 'conditionType2' },
-        ];
+        const conditions = [{ type: 'andContainer' }, { type: 'conditionType2' }];
 
         const result = ruleConditionService.isRuleRestricted(conditions, 'assignmentOne');
         expect(result).toBeFalsy();
@@ -499,10 +428,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
-            equalsAny: [
-                'cartCartAmount',
-                'cartLineItemsCount',
-            ],
+            equalsAny: ['cartCartAmount', 'cartLineItemsCount'],
             snippet: 'someFlowSnippet',
         });
 
@@ -514,31 +440,19 @@ describe('src/app/service/rule-condition.service.js', () => {
     it.each([
         {
             componentName: 'sw-entity-single-select',
-            expected: [
-                'equals',
-                'notEquals',
-            ],
+            expected: ['equals', 'notEquals'],
         },
         {
             componentName: 'sw-single-select',
-            expected: [
-                'equals',
-                'notEquals',
-            ],
+            expected: ['equals', 'notEquals'],
         },
         {
             componentName: 'sw-multi-select',
-            expected: [
-                'isOneOf',
-                'isNoneOf',
-            ],
+            expected: ['isOneOf', 'isNoneOf'],
         },
         {
             componentName: 'sw-text-editor',
-            expected: [
-                'equals',
-                'notEquals',
-            ],
+            expected: ['equals', 'notEquals'],
         },
     ])('should get operators for a given component: $componentName', async ({ componentName, expected }) => {
         const ruleConditionService = new RuleConditionService();
@@ -559,10 +473,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     it.each([
         {
             type: 'text',
-            expected: [
-                'equals',
-                'notEquals',
-            ],
+            expected: ['equals', 'notEquals'],
         },
         {
             type: 'number',

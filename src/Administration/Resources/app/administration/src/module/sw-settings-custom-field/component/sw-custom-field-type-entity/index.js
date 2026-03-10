@@ -9,9 +9,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     mounted() {
         this.customEntityRepository.search(new Criteria(), Shopware.Context.api).then((result) => {
@@ -52,10 +50,7 @@ export default {
                     label: this.$tc('sw-settings-custom-field.customField.entity.customer'),
                     value: 'customer',
                     config: {
-                        labelProperty: [
-                            'firstName',
-                            'lastName',
-                        ],
+                        labelProperty: ['firstName', 'lastName'],
                     },
                 },
                 {
@@ -112,13 +107,7 @@ export default {
             }
 
             const componentName = this.currentCustomField.config.componentName;
-            if (
-                !componentName ||
-                ![
-                    'sw-entity-single-select',
-                    'sw-entity-multi-id-select',
-                ].includes(componentName)
-            ) {
+            if (!componentName || !['sw-entity-single-select', 'sw-entity-multi-id-select'].includes(componentName)) {
                 this.currentCustomField.config.componentName = 'sw-entity-single-select';
             }
 

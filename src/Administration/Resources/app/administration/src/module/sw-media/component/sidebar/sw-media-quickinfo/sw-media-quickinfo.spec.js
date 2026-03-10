@@ -139,13 +139,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
  * @returns {[[object,boolean, boolean]]} [i][0] Array of options for the mockItem, [i][1] flag for if 'isSpatial', [i][2] flag for if 'isArReady'
  */
 function provide2DMockOptions() {
-    return [
-        [
-            {},
-            false,
-            false,
-        ],
-    ];
+    return [[{}, false, false]];
 }
 
 /**
@@ -261,9 +255,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                     Promise.reject({
                         response: {
                             data: {
-                                errors: [
-                                    error,
-                                ],
+                                errors: [error],
                             },
                         },
                     }),
@@ -276,17 +268,17 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(wrapper.vm.fileNameError).toStrictEqual(error);
     });
 
-    it.each([
-        ...provide2DMockOptions(),
-        ...provide3DMockOptions(),
-    ])('should display ar-ready toggle if item is a 3D file', async (mockOptions, isSpatial) => {
-        global.activeAclRoles = ['media.editor'];
+    it.each([...provide2DMockOptions(), ...provide3DMockOptions()])(
+        'should display ar-ready toggle if item is a 3D file',
+        async (mockOptions, isSpatial) => {
+            global.activeAclRoles = ['media.editor'];
 
-        const wrapper = await createWrapper(mockOptions);
-        await flushPromises();
+            const wrapper = await createWrapper(mockOptions);
+            await flushPromises();
 
-        expect(wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle').exists()).toBe(isSpatial);
-    });
+            expect(wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle').exists()).toBe(isSpatial);
+        },
+    );
 
     it.each(provide3DMockOptions())(
         'should trigger update:item event when ar-toggle is changed',

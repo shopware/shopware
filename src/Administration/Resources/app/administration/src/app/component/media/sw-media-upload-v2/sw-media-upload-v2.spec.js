@@ -533,10 +533,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
         wrapper.vm.mediaRepository.saveAll = jest.fn();
 
-        await wrapper.vm.handleUpload([
-            new File([''], 'foo.jpg'),
-            new File([''], 'bar.gif'),
-        ]);
+        await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
 
         expect(wrapper.vm.mediaRepository.saveAll).toHaveBeenCalled();
     });
@@ -558,10 +555,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     it('should show multiple preview in multi mode', async () => {
         wrapper = await createWrapper();
 
-        await wrapper.vm.handleUpload([
-            new File([''], 'foo.jpg'),
-            new File([''], 'bar.gif'),
-        ]);
+        await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
 
         expect(Array.isArray(wrapper.vm.preview)).toBe(true);
     });

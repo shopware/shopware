@@ -259,10 +259,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         });
 
         // Merge the module core routes with the routes from the routes file
-        core = [
-            ...core,
-            ...moduleRootRoutes,
-        ];
+        core = [...core, ...moduleRootRoutes];
         return core;
     }
 

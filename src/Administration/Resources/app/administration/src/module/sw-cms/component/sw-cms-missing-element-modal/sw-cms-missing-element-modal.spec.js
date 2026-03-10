@@ -101,10 +101,7 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: [
-                'buyBox',
-                'productDescriptionReviews',
-            ],
+            missingElements: ['buyBox', 'productDescriptionReviews'],
         });
 
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
@@ -119,11 +116,7 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: [
-                'buyBox',
-                'productDescriptionReviews',
-                'crossSelling',
-            ],
+            missingElements: ['buyBox', 'productDescriptionReviews', 'crossSelling'],
         });
 
         const title = wrapper.find('.sw-cms-missing-element-modal__title');

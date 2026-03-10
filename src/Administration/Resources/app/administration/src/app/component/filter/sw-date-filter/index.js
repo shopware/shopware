@@ -15,10 +15,7 @@ export default {
 
     inject: ['feature'],
 
-    emits: [
-        'filter-reset',
-        'filter-update',
-    ],
+    emits: ['filter-reset', 'filter-update'],
 
     props: {
         filter: {
@@ -174,9 +171,7 @@ export default {
                 lte: to.toISOString(),
             };
 
-            const filterCriteria = [
-                Criteria.range(this.filter.property, params),
-            ];
+            const filterCriteria = [Criteria.range(this.filter.property, params)];
 
             this.dateValue = {
                 from: params.gte,

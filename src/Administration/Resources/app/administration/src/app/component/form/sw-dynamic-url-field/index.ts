@@ -15,9 +15,7 @@ type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'ph
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         value: {
@@ -139,14 +137,7 @@ export default Shopware.Component.wrapComponentConfig({
         async parseLink(link: string): Promise<{ type: LinkCategories; target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (
-                link.startsWith(this.seoUrlReplacePrefix) &&
-                [
-                    'navigation',
-                    'detail',
-                    'mediaId',
-                ].includes(slicedLink[1])
-            ) {
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
                 if (slicedLink[1] === 'navigation') {
                     this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
                 } else if (slicedLink[1] === 'mediaId') {

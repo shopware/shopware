@@ -24,11 +24,7 @@ interface LoginData {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'loginService',
-        'userService',
-        'licenseViolationService',
-    ],
+    inject: ['loginService', 'userService', 'licenseViolationService'],
 
     emits: [
         'is-loading',
@@ -37,9 +33,7 @@ export default Component.wrapComponentConfig({
         'login-error',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data(): LoginData {
         return {

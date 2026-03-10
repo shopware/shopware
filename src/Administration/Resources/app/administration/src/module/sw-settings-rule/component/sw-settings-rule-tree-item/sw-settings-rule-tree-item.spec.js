@@ -84,10 +84,7 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-tree-item', () => {
-    it.each([
-        { expected: true },
-        { expected: false },
-    ])('should hide actions: $expected', async ({ expected }) => {
+    it.each([{ expected: true }, { expected: false }])('should hide actions: $expected', async ({ expected }) => {
         const wrapper = await createWrapper({
             ...defaultProps,
             hideActions: expected,

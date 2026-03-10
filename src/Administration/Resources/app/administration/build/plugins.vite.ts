@@ -87,11 +87,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             ExternalsPlugin(),
 
             // Prod plugins
-            ...(isDev
-                ? []
-                : [
-                      symfonyPlugin(),
-                  ]),
+            ...(isDev ? [] : [symfonyPlugin()]),
         ],
 
         resolve: {

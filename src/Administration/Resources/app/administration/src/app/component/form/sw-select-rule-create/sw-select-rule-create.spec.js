@@ -108,10 +108,7 @@ describe('components/sw-select-rule-create', () => {
         const resultItems = wrapper.findAllComponents('.sw-select-result-list__item-list .sw-select-result');
         expect(resultItems).toHaveLength(2);
 
-        const [
-            firstResult,
-            secondResult,
-        ] = resultItems;
+        const [firstResult, secondResult] = resultItems;
 
         expect(firstResult.attributes('class')).not.toContain('is--disabled');
         expect(secondResult.attributes('class')).toContain('is--disabled');

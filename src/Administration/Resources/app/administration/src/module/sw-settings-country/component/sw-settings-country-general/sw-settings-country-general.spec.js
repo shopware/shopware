@@ -91,14 +91,9 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
     });
 
     it('should be able to show the tax free from', async () => {
-        const wrapper = await createWrapper(
-            [
-                'country.editor',
-            ],
-            {
-                enabled: true,
-            },
-        );
+        const wrapper = await createWrapper(['country.editor'], {
+            enabled: true,
+        });
 
         await flushPromises();
 

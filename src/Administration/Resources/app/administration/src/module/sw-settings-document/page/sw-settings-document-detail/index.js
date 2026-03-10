@@ -22,10 +22,7 @@ export const DOCUMENT_CONFIG_DEFAULTS = {
     pageSize: 'a4',
     pageOrientation: 'portrait',
     itemsPerPage: 10,
-    fileTypes: [
-        'pdf',
-        'html',
-    ],
+    fileTypes: ['pdf', 'html'],
     displayHeader: true,
     displayFooter: true,
     displayPageCount: true,
@@ -358,10 +355,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -508,10 +502,7 @@ export default {
             return this.repositoryFactory.create('document_base_config_sales_channel');
         },
 
-        ...mapPropertyErrors('documentConfig', [
-            'name',
-            'documentTypeId',
-        ]),
+        ...mapPropertyErrors('documentConfig', ['name', 'documentTypeId']),
     },
 
     methods: {

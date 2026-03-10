@@ -14,11 +14,7 @@ export default {
     name: 'sw-user-sso-invitation-modal',
     template,
 
-    emits: [
-        'user-invited',
-        'invitation-failed',
-        'modal-close',
-    ],
+    emits: ['user-invited', 'invitation-failed', 'modal-close'],
 
     data() {
         return {

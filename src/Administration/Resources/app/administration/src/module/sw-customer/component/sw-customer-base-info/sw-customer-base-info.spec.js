@@ -152,12 +152,11 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         const rightColumn = wrapper.findAll('.sw-customer-base-info-columns')[1];
 
         expect(
-            rightColumn.findAll('.sw-description-list').filter((w) =>
-                [
-                    'sw-customer.baseInfo.labelCompany',
-                    'sw-customer.baseInfo.labelVatId',
-                ].includes(w.find('dt').text()),
-            ),
+            rightColumn
+                .findAll('.sw-description-list')
+                .filter((w) =>
+                    ['sw-customer.baseInfo.labelCompany', 'sw-customer.baseInfo.labelVatId'].includes(w.find('dt').text()),
+                ),
         ).toEqual([]);
     });
 

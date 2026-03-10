@@ -7,10 +7,7 @@ import template from './sw-order-document-settings-delivery-note-modal.html.twig
 export default {
     template,
 
-    emits: [
-        'loading-document',
-        'loading-preview',
-    ],
+    emits: ['loading-document', 'loading-preview'],
 
     data() {
         return {

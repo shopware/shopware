@@ -157,9 +157,7 @@ describe('Administration meta tests', () => {
                 }
 
                 // Find all data set ids in the file and add them to the result
-                [
-                    ...fileContent.matchAll(/\.publishData\(\{[^}]*?\bid\s*:\s*['"]([^'"]+)['"]/gm),
-                ]
+                [...fileContent.matchAll(/\.publishData\(\{[^}]*?\bid\s*:\s*['"]([^'"]+)['"]/gm)]
                     .map((match) => match[1])
                     .forEach((match) => {
                         result.push(match);

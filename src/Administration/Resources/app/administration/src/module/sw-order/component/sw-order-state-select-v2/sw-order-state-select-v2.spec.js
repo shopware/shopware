@@ -64,10 +64,7 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         const singleSelect = wrapper.findComponent('.sw-single-select');
         await singleSelect.vm.$emit('update:value', 'in_progress');
 
-        expect(wrapper.emitted('state-select')[0]).toEqual([
-            'order',
-            'in_progress',
-        ]);
+        expect(wrapper.emitted('state-select')[0]).toEqual(['order', 'in_progress']);
     });
 
     it('should show placeholder correctly', async () => {

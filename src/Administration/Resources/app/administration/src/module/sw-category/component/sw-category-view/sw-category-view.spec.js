@@ -36,10 +36,7 @@ async function createWrapper(categoryType) {
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'router-view': {
                     template: '<div class="router-view"></div>',

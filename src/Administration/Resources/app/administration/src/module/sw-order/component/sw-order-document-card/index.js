@@ -22,16 +22,9 @@ export default {
         'acl',
     ],
 
-    emits: [
-        'update-loading',
-        'document-save',
-    ],
+    emits: ['update-loading', 'document-save'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         order: {
@@ -508,10 +501,9 @@ export default {
         },
 
         availableFormatsFilter(item) {
-            const fileTypesArray = [
-                item.documentMediaFile?.fileExtension,
-                item.documentA11yMediaFile?.fileExtension,
-            ].filter((fileType) => fileType);
+            const fileTypesArray = [item.documentMediaFile?.fileExtension, item.documentA11yMediaFile?.fileExtension].filter(
+                (fileType) => fileType,
+            );
 
             return fileTypesArray.join(', ').toUpperCase();
         },

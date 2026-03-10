@@ -73,15 +73,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         errorEntries(): Array<{ message: string; count: number }> {
-            return Object.entries(this.errors).map(
-                ([
-                    message,
-                    count,
-                ]) => ({
-                    message,
-                    count,
-                }),
-            );
+            return Object.entries(this.errors).map(([message, count]) => ({
+                message,
+                count,
+            }));
         },
 
         errorCount(): number {

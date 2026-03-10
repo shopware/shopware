@@ -14,13 +14,9 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         cart: {

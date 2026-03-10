@@ -39,17 +39,11 @@ export default {
         'media-upload-add-file',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         source: {
-            type: [
-                Object,
-                String,
-                File,
-            ],
+            type: [Object, String, File],
             required: false,
             default: null,
         },
@@ -57,17 +51,9 @@ export default {
         variant: {
             type: String,
             required: false,
-            validValues: [
-                'compact',
-                'regular',
-                'small',
-            ],
+            validValues: ['compact', 'regular', 'small'],
             validator(value) {
-                return [
-                    'compact',
-                    'regular',
-                    'small',
-                ].includes(value);
+                return ['compact', 'regular', 'small'].includes(value);
             },
             default: 'regular',
         },
@@ -293,10 +279,7 @@ export default {
 
         mountedComponent() {
             if (this.$refs.dropzone) {
-                [
-                    'dragover',
-                    'drop',
-                ].forEach((event) => {
+                ['dragover', 'drop'].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
@@ -310,10 +293,7 @@ export default {
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
 
-            [
-                'dragover',
-                'drop',
-            ].forEach((event) => {
+            ['dragover', 'drop'].forEach((event) => {
                 window.removeEventListener(event, this.stopEventPropagation, false);
             });
             if (this.$refs.dropzone) {
@@ -471,10 +451,7 @@ export default {
                 }
 
                 if (this.addFilesOnMultiselect) {
-                    this.preview = [
-                        ...this.preview,
-                        ...newMediaFiles,
-                    ];
+                    this.preview = [...this.preview, ...newMediaFiles];
                 } else {
                     this.preview = newMediaFiles;
                 }

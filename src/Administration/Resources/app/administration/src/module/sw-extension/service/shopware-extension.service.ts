@@ -127,10 +127,7 @@ export default class ShopwareExtensionService {
         const discounted = variants.filter((variant) => this.isVariantDiscounted(variant));
         const notDiscounted = variants.filter((variant) => !this.isVariantDiscounted(variant));
 
-        return [
-            ...this.orderByType(discounted),
-            ...this.orderByType(notDiscounted),
-        ];
+        return [...this.orderByType(discounted), ...this.orderByType(notDiscounted)];
     }
 
     public isVariantDiscounted(variant: ExtensionVariant): boolean {

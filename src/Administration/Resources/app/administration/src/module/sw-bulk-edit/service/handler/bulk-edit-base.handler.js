@@ -195,12 +195,7 @@ class BulkEditBaseHandler {
         const { referenceEntity, localKey, referenceKey, type } = change;
 
         // if change type is CLEAR or REMOVE Delete existing associations
-        if (
-            [
-                bulkSyncTypes.CLEAR,
-                bulkSyncTypes.REMOVE,
-            ].includes(type)
-        ) {
+        if ([bulkSyncTypes.CLEAR, bulkSyncTypes.REMOVE].includes(type)) {
             this.groupedPayload.delete[referenceEntity] = {
                 ...this._transformDeletePayload(existAssociations, localKey, referenceKey),
             };
@@ -401,12 +396,7 @@ class BulkEditBaseHandler {
 
         // Cast the value to 0 if the we 'CLEAR' an int or float field
         if (type === bulkSyncTypes.CLEAR) {
-            return [
-                'int',
-                'float',
-            ].includes(fieldType)
-                ? 0
-                : null;
+            return ['int', 'float'].includes(fieldType) ? 0 : null;
         }
 
         if (value === '' || typeof value === 'undefined') {
@@ -523,13 +513,7 @@ class BulkEditBaseHandler {
             );
         });
 
-        return Object.keys(fields).filter(
-            (field) =>
-                ![
-                    'updatedAt',
-                    'createdAt',
-                ].includes(field),
-        );
+        return Object.keys(fields).filter((field) => !['updatedAt', 'createdAt'].includes(field));
     }
 
     _transformDeletePayload(deletePayload, localKey, referenceKey) {

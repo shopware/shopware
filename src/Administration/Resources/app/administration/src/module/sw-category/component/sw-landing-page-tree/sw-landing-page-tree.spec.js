@@ -67,10 +67,7 @@ async function createWrapper() {
 describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     let oldSystemLanguageId = null;
     beforeEach(async () => {
-        global.activeAclRoles = [
-            'landing_page.creator',
-            'landing_page.editor',
-        ];
+        global.activeAclRoles = ['landing_page.creator', 'landing_page.editor'];
 
         Shopware.Store.get('swCategoryDetail').$reset();
 

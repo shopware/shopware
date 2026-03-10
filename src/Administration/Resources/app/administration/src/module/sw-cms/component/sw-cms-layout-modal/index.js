@@ -18,14 +18,9 @@ export default {
         'cmsPageTypeService',
     ],
 
-    emits: [
-        'modal-layout-select',
-        'modal-close',
-    ],
+    emits: ['modal-layout-select', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     props: {
         headline: {
@@ -207,10 +202,7 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [
-                this.defaultProductId,
-                this.defaultCategoryId,
-            ].includes(page.id);
+            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
             const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;

@@ -123,9 +123,7 @@ async function createWrapper(privileges = [], props = {}) {
 
 describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     it('should be able to create a flow from template', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
+        const wrapper = await createWrapper(['flow.creator']);
         await flushPromises();
 
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
@@ -135,9 +133,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     });
 
     it('should not be able to create a flow from template', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ]);
+        const wrapper = await createWrapper(['flow.viewer']);
         await flushPromises();
 
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
@@ -147,9 +143,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     });
 
     it('should be able to view detail flow template', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
+        const wrapper = await createWrapper(['flow.creator']);
         await flushPromises();
 
         const routerPushSpy = jest.spyOn(wrapper.vm.$router, 'push');

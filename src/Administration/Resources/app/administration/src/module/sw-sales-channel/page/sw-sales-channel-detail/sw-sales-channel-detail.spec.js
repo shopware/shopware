@@ -94,9 +94,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     });
 
     it('should remove analytics association on save when analyticsId is empty', async () => {
-        const wrapper = await createWrapper([
-            'sales_channel.editor',
-        ]);
+        const wrapper = await createWrapper(['sales_channel.editor']);
 
         await wrapper.setData({
             isLoading: false,

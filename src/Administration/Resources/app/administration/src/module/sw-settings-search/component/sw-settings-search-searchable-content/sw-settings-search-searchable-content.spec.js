@@ -55,9 +55,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content', () => {
     it('Should be show example modal when the link was clicked', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await wrapper.vm.$nextTick();
 
         const linkElement = wrapper.find('.sw-settings-search__searchable-content-show-example-link');
@@ -72,9 +70,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should not able to reset to default without editor privilege', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await flushPromises();
 
         const resetButton = wrapper.find('.sw-settings-search__searchable-content-reset-button');
@@ -82,9 +78,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should able to reset to default if having editor privilege', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.editor',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.editor']);
         await wrapper.vm.$nextTick();
 
         const resetButton = wrapper.find('.sw-settings-search__searchable-content-reset-button');

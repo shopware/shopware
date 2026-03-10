@@ -13,9 +13,7 @@ export default {
 
     inject: ['acl'],
 
-    mixins: [
-        'placeholder',
-    ],
+    mixins: ['placeholder'],
 
     props: {
         isLoading: {

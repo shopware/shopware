@@ -12,9 +12,7 @@ const { EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     provide() {
         return {
@@ -30,10 +28,7 @@ export default {
         };
     },
 
-    emits: [
-        'conditions-changed',
-        'initial-loading-done',
-    ],
+    emits: ['conditions-changed', 'initial-loading-done'],
 
     props: {
         conditionDataProviderService: {
@@ -240,10 +235,7 @@ export default {
                 condition[this.childAssociationField].entity,
                 condition[this.childAssociationField].context,
                 null,
-                [
-                    ...children,
-                    ...condition[this.childAssociationField],
-                ],
+                [...children, ...condition[this.childAssociationField]],
             );
             return condition;
         },

@@ -40,9 +40,7 @@ describe('app/mixin/generic-condition', () => {
     beforeEach(async () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-mock'), {
             global: {
-                mixins: [
-                    Shopware.Mixin.getByName('generic-condition'),
-                ],
+                mixins: [Shopware.Mixin.getByName('generic-condition')],
                 mocks: {
                     condition: {
                         type: 'cartLineItemDimensionWeight',

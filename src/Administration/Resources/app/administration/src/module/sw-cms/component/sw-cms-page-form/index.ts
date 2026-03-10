@@ -11,9 +11,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['cmsService'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-state')],
 
     props: {
         page: {

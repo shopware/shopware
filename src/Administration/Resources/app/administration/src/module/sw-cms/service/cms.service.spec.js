@@ -268,10 +268,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: [
-                            '123',
-                            '567',
-                        ],
+                        value: ['123', '567'],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -283,17 +280,11 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
             // search criteria gets optimized to only search the needed ids.
             const entityMedia2Criteria = new Shopware.Data.Criteria(1, 25);
-            entityMedia2Criteria.setIds([
-                '123',
-                '567',
-            ]);
+            entityMedia2Criteria.setIds(['123', '567']);
 
             expect(result).toEqual({
                 'entity-media-0': {
-                    value: [
-                        '123',
-                        '567',
-                    ],
+                    value: ['123', '567'],
                     key: 'media',
                     name: 'media',
                     searchCriteria: entityMedia2Criteria,
@@ -345,10 +336,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: [
-                            { mediaId: '123' },
-                            { mediaId: '567' },
-                        ],
+                        value: [{ mediaId: '123' }, { mediaId: '567' }],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -360,17 +348,11 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
             // search criteria gets optimized to only search the needed ids.
             const entityMedia2Criteria = new Shopware.Data.Criteria(1, 25);
-            entityMedia2Criteria.setIds([
-                '123',
-                '567',
-            ]);
+            entityMedia2Criteria.setIds(['123', '567']);
 
             expect(result).toEqual({
                 'entity-media-0': {
-                    value: [
-                        '123',
-                        '567',
-                    ],
+                    value: ['123', '567'],
                     key: 'media',
                     name: 'media',
                     searchCriteria: entityMedia2Criteria,
@@ -528,10 +510,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: [
-                            '123',
-                            '567',
-                        ],
+                        value: ['123', '567'],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -719,10 +698,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const result = cmsService.getEntityMappingTypes('testTypeArrayAlreadyMapped');
             expect(result).toEqual({
                 entity: {
-                    testTypeArrayAlreadyMapped: [
-                        'testTypeArrayAlreadyMapped.id',
-                        'testTypeArrayAlreadyMapped.id.id',
-                    ],
+                    testTypeArrayAlreadyMapped: ['testTypeArrayAlreadyMapped.id', 'testTypeArrayAlreadyMapped.id.id'],
                 },
             });
         });
@@ -861,26 +837,11 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
             [
                 // Only test some values
-                [
-                    'app_payment_method',
-                    ['category.media.appPaymentMethods'],
-                ],
-                [
-                    'category',
-                    [
-                        'category.children',
-                        'category.media.categories',
-                        'category.productStream.categories',
-                    ],
-                ],
-            ].forEach(
-                ([
-                    entityName,
-                    paths,
-                ]) => {
-                    expect(result.entity[entityName]).toEqual(paths);
-                },
-            );
+                ['app_payment_method', ['category.media.appPaymentMethods']],
+                ['category', ['category.children', 'category.media.categories', 'category.productStream.categories']],
+            ].forEach(([entityName, paths]) => {
+                expect(result.entity[entityName]).toEqual(paths);
+            });
 
             [
                 // Only test some values
@@ -1135,10 +1096,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const blockName1 = 'block_1';
             const onLandingPageAndProduct = {
                 name: blockName1,
-                allowedPageTypes: [
-                    CMS.PAGE_TYPES.SHOP,
-                    CMS.PAGE_TYPES.LANDING,
-                ],
+                allowedPageTypes: [CMS.PAGE_TYPES.SHOP, CMS.PAGE_TYPES.LANDING],
                 component: 'sw-cms-el-test',
                 config: {},
             };
@@ -1192,10 +1150,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const elementName1 = 'element_1';
             const onLandingPageAndProduct = {
                 name: elementName1,
-                allowedPageTypes: [
-                    CMS.PAGE_TYPES.SHOP,
-                    CMS.PAGE_TYPES.LANDING,
-                ],
+                allowedPageTypes: [CMS.PAGE_TYPES.SHOP, CMS.PAGE_TYPES.LANDING],
                 component: 'sw-cms-el-test',
                 config: {},
             };

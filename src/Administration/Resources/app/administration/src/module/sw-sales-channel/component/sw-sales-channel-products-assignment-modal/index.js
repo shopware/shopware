@@ -21,10 +21,7 @@ const updateElementVisibility = (element, binding) => {
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'products-add',
-    ],
+    emits: ['modal-close', 'products-add'],
 
     directives: {
         hide: {
@@ -73,14 +70,7 @@ export default {
         },
 
         products() {
-            return uniqBy(
-                [
-                    ...this.singleProducts,
-                    ...this.categoryProducts,
-                    ...this.groupProducts,
-                ],
-                'id',
-            );
+            return uniqBy([...this.singleProducts, ...this.categoryProducts, ...this.groupProducts], 'id');
         },
     },
 

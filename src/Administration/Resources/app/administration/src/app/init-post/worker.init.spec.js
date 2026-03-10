@@ -96,9 +96,7 @@ describe('src/app/init-post/worker.init.ts', () => {
         });
 
         helper.go({
-            queue: [
-                { name, size: 1 },
-            ],
+            queue: [{ name, size: 1 }],
             $root: {
                 $tc: (msg) => msg,
             },

@@ -17,15 +17,9 @@ const { snakeCase } = utils.string;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'flowBuilderService',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet')],
 
     props: {
         sequence: {
@@ -351,13 +345,7 @@ export default {
 
             const index = type === 'up' ? key - 1 : key + 1;
             const contextButtons = this.$refs.contextButton;
-            [
-                contextButtons[key],
-                contextButtons[index],
-            ] = [
-                contextButtons[index],
-                contextButtons[key],
-            ];
+            [contextButtons[key], contextButtons[index]] = [contextButtons[index], contextButtons[key]];
         },
 
         onEditAction(sequence, target, key) {
@@ -492,10 +480,7 @@ export default {
 
         sortActionOptions(actions) {
             const stopAction = actions.pop();
-            actions = orderBy(actions, [
-                'group',
-                'label',
-            ]);
+            actions = orderBy(actions, ['group', 'label']);
 
             actions.forEach((action) => {
                 if (action.group && action.group !== this.flowBuilderService.getGroup('GENERAL')) return;
@@ -511,17 +496,7 @@ export default {
                 );
             });
 
-            actions = sortBy(
-                actions,
-                [
-                    'group',
-                    'label',
-                ],
-                [
-                    'esc',
-                    'esc',
-                ],
-            );
+            actions = sortBy(actions, ['group', 'label'], ['esc', 'esc']);
             const stopFlowIndex = this.getStopFlowIndex(actions) + 1;
             actions.splice(stopFlowIndex, 0, stopAction);
 

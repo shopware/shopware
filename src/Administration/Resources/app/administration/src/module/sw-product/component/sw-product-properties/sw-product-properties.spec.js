@@ -95,10 +95,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-inheritance-switch': {
-                    props: [
-                        'isInherited',
-                        'disabled',
-                    ],
+                    props: ['isInherited', 'disabled'],
                     template: `
                         <div class="sw-inheritance-switch">
                             <div v-if="isInherited"
@@ -211,12 +208,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
 
-        expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining([
-                'sizeId',
-                'colorId',
-            ]),
-        );
+        expect(wrapper.vm.groupIds).toEqual(expect.arrayContaining(['sizeId', 'colorId']));
     });
 
     it('should get group ids failed', async () => {

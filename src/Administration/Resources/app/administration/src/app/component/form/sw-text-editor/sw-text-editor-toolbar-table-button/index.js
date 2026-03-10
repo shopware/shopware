@@ -10,10 +10,7 @@ import './sw-text-editor-toolbar-table-button.scss';
 export default {
     template,
 
-    emits: [
-        'mounted',
-        'table-create',
-    ],
+    emits: ['mounted', 'table-create'],
 
     props: {
         buttonConfig: {

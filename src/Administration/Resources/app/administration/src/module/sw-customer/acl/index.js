@@ -45,26 +45,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'system_config:read',
                 'api_proxy_imitate-customer',
             ],
-            dependencies: [
-                'customer.viewer',
-            ],
+            dependencies: ['customer.viewer'],
         },
         creator: {
-            privileges: [
-                'customer:create',
-            ],
-            dependencies: [
-                'customer.viewer',
-                'customer.editor',
-            ],
+            privileges: ['customer:create'],
+            dependencies: ['customer.viewer', 'customer.editor'],
         },
         deleter: {
-            privileges: [
-                'customer:delete',
-            ],
-            dependencies: [
-                'customer.viewer',
-            ],
+            privileges: ['customer:delete'],
+            dependencies: ['customer.viewer'],
         },
     },
 });

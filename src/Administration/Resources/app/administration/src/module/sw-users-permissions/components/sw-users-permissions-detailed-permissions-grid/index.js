@@ -53,10 +53,7 @@ export default {
         isEntitySelected(entity, role) {
             const identifier = `${entity}:${role}`;
 
-            const allPrivileges = [
-                ...this.allGeneralSelectedPrivileges,
-                ...this.detailedPrivileges,
-            ];
+            const allPrivileges = [...this.allGeneralSelectedPrivileges, ...this.detailedPrivileges];
 
             return allPrivileges.includes(identifier);
         },

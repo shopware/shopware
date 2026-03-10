@@ -8,9 +8,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     roles: {
         extension_store: {
             privileges: [],
-            dependencies: [
-                'system.plugin_maintain',
-            ],
+            dependencies: ['system.plugin_maintain'],
         },
     },
 });

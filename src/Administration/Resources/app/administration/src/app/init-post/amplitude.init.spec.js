@@ -303,18 +303,12 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit(
                 'consent',
                 new ConsentEvent('consent_modal_viewed', {
-                    option: [
-                        'backend_data',
-                        'user_tracking',
-                    ],
+                    option: ['backend_data', 'user_tracking'],
                 }),
             );
 
             expect(mockAnonymousAmplitudeClient.track).toHaveBeenCalledWith('consent_modal_viewed', {
-                option: [
-                    'backend_data',
-                    'user_tracking',
-                ],
+                option: ['backend_data', 'user_tracking'],
             });
             expect(track).not.toHaveBeenCalledWith('consent_modal_viewed', expect.anything());
         });
@@ -327,18 +321,12 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit(
                 'consent',
                 new ConsentEvent('consent_modal_viewed', {
-                    option: [
-                        'backend_data',
-                        'user_tracking',
-                    ],
+                    option: ['backend_data', 'user_tracking'],
                 }),
             );
 
             expect(mockAnonymousAmplitudeClient.track).toHaveBeenCalledWith('consent_modal_viewed', {
-                option: [
-                    'backend_data',
-                    'user_tracking',
-                ],
+                option: ['backend_data', 'user_tracking'],
             });
         });
 
@@ -495,10 +483,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit(
                 'consent',
                 new ConsentEvent('consent_modal_viewed', {
-                    option: [
-                        'backend_data',
-                        'user_tracking',
-                    ],
+                    option: ['backend_data', 'user_tracking'],
                 }),
             );
 

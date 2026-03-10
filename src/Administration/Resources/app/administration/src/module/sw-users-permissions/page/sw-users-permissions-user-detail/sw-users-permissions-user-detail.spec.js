@@ -328,9 +328,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 lastName: 'Mustermann',
                 email: 'max@mustermann.com',
             },
-            integrations: [
-                {},
-            ],
+            integrations: [{}],
         });
         await flushPromises();
 
@@ -368,9 +366,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 lastName: 'Mustermann',
                 email: 'max@mustermann.com',
             },
-            integrations: [
-                {},
-            ],
+            integrations: [{}],
         });
 
         const fieldFirstName = wrapper.find('.sw-settings-user-detail__grid-firstName');

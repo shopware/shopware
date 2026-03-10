@@ -307,9 +307,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
         expect(wrapper.vm.page).toBe(2);
         expect(wrapper.vm.limit).toBe(25);
-        expect(wrapper.vm.productCriteria.sortings).toEqual([
-            { field: 'name', naturalSorting: false, order: 'ASC' },
-        ]);
+        expect(wrapper.vm.productCriteria.sortings).toEqual([{ field: 'name', naturalSorting: false, order: 'ASC' }]);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });
@@ -414,14 +412,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
         await wrapper.setData({ products: productsMock });
-        await wrapper.vm.onAddProducts([
-            { id: '103', active: true, productNumber: '003' },
-        ]);
+        await wrapper.vm.onAddProducts([{ id: '103', active: true, productNumber: '003' }]);
 
         expect(wrapper.vm.saveProductVisibilities).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                expect.objectContaining({ productId: '103' }),
-            ]),
+            expect.arrayContaining([expect.objectContaining({ productId: '103' })]),
         );
 
         wrapper.vm.saveProductVisibilities.mockRestore();
@@ -484,10 +478,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should not be able to delete variants which have inherit visibility', async () => {
         const { wrapper } = await createWrapper({
-            products: [
-                ...productsMock,
-                ...variantProductMocks,
-            ],
+            products: [...productsMock, ...variantProductMocks],
         });
         await flushPromises();
 

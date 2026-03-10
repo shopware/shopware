@@ -71,9 +71,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         await wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts').trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
-        expect(wrapper.emitted('products-add')[0]).toEqual([
-            wrapper.vm.products,
-        ]);
+        expect(wrapper.emitted('products-add')[0]).toEqual([wrapper.vm.products]);
     });
 
     it('should emit products data when clicking Add Products button to assign product by categories', async () => {

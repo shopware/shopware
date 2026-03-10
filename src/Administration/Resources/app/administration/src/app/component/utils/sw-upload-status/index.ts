@@ -112,12 +112,8 @@ const GatewayErrorStatuses = [
  */
 export default Shopware.Component.wrapComponentConfig({
     template: '<slot />',
-    inject: [
-        'mediaService',
-    ],
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    inject: ['mediaService'],
+    mixins: [Shopware.Mixin.getByName('notification')],
     data() {
         return {
             uploads: new Map<string, FileInfo>(),

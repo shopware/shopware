@@ -54,9 +54,7 @@ async function createWrapper(privileges = [], query = {}) {
 
 describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
     it('should enabled element when have privilege', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        const wrapper = await createWrapper(['flow.editor']);
         await flushPromises();
 
         const elementClasses = [
@@ -73,9 +71,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
     });
 
     it('should disabled element when have not privilege', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ]);
+        const wrapper = await createWrapper(['flow.viewer']);
         await flushPromises();
 
         const elementClasses = [
@@ -92,9 +88,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
     });
 
     it('should not able to edit flow template', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ]);
+        const wrapper = await createWrapper(['flow.viewer']);
         await flushPromises();
 
         await wrapper.setProps({

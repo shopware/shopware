@@ -11,16 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'tagApiService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'tagApiService'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -65,18 +58,13 @@ export default {
         assignmentProperties() {
             const properties = [];
 
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation !== 'many_to_many') {
-                        return;
-                    }
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation !== 'many_to_many') {
+                    return;
+                }
 
-                    properties.push(propertyName);
-                },
-            );
+                properties.push(propertyName);
+            });
 
             return properties;
         },
@@ -129,21 +117,16 @@ export default {
         assignmentFilterOptions() {
             const options = [];
 
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation !== 'many_to_many') {
-                        return;
-                    }
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation !== 'many_to_many') {
+                    return;
+                }
 
-                    options.push({
-                        value: propertyName,
-                        label: this.$tc(`sw-settings-tag.list.assignments.filter.${propertyName}`),
-                    });
-                },
-            );
+                options.push({
+                    value: propertyName,
+                    label: this.$tc(`sw-settings-tag.list.assignments.filter.${propertyName}`),
+                });
+            });
             options.sort((a, b) => {
                 if (a.label > b.label) {
                     return 1;
@@ -178,26 +161,15 @@ export default {
 
     methods: {
         setAggregations(criteria) {
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation !== 'many_to_many') {
-                        return;
-                    }
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation !== 'many_to_many') {
+                    return;
+                }
 
-                    criteria.addAggregation(
-                        Criteria.terms(
-                            propertyName,
-                            'id',
-                            null,
-                            null,
-                            Criteria.count(propertyName, `tag.${propertyName}.id`),
-                        ),
-                    );
-                },
-            );
+                criteria.addAggregation(
+                    Criteria.terms(propertyName, 'id', null, null, Criteria.count(propertyName, `tag.${propertyName}.id`)),
+                );
+            });
         },
 
         getList() {
@@ -279,24 +251,19 @@ export default {
         getCounts(id) {
             const counts = {};
 
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation === 'many_to_many') {
-                        const countBucket = this.tags.aggregations[propertyName]?.buckets.filter((bucket) => {
-                            return bucket.key === id;
-                        })[0];
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation === 'many_to_many') {
+                    const countBucket = this.tags.aggregations[propertyName]?.buckets.filter((bucket) => {
+                        return bucket.key === id;
+                    })[0];
 
-                        if (!countBucket?.[propertyName] || !countBucket?.[propertyName].count) {
-                            return;
-                        }
-
-                        counts[propertyName] = countBucket?.[propertyName].count;
+                    if (!countBucket?.[propertyName] || !countBucket?.[propertyName].count) {
+                        return;
                     }
-                },
-            );
+
+                    counts[propertyName] = countBucket?.[propertyName].count;
+                }
+            });
 
             return counts;
         },

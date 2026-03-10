@@ -14,10 +14,7 @@ const { isEmpty } = utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'businessEventService',
-    ],
+    inject: ['repositoryFactory', 'businessEventService'],
 
     emits: ['option-select'],
 
@@ -92,14 +89,7 @@ export default {
             return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
-        ...mapState(
-            () => Store.get('swFlow'),
-            [
-                'flow',
-                'triggerEvents',
-                'isSequenceEmpty',
-            ],
-        ),
+        ...mapState(() => Store.get('swFlow'), ['flow', 'triggerEvents', 'isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),
     },
 

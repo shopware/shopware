@@ -111,11 +111,7 @@ export default {
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('or', [
-                    Criteria.equals('id', Defaults.defaultSalutationId),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('or', [Criteria.equals('id', Defaults.defaultSalutationId)]));
 
             return criteria;
         },

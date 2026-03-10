@@ -245,16 +245,10 @@ async function createWrapper() {
     return {
         wrapper: mount(await wrapTestComponent('sw-product-list', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 provide: {
                     productTypeService: {
-                        fetchProductTypes: () =>
-                            Promise.resolve([
-                                'physical',
-                                'digital',
-                            ]),
+                        fetchProductTypes: () => Promise.resolve(['physical', 'digital']),
                     },
                     numberRangeService: {},
                     repositoryFactory: {
@@ -427,19 +421,13 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const euroCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
-        const [
-            firstEuroCell,
-            secondEuroCell,
-        ] = euroCells;
+        const [firstEuroCell, secondEuroCell] = euroCells;
 
         expect(firstEuroCell.text()).toBe('€200.00');
         expect(secondEuroCell.text()).toBe('€600.00');
 
         const poundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
-        const [
-            firstPoundCell,
-            secondPoundCell,
-        ] = poundCells;
+        const [firstPoundCell, secondPoundCell] = poundCells;
 
         expect(firstPoundCell.text()).toBe('£22.00');
         expect(secondPoundCell.text()).toBe('£400.00');
@@ -452,10 +440,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         let sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
-        let [
-            firstSortedPoundCell,
-            secondSortedPoundCell,
-        ] = sortedPoundCells;
+        let [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells;
 
         expect(firstSortedPoundCell.text()).toBe('£22.00');
         expect(secondSortedPoundCell.text()).toBe('£400.00');
@@ -465,10 +450,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
-        [
-            firstSortedPoundCell,
-            secondSortedPoundCell,
-        ] = sortedPoundCells;
+        [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells;
 
         expect(firstSortedPoundCell.text()).toBe('£400.00');
         expect(secondSortedPoundCell.text()).toBe('£22.00');
@@ -483,10 +465,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const productNamesASCSorted = wrapper.findAll('.sw-data-grid__cell--name');
-        const [
-            firstProductNameASCSorted,
-            secondProductNameASCSorted,
-        ] = productNamesASCSorted;
+        const [firstProductNameASCSorted, secondProductNameASCSorted] = productNamesASCSorted;
 
         expect(firstProductNameASCSorted.text()).toBe('Product 1');
         expect(secondProductNameASCSorted.text()).toBe('Product 2');
@@ -495,10 +474,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const productNamesDESCSorted = wrapper.findAll('.sw-data-grid__cell--name');
-        const [
-            firstProductNameDESCSorted,
-            secondProductNameDESCSorted,
-        ] = productNamesDESCSorted;
+        const [firstProductNameDESCSorted, secondProductNameDESCSorted] = productNamesDESCSorted;
 
         expect(firstProductNameDESCSorted.text()).toBe('Product 2');
         expect(secondProductNameDESCSorted.text()).toBe('Product 1');
@@ -517,10 +493,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const manufacturerNamesASCSorted = wrapper.findAll('.sw-data-grid__cell--manufacturer-name');
-        const [
-            firstManufacturerNameASCSorted,
-            secondManufacturerNameASCSorted,
-        ] = manufacturerNamesASCSorted;
+        const [firstManufacturerNameASCSorted, secondManufacturerNameASCSorted] = manufacturerNamesASCSorted;
 
         expect(firstManufacturerNameASCSorted.text()).toBe('Manufacturer A');
         expect(secondManufacturerNameASCSorted.text()).toBe('Manufacturer B');
@@ -529,10 +502,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const manufacturerNamesDESCSorted = wrapper.findAll('.sw-data-grid__cell--manufacturer-name');
-        const [
-            firstManufacturerNameDESCSorted,
-            secondManufacturerNameDESCSorted,
-        ] = manufacturerNamesDESCSorted;
+        const [firstManufacturerNameDESCSorted, secondManufacturerNameDESCSorted] = manufacturerNamesDESCSorted;
 
         expect(firstManufacturerNameDESCSorted.text()).toBe('Manufacturer B');
         expect(secondManufacturerNameDESCSorted.text()).toBe('Manufacturer A');
@@ -576,10 +546,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should return true if product has variants', async () => {
-        const [
-            ,
-            product,
-        ] = getProductData(mockCriteria());
+        const [, product] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(true);

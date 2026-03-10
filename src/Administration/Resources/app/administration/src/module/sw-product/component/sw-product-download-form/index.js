@@ -14,17 +14,11 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'configService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'configService'],
 
     emits: ['media-open'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         disabled: {

@@ -250,12 +250,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.previousCategories).toEqual(mockCategories);
-        expect(wrapper.vm.previousCategoryIds).toEqual(
-            expect.arrayContaining([
-                'uuid1',
-                'uuid2',
-            ]),
-        );
+        expect(wrapper.vm.previousCategoryIds).toEqual(expect.arrayContaining(['uuid1', 'uuid2']));
     });
 
     it('should add categories', async () => {
@@ -486,16 +481,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper('page');
         await wrapper.setData({
             selectedShopPages: {
-                null: [
-                    'core.basicInformation.contactPage',
-                ],
+                null: ['core.basicInformation.contactPage'],
                 'storefront_test-id': null,
             },
             previousShopPages: {
-                null: [
-                    'core.basicInformation.contactPage',
-                    'core.basicInformation.newsletterPage',
-                ],
+                null: ['core.basicInformation.contactPage', 'core.basicInformation.newsletterPage'],
                 'storefront_test-id': null,
             },
         });
@@ -528,10 +518,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
-    const checkErrorHandlingDataProvider = [
-        'saveShopPages',
-        'loadSystemConfig',
-    ];
+    const checkErrorHandlingDataProvider = ['saveShopPages', 'loadSystemConfig'];
     it.each(checkErrorHandlingDataProvider)('should catch error, when executing %s fails', async (systemConfigFunction) => {
         global.activeAclRoles = ['system.system_config'];
 
@@ -568,9 +555,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         await wrapper.setData({
             selectedShopPages: {
-                null: [
-                    'core.basicInformation.contactPage',
-                ],
+                null: ['core.basicInformation.contactPage'],
             },
         });
 
@@ -589,10 +574,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         // Expect selected shop pages to have previous value
         expect(wrapper.vm.selectedShopPages).toEqual({
-            null: [
-                'core.basicInformation.contactPage',
-                'core.basicInformation.newsletterPage',
-            ],
+            null: ['core.basicInformation.contactPage', 'core.basicInformation.newsletterPage'],
         });
 
         expect(wrapper.vm.systemConfigApiService.batchSave).toHaveBeenCalledTimes(0);
@@ -627,9 +609,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         // Trigger sales channel select change
         await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
 
-        expect(wrapper.vm.selectedShopPages.storefront_id).toEqual([
-            'core.basicInformation.contactPage',
-        ]);
+        expect(wrapper.vm.selectedShopPages.storefront_id).toEqual(['core.basicInformation.contactPage']);
     });
 
     it('should load system config with different sales channel without matching shop pages', async () => {
@@ -744,12 +724,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper('product_detail');
 
         expect(wrapper.vm.previousProducts).toEqual(mockProducts);
-        expect(wrapper.vm.previousProductIds).toEqual(
-            expect.arrayContaining([
-                'uuid1',
-                'uuid2',
-            ]),
-        );
+        expect(wrapper.vm.previousProductIds).toEqual(expect.arrayContaining(['uuid1', 'uuid2']));
     });
 
     it('should add products', async () => {
@@ -956,13 +931,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper('landingpage');
 
         expect(wrapper.vm.previousLandingPages).toEqual(mockLandingPages);
-        expect(wrapper.vm.previousLandingPageIds).toEqual(
-            expect.arrayContaining([
-                'uuidLand1',
-                'uuidLand2',
-                'uuidLand3',
-            ]),
-        );
+        expect(wrapper.vm.previousLandingPageIds).toEqual(expect.arrayContaining(['uuidLand1', 'uuidLand2', 'uuidLand3']));
     });
 
     it('should add landing pages', async () => {
@@ -975,19 +944,12 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.setProps({
             page: {
                 ...wrapper.vm.page,
-                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                    ...mockLandingPages,
-                    newPage,
-                ]),
+                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [...mockLandingPages, newPage]),
             },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
-        expect(wrapper.vm.page.landingPages).toEqual(
-            expect.arrayContaining([
-                newPage,
-            ]),
-        );
+        expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([newPage]));
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
@@ -1028,12 +990,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.page.landingPages).toEqual(
-            expect.arrayContaining([
-                newPage1,
-                newPage2,
-            ]),
-        );
+        expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([newPage1, newPage2]));
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
@@ -1116,10 +1073,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.setProps({
             page: {
                 ...wrapper.vm.page,
-                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                    page1,
-                    page2,
-                ]),
+                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [page1, page2]),
             },
         });
 
@@ -1134,12 +1088,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.find('.sw-cms-layout-assignment-modal__action-keep-editing').trigger('click');
 
         // Verify landing pages are still the same modified landing pages
-        expect(wrapper.vm.page.landingPages).toEqual(
-            expect.arrayContaining([
-                page1,
-                page2,
-            ]),
-        );
+        expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([page1, page2]));
         expect(wrapper.emitted('modal-close')).toBeUndefined();
     });
 

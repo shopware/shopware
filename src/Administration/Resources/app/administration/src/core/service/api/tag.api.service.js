@@ -47,10 +47,7 @@ export default class TagApiService extends ApiService {
         tag._isNew = false;
 
         // eslint-disable-next-line
-        for (const [
-            propertyName,
-            property,
-        ] of Object.entries(definitionProperties)) {
+        for (const [propertyName, property] of Object.entries(definitionProperties)) {
             if (property.relation !== 'many_to_many') {
                 // eslint-disable-next-line
                 continue;

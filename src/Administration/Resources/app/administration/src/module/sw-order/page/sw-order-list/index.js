@@ -20,9 +20,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     data() {
         return {
@@ -500,12 +498,7 @@ export default {
 
                 // set the payment status to the first transaction that is not cancelled
                 for (let i = 0; i < order.transactions.length; i += 1) {
-                    if (
-                        ![
-                            'cancelled',
-                            'failed',
-                        ].includes(order.transactions[i].stateMachineState.technicalName)
-                    ) {
+                    if (!['cancelled', 'failed'].includes(order.transactions[i].stateMachineState.technicalName)) {
                         technicalName = order.transactions[i].stateMachineState.technicalName;
                         break;
                     }
@@ -586,12 +579,7 @@ export default {
             }
 
             for (let i = 0; i < order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(order.transactions[i].stateMachineState.technicalName)
-                ) {
+                if (!['cancelled', 'failed'].includes(order.transactions[i].stateMachineState.technicalName)) {
                     return order.transactions[i];
                 }
             }

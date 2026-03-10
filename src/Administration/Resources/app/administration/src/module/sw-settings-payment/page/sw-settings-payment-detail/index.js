@@ -13,16 +13,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -142,10 +135,7 @@ export default {
             return !!this.paymentMethod?.pluginId || !!this.paymentMethod?.appPaymentMethod?.id;
         },
 
-        ...mapPropertyErrors('paymentMethod', [
-            'name',
-            'technicalName',
-        ]),
+        ...mapPropertyErrors('paymentMethod', ['name', 'technicalName']),
     },
 
     watch: {

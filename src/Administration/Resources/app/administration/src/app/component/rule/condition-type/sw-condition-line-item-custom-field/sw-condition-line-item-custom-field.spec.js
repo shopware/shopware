@@ -184,9 +184,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         },
         { name: 'cart expose', customField: { ...defaultCustomFieldMock[0], allowCartExpose: true }, expected: '' },
     ])('should render custom field tooltip: $name', async ({ customField, expected }) => {
-        const wrapper = await createWrapper(defaultProps, [
-            customField,
-        ]);
+        const wrapper = await createWrapper(defaultProps, [customField]);
         await flushPromises();
 
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
@@ -254,9 +252,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         { name: 'checkboxes', customField: defaultCustomFieldMock[0], label: 'checkbox' },
         { name: 'switches', customField: defaultCustomFieldMock[1], label: 'switch' },
     ])('should transform custom field config & operators for: $name', async ({ customField, label }) => {
-        const wrapper = await createWrapper(defaultProps, [
-            customField,
-        ]);
+        const wrapper = await createWrapper(defaultProps, [customField]);
         await flushPromises();
 
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
@@ -294,9 +290,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
     });
 
     it('should transform custom field config & operators for text editors', async () => {
-        const wrapper = await createWrapper(defaultProps, [
-            defaultCustomFieldMock[2],
-        ]);
+        const wrapper = await createWrapper(defaultProps, [defaultCustomFieldMock[2]]);
         await flushPromises();
 
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');

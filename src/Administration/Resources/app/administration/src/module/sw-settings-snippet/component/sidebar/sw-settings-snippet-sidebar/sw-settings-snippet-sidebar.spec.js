@@ -66,10 +66,7 @@ describe('sw-settings-snippet-sidebar', () => {
                 Shopware: true,
                 System: true,
             },
-            authorFilters: [
-                'Shopware',
-                'System',
-            ],
+            authorFilters: ['Shopware', 'System'],
         });
         expect(wrapper.vm.isExpandedAuthorFilters).toBe(true);
     });
@@ -86,11 +83,7 @@ describe('sw-settings-snippet-sidebar', () => {
                 order: false,
                 customer: false,
             },
-            filterItems: [
-                'product',
-                'order',
-                'customer',
-            ],
+            filterItems: ['product', 'order', 'customer'],
         });
         expect(wrapper.vm.isExpandedMoreFilters).toBe(true);
     });

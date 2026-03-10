@@ -34,10 +34,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'mt-number-field': {
                             template: '<input type="number" v-model="modelValue" v-bind="$attrs" />',
-                            props: [
-                                'modelValue',
-                                'size',
-                            ],
+                            props: ['modelValue', 'size'],
                         },
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -162,10 +159,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         await flushPromises();
 
         Shopware.Store.get('swShippingDetail').shippingMethod = {
-            prices: [
-                { ruleId: '1' },
-                { ruleId: '1' },
-            ],
+            prices: [{ ruleId: '1' }, { ruleId: '1' }],
         };
 
         await flushPromises();
@@ -180,10 +174,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         await flushPromises();
 
         Shopware.Store.get('swShippingDetail').shippingMethod = {
-            prices: [
-                { ruleId: '1' },
-                { ruleId: '2' },
-            ],
+            prices: [{ ruleId: '1' }, { ruleId: '2' }],
         };
 
         await nextTick();
@@ -219,10 +210,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         await flushPromises();
 
         Shopware.Store.get('swShippingDetail').shippingMethod = {
-            prices: [
-                { ruleId: '1' },
-                { ruleId: '2' },
-            ],
+            prices: [{ ruleId: '1' }, { ruleId: '2' }],
         };
 
         const addPriceMatrixButton = wrapper.findByText(

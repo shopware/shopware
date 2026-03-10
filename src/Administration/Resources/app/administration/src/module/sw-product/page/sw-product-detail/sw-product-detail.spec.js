@@ -48,9 +48,7 @@ const advancedModeSettings = {
 
 const defaultSalesChannelData = {
     'core.defaultSalesChannel.active': false,
-    'core.defaultSalesChannel.salesChannel': [
-        '98432def39fc4624b33213a56b8c944d',
-    ],
+    'core.defaultSalesChannel.salesChannel': ['98432def39fc4624b33213a56b8c944d'],
     'core.defaultSalesChannel.visibility': {
         '98432def39fc4624b33213a56b8c944d': 10,
     },
@@ -154,10 +152,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                     'sw-tabs-item': {
                         template: '<div class="sw-tabs-item"><slot /></div>',
-                        props: [
-                            'route',
-                            'title',
-                        ],
+                        props: ['route', 'title'],
                     },
                     'sw-inheritance-warning': true,
                     'router-link': true,
@@ -262,10 +257,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-reviews',
         ];
 
-        const invisibleTabItem = [
-            '.sw-product-detail__tab-variants',
-            '.sw-product-detail__tab-layout',
-        ];
+        const invisibleTabItem = ['.sw-product-detail__tab-variants', '.sw-product-detail__tab-layout'];
 
         visibleTabItem.forEach((item) => {
             expect(wrapper.find(item).attributes().style).toBeFalsy();
@@ -277,11 +269,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should always show the correct menu, even with the defaults not matching the userConfig', async () => {
-        const keys = [
-            'general_information',
-            'prices',
-            'deliverability',
-        ];
+        const keys = ['general_information', 'prices', 'deliverability'];
         const mockKey = 'mock_key_without_result';
         const settings = [...keys].map((key) => {
             return {
@@ -539,20 +527,14 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         wrapper.vm.onSaveFinished('success');
 
-        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
-            'product',
-            true,
-        ]);
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith(['product', true]);
 
         await flushPromises();
 
         expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-finish');
         expect(wrapper.vm.isSaveSuccessful).toBe(true);
         expect(Shopware.Store.get('error').resetApiErrors).not.toHaveBeenCalled();
-        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
-            'product',
-            false,
-        ]);
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith(['product', false]);
         expect(wrapper.vm.loadProduct).toHaveBeenCalled();
     });
 
@@ -666,10 +648,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await flushPromises();
 
-        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
-            'product',
-            false,
-        ]);
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith(['product', false]);
         expect(wrapper.vm.loadProduct).toHaveBeenCalled();
     });
 

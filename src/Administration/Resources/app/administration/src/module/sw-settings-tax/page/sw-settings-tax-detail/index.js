@@ -19,9 +19,7 @@ export default {
         'systemConfigApiService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -70,10 +68,7 @@ export default {
             return this.repositoryFactory.create('tax');
         },
 
-        ...mapPropertyErrors('tax', [
-            'name',
-            'taxRate',
-        ]),
+        ...mapPropertyErrors('tax', ['name', 'taxRate']),
 
         isNewTax() {
             return this.tax.isNew === 'function' ? this.tax.isNew() : false;

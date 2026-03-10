@@ -10,20 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'syncService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'syncService', 'acl'],
 
-    emits: [
-        'landing-page-checked-elements-count',
-        'unsaved-changes',
-    ],
+    emits: ['landing-page-checked-elements-count', 'unsaved-changes'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         landingPageId: {
@@ -290,16 +281,10 @@ export default {
 
             const existingLandingPageEntries = Object.entries(this.loadedLandingPages || {});
             const newLandingPageEntries = landingPages.map((landingPage) => {
-                return [
-                    landingPage.id,
-                    landingPage,
-                ];
+                return [landingPage.id, landingPage];
             });
 
-            this.loadedLandingPages = Object.fromEntries([
-                ...existingLandingPageEntries,
-                ...newLandingPageEntries,
-            ]);
+            this.loadedLandingPages = Object.fromEntries([...existingLandingPageEntries, ...newLandingPageEntries]);
         },
 
         removeFromStore(id) {

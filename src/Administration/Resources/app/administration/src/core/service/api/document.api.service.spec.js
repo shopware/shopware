@@ -303,10 +303,7 @@ describe('documentService', () => {
         clientMock.onGet(`/_action/document/${documentId}/${deepLink}?fileType=${fileType}`).reply(() => {
             didRequest = true;
 
-            return [
-                200,
-                '',
-            ];
+            return [200, ''];
         });
 
         documentApiService.getDocument(documentId, deepLink, {});

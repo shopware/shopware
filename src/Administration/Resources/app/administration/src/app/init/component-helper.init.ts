@@ -28,10 +28,7 @@ const componentHelper: ComponentHelper = {
 
 // Register each component helper
 (Object.entries(componentHelper) as [keyof ComponentHelper, ComponentHelper[keyof ComponentHelper]][]).forEach(
-    ([
-        name,
-        value,
-    ]) => {
+    ([name, value]) => {
         Shopware.Component.registerComponentHelper(name, value);
     },
 );

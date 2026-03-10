@@ -78,10 +78,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
         let companyDownButton = wrapper.find('.sw-data-grid__settings-item--1 .mt-button.down');
         await companyDownButton.trigger('click');
 
-        expect(wrapper.emitted('change-column-order')[0]).toEqual([
-            1,
-            2,
-        ]);
+        expect(wrapper.emitted('change-column-order')[0]).toEqual([1, 2]);
 
         await wrapper.setProps({
             columns: [
@@ -105,10 +102,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
         companyDownButton = wrapper.find('.sw-data-grid__settings-item--2 .mt-button.down');
         await companyDownButton.trigger('click');
 
-        expect(wrapper.emitted('change-column-order')[1]).toEqual([
-            2,
-            3,
-        ]);
+        expect(wrapper.emitted('change-column-order')[1]).toEqual([2, 3]);
 
         await wrapper.setProps({
             columns: [
@@ -132,10 +126,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
         const dateUpButton = wrapper.find('.sw-data-grid__settings-item--2 .mt-button:not(.down)');
         await dateUpButton.trigger('click');
 
-        expect(wrapper.emitted('change-column-order')[2]).toEqual([
-            2,
-            1,
-        ]);
+        expect(wrapper.emitted('change-column-order')[2]).toEqual([2, 1]);
 
         await wrapper.setProps({
             columns: [

@@ -17,19 +17,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'mediaService',
-        'repositoryFactory',
-    ],
+    inject: ['mediaService', 'repositoryFactory'],
 
-    emits: [
-        'media-replace-modal-close',
-        'media-replace-modal-item-replaced',
-    ],
+    emits: ['media-replace-modal-close', 'media-replace-modal-item-replaced'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         itemToReplace: {

@@ -162,9 +162,7 @@ describe('app/service/filter.service.js', () => {
 
     it('getStoredCriteria should return correct criteria', async () => {
         const data = await filterService.getStoredCriteria('test');
-        expect(data).toEqual([
-            { type: 'equalsAny', field: 'salutation.id', value: '123' },
-        ]);
+        expect(data).toEqual([{ type: 'equalsAny', field: 'salutation.id', value: '123' }]);
     });
 
     it('saveFilters should cache and save data correctly', async () => {

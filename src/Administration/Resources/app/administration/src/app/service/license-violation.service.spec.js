@@ -156,10 +156,7 @@ describe('app/service/license-violation.service.js', () => {
             { name: 'Amet' },
         ];
 
-        const ignoreTheseWarnings = [
-            'Dog',
-            'Cat',
-        ];
+        const ignoreTheseWarnings = ['Dog', 'Cat'];
         const filteredWarnings = licenseViolationService.filterWarnings(warnings, ignoreTheseWarnings);
 
         const expected = [

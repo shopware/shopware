@@ -9,23 +9,10 @@ type TrackClient = {
 
 const ANONYMOUS_ALLOWED_PROPERTIES: { [Property in keyof ConsentEvents]: ReadonlyArray<keyof ConsentEvents[Property]> } = {
     consent_modal_viewed: ['option'],
-    consent_decision_made: [
-        'option',
-        'decision',
-        'time_spent_on_modal',
-    ],
-    consent_option_changed: [
-        'option',
-        'state',
-    ],
-    consent_legal_link_clicked: [
-        'link_target',
-        'source',
-    ],
-    consent_revoked: [
-        'accepted_options',
-        'declined_options',
-    ],
+    consent_decision_made: ['option', 'decision', 'time_spent_on_modal'],
+    consent_option_changed: ['option', 'state'],
+    consent_legal_link_clicked: ['link_target', 'source'],
+    consent_revoked: ['accepted_options', 'declined_options'],
 };
 
 function isConsentEventName(value: unknown): value is ConsentEventName {

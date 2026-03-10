@@ -21,20 +21,10 @@ interface DragItem {
 }
 
 const DefaultAddressFormat = [
-    [
-        'address/company',
-        'symbol/dash',
-        'address/department',
-    ],
-    [
-        'address/first_name',
-        'address/last_name',
-    ],
+    ['address/company', 'symbol/dash', 'address/department'],
+    ['address/first_name', 'address/last_name'],
     ['address/street'],
-    [
-        'address/zipcode',
-        'address/city',
-    ],
+    ['address/zipcode', 'address/city'],
     ['address/country'],
 ] as string[][];
 
@@ -46,10 +36,7 @@ const DefaultAddressFormat = [
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'customSnippetApiService',
-    ],
+    inject: ['acl', 'customSnippetApiService'],
 
     props: {
         country: {
@@ -205,12 +192,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            if (
-                ![
-                    this.draggedItem?.index,
-                    this.droppedItem?.index,
-                ].every((position) => typeof position === 'number')
-            ) {
+            if (![this.draggedItem?.index, this.droppedItem?.index].every((position) => typeof position === 'number')) {
                 return;
             }
 
@@ -275,16 +257,7 @@ export default Component.wrapComponentConfig({
             }
 
             const snippet = this.addressFormat[source];
-            const swag =
-                dest === 'above'
-                    ? [
-                          [],
-                          snippet,
-                      ]
-                    : [
-                          snippet,
-                          [],
-                      ];
+            const swag = dest === 'above' ? [[], snippet] : [snippet, []];
 
             this.updateCountry('addressFormat', this.swapPosition(source, source, swag) ?? []);
         },

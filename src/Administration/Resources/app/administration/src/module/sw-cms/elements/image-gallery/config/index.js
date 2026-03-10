@@ -15,16 +15,11 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['element-update'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
@@ -369,12 +364,7 @@ export default {
         },
 
         onChangeDisplayMode(value) {
-            if (
-                [
-                    'cover',
-                    'contain',
-                ].includes(value)
-            ) {
+            if (['cover', 'contain'].includes(value)) {
                 this.element.config.verticalAlign.value = null;
             }
 

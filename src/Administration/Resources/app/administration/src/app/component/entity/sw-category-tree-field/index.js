@@ -16,11 +16,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'selection-add',
-        'selection-remove',
-        'categories-load-more',
-    ],
+    emits: ['selection-add', 'selection-remove', 'categories-load-more'],
 
     props: {
         categoriesCollection: {
@@ -121,10 +117,7 @@ export default {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [
-                    ...acc,
-                    ...pathIds,
-                ];
+                return [...acc, ...pathIds];
             }, []);
         },
 

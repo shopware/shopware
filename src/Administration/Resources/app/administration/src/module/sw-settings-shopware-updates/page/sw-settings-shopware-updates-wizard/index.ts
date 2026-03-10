@@ -12,14 +12,9 @@ export default Component.wrapComponentConfig({
 
     inject: ['updateService'],
 
-    emits: [
-        'update-started',
-        'update-stopped',
-    ],
+    emits: ['update-started', 'update-stopped'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data(): {
         updateInfo: {

@@ -13,9 +13,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     computed: {
         displayModeClass() {

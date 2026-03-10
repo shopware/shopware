@@ -8,10 +8,7 @@ import './sw-extension-my-extensions-listing-controls.scss';
 export default {
     template,
 
-    emits: [
-        'update:active-state',
-        'update:sorting-option',
-    ],
+    emits: ['update:active-state', 'update:sorting-option'],
 
     data() {
         return {

@@ -12,10 +12,7 @@ import convertUnit, { baseUnits } from '../../../../module/sw-settings-rule/util
 export default {
     template,
 
-    emits: [
-        'set-default-unit',
-        'change-unit',
-    ],
+    emits: ['set-default-unit', 'change-unit'],
 
     props: {
         type: {
@@ -23,18 +20,12 @@ export default {
             required: true,
         },
         value: {
-            type: [
-                Number,
-                Date,
-            ],
+            type: [Number, Date],
             default: undefined,
             required: false,
         },
         visibleValue: {
-            type: [
-                Number,
-                Date,
-            ],
+            type: [Number, Date],
             default: undefined,
             required: false,
         },

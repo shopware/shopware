@@ -13,10 +13,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'productStreamConditionService',
-    ],
+    inject: ['repositoryFactory', 'productStreamConditionService'],
 
     provide() {
         return {
@@ -24,9 +21,7 @@ export default {
         };
     },
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         crossSelling: {
@@ -58,11 +53,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('crossSelling', [
-            'name',
-            'type',
-            'position',
-        ]),
+        ...mapPropertyErrors('crossSelling', ['name', 'type', 'position']),
 
         product() {
             return Shopware.Store.get('swProductDetail').product;
@@ -270,10 +261,7 @@ export default {
         },
 
         onSortingChanged(value) {
-            [
-                this.crossSelling.sortBy,
-                this.crossSelling.sortDirection,
-            ] = value.split(':');
+            [this.crossSelling.sortBy, this.crossSelling.sortDirection] = value.split(':');
         },
 
         onTypeChanged(value) {

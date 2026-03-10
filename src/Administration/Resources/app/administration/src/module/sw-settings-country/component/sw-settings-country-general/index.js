@@ -12,10 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     emits: ['modal-save'],
 
@@ -106,12 +103,7 @@ export default {
         },
 
         changeBaseItem(item) {
-            if (
-                ![
-                    'customerTax',
-                    'companyTax',
-                ].includes(this.taxFreeType)
-            ) {
+            if (!['customerTax', 'companyTax'].includes(this.taxFreeType)) {
                 return;
             }
             this.country[this.taxFreeType] = item;

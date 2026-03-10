@@ -529,9 +529,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         const emittedEvent = wrapper.emitted()['option-select'];
         expect(emittedEvent).toBeTruthy();
-        expect(emittedEvent[0]).toEqual([
-            'checkout.customer.changed-payment-method',
-        ]);
+        expect(emittedEvent[0]).toEqual(['checkout.customer.changed-payment-method']);
     });
 
     it('should be able to navigate search results with arrow keys', async () => {
@@ -828,9 +826,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         emittedEvent = wrapper.emitted()['option-select'];
         expect(emittedEvent).toBeTruthy();
-        expect(emittedEvent[0]).toEqual([
-            'checkout.customer.changed-payment-method',
-        ]);
+        expect(emittedEvent[0]).toEqual(['checkout.customer.changed-payment-method']);
 
         eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
         expect(eventSelection.exists()).toBeFalsy();

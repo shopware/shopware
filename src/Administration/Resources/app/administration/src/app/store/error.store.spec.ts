@@ -143,23 +143,13 @@ describe('error.store', () => {
 
         describe('getApiErrorFromPath', () => {
             it('returns null if no error exists at the path', () => {
-                expect(
-                    store.getApiErrorFromPath('entity', 'id', [
-                        'nonexistent',
-                        'path',
-                    ]),
-                ).toBeNull();
+                expect(store.getApiErrorFromPath('entity', 'id', ['nonexistent', 'path'])).toBeNull();
             });
 
             it('returns the error at the specified path', () => {
                 const error = new ShopwareError({ code: 'PATH-001', detail: 'Nested error' });
                 store.addApiError({ expression: 'entity.id.nested.field', error });
-                expect(
-                    store.getApiErrorFromPath('entity', 'id', [
-                        'nested',
-                        'field',
-                    ]),
-                ).toEqual(error);
+                expect(store.getApiErrorFromPath('entity', 'id', ['nested', 'field'])).toEqual(error);
             });
         });
 

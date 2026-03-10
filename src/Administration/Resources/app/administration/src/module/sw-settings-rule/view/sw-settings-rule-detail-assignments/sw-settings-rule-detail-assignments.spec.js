@@ -77,11 +77,7 @@ function createEntityCollectionMock(entityName, items = []) {
 function repositoryMock(entityName, entitiesWithResults) {
     return {
         search: jest.fn((_, api) => {
-            const entities = [
-                { name: 'Foo' },
-                { name: 'Bar' },
-                { name: 'Baz' },
-            ];
+            const entities = [{ name: 'Foo' }, { name: 'Bar' }, { name: 'Baz' }];
 
             if (api.inheritance) {
                 entities.push({ name: 'Inherited' });

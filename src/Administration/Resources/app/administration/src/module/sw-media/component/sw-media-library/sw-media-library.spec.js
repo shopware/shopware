@@ -92,15 +92,8 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
 describe('src/module/sw-media/component/sw-media-library/index', () => {
     it('should allow loading of additional folders', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                5,
-                5,
-                3,
-            ],
-            mediaAmount: [
-                5,
-                3,
-            ],
+            folderAmount: [5, 5, 3],
+            mediaAmount: [5, 3],
         });
         await flushPromises();
 
@@ -150,15 +143,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
     it('should allow loading of additional media', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                5,
-                3,
-            ],
-            mediaAmount: [
-                5,
-                5,
-                3,
-            ],
+            folderAmount: [5, 3],
+            mediaAmount: [5, 5, 3],
         });
         await flushPromises();
 
@@ -241,14 +227,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
     it('should show the load more button if the folder request fails', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                null,
-                3,
-            ],
-            mediaAmount: [
-                3,
-                undefined,
-            ],
+            folderAmount: [null, 3],
+            mediaAmount: [3, undefined],
         });
         await flushPromises();
 
@@ -282,14 +262,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
     it('should show the load more button if the media request fails', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                3,
-                undefined,
-            ],
-            mediaAmount: [
-                null,
-                3,
-            ],
+            folderAmount: [3, undefined],
+            mediaAmount: [null, 3],
         });
         await flushPromises();
 

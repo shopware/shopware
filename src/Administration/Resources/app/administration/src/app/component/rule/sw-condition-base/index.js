@@ -25,11 +25,7 @@ export default {
         'availableGroups',
     ],
 
-    emits: [
-        'create-before',
-        'create-after',
-        'condition-delete',
-    ],
+    emits: ['create-before', 'create-after', 'condition-delete'],
 
     props: {
         condition: {

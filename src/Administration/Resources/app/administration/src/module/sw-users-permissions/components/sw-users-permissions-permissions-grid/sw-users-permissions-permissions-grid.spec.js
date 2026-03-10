@@ -365,10 +365,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -417,10 +414,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -496,10 +490,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -590,10 +581,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1079,22 +1067,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -1144,22 +1125,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -1209,22 +1183,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -1274,22 +1241,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -1343,10 +1303,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1369,10 +1326,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1395,10 +1349,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1421,10 +1372,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1465,10 +1413,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1491,10 +1436,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1517,10 +1459,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1543,10 +1482,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1671,22 +1607,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -1705,10 +1634,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1731,10 +1657,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1757,10 +1680,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1807,22 +1727,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -1841,10 +1754,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1867,10 +1777,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1893,10 +1800,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1938,22 +1842,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -1972,10 +1869,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -1998,10 +1892,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2024,10 +1915,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2081,22 +1969,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -2115,10 +1996,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2141,10 +2019,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2167,10 +2042,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2221,22 +2093,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -2255,10 +2120,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2281,10 +2143,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2307,10 +2166,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2360,22 +2216,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -2391,10 +2240,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                         },
                         // Missing editor role for categories
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2417,10 +2263,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2443,10 +2286,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2499,22 +2339,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -2533,10 +2366,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2559,10 +2389,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2585,10 +2412,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2640,22 +2464,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -2674,10 +2491,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2700,10 +2514,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2726,10 +2537,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2782,22 +2590,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -2816,10 +2617,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2842,10 +2640,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2868,10 +2663,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2939,22 +2731,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         editor: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'product.viewer',
-                                'product.editor',
-                            ],
+                            dependencies: ['product.viewer', 'product.editor'],
                             privileges: [],
                         },
                         deleter: {
-                            dependencies: [
-                                'product.viewer',
-                            ],
+                            dependencies: ['product.viewer'],
                             privileges: [],
                         },
                     },
@@ -2973,10 +2758,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'categories.viewer',
-                                'categories.editor',
-                            ],
+                            dependencies: ['categories.viewer', 'categories.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -2999,10 +2781,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'currencies.viewer',
-                                'currencies.editor',
-                            ],
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
                             privileges: [],
                         },
                         deleter: {
@@ -3025,10 +2804,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                             privileges: [],
                         },
                         creator: {
-                            dependencies: [
-                                'sales_channel.viewer',
-                                'sales_channel.editor',
-                            ],
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
                             privileges: [],
                         },
                         deleter: {

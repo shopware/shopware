@@ -135,9 +135,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to create a new custom-field set', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.creator',
-        ]);
+        const wrapper = await createWrapper(['custom_field.creator']);
         await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-custom-field-set-list__button-create');
@@ -154,9 +152,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.deleter',
-        ]);
+        const wrapper = await createWrapper(['custom_field.deleter']);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-custom-field-set-list__delete-action');
@@ -172,9 +168,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.editor',
-        ]);
+        const wrapper = await createWrapper(['custom_field.editor']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-set-list__edit-action');

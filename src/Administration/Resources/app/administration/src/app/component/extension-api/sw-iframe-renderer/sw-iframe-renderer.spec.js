@@ -188,12 +188,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     it('should load the correct iFrame route from the query route information', async () => {
         $routeMock.query = {
             // mock query params inside iFrame
-            'locationId_my-great-extension-main-module_searchParams': JSON.stringify([
-                [
-                    'search',
-                    'T-Shirt',
-                ],
-            ]),
+            'locationId_my-great-extension-main-module_searchParams': JSON.stringify([['search', 'T-Shirt']]),
             // mock hash route inside iFrame
             'locationId_my-great-extension-main-module_hash': '#/detail/1',
             // mock pathname route inside iFrame
@@ -225,12 +220,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     it('should handle location url updates', async () => {
         $routeMock.query = {
             // mock query params inside iFrame
-            'locationId_my-great-extension-main-module_searchParams': JSON.stringify([
-                [
-                    'search',
-                    'T-Shirt',
-                ],
-            ]),
+            'locationId_my-great-extension-main-module_searchParams': JSON.stringify([['search', 'T-Shirt']]),
             // mock hash route inside iFrame
             'locationId_my-great-extension-main-module_hash': '#/detail/1',
             // mock pathname route inside iFrame
@@ -264,12 +254,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
         expect($routerMock.replace).toHaveBeenCalledWith({
             query: {
-                'locationId_my-great-extension-main-module_searchParams': JSON.stringify([
-                    [
-                        'search',
-                        'Shorts',
-                    ],
-                ]),
+                'locationId_my-great-extension-main-module_searchParams': JSON.stringify([['search', 'Shorts']]),
                 'locationId_my-great-extension-main-module_hash': '#/detail/2',
                 'locationId_my-great-extension-main-module_pathname': '/app/',
             },
@@ -279,12 +264,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     it('should handle location url updates for different location ids', async () => {
         $routeMock.query = {
             // mock query params inside iFrame
-            'locationId_my-great-extension-main-module_searchParams': JSON.stringify([
-                [
-                    'search',
-                    'T-Shirt',
-                ],
-            ]),
+            'locationId_my-great-extension-main-module_searchParams': JSON.stringify([['search', 'T-Shirt']]),
             // mock hash route inside iFrame
             'locationId_my-great-extension-main-module_hash': '#/detail/1',
             // mock pathname route inside iFrame

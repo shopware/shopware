@@ -19,14 +19,9 @@ export default {
         'acl',
     ],
 
-    emits: [
-        'custom-field-edit-cancel',
-        'custom-field-edit-save',
-    ],
+    emits: ['custom-field-edit-cancel', 'custom-field-edit-save'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         currentCustomField: {
@@ -102,9 +97,7 @@ export default {
             });
         },
 
-        ...mapPropertyErrors('currentCustomField', [
-            'name',
-        ]),
+        ...mapPropertyErrors('currentCustomField', ['name']),
     },
 
     created() {

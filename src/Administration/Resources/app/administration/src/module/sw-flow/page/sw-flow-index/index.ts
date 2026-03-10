@@ -13,10 +13,7 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
     data(): {
         isLoading: boolean;

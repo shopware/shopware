@@ -21,9 +21,7 @@ export default {
         'customEntityDefinitionService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         mouseLocationsTracked: {
@@ -440,14 +438,8 @@ The admin menu only supports up to three levels of nesting.`,
             const firstChild = target.firstChild;
             this.removeClassesFromElements(
                 Array.from(this.$el.querySelectorAll('.sw-admin-menu__navigation-list-item')),
-                [
-                    'is--entry-expanded',
-                    'is--flyout-expanded',
-                ],
-                [
-                    target,
-                    firstChild,
-                ],
+                ['is--entry-expanded', 'is--flyout-expanded'],
+                [target, firstChild],
             );
 
             const isEntryExpanded = target.classList.contains('is--entry-expanded');
@@ -660,22 +652,10 @@ The admin menu only supports up to three levels of nesting.`,
             };
 
             return [
-                [
-                    topLeft.x,
-                    topLeft.y,
-                ],
-                [
-                    bottomLeft.x,
-                    bottomLeft.y,
-                ],
-                [
-                    bottomRight.x,
-                    bottomRight.y,
-                ],
-                [
-                    topRight.x,
-                    topRight.y,
-                ],
+                [topLeft.x, topLeft.y],
+                [bottomLeft.x, bottomLeft.y],
+                [bottomRight.x, bottomRight.y],
+                [topRight.x, topRight.y],
             ];
         },
 

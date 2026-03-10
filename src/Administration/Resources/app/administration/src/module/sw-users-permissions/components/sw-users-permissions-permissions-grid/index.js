@@ -62,10 +62,7 @@ export default {
                         return parents;
                     }
 
-                    return [
-                        ...parents,
-                        privilege.parent,
-                    ];
+                    return [...parents, privilege.parent];
                 }, [])
                 .sort((a, b) => {
                     const labelA = this.$tc(`sw-privileges.permissions.parents.${a || 'other'}`);

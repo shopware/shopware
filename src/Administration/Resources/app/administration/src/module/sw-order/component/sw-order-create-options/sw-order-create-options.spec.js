@@ -147,10 +147,7 @@ async function createWrapper() {
                         '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">',
                 },
                 'sw-multi-tag-select': {
-                    props: [
-                        'value',
-                        'validate',
-                    ],
+                    props: ['value', 'validate'],
                     template: `
                         <div class="sw-multi-tag-select">
                             <ul>
@@ -165,10 +162,7 @@ async function createWrapper() {
                                 return;
                             }
 
-                            this.$emit('change', [
-                                ...this.value,
-                                event.target.value,
-                            ]);
+                            this.$emit('change', [...this.value, event.target.value]);
                         },
                     },
                 },
@@ -176,10 +170,7 @@ async function createWrapper() {
                 'sw-loader': true,
                 'sw-field-error': true,
                 'sw-select-result': {
-                    props: [
-                        'item',
-                        'index',
-                    ],
+                    props: ['item', 'index'],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -353,9 +344,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await promotionField.vm.$emit('update:value', ['DISCOUNT']);
 
         expect(wrapper.emitted('promotions-change')).toBeTruthy();
-        expect(wrapper.emitted('promotions-change')[0][0]).toEqual([
-            'DISCOUNT',
-        ]);
+        expect(wrapper.emitted('promotions-change')[0][0]).toEqual(['DISCOUNT']);
     });
 
     it('should not emit promotions-change event when entering duplicated promotion code', async () => {

@@ -113,10 +113,7 @@ export default {
         },
 
         modalDialogClasses() {
-            return [
-                `sw-modal--${this.id}`,
-                { 'has--header': this.showHeader },
-            ];
+            return [`sw-modal--${this.id}`, { 'has--header': this.showHeader }];
         },
 
         modalBodyClasses() {

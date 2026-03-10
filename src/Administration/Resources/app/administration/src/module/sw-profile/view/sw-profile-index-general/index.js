@@ -9,10 +9,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-        'ssoSettingsService',
-    ],
+    inject: ['acl', 'ssoSettingsService'],
 
     emits: [
         'new-password-change',
@@ -82,9 +79,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('user', [
-            'password',
-        ]),
+        ...mapPropertyErrors('user', ['password']),
 
         computedNewPassword: {
             get() {

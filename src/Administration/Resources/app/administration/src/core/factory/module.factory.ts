@@ -413,25 +413,20 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
 
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
-    Object.entries(routeComponents).forEach(
-        ([
-            componentKey,
-            component,
-        ]) => {
-            // Don't register a component without a name
-            if (!component) {
-                warn(
-                    'ModuleFactory',
-                    `The route definition of module "${moduleId}" is not valid.
+    Object.entries(routeComponents).forEach(([componentKey, component]) => {
+        // Don't register a component without a name
+        if (!component) {
+            warn(
+                'ModuleFactory',
+                `The route definition of module "${moduleId}" is not valid.
                     A route needs an assigned component name.`,
-                );
-                return;
-            }
+            );
+            return;
+        }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            componentList[componentKey] = component;
-        },
-    );
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        componentList[componentKey] = component;
+    });
 
     // @ts-expect-error
     route.components = componentList;

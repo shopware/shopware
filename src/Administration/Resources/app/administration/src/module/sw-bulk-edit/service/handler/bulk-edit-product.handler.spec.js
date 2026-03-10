@@ -51,21 +51,12 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             }),
         );
 
-        const result = await handler.bulkEdit(
-            [
-                'abc',
-                'xyz',
-            ],
-            [],
-        );
+        const result = await handler.bulkEdit(['abc', 'xyz'], []);
 
         expect(bulkEditProductHandler).toHaveBeenCalledTimes(1);
         expect(bulkEditProductHandler).toHaveBeenCalledWith([]);
         expect(handler.entityName).toBe('product');
-        expect(handler.entityIds).toEqual([
-            'abc',
-            'xyz',
-        ]);
+        expect(handler.entityIds).toEqual(['abc', 'xyz']);
         expect(result).toBe(true);
     });
 
@@ -80,9 +71,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             .mockImplementation(() => Promise.resolve(payload));
         const syncMethod = jest.spyOn(handler.syncService, 'sync').mockImplementation(() => Promise.resolve(true));
 
-        const changes = [
-            { type: 'overwrite', field: 'description', value: 'test' },
-        ];
+        const changes = [{ type: 'overwrite', field: 'description', value: 'test' }];
 
         const result = await handler.bulkEdit([], changes);
 
@@ -112,18 +101,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 delete: {},
             };
             handler.entityName = 'product';
-            handler.entityIds = [
-                'product_1',
-                'product_2',
-            ];
+            handler.entityIds = ['product_1', 'product_2'];
         });
 
         const cases = [
-            [
-                'empty changes',
-                [],
-                {},
-            ],
+            ['empty changes', [], {}],
             [
                 'invalid field',
                 [
@@ -311,10 +293,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'invalidField',
-                        value: [
-                            'category_1',
-                            'category_2',
-                        ],
+                        value: ['category_1', 'category_2'],
                     },
                 ],
                 {},
@@ -325,10 +304,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -365,10 +341,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -429,10 +402,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'overwrite',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -561,10 +531,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'add',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -603,10 +570,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'productLocations',
-                        value: [
-                            { name: 'location 2' },
-                            { name: 'location 3' },
-                        ],
+                        value: [{ name: 'location 2' }, { name: 'location 3' }],
                     },
                 ],
                 {
@@ -650,10 +614,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'clear',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -721,10 +682,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {},
@@ -755,10 +713,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -796,11 +751,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                            { id: 'category_3' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }, { id: 'category_3' }],
                     },
                 ],
                 {
@@ -850,10 +801,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'remove',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -899,10 +847,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {

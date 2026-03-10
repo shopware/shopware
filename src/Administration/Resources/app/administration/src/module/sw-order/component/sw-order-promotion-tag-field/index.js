@@ -12,10 +12,7 @@ const { format } = Utils;
 export default {
     template,
 
-    emits: [
-        'update:value',
-        'on-remove-code',
-    ],
+    emits: ['update:value', 'on-remove-code'],
 
     props: {
         currency: {
@@ -58,10 +55,7 @@ export default {
                 code: this.newTagName,
             };
 
-            this.$emit('update:value', [
-                ...this.value,
-                newTagItem,
-            ]);
+            this.$emit('update:value', [...this.value, newTagItem]);
 
             this.newTagName = '';
         },

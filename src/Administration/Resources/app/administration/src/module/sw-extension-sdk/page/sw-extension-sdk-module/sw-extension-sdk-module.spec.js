@@ -30,10 +30,7 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'router-link': {
                     props: {
                         to: {
-                            type: [
-                                String,
-                                Object,
-                            ],
+                            type: [String, Object],
                             required: true,
                         },
                     },

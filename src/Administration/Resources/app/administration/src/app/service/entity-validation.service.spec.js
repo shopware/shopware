@@ -18,14 +18,9 @@ const entityFactory = new EntityFactory();
 
 describe('src/app/service/entity-validation.service.js', () => {
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(
-            ([
-                entityName,
-                definitionData,
-            ]) => {
-                Shopware.EntityDefinition.add(entityName, new EntityDefinition(definitionData));
-            },
-        );
+        Object.entries(entitySchemaMock).forEach(([entityName, definitionData]) => {
+            Shopware.EntityDefinition.add(entityName, new EntityDefinition(definitionData));
+        });
     });
 
     it('should create a required shopware error with the right error code and source pointer', () => {

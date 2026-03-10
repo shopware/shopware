@@ -27,10 +27,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         valueTypes: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'string',
         },
@@ -161,10 +158,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 Object.keys(mappingTypes).forEach((type) => {
                     if (type === this.valueTypes || this.valueTypes.includes(type)) {
-                        types = [
-                            ...types,
-                            ...mappingTypes[type],
-                        ];
+                        types = [...types, ...mappingTypes[type]];
                         types.sort();
                     }
                 });

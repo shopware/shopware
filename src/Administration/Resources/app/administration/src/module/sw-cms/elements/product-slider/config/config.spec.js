@@ -24,10 +24,7 @@ const defaultConfig = {
         value: '',
     },
     products: {
-        value: [
-            'de8de156da134dabac24257f81ff282f',
-            '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-        ],
+        value: ['de8de156da134dabac24257f81ff282f', '2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
         source: 'static',
     },
     productStreamSorting: {
@@ -40,10 +37,7 @@ const defaultConfig = {
 
 const productStreamMock = {
     name: 'Cheap pc parts',
-    apiFilter: [
-        'foo',
-        'bar',
-    ],
+    apiFilter: ['foo', 'bar'],
     invalid: false,
 };
 
@@ -217,10 +211,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        const expectedProductIds = [
-            'de8de156da134dabac24257f81ff282f',
-            '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-        ];
+        const expectedProductIds = ['de8de156da134dabac24257f81ff282f', '2fbb5fe2e29a4d70aa5854ce7ce3e20b'];
 
         expect(wrapper.vm.tempProductIds).toEqual(expectedProductIds);
         expect(wrapper.vm.element.config.products.value).toBeNull();

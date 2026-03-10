@@ -263,10 +263,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should not have an disabled create new button', async () => {
-        global.activeAclRoles = [
-            'order.editor',
-            'document.viewer',
-        ];
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
         wrapper = await createWrapper();
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
 
@@ -400,10 +397,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show Select document type modal when click on Create new button', async () => {
-        global.activeAclRoles = [
-            'order.editor',
-            'document.viewer',
-        ];
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
         wrapper = await createWrapper();
 
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
@@ -476,9 +470,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper = await createWrapper();
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
@@ -495,9 +487,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper = await createWrapper('sw.order.detail.documents');
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
 
         const columns = wrapper.findAll('.sw-data-grid__cell--header');
@@ -511,9 +501,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper = await createWrapper();
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
@@ -536,16 +524,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await wrapper.setProps({
             order: {
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             },
         });
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
 
         expect(wrapper.find('.sw-card-filter').exists()).toBeTruthy();
@@ -556,9 +540,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper = await createWrapper();
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
 
         expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeTruthy();
@@ -721,10 +703,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show order unsaved tooltip message on Create document button correctly', async () => {
-        global.activeAclRoles = [
-            'order.editor',
-            'document.viewer',
-        ];
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
         wrapper = await createWrapper();
 
         Shopware.Store.get('swOrderDetail').editing = true;

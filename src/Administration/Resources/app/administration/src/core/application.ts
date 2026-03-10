@@ -647,63 +647,44 @@ class ApplicationBootstrapper {
             .filter(([pluginName]) => {
                 // Filter the swag-commercial bundle because it was loaded beforehand
                 // Filter the Administration bundle because it is the main application
-                return ![
-                    'swag-commercial',
-                    'SwagCommercial',
-                    'Administration',
-                ].includes(pluginName);
+                return !['swag-commercial', 'SwagCommercial', 'Administration'].includes(pluginName);
             })
-            .map(
-                ([
-                    ,
-                    plugin,
-                ]) => this.injectPlugin(plugin),
-            );
+            .map(([, plugin]) => this.injectPlugin(plugin));
 
         // inject iFrames of plugins
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const bundles = Shopware.Context.app.config.bundles as bundlesPluginResponse;
-        Object.entries(bundles).forEach(
-            ([
-                bundleName,
-                bundle,
-            ]) => {
-                if (isDevelopmentMode) {
-                    // replace the baseUrl with the webpack url of the html file
-                    Object.entries(plugins).forEach(
-                        ([
-                            pluginName,
-                            entryFiles,
-                        ]) => {
-                            const stringUtils = Shopware.Utils.string;
-                            const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
+        Object.entries(bundles).forEach(([bundleName, bundle]) => {
+            if (isDevelopmentMode) {
+                // replace the baseUrl with the webpack url of the html file
+                Object.entries(plugins).forEach(([pluginName, entryFiles]) => {
+                    const stringUtils = Shopware.Utils.string;
+                    const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
 
-                            if (bundleName === camelCasePluginName && !!entryFiles.html) {
-                                bundle.baseUrl = entryFiles.html;
-                            }
+                    if (bundleName === camelCasePluginName && !!entryFiles.html) {
+                        bundle.baseUrl = entryFiles.html;
+                    }
 
-                            // add origin if not set yet
-                            if (bundle.baseUrl) {
-                                bundle.baseUrl = new URL(bundle.baseUrl, window.origin).toString();
-                            }
-                        },
-                    );
-                }
-
-                if (!bundle.baseUrl) {
-                    return;
-                }
-
-                this.injectIframe({
-                    active: bundle.active,
-                    integrationId: bundle.integrationId,
-                    bundleName,
-                    bundleVersion: bundle.version,
-                    iframeSrc: bundle.baseUrl,
-                    bundleType: bundle.type,
+                    // add origin if not set yet
+                    if (bundle.baseUrl) {
+                        bundle.baseUrl = new URL(bundle.baseUrl, window.origin).toString();
+                    }
                 });
-            },
-        );
+            }
+
+            if (!bundle.baseUrl) {
+                return;
+            }
+
+            this.injectIframe({
+                active: bundle.active,
+                integrationId: bundle.integrationId,
+                bundleName,
+                bundleVersion: bundle.version,
+                iframeSrc: bundle.baseUrl,
+                bundleType: bundle.type,
+            });
+        });
 
         return Promise.all(injectAllPlugins);
     }
@@ -721,9 +702,7 @@ class ApplicationBootstrapper {
             allScripts.push(this.injectJs(plugin.js as string));
 
             try {
-                return await Promise.all([
-                    ...allScripts,
-                ]);
+                return await Promise.all([...allScripts]);
             } catch (_) {
                 console.warn('Error while loading plugin', plugin);
 
@@ -746,10 +725,7 @@ class ApplicationBootstrapper {
         }
 
         try {
-            return await Promise.all([
-                ...allScripts,
-                ...allStyles,
-            ]);
+            return await Promise.all([...allScripts, ...allStyles]);
         } catch (_) {
             console.warn('Error while loading plugin', plugin);
 

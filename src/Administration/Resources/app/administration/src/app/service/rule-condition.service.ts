@@ -137,21 +137,10 @@ export default class RuleConditionService {
             this.operators.greaterThanEquals,
             this.operators.lowerThanEquals,
         ],
-        singleStore: [
-            this.operators.equals,
-            this.operators.notEquals,
-        ],
-        multiStore: [
-            this.operators.isOneOf,
-            this.operators.isNoneOf,
-        ],
-        string: [
-            this.operators.equals,
-            this.operators.notEquals,
-        ],
-        bool: [
-            this.operators.equals,
-        ],
+        singleStore: [this.operators.equals, this.operators.notEquals],
+        multiStore: [this.operators.isOneOf, this.operators.isNoneOf],
+        string: [this.operators.equals, this.operators.notEquals],
+        bool: [this.operators.equals],
         number: [
             this.operators.equals,
             this.operators.greaterThan,
@@ -168,13 +157,8 @@ export default class RuleConditionService {
             this.operators.lowerThanEquals,
             this.operators.notEquals,
         ],
-        isNet: [
-            this.operators.gross,
-            this.operators.net,
-        ],
-        empty: [
-            this.operators.empty,
-        ],
+        isNet: [this.operators.gross, this.operators.net],
+        empty: [this.operators.empty],
         zipCode: [
             this.operators.greaterThan,
             this.operators.greaterThanEquals,
@@ -278,13 +262,7 @@ export default class RuleConditionService {
             this.addCondition('scriptRule', {
                 component: 'sw-condition-script',
                 label: (script?.translated?.name || script.name) ?? '',
-                scopes:
-                    script.group === 'item'
-                        ? [
-                              'global',
-                              'lineItem',
-                          ]
-                        : ['global'],
+                scopes: script.group === 'item' ? ['global', 'lineItem'] : ['global'],
                 group: script.group,
                 scriptId: script.id,
                 appScriptCondition: {
@@ -319,12 +297,7 @@ export default class RuleConditionService {
 
         const transformedConfig = { ...config };
 
-        if (
-            [
-                'checkbox',
-                'switch',
-            ].includes(transformedConfig?.type)
-        ) {
+        if (['checkbox', 'switch'].includes(transformedConfig?.type)) {
             return this.getTransformedBooleanFieldConfig(transformedConfig);
         }
 
@@ -373,33 +346,16 @@ export default class RuleConditionService {
 
     getOperatorOptionsByIdentifiers(identifiers: Array<string>, isMatchAny = false) {
         return identifiers.map((identifier) => {
-            const option = Object.entries(this.operators).find(
-                ([
-                    name,
-                    operator,
-                ]) => {
-                    if (
-                        isMatchAny &&
-                        [
-                            'equals',
-                            'notEquals',
-                        ].includes(name)
-                    ) {
-                        return false;
-                    }
-                    if (
-                        !isMatchAny &&
-                        [
-                            'isOneOf',
-                            'isNoneOf',
-                        ].includes(name)
-                    ) {
-                        return false;
-                    }
+            const option = Object.entries(this.operators).find(([name, operator]) => {
+                if (isMatchAny && ['equals', 'notEquals'].includes(name)) {
+                    return false;
+                }
+                if (!isMatchAny && ['isOneOf', 'isNoneOf'].includes(name)) {
+                    return false;
+                }
 
-                    return identifier === operator.identifier;
-                },
-            );
+                return identifier === operator.identifier;
+            });
 
             if (option) {
                 return option.pop();
@@ -520,16 +476,11 @@ export default class RuleConditionService {
 
     getAwarenessKeysWithEqualsAnyConfig() {
         const equalsAnyConfigurations: Array<string> = [];
-        Object.entries(this.awarenessConfiguration).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                if (value?.equalsAny?.length && value?.equalsAny?.length > 0) {
-                    equalsAnyConfigurations.push(key);
-                }
-            },
-        );
+        Object.entries(this.awarenessConfiguration).forEach(([key, value]) => {
+            if (value?.equalsAny?.length && value?.equalsAny?.length > 0) {
+                equalsAnyConfigurations.push(key);
+            }
+        });
 
         return equalsAnyConfigurations;
     }
@@ -610,11 +561,7 @@ export default class RuleConditionService {
         }
 
         if (equalsAny) {
-            restrictions.push(
-                Criteria.not('AND', [
-                    Criteria.equalsAny('conditions.type', equalsAny),
-                ]),
-            );
+            restrictions.push(Criteria.not('AND', [Criteria.equalsAny('conditions.type', equalsAny)]));
         }
 
         if (restrictions.length === 0) {
@@ -824,24 +771,10 @@ export default class RuleConditionService {
     getRestrictionsByGroup(...wantedGroups: Array<string>) {
         const entries = Object.entries(this.$store);
 
-        return entries.reduce(
-            (
-                acc,
-                [
-                    restrictionName,
-                    condition,
-                ],
-            ) => {
-                const inGroup = wantedGroups.includes(condition.group);
+        return entries.reduce((acc, [restrictionName, condition]) => {
+            const inGroup = wantedGroups.includes(condition.group);
 
-                return inGroup
-                    ? [
-                          ...acc,
-                          restrictionName,
-                      ]
-                    : acc;
-            },
-            [] as Array<string>,
-        );
+            return inGroup ? [...acc, restrictionName] : acc;
+        }, [] as Array<string>);
     }
 }

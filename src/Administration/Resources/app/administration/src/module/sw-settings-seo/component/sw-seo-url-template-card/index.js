@@ -15,10 +15,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'seoUrlTemplateService',
-        'repositoryFactory',
-    ],
+    inject: ['seoUrlTemplateService', 'repositoryFactory'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -153,22 +150,17 @@ export default {
         createVariableOptions(id, data) {
             const storeOptions = [];
 
-            Object.entries(data).forEach(
-                ([
-                    property,
-                    value,
-                ]) => {
-                    storeOptions.push({ name: `${property}` });
+            Object.entries(data).forEach(([property, value]) => {
+                storeOptions.push({ name: `${property}` });
 
-                    if (value instanceof Object) {
-                        Object.keys(value).forEach((innerProperty) => {
-                            storeOptions.push({
-                                name: `${property}.${innerProperty}`,
-                            });
+                if (value instanceof Object) {
+                    Object.keys(value).forEach((innerProperty) => {
+                        storeOptions.push({
+                            name: `${property}.${innerProperty}`,
                         });
-                    }
-                },
-            );
+                    });
+                }
+            });
 
             this.variableStores.id = storeOptions;
         },

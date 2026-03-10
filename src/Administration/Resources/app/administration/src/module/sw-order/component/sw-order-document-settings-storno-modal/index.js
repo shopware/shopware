@@ -7,10 +7,7 @@ import template from './sw-order-document-settings-storno-modal.html.twig';
 export default {
     template,
 
-    emits: [
-        'loading-document',
-        'loading-preview',
-    ],
+    emits: ['loading-document', 'loading-preview'],
 
     props: {
         order: {

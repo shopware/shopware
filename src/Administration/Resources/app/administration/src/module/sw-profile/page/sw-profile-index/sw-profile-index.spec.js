@@ -134,9 +134,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be able to save own user', async () => {
-        const wrapper = await createWrapper([
-            'user.update_profile',
-        ]);
+        const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
         await wrapper.setData({

@@ -172,10 +172,7 @@ describe('src/core/telemetry/index.js', () => {
     describe('auto tracked elements', () => {
         it('emit user_interaction on clickable elements', async () => {
             const telemetry = new Telemetry({
-                queries: [
-                    () =>
-                        document ? [document.getElementById('tested-element')] : [],
-                ],
+                queries: [() => (document ? [document.getElementById('tested-element')] : [])],
             });
             const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
@@ -225,10 +222,7 @@ describe('src/core/telemetry/index.js', () => {
 
         it('overrides the event listened to if data-analytics-event is set', async () => {
             const telemetry = new Telemetry({
-                queries: [
-                    () =>
-                        document ? [document.getElementById('tested-element')] : [],
-                ],
+                queries: [() => (document ? [document.getElementById('tested-element')] : [])],
             });
             const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 

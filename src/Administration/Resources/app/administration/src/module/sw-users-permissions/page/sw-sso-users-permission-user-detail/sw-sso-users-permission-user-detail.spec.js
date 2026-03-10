@@ -124,9 +124,7 @@ async function createWrapper(user) {
         status: 200,
         response: {
             included: [],
-            data: [
-                userResult,
-            ],
+            data: [userResult],
         },
     });
 

@@ -30,15 +30,9 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    emits: [
-        'loading-changed',
-        'config-changed',
-    ],
+    emits: ['loading-changed', 'config-changed'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
 
     props: {
         domain: {
@@ -219,12 +213,7 @@ export default {
             }
 
             // Add select properties
-            if (
-                [
-                    'single-select',
-                    'multi-select',
-                ].includes(bind.type)
-            ) {
+            if (['single-select', 'multi-select'].includes(bind.type)) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
             }
@@ -322,9 +311,7 @@ export default {
             const componentName = element.config ? element.config.componentName : undefined;
 
             // Special case for sw-text-editor, because we still support the legacy one
-            const componentsWithMeteorSupport = [
-                'sw-text-editor',
-            ];
+            const componentsWithMeteorSupport = ['sw-text-editor'];
 
             const typesWithMeteorSupport = [
                 'bool',
@@ -371,12 +358,7 @@ export default {
             }
 
             // Handle select properties
-            if (
-                [
-                    'single-select',
-                    'multi-select',
-                ].includes(element.type)
-            ) {
+            if (['single-select', 'multi-select'].includes(element.type)) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
             }

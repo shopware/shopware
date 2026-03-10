@@ -50,30 +50,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'media_folder_configuration_media_thumbnail_size:update',
                 'system_config:read',
             ],
-            dependencies: [
-                'media.viewer',
-            ],
+            dependencies: ['media.viewer'],
         },
         creator: {
-            privileges: [
-                'media:create',
-                'media_folder:create',
-                'media_default_folder:create',
-            ],
-            dependencies: [
-                'media.viewer',
-                'media.editor',
-            ],
+            privileges: ['media:create', 'media_folder:create', 'media_default_folder:create'],
+            dependencies: ['media.viewer', 'media.editor'],
         },
         deleter: {
-            privileges: [
-                'media:delete',
-                'media_folder:delete',
-                'media_default_folder:delete',
-            ],
-            dependencies: [
-                'media.viewer',
-            ],
+            privileges: ['media:delete', 'media_folder:delete', 'media_default_folder:delete'],
+            dependencies: ['media.viewer'],
         },
     },
 });

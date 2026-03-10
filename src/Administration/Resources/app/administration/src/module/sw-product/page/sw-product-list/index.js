@@ -22,11 +22,7 @@ export default {
         'filterFactory',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing'), Mixin.getByName('placeholder')],
 
     data() {
         const data = {
@@ -337,11 +333,7 @@ export default {
             // Clone product query to its variant
             const variantCriteria = cloneDeep(criteria);
             criteria.addFilter(Criteria.equals('product.parentId', null));
-            variantCriteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('product.parentId', null),
-                ]),
-            );
+            variantCriteria.addFilter(Criteria.not('AND', [Criteria.equals('product.parentId', null)]));
 
             this.activeFilterNumber = criteria.filters.length - 1;
 

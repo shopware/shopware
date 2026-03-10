@@ -123,10 +123,7 @@ export default function initializeContext(): void {
             };
         }
 
-        const [
-            extensionName,
-            extension,
-        ] = extensionEntry;
+        const [extensionName, extension] = extensionEntry;
 
         return {
             name: extensionName,

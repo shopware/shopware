@@ -33,10 +33,7 @@ export default {
         },
         // eslint-disable-next-line vue/require-default-prop
         dataSource: {
-            type: [
-                Array,
-                Object,
-            ],
+            type: [Array, Object],
             required: false,
             default(props) {
                 return props.localMode && props.collection ? props.collection : null;

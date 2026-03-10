@@ -20,9 +20,7 @@ export default {
         'ssoSettingsService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

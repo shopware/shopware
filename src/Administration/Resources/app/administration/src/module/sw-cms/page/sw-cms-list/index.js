@@ -19,11 +19,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('user-settings'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification'), Mixin.getByName('user-settings')],
 
     data() {
         return {
@@ -48,11 +44,7 @@ export default {
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
-            assignablePageTypes: [
-                'categories',
-                'products',
-                'landingPages',
-            ],
+            assignablePageTypes: ['categories', 'products', 'landingPages'],
             searchConfigEntity: 'cms_page',
             showLayoutSetAsDefaultModal: false,
             defaultCategoryId: '',
@@ -146,9 +138,7 @@ export default {
                     type: 'multi',
                     operator: 'OR',
                     queries: this.assignablePageTypes.map((name) =>
-                        Criteria.not('OR', [
-                            Criteria.equals(`${name}.id`, null),
-                        ]),
+                        Criteria.not('OR', [Criteria.equals(`${name}.id`, null)]),
                     ),
                 },
             ];
@@ -373,10 +363,7 @@ export default {
         },
 
         onSortingChanged(value) {
-            [
-                this.sortBy,
-                this.sortDirection,
-            ] = value.split(':');
+            [this.sortBy, this.sortDirection] = value.split(':');
             this.resetList();
             this.saveGridUserSettings();
         },
@@ -598,10 +585,7 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [
-                this.defaultProductId,
-                this.defaultCategoryId,
-            ].includes(page.id);
+            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
             const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
 

@@ -11,20 +11,11 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'syncService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'syncService', 'acl'],
 
-    emits: [
-        'close',
-        'finish',
-    ],
+    emits: ['close', 'finish'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -153,60 +144,50 @@ export default {
                 this.tag = this.tagRepository.create();
             }
 
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation === 'many_to_many') {
-                        this.assignmentsToBeAdded[propertyName] = {};
-                        this.assignmentsToBeDeleted[propertyName] = {};
-                    }
-                },
-            );
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation === 'many_to_many') {
+                    this.assignmentsToBeAdded[propertyName] = {};
+                    this.assignmentsToBeDeleted[propertyName] = {};
+                }
+            });
         },
 
         async onSave() {
             this.isLoading = true;
             const deletePayload = [];
 
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation !== 'many_to_many') {
-                        return;
-                    }
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation !== 'many_to_many') {
+                    return;
+                }
 
-                    const toBeAdded = Object.keys(this.assignmentsToBeAdded[propertyName]);
+                const toBeAdded = Object.keys(this.assignmentsToBeAdded[propertyName]);
 
-                    if (toBeAdded.length !== 0) {
-                        toBeAdded.forEach((id) => {
-                            this.tag[propertyName].add(this.assignmentsToBeAdded[propertyName][id]);
-                        });
-                    }
-
-                    const toBeDeleted = Object.keys(this.assignmentsToBeDeleted[propertyName]);
-
-                    if (toBeDeleted.length === 0) {
-                        return;
-                    }
-
-                    const ids = toBeDeleted.map((id) => {
-                        return {
-                            [property.reference]: id,
-                            [property.local]: this.tag.id,
-                        };
+                if (toBeAdded.length !== 0) {
+                    toBeAdded.forEach((id) => {
+                        this.tag[propertyName].add(this.assignmentsToBeAdded[propertyName][id]);
                     });
+                }
 
-                    deletePayload.push({
-                        action: 'delete',
-                        entity: property.mapping,
-                        payload: ids,
-                    });
-                },
-            );
+                const toBeDeleted = Object.keys(this.assignmentsToBeDeleted[propertyName]);
+
+                if (toBeDeleted.length === 0) {
+                    return;
+                }
+
+                const ids = toBeDeleted.map((id) => {
+                    return {
+                        [property.reference]: id,
+                        [property.local]: this.tag.id,
+                    };
+                });
+
+                deletePayload.push({
+                    action: 'delete',
+                    entity: property.mapping,
+                    payload: ids,
+                });
+            });
 
             if (deletePayload.length) {
                 await this.syncService.sync(deletePayload, {}, { 'single-operation': 1 });

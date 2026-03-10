@@ -78,11 +78,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('availabilityRuleId', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', ruleId)]));
 
                     return criteria;
                 },
@@ -184,11 +180,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('availabilityRuleId', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', ruleId)]));
 
                     return criteria;
                 },
@@ -246,11 +238,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('availabilityRuleId', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', ruleId)]));
 
                     return criteria;
                 },
@@ -323,11 +311,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 association: 'orderRules',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('orderRules.id', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('orderRules.id', ruleId)]));
 
                     return criteria;
                 },
@@ -400,11 +384,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 association: 'personaRules',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('personaRules.id', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('personaRules.id', ruleId)]));
 
                     return criteria;
                 },
@@ -477,11 +457,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 association: 'cartRules',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('cartRules.id', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('cartRules.id', ruleId)]));
 
                     return criteria;
                 },

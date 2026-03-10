@@ -118,9 +118,7 @@ async function createWrapper(privileges = []) {
 // These two functions contain the bare minimum for the unit test to complete
 function createCustomerGroupWithCustomer() {
     return {
-        customers: [
-            {},
-        ],
+        customers: [{}],
         salesChannels: [],
     };
 }

@@ -36,100 +36,100 @@ describe('core/factory/http.factory.js', () => {
         expect(mock.history.get).toHaveLength(1);
     });
 
-    it.each([
-        ['FRAMEWORK__STORE_SESSION_EXPIRED'],
-        ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
-    ])('should intercept and retry if error code matches', async (errorCode) => {
-        mock.onGet('/store-route-requiring-auth')
-            .replyOnce(403, {
+    it.each([['FRAMEWORK__STORE_SESSION_EXPIRED'], ['FRAMEWORK__STORE_SHOP_SECRET_INVALID']])(
+        'should intercept and retry if error code matches',
+        async (errorCode) => {
+            mock.onGet('/store-route-requiring-auth')
+                .replyOnce(403, {
+                    errors: [
+                        {
+                            code: errorCode,
+                        },
+                    ],
+                })
+                .onGet('/store-route-requiring-auth')
+                .replyOnce(200, {});
+
+            expect(mock.history.get).toHaveLength(0);
+
+            await httpClient.get('/store-route-requiring-auth');
+
+            expect(mock.history.get).toHaveLength(2);
+        },
+    );
+
+    it.each([['FRAMEWORK__STORE_SESSION_EXPIRED'], ['FRAMEWORK__STORE_SHOP_SECRET_INVALID']])(
+        'should reject the request and reset the counter once the retry limit is hit',
+        async (errorCode) => {
+            mock.onGet('/store-route-requiring-auth').reply(403, {
                 errors: [
                     {
                         code: errorCode,
                     },
                 ],
-            })
-            .onGet('/store-route-requiring-auth')
-            .replyOnce(200, {});
+            });
 
-        expect(mock.history.get).toHaveLength(0);
+            const getError = async () => {
+                try {
+                    await httpClient.get('/store-route-requiring-auth');
 
-        await httpClient.get('/store-route-requiring-auth');
+                    throw new Error('Expected error to be thrown');
+                } catch (error) {
+                    return error;
+                }
+            };
 
-        expect(mock.history.get).toHaveLength(2);
-    });
+            const error = await getError();
+            expect(error.response.status).toBe(403);
+            expect(error.response.data).toEqual({
+                errors: [
+                    {
+                        code: errorCode,
+                    },
+                ],
+            });
 
-    it.each([
-        ['FRAMEWORK__STORE_SESSION_EXPIRED'],
-        ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
-    ])('should reject the request and reset the counter once the retry limit is hit', async (errorCode) => {
-        mock.onGet('/store-route-requiring-auth').reply(403, {
-            errors: [
-                {
-                    code: errorCode,
-                },
-            ],
-        });
+            expect(mock.history.get).toHaveLength(2);
+        },
+    );
 
-        const getError = async () => {
-            try {
-                await httpClient.get('/store-route-requiring-auth');
+    it.each([['FRAMEWORK__STORE_SESSION_EXPIRED'], ['FRAMEWORK__STORE_SHOP_SECRET_INVALID']])(
+        'should treat each request separately',
+        async (errorCode) => {
+            mock.onGet('/store-route-requiring-auth').reply(403, {
+                errors: [
+                    {
+                        code: errorCode,
+                    },
+                ],
+            });
 
-                throw new Error('Expected error to be thrown');
-            } catch (error) {
-                return error;
-            }
-        };
+            const getError = async () => {
+                try {
+                    await Promise.all([
+                        httpClient.get('/store-route-requiring-auth'),
+                        httpClient.get('/store-route-requiring-auth'),
+                    ]);
 
-        const error = await getError();
-        expect(error.response.status).toBe(403);
-        expect(error.response.data).toEqual({
-            errors: [
-                {
-                    code: errorCode,
-                },
-            ],
-        });
+                    throw new Error('Expected error to be thrown');
+                } catch (error) {
+                    return error;
+                }
+            };
 
-        expect(mock.history.get).toHaveLength(2);
-    });
+            const error = await getError();
+            expect(error.response.status).toBe(403);
+            expect(error.response.data).toEqual({
+                errors: [
+                    {
+                        code: errorCode,
+                    },
+                ],
+            });
 
-    it.each([
-        ['FRAMEWORK__STORE_SESSION_EXPIRED'],
-        ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
-    ])('should treat each request separately', async (errorCode) => {
-        mock.onGet('/store-route-requiring-auth').reply(403, {
-            errors: [
-                {
-                    code: errorCode,
-                },
-            ],
-        });
-
-        const getError = async () => {
-            try {
-                await Promise.all([
-                    httpClient.get('/store-route-requiring-auth'),
-                    httpClient.get('/store-route-requiring-auth'),
-                ]);
-
-                throw new Error('Expected error to be thrown');
-            } catch (error) {
-                return error;
-            }
-        };
-
-        const error = await getError();
-        expect(error.response.status).toBe(403);
-        expect(error.response.data).toEqual({
-            errors: [
-                {
-                    code: errorCode,
-                },
-            ],
-        });
-
-        expect(mock.history.get).toHaveLength(4);
-    });
+            expect(mock.history.get).toHaveLength(4);
+        },
+    );
 
     it('should add current vue route, as http header to trace', async () => {
         Shopware.Application.view = {
@@ -145,10 +145,7 @@ describe('core/factory/http.factory.js', () => {
         mock.onGet('/test').reply((request) => {
             expect(request.headers['shopware-admin-active-route']).toBe('sw-dashboard-index');
 
-            return [
-                200,
-                {},
-            ];
+            return [200, {}];
         });
 
         await httpClient.get('/test');
@@ -180,10 +177,7 @@ describe('core/factory/http.factory.js', () => {
                             entity: 'product',
                             usages: [
                                 {
-                                    count: [
-                                        2,
-                                        2,
-                                    ],
+                                    count: [2, 2],
                                     entityName: 'category',
                                 },
                             ],

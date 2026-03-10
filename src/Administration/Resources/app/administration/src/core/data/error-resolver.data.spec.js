@@ -91,9 +91,7 @@ describe('src/core/data/error-resolver.data', () => {
         });
 
         it('should convert to ShopwareError', () => {
-            const errors = [
-                { source: { pointer: '/0/firstName' }, code: 'CODE1' },
-            ];
+            const errors = [{ source: { pointer: '/0/firstName' }, code: 'CODE1' }];
 
             const changeset = [
                 {

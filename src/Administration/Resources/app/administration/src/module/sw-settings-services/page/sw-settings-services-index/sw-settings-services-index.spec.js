@@ -141,10 +141,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
 
         expect(footerLinks).toHaveLength(2);
 
-        const [
-            documentationLink,
-            tosLink,
-        ] = footerLinks;
+        const [documentationLink, tosLink] = footerLinks;
 
         expect(documentationLink.attributes('href')).toBe('https://docs.shopware.com/services');
         expect(tosLink.attributes('href')).toBe('https://shopware.com/agb');

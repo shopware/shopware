@@ -75,10 +75,7 @@ class MediaApiService extends ApiService {
         const tagListener = this.hasListeners(uploadTag) ? this.$listeners[uploadTag] : [];
         const defaultListeners = this.hasDefaultListeners() ? this.$listeners.default : [];
 
-        return [
-            ...tagListener,
-            ...defaultListeners,
-        ];
+        return [...tagListener, ...defaultListeners];
     }
 
     _createUploadEvent(action, uploadTag, payload) {

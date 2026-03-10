@@ -466,9 +466,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should hide settings menu if no item is visible', async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [
-            { privilege: 'no-set', path: 'it' },
-        ];
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [{ privilege: 'no-set', path: 'it' }];
 
         const wrapper = await createWrapper({
             privileges: [],
@@ -490,16 +488,10 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('settings should be shown if all item is visible', async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [
-            { privilege: 'priv-1' },
-            { privilege: 'priv-2' },
-        ];
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [{ privilege: 'priv-1' }, { privilege: 'priv-2' }];
 
         const wrapper = await createWrapper({
-            privileges: [
-                'priv-1',
-                'priv2',
-            ],
+            privileges: ['priv-1', 'priv2'],
             props: {
                 entry: {
                     id: 'sw-settings.index',
@@ -519,10 +511,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('settings should be shown if one item is visible', async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [
-            { privilege: 'priv-1' },
-            { privilege: 'priv-2' },
-        ];
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [{ privilege: 'priv-1' }, { privilege: 'priv-2' }];
 
         const wrapper = await createWrapper({
             privileges: ['priv-1'],

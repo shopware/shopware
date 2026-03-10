@@ -102,6 +102,26 @@ class CustomerLookupToolTest extends TestCase
         static::assertStringContainsString('email, customerNumber, or customerId', $data['error']);
     }
 
+    public function testOrderCustomerWithNullOrderIsSkipped(): void
+    {
+        $customerId = Uuid::randomHex();
+        $customer = $this->buildCustomer($customerId);
+
+        $orderCustomerWithoutOrder = new OrderCustomerEntity();
+        $orderCustomerWithoutOrder->setId(Uuid::randomHex());
+        $orderCustomerWithoutOrder->setUniqueIdentifier(Uuid::randomHex());
+
+        $customer->getOrderCustomers()?->add($orderCustomerWithoutOrder);
+
+        $tool = $this->createTool($customer);
+        $output = ($tool)(email: 'john@example.com');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertCount(1, $data['data']['recentOrders']);
+    }
+
     public function testDeniesAccessWithoutPermission(): void
     {
         $source = new AdminApiSource(null, null);

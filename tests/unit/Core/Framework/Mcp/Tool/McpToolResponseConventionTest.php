@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
+use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -105,6 +106,17 @@ class McpToolResponseConventionTest extends TestCase
         static::assertArrayHasKey('truncatedMessage', $result['_meta']);
     }
 
+    public function testDryRunSwallowsRollBackException(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('rollBack')->willThrowException(new \RuntimeException('rollback failed'));
+
+        $helper = new McpToolResponseTestHelper();
+        $result = json_decode($helper->callDryRun($connection, fn () => '{"success":true}'), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($result['success']);
+    }
+
     public function testOversizedAssocResponseStillTooLargeClearsData(): void
     {
         $helper = new McpToolResponseTestHelper();
@@ -139,5 +151,13 @@ class McpToolResponseTestHelper
     public function callError(string $message): string
     {
         return $this->error($message);
+    }
+
+    /**
+     * @param callable(): string $operation
+     */
+    public function callDryRun(Connection $connection, callable $operation): string
+    {
+        return $this->executeWithDryRun($connection, $operation);
     }
 }

@@ -385,6 +385,59 @@ class McpEntityIncludesTest extends TestCase
         static::assertArrayHasKey('other_entity', $includes);
     }
 
+    public function testCollectIncludesStopsOnAlreadyVisitedEntity(): void
+    {
+        [$product] = $this->compileDefinitions([
+            'product' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new ManyToOneAssociationField('manufacturer', 'manufacturer_id', 'manufacturer', 'id'))->addFlags(new ApiAware()),
+                (new ManyToOneAssociationField('cover', 'cover_id', 'media', 'id'))->addFlags(new ApiAware()),
+            ],
+            'manufacturer' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new ManyToOneAssociationField('logo', 'logo_id', 'media', 'id'))->addFlags(new ApiAware()),
+            ],
+            'media' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new StringField('file_name', 'fileName'))->addFlags(new ApiAware()),
+            ],
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('manufacturer');
+        $criteria->getAssociation('manufacturer')->addAssociation('logo');
+        $criteria->addAssociation('cover');
+
+        $this->applyDefaultIncludes($product, $criteria);
+
+        $includes = $criteria->getIncludes();
+        static::assertNotNull($includes);
+        static::assertArrayHasKey('product', $includes);
+        static::assertArrayHasKey('manufacturer', $includes);
+        static::assertArrayHasKey('media', $includes);
+    }
+
+    public function testAddTranslatedSkipsNonAssociationCriteriaKey(): void
+    {
+        [$product] = $this->compileDefinitions([
+            'product' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                new TranslatedField('name'),
+                (new StringField('product_number', 'productNumber'))->addFlags(new ApiAware()),
+            ],
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('nonExistentField');
+        $criteria->setIncludes(['product' => ['id', 'name']]);
+
+        $this->applyDefaultIncludes($product, $criteria);
+
+        $includes = $criteria->getIncludes();
+        static::assertNotNull($includes);
+        static::assertContains('translated', $includes['product']);
+    }
+
     public function testEnsureTranslatedSkipsEntityWithoutTranslatedFields(): void
     {
         [$product] = $this->compileDefinitions([

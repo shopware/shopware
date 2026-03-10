@@ -94,6 +94,24 @@ class ProductCreateToolTest extends TestCase
         static::assertSame($catId, $data['data']['categories'][0]['id']);
     }
 
+    #[TestDox('skips empty category names from trailing commas')]
+    public function testEmptyCategoryNamesAreSkipped(): void
+    {
+        $catId = Uuid::randomHex();
+        $tool = $this->createTool(Uuid::randomHex(), Uuid::randomHex(), categoryIds: ['Shoes' => $catId]);
+        $output = ($tool)(
+            name: 'Test Product',
+            productNumber: 'SW-TEST-010',
+            grossPrice: 59.99,
+            categories: 'Shoes,',
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertCount(1, $data['data']['categories']);
+    }
+
     #[TestDox('omits categories from payload when names do not match')]
     public function testUnresolvedCategoriesAreOmitted(): void
     {

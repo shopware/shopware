@@ -120,9 +120,7 @@ class McpTool extends XmlElement
         $properties = [];
 
         foreach ($element->getElementsByTagName('property') as $property) {
-            if (!$property instanceof \DOMElement) {
-                continue;
-            }
+            \assert($property instanceof \DOMElement);
 
             $name = $property->getAttribute('name');
             $entry = ['type' => $property->getAttribute('type') ?: 'string'];

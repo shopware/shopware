@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -84,6 +86,27 @@ class SystemConfigWriteToolTest extends TestCase
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
         static::assertTrue($data['success']);
         static::assertSame('plain text value', $data['data']['newValue']);
+    }
+
+    public function testDeniesAccessWithoutUpdatePermission(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions([]);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->never())->method('set');
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new SystemConfigWriteTool($configService, $contextProvider);
+        $output = ($tool)('core.test.key', '"value"');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('system_config:update', $data['error']);
     }
 
     public function testWriteWithSalesChannelId(): void

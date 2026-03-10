@@ -215,6 +215,20 @@ class McpToolCompilerPassTest extends TestCase
         }
     }
 
+    public function testNonExistentClassIsSkippedInConflictDetection(): void
+    {
+        $container = $this->createContainer();
+
+        $def = new Definition('App\\NonExistent\\ToolClass');
+        $def->addTag('mcp.tool');
+        $container->setDefinition('tool.ghost', $def);
+
+        $pass = new McpToolCompilerPass();
+        $pass->process($container);
+
+        static::assertTrue($container->hasDefinition('tool.ghost'));
+    }
+
     public function testSkipsWhenNoMcpServerBuilder(): void
     {
         $container = new ContainerBuilder();

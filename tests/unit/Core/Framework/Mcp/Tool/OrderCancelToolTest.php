@@ -200,6 +200,18 @@ class OrderCancelToolTest extends TestCase
         static::assertSame('Order not found.', $data['error']);
     }
 
+    public function testLookupByOrderIdUsesIdCriteria(): void
+    {
+        $order = $this->buildOrder('open', 'open', 'open');
+        $tool = $this->createTool($order, availableActions: ['cancel']);
+
+        $output = ($tool)(orderId: $order->getId(), dryRun: true);
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertSame('cancel', $data['data']['order']['action']);
+    }
+
     public function testNoIdentifierReturnsError(): void
     {
         $tool = $this->createTool(null, availableActions: []);

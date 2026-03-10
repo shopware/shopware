@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+
 /**
  * @internal
  */
@@ -10,8 +12,10 @@ abstract class AbstractDocumentRenderer
 {
     /**
      * @see DocumentType
+     *
+     * @return list<string>
      */
-    abstract public function getDocumentType(): string;
+    abstract public function getDocumentTypes(): array;
 
     /**
      * @see DocumentFormat
@@ -27,6 +31,14 @@ abstract class AbstractDocumentRenderer
     public function getDependencies(): array
     {
         return [];
+    }
+
+    /**
+     * Enrich order criteria with additional associations
+     */
+    public function enrichOrderCriteria(string $docType, Criteria $criteria): void
+    {
+        // nothing by default
     }
 
     /**

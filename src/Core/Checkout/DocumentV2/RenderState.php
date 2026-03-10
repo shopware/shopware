@@ -8,7 +8,6 @@ namespace Shopware\Core\Checkout\DocumentV2;
 #[Package('TODO')]
 class RenderState
 {
-
     /**
      * Map of produced dependencies
      * Key: dependency name

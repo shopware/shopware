@@ -5,6 +5,7 @@ namespace Scripts\Examples;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Framework\Context;
 
 require_once __DIR__ . '/base-script.php';
 
@@ -17,7 +18,11 @@ class TestDocumentGeneration extends BaseScript
     public function run()
     {
         $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-        $documentGenerator->generate(DocumentType::Invoice->value, [DocumentFormat::EmbeddedZugferd->value]);
+        $context = Context::createCLIContext();
+
+        $orderId = '019cd835e593734296a073dca76435e0';
+
+        $documentGenerator->generate($orderId, DocumentType::Invoice->value, [DocumentFormat::EmbeddedZugferd->value], $context);
         //$documentGenerator->generate(DocumentType::Invoice->value, [DocumentFormat::Pdf->value, DocumentFormat::Html->value]);
     }
 }

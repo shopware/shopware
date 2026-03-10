@@ -2,19 +2,18 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
+
 /**
  * @internal
  */
 #[Package('TODO')]
 class DocumentGenerationContext
 {
-    // todo: figure out dependencies for renderers
-
-    /*
-    public OrderEntity $order;
-
-    public DocumentConfiguration $config;
-
-    public array $extensions = [];
-    */
+    public function __construct(
+        public readonly OrderEntity $order,
+        public readonly string $documentType,
+        public readonly DocumentConfig $documentConfig,
+    ) {
+    }
 }

@@ -9,7 +9,7 @@
 
 ## Conceptional Todos:
 
-- [ ] Figure out `DocumentGenerationContext`, so that not each renderer has to fetch potentially the same data from DB.
+- [x] Figure out `DocumentGenerationContext`, so that not each renderer has to fetch potentially the same data from DB.
 - [ ] Look for ways to reduce code duplication (e.g. are renderers really needed for each type + format combination?)
 - [ ] How does configuration per type + format look like?
 - [ ] Database schema

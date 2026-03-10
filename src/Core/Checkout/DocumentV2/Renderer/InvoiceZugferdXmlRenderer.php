@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
-use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\AbstractDocumentRenderer;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\RenderState;
@@ -17,9 +17,9 @@ class InvoiceZugferdXmlRenderer extends AbstractDocumentRenderer
     public const TYPE = DocumentType::Invoice->value;
     public const FORMAT = DocumentFormat::ZugferdXml->value;
 
-    public function getDocumentType(): string
+    public function getDocumentTypes(): array
     {
-        return self::TYPE;
+        return [self::TYPE];
     }
 
     public function getFormat(): string

@@ -2,6 +2,12 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+
 /**
  * @internal
  */
@@ -17,21 +23,25 @@ class DocumentGenerator
 
     /**
      * @param iterable<AbstractDocumentRenderer> $renderers
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
-        iterable $renderers
+        iterable $renderers,
+        private readonly EntityRepository $orderRepository,
     ) {
         // todo: build this lookup table in a custom compiler pass / service locator,
         // based on the tag attributes in the container
         foreach ($renderers as $renderer) {
-            $this->renderers[$renderer->getDocumentType()][$renderer->getFormat()] = $renderer;
+            foreach ($renderer->getDocumentTypes() as $docType) {
+                $this->renderers[$docType][$renderer->getFormat()] = $renderer;
+            }
         }
     }
 
     /**
      * @param list<string> $formats
      */
-    public function generate(string $docType, array $formats): void
+    public function generate(string $orderId, string $docType, array $formats, Context $context): void
     {
         $renderers = $this->renderers[$docType] ?? [];
         if (empty($renderers)) {
@@ -42,8 +52,13 @@ class DocumentGenerator
         $neededFormats = $this->resolveNeededFormats($renderers, $formats);
         $orderedRenderers = $this->topologicalSortRenderers($renderers, $neededFormats);
 
+        $orderCriteria = new Criteria([$orderId]);
+        foreach ($orderedRenderers as $renderer) {
+            $renderer->enrichOrderCriteria($docType, $orderCriteria);
+        }
+
         // generate document contents
-        $generationContext = new DocumentGenerationContext();
+        $generationContext = $this->getDocumentGenerationContext($orderCriteria, $docType, $context);
         $renderState = new RenderState();
         foreach ($orderedRenderers as $renderer) {
             echo 'rendering ' . $renderer->getFormat() . \PHP_EOL;
@@ -151,5 +166,25 @@ class DocumentGenerator
         }
 
         return array_reverse($sorted);
+    }
+
+    private function getDocumentGenerationContext(Criteria $orderCriteria, string $docType, Context $context): DocumentGenerationContext
+    {
+        $order = $this->orderRepository->search($orderCriteria, $context)->first();
+        if (!$order instanceof OrderEntity) {
+            // todo: error handling
+            throw new \RuntimeException('Order not found');
+        }
+
+        return new DocumentGenerationContext($order, $docType, $this->getDocumentConfig($docType, $context));
+    }
+
+    private function getDocumentConfig(string $docType, Context $context): DocumentConfig
+    {
+        // todo: build actual config
+        return new DocumentConfig(
+            'prefix',
+            'suffix',
+        );
     }
 }

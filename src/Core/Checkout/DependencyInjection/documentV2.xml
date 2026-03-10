@@ -6,7 +6,7 @@
 
     <services>
 
-        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoiceHtmlRenderer">
+        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer">
             <tag name="shopware.documentV2.renderer" type="invoice" format="html"/>
         </service>
 
@@ -24,6 +24,7 @@
 
         <service id="Shopware\Core\Checkout\DocumentV2\DocumentGenerator">
             <argument type="tagged_iterator" tag="shopware.documentV2.renderer"/>
+            <argument type="service" id="order.repository"/>
         </service>
 
     </services>

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
-use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\AbstractDocumentRenderer;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\RenderState;
@@ -17,9 +17,9 @@ class InvoiceEmbeddedZugferdRenderer extends AbstractDocumentRenderer
     public const TYPE = DocumentType::Invoice->value;
     public const FORMAT = DocumentFormat::EmbeddedZugferd->value;
 
-    public function getDocumentType(): string
+    public function getDocumentTypes(): array
     {
-        return self::TYPE;
+        return [self::TYPE];
     }
 
     public function getFormat(): string
@@ -37,6 +37,7 @@ class InvoiceEmbeddedZugferdRenderer extends AbstractDocumentRenderer
         // TODO: Implement renderToString() method.
         $pdfContent = $renderState->getRenderedContent(InvoicePdfRenderer::FORMAT);
         $zugferdXmlContent = $renderState->getRenderedContent(InvoiceZugferdXmlRenderer::FORMAT);
+
         return $pdfContent . $zugferdXmlContent;
     }
 

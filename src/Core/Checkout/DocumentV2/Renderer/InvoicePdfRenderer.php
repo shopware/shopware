@@ -17,9 +17,9 @@ class InvoicePdfRenderer extends AbstractDocumentRenderer
     public const TYPE = DocumentType::Invoice->value;
     public const FORMAT = DocumentFormat::Pdf->value;
 
-    public function getDocumentType(): string
+    public function getDocumentTypes(): array
     {
-        return self::TYPE;
+        return [self::TYPE];
     }
 
     public function getFormat(): string
@@ -29,12 +29,12 @@ class InvoicePdfRenderer extends AbstractDocumentRenderer
 
     public function getDependencies(): array
     {
-        return [InvoiceHtmlRenderer::FORMAT];
+        return [HtmlRenderer::FORMAT];
     }
 
     public function renderToString(DocumentGenerationContext $documentContext, RenderState $renderState): string
     {
-        $htmlContent = $renderState->getRenderedContent(InvoiceHtmlRenderer::FORMAT);
+        $htmlContent = $renderState->getRenderedContent(HtmlRenderer::FORMAT);
 
         return $htmlContent . ' extend by pdf renderer';
     }

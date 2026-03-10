@@ -31,8 +31,6 @@ class StorefrontPluginConfiguration extends Struct
 
     protected FileCollection $scriptFiles;
 
-    protected FileCollection $baseStyleFiles;
-
     protected ?string $storefrontEntryFilepath = null;
 
     /**
@@ -64,7 +62,6 @@ class StorefrontPluginConfiguration extends Struct
     {
         $this->styleFiles = new FileCollection();
         $this->scriptFiles = new FileCollection();
-        $this->baseStyleFiles = new FileCollection();
     }
 
     public function getTechnicalName(): string

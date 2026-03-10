@@ -42,8 +42,7 @@
         "branch-alias": {
             "dev-main": "6.7.x-dev",
             "dev-master": "6.7.x-dev",
-            "dev-trunk": "6.7.x-dev",
-            "dev-8484/storefront-components": "6.7.x-dev"
+            "dev-trunk": "6.7.x-dev"
         },
         "phpstan/extension-installer": {
             "ignore": [

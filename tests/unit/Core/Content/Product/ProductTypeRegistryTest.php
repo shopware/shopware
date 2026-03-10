@@ -37,6 +37,11 @@ class ProductTypeRegistryTest extends TestCase
             'standard',
             'download',
         ], $registry->getTypes());
+
+        static::assertSame([
+            'standard',
+            'download',
+        ], $registry->getChoices());
     }
 
     public function testHasTypeChecksRegisteredTypes(): void

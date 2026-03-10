@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -40,6 +41,10 @@ class AppTemplateIterator implements \IteratorAggregate
      */
     private function getDatabaseTemplatePaths(): array
     {
+        if (MySQLFactory::hasNoDatabaseAvailable()) {
+            return [];
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addAggregation(

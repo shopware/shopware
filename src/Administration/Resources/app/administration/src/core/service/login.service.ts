@@ -161,14 +161,14 @@ export default function createLoginService(
     }
 
     /**
-     * Sends an AJAX request to the authentication end point and retries to refresh the token.
+     * Refreshes the access token with retry/backoff and cross-tab synchronization.
      *
      * Uses the Web Locks API to coordinate token refresh across browser tabs.
      * Only one tab at a time will perform the actual HTTP request; other tabs
-     * wait for the lock and then check if the token was already refreshed.
+     * wait for the lock and then re-check whether the token was already refreshed.
      */
     function refreshToken(): Promise<AuthObject['access']> {
-        // No parallel requests within the same tab - return existing promise
+        // Avoid parallel refresh requests within the same tab by reusing the in-flight promise.
         if (refreshPromise) {
             return refreshPromise;
         }
@@ -179,39 +179,39 @@ export default function createLoginService(
         }
 
         // Capture the current access token before requesting the lock,
-        // so we can detect if another tab refreshed it while we waited.
+        // so we can detect whether another tab refreshed it while we were waiting.
         const accessTokenBeforeLock = getToken();
 
-        refreshPromise = new Promise<string>((resolve, reject) => {
-            const refreshWithSynchronization = async (): Promise<void> => {
-                try {
-                    // Another tab may have successfully refreshed while we waited for the lock
-                    const currentAccessToken = getToken();
-                    if (currentAccessToken && currentAccessToken !== accessTokenBeforeLock) {
-                        notifyRefreshSubscribers(currentAccessToken);
+        refreshPromise = synchronizedTokenRefresh(async () => {
+            // Another tab may already have refreshed the token while we were waiting for the lock.
+            const currentAccessToken = getToken();
+            if (currentAccessToken && currentAccessToken !== accessTokenBeforeLock) {
+                notifyRefreshSubscribers(currentAccessToken);
 
-                        resolve(currentAccessToken);
-                        return;
-                    }
-
-                    resolve(await retryRefreshWithBackoff(refreshTokenValue));
-                } catch (error) {
-                    reject(error instanceof Error ? error : new Error(String(error)));
-                }
-            };
-
-            if (typeof navigator.locks?.request !== 'function') {
-                // Fallback for browsers without Web Locks API support
-                void refreshWithSynchronization();
-                return;
+                return currentAccessToken;
             }
 
-            void navigator.locks.request('sw-admin-token-refresh', refreshWithSynchronization);
-        }).finally(() => {
-            refreshPromise = null;
-        });
+            return retryRefreshWithBackoff(refreshTokenValue);
+        })
+            .catch((error) => {
+                throw error instanceof Error ? error : new Error(String(error));
+            })
+            .finally(() => {
+                refreshPromise = null;
+            });
 
         return refreshPromise;
+    }
+
+    /**
+     * Executes refresh logic under a cross-tab lock when the Web Locks API is available.
+     */
+    function synchronizedTokenRefresh<T>(fn: () => Promise<T>): Promise<T> {
+        if (typeof navigator === 'undefined' || typeof navigator.locks?.request !== 'function') {
+            return fn();
+        }
+
+        return navigator.locks.request('sw-admin-token-refresh', fn).then((result) => result);
     }
 
     /**

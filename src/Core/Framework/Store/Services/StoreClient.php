@@ -95,7 +95,7 @@ class StoreClient
 
         $this->storeService->updateStoreToken($context, $accessTokenStruct);
 
-        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
+        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret(), null, false);
 
         $this->eventDispatcher->dispatch(new ShopwareAccountLoginEvent($context));
     }

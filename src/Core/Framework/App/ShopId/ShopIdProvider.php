@@ -72,8 +72,8 @@ class ShopIdProvider implements ResetInterface
 
     public function deleteShopId(): void
     {
-        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY);
-        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY, null, true);
+        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, null, false);
 
         $this->reset();
 
@@ -95,7 +95,7 @@ class ShopIdProvider implements ResetInterface
             $oldShopId = null;
         }
 
-        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) $shopId);
+        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) $shopId, null, false);
         $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
     }
 

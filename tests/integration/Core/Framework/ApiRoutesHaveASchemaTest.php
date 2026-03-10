@@ -171,13 +171,15 @@ class ApiRoutesHaveASchemaTest extends TestCase
         });
 
         static::assertSame([], array_keys($this->schemaRoutes), 'The schema contains routes that do not exist');
+
         // Add missing routes under:
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths
-        $this->assertJsonSnapshot(
-            'routes_without_schema',
-            $this->missingRoutes,
-            'Routes are missing in the schema'
-        );
+        $this->assertSnapshot('routes_without_schema', [
+            [
+                'type' => self::TYPE_JSON,
+                'actual' => $this->missingRoutes,
+            ]
+        ]);
     }
 
     private function handleRouteNotInSchema(Route $route, string $subPath): void

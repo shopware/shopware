@@ -146,48 +146,45 @@ class CreditNoteRendererTest extends TestCase
 
         $this->addCreditItemsToOrderAfterInvoice($orderId, [-100]);
 
-        $operation = new DocumentGenerateOperation(
+        $config = [
+            'documentComment' => '<script></script>This is a credit note.',
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
+
+        $operationHtml = new DocumentGenerateOperation(
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
-            [
-                'documentComment' => '<script></script>This is a credit note.',
-                'itemsPerPage' => 10,
-                'displayHeader' => true,
-                'displayFooter' => true,
-                'displayPrices' => true,
-                'displayPageCount' => true,
-                'displayLineItems' => true,
-                'displayCompanyAddress' => true,
-                'displayReturnAddress' => true,
-                'companyName' => 'Example Company',
-                'documentDate' => '2023-11-24T12:00:00+00:00',
-            ],
+            $config,
             $invoiceId
         );
 
-        $processedTemplate = $this->creditNoteRenderer->render(
-            [$orderId => $operation],
+        $processedHtmlTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
-        );
-        static::assertIsString($processedHtml);
-
-        $this->assertHtmlSnapshot(
-            'credit_note_renderer_default',
-            $processedHtml
-        );
+        $this->assertSnapshot('credit_note_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     /**

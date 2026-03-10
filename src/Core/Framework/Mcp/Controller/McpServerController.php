@@ -48,7 +48,7 @@ class McpServerController
     {
         $this->rateLimit($request);
 
-        $this->logger?->info('MCP request', [
+        $this->logger?->debug('MCP request', [
             'method' => $request->getMethod(),
             'clientIp' => $request->getClientIp(),
         ]);

@@ -93,7 +93,7 @@ test(
             company: 'shopware',
             department: 'Operations',
             street: 'Ebbinghof 10',
-            zipCode: '48624',
+            zipcode: '48624',
             city: 'Schöppingen',
             country: nonShippableCountry.name,
         };
@@ -124,7 +124,7 @@ test(
             );
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.street);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.city);
-            await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.zipCode);
+            await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.zipcode);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.country);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.company);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.department);

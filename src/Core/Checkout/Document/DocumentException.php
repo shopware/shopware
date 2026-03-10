@@ -268,7 +268,7 @@ class DocumentException extends HttpException
         return new self(
             Response::HTTP_UNPROCESSABLE_ENTITY,
             self::DOCUMENT_HAS_DEPENDENCIES,
-            'The document cannot be deleted because other documents depend on it: : {{ documentNumbers }}.',
+            'The document cannot be deleted because other documents depend on it: {{ documentNumbers }}.',
             [
                 'documentNumbers' => implode(', ', $dependingDocuments),
             ]

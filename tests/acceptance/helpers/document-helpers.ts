@@ -20,7 +20,6 @@ const invoiceMasks: MaskRegion[] = [
     { x: 110, y: 18, width: 45, height: 20 },
     { x: 393, y: 321, width: 45, height: 20 },
     { x: 830, y: 230, width: 145, height: 75 },
-    { x: 340, y: 400, width: 340, height: 30 },
 ];
 
 const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
@@ -32,7 +31,6 @@ const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
         { x: 428, y: 321, width: 45, height: 20 },
         { x: 542, y: 321, width: 45, height: 20 },
         { x: 820, y: 210, width: 145, height: 100 },
-        { x: 340, y: 400, width: 340, height: 30 },
     ],
     delivery_note: [
         { x: 145, y: 18, width: 45, height: 20 },
@@ -40,7 +38,6 @@ const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
         { x: 434, y: 321, width: 45, height: 20 },
         { x: 539, y: 321, width: 130, height: 20 },
         { x: 830, y: 210, width: 145, height: 100 },
-        { x: 340, y: 400, width: 340, height: 30 },
     ],
     credit_note: [
         { x: 136, y: 18, width: 45, height: 20 },
@@ -51,12 +48,18 @@ const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
 };
 
 export async function screenshotDocument(
+    name: string,
     triggerLocator: Locator,
     expects: typeof expect,
     documentType: DocumentTypes,
+    additionalMasks: MaskRegion[] = [],
 ) {
     const page = triggerLocator.page();
-    const maskRegions = documentMasks[documentType];
+
+    const maskRegions = [
+        ...documentMasks[documentType],
+        ...additionalMasks,
+    ];
 
     const [pdfPage] = await Promise.all([
         page.context().waitForEvent('page'),
@@ -92,7 +95,7 @@ export async function screenshotDocument(
         }, maskRegions);
     }
 
-    await expects(pdfPage).toHaveScreenshot(`${documentType}-document.png`, {
+    await expects(pdfPage).toHaveScreenshot(`${name}.png`, {
         maxDiffPixelRatio: 0.03,
         timeout: 5000,
     });

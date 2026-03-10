@@ -19,6 +19,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -68,14 +70,7 @@ class StoreLoginCommand extends Command
 
         if (!$password) {
             $passwordQuestion = new Question('Enter password');
-            $passwordQuestion->setValidator(static function ($value): string {
-                if ($value === null || trim($value) === '') {
-                    // @phpstan-ignore shopware.domainException (RuntimeException is fine in console IO validators)
-                    throw new \RuntimeException('The password cannot be empty');
-                }
-
-                return $value;
-            });
+            $passwordQuestion->setValidator(Validation::createCallable(new NotBlank(message: 'The password cannot be empty')));
             $passwordQuestion->setHidden(true);
             $passwordQuestion->setMaxAttempts(3);
 

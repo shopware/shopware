@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Validation\Requirements;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -17,6 +18,10 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class PublicAccess extends AbstractRequirement implements ResetInterface
 {
+    /**
+     * Caching is safe at the DI/service level: the check is app-independent (APP_URL, HTTPS,
+     * reachability), so if it fails for one app it will fail for every app in the same process.
+     */
     private ?bool $isMet = null;
 
     private string $failureReason = '';
@@ -27,55 +32,29 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
     ) {
     }
 
-    public function satisfied(Manifest $manifest): bool
+    public function validate(Manifest $manifest): ?UnmetRequirement
     {
         if ($this->isMet !== null) {
-            return $this->isMet;
+            if ($this->isMet) {
+                return null;
+            }
+
+            return new UnmetRequirement($manifest->getMetadata()->getName(), self::name(), $this->failureReason);
         }
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         if (!\is_string($appUrl)) {
-            $this->failureReason = 'The APP_URL environment variable is not configured.';
-
-            return $this->isMet = false;
+            return $this->fail($manifest, 'The APP_URL environment variable is not configured.');
         }
 
         if (!$this->secureUrlValidator->isValidTarget($appUrl)) {
-            $this->failureReason = \sprintf(
+            return $this->fail($manifest, \sprintf(
                 'APP_URL "%s" is not a valid public URL. It must use HTTPS, must not be an IP address, and must not use a reserved domain.',
                 $appUrl
-            );
-
-            return $this->isMet = false;
+            ));
         }
 
-        $healthCheckUrl = rtrim($appUrl, '/') . '/api/_info/health-check';
-
-        try {
-            $response = $this->guzzle->get($healthCheckUrl, [
-                RequestOptions::TIMEOUT => 1,
-                RequestOptions::CONNECT_TIMEOUT => 1,
-            ]);
-
-            if ($response->getStatusCode() === Response::HTTP_OK) {
-                return $this->isMet = true;
-            }
-
-            $this->failureReason = \sprintf(
-                'Health check at "%s" returned HTTP %d. Ensure the Shopware instance is running and publicly reachable.',
-                $healthCheckUrl,
-                $response->getStatusCode()
-            );
-        } catch (GuzzleException) {
-            $this->failureReason = \sprintf(
-                'Could not reach "%s". Ensure the Shopware instance is publicly accessible at the configured APP_URL.',
-                $healthCheckUrl
-            );
-
-            return $this->isMet = false;
-        }
-
-        return $this->isMet = false;
+        return $this->checkHealthEndpoint($manifest, rtrim($appUrl, '/') . '/api/_info/health-check');
     }
 
     public function reset(): void
@@ -89,12 +68,49 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
         return 'public-access';
     }
 
-    public function actionableResolution(): string
+    private function checkHealthEndpoint(Manifest $manifest, string $healthCheckUrl): ?UnmetRequirement
     {
-        if ($this->failureReason !== '') {
-            return $this->failureReason;
+        try {
+            $response = $this->guzzle->get($healthCheckUrl, [
+                RequestOptions::TIMEOUT => 1,
+                RequestOptions::CONNECT_TIMEOUT => 1,
+                RequestOptions::ALLOW_REDIRECTS => ['max' => 3],
+            ]);
+
+            if ($response->getStatusCode() === Response::HTTP_OK) {
+                $this->isMet = true;
+
+                return null;
+            }
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            if ($response !== null) {
+                return $this->fail($manifest, \sprintf(
+                    'Health check at "%s" returned HTTP %d. Ensure the Shopware instance is running and publicly reachable.',
+                    $healthCheckUrl,
+                    $response->getStatusCode()
+                ));
+            }
+
+            return $this->fail($manifest, \sprintf(
+                'Could not reach "%s". Ensure the Shopware instance is publicly accessible at the configured APP_URL.',
+                $healthCheckUrl
+            ));
+        } catch (GuzzleException) {
+            return $this->fail($manifest, \sprintf(
+                'Could not reach "%s". Ensure the Shopware instance is publicly accessible at the configured APP_URL.',
+                $healthCheckUrl
+            ));
         }
 
-        return 'The app requires public access to the Shopware instance. Ensure that the APP_URL environment variable is set to a publicly accessible HTTPS URL.';
+        return $this->fail($manifest, $this->failureReason);
+    }
+
+    private function fail(Manifest $manifest, string $reason): UnmetRequirement
+    {
+        $this->isMet = false;
+        $this->failureReason = $reason;
+
+        return new UnmetRequirement($manifest->getMetadata()->getName(), self::name(), $reason);
     }
 }

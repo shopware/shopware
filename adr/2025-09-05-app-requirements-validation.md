@@ -41,10 +41,9 @@ Apps can declare requirements using a new `<requirements>` element in their mani
 
 **2. Requirement Interface**
 All requirement validators implement a common `Requirement` interface with methods:
-- `satisfied(Manifest $manifest): bool` - Checks if the requirement is met
+- `validate(Manifest $manifest): ?UnmetRequirement` - Validates the requirement and returns an `UnmetRequirement` on failure, or `null` on success
 - `required(Manifest $manifest): bool` - Checks if this requirement applies to the app
 - `name(): string` - Returns the requirement identifier
-- `actionableResolution(): string` - Provides user-friendly resolution guidance
 
 **3. Validator Architecture**
 - `AppRequirementsValidator` orchestrates validation across all registered requirement validators

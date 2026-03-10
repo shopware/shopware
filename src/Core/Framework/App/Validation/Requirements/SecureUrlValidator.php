@@ -11,15 +11,16 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The validator ensures that the URL: (this remains a simple validation and does not guarantee absolute correctness)
  *   - Uses the HTTPS scheme
- *   - Does not resolve to an IP address
+ *   - Does not use an IP address literal as the host
  *   - Is not 'localhost' or a reserved domain
+ *   - Resolves (via DNS) to a public, non-reserved IP address
  *
  * @see https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.xhtml
  */
 #[Package('framework')]
 readonly class SecureUrlValidator
 {
-    private const array RESERVED_SUFFIXES = [
+    private const RESERVED_SUFFIXES = [
         '.localhost',
         '.local',
         '.test',
@@ -29,11 +30,28 @@ readonly class SecureUrlValidator
         '.home.arpa',
     ];
 
-    private const array RESERVED_EXACT = [
+    private const RESERVED_EXACT = [
         'example.net',
         'example.org',
         'home.arpa',
     ];
+
+    /**
+     * @var \Closure(string): list<array{ip?: string, ipv6?: string}>
+     */
+    private \Closure $dnsResolver;
+
+    /**
+     * @param (\Closure(string): list<array{ip?: string, ipv6?: string}>)|null $dnsResolver
+     */
+    public function __construct(?\Closure $dnsResolver = null)
+    {
+        $this->dnsResolver = $dnsResolver ?? static function (string $host): array {
+            $records = @dns_get_record($host, \DNS_A | \DNS_AAAA);
+
+            return \is_array($records) ? $records : [];
+        };
+    }
 
     public function isValidTarget(string $url): bool
     {
@@ -54,6 +72,10 @@ readonly class SecureUrlValidator
             return false;
         }
 
+        if (!$this->resolvesToPublicAddress($host)) {
+            return false;
+        }
+
         return true;
     }
 
@@ -67,6 +89,27 @@ readonly class SecureUrlValidator
         $cleanHost = trim($host, '[]');
 
         return filter_var($cleanHost, \FILTER_VALIDATE_IP) !== false;
+    }
+
+    private function resolvesToPublicAddress(string $host): bool
+    {
+        $records = ($this->dnsResolver)($host);
+        if ($records === []) {
+            return false;
+        }
+
+        foreach ($records as $record) {
+            $ip = $record['ip'] ?? $record['ipv6'] ?? null;
+            if ($ip === null) {
+                continue;
+            }
+
+            if (filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE) === false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function isReserved(string $host): bool

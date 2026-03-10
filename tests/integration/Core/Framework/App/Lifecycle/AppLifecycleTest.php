@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -1711,7 +1712,14 @@ class AppLifecycleTest extends TestCase
         $this->appendNewResponse(new Response(500));
 
         $expected = AppException::requirementsNotMet(
-            new UnmetRequirement('withRequirements', PublicAccess::name(), PublicAccess::actionableResolution())
+            new UnmetRequirement(
+                'withRequirements',
+                PublicAccess::name(),
+                \sprintf(
+                    'Health check at "%s/api/_info/health-check" returned HTTP 500. Ensure the Shopware instance is running and publicly reachable.',
+                    rtrim((string) EnvironmentHelper::getVariable('APP_URL'), '/')
+                )
+            )
         );
         $this->expectExceptionObject($expected);
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
@@ -1724,7 +1732,14 @@ class AppLifecycleTest extends TestCase
         $this->appendNewResponse(new Response(500));
 
         $expected = AppException::requirementsNotMet(
-            new UnmetRequirement('withRequirements', PublicAccess::name(), PublicAccess::actionableResolution())
+            new UnmetRequirement(
+                'withRequirements',
+                PublicAccess::name(),
+                \sprintf(
+                    'Health check at "%s/api/_info/health-check" returned HTTP 500. Ensure the Shopware instance is running and publicly reachable.',
+                    rtrim((string) EnvironmentHelper::getVariable('APP_URL'), '/')
+                )
+            )
         );
         $this->expectExceptionObject($expected);
         $this->appLifecycle->update(

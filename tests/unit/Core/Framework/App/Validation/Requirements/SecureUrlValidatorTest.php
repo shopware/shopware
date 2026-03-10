@@ -16,7 +16,7 @@ class SecureUrlValidatorTest extends TestCase
     #[DataProvider('urlValidationProvider')]
     public function testUrlValidation(string $url, bool $expected): void
     {
-        $validator = new SecureUrlValidator();
+        $validator = new SecureUrlValidator(static fn (string $host): array => [['ip' => '203.0.113.1']]);
 
         static::assertSame($expected, $validator->isValidTarget($url));
     }
@@ -73,5 +73,48 @@ class SecureUrlValidatorTest extends TestCase
         yield 'Invalid URL' => ['not-a-url', false];
         yield 'Empty string' => ['', false];
         yield 'Only scheme' => ['https://', false];
+    }
+
+    public function testPublicIpv4Passes(): void
+    {
+        $validator = new SecureUrlValidator(static fn (string $host): array => [['ip' => '203.0.113.1']]);
+
+        static::assertTrue($validator->isValidTarget('https://myshop.com'));
+    }
+
+    public function testPublicIpv6Passes(): void
+    {
+        $validator = new SecureUrlValidator(static fn (string $host): array => [['ipv6' => '2001:db8::1']]);
+
+        static::assertTrue($validator->isValidTarget('https://myshop.com'));
+    }
+
+    public function testUnresolvableHostFails(): void
+    {
+        $validator = new SecureUrlValidator(static fn (string $host): array => []);
+
+        static::assertFalse($validator->isValidTarget('https://myshop.com'));
+    }
+
+    /**
+     * @param array{ip?: string, ipv6?: string} $record
+     */
+    #[DataProvider('nonPublicIpProvider')]
+    public function testNonPublicIpFails(array $record): void
+    {
+        $validator = new SecureUrlValidator(static fn (string $host): array => [$record]);
+
+        static::assertFalse($validator->isValidTarget('https://myshop.com'));
+    }
+
+    public static function nonPublicIpProvider(): \Generator
+    {
+        yield 'IPv4 loopback' => [['ip' => '127.0.0.1']];
+        yield 'IPv4 class A private' => [['ip' => '10.0.0.1']];
+        yield 'IPv4 class B private' => [['ip' => '172.16.0.1']];
+        yield 'IPv4 class C private' => [['ip' => '192.168.1.1']];
+        yield 'IPv6 loopback' => [['ipv6' => '::1']];
+        yield 'IPv6 link-local' => [['ipv6' => 'fe80::1']];
+        yield 'IPv6 unique local' => [['ipv6' => 'fd00::1']];
     }
 }

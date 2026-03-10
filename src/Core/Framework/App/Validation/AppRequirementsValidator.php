@@ -41,12 +41,9 @@ class AppRequirementsValidator
                 continue;
             }
 
-            if (!$validator->satisfied($manifest)) {
-                $validationErrors[] = new UnmetRequirement(
-                    $manifest->getMetadata()->getName(),
-                    $validator::name(),
-                    $validator->actionableResolution()
-                );
+            $unmet = $validator->validate($manifest);
+            if ($unmet !== null) {
+                $validationErrors[] = $unmet;
             }
         }
 

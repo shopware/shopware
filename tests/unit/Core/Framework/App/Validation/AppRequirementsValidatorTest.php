@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\Requirement;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
@@ -23,8 +22,8 @@ class AppRequirementsValidatorTest extends TestCase
             ->method('required')
             ->willReturn(true);
         $requirement->expects($this->once())
-            ->method('satisfied')
-            ->willReturn(true);
+            ->method('validate')
+            ->willReturn(null);
 
         $validator = new AppRequirementsValidator([$requirement], 'prod');
         $manifest = $this->createMock(Manifest::class);
@@ -37,9 +36,9 @@ class AppRequirementsValidatorTest extends TestCase
     public function testValidateWithUnsatisfiedRequirement(): void
     {
         $requirement = new class implements Requirement {
-            public function satisfied(Manifest $manifest): bool
+            public function validate(Manifest $manifest): UnmetRequirement
             {
-                return false;
+                return new UnmetRequirement('test-app', self::name(), 'Fix the test requirement');
             }
 
             public function required(Manifest $manifest): bool
@@ -51,19 +50,9 @@ class AppRequirementsValidatorTest extends TestCase
             {
                 return 'test-requirement';
             }
-
-            public function actionableResolution(): string
-            {
-                return 'Fix the test requirement';
-            }
         };
 
         $manifest = $this->createMock(Manifest::class);
-        $metadata = Metadata::fromArray(['name' => 'test-app', 'label' => [], 'author' => 'myApp', 'copyright' => 'none', 'license' => 'none', 'version' => '99']);
-        $manifest->expects($this->once())
-            ->method('getMetadata')
-            ->willReturn($metadata);
-
         $validator = new AppRequirementsValidator([$requirement], 'prod');
 
         $violations = $validator->validate($manifest);
@@ -82,7 +71,7 @@ class AppRequirementsValidatorTest extends TestCase
             ->method('required')
             ->willReturn(false);
         $requirement->expects($this->never())
-            ->method('satisfied');
+            ->method('validate');
 
         $validator = new AppRequirementsValidator([$requirement], 'prod');
         $manifest = $this->createMock(Manifest::class);
@@ -99,13 +88,13 @@ class AppRequirementsValidatorTest extends TestCase
             ->method('required')
             ->willReturn(true);
         $requirement1->expects($this->once())
-            ->method('satisfied')
-            ->willReturn(true);
+            ->method('validate')
+            ->willReturn(null);
 
         $requirement2 = new class implements Requirement {
-            public function satisfied(Manifest $manifest): bool
+            public function validate(Manifest $manifest): UnmetRequirement
             {
-                return false;
+                return new UnmetRequirement('multi-app', self::name(), 'Fix requirement 2');
             }
 
             public function required(Manifest $manifest): bool
@@ -117,11 +106,6 @@ class AppRequirementsValidatorTest extends TestCase
             {
                 return 'requirement-2';
             }
-
-            public function actionableResolution(): string
-            {
-                return 'Fix requirement 2';
-            }
         };
 
         $requirement3 = $this->createMock(Requirement::class);
@@ -129,14 +113,9 @@ class AppRequirementsValidatorTest extends TestCase
             ->method('required')
             ->willReturn(false);
         $requirement3->expects($this->never())
-            ->method('satisfied');
+            ->method('validate');
 
         $manifest = $this->createMock(Manifest::class);
-        $metadata = Metadata::fromArray(['name' => 'multi-app', 'label' => [], 'author' => 'myApp', 'copyright' => 'none', 'license' => 'none', 'version' => '99']);
-
-        $manifest->expects($this->once())
-            ->method('getMetadata')
-            ->willReturn($metadata);
 
         $validator = new AppRequirementsValidator([$requirement1, $requirement2, $requirement3], 'prod');
 
@@ -151,9 +130,9 @@ class AppRequirementsValidatorTest extends TestCase
     public function testValidateWithMultipleViolations(): void
     {
         $requirement1 = new class implements Requirement {
-            public function satisfied(Manifest $manifest): bool
+            public function validate(Manifest $manifest): UnmetRequirement
             {
-                return false;
+                return new UnmetRequirement('violation-app', self::name(), 'Fix requirement 1');
             }
 
             public function required(Manifest $manifest): bool
@@ -165,17 +144,12 @@ class AppRequirementsValidatorTest extends TestCase
             {
                 return 'requirement-1';
             }
-
-            public function actionableResolution(): string
-            {
-                return 'Fix requirement 1';
-            }
         };
 
         $requirement2 = new class implements Requirement {
-            public function satisfied(Manifest $manifest): bool
+            public function validate(Manifest $manifest): UnmetRequirement
             {
-                return false;
+                return new UnmetRequirement('violation-app', self::name(), 'Fix requirement 2');
             }
 
             public function required(Manifest $manifest): bool
@@ -187,18 +161,9 @@ class AppRequirementsValidatorTest extends TestCase
             {
                 return 'requirement-2';
             }
-
-            public function actionableResolution(): string
-            {
-                return 'Fix requirement 2';
-            }
         };
 
         $manifest = $this->createMock(Manifest::class);
-        $metadata = Metadata::fromArray(['name' => 'violation-app', 'label' => [], 'author' => 'myApp', 'copyright' => 'none', 'license' => 'none', 'version' => '99']);
-        $manifest->expects($this->exactly(2))
-            ->method('getMetadata')
-            ->willReturn($metadata);
 
         $validator = new AppRequirementsValidator([$requirement1, $requirement2], 'prod');
 
@@ -219,7 +184,7 @@ class AppRequirementsValidatorTest extends TestCase
     {
         $requirement = $this->createMock(Requirement::class);
         $requirement->expects($this->never())->method('required');
-        $requirement->expects($this->never())->method('satisfied');
+        $requirement->expects($this->never())->method('validate');
 
         $validator = new AppRequirementsValidator([$requirement], 'dev');
         $manifest = $this->createMock(Manifest::class);
@@ -231,7 +196,7 @@ class AppRequirementsValidatorTest extends TestCase
     {
         $requirement = $this->createMock(Requirement::class);
         $requirement->expects($this->never())->method('required');
-        $requirement->expects($this->never())->method('satisfied');
+        $requirement->expects($this->never())->method('validate');
 
         $validator = new AppRequirementsValidator([$requirement], 'test');
         $manifest = $this->createMock(Manifest::class);

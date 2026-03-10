@@ -12,21 +12,15 @@ use Shopware\Core\Framework\Log\Package;
 interface Requirement
 {
     /**
-     * Validates a specific requirement for an app
+     * Validates a specific requirement for an app.
+     * Returns an UnmetRequirement if validation fails, or null if it passes.
      */
-    public function satisfied(Manifest $manifest): bool;
+    public function validate(Manifest $manifest): ?UnmetRequirement;
 
     /**
      * Returns the name of the requirement this validator handles
      */
     public static function name(): string;
-
-    /**
-     * Provides a user-facing message explaining why the requirement failed
-     * and how to resolve it. Called after {@see satisfied()} returns false,
-     * so implementations may include context from the failed check.
-     */
-    public function actionableResolution(): string;
 
     /**
      * Checks if this validator applies to the given manifest

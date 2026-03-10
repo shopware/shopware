@@ -203,6 +203,30 @@ class ThemeConfigToolTest extends TestCase
         static::assertStringContainsString('non-empty JSON', $data['error']);
     }
 
+    public function testUpdateExceptionReturnsError(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $themeService = static::createStub(ThemeService::class);
+        $themeService->method('updateTheme')
+            ->willThrowException(new \RuntimeException('Compilation failed'));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn($themeId);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read', 'theme:update']));
+
+        $tool = new ThemeConfigTool($themeService, $contextProvider, $connection);
+
+        $config = json_encode(['sw-color-brand-primary' => ['value' => '#ff0000']], \JSON_THROW_ON_ERROR);
+        $output = $tool(Uuid::randomHex(), 'update', $config, false);
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Compilation failed', $data['error']);
+    }
+
     public function testMissingAclReturnsError(): void
     {
         $contextProvider = static::createStub(McpContextProvider::class);

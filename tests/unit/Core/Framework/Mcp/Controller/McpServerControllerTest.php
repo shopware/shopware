@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Controller;
 
 use Mcp\Server;
+use Nyholm\Psr7\Factory\Psr17Factory;
+use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -85,5 +88,79 @@ class McpServerControllerTest extends TestCase
         $this->expectException(McpException::class);
 
         $this->controller->handle($request);
+    }
+
+    public function testHandleReturnsResponseForValidMcpRequest(): void
+    {
+        $psr17 = new Psr17Factory();
+
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+
+        $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
+        $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
+
+        $symfonyResponse = new Response('', 200);
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn($symfonyResponse);
+
+        $rateLimiter = static::createStub(RateLimiter::class);
+
+        $controller = new McpServerController(
+            Server::builder()->build(),
+            $httpMessageFactory,
+            $httpFoundationFactory,
+            $psr17,
+            $psr17,
+            $rateLimiter,
+        );
+
+        $response = $controller->handle(new Request());
+
+        static::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testHandleDetectsStreamedResponse(): void
+    {
+        $psr17 = new Psr17Factory();
+
+        $psrRequest = new ServerRequest('GET', '/api/_mcp');
+
+        $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
+        $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
+
+        $httpFoundationFactory = $this->createMock(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->expects($this->once())
+            ->method('createResponse')
+            ->with(
+                static::anything(),
+                false,
+            )
+            ->willReturn(new Response('', 405));
+
+        $rateLimiter = static::createStub(RateLimiter::class);
+
+        $controller = new McpServerController(
+            Server::builder()->build(),
+            $httpMessageFactory,
+            $httpFoundationFactory,
+            $psr17,
+            $psr17,
+            $rateLimiter,
+        );
+
+        $response = $controller->handle(new Request());
+
+        static::assertSame(405, $response->getStatusCode());
     }
 }

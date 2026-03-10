@@ -62,19 +62,49 @@ class OpenApiPathBuilderTest extends TestCase
         static::assertSame('#/components/schemas/ImmutableTestCreate', $requestBodySchema);
     }
 
-    public function testGetPathActionsWithoutImmutableFieldsUsesUpdateSchema(): void
+    public function testGetPathActionsPostUsesUpdateSchemaWithRequiredWhenNoCreate(): void
     {
         $definition = $this->definitionRegistry->get(SimpleDefinition::class);
-        $paths = $this->pathBuilder->getPathActions($definition, '/simple');
+        // Simulate no Create schema: pass Update ref with required fields
+        $paths = $this->pathBuilder->getPathActions(
+            $definition,
+            '/simple',
+            '#/components/schemas/SimpleUpdate',
+            ['requiredField']
+        );
 
-        // POST should use Update schema when entity has no immutable fields
+        // POST should use Update schema wrapped with required
         $postPath = $paths['/simple']->post;
         static::assertNotNull($postPath);
 
         $postPathJson = json_decode($postPath->toJson(), true, 512, \JSON_THROW_ON_ERROR);
-        $requestBodySchema = $postPathJson['requestBody']['content']['application/json']['schema']['$ref'];
+        $requestBodySchema = $postPathJson['requestBody']['content']['application/json']['schema'];
 
-        static::assertSame('#/components/schemas/SimpleUpdate', $requestBodySchema);
+        static::assertArrayHasKey('allOf', $requestBodySchema);
+        static::assertSame('#/components/schemas/SimpleUpdate', $requestBodySchema['allOf'][0]['$ref']);
+        static::assertSame(['requiredField'], $requestBodySchema['required']);
+    }
+
+    public function testGetPathActionsPostUsesUpdateSchemaDirectlyWhenNoRequiredFields(): void
+    {
+        $definition = $this->definitionRegistry->get(SimpleDefinition::class);
+        // Simulate no Create schema and no required fields
+        $paths = $this->pathBuilder->getPathActions(
+            $definition,
+            '/simple',
+            '#/components/schemas/SimpleUpdate',
+            []
+        );
+
+        // POST should use Update schema directly (no allOf wrapper)
+        $postPath = $paths['/simple']->post;
+        static::assertNotNull($postPath);
+
+        $postPathJson = json_decode($postPath->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $requestBodySchema = $postPathJson['requestBody']['content']['application/json']['schema'];
+
+        static::assertSame('#/components/schemas/SimpleUpdate', $requestBodySchema['$ref']);
+        static::assertArrayNotHasKey('allOf', $requestBodySchema);
     }
 
     public function testGetPathActionsPatchUsesUpdateSchema(): void
@@ -92,14 +122,17 @@ class OpenApiPathBuilderTest extends TestCase
         static::assertSame('#/components/schemas/ImmutableTestUpdate', $requestBodySchema);
     }
 
-    public function testGetPathActionsWithExtensionAndImmutableFieldsSkipsExtensionFields(): void
+    public function testGetPathActionsPostUsesCreateSchemaWhenProvided(): void
     {
-        // ExtensionWithImmutableDefinition has Extension+Immutable field AND a regular Immutable field
-        // The Extension field should be skipped, but the regular Immutable field should be detected
         $definition = $this->definitionRegistry->get(ExtensionWithImmutableDefinition::class);
-        $paths = $this->pathBuilder->getPathActions($definition, '/extension-immutable-test');
+        // Pass Create schema ref (entity has immutable fields)
+        $paths = $this->pathBuilder->getPathActions(
+            $definition,
+            '/extension-immutable-test',
+            '#/components/schemas/ExtensionImmutableTestCreate'
+        );
 
-        // POST should use Create schema (immutable fields exist after filtering out Extension fields)
+        // POST should use Create schema
         $postPath = $paths['/extension-immutable-test']->post;
         static::assertNotNull($postPath);
 

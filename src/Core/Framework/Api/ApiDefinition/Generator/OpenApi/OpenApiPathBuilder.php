@@ -11,8 +11,6 @@ use OpenApi\Annotations\Post;
 use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Tag;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,9 +32,12 @@ class OpenApiPathBuilder
     }
 
     /**
+     * @param string|null $postSchemaRef Full $ref for POST request body (e.g. '#/components/schemas/ProductCreate'). If null, defaults to '{SchemaName}Create'.
+     * @param string[] $postRequiredFields Required fields for POST when no Create schema exists. Used to build an inline allOf wrapper around Update.
+     *
      * @return PathItem[]
      */
-    public function getPathActions(EntityDefinition $definition, string $path): array
+    public function getPathActions(EntityDefinition $definition, string $path, ?string $postSchemaRef = null, array $postRequiredFields = []): array
     {
         $paths = [];
         $paths[$path] = new PathItem([
@@ -61,7 +62,7 @@ class OpenApiPathBuilder
             return $paths;
         }
 
-        $paths[$path]->post = $this->getCreatePath($definition);
+        $paths[$path]->post = $this->getCreatePath($definition, $postSchemaRef, $postRequiredFields);
         $paths[$path . '/{id}']->patch = $this->getUpdatePath($definition);
         $paths[$path . '/{id}']->delete = $this->getDeletePath($definition);
 
@@ -179,7 +180,11 @@ class OpenApiPathBuilder
         ]);
     }
 
-    private function getCreatePath(EntityDefinition $definition): Post
+    /**
+     * @param string|null $postSchemaRef Full $ref for POST request body. If null, defaults to '{SchemaName}Create'.
+     * @param string[] $postRequiredFields Required fields when using Update schema directly (no Create schema).
+     */
+    private function getCreatePath(EntityDefinition $definition, ?string $postSchemaRef = null, array $postRequiredFields = []): Post
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
@@ -189,10 +194,22 @@ class OpenApiPathBuilder
             $tags[] = 'Experimental';
         }
 
-        // Use Create schema if entity has immutable fields, otherwise use Update schema
-        $requestSchema = $this->hasImmutableFields($definition)
-            ? $schemaName . 'Create'
-            : $schemaName . 'Update';
+        // Determine request body schema
+        if ($postSchemaRef !== null) {
+            // When required fields are provided, wrap the schema ref with an allOf + required
+            if ($postRequiredFields !== []) {
+                $requestBodySchema = [
+                    'allOf' => [
+                        ['$ref' => $postSchemaRef],
+                    ],
+                    'required' => $postRequiredFields,
+                ];
+            } else {
+                $requestBodySchema = ['$ref' => $postSchemaRef];
+            }
+        } else {
+            $requestBodySchema = ['$ref' => '#/components/schemas/' . $schemaName . 'Create'];
+        }
 
         return new Post([
             'summary' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
@@ -210,9 +227,7 @@ class OpenApiPathBuilder
             'requestBody' => [
                 'content' => [
                     'application/json' => [
-                        'schema' => [
-                            '$ref' => '#/components/schemas/' . $requestSchema,
-                        ],
+                        'schema' => $requestBodySchema,
                     ],
                 ],
             ],
@@ -544,22 +559,4 @@ class OpenApiPathBuilder
         return str_contains($reflection->getDocComment() ?: '', '@' . self::EXPERIMENTAL_ANNOTATION_NAME);
     }
 
-    /**
-     * Checks if the entity definition has any immutable fields.
-     * Used to determine if a Create schema exists (only generated for entities with immutable fields).
-     */
-    private function hasImmutableFields(EntityDefinition $definition): bool
-    {
-        foreach ($definition->getFields() as $field) {
-            if ($field->is(Extension::class)) {
-                continue;
-            }
-
-            if ($field->is(Immutable::class)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

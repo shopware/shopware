@@ -190,9 +190,9 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         );
 
         static::assertArrayHasKey('SimpleUpdate', $simpleSchema);
-        static::assertArrayNotHasKey('SimpleCreate', $simpleSchema, 'Create schema should not exist when no immutable fields');
+        static::assertArrayNotHasKey('SimpleCreate', $simpleSchema);
 
-        // ImmutableFieldsDefinition has immutable fields - SHOULD have Create schema
+        // ImmutableFieldsDefinition has immutable fields - should have Create schema
         $immutableSchema = $this->schemaBuilder->getSchemaByDefinition(
             $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
             '/immutable-test',
@@ -280,9 +280,31 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('id', $readOnlyProperties);
         static::assertTrue($readOnlyProperties['id']['readOnly'] ?? false);
 
-        // Second allOf should reference Create schema (since entity has immutable fields)
+        // Second allOf should reference Create schema (since entity HAS immutable fields)
         static::assertArrayHasKey('$ref', $readSchema['allOf'][1]);
         static::assertSame('#/components/schemas/ImmutableTestCreate', $readSchema['allOf'][1]['$ref']);
+    }
+
+    public function testReadSchemaUsesAllOfCompositionWithoutImmutableFields(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(SimpleDefinition::class),
+            '/simple',
+            false
+        );
+
+        $readSchema = json_decode($schema['Simple']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Read schema should use allOf composition
+        static::assertArrayHasKey('allOf', $readSchema);
+        static::assertCount(2, $readSchema['allOf']);
+
+        // First allOf should contain read-only properties
+        static::assertArrayHasKey('properties', $readSchema['allOf'][0]);
+
+        // Second allOf should reference Update schema (since entity has NO immutable fields)
+        static::assertArrayHasKey('$ref', $readSchema['allOf'][1]);
+        static::assertSame('#/components/schemas/SimpleUpdate', $readSchema['allOf'][1]['$ref']);
     }
 
     public function testReadSchemaReferencesUpdateWhenNoImmutableFields(): void
@@ -298,7 +320,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         // Read schema should use allOf composition
         static::assertArrayHasKey('allOf', $readSchema);
 
-        // Should reference Update schema directly (no Create schema when no immutable fields)
+        // Without immutable fields, Read should reference Update (not Create)
         $hasUpdateRef = false;
         foreach ($readSchema['allOf'] as $item) {
             if (isset($item['$ref']) && $item['$ref'] === '#/components/schemas/SimpleUpdate') {
@@ -307,7 +329,43 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 break;
             }
         }
-        static::assertTrue($hasUpdateRef, 'Read schema should reference Update schema when no immutable fields');
+        static::assertTrue($hasUpdateRef, 'Read schema should reference Update schema when no immutable fields exist');
+
+        // Should NOT reference Create
+        $hasCreateRef = false;
+        foreach ($readSchema['allOf'] as $item) {
+            if (isset($item['$ref']) && $item['$ref'] === '#/components/schemas/SimpleCreate') {
+                $hasCreateRef = true;
+
+                break;
+            }
+        }
+        static::assertFalse($hasCreateRef, 'Read schema should not reference Create schema when no immutable fields exist');
+    }
+
+    public function testReadSchemaReferencesCreateWhenImmutableFieldsExist(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
+            '/immutable-test',
+            false
+        );
+
+        $readSchema = json_decode($schema['ImmutableTest']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Read schema should use allOf composition
+        static::assertArrayHasKey('allOf', $readSchema);
+
+        // With immutable fields, Read should reference Create
+        $hasCreateRef = false;
+        foreach ($readSchema['allOf'] as $item) {
+            if (isset($item['$ref']) && $item['$ref'] === '#/components/schemas/ImmutableTestCreate') {
+                $hasCreateRef = true;
+
+                break;
+            }
+        }
+        static::assertTrue($hasCreateRef, 'Read schema should reference Create schema when immutable fields exist');
     }
 
     public function testImmutableFieldRequiredInCreateSchema(): void
@@ -408,8 +466,9 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             \Shopware\Core\Framework\Api\ApiDefinition\DefinitionService::TYPE_JSON_API
         );
 
-        // Should have Update and Read schemas
+        // Should have Update and Read schemas (no Create since SimpleDefinition has no immutable fields)
         static::assertArrayHasKey('SimpleUpdate', $schema);
+        static::assertArrayNotHasKey('SimpleCreate', $schema);
         static::assertArrayHasKey('Simple', $schema);
 
         // Should NOT have JsonApi schema when onlyFlat is true

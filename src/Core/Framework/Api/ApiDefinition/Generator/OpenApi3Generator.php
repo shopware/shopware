@@ -80,6 +80,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $apiType
             );
 
+            // Extract POST schema metadata before merging (non-Schema values)
+            $postSchemaRef = $schema['_postSchemaRef'] ?? null;
+            $postRequiredFields = $schema['_postRequiredFields'] ?? [];
+            unset($schema['_postSchemaRef'], $schema['_postRequiredFields']);
+
             $openApi->components->merge($schema);
 
             if ($onlyFlat) {
@@ -87,7 +92,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             if ($apiType === DefinitionService::TYPE_JSON_API) {
-                $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
+                $openApi->merge($this->pathBuilder->getPathActions(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $postSchemaRef,
+                    $postRequiredFields
+                ));
                 $openApi->merge([$this->pathBuilder->getTag($definition)]);
             }
         }
@@ -111,7 +121,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         // Remove unused schema components to reduce spec size
         // Only for JSON_API type where we have paths that reference schemas
-        if ($apiType === DefinitionService::TYPE_JSON_API && !empty($bundleName) === false) {
+        if ($apiType === DefinitionService::TYPE_JSON_API && empty($bundleName)) {
             $finalSpecs = $this->removeUnreferencedSchemas($finalSpecs);
         }
 

@@ -199,12 +199,10 @@ class OpenApi3GeneratorTest extends TestCase
 
         $entities = $schema['components']['schemas'];
 
-        // Should have Update and Read schemas
+        // Should have Update and Read schemas only (no Create since no immutable fields)
         static::assertArrayHasKey('SimpleUpdate', $entities);
-        static::assertArrayHasKey('Simple', $entities);
-
-        // Should NOT have Create schema (no immutable fields)
         static::assertArrayNotHasKey('SimpleCreate', $entities);
+        static::assertArrayHasKey('Simple', $entities);
     }
 
     public function testUnreferencedSchemasAreRemoved(): void

@@ -52,12 +52,13 @@ class DemodataCommand extends Command
     private array $defaults = [];
 
     /**
-     * @internal
+     * @param list<class-string> $requiredClasses
      */
     public function __construct(
         private readonly DemodataService $demodataService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $kernelEnv
+        private readonly string $kernelEnv,
+        private readonly array $requiredClasses = [Factory::class, Commerce::class, ImagesGeneratorProvider::class],
     ) {
         parent::__construct();
     }
@@ -166,14 +167,9 @@ class DemodataCommand extends Command
         return $this->defaults[$name] ?? 0;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     private function ensureAllDependenciesArePresent(ShopwareStyle $io): bool
     {
-        $classes = [Factory::class, Commerce::class, ImagesGeneratorProvider::class];
-
-        foreach ($classes as $class) {
+        foreach ($this->requiredClasses as $class) {
             if (!class_exists($class)) {
                 $io->error('Please install composer package "shopware/dev-tools" to use the demo-data command.');
 

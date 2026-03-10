@@ -226,6 +226,7 @@ class AclEnforcementTest extends TestCase
             $this->createMock(RequestCriteriaBuilder::class),
             $this->createMock(JsonEntityEncoder::class),
             $this->createDeniedContextProvider(),
+            $this->createMock(Connection::class),
         );
 
         $this->assertAclDenied(($tool)('sc-1'), 'sales_channel:read');

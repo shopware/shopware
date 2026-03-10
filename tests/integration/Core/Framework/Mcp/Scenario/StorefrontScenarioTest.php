@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
+use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -23,9 +24,57 @@ use Shopware\Core\Test\TestDefaults;
 #[CoversClass(CartCheckoutTool::class)]
 #[CoversClass(CheckoutMethodsTool::class)]
 #[CoversClass(CustomerLookupTool::class)]
+#[CoversClass(StorefrontSearchTool::class)]
 class StorefrontScenarioTest extends McpScenarioTestCase
 {
-    public function testUS13CartCreateAndAddProduct(): void
+    public function testUS10PropertySearch(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $matchingProduct = (new ProductBuilder($ids, 'red-shoe-42'))
+            ->price(89.99)
+            ->stock(10)
+            ->visibility(TestDefaults::SALES_CHANNEL)
+            ->property('Red', 'Color')
+            ->property('42', 'Size')
+            ->build();
+
+        $nonMatchingProduct = (new ProductBuilder($ids, 'blue-shoe-38'))
+            ->price(79.99)
+            ->stock(10)
+            ->visibility(TestDefaults::SALES_CHANNEL)
+            ->property('Blue', 'Color')
+            ->property('38', 'Size')
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$matchingProduct, $nonMatchingProduct], $context);
+
+        $output = ($this->storefrontSearchTool)(
+            salesChannelId: TestDefaults::SALES_CHANNEL,
+            properties: json_encode(['Color' => 'Red', 'Size' => '42'], \JSON_THROW_ON_ERROR),
+        );
+
+        $data = $this->decodeToolOutput($output);
+
+        $foundIds = array_column($data['data'], 'id');
+        static::assertContains($ids->get('red-shoe-42'), $foundIds, 'Product with matching properties should be found');
+        static::assertNotContains($ids->get('blue-shoe-38'), $foundIds, 'Product with non-matching properties should not be found');
+    }
+
+    public function testUS10PropertySearchUnknownGroupReturnsError(): void
+    {
+        $output = ($this->storefrontSearchTool)(
+            salesChannelId: TestDefaults::SALES_CHANNEL,
+            properties: json_encode(['NonExistentGroup' => 'SomeValue'], \JSON_THROW_ON_ERROR),
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Could not resolve properties', $data['error']);
+    }
+
+    public function testUS11CartCreateAndAddProduct(): void
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
@@ -62,7 +111,7 @@ class StorefrontScenarioTest extends McpScenarioTestCase
         static::assertGreaterThan(0, $addData['data']['totalPrice']);
     }
 
-    public function testUS13CartCheckoutDryRunAndCommit(): void
+    public function testUS11CartCheckoutDryRunAndCommit(): void
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
@@ -75,8 +124,8 @@ class StorefrontScenarioTest extends McpScenarioTestCase
 
         static::getContainer()->get('product.repository')->create([$product], $context);
 
-        $email = 'mcp-us13-' . Uuid::randomHex() . '@example.com';
-        $customer = (new CustomerBuilder($ids, 'US13'))
+        $email = 'mcp-us11-' . Uuid::randomHex() . '@example.com';
+        $customer = (new CustomerBuilder($ids, 'US11'))
             ->add('email', $email)
             ->add('password', TestDefaults::HASHED_PASSWORD)
             ->build();
@@ -100,7 +149,7 @@ class StorefrontScenarioTest extends McpScenarioTestCase
         $dryRunOutput = ($this->cartCheckoutTool)(
             salesChannelId: TestDefaults::SALES_CHANNEL,
             token: $token,
-            customerId: $ids->get('US13'),
+            customerId: $ids->get('US11'),
             dryRun: true,
         );
 
@@ -114,7 +163,7 @@ class StorefrontScenarioTest extends McpScenarioTestCase
         $commitOutput = ($this->cartCheckoutTool)(
             salesChannelId: TestDefaults::SALES_CHANNEL,
             token: $token,
-            customerId: $ids->get('US13'),
+            customerId: $ids->get('US11'),
             dryRun: false,
         );
 
@@ -123,7 +172,7 @@ class StorefrontScenarioTest extends McpScenarioTestCase
         static::assertNotEmpty($commitData['data']['orderId']);
     }
 
-    public function testUS14CheckoutMethods(): void
+    public function testUS12CheckoutMethods(): void
     {
         $output = ($this->checkoutMethodsTool)(
             salesChannelId: TestDefaults::SALES_CHANNEL,
@@ -144,13 +193,13 @@ class StorefrontScenarioTest extends McpScenarioTestCase
         static::assertArrayHasKey('name', $firstShipping);
     }
 
-    public function testUS15CustomerLookupByEmail(): void
+    public function testUS13CustomerLookupByEmail(): void
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
 
-        $email = 'mcp-us15-' . Uuid::randomHex() . '@example.com';
-        $customer = (new CustomerBuilder($ids, 'US15'))
+        $email = 'mcp-us13-' . Uuid::randomHex() . '@example.com';
+        $customer = (new CustomerBuilder($ids, 'US13'))
             ->firstName('Jane')
             ->lastName('Doe')
             ->add('email', $email)

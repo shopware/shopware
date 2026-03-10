@@ -40,8 +40,8 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - The `shopware-entity-search` tool accepts criteria in the Admin API JSON format supporting: filter, sort, limit, page, associations, aggregations, includes, and fields.
 - Write operations (`shopware-entity-upsert`, `shopware-entity-delete`, `shopware-system-config-write`) default to dryRun=true. Always preview first.
 - State transitions (`shopware-state-machine-transition`) apply to orders, deliveries, and transactions.
-- Console commands can be executed via `shopware-console-command` with a safe allowlist of commands.
-
+- Media files can be uploaded from URLs via `shopware-media-upload`, with optional product assignment.
+- Theme configuration (colors, logos, fonts) can be read and updated via `shopware-theme-config` for a given sales channel.
 ## Common entity names
 product, category, customer, order, order_line_item, order_delivery, order_transaction, media, sales_channel, currency, language, tax, property_group, property_group_option, manufacturer, cms_page, rule
 
@@ -132,8 +132,7 @@ These tools simplify common multi-step workflows:
 2. Always use "includes" in search criteria to select only the fields you need -- this keeps responses small and fast
 3. Always use dryRun=true for write operations before committing
 4. Use `shopware-system-config-read` to check shop configuration before making changes
-5. Use `shopware-console-command` to run safe administrative commands (e.g. cache:clear, plugin:list --format=json)
-6. For simple searches, use the top-level term, limit, and page parameters on `shopware-entity-search` instead of constructing criteria JSON
+5. For simple searches, use the top-level term, limit, and page parameters on `shopware-entity-search` instead of constructing criteria JSON
 PROMPT,
             ],
         ];

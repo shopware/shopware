@@ -17,16 +17,17 @@ use Shopware\Core\Framework\Mcp\Tool\BestsellerReportTool;
 use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
-use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
+use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderCancelTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
 use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\RevenueReportTool;
 use Shopware\Core\Framework\Mcp\Tool\StateMachineTransitionTool;
+use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -52,11 +53,11 @@ abstract class McpScenarioTestCase extends TestCase
 
     protected EntityReadTool $entityReadTool;
 
+    protected EntityUpsertTool $entityUpsertTool;
+
     protected SystemConfigReadTool $systemConfigReadTool;
 
     protected SystemConfigWriteTool $systemConfigWriteTool;
-
-    protected ConsoleCommandTool $consoleCommandTool;
 
     protected StateMachineTransitionTool $stateMachineTransitionTool;
 
@@ -78,6 +79,8 @@ abstract class McpScenarioTestCase extends TestCase
 
     protected CheckoutMethodsTool $checkoutMethodsTool;
 
+    protected StorefrontSearchTool $storefrontSearchTool;
+
     protected function setUp(): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
@@ -98,6 +101,10 @@ abstract class McpScenarioTestCase extends TestCase
         $this->entitySchemaTool = new EntitySchemaTool($registry);
         $this->entityReadTool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
 
+        /** @var \Doctrine\DBAL\Connection $connection */
+        $connection = $container->get(\Doctrine\DBAL\Connection::class);
+        $this->entityUpsertTool = new EntityUpsertTool($registry, $contextProvider, $connection);
+
         /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $container->get(SystemConfigService::class);
         $this->systemConfigReadTool = new SystemConfigReadTool($systemConfigService, $contextProvider);
@@ -106,13 +113,6 @@ abstract class McpScenarioTestCase extends TestCase
         /** @var StateMachineRegistry $stateMachineRegistry */
         $stateMachineRegistry = $container->get(StateMachineRegistry::class);
         $this->stateMachineTransitionTool = new StateMachineTransitionTool($stateMachineRegistry, $contextProvider);
-
-        /** @var list<string> $allowedCommands */
-        $allowedCommands = $container->getParameter('shopware.mcp.allowed_console_commands');
-        $this->consoleCommandTool = new ConsoleCommandTool(
-            $container->get('kernel'),
-            $allowedCommands,
-        );
 
         $this->orderSummaryTool = new OrderSummaryTool($registry, $contextProvider);
         $this->customerLookupTool = new CustomerLookupTool($registry, $contextProvider);
@@ -135,6 +135,16 @@ abstract class McpScenarioTestCase extends TestCase
         /** @var ShippingMethodRoute $shippingMethodRoute */
         $shippingMethodRoute = $container->get(ShippingMethodRoute::class);
         $this->checkoutMethodsTool = new CheckoutMethodsTool($salesChannelContextService, $paymentMethodRoute, $shippingMethodRoute, $contextProvider);
+
+        $this->storefrontSearchTool = new StorefrontSearchTool(
+            $salesChannelContextService,
+            $container->get('sales_channel.product.repository'),
+            $registry,
+            $criteriaBuilder,
+            $encoder,
+            $contextProvider,
+            $connection,
+        );
     }
 
     /**

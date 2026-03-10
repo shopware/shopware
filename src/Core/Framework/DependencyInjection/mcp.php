@@ -4,6 +4,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
@@ -29,13 +30,13 @@ use Shopware\Core\Framework\Mcp\Tool\BestsellerReportTool;
 use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
-use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
+use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderCancelTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
 use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
@@ -167,16 +168,6 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
-    $services->set(ConsoleCommandTool::class)
-        ->args([
-            service('kernel'),
-            param('shopware.mcp.allowed_console_commands'),
-            service('logger'),
-        ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
-
     $services->set(StorefrontSearchTool::class)
         ->args([
             service(SalesChannelContextService::class),
@@ -185,6 +176,7 @@ return static function (ContainerConfigurator $container): void {
             service('api.request_criteria_builder'),
             service(JsonEntityEncoder::class),
             service(McpContextProvider::class),
+            service('Doctrine\DBAL\Connection'),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
@@ -262,6 +254,15 @@ return static function (ContainerConfigurator $container): void {
             service(PaymentMethodRoute::class),
             service(ShippingMethodRoute::class),
             service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(MediaUploadTool::class)
+        ->args([
+            service(MediaUploadService::class),
+            service(McpContextProvider::class),
+            service(DefinitionInstanceRegistry::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);

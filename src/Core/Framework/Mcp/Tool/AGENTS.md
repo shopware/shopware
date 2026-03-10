@@ -4,8 +4,8 @@
 Each file in this directory is a single MCP tool -- an action that AI clients can invoke via the MCP protocol.
 
 ## Naming
-- Tool names use `shopware-` prefix with kebab-case: `shopware-entity-search`, `shopware-console-command`
-- Class names use PascalCase suffix `Tool`: `EntitySearchTool`, `ConsoleCommandTool`
+- Tool names use `shopware-` prefix with kebab-case: `shopware-entity-search`, `shopware-entity-upsert`
+- Class names use PascalCase suffix `Tool`: `EntitySearchTool`, `EntityUpsertTool`
 - Plugin tools: `{plugin-name}-{tool-name}`
 - App tools: `{app-name}-{tool-name}`
 - Names must only contain `a-zA-Z0-9_-` (no dots) for consistency across all MCP capability types
@@ -45,13 +45,13 @@ Rules:
 - `EntityReadTool` (`shopware-entity-read`) -- single entity read by ID
 - `SystemConfigReadTool` (`shopware-system-config-read`) -- read shop configuration
 - `StorefrontSearchTool` (`shopware-storefront-search`) -- search products with sales channel context
-- `ConsoleCommandTool` (`shopware-console-command`) -- execute allowlisted console commands
 
 ## Write tools
 - `EntityUpsertTool` (`shopware-entity-upsert`) -- create/update entities (dryRun wraps in transaction + rollback)
 - `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact)
 - `SystemConfigWriteTool` (`shopware-system-config-write`) -- update configuration values
 - `StateMachineTransitionTool` (`shopware-state-machine-transition`) -- transition entity states
+- `MediaUploadTool` (`shopware-media-upload`) -- upload media from URL, optionally assign to product as cover image
 ## Outcome tools
 Outcome tools encapsulate common multi-step workflows into a single call with human-readable parameters:
 - `OrderSummaryTool` (`shopware-order-summary`) -- look up an order by number or UUID, returns customer info, line items, payment/delivery status

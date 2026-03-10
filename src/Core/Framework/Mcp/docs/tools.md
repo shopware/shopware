@@ -56,21 +56,14 @@ Read system configuration values. Pass a domain prefix for all keys under it, or
 - `salesChannelId` (string, optional) -- Scope to a sales channel
 
 ### shopware-storefront-search
-Search products with storefront context. Unlike `shopware-entity-search`, returns prices resolved for the sales channel including customer group pricing and tax rules.
+Search products with storefront context. Unlike `shopware-entity-search`, returns prices resolved for the sales channel including customer group pricing and tax rules. Supports human-readable property filters.
 
 **Parameters:**
 - `salesChannelId` (string, required) -- Sales channel UUID (see `shopware://sales-channels` resource)
 - `criteria` (string, optional) -- JSON criteria object
 - `customerId` (string, optional) -- Customer UUID for customer-specific pricing
-
-### shopware-console-command
-Execute allowlisted console commands. Only safe, administrative commands are permitted.
-
-**Parameters:**
-- `command` (string, required) -- Command name (must be in allowlist)
-- `arguments` (string, optional) -- JSON object of command arguments/options
-
-Only commands listed in `shopware.mcp.allowed_console_commands` can be executed. Default allowlist: `cache:clear`, `cache:warmup`, `plugin:list`, `plugin:refresh`, `scheduled-task:list`, `theme:compile`, `debug:router`, `debug:mcp`, `messenger:stats`, `assets:install`.
+- `properties` (string, optional) -- JSON object mapping property group names to option names, e.g. `{"Color": "Red", "Size": "42"}`. Names are resolved to UUIDs automatically.
+- `term` (string, optional) -- Full-text search term, e.g. "shoes"
 
 ---
 
@@ -267,6 +260,34 @@ List available payment and shipping methods for a sales channel.
 ```json
 {"salesChannelId": "<uuid>", "type": "all"}
 ```
+
+---
+
+### shopware-media-upload
+Upload a media file from a public URL. Optionally assign it as the cover image of a product.
+
+**Parameters:**
+- `url` (string, required) -- Public URL of the file to download
+- `fileName` (string, optional) -- Desired file name (defaults to basename of URL)
+- `mediaFolderId` (string, optional) -- UUID of the media folder to place the file in
+- `productId` (string, optional) -- If provided, assigns the uploaded media as product cover image
+
+**ACL:** `media:create`, optionally `product:update` if assigning to product
+
+---
+
+### shopware-theme-config
+Read or update theme configuration for a sales channel. Manage brand colors, logos, and fonts.
+
+**Parameters:**
+- `salesChannelId` (string, required) -- Sales channel UUID to find the assigned theme
+- `action` (string, required) -- `get` or `update`
+- `config` (string, optional) -- For `update`: JSON key-value pairs, e.g. `{"sw-color-brand-primary": {"value": "#0000ff"}}`
+- `dryRun` (bool, default true) -- For `update`: preview without persisting
+
+**ACL:** `theme:read` for get, `theme:update` for update
+
+Note: This tool lives in `src/Storefront/Mcp/Tool/` because it depends on Storefront's `ThemeService`.
 
 ---
 

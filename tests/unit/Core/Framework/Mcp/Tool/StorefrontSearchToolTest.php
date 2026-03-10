@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -68,7 +69,7 @@ class StorefrontSearchToolTest extends TestCase
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder, $contextProvider);
+        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder, $contextProvider, $this->createMock(Connection::class));
         $output = ($tool)('sales-channel-123');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -122,7 +123,7 @@ class StorefrontSearchToolTest extends TestCase
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder, $contextProvider);
+        $tool = new StorefrontSearchTool($contextService, $productRepository, $registry, $criteriaBuilder, $encoder, $contextProvider, $this->createMock(Connection::class));
         $output = ($tool)('sc-1', '{}', 'cust-1');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);

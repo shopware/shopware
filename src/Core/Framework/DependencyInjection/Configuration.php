@@ -1218,22 +1218,6 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(10)
                     ->min(1)
                 ->end()
-                ->arrayNode('allowed_console_commands')
-                    ->info('Console commands allowed to be executed via the shopware-console-command MCP tool.')
-                    ->scalarPrototype()->end()
-                    ->defaultValue([
-                        'cache:clear',
-                        'cache:warmup',
-                        'plugin:list',
-                        'plugin:refresh',
-                        'scheduled-task:list',
-                        'theme:compile',
-                        'debug:router',
-                        'debug:mcp',
-                        'messenger:stats',
-                        'assets:install',
-                    ])
-                ->end()
             ->end();
 
         return $rootNode;

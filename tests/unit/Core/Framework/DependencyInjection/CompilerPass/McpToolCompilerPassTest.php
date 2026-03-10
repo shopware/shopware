@@ -8,8 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -116,43 +114,6 @@ class McpToolCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition('tool.core'));
     }
 
-    public function testPluginAllowedCommandsMergedIntoAllowlist(): void
-    {
-        $container = $this->createContainer();
-        $container->setParameter('shopware.mcp.allowed_console_commands', ['cache:clear']);
-
-        $def = new Definition(McpToolCompilerPassTestCommand::class);
-        $def->addTag('shopware.mcp.allowed_command');
-        $container->setDefinition(McpToolCompilerPassTestCommand::class, $def);
-
-        $pass = new McpToolCompilerPass();
-        $pass->process($container);
-
-        /** @var list<string> $commands */
-        $commands = $container->getParameter('shopware.mcp.allowed_console_commands');
-
-        static::assertContains('cache:clear', $commands);
-        static::assertContains('mcp-test:dummy', $commands);
-    }
-
-    public function testPluginAllowedCommandsDeduplicatesExisting(): void
-    {
-        $container = $this->createContainer();
-        $container->setParameter('shopware.mcp.allowed_console_commands', ['mcp-test:dummy', 'cache:clear']);
-
-        $def = new Definition(McpToolCompilerPassTestCommand::class);
-        $def->addTag('shopware.mcp.allowed_command');
-        $container->setDefinition(McpToolCompilerPassTestCommand::class, $def);
-
-        $pass = new McpToolCompilerPass();
-        $pass->process($container);
-
-        /** @var list<string> $commands */
-        $commands = $container->getParameter('shopware.mcp.allowed_console_commands');
-
-        static::assertSame(array_unique($commands), $commands);
-    }
-
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
@@ -184,12 +145,4 @@ class McpToolCompilerPassTestNamespacedTool
     {
         return '';
     }
-}
-
-/**
- * @internal
- */
-#[AsCommand(name: 'mcp-test:dummy', description: 'test command')]
-class McpToolCompilerPassTestCommand extends Command
-{
 }

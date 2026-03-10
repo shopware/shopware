@@ -4,9 +4,11 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp\Scenario;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
+use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
+use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -14,7 +16,8 @@ use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
 #[Package('framework')]
 #[CoversClass(SystemConfigReadTool::class)]
 #[CoversClass(SystemConfigWriteTool::class)]
-#[CoversClass(ConsoleCommandTool::class)]
+#[CoversClass(EntityUpsertTool::class)]
+#[CoversClass(EntityReadTool::class)]
 class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
 {
     public function testUS7ReadListingConfig(): void
@@ -45,19 +48,35 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
         static::assertNotSame('name-asc', $verifyData['data']['value'], 'Dry run should not persist changes');
     }
 
-    public function testUS8PluginList(): void
+    public function testUS28MaintenanceMode(): void
     {
-        $output = ($this->consoleCommandTool)('plugin:list');
+        $output = ($this->entityUpsertTool)(
+            entity: 'sales_channel',
+            payload: json_encode([
+                'id' => TestDefaults::SALES_CHANNEL,
+                'maintenance' => true,
+            ], \JSON_THROW_ON_ERROR),
+            dryRun: false,
+        );
+
         $data = $this->decodeToolOutput($output);
+        static::assertFalse($data['_meta']['dryRun']);
 
-        static::assertSame(0, $data['data']['exitCode']);
-    }
+        $readOutput = ($this->entityReadTool)(
+            entity: 'sales_channel',
+            id: TestDefaults::SALES_CHANNEL,
+        );
 
-    public function testUS9ConsoleCommandExecution(): void
-    {
-        $output = ($this->consoleCommandTool)('scheduled-task:list');
-        $data = $this->decodeToolOutput($output);
+        $readData = $this->decodeToolOutput($readOutput);
+        static::assertTrue($readData['data']['maintenance'], 'Sales channel should be in maintenance mode');
 
-        static::assertSame(0, $data['data']['exitCode']);
+        ($this->entityUpsertTool)(
+            entity: 'sales_channel',
+            payload: json_encode([
+                'id' => TestDefaults::SALES_CHANNEL,
+                'maintenance' => false,
+            ], \JSON_THROW_ON_ERROR),
+            dryRun: false,
+        );
     }
 }

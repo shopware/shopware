@@ -41,55 +41,9 @@ class McpToolCompilerPass implements CompilerPassInterface
             }
         }
 
-        $this->collectAllowedConsoleCommands($container);
         $this->enforceToolAllowlist($container);
         $this->detectToolNameConflicts($container);
         $this->enableDiscoveryCache($container);
-    }
-
-    /**
-     * Merges console commands tagged with "shopware.mcp.allowed_command" into the
-     * configured allowlist so plugins can expose their commands via the console tool.
-     */
-    private function collectAllowedConsoleCommands(ContainerBuilder $container): void
-    {
-        $taggedIds = $container->findTaggedServiceIds('shopware.mcp.allowed_command');
-
-        if ($taggedIds === []) {
-            return;
-        }
-
-        $commandNames = [];
-
-        foreach (array_keys($taggedIds) as $serviceId) {
-            $definition = $container->getDefinition($serviceId);
-            $class = $definition->getClass() ?? $serviceId;
-
-            if (!class_exists($class)) {
-                continue;
-            }
-
-            $ref = new \ReflectionClass($class);
-
-            foreach ($ref->getAttributes(\Symfony\Component\Console\Attribute\AsCommand::class) as $attr) {
-                $instance = $attr->newInstance();
-                $commandNames[] = $instance->name;
-            }
-        }
-
-        if ($commandNames === []) {
-            return;
-        }
-
-        /** @var list<string> $existing */
-        $existing = $container->hasParameter('shopware.mcp.allowed_console_commands')
-            ? $container->getParameter('shopware.mcp.allowed_console_commands')
-            : [];
-
-        $container->setParameter(
-            'shopware.mcp.allowed_console_commands',
-            array_values(array_unique([...$existing, ...$commandNames])),
-        );
     }
 
     /**

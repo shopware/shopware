@@ -54,6 +54,17 @@ Input: {
 }
 ```
 
+**Find red shoes in size 42 using human-readable property filters:**
+```
+Tool: shopware-storefront-search
+Input: {
+    "salesChannelId": "<sales-channel-uuid>",
+    "properties": "{\"Color\": \"Red\", \"Size\": \"42\"}",
+    "term": "shoes"
+}
+```
+The `properties` parameter resolves group/option names to UUIDs automatically and builds the correct filter (OR within group, AND across groups).
+
 ## Working with orders
 
 **Quick order lookup by order number:**
@@ -229,24 +240,3 @@ Read the `shopware://sales-channels` resource.
 **Check valid state transitions:**
 Read the `shopware://state-machines` resource to see all states and transitions for order, delivery, and transaction state machines.
 
-## Running console commands
-
-**List installed plugins:**
-```
-Tool: shopware-console-command
-Input: {"command": "plugin:list", "arguments": "{\"--format\": \"json\"}"}
-```
-
-**List API routes:**
-```
-Tool: shopware-console-command
-Input: {"command": "debug:router", "arguments": "{\"--format\": \"json\"}"}
-```
-
-**Clear the cache:**
-```
-Tool: shopware-console-command
-Input: {"command": "cache:clear"}
-```
-
-Only allowlisted commands can be executed. See `shopware.mcp.allowed_console_commands` configuration.

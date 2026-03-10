@@ -120,18 +120,7 @@ In `src/Resources/config/services.xml`, tag the service with `shopware.mcp.tool`
 
 Plugin tools do **not** need the `shopware.feature` flag -- that is only for core services. The MCP server feature flag gates the server endpoint itself; once the server is enabled, all registered tools are available.
 
-### Step 3: Exposing console commands
-
-Plugins can expose their console commands to the `shopware-console-command` tool by tagging them with `shopware.mcp.allowed_command`:
-
-```xml
-<service id="MyPlugin\Command\MyCommand">
-    <tag name="console.command"/>
-    <tag name="shopware.mcp.allowed_command"/>
-</service>
-```
-
-### Step 4: Install and activate
+### Step 3: Install and activate
 
 ```bash
 bin/console plugin:refresh
@@ -152,7 +141,6 @@ bin/console debug:mcp
 | `shopware.mcp.tool` | `mcp.tool` | Register a tool |
 | `shopware.mcp.prompt` | `mcp.prompt` | Register a prompt |
 | `shopware.mcp.resource` | `mcp.resource` | Register a resource |
-| `shopware.mcp.allowed_command` | -- | Expose a console command to `shopware-console-command` |
 
 ## Common pitfalls
 

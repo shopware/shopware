@@ -95,9 +95,9 @@ List payment/shipping methods for a sales channel.
 - **Optional**: `type` (string: payment/shipping/all, default "all")
 
 ### shopware-storefront-search
-Search products with storefront context (resolved prices, visibility).
+Search products with storefront context (resolved prices, visibility). Supports human-readable property filters.
 - **Required**: `salesChannelId` (string)
-- **Optional**: `criteria` (string JSON, default "{}"), `customerId` (string|null)
+- **Optional**: `criteria` (string JSON, default "{}"), `customerId` (string|null), `properties` (string JSON, e.g. '{"Color": "Red", "Size": "42"}'), `term` (string)
 
 ### shopware-state-machine-transition
 Transition entity state machine. Always dryRun first.
@@ -114,10 +114,15 @@ Write system configuration. Always dryRun first.
 - **Required**: `key` (string), `value` (string)
 - **Optional**: `salesChannelId` (string|null), `dryRun` (bool, default true)
 
-### shopware-console-command
-Execute allowlisted console commands.
-- **Required**: `command` (string)
-- **Optional**: `arguments` (string JSON, default "{}")
+### shopware-media-upload
+Upload a media file from a public URL. Optionally assign as product cover image.
+- **Required**: `url` (string)
+- **Optional**: `fileName` (string), `mediaFolderId` (string), `productId` (string)
+
+### shopware-theme-config
+Read or update theme configuration for a sales channel.
+- **Required**: `salesChannelId` (string), `action` (string: "get" or "update")
+- **Optional**: `config` (string JSON), `dryRun` (bool, default true)
 ```
 
 ## Keeping it up to date

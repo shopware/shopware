@@ -19,13 +19,13 @@ use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
-use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
+use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
 use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\RevenueReportTool;
@@ -58,7 +58,6 @@ class McpServiceConfigTest extends TestCase
             EntityDeleteTool::class,
             SystemConfigReadTool::class,
             SystemConfigWriteTool::class,
-            ConsoleCommandTool::class,
             StorefrontSearchTool::class,
             OrderSummaryTool::class,
             CustomerLookupTool::class,
@@ -67,6 +66,7 @@ class McpServiceConfigTest extends TestCase
             CartManageTool::class,
             CartCheckoutTool::class,
             CheckoutMethodsTool::class,
+            MediaUploadTool::class,
             ShopwareContextPrompt::class,
             EntityListResource::class,
             BusinessEventsResource::class,
@@ -98,7 +98,6 @@ class McpServiceConfigTest extends TestCase
             EntityDeleteTool::class,
             SystemConfigReadTool::class,
             SystemConfigWriteTool::class,
-            ConsoleCommandTool::class,
             StorefrontSearchTool::class,
             OrderSummaryTool::class,
             CustomerLookupTool::class,
@@ -107,6 +106,7 @@ class McpServiceConfigTest extends TestCase
             CartManageTool::class,
             CartCheckoutTool::class,
             CheckoutMethodsTool::class,
+            MediaUploadTool::class,
         ];
 
         foreach ($toolServices as $serviceId) {

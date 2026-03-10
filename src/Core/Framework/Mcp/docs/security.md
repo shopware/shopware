@@ -32,9 +32,8 @@ The `RequestCriteriaBuilder` additionally validates field-level `ApiAware` flags
 
 **Tools without ACL checks:**
 - `shopware-entity-schema` -- schema introspection only, no data access
-- `shopware-console-command` -- restricted by the command allowlist, not by ACL roles
 
-For these tools, use `shopware.mcp.allowed_tools` to control access.
+For this tool, use `shopware.mcp.allowed_tools` to control access.
 
 **Resources:** All MCP resources (e.g., `shopware://entities`, `shopware://sales-channels`) are read-only and have no ACL checks. They expose reference data only.
 
@@ -53,19 +52,6 @@ shopware:
 
 An empty list (default) means all tools are allowed. The allowlist is enforced at compile time by the `McpToolCompilerPass`.
 
-## Console command allowlist
-The `shopware-console-command` tool only executes commands listed in `shopware.mcp.allowed_console_commands`. Default allowlist:
-
-- `cache:clear`, `cache:warmup`
-- `plugin:list`, `plugin:refresh`
-- `scheduled-task:list`
-- `theme:compile`
-- `debug:router`, `debug:mcp`
-- `messenger:stats`
-- `assets:install`
-
-Plugins can add their commands to the allowlist by tagging with `shopware.mcp.allowed_command`.
-
 ## Tool name enforcement
 All capability names must only contain `a-zA-Z0-9_-` (no dots). Use a hyphen-separated prefix for namespacing (e.g., `my-plugin-my-tool`).
 
@@ -80,7 +66,7 @@ All write tools (`shopware-entity-upsert`, `shopware-entity-delete`, `shopware-s
 App MCP tool calls are signed with HMAC using the app's secret via `RequestSigner`. The app can verify the `shopware-shop-signature` header to ensure the request originates from the Shopware instance.
 
 ## Audit logging
-Tool invocations via `shopware-console-command` are logged to the `mcp` Monolog channel, including command name, arguments, exit code, and duration.
+Tool invocations are logged to the `mcp` Monolog channel.
 
 ## Rate limiting
 The MCP endpoint uses per-integration rate limiting. Each set of integration credentials gets its own rate limit bucket.

@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Storefront\Mcp\Tool\ThemeConfigTool">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Core\Framework\Mcp\Context\McpContextProvider"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="shopware.mcp.tool"/>
+            <tag name="shopware.feature" flag="MCP_SERVER"/>
+        </service>
+    </services>
+</container>

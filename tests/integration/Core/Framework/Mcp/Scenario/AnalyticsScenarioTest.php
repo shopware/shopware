@@ -22,7 +22,7 @@ use Shopware\Core\Test\TestDefaults;
 #[CoversClass(BestsellerReportTool::class)]
 class AnalyticsScenarioTest extends McpScenarioTestCase
 {
-    public function testUS16RevenueReport(): void
+    public function testUS14RevenueReport(): void
     {
         $context = Context::createDefaultContext();
         $ids = new IdsCollection();
@@ -30,8 +30,8 @@ class AnalyticsScenarioTest extends McpScenarioTestCase
         $expectedTotal = array_sum($amounts);
 
         foreach ($amounts as $i => $amount) {
-            $orderNumber = 'MCP-US16-' . $i . '-' . Uuid::randomHex();
-            $email = 'mcp-us16-' . $i . '-' . Uuid::randomHex() . '@example.com';
+            $orderNumber = 'MCP-US14-' . $i . '-' . Uuid::randomHex();
+            $email = 'mcp-us14-' . $i . '-' . Uuid::randomHex() . '@example.com';
 
             $customer = (new CustomerBuilder($ids, 'cust-' . $i))
                 ->add('email', $email)
@@ -77,7 +77,7 @@ class AnalyticsScenarioTest extends McpScenarioTestCase
         static::assertArrayHasKey('revenue', $firstBucket);
     }
 
-    public function testUS17BestsellerReport(): void
+    public function testUS15BestsellerReport(): void
     {
         $context = Context::createDefaultContext();
         $ids = new IdsCollection();
@@ -113,10 +113,10 @@ class AnalyticsScenarioTest extends McpScenarioTestCase
         ];
 
         foreach ($lineItemSets as $i => $lineItemData) {
-            $orderNumber = 'MCP-US17-' . $i . '-' . Uuid::randomHex();
-            $email = 'mcp-us17-' . $i . '-' . Uuid::randomHex() . '@example.com';
+            $orderNumber = 'MCP-US15-' . $i . '-' . Uuid::randomHex();
+            $email = 'mcp-us15-' . $i . '-' . Uuid::randomHex() . '@example.com';
 
-            $customer = (new CustomerBuilder($ids, 'cust-us17-' . $i))
+            $customer = (new CustomerBuilder($ids, 'cust-us15-' . $i))
                 ->add('email', $email)
                 ->add('password', TestDefaults::HASHED_PASSWORD)
                 ->build();
@@ -131,7 +131,7 @@ class AnalyticsScenarioTest extends McpScenarioTestCase
                 ->add('orderDateTime', (new \DateTimeImmutable('2025-02-' . \sprintf('%02d', $i + 10)))->format(Defaults::STORAGE_DATE_TIME_FORMAT))
                 ->add('orderCustomer', [
                     'id' => $orderIds->get('orderCustomer'),
-                    'customerId' => $ids->get('cust-us17-' . $i),
+                    'customerId' => $ids->get('cust-us15-' . $i),
                     'firstName' => 'Bestseller',
                     'lastName' => 'Test',
                     'email' => $email,

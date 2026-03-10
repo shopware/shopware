@@ -91,17 +91,6 @@ shopware:
     mcp:
         allowed_tools: []                    # Empty = all tools allowed. List tool names to restrict.
         app_tool_timeout: 10                 # Timeout for app webhook tool calls in seconds.
-        allowed_console_commands:            # Commands allowed in shopware-console-command tool.
-            - cache:clear
-            - cache:warmup
-            - plugin:list
-            - plugin:refresh
-            - scheduled-task:list
-            - theme:compile
-            - debug:router
-            - debug:mcp
-            - messenger:stats
-            - assets:install
 ```
 
 ## Verifying the setup

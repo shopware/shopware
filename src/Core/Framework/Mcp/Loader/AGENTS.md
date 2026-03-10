@@ -6,8 +6,6 @@ Loaders extend the MCP SDK's capability discovery to include tools from Shopware
 ## Plugin integration
 Plugins register MCP tools by tagging services with `shopware.mcp.tool` in their DI XML. The `McpToolCompilerPass` maps these to the `mcp.tool` tag so the MCP SDK discovers them.
 
-Plugins can also expose console commands to the `shopware-console-command` tool by tagging with `shopware.mcp.allowed_command`.
-
 ## App integration
 Apps declare tools in `Resources/mcp.xml`:
 

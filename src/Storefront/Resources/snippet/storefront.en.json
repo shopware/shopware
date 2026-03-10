@@ -120,7 +120,6 @@
     "VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR": "The billing address must be a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR": "The shipping address must be either null or a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::PASSWORD_IS_TOO_LONG": "The chosen password is too long.",
-    "VIOLATION::PASSWORD_IS_TOO_SHORT": "The chosen password is too short.",
     "VIOLATION::RECAPTCHA_COOKIE_REQUIRED": "Please accept the technically required cookies to enable the reCAPTCHA verification.",
     "FRAMEWORK__INVALID_CAPTCHA_VALUE": "There was an error with the captcha verification.",
     "message-default": "Unfortunately, something went wrong.",
@@ -130,7 +129,6 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
     "productNotFound": "Product \"%number%\" not found.",
     "VIOLATION::TOO_SHORT_ERROR": "Input is too short.",
-    "VIOLATION::INVALID_PATTERN_ERROR": "The input does not match the required format.",
     "product-not-found": "The product could not be found.",
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
     "message-403": "Your session has expired. Please return to the last page and try again.",
@@ -465,7 +463,6 @@
     "cartItemInfoId": "Product number:",
     "addPromotionLabel": "Promo code",
     "addPromotionPlaceholder": "Enter promo code...",
-    "addPromotionApplyAction": "Apply promo code",
     "addProductLabel": "Product number",
     "addProductPlaceholder": "Enter product number...",
     "summaryPositionPrice": "Total",
@@ -475,7 +472,6 @@
     "summaryNetPrice": "Net total",
     "summaryTax": "plus %rate%% VAT",
     "summaryTaxLabeled": "plus %rate%% %label%",
-    "summaryTaxInclude": "incl. %rate%% VAT",
     "summaryOffCanvasLabel": "Shopping cart summary",
     "proceedLink": "Go to checkout",
     "addressEqualText": "Same as shipping address",
@@ -615,9 +611,9 @@
     "subjectPlaceholder": "Enter subject...",
     "commentLabel": "Comment",
     "commentPlaceholder": "Enter comment...",
-    "privacyNoticeText": "I have read and acknowledge the <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
-    "privacyNoticeTextModal": "I have read and acknowledge the %privacyModalTagOpen%privacy policy%privacyModalTagClose%.",
-    "privacyNoticeTextPage": "I have read and acknowledge the <a href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
+    "privacyNoticeText": "By selecting continue you confirm that you have read and agree to our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
+    "privacyNoticeTextModal": "By selecting continue you confirm that you have read and agree to our %privacyModalTagOpen%data protection information%privacyModalTagClose%.",
+    "privacyNoticeTextPage": "By selecting continue you confirm that you have read and agree to our <a href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },
@@ -633,7 +629,6 @@
     "contractNumberPlaceholder": "Enter contract number...",
     "commentLabel": "Comment",
     "commentPlaceholder": "Enter comment...",
-    "privacyNoticeTextModal": "Our Privacy Notice is available %privacyModalTagOpen%here%privacyModalTagClose%.",
     "formSubmit": "Confirm revocation",
     "success": "We have received your revocation request and will process it as soon as possible."
   },
@@ -741,10 +736,6 @@
           "solution": "Please try again or contact our support."
         }
       }
-    },
-    "animation": {
-      "toggle": "Animation play/pause",
-      "select": "Select animation"
     }
   },
   "wishlist": {
@@ -856,9 +847,7 @@
         "increase": "Increase quantity",
         "increaseOfProduct": "Increase quantity of %product%",
         "decrease": "Decrease quantity",
-        "decreaseOfProduct": "Decrease quantity of %product%",
-        "stockAdjusted": "Your quantity has been updated to %quantity%.",
-        "outOfStock": "The product is no longer available."
+        "decreaseOfProduct": "Decrease quantity of %product%"
       },
       "configurator": {
         "legend": "<span class=\"%hidden_cls%\">Select&nbsp;</span>%group_name%"

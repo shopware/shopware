@@ -15,6 +15,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -129,6 +131,56 @@ class CartCheckoutToolTest extends TestCase
         static::assertSame($customPaymentId, $data['data']['paymentMethodId']);
     }
 
+    public function testOrderExceptionReturnsError(): void
+    {
+        $cart = $this->createCart(Uuid::randomHex(), 'Product', 1, 10.0, 10.0);
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->method('getCart')->willReturn($cart);
+        $cartService->method('order')->willThrowException(new \RuntimeException('Payment failed'));
+
+        $tool = $this->createTool($cart, Uuid::randomHex(), Uuid::randomHex(), $cartService);
+
+        $output = ($tool)(
+            salesChannelId: Uuid::randomHex(),
+            token: 'test-token',
+            customerId: Uuid::randomHex(),
+            dryRun: false,
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Payment failed', $data['error']);
+    }
+
+    public function testDeniesAccessWithoutPermission(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions([]);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new CartCheckoutTool(
+            static::createStub(SalesChannelContextServiceInterface::class),
+            static::createStub(CartService::class),
+            $contextProvider,
+        );
+
+        $output = ($tool)(
+            salesChannelId: Uuid::randomHex(),
+            token: 'test-token',
+            customerId: Uuid::randomHex(),
+        );
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege', $data['error']);
+    }
+
     private function createTool(Cart $cart, string $paymentMethodId, string $shippingMethodId, (CartService&MockObject)|null $cartService = null): CartCheckoutTool
     {
         $paymentMethod = new PaymentMethodEntity();
@@ -137,17 +189,17 @@ class CartCheckoutToolTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId($shippingMethodId);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getPaymentMethod')->willReturn($paymentMethod);
         $context->method('getShippingMethod')->willReturn($shippingMethod);
 
-        $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $contextService = static::createStub(SalesChannelContextServiceInterface::class);
         $contextService->method('get')->willReturn($context);
 
         $cartService ??= $this->createMock(CartService::class);
         $cartService->method('getCart')->willReturn($cart);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         return new CartCheckoutTool($contextService, $cartService, $contextProvider);

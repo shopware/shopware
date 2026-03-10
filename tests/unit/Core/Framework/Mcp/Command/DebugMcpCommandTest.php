@@ -19,7 +19,7 @@ class DebugMcpCommandTest extends TestCase
 {
     public function testOutputsToolsSection(): void
     {
-        $tool = $this->createMock(EntitySchemaTool::class);
+        $tool = static::createStub(EntitySchemaTool::class);
 
         $command = new DebugMcpCommand([$tool], [], []);
         $tester = new CommandTester($command);
@@ -62,5 +62,38 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('Name', $output);
         static::assertStringContainsString('Description', $output);
         static::assertStringContainsString('Class', $output);
+    }
+
+    public function testItemWithoutMcpAttributeShowsFallback(): void
+    {
+        $plainItem = new \stdClass();
+
+        $command = new DebugMcpCommand([$plainItem], [], []);
+        $tester = new CommandTester($command);
+
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('(no MCP attribute found)', $output);
+    }
+
+    public function testMethodLevelMcpAttributeIsDiscovered(): void
+    {
+        $toolWithMethodAttr = new class {
+            #[McpTool(name: 'method-tool', description: 'Found on method')]
+            public function __invoke(): string
+            {
+                return '';
+            }
+        };
+
+        $command = new DebugMcpCommand([$toolWithMethodAttr], [], []);
+        $tester = new CommandTester($command);
+
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('method-tool', $output);
+        static::assertStringContainsString('Found on method', $output);
     }
 }

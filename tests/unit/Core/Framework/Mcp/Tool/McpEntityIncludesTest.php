@@ -272,6 +272,46 @@ class McpEntityIncludesTest extends TestCase
         static::assertContains('translated', $includes['manufacturer']);
     }
 
+    public function testEnsureTranslatedSkipsEntityNotInIncludesMap(): void
+    {
+        [$product] = $this->compileDefinitions([
+            'product' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                new TranslatedField('name'),
+            ],
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->setIncludes(['other_entity' => ['id']]);
+
+        $this->applyDefaultIncludes($product, $criteria);
+
+        $includes = $criteria->getIncludes();
+        static::assertNotNull($includes);
+        static::assertArrayNotHasKey('product', $includes);
+        static::assertArrayHasKey('other_entity', $includes);
+    }
+
+    public function testEnsureTranslatedSkipsEntityWithoutTranslatedFields(): void
+    {
+        [$product] = $this->compileDefinitions([
+            'product' => [
+                (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+                (new StringField('product_number', 'productNumber'))->addFlags(new ApiAware()),
+            ],
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->setIncludes(['product' => ['id', 'productNumber']]);
+
+        $this->applyDefaultIncludes($product, $criteria);
+
+        $includes = $criteria->getIncludes();
+        static::assertNotNull($includes);
+        static::assertNotContains('translated', $includes['product']);
+        static::assertSame(['id', 'productNumber'], $includes['product']);
+    }
+
     /**
      * @param array<non-empty-string, list<\Shopware\Core\Framework\DataAbstractionLayer\Field\Field>> $definitionsMap
      *
@@ -307,7 +347,7 @@ class McpEntityIncludesTest extends TestCase
             };
         }
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getByClassOrEntityName')->willReturnCallback(
             function (string $classOrName) use ($definitions): EntityDefinition {
                 foreach ($definitions as $def) {

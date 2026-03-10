@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,8 +51,8 @@ class McpAuthenticationListenerTest extends TestCase
     public function testRejectsNonIntegrationKeys(): void
     {
         $listener = new McpAuthenticationListener(
-            $this->createMock(ClientRepository::class),
-            $this->createMock(RateLimiter::class),
+            static::createStub(ClientRepository::class),
+            static::createStub(RateLimiter::class),
         );
 
         $event = $this->createControllerEvent('api.mcp.endpoint', [
@@ -84,6 +85,31 @@ class McpAuthenticationListenerTest extends TestCase
 
         static::expectException(McpException::class);
         static::expectExceptionMessage('Invalid integration credentials');
+
+        $listener->authenticate($event);
+    }
+
+    public function testRateLimitExceededPropagatesException(): void
+    {
+        $accessKey = 'SWIAvalidintegrationkey12';
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::OAUTH, $accessKey)
+            ->willThrowException(new RateLimitExceededException(time() + 60));
+
+        $listener = new McpAuthenticationListener(
+            static::createStub(ClientRepository::class),
+            $rateLimiter,
+        );
+
+        $event = $this->createControllerEvent('api.mcp.endpoint', [
+            'sw-access-key' => $accessKey,
+            'sw-secret-access-key' => 'some-secret',
+        ]);
+
+        $this->expectException(RateLimitExceededException::class);
 
         $listener->authenticate($event);
     }
@@ -132,7 +158,7 @@ class McpAuthenticationListenerTest extends TestCase
         }
 
         return new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static fn () => null,
             $request,
             HttpKernelInterface::MAIN_REQUEST,

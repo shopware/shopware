@@ -35,10 +35,10 @@ class McpServerControllerTest extends TestCase
 
         $this->controller = new McpServerController(
             $server,
-            $this->createMock(HttpMessageFactoryInterface::class),
-            $this->createMock(HttpFoundationFactoryInterface::class),
-            $this->createMock(ResponseFactoryInterface::class),
-            $this->createMock(StreamFactoryInterface::class),
+            static::createStub(HttpMessageFactoryInterface::class),
+            static::createStub(HttpFoundationFactoryInterface::class),
+            static::createStub(ResponseFactoryInterface::class),
+            static::createStub(StreamFactoryInterface::class),
             $this->rateLimiter,
         );
     }

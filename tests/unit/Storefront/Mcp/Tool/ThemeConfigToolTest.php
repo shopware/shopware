@@ -32,10 +32,10 @@ class ThemeConfigToolTest extends TestCase
             ->with($themeId)
             ->willReturn($expectedConfig);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn($themeId);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
 
         $tool = new ThemeConfigTool(
@@ -60,10 +60,10 @@ class ThemeConfigToolTest extends TestCase
         $themeService = $this->createMock(ThemeService::class);
         $themeService->expects($this->never())->method('updateTheme');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn($themeId);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read', 'theme:update']));
 
         $tool = new ThemeConfigTool(
@@ -92,10 +92,10 @@ class ThemeConfigToolTest extends TestCase
             ->method('updateTheme')
             ->with($themeId, $configValues, null);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn($themeId);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read', 'theme:update']));
 
         $tool = new ThemeConfigTool(
@@ -115,14 +115,14 @@ class ThemeConfigToolTest extends TestCase
 
     public function testNoThemeReturnsError(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn(false);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
 
         $tool = new ThemeConfigTool(
-            $this->createMock(ThemeService::class),
+            static::createStub(ThemeService::class),
             $contextProvider,
             $connection,
         );
@@ -134,15 +134,84 @@ class ThemeConfigToolTest extends TestCase
         static::assertStringContainsString('No theme assigned', $data['error']);
     }
 
+    public function testUnknownActionReturnsError(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn($themeId);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
+
+        $tool = new ThemeConfigTool(
+            static::createStub(ThemeService::class),
+            $contextProvider,
+            $connection,
+        );
+
+        $output = $tool(Uuid::randomHex(), 'delete');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Unknown action', $data['error']);
+    }
+
+    public function testGetExceptionReturnsError(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $themeService = static::createStub(ThemeService::class);
+        $themeService->method('getPlainThemeConfiguration')
+            ->willThrowException(new \RuntimeException('Theme config broken'));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn($themeId);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
+
+        $tool = new ThemeConfigTool($themeService, $contextProvider, $connection);
+
+        $output = $tool(Uuid::randomHex(), 'get');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Theme config broken', $data['error']);
+    }
+
+    public function testUpdateWithEmptyConfigReturnsError(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn($themeId);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read', 'theme:update']));
+
+        $tool = new ThemeConfigTool(
+            static::createStub(ThemeService::class),
+            $contextProvider,
+            $connection,
+        );
+
+        $output = $tool(Uuid::randomHex(), 'update', '{}', false);
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('non-empty JSON', $data['error']);
+    }
+
     public function testMissingAclReturnsError(): void
     {
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext([]));
 
         $tool = new ThemeConfigTool(
-            $this->createMock(ThemeService::class),
+            static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
         );
 
         $output = $tool(Uuid::randomHex(), 'get');

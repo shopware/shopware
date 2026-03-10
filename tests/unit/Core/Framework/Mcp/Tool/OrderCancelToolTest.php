@@ -114,6 +114,60 @@ class OrderCancelToolTest extends TestCase
         static::assertSame('cancel', $data['data']['transactions'][0]['action']);
     }
 
+    public function testTransitionNotAvailableReturnsNote(): void
+    {
+        $order = $this->buildOrder('in_progress', 'open', 'open');
+        $tool = $this->createTool($order, availableActions: []);
+
+        $output = ($tool)(orderNumber: '10001', dryRun: true);
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertFalse($data['data']['order']['executed']);
+        static::assertStringContainsString('not available', $data['data']['order']['note']);
+    }
+
+    public function testGetAvailableTransitionsExceptionTreatsAsUnavailable(): void
+    {
+        $order = $this->buildOrder('open', 'open', 'open');
+        $tool = $this->createTool($order, availableActions: [], throwOnGetTransitions: true);
+
+        $output = ($tool)(orderNumber: '10001', dryRun: true);
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertFalse($data['data']['order']['executed']);
+        static::assertStringContainsString('not available', $data['data']['order']['note']);
+    }
+
+    public function testDeniesWritePermissionOnCommit(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['order:read']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $order = $this->buildOrder('open', 'open', 'open');
+        $collection = new OrderCollection([$order]);
+        $result = new EntitySearchResult('order', 1, $collection, null, new Criteria(), $context);
+
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('search')->willReturn($result);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturn($repository);
+
+        $tool = new OrderCancelTool($registry, $contextProvider, static::createStub(StateMachineRegistry::class));
+        $output = ($tool)(orderNumber: '10001', dryRun: false);
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege', $data['error']);
+    }
+
     public function testDeniesAccessWithoutReadPermission(): void
     {
         $source = new AdminApiSource(null, null);
@@ -123,12 +177,10 @@ class OrderCancelToolTest extends TestCase
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
-
-        $tool = new OrderCancelTool($registry, $contextProvider, $stateMachineRegistry);
+        $tool = new OrderCancelTool($registry, $contextProvider, static::createStub(StateMachineRegistry::class));
         $output = ($tool)(orderNumber: '10001');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -166,6 +218,7 @@ class OrderCancelToolTest extends TestCase
         ?OrderEntity $order,
         array $availableActions,
         bool $executeTransitions = false,
+        bool $throwOnGetTransitions = false,
     ): OrderCancelTool {
         $context = Context::createDefaultContext();
 
@@ -176,27 +229,32 @@ class OrderCancelToolTest extends TestCase
 
         $result = new EntitySearchResult('order', $collection->count(), $collection, null, new Criteria(), $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $registry->method('getRepository')->with('order')->willReturn($repository);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturn($repository);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
+        $stateMachineRegistry = static::createStub(StateMachineRegistry::class);
 
-        $transitions = [];
-        foreach ($availableActions as $action) {
-            $transition = new StateMachineTransitionEntity();
-            $transition->setId(Uuid::randomHex());
-            $transition->setActionName($action);
-            $transition->setUniqueIdentifier(Uuid::randomHex());
-            $transitions[] = $transition;
+        if ($throwOnGetTransitions) {
+            $stateMachineRegistry->method('getAvailableTransitions')
+                ->willThrowException(new \RuntimeException('State machine not found'));
+        } else {
+            $transitions = [];
+            foreach ($availableActions as $action) {
+                $transition = new StateMachineTransitionEntity();
+                $transition->setId(Uuid::randomHex());
+                $transition->setActionName($action);
+                $transition->setUniqueIdentifier(Uuid::randomHex());
+                $transitions[] = $transition;
+            }
+
+            $stateMachineRegistry->method('getAvailableTransitions')->willReturn($transitions);
         }
-
-        $stateMachineRegistry->method('getAvailableTransitions')->willReturn($transitions);
 
         if ($executeTransitions) {
             $stateCollection = new StateMachineStateCollection();

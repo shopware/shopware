@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
@@ -100,6 +101,93 @@ class McpToolCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition('tool.core'));
     }
 
+    public function testToolWithoutMcpAttributeIsSkippedInConflictDetection(): void
+    {
+        $container = $this->createContainer();
+
+        $def1 = new Definition(McpToolCompilerPassTestNoAttribute::class);
+        $def1->addTag('mcp.tool');
+        $container->setDefinition('tool.no-attr', $def1);
+
+        $def2 = new Definition(McpToolCompilerPassTestCoreTool::class);
+        $def2->addTag('mcp.tool');
+        $container->setDefinition('tool.core', $def2);
+
+        $pass = new McpToolCompilerPass();
+        $pass->process($container);
+
+        static::assertTrue($container->hasDefinition('tool.no-attr'));
+        static::assertTrue($container->hasDefinition('tool.core'));
+    }
+
+    public function testAllowlistRemovesToolWithoutMcpAttribute(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('shopware.mcp.allowed_tools', ['shopware-core-tool']);
+
+        $def = new Definition(McpToolCompilerPassTestNoAttribute::class);
+        $def->addTag('mcp.tool');
+        $container->setDefinition('tool.no-attr', $def);
+
+        $allowed = new Definition(McpToolCompilerPassTestCoreTool::class);
+        $allowed->addTag('mcp.tool');
+        $container->setDefinition('tool.allowed', $allowed);
+
+        $pass = new McpToolCompilerPass();
+        $pass->process($container);
+
+        static::assertFalse($container->hasDefinition('tool.no-attr'));
+        static::assertTrue($container->hasDefinition('tool.allowed'));
+    }
+
+    public function testDiscoveryCacheIsWiredWhenServiceExists(): void
+    {
+        $container = $this->createContainer();
+
+        $container->register('shopware.mcp.discovery_cache');
+
+        $builderDef = $container->getDefinition('mcp.server.builder');
+        $builderDef->addMethodCall('setDiscovery', [
+            new Reference('mcp.discovery.reflection'),
+            [],
+            [],
+        ]);
+
+        $pass = new McpToolCompilerPass();
+        $pass->process($container);
+
+        $calls = $builderDef->getMethodCalls();
+        $setDiscoveryCalls = array_filter($calls, fn ($c) => $c[0] === 'setDiscovery');
+
+        static::assertNotEmpty($setDiscoveryCalls);
+
+        $lastCall = end($setDiscoveryCalls);
+        static::assertInstanceOf(Reference::class, $lastCall[1][3]);
+        static::assertSame('shopware.mcp.discovery_cache', (string) $lastCall[1][3]);
+    }
+
+    public function testDiscoveryCacheSkippedWhenNoCacheService(): void
+    {
+        $container = $this->createContainer();
+
+        $builderDef = $container->getDefinition('mcp.server.builder');
+        $builderDef->addMethodCall('setDiscovery', [
+            new Reference('mcp.discovery.reflection'),
+            [],
+            [],
+        ]);
+
+        $pass = new McpToolCompilerPass();
+        $pass->process($container);
+
+        $calls = $builderDef->getMethodCalls();
+        $setDiscoveryCalls = array_filter($calls, fn ($c) => $c[0] === 'setDiscovery');
+
+        foreach ($setDiscoveryCalls as $call) {
+            static::assertArrayNotHasKey(3, $call[1]);
+        }
+    }
+
     public function testSkipsWhenNoMcpServerBuilder(): void
     {
         $container = new ContainerBuilder();
@@ -140,6 +228,17 @@ class McpToolCompilerPassTestCoreTool
  */
 #[McpTool(name: 'my-plugin-namespaced-tool', description: 'test namespaced tool')]
 class McpToolCompilerPassTestNamespacedTool
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+class McpToolCompilerPassTestNoAttribute
 {
     public function __invoke(): string
     {

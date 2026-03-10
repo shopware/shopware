@@ -7,6 +7,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -29,7 +30,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
     public function store(array $tags): void
     {
-        if (empty($tags)) {
+        if ($tags === []) {
             return;
         }
 
@@ -76,7 +77,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
         ($this->debug)($this, $rows);
 
-        if (empty($rows)) {
+        if ($rows === []) {
             return [];
         }
 
@@ -109,7 +110,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
         $this->connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
 
         try {
-            return $this->connection->transactional($callback);
+            return RetryableTransaction::transactional($this->connection, $callback);
         } finally {
             // restore original isolation mode
             $this->connection->setTransactionIsolation($transactionIsolation);

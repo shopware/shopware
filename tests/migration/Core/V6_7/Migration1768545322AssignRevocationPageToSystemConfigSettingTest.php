@@ -1,0 +1,93 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Migration\Core\V6_7;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_7\Migration1768545320RevocationRequestCmsForm;
+use Shopware\Core\Migration\V6_7\Migration1768545322AssignRevocationPageToSystemConfigSetting;
+
+/**
+ * @internal
+ */
+#[Package('after-sales')]
+#[CoversClass(Migration1768545322AssignRevocationPageToSystemConfigSetting::class)]
+class Migration1768545322AssignRevocationPageToSystemConfigSettingTest extends TestCase
+{
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testUpdate(): void
+    {
+        $config = $this->getConfig();
+        static::assertIsArray($config);
+        static::assertArrayHasKey('id', $config);
+        static::assertIsString($config['id']);
+        $this->deleteConfigSetting($config['id']);
+
+        static::assertNull($this->getConfig());
+
+        $migration = new Migration1768545322AssignRevocationPageToSystemConfigSetting();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $configResult = $this->getConfig();
+        static::assertIsArray($configResult);
+        static::assertArrayHasKey('configuration_value', $configResult);
+        static::assertIsString($configResult['configuration_value']);
+
+        $valueResult = \json_decode($configResult['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($valueResult);
+        static::assertArrayHasKey('_value', $valueResult);
+        static::assertTrue(Uuid::isValid($valueResult['_value']));
+
+        $pageNameResult = $this->getPageName($valueResult['_value']);
+        static::assertIsString($pageNameResult);
+        static::assertSame(
+            Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'],
+            $pageNameResult
+        );
+    }
+
+    private function getPageName(string $pageId): ?string
+    {
+        return $this->connection->fetchOne(
+            'SELECT name FROM cms_page_translation WHERE cms_page_id = :pageId AND language_id = :languageId',
+            [
+                'pageId' => Uuid::fromHexToBytes($pageId),
+                'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            ]
+        );
+    }
+
+    private function deleteConfigSetting(string $configByteId): void
+    {
+        $this->connection->delete('system_config', ['id' => $configByteId]);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function getConfig(): ?array
+    {
+        $result = $this->connection->fetchAssociative(
+            'SELECT id, configuration_value FROM system_config WHERE configuration_key = :configKey',
+            ['configKey' => Migration1768545322AssignRevocationPageToSystemConfigSetting::REVOCATION_PAGE_CONFIG_KEY]
+        );
+
+        if (!\is_array($result)) {
+            return null;
+        }
+
+        return $result;
+    }
+}

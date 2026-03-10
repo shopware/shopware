@@ -76,7 +76,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
      */
     private function updateCustomer(array $orderIds, bool $isDelete = false): void
     {
-        if (empty($orderIds)) {
+        if ($orderIds === []) {
             return;
         }
 
@@ -86,7 +86,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (empty($customerIds)) {
+        if ($customerIds === []) {
             return;
         }
 
@@ -130,7 +130,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 
         $data = $this->connection->fetchAllAssociative($select, $parameters, $types);
 
-        if (empty($data)) {
+        if ($data === []) {
             foreach ($customerIds as $customerId) {
                 $data[] = [
                     'id' => Uuid::fromHexToBytes($customerId),

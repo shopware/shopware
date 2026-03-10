@@ -50,6 +50,7 @@ class CartRuleLoaderTest extends TestCase
         $country->setActive(true);
         $country->setShippingAvailable(true);
         $country->setCheckVatIdPattern(false);
+        $country->setIsEu(false);
 
         $currency = new CurrencyEntity();
         $currency->setId(Uuid::randomHex());

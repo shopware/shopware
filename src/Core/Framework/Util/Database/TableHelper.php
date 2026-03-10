@@ -26,11 +26,6 @@ use Shopware\Core\Framework\Util\UtilException;
 #[Package('framework')]
 class TableHelper
 {
-    /**
-     * @var AbstractSchemaManager<TPlatform>|null
-     */
-    private static ?AbstractSchemaManager $schemaManager = null;
-
     private function __construct()
     {
     }
@@ -184,6 +179,52 @@ class TableHelper
     }
 
     /**
+     * Checks if a foreign key exists by column relationships rather than by foreign key name.
+     *
+     * @param non-empty-string $table
+     * @param list<string> $localColumns
+     * @param list<string> $foreignColumns
+     *
+     * @throws TableHelperException
+     */
+    public static function foreignKeyExistsByColumns(
+        Connection $connection,
+        string $table,
+        array $localColumns,
+        string $foreignTable,
+        array $foreignColumns
+    ): bool {
+        try {
+            $foreignKeys = self::getSchemaManager($connection)->introspectTableForeignKeyConstraintsByUnquotedName($table);
+
+            foreach ($foreignKeys as $foreignKey) {
+                $referencingColumns = array_map(
+                    static fn (UnqualifiedName $col): string => $col->getIdentifier()->getValue(),
+                    $foreignKey->getReferencingColumnNames()
+                );
+                $referencedColumns = array_map(
+                    static fn (UnqualifiedName $col): string => $col->getIdentifier()->getValue(),
+                    $foreignKey->getReferencedColumnNames()
+                );
+                $referencedTable = $foreignKey->getReferencedTableName()->getUnqualifiedName()->getValue();
+
+                if ($referencingColumns === $localColumns
+                    && $referencedTable === $foreignTable
+                    && $referencedColumns === $foreignColumns
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (TableHelperException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
+        }
+    }
+
+    /**
      * @param non-empty-string $table
      *
      * @throws TableHelperException
@@ -210,11 +251,6 @@ class TableHelper
         }
     }
 
-    public static function resetSchemaManager(): void
-    {
-        self::$schemaManager = null;
-    }
-
     /**
      * @throws TableHelperException
      *
@@ -222,16 +258,10 @@ class TableHelper
      */
     private static function getSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        if (self::$schemaManager !== null) {
-            return self::$schemaManager;
-        }
-
         try {
-            self::$schemaManager = $connection->createSchemaManager();
+            return $connection->createSchemaManager();
         } catch (\Throwable $e) {
             throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
-
-        return self::$schemaManager;
     }
 }

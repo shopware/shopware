@@ -81,7 +81,7 @@ class ArrayIncrementer extends AbstractIncrementer
             return;
         }
 
-        if (empty($keys)) {
+        if ($keys === []) {
             unset($this->logs[$cluster]);
 
             return;

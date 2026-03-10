@@ -4,6 +4,7 @@ namespace Shopware\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -13,7 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
@@ -52,9 +54,9 @@ final readonly class DispatchEntityMessageHandler
             self::throwUnrecoverableMessageHandlingException($message, 'Message dispatched for old shopId');
         }
 
-        $lastApprovalDate = $this->consentService->getLastConsentIsAcceptedDate();
-        if ($lastApprovalDate === null) {
-            self::throwUnrecoverableMessageHandlingException($message, 'No approval date found');
+        $backendDataConsent = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext());
+        if ($backendDataConsent->acceptedUntil === null) {
+            self::throwUnrecoverableMessageHandlingException($message, 'The consent was never accepted');
         }
 
         if ($message->operation === Operation::DELETE) {
@@ -63,7 +65,7 @@ final readonly class DispatchEntityMessageHandler
             return;
         }
 
-        $this->handleUpserts($message, $definition, $lastApprovalDate);
+        $this->handleUpserts($message, $definition, new \DateTimeImmutable($backendDataConsent->acceptedUntil));
     }
 
     /**
@@ -153,7 +155,7 @@ final readonly class DispatchEntityMessageHandler
     private function handleUpserts(
         DispatchEntityMessage $message,
         EntityDefinition $definition,
-        \DateTimeImmutable $lastApprovalDate,
+        \DateTimeImmutable $lastCollectionAllowedDate,
     ): void {
         $fields = $this->usageDataAllowListService->getFieldsToSelectFromDefinition($definition);
         $manyToManyAssociationIdFields = $this->entityDefinitionService->getManyToManyAssociationIdFields($fields);
@@ -169,7 +171,7 @@ final readonly class DispatchEntityMessageHandler
 
         $primaryKeys = $message->primaryKeys;
         $primaryKeyColumns = array_keys($primaryKeys[0]);
-        if (!empty($missingIdFields) && \count($primaryKeyColumns) > 1) {
+        if ($missingIdFields !== [] && \count($primaryKeyColumns) > 1) {
             self::throwUnrecoverableMessageHandlingException($message, 'Entity sync does not support composite primary keys');
         }
 
@@ -184,7 +186,7 @@ final readonly class DispatchEntityMessageHandler
         $queryBuilder = (new DispatchEntitiesQueryBuilder($this->connection))
             ->forEntity($definition->getEntityName())
             ->withFields($fields)
-            ->withLastApprovalDateConstraint($message, $lastApprovalDate)
+            ->withCollectUntilConstraint($message, $lastCollectionAllowedDate)
             ->withPrimaryKeys($primaryKeys);
 
         $queryBuilder->checkLiveVersion($definition);
@@ -206,7 +208,7 @@ final readonly class DispatchEntityMessageHandler
             $serializedEntities[] = $serializedEntity;
         }
 
-        if (empty($serializedEntities)) {
+        if ($serializedEntities === []) {
             return;
         }
 

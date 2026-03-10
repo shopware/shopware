@@ -206,12 +206,14 @@ export default function createLoginService(
     /**
      * Executes refresh logic under a cross-tab lock when the Web Locks API is available.
      */
-    function synchronizedTokenRefresh<T>(fn: () => Promise<T>): Promise<T> {
+    async function synchronizedTokenRefresh<T>(fn: () => Promise<T>): Promise<T> {
         if (typeof navigator === 'undefined' || typeof navigator.locks?.request !== 'function') {
             return fn();
         }
 
-        return navigator.locks.request('sw-admin-token-refresh', fn).then((result) => result);
+        const result = await navigator.locks.request('sw-admin-token-refresh', fn);
+
+        return result;
     }
 
     /**

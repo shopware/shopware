@@ -211,7 +211,7 @@ export default function createLoginService(
             return fn();
         }
 
-        const result = await navigator.locks.request('sw-admin-token-refresh', fn);
+        const result = await (navigator.locks.request('sw-admin-token-refresh', fn) as Promise<T>);
 
         return result;
     }

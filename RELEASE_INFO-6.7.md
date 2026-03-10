@@ -42,6 +42,14 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 | `/store-api/newsletter/confirm` | `{"success": true}`                                            |
 | `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
 
+### OpenAPI enums via DAL `Choice` flag
+
+DAL fields can now declare a finite set of allowed values using the `Choice` flag.
+This information is used to enrich the generated OpenAPI schema with `enum` values for better API documentation and client generation.
+
+By default, `Choice` is non-strict and does not affect write validation.
+If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
+
 ## Core
 
 ### Scheduled cleanup of expired customer recovery records
@@ -53,6 +61,13 @@ Customer recovery records (password reset tokens) expire after 2 hours. Previous
 ### Inheritance added to product main categories
 
 Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
+
+### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
+
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed. 
+But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
+This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
+Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
 
 ### Deprecation of unused `TemplateGroup` class
 

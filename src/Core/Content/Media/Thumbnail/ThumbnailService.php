@@ -19,6 +19,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -68,7 +69,11 @@ class ThumbnailService
                 throw MediaException::thumbnailAssociationNotLoaded();
             }
 
-            if (!$this->mediaCanHaveThumbnails($media, $context)) {
+            if (MediaUploadService::isExternalUrl($media->getPath())) {
+                continue;
+            }
+
+            if (!$this->canAutoGenerateThumbnails($media, $context)) {
                 $delete = [...$delete, ...$media->getThumbnails()->getIds()];
 
                 continue;
@@ -129,7 +134,11 @@ class ThumbnailService
             throw MediaException::thumbnailGenerationDisabled();
         }
 
-        if (!$this->mediaCanHaveThumbnails($media, $context)) {
+        if (MediaUploadService::isExternalUrl($media->getPath())) {
+            return 0;
+        }
+
+        if (!$this->canAutoGenerateThumbnails($media, $context)) {
             $this->deleteAssociatedThumbnails($media, $context);
 
             return 0;
@@ -463,9 +472,13 @@ class ThumbnailService
         }
     }
 
-    private function mediaCanHaveThumbnails(MediaEntity $media, Context $context): bool
+    private function canAutoGenerateThumbnails(MediaEntity $media, Context $context): bool
     {
         if (!$media->hasFile()) {
+            return false;
+        }
+
+        if (MediaUploadService::isExternalUrl($media->getPath())) {
             return false;
         }
 

@@ -339,13 +339,6 @@
                     "type": "integer",
                     "minimum": 1,
                     "title": "Timeout in seconds for app webhook MCP tool calls."
-                },
-                "allowed_console_commands": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "title": "Console commands allowed to be executed via the shopware-console-command MCP tool."
                 }
             },
             "title": "MCP (Model Context Protocol)"

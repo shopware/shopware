@@ -134,9 +134,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $context->setImitatingUserId(null);
             }
 
-            // skip cart calculation on ESI sub-requests if it has already been done.
-            $esiRequest = $currentRequest?->attributes->has('_sw_esi') ?? false;
-            if (!$this->cartService->hasCart($token) || !$esiRequest) {
+            // Only calculate the cart once per request
+            if (!$this->cartService->hasCart($token)) {
                 // @deprecated tag:v6.8.0 - Permission will always be true
                 $result = $context->withPermissions(
                     [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => Feature::isActive('DEFERRED_CART_ERRORS')],

@@ -178,7 +178,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             [
                 'type' => self::TYPE_JSON,
                 'actual' => $this->missingRoutes,
-            ]
+            ],
         ]);
     }
 

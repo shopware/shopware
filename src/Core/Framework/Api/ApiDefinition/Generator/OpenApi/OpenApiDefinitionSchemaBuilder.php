@@ -261,9 +261,7 @@ class OpenApiDefinitionSchemaBuilder
             $isReadOnly = $this->isReadOnlyField($field);
             $isImmutable = $field->is(Immutable::class);
 
-            if ($isReadOnly) {
-            $attr = $this->getPropertyByField($field);
-
+            // Apply enum values from Choice flag and enum providers
             $enumValues = [];
             $choice = $field->getFlag(Choice::class);
             if ($choice instanceof Choice) {
@@ -284,7 +282,7 @@ class OpenApiDefinitionSchemaBuilder
                 $attr->enum = $enumValues;
             }
 
-            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || $this->isWriteProtected($field)) {
+            if ($isReadOnly) {
                 $attr->readOnly = true;
             }
 
@@ -318,7 +316,6 @@ class OpenApiDefinitionSchemaBuilder
                     $updateRequiredAttributes[] = $field->getPropertyName();
                     $allRequiredAttributes[] = $field->getPropertyName();
                 }
-            }
             }
         }
 

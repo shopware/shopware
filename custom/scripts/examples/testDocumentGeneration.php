@@ -18,7 +18,7 @@ class TestDocumentGeneration extends BaseScript
     {
         $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $documentGenerator->generate(DocumentType::Invoice->value, [DocumentFormat::EmbeddedZugferd->value]);
-        //$documentGenerator->generate(DocumentType::Invoice->value, [DocumentFormat::Pdf->value]);
+        //$documentGenerator->generate(DocumentType::Invoice->value, [DocumentFormat::Pdf->value, DocumentFormat::Html->value]);
     }
 }
 

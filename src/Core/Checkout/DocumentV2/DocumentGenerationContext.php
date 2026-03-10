@@ -9,4 +9,12 @@ namespace Shopware\Core\Checkout\DocumentV2;
 class DocumentGenerationContext
 {
     // todo: figure out dependencies for renderers
+
+    /*
+    public OrderEntity $order;
+
+    public DocumentConfiguration $config;
+
+    public array $extensions = [];
+    */
 }

@@ -10,5 +10,7 @@
 ## Conceptional Todos:
 
 - [ ] Figure out `DocumentGenerationContext`, so that not each renderer has to fetch potentially the same data from DB.
-- [ ] Figure out how the architecture looks from a third party / extensibility perspective (e.g. plugin / app)
 - [ ] Look for ways to reduce code duplication (e.g. are renderers really needed for each type + format combination?)
+- [ ] How does configuration per type + format look like?
+- [ ] Database schema
+- [ ] Figure out how the architecture looks from a third party / extensibility perspective (e.g. plugin / app)

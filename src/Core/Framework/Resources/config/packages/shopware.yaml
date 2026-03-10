@@ -1,6 +1,7 @@
 parameters:
     default_cdn_strategy: "id"
     env(APP_URL): ''
+    env(PRODUCT_ANALYTICS_GATEWAY_URL): 'https://product-analytics-gateway.services.shopware.io'
     APP_URL: "%env(string:APP_URL)%"
     env(REDIS_PREFIX): ''
 
@@ -290,6 +291,17 @@ shopware:
                     - limit: 10
                       interval: '90 seconds'
             contact_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
+            revocation_request_form:
                 enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'

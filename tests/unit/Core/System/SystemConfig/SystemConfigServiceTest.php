@@ -10,11 +10,13 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -98,6 +100,46 @@ class SystemConfigServiceTest extends TestCase
         $this->expectExceptionObject(SystemConfigException::systemConfigKeyIsManagedBySystems('core.test'));
 
         $configService->set('core.test', false);
+    }
+
+    public function testSetMultiForwardsSilentToHook(): void
+    {
+        $dispatchedHook = null;
+        $this->eventDispatcher
+            ->method('dispatch')
+            ->willReturnCallback(function (Event|Hookable $event) use (&$dispatchedHook) {
+                if ($event instanceof SystemConfigChangedHook) {
+                    $dispatchedHook = $event;
+                }
+
+                return $event;
+            });
+
+        $this->configService->setMultiple(['foo.bar' => 'value'], TestDefaults::SALES_CHANNEL, true);
+
+        static::assertInstanceOf(SystemConfigChangedHook::class, $dispatchedHook);
+        static::assertTrue($dispatchedHook->silent);
+        static::assertSame(TestDefaults::SALES_CHANNEL, $dispatchedHook->salesChannelId);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0', 'CACHE_REWORK'])]
+    public function testSetMultiDefaultsSilentToFalseWithoutFeatureFlag(): void
+    {
+        $dispatchedHook = null;
+        $this->eventDispatcher
+            ->method('dispatch')
+            ->willReturnCallback(function (Event|Hookable $event) use (&$dispatchedHook) {
+                if ($event instanceof SystemConfigChangedHook) {
+                    $dispatchedHook = $event;
+                }
+
+                return $event;
+            });
+
+        $this->configService->setMultiple(['foo.bar' => 'value']);
+
+        static::assertInstanceOf(SystemConfigChangedHook::class, $dispatchedHook);
+        static::assertFalse($dispatchedHook->silent);
     }
 
     public static function provideTracingExamples(): \Generator

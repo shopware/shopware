@@ -242,8 +242,8 @@ export default function createLoginService(
                 );
             },
             {
-                maxRetries: 5,
-                initialDelay: 1000,
+                maxRetries: 2,
+                initialDelay: 500,
                 factor: 2,
             },
         )

@@ -601,9 +601,9 @@ describe('core/service/login.service.js', () => {
             });
 
             const refreshPromise = loginService.refreshToken();
-            const advanceTimePromise = jest.advanceTimersByTimeAsync(31000);
+            const advanceTimePromise = jest.advanceTimersByTimeAsync(2000);
 
-            // 1 + 2 + 4 + 8 + 16 seconds backoff + 1 second buffer for async scheduling
+            // two retries (500ms + 1000ms) + buffer for async scheduling
             await expect(refreshPromise).rejects.toThrow();
             await advanceTimePromise;
 
@@ -677,9 +677,9 @@ describe('core/service/login.service.js', () => {
             await loginService.loginByUsername('admin', 'shopware');
 
             const refreshPromise = loginService.refreshToken();
-            const advanceTimePromise = jest.advanceTimersByTimeAsync(31000);
+            const advanceTimePromise = jest.advanceTimersByTimeAsync(2000);
 
-            // 1 + 2 + 4 + 8 + 16 seconds backoff + 1 second buffer for async scheduling
+            // two retries (500ms + 1000ms) + buffer for async scheduling
             await expect(refreshPromise).rejects.toThrow();
             await advanceTimePromise;
 

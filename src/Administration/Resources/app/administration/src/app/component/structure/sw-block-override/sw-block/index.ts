@@ -74,21 +74,8 @@ export default Shopware.Component.wrapComponentConfig({
     setup(props, { slots }) {
         const { addBlock, removeBlock, getBlocks } = useBlockContext();
 
-        /**
-         * Twig → Native Block Runtime Adapter (shim bridge).
-         *
-         * When this `sw-block name` component mounts, check if any legacy Twig
-         * block overrides (registered via `Shopware.Component.override()`) target
-         * this block name. If so, compile each override's inner template into a
-         * native Slot function and push it into the shared `blockContext` — exactly
-         * as a `<sw-block extends="...">` component would.
-         *
-         * `onBeforeUnmount` mirrors the cleanup done by the `extends`-path below,
-         * ensuring shim slots are removed when this component navigates away and
-         * re-added when it remounts.
-         */
-        // Assumes `name` is static (set once at mount). If it were to change
-        // dynamically, shim slots would not re-bind to the new name.
+        // `name` is assumed to be static. Dynamically changing it would require
+        // re-binding shim slots, which is not supported.
         if (props.name && hasBlockEntries(props.name)) {
             const entries = getBlockEntries(props.name);
             const shimSlots = entries.map((entry) => createShimSlot(entry, props.name!));
@@ -127,9 +114,10 @@ export default Shopware.Component.wrapComponentConfig({
             ];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
-            // The last block is not parent of any other block, and it is the one that renders all the blocks
             const lastNode = blocksNodes.pop();
-            providedParents.value.push(...blocksNodes);
+            // `<sw-block-parent />` pops from this array once at setup time, not
+            // on every re-render, so it must be reset rather than appended to.
+            providedParents.value = blocksNodes;
             return lastNode;
         });
 

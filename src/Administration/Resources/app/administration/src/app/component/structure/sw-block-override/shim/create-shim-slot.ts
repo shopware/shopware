@@ -4,49 +4,26 @@
  *
  * Slot factory for the Twig → Native Block Runtime Adapter.
  *
- * Takes a `BlockEntry` (pre-built inner template string from the block index)
- * and returns a native `Slot` function that `sw-block` can push into its
- * `blockContext` alongside slots from real `<sw-block extends>` components.
+ * Reactivity works because the Proxy in `buildSetupContext` delegates every
+ * property read to the host component proxy, so Vue's reactivity system tracks
+ * those reads as dependencies and re-renders ShimContent when they change.
  *
- * Reactivity:
- *   `buildSetupContext` creates a Proxy whose getters delegate to the component
- *   proxy. When ShimContent's render function reads `ctx.someProperty`, Vue's
- *   reactivity system tracks `proxy.someProperty` as a dependency. Subsequent
- *   changes to that property on the host component automatically trigger
- *   ShimContent to re-render.
- *
- * `<sw-block-parent />` resolution:
- *   ShimContent is rendered inside `sw-block`'s render tree. `sw-block` already
- *   `provide()`s the parent VNode stack via `parentsInjectionKey`. `<sw-block-parent />`
- *   injects from that stack, so it resolves the previous content exactly as a
- *   natively written `<sw-block extends="...">` would.
+ * `<sw-block-parent />` resolves correctly because ShimContent is rendered
+ * inside `sw-block`'s tree, which already provides the parent VNode stack —
+ * identical behaviour to a natively written `<sw-block extends="...">`.
  */
 
-import { h, type Slot } from 'vue';
+import { h, shallowRef, type Slot } from 'vue';
 import type { BlockEntry } from 'src/core/factory/twig-block-index';
 import swBlockParent from '../sw-block-parent/index';
 
-/** Deprecation warnings are emitted once per block name across the app's lifetime. */
 const warnedBlocks = new Set<string>();
 
-/**
- * Returns `true` for Vue-internal (`$`) or private-convention (`_`) property
- * names. These are excluded from the reactive context proxy so that
- * ShimContent's template cannot accidentally resolve Vue internals.
- */
+/** Guards against accidentally exposing Vue internals or private properties into the shim template. */
 const isInternalKey = (key: string | symbol): boolean =>
     typeof key === 'string' && (key.startsWith('$') || key.startsWith('_'));
 
-/**
- * Compiles `entry.innerTemplate` into a Slot function compatible with
- * `sw-block`'s `blockContext`. Emits a `console.warn` deprecation on first
- * use of each block name so developers know which overrides to migrate.
- *
- * Vue's runtime template compiler handles the `template` string on first mount
- * and caches the result internally — no manual caching is required.
- *
- * @private
- */
+/** @private */
 export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
@@ -63,45 +40,35 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
         components: { 'sw-block-parent': swBlockParent },
     };
 
-    return (dataScope) => [h({ ...def, setup: () => buildSetupContext(dataScope as object | null) })];
+    const dataScopeRef = shallowRef<object | null>(null);
+
+    // A stable object reference is required so Vue's VDOM diff recognises the
+    // same component type across slot calls and reuses the instance. Creating a
+    // new object on every call (e.g. via spread) causes unmount + remount,
+    // which destroys focus on every keystroke.
+    const shimComponent = {
+        ...def,
+        setup: () => buildSetupContext(dataScopeRef.value),
+    };
+
+    return (dataScope) => {
+        dataScopeRef.value = dataScope as object | null;
+        return [h(shimComponent)];
+    };
 }
 
 /**
- * Builds a setup-context Proxy that gives ShimContent's compiled render
- * function transparent, reactive read access to every public property of the
- * host component proxy — without triggering Vue's ownKeys warning.
+ * A Proxy is used instead of `Object.keys` enumeration because Vue component
+ * proxies return an empty array in production and emit a warning in development
+ * when enumerated. The Proxy delegates property reads on-demand, which is how
+ * Vue's `hasSetupBinding()` check resolves template identifiers and how the
+ * reactivity system tracks dependencies.
  *
- * Why a Proxy instead of Object.keys enumeration:
- *   Calling `Object.keys()` on a Vue component proxy logs
- *   "[Vue warn]: Avoid app logic that relies on enumerating keys on a component
- *   instance. The keys will be empty in production mode to avoid performance
- *   overhead." and returns an empty array in production, making a plain
- *   enumeration approach broken in production builds.
- *
- * Why a plain `{}` is used as the Proxy target:
- *   The ECMAScript spec requires that, when validating a Proxy's `ownKeys` trap
- *   result, the engine always calls `Reflect.ownKeys(target)` on the *actual*
- *   Proxy target to check invariants. If the component proxy were used as the
- *   target, that validation call would trigger `PublicInstanceProxyHandlers
- *   .ownKeys` — which emits Vue's warning — even though our trap returns `[]`.
- *   Using `{}` as the target means the invariant check calls
- *   `Reflect.ownKeys({})` = `[]`, which is completely silent.
- *
- * How the Proxy works:
- *   - `ownKeys()` returns `[]` so that `Object.keys(proxy)` enumerates nothing
- *     on the component proxy. This eliminates the warning and the
- *     production-empty-array problem.
- *   - `getOwnPropertyDescriptor` returns a fake configurable descriptor for any
- *     key that exists on the source (component proxy). This makes
- *     `hasOwnProperty(proxy, key)` return true for every publicly accessible
- *     property, which is how Vue's `hasSetupBinding()` check decides that the
- *     key lives in setup state and should be read from there.
- *   - `get` reads directly from the `source` closure (the component proxy) so
- *     Vue's reactivity system tracks each read as a dependency exactly as it
- *     would for any direct reactive access.
- *
- * Internal Vue (`$`) and private convention (`_`) keys are excluded via
- * `isInternalKey`.
+ * The Proxy target is a plain `{}` rather than the component proxy itself.
+ * The ECMAScript spec validates `ownKeys` trap results by calling
+ * `Reflect.ownKeys` on the *actual* target. Using the component proxy as the
+ * target would trigger Vue's `ownKeys` warning on that validation call even
+ * though our trap returns `[]`. A plain `{}` target keeps that check silent.
  */
 function buildSetupContext(dataScope: object | null): Record<string, unknown> {
     if (!dataScope) return {};
@@ -125,12 +92,7 @@ function buildSetupContext(dataScope: object | null): Record<string, unknown> {
     });
 }
 
-/**
- * Clears all module-level caches. For test teardown only — never call in
- * production code.
- *
- * @private
- */
+/** For test teardown only — never call in production code. @private */
 export function resetShimSlotState(): void {
     warnedBlocks.clear();
 }

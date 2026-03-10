@@ -2,8 +2,7 @@
 
 {% block page_account_main_content %}
     {% block page_account_overview %}
-        <div class="account-overview"
-             data-checkout-customer-comment-reset="true">
+        <div class="account-overview">
             {% block page_account_overview_shipping_warning %}
                 {% set ableToShipToShippingCountry = context.customer.defaultShippingAddress.country.shippingAvailable %}
 

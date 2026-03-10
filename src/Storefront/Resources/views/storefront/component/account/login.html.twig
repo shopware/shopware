@@ -1,6 +1,5 @@
 {% block component_account_login %}
-    <div class="card login-card mb-3"
-         data-checkout-customer-comment-reset="true">
+    <div class="card login-card mb-3">
         <div class="card-body">
             {% block component_account_login_header %}
                 {% if cardTitle %}
@@ -14,7 +13,8 @@
                 <form class="login-form"
                       action="{{ path('frontend.account.login') }}"
                       method="post"
-                      data-form-handler="true">
+                      data-form-handler="true"
+                      data-checkout-customer-comment-reset="true">
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"

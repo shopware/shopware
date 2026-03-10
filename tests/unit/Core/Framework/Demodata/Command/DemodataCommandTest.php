@@ -76,7 +76,7 @@ class DemodataCommandTest extends TestCase
             $this->createMock(DemodataService::class),
             $this->dispatcher,
             'prod',
-            ['NonExistent\Class\That\DoesNotExist'],
+            ['NonExistent\Class\That\DoesNotExist'], // @phpstan-ignore argument.type (non-existent class is intentional for the test)
         );
 
         $tester = new CommandTester($command);

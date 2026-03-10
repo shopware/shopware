@@ -146,7 +146,7 @@ class DocumentDeleteSubscriberTest extends TestCase
             $documentId
         );
 
-        $this->expectExceptionObject(DocumentException::documentHasDependencies(
+        $this->expectExceptionObject(DocumentException::documentHasDependentDocuments(
             [
                 \sprintf(
                     '%s %s (%s)',

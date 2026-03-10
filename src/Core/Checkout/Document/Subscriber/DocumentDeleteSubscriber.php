@@ -111,6 +111,6 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
             $dependentDocuments->getElements()
         ));
 
-        throw DocumentException::documentHasDependencies($dependentDocumentInformations);
+        throw DocumentException::documentHasDependentDocuments($dependentDocumentInformations);
     }
 }

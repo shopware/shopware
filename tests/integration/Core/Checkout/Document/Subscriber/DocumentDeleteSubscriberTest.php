@@ -167,7 +167,7 @@ class DocumentDeleteSubscriberTest extends TestCase
             ['id' => Uuid::fromHexToBytes($creditNoteDocumentGenerationResult->getId())],
         );
 
-        static::expectExceptionObject(DocumentException::documentHasDependencies(
+        static::expectExceptionObject(DocumentException::documentHasDependentDocuments(
             [
                 \sprintf(
                     '%s %s (%s)',

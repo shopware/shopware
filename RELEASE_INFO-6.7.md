@@ -106,9 +106,9 @@ As some mail clients send `HEAD` requests to links which are contained in emails
 
 ### App requirements validation
 
-Apps can now declare requirements in their manifest using a new `<requirements>` element. Requirements are validated during app installation and updates in production environments, providing clear error messages with actionable resolution steps when conditions are not met.
+Apps can now declare requirements in their manifest using a new `<requirements>` element. Built-in requirements are validated during app installation and updates in production environments and fail with `FRAMEWORK__APP_REQUIREMENTS_NOT_MET` if a condition is not met, including an actionable resolution message.
 
-The first built-in requirement is `<public-access/>`, which verifies that the Shopware instance is publicly reachable over HTTPS at the configured `APP_URL`. This prevents silent failures for apps that rely on webhook callbacks or external communication.
+The first built-in requirement is `<public-access/>`, which verifies that the configured `APP_URL` uses HTTPS, does not point to an IP or reserved/local development host, and that `/api/_info/health-check` responds with HTTP 200 from the public internet. This prevents silent failures for apps that rely on webhook callbacks or other external communication.
 
 ```xml
 <requirements>
@@ -116,7 +116,7 @@ The first built-in requirement is `<public-access/>`, which verifies that the Sh
 </requirements>
 ```
 
-Custom requirement validators can be registered via the `app.requirements_validator` service tag.
+Custom requirement validators can be registered via the `app.requirements_validator` service tag, which allows private app setups to introduce additional requirements. If a manifest declares a requirement for which no validator is registered, Shopware logs a warning and ignores that requirement.
 
 ## Hosting & Configuration
 

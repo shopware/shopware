@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\Requirement;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
@@ -17,16 +19,26 @@ class AppRequirementsValidatorTest extends TestCase
 {
     public function testValidateWithSatisfiedRequirement(): void
     {
-        $requirement = $this->createMock(Requirement::class);
-        $requirement->expects($this->once())
-            ->method('required')
-            ->willReturn(true);
-        $requirement->expects($this->once())
-            ->method('validate')
-            ->willReturn(null);
+        $requirement = new class implements Requirement {
+            public function validate(Manifest $manifest): ?UnmetRequirement
+            {
+                return null;
+            }
 
-        $validator = new AppRequirementsValidator([$requirement], 'prod');
+            public function required(Manifest $manifest): bool
+            {
+                return true;
+            }
+
+            public static function name(): string
+            {
+                return 'test-requirement';
+            }
+        };
+
+        $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'prod');
         $manifest = $this->createMock(Manifest::class);
+        $manifest->method('getRequirements')->willReturn(['test-requirement']);
 
         $violations = $validator->validate($manifest);
 
@@ -53,7 +65,8 @@ class AppRequirementsValidatorTest extends TestCase
         };
 
         $manifest = $this->createMock(Manifest::class);
-        $validator = new AppRequirementsValidator([$requirement], 'prod');
+        $manifest->method('getRequirements')->willReturn(['test-requirement']);
+        $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'prod');
 
         $violations = $validator->validate($manifest);
 
@@ -66,30 +79,55 @@ class AppRequirementsValidatorTest extends TestCase
 
     public function testValidateWithNotRequiredValidator(): void
     {
-        $requirement = $this->createMock(Requirement::class);
-        $requirement->expects($this->once())
-            ->method('required')
-            ->willReturn(false);
-        $requirement->expects($this->never())
-            ->method('validate');
+        $requirement = new class implements Requirement {
+            public int $validateCalls = 0;
 
-        $validator = new AppRequirementsValidator([$requirement], 'prod');
+            public function validate(Manifest $manifest): ?UnmetRequirement
+            {
+                ++$this->validateCalls;
+
+                return null;
+            }
+
+            public function required(Manifest $manifest): bool
+            {
+                return false;
+            }
+
+            public static function name(): string
+            {
+                return 'test-requirement';
+            }
+        };
+
+        $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'prod');
         $manifest = $this->createMock(Manifest::class);
+        $manifest->method('getRequirements')->willReturn(['test-requirement']);
 
         $violations = $validator->validate($manifest);
 
         static::assertSame([], $violations);
+        static::assertSame(0, $requirement->validateCalls);
     }
 
     public function testValidateWithMultipleValidators(): void
     {
-        $requirement1 = $this->createMock(Requirement::class);
-        $requirement1->expects($this->once())
-            ->method('required')
-            ->willReturn(true);
-        $requirement1->expects($this->once())
-            ->method('validate')
-            ->willReturn(null);
+        $requirement1 = new class implements Requirement {
+            public function validate(Manifest $manifest): ?UnmetRequirement
+            {
+                return null;
+            }
+
+            public function required(Manifest $manifest): bool
+            {
+                return true;
+            }
+
+            public static function name(): string
+            {
+                return 'requirement-1';
+            }
+        };
 
         $requirement2 = new class implements Requirement {
             public function validate(Manifest $manifest): UnmetRequirement
@@ -108,16 +146,31 @@ class AppRequirementsValidatorTest extends TestCase
             }
         };
 
-        $requirement3 = $this->createMock(Requirement::class);
-        $requirement3->expects($this->once())
-            ->method('required')
-            ->willReturn(false);
-        $requirement3->expects($this->never())
-            ->method('validate');
+        $requirement3 = new class implements Requirement {
+            public int $validateCalls = 0;
+
+            public function validate(Manifest $manifest): ?UnmetRequirement
+            {
+                ++$this->validateCalls;
+
+                return null;
+            }
+
+            public function required(Manifest $manifest): bool
+            {
+                return false;
+            }
+
+            public static function name(): string
+            {
+                return 'requirement-3';
+            }
+        };
 
         $manifest = $this->createMock(Manifest::class);
+        $manifest->method('getRequirements')->willReturn(['requirement-1', 'requirement-2']);
 
-        $validator = new AppRequirementsValidator([$requirement1, $requirement2, $requirement3], 'prod');
+        $validator = new AppRequirementsValidator([$requirement1, $requirement2, $requirement3], $this->createMock(LoggerInterface::class), 'prod');
 
         $violations = $validator->validate($manifest);
 
@@ -125,6 +178,7 @@ class AppRequirementsValidatorTest extends TestCase
         static::assertSame('multi-app', $violations[0]->appName);
         static::assertSame('requirement-2', $violations[0]->requirementName);
         static::assertSame('Fix requirement 2', $violations[0]->actionableResolution);
+        static::assertSame(0, $requirement3->validateCalls);
     }
 
     public function testValidateWithMultipleViolations(): void
@@ -164,8 +218,9 @@ class AppRequirementsValidatorTest extends TestCase
         };
 
         $manifest = $this->createMock(Manifest::class);
+        $manifest->method('getRequirements')->willReturn(['requirement-1', 'requirement-2']);
 
-        $validator = new AppRequirementsValidator([$requirement1, $requirement2], 'prod');
+        $validator = new AppRequirementsValidator([$requirement1, $requirement2], $this->createMock(LoggerInterface::class), 'prod');
 
         $violations = $validator->validate($manifest);
 
@@ -182,24 +237,118 @@ class AppRequirementsValidatorTest extends TestCase
 
     public function testValidateSkipsInDevEnvironment(): void
     {
-        $requirement = $this->createMock(Requirement::class);
-        $requirement->expects($this->never())->method('required');
-        $requirement->expects($this->never())->method('validate');
+        $requirement = new class implements Requirement {
+            public int $validateCalls = 0;
 
-        $validator = new AppRequirementsValidator([$requirement], 'dev');
+            public int $requiredCalls = 0;
+
+            public function validate(Manifest $manifest): ?UnmetRequirement
+            {
+                ++$this->validateCalls;
+
+                return null;
+            }
+
+            public function required(Manifest $manifest): bool
+            {
+                ++$this->requiredCalls;
+
+                return true;
+            }
+
+            public static function name(): string
+            {
+                return 'test-requirement';
+            }
+        };
+
+        $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'dev');
         $manifest = $this->createMock(Manifest::class);
+        $manifest->method('getRequirements')->willReturn(['test-requirement']);
 
         static::assertSame([], $validator->validate($manifest));
+        static::assertSame(0, $requirement->requiredCalls);
+        static::assertSame(0, $requirement->validateCalls);
     }
 
     public function testValidateSkipsInTestEnvironment(): void
     {
-        $requirement = $this->createMock(Requirement::class);
-        $requirement->expects($this->never())->method('required');
-        $requirement->expects($this->never())->method('validate');
+        $requirement = new class implements Requirement {
+            public int $validateCalls = 0;
 
-        $validator = new AppRequirementsValidator([$requirement], 'test');
+            public int $requiredCalls = 0;
+
+            public function validate(Manifest $manifest): ?UnmetRequirement
+            {
+                ++$this->validateCalls;
+
+                return null;
+            }
+
+            public function required(Manifest $manifest): bool
+            {
+                ++$this->requiredCalls;
+
+                return true;
+            }
+
+            public static function name(): string
+            {
+                return 'test-requirement';
+            }
+        };
+
+        $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'test');
         $manifest = $this->createMock(Manifest::class);
+        $manifest->method('getRequirements')->willReturn(['test-requirement']);
+
+        static::assertSame([], $validator->validate($manifest));
+        static::assertSame(0, $requirement->requiredCalls);
+        static::assertSame(0, $requirement->validateCalls);
+    }
+
+    public function testValidateLogsUnknownRequirements(): void
+    {
+        $manifest = $this->createMock(Manifest::class);
+        $manifest->method('getRequirements')->willReturn(['custom-private-requirement', 'test-requirement']);
+        $manifest->method('getMetadata')->willReturn(Metadata::fromArray([
+            'name' => 'test-app',
+            'label' => [],
+            'author' => 'shopware',
+            'copyright' => 'shopware',
+            'license' => 'MIT',
+            'version' => '1.0.0',
+        ]));
+
+        $requirement = new class implements Requirement {
+            public function validate(Manifest $manifest): ?UnmetRequirement
+            {
+                return null;
+            }
+
+            public function required(Manifest $manifest): bool
+            {
+                return true;
+            }
+
+            public static function name(): string
+            {
+                return 'test-requirement';
+            }
+        };
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                'App manifest declares unsupported requirement "{requirementName}" for app "{appName}". The requirement will be ignored until a matching validator tagged with "app.requirements_validator" is registered.',
+                [
+                    'requirementName' => 'custom-private-requirement',
+                    'appName' => 'test-app',
+                ]
+            );
+
+        $validator = new AppRequirementsValidator([$requirement], $logger, 'prod');
 
         static::assertSame([], $validator->validate($manifest));
     }

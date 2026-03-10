@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Validation;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Requirements\Requirement;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
@@ -18,6 +19,7 @@ class AppRequirementsValidator
      */
     public function __construct(
         private readonly iterable $validators,
+        private readonly LoggerInterface $logger,
         private readonly string $environment = 'prod',
     ) {
     }
@@ -31,6 +33,8 @@ class AppRequirementsValidator
      */
     public function validate(Manifest $manifest): array
     {
+        $this->logUnknownRequirements($manifest);
+
         if ($this->environment !== 'prod') {
             return [];
         }
@@ -48,5 +52,28 @@ class AppRequirementsValidator
         }
 
         return $validationErrors;
+    }
+
+    private function logUnknownRequirements(Manifest $manifest): void
+    {
+        $supportedRequirements = [];
+        foreach ($this->validators as $validator) {
+            $validatorClass = $validator::class;
+            if (!method_exists($validatorClass, 'name')) {
+                continue;
+            }
+
+            $supportedRequirements[] = $validatorClass::name();
+        }
+
+        foreach (array_unique(array_diff($manifest->getRequirements(), $supportedRequirements)) as $requirementName) {
+            $this->logger->warning(
+                'App manifest declares unsupported requirement "{requirementName}" for app "{appName}". The requirement will be ignored until a matching validator tagged with "app.requirements_validator" is registered.',
+                [
+                    'requirementName' => $requirementName,
+                    'appName' => $manifest->getMetadata()->getName(),
+                ]
+            );
+        }
     }
 }

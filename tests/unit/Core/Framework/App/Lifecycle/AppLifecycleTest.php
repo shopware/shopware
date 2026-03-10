@@ -325,18 +325,12 @@ class AppLifecycleTest extends TestCase
             ]);
 
         /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
-        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
-            [
-                'id' => Uuid::randomHex(),
-                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
-            ],
-        ])]);
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
 
         $appRepository = $this->getAppRepositoryMock([[]]);
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            null,
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
             $validator
         );
@@ -361,18 +355,12 @@ class AppLifecycleTest extends TestCase
             ]);
 
         /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
-        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
-            [
-                'id' => Uuid::randomHex(),
-                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
-            ],
-        ])]);
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
 
         $appRepository = $this->getAppRepositoryMock([[['id' => Uuid::randomHex(), 'path' => '', 'configurable' => false, 'allowDisable' => true]]]);
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            null,
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
             $validator
         );

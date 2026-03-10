@@ -116,6 +116,4 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
             expect(reconstructInnerTemplate(tokens)).toBe(template);
         });
     });
-
-
 });

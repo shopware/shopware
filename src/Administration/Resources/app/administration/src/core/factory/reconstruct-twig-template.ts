@@ -67,4 +67,3 @@ export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
         })
         .join('');
 }
-

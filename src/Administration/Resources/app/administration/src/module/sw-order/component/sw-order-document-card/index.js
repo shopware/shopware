@@ -303,7 +303,11 @@ export default {
 
         invoiceExists() {
             return this.documents.some((document) => {
-                return document.documentType.technicalName === 'invoice';
+                return (
+                    document.documentType.technicalName === 'invoice' ||
+                    document.documentType.technicalName === 'zugferd_invoice' ||
+                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                );
             });
         },
 

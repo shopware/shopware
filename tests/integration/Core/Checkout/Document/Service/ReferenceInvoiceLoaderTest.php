@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -119,13 +120,35 @@ class ReferenceInvoiceLoaderTest extends TestCase
         static::assertNotEmpty($invoice['documentNumber']);
     }
 
-    public function testLoadWithEmbeddedReferenceDocumentId(): void
+    public function testLoadWithEmbeddedZugferdReferenceDocumentId(): void
     {
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
         $invoiceStruct = $this->createDocument(
             ZugferdEmbeddedRenderer::TYPE,
+            $orderId,
+            ['companyName' => 'Test Company'],
+            $this->context
+        )->first();
+
+        static::assertNotNull($invoiceStruct);
+
+        $invoice = $this->referenceInvoiceLoader->load($orderId, $invoiceStruct->getId(), $invoiceStruct->getDeepLinkCode());
+
+        static::assertSame($invoiceStruct->getId(), $invoice['id']);
+        static::assertSame($orderId, $invoice['orderId']);
+        static::assertSame(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
+        static::assertNotEmpty($invoice['documentNumber']);
+    }
+
+    public function testLoadWithZugferdReferenceDocumentId(): void
+    {
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $invoiceStruct = $this->createDocument(
+            ZugferdRenderer::TYPE,
             $orderId,
             ['companyName' => 'Test Company'],
             $this->context

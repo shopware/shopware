@@ -224,3 +224,65 @@ The tool name is automatically prefixed with the app name (e.g., `my-erp-sync-or
 4. Tool invocations are proxied via HMAC-signed HTTP POST to the app's webhook URL by `AppMcpToolExecutor`
 
 The timeout for app tool calls is configurable via `shopware.mcp.app_tool_timeout` (default: 10 seconds).
+
+## Keeping responses compact with McpEntityIncludes
+
+If your plugin tool returns DAL entity data via `JsonEntityEncoder`, use the `McpEntityIncludes` trait to automatically strip unrequested associations and keep responses under the 100 KB size limit.
+
+```php
+<?php declare(strict_types=1);
+
+namespace MyPlugin\Mcp;
+
+use Mcp\Capability\Attribute\McpTool;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
+use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
+
+#[McpTool(name: 'my-plugin-product-list', description: 'List products with compact response')]
+class ProductListTool
+{
+    use McpEntityIncludes;
+    use McpToolResponse;
+
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly JsonEntityEncoder $encoder,
+    ) {
+    }
+
+    public function __invoke(string $criteria = '{}'): string
+    {
+        $definition = $this->registry->getByEntityName('product');
+        $repository = $this->registry->getRepository('product');
+
+        $criteriaObj = $this->criteriaBuilder->fromArray(
+            json_decode($criteria, true, 512, \JSON_THROW_ON_ERROR),
+            new Criteria(),
+            $definition,
+            \Shopware\Core\Framework\Context::createDefaultContext(),
+        );
+
+        // Apply smart includes when the caller hasn't specified their own
+        if ($criteriaObj->getIncludes() === null) {
+            $criteriaObj->setIncludes($this->buildDefaultIncludes($definition, $criteriaObj));
+        }
+
+        $result = $repository->search($criteriaObj, \Shopware\Core\Framework\Context::createDefaultContext());
+        $encoded = $this->encoder->encode($criteriaObj, $definition, $result->getEntities(), '/api');
+
+        return $this->success($encoded, ['total' => $result->getTotal()]);
+    }
+}
+```
+
+The trait walks the entity definition and the criteria's requested associations to build an `includes` map that:
+- Includes all scalar fields (id, name, price, stock, etc.) of every entity involved
+- Includes only association fields that are explicitly requested in the criteria
+- Strips auto-loaded noise like thumbnails, extensions, and translated duplicates
+
+This is optional but recommended for any tool returning DAL entity data via `JsonEntityEncoder`.

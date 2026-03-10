@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
 use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -27,6 +28,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[Package('framework')]
 #[CoversClass(StorefrontSearchTool::class)]
+#[CoversClass(McpEntityIncludes::class)]
 class StorefrontSearchToolTest extends TestCase
 {
     public function testReturnsCorrectJsonStructure(): void
@@ -60,6 +62,7 @@ class StorefrontSearchToolTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
+        $criteria->setIncludes([]);
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($criteria);
 
@@ -114,6 +117,7 @@ class StorefrontSearchToolTest extends TestCase
         $registry->method('getByEntityName')->willReturn($definition);
 
         $criteria = new Criteria();
+        $criteria->setIncludes([]);
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($criteria);
 

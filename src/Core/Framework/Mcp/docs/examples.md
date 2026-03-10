@@ -43,6 +43,17 @@ Tool: shopware-entity-search
 Input: {"entity": "product", "limit": 10, "page": 3}
 ```
 
+**Override default response fields with explicit includes:**
+
+By default, responses only contain scalar fields and explicitly requested associations. Use `includes` in the criteria to select exactly which fields you want per entity type:
+```
+Tool: shopware-entity-search
+Input: {
+    "entity": "product",
+    "criteria": "{\"includes\": {\"product\": [\"id\", \"name\", \"productNumber\", \"stock\"], \"product_manufacturer\": [\"id\", \"name\"]}, \"associations\": {\"manufacturer\": {}}}"
+}
+```
+
 ## Storefront product search
 
 **Search products with resolved prices in a sales channel context:**

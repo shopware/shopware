@@ -18,6 +18,8 @@ Get the field and association schema of any Shopware entity. Use this first to d
 ### shopware-entity-search
 Primary data retrieval tool. Search entities using the Admin API criteria format. Supports top-level convenience parameters for simple queries, or full criteria JSON for advanced use.
 
+**Response optimization:** When no `includes` are specified, responses are automatically optimized to return only scalar fields and explicitly requested associations. This strips auto-loaded noise (thumbnails, extensions, translated duplicates) and keeps responses compact. Pass your own `includes` in the criteria to override this behavior.
+
 **Parameters:**
 - `entity` (string, required) -- Entity name
 - `criteria` (string, optional) -- JSON criteria object for advanced queries
@@ -43,6 +45,8 @@ Primary data retrieval tool. Search entities using the Admin API criteria format
 ### shopware-entity-read
 Read a single entity by its UUID. Use when you already have an entity ID; for searching by other fields, use `shopware-entity-search`.
 
+**Response optimization:** Same as `shopware-entity-search` -- responses are automatically optimized when no `includes` are specified.
+
 **Parameters:**
 - `entity` (string, required) -- Entity name
 - `id` (string, required) -- Entity UUID
@@ -57,6 +61,8 @@ Read system configuration values. Pass a domain prefix for all keys under it, or
 
 ### shopware-storefront-search
 Search products with storefront context. Unlike `shopware-entity-search`, returns prices resolved for the sales channel including customer group pricing and tax rules. Supports human-readable property filters.
+
+**Response optimization:** Same as `shopware-entity-search` -- responses are automatically optimized when no `includes` are specified. Uses `JsonEntityEncoder` (not the Store API serializer), so `includes`/`excludes` filtering works correctly.
 
 **Parameters:**
 - `salesChannelId` (string, required) -- Sales channel UUID (see `shopware://sales-channels` resource)

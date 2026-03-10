@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[Package('framework')]
 class EntityReadTool
 {
+    use McpEntityIncludes;
     use McpToolResponse;
 
     /**
@@ -49,6 +50,8 @@ class EntityReadTool
             $definition,
             $context,
         );
+
+        $this->applyDefaultIncludes($definition, $criteriaObj);
 
         $result = $repository->search($criteriaObj, $context);
         $entityResult = $result->get($id);

@@ -17,6 +17,7 @@ Each file in this directory is a single MCP tool -- an action that AI clients ca
 - Use `McpContextProvider` to get the authenticated `Context`
 - Write operations must accept a `bool $dryRun = true` parameter
 - Entity tools that return DAL data must inject `JsonEntityEncoder` and use it instead of `jsonSerialize()` to respect `includes`/`excludes`
+- Entity tools returning DAL data should use the `McpEntityIncludes` trait and call `applyDefaultIncludes()` to keep responses compact (see below)
 
 ## Response format convention
 All tools must use the `McpToolResponse` trait. It provides two helpers:
@@ -38,6 +39,31 @@ Rules:
 - `error` (string) only appears when `success` is false
 - The trait includes a response size guard (100 KB) that truncates oversized responses
 - A `McpToolResponseConventionTest` enforces that all `#[McpTool]` classes use the trait
+
+## Smart default includes (McpEntityIncludes trait)
+
+Entity tools (`EntitySearchTool`, `EntityReadTool`, `StorefrontSearchTool`) auto-apply `includes` when the caller hasn't specified them. This dramatically reduces response size by only serializing the fields AI clients actually need.
+
+**How it works:**
+1. The tool introspects the `EntityDefinition` to find all scalar fields (id, name, price, etc.)
+2. Only associations explicitly requested in the criteria are included
+3. Unrequested auto-loaded associations (thumbnails, extensions, translated duplicates) are stripped
+4. The `translated` pseudo-field is always injected for entities with `TranslatedField` instances, ensuring inherited/resolved values (e.g. variant product names) are never lost
+5. The caller can always override by passing their own `includes` in the criteria -- `translated` is still auto-injected
+
+**Usage in tools:**
+```php
+use McpEntityIncludes;
+
+// After building the criteria, before searching -- single call handles everything
+$this->applyDefaultIncludes($definition, $criteriaObj);
+```
+
+`applyDefaultIncludes()` handles two cases:
+- **No includes provided**: builds smart defaults from the definition (scalar fields + requested associations + `translated`)
+- **User-provided includes**: injects `translated` into the includes for any entity with translated fields, recursing into loaded associations
+
+All three entity read tools use `JsonEntityEncoder` for serialization (not the Store API serializer), so `includes`/`excludes` filtering works consistently regardless of whether the data comes from a regular or sales channel repository.
 
 ## Read tools
 - `EntitySchemaTool` (`shopware-entity-schema`) -- entity field/association introspection

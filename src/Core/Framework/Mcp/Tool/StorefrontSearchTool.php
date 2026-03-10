@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 #[Package('framework')]
 class StorefrontSearchTool
 {
+    use McpEntityIncludes;
     use McpToolResponse;
 
     /**
@@ -90,6 +91,8 @@ class StorefrontSearchTool
             $definition,
             $salesChannelContext->getContext(),
         );
+
+        $this->applyDefaultIncludes($definition, $criteriaObj);
 
         $result = $this->productRepository->search($criteriaObj, $salesChannelContext);
 

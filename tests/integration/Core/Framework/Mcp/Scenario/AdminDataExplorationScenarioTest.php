@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
+use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
+use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
@@ -23,6 +25,8 @@ use Shopware\Core\Test\TestDefaults;
 #[CoversClass(OrderSummaryTool::class)]
 #[CoversClass(EntitySearchTool::class)]
 #[CoversClass(EntitySchemaTool::class)]
+#[CoversClass(McpEntityIncludes::class)]
+#[CoversClass(McpToolResponse::class)]
 class AdminDataExplorationScenarioTest extends McpScenarioTestCase
 {
     public function testUS1OrderSummaryByOrderNumber(): void
@@ -123,6 +127,41 @@ class AdminDataExplorationScenarioTest extends McpScenarioTestCase
         foreach ($data['data'] as $product) {
             static::assertLessThan(5, $product['stock']);
         }
+    }
+
+    public function testSearchWith25ProductsAndAssociationsStaysUnder100KB(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $products = [];
+        for ($i = 0; $i < 25; ++$i) {
+            $products[] = (new ProductBuilder($ids, "prod-$i"))
+                ->price(100)
+                ->stock(10)
+                ->manufacturer('manufacturer')
+                ->property('red', 'color')
+                ->property('XL', 'size')
+                ->build();
+        }
+
+        static::getContainer()->get('product.repository')->create($products, $context);
+
+        $criteria = json_encode([
+            'ids' => array_map(fn (int $i) => $ids->get("prod-$i"), range(0, 24)),
+            'associations' => [
+                'properties' => ['associations' => ['group' => new \stdClass()]],
+                'manufacturer' => new \stdClass(),
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $output = ($this->entitySearchTool)('product', $criteria);
+        $data = $this->decodeToolOutput($output);
+
+        static::assertCount(25, $data['data'], 'All 25 products must be returned without truncation');
+        static::assertSame(25, $data['_meta']['total']);
+        static::assertArrayNotHasKey('truncated', $data['_meta']);
+        static::assertLessThan(100_000, \strlen($output), 'Response must stay under 100KB');
     }
 
     public function testUS3CustomerEntitySchema(): void

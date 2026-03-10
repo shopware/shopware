@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
+use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
  */
 #[Package('framework')]
 #[CoversClass(EntityReadTool::class)]
+#[CoversClass(McpEntityIncludes::class)]
 class EntityReadToolTest extends TestCase
 {
     public function testReturnsDataWhenEntityFound(): void
@@ -49,8 +51,10 @@ class EntityReadToolTest extends TestCase
         $registry->method('getByEntityName')->with('product')->willReturn($definition);
         $registry->method('getRepository')->with('product')->willReturn($repository);
 
+        $readCriteria = new Criteria(['prod-123']);
+        $readCriteria->setIncludes([]);
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
-        $criteriaBuilder->method('fromArray')->willReturn(new Criteria(['prod-123']));
+        $criteriaBuilder->method('fromArray')->willReturn($readCriteria);
 
         $encoder = $this->createMock(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn(['id' => 'prod-123', 'name' => 'Test Product']);
@@ -90,8 +94,10 @@ class EntityReadToolTest extends TestCase
         $registry->method('getByEntityName')->with('product')->willReturn($definition);
         $registry->method('getRepository')->with('product')->willReturn($repository);
 
+        $missingCriteria = new Criteria(['prod-missing']);
+        $missingCriteria->setIncludes([]);
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
-        $criteriaBuilder->method('fromArray')->willReturn(new Criteria(['prod-missing']));
+        $criteriaBuilder->method('fromArray')->willReturn($missingCriteria);
 
         $encoder = $this->createMock(JsonEntityEncoder::class);
 

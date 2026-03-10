@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[Package('framework')]
 class EntitySearchTool
 {
+    use McpEntityIncludes;
     use McpToolResponse;
 
     /**
@@ -59,6 +60,8 @@ class EntitySearchTool
             $definition,
             $context,
         );
+
+        $this->applyDefaultIncludes($definition, $criteriaObj);
 
         $result = $repository->search($criteriaObj, $context);
 

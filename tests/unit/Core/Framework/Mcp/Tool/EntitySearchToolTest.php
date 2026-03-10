@@ -18,12 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
+use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(EntitySearchTool::class)]
+#[CoversClass(McpEntityIncludes::class)]
 class EntitySearchToolTest extends TestCase
 {
     public function testSearchWithDefaultCriteria(): void
@@ -33,6 +35,7 @@ class EntitySearchToolTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
+        $criteria->setIncludes([]);
 
         $result = new EntitySearchResult(
             'product',
@@ -79,6 +82,7 @@ class EntitySearchToolTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(10);
         $criteria->setOffset(10);
+        $criteria->setIncludes([]);
 
         $result = new EntitySearchResult(
             'product',
@@ -123,6 +127,7 @@ class EntitySearchToolTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->setLimit(5);
+        $criteria->setIncludes([]);
 
         $result = new EntitySearchResult(
             'product',

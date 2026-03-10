@@ -111,6 +111,10 @@ describe('src/module/sw-cms/elements/text/config', () => {
     });
 
     describe('handleUpdateContent', () => {
+        afterEach(() => {
+            global.activeFeatureFlags = [];
+        });
+
         it('should return true when textEditor ref is not available', async () => {
             const wrapper = await createWrapper();
 

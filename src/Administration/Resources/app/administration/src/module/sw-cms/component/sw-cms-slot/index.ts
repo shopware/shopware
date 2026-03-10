@@ -172,9 +172,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const childComponent = this.$refs.elementComponentRef as {
-                handleUpdateContent: () => boolean | void | Promise<boolean | void>;
-            };
+            const childComponent = this.$refs.elementComponentRef as
+                | {
+                      handleUpdateContent?: () => boolean | void | Promise<boolean | void>;
+                  }
+                | undefined;
 
             if (childComponent?.handleUpdateContent) {
                 const result = await childComponent.handleUpdateContent();

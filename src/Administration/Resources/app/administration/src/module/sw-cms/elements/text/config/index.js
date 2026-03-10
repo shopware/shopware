@@ -77,7 +77,7 @@ export default {
         },
 
         async handleUpdateContent() {
-            const editor = this.$refs.textEditor;
+            const editor = this.$refs.swCmsTextEditor;
 
             if (!editor?.validate) {
                 return true;

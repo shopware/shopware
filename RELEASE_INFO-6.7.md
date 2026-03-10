@@ -9,13 +9,13 @@ It can be found in the state machine state history modal (state change modal) on
 
 ### [Experimental] Use OpenSearch for Admin API searches
 
-When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists.
 This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
 Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
 To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
 
 ### Online revocation request form
-Customers can now conveniently submit revocation requests through an online form. 
+Customers can now conveniently submit revocation requests through an online form.
 Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
 
 ## API
@@ -74,7 +74,7 @@ Product main categories are now inherited from parent product if not explicitly 
 
 ### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
 
-The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed. 
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed.
 But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
 This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
 Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
@@ -103,6 +103,20 @@ Two new events are dispatched when the product slider CMS element resolves its p
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
 ## App System
+
+### App requirements validation
+
+Apps can now declare requirements in their manifest using a new `<requirements>` element. Requirements are validated during app installation and updates in production environments, providing clear error messages with actionable resolution steps when conditions are not met.
+
+The first built-in requirement is `<public-access/>`, which verifies that the Shopware instance is publicly reachable over HTTPS at the configured `APP_URL`. This prevents silent failures for apps that rely on webhook callbacks or external communication.
+
+```xml
+<requirements>
+    <public-access/>
+</requirements>
+```
+
+Custom requirement validators can be registered via the `app.requirements_validator` service tag.
 
 ## Hosting & Configuration
 

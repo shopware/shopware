@@ -80,10 +80,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $apiType
             );
 
-            // Extract POST schema metadata before merging (non-Schema values)
-            $postSchemaRef = $schema['_postSchemaRef'] ?? null;
-            $postRequiredFields = $schema['_postRequiredFields'] ?? [];
-            unset($schema['_postSchemaRef'], $schema['_postRequiredFields']);
+            // Retrieve POST schema metadata from the schema builder
+            $postSchemaRef = $this->definitionSchemaBuilder->getLastPostSchemaRef();
+            $postRequiredFields = $this->definitionSchemaBuilder->getLastPostRequiredFields();
 
             $openApi->components->merge($schema);
 

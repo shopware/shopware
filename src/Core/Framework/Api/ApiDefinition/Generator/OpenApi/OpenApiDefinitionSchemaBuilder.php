@@ -57,6 +57,13 @@ class OpenApiDefinitionSchemaBuilder
 {
     private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
+    private ?string $lastPostSchemaRef = null;
+
+    /**
+     * @var array<string>
+     */
+    private array $lastPostRequiredFields = [];
+
     /**
      * @internal
      *
@@ -65,6 +72,19 @@ class OpenApiDefinitionSchemaBuilder
     public function __construct(private readonly iterable $enumProviders = [])
     {
         $this->converter = new CamelCaseToSnakeCaseNameConverter(null, false);
+    }
+
+    public function getLastPostSchemaRef(): ?string
+    {
+        return $this->lastPostSchemaRef;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getLastPostRequiredFields(): array
+    {
+        return $this->lastPostRequiredFields;
     }
 
     /**
@@ -77,6 +97,9 @@ class OpenApiDefinitionSchemaBuilder
         bool $onlyFlat = false,
         string $apiType = DefinitionService::TYPE_JSON_API
     ): array {
+        $this->lastPostSchemaRef = null;
+        $this->lastPostRequiredFields = [];
+
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
         $uuid = Uuid::fromStringToHex($schemaName);
         $exampleDetailPath = $path . '/' . $uuid;
@@ -140,10 +163,10 @@ class OpenApiDefinitionSchemaBuilder
             );
 
             // Store metadata for path builder to determine POST request body schema
-            $schema['_postSchemaRef'] = $hasImmutableFields
+            $this->lastPostSchemaRef = $hasImmutableFields
                 ? '#/components/schemas/' . $schemaName . 'Create'
                 : '#/components/schemas/' . $schemaName . 'Update';
-            $schema['_postRequiredFields'] = $hasImmutableFields
+            $this->lastPostRequiredFields = $hasImmutableFields
                 ? []
                 : $fieldData['createRequiredAttributes'];
 

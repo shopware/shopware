@@ -46,20 +46,28 @@ export default {
     },
 
     methods: {
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        },
+
         searchAndReplace() {
             if (!this.text) {
                 return '';
             }
 
+            const escapedText = this.escapeHtml(this.text);
+
             if (!this.searchTerm) {
-                return this.text;
+                return escapedText;
             }
 
             const prefix = '<span class="sw-highlight-text__highlight">';
             const suffix = '</span>';
 
             const regExp = new RegExp(this.escapeRegExp(this.searchTerm), 'ig');
-            return this.text.replace(regExp, (str) => `${prefix}${str}${suffix}`);
+            return escapedText.replace(regExp, (str) => `${prefix}${str}${suffix}`);
         },
 
         // Remove regex special characters from search string

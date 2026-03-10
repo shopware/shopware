@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Zugferd;
 
+use DateTimeInterface;
 use horstoeko\zugferd\codelists\ZugferdAllowanceCodes;
 use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\codelists\ZugferdInvoiceType;
@@ -137,9 +138,13 @@ class ZugferdDocument
         return $this;
     }
 
-    public function withInvoiceReference(string $reference): self
+    public function withInvoiceReference(string $reference, ?DateTimeInterface $issueDate = null): self
     {
-        $this->zugferdBuilder->addDocumentInvoiceReferencedDocument($reference);
+        $this->zugferdBuilder->addDocumentInvoiceReferencedDocument(
+            $reference,
+            null,
+            $issueDate
+        );
 
         return $this;
     }
@@ -418,7 +423,7 @@ class ZugferdDocument
 
     private function summary(OrderEntity $order, AmountCalculator $calculator): void
     {
-        if ($this->paidAmount > $order->getAmountTotal()) {
+        if ($this->paidAmount > $order->getAmountTotal() && !$this->allowNegativeProductLineItems) {
             throw DocumentException::generationError('Paid amount is greater than order total amount.');
         }
 

@@ -38,7 +38,7 @@ class ZugferdBuilder
         DocumentConfiguration $config,
         Context $context,
         string $documentType = ZugferdInvoiceType::INVOICE,
-        string $invoiceReferenceId = null,
+        array $invoiceReference = null,
     ): string {
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
         if (!$billingAddress) {
@@ -71,13 +71,15 @@ class ZugferdBuilder
             ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withBuyerReference($order->getOrderNumber() ?? '');
 
-        if ($invoiceReferenceId) {
-            $document->withInvoiceReference($invoiceReferenceId);
+        if ($invoiceReference !== null && isset($invoiceReference['documentNumber'], $invoiceReference['config']['documentDate'])) {
+            $document->withInvoiceReference(
+                $invoiceReference['documentNumber'],
+                new \DateTime($invoiceReference['config']['documentDate']),
+            );
         }
 
         if ($order->getAmountTotal() < 0.0) {
             $document->allowNegativeProductLineItems();
-            $document->withPaidAmount($order->getAmountTotal());
         }
 
         $this->addLineItems($document, $order->getLineItems());

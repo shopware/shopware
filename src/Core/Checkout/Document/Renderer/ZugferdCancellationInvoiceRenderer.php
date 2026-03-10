@@ -65,7 +65,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             return $result;
         }
 
-        $referenceInvoiceNumbers = [];
+        $referenceInvoices = [];
         $orders = new OrderCollection();
 
         foreach ($operations as $operation) {
@@ -78,7 +78,12 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
                 }
 
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
-                $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
+
+                $referenceInvoices[$orderId] = [
+                    ...$invoice,
+                    'documentNumber' => $invoice['documentNumber'] ?? $documentRefer['documentNumber'],
+                    'config' => $documentRefer,
+                ];
 
                 $order = $this->getOrder(
                     $operation,
@@ -110,9 +115,9 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
                     continue;
                 }
 
-                $referenceDocumentNumber = $referenceInvoiceNumbers[$orderId] ?? null;
+                $referenceDocument = $referenceInvoices[$orderId] ?? null;
 
-                if ($referenceDocumentNumber === null) {
+                if ($referenceDocument === null) {
                     throw DocumentException::baseInvoiceNotFound(self::TYPE, $orderId);
                 }
 
@@ -122,7 +127,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
                     $result,
                     $prices,
                     $operation,
-                    $referenceDocumentNumber,
+                    $referenceDocument,
                     $context
                 );
             } catch (\Throwable $exception) {
@@ -137,7 +142,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
         RendererResult $renderResult,
         OrderEntity $order,
         DocumentGenerateOperation $operation,
-        string $referenceDocumentNumber,
+        array $referenceDocument,
         Context $context
     ): void {
         $forceDocumentCreation = $operation->getConfig()['forceDocumentCreation'] ?? true;
@@ -165,7 +170,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             'documentNumber' => $number,
             'custom' => [
                 'stornoNumber' => $number,
-                'invoiceNumber' => $referenceDocumentNumber,
+                'invoiceNumber' => $referenceDocument['documentNumber'],
             ],
         ]);
 
@@ -187,7 +192,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             $config,
             $context,
             ZugferdInvoiceType::CORRECTION,
-            $referenceDocumentNumber,
+            $referenceDocument,
         );
 
         $renderResult->addSuccess(
@@ -286,8 +291,8 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
         }
 
         foreach ($lineItems as $lineItem) {
-            $lineItem->setUnitPrice($lineItem->getUnitPrice() * -1);
             $lineItem->setTotalPrice($lineItem->getTotalPrice() * -1);
+            $lineItem->setQuantity($lineItem->getQuantity() * -1);
 
             $lineItemPrice = $lineItem->getPrice();
 

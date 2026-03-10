@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -93,29 +92,25 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
         $criteria = new Criteria();
         $criteria
             ->addAssociation('documentType')
-            ->addFilter(new EqualsAnyFilter('referencedDocumentId', $ids))
-            ->addFilter(new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [
-                    new EqualsAnyFilter('id', $ids),
-                ]
-            ));
+            ->addFilter(new EqualsAnyFilter('referencedDocumentId', $ids));
 
         $dependentDocuments = $this->documentRepository->search($criteria, $context)->getEntities();
 
-        if($dependentDocuments->count() === 0) {
+        if ($dependentDocuments->count() === 0) {
             return;
         }
 
-        $documentNumbers = $dependentDocuments->fmap(function (DocumentEntity $document) {
-            $id = $document->getId();
-            $type = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
-            $number = $document->getDocumentNumber() ?? 'unknown';
-            return sprintf('%s %s (%s)', $type, $number, $id);
-        });
+        $dependentDocumentInformations = array_values(array_map(
+            function (DocumentEntity $document) {
+                $id = $document->getId();
+                $type = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
+                $number = $document->getDocumentNumber() ?? 'unknown';
 
-        if ($documentNumbers !== null) {
-            throw DocumentException::documentHasDependencies($documentNumbers);
-        }
+                return \sprintf('%s %s (%s)', $type, $number, $id);
+            },
+            $dependentDocuments->getElements()
+        ));
+
+        throw DocumentException::documentHasDependencies($dependentDocumentInformations);
     }
 }

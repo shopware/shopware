@@ -16,8 +16,6 @@ use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
@@ -36,8 +34,8 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 #[Package('after-sales')]
 class DocumentDeleteSubscriberTest extends TestCase
 {
-    use DocumentTrait;
     use AdminFunctionalTestBehaviour;
+    use DocumentTrait;
 
     private Context $context;
 
@@ -164,77 +162,23 @@ class DocumentDeleteSubscriberTest extends TestCase
         )->first();
         static::assertNotNull($creditNoteDocumentGenerationResult);
 
-        static::expectExceptionObject(DocumentException::documentHasDependencies());
+        $creditNoteDocumentNumber = $this->connection->fetchOne(
+            'SELECT document_number FROM document WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($creditNoteDocumentGenerationResult->getId())],
+        );
+
+        static::expectExceptionObject(DocumentException::documentHasDependencies(
+            [
+                \sprintf(
+                    '%s %s (%s)',
+                    CreditNoteRenderer::TYPE,
+                    $creditNoteDocumentNumber ?? 'unknown',
+                    $creditNoteDocumentGenerationResult->getId()
+                ),
+            ]
+        ));
 
         $this->documentRepository->delete([['id' => $invoiceDocumentId]], $this->context);
-    }
-
-    public function testDeleteDocumentsInBulkShouldNotThrowExceptionWhenDependentDocumentsShallBeDeletedToo(): void
-    {
-        $orderId = $this->persistCart($this->generateDemoCart(1));
-        $invoiceGenerationResult = $this->createDocument(
-            InvoiceRenderer::TYPE,
-            $orderId,
-            [],
-            $this->context,
-        )->first();
-        static::assertNotNull($invoiceGenerationResult);
-
-        $invoiceDocumentId = $invoiceGenerationResult->getId();
-        $invoiceMediaId = $invoiceGenerationResult->getMediaId();
-        static::assertNotNull($invoiceMediaId);
-        $invoiceA11yMediaId = $invoiceGenerationResult->getA11yMediaId();
-        static::assertNotNull($invoiceA11yMediaId);
-
-        static::assertTrue($this->hasMediaEntity($invoiceMediaId));
-        static::assertTrue($this->hasMediaEntity($invoiceA11yMediaId));
-
-        $this->addCreditItemToOrder($orderId);
-
-        $creditNoteDocumentGenerationResult = $this->createDocument(
-            CreditNoteRenderer::TYPE,
-            $orderId,
-            ['referencedDocumentId' => $invoiceDocumentId],
-            $this->context,
-        )->first();
-        static::assertNotNull($creditNoteDocumentGenerationResult);
-
-        $creditNoteDocumentId = $creditNoteDocumentGenerationResult->getId();
-        $creditNoteMediaId = $creditNoteDocumentGenerationResult->getMediaId();
-        static::assertNotNull($creditNoteMediaId);
-        $creditNoteA11yMediaId = $creditNoteDocumentGenerationResult->getA11yMediaId();
-        static::assertNotNull($creditNoteA11yMediaId);
-
-        static::assertTrue($this->hasMediaEntity($creditNoteMediaId));
-        static::assertTrue($this->hasMediaEntity($creditNoteA11yMediaId));
-
-        $data = [
-            [
-                'key' => 'test',
-                'action' => SyncController::ACTION_DELETE,
-                'entity' => static::getContainer()->get(DocumentDefinition::class)->getEntityName(),
-                'payload' => [
-                    [
-                        'id' => $invoiceDocumentId,
-                    ],
-                    [
-                        'id' => $creditNoteDocumentId,
-                    ],
-                ],
-            ],
-        ];
-
-        $this->getBrowser()->request(
-            'POST',
-            '/api/_action/sync',
-            [],
-            [],
-            [],
-            json_encode($data, \JSON_THROW_ON_ERROR)
-        );
-        $response = $this->getBrowser()->getResponse();
-
-        var_dump($response);
     }
 
     private function addCreditItemToOrder(string $orderId): void

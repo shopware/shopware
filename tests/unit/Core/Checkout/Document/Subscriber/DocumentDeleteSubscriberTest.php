@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -94,10 +96,18 @@ class DocumentDeleteSubscriberTest extends TestCase
     {
         $documentId = Uuid::randomBytes();
         $dependingDocumentId = Uuid::randomBytes();
+        $dependingDocumentNumber = '10001';
+
+        $documentType = (new DocumentTypeEntity())->assign([
+            'id' => Uuid::randomBytes(),
+            'technicalName' => CreditNoteRenderer::TYPE,
+        ]);
 
         $dependingDocument = (new DocumentEntity())->assign([
             'id' => $dependingDocumentId,
             'referencedDocumentId' => $documentId,
+            'documentNumber' => $dependingDocumentNumber,
+            'documentType' => $documentType,
         ]);
 
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
@@ -136,7 +146,16 @@ class DocumentDeleteSubscriberTest extends TestCase
             $documentId
         );
 
-        $this->expectExceptionObject(DocumentException::documentHasDependencies());
+        $this->expectExceptionObject(DocumentException::documentHasDependencies(
+            [
+                \sprintf(
+                    '%s %s (%s)',
+                    CreditNoteRenderer::TYPE,
+                    $dependingDocumentNumber,
+                    $dependingDocumentId,
+                ),
+            ]
+        ));
         $subscriber->beforeDelete($entityDeleteEvent);
     }
 

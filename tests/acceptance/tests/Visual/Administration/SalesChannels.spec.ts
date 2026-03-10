@@ -8,8 +8,20 @@ test('Visual: Administration sales channels page', {
     DefaultSalesChannel,
 }) => {
 
+    await test.setTimeout(90000);
+
     await test.step('Creates a screenshot of the sales channel page general tab.', async () => {
+        const page = AdminSalesChannelDetail.page;
+        const apiPaths = [
+            '/api/search/currency',
+            '/api/search/measurement-system',
+            '/api/notification/message',
+        ];
+        const responsePromises = apiPaths.map((path) =>
+            page.waitForResponse((response) => response.url().includes(path)),
+        );
         await ShopAdmin.goesTo(AdminSalesChannelDetail.url(DefaultSalesChannel.salesChannel.id));
+        await Promise.all(responsePromises);
         await setViewport(AdminSalesChannelDetail.page, {
             waitForSelector: '.sw-sales-channel-detail-base'
         });

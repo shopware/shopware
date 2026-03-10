@@ -141,8 +141,8 @@ class InvoiceRendererTest extends TestCase
             ],
         ], $this->context);
 
-        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
-            'documentComment' => '<script></script>This is a invoice.',
+        $config = [
+            'documentComment' => '<script></script>This is an invoice.',
             'itemsPerPage' => 10,
             'displayHeader' => true,
             'displayFooter' => true,
@@ -153,31 +153,32 @@ class InvoiceRendererTest extends TestCase
             'displayReturnAddress' => true,
             'companyName' => 'Example Company',
             'documentDate' => '2023-11-24T12:00:00+00:00',
-        ]);
+        ];
 
-        $processedTemplate = $this->invoiceRenderer->render(
-            [$orderId => $operation],
+        $operationHtml = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            $config
+        );
+
+        $processedHtmlTemplate = $this->invoiceRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
-        );
-        static::assertIsString($processedHtml);
-
-        $this->assertHtmlSnapshot(
-            'invoice_renderer_default',
-            $processedHtml
-        );
+        $this->assertSnapshot('invoice_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     /**

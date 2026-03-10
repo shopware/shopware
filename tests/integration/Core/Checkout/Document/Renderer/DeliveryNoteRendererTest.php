@@ -102,7 +102,7 @@ class DeliveryNoteRendererTest extends TestCase
             ],
         ], $this->context);
 
-        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+        $config = [
             'documentComment' => '<script></script>This is a delivery note.',
             'custom' => [
                 'deliveryDate' => '2023-11-24T12:00:00+00:00',
@@ -116,31 +116,32 @@ class DeliveryNoteRendererTest extends TestCase
             'displayReturnAddress' => true,
             'companyName' => 'Example Company',
             'documentDate' => '2023-11-24T12:00:00+00:00',
-        ]);
+        ];
 
-        $processedTemplate = $this->deliveryNoteRenderer->render(
-            [$orderId => $operation],
+        $operationHtml = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            $config
+        );
+
+        $processedHtmlTemplate = $this->deliveryNoteRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
-        );
-        static::assertIsString($processedHtml);
-
-        $this->assertHtmlSnapshot(
-            'delivery_note_renderer_default',
-            $processedHtml
-        );
+        $this->assertSnapshot('delivery_note_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     #[DataProvider('deliveryNoteRendererDataProvider')]

@@ -155,13 +155,15 @@ class ApiRoutesHaveASchemaTest extends TestCase
         sort($missingRoutes);
 
         static::assertSame([], array_keys($schemaRoutes), 'The schema contains routes that do not exist');
+
         // Add missing routes under:
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths
-        $this->assertJsonSnapshot(
-            'routes_without_schema',
-            $missingRoutes,
-            'Routes are missing in the schema'
-        );
+        $this->assertSnapshot('routes_without_schema', [
+            [
+                'type' => self::TYPE_JSON,
+                'actual' => $missingRoutes,
+            ],
+        ]);
     }
 
     private function isStoreApi(string $path): bool

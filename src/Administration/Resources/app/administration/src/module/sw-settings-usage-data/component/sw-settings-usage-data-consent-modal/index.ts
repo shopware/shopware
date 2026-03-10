@@ -2,12 +2,7 @@
  * @sw-package framework
  */
 import useConsentStore from 'src/core/consent/consent.store';
-import {
-    trackConsentDecisionMade,
-    trackConsentLegalLinkClicked,
-    trackConsentModalViewed,
-    trackConsentOptionChanged,
-} from 'src/core/consent/tracking';
+import { dispatchConsentEvent } from 'src/core/consent/events';
 import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
 
@@ -72,7 +67,7 @@ export default Shopware.Component.wrapComponentConfig({
         this.userDataConsent = this.initialUserDataConsent;
 
         this.modalOpenedAt = Date.now();
-        trackConsentModalViewed(this.visibleOptions);
+        dispatchConsentEvent('consent_modal_viewed', { option: this.visibleOptions });
     },
 
     computed: {
@@ -112,16 +107,22 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         trackLegalLinkClick(linkTarget: 'privacy_policy' | 'data_use_details') {
-            trackConsentLegalLinkClicked(linkTarget, 'modal');
+            dispatchConsentEvent('consent_legal_link_clicked', { link_target: linkTarget, source: 'modal' });
         },
 
         trackChangedOptionEventsForVisibleOptions() {
             if (this.showStoreDataConsent && this.storeDataConsent !== this.initialStoreDataConsent) {
-                trackConsentOptionChanged('backend_data', this.storeDataConsent ? 'enabled' : 'disabled');
+                dispatchConsentEvent('consent_option_changed', {
+                    option: 'backend_data',
+                    state: this.storeDataConsent ? 'enabled' : 'disabled',
+                });
             }
 
             if (this.userDataConsent !== this.initialUserDataConsent) {
-                trackConsentOptionChanged('user_tracking', this.userDataConsent ? 'enabled' : 'disabled');
+                dispatchConsentEvent('consent_option_changed', {
+                    option: 'user_tracking',
+                    state: this.userDataConsent ? 'enabled' : 'disabled',
+                });
             }
         },
 
@@ -129,10 +130,18 @@ export default Shopware.Component.wrapComponentConfig({
             const timeSpentOnModal = this.getModalTimeSpentInSeconds();
 
             if (this.showStoreDataConsent) {
-                trackConsentDecisionMade('backend_data', this.storeDataConsent ? 'accepted' : 'revoked', timeSpentOnModal);
+                dispatchConsentEvent('consent_decision_made', {
+                    option: 'backend_data',
+                    decision: this.storeDataConsent ? 'accepted' : 'revoked',
+                    time_spent_on_modal: timeSpentOnModal,
+                });
             }
 
-            trackConsentDecisionMade('user_tracking', this.userDataConsent ? 'accepted' : 'revoked', timeSpentOnModal);
+            dispatchConsentEvent('consent_decision_made', {
+                option: 'user_tracking',
+                decision: this.userDataConsent ? 'accepted' : 'revoked',
+                time_spent_on_modal: timeSpentOnModal,
+            });
         },
 
         async savePreferences(done: () => void) {

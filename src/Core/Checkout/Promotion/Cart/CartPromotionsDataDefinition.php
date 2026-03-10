@@ -100,7 +100,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function getAllCodes(): array
     {
-        return array_keys($this->codePromotions);
+        return array_map(\strval(...), array_keys($this->codePromotions));
     }
 
     public function getApiAlias(): string

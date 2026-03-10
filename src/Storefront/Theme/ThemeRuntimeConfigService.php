@@ -112,7 +112,9 @@ class ThemeRuntimeConfigService
             // will throw an exception if theme was not built yet
             $scriptFiles = $this->themeFileResolver->resolveScriptFiles($themeConfig, $configCollection, false)->getPublicPaths('js');
         } catch (ThemeCompileException|AppException $e) {
-            $failOnFileResolveError && throw $e;
+            if ($failOnFileResolveError) {
+                throw $e;
+            }
         }
 
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
@@ -164,6 +166,12 @@ class ThemeRuntimeConfigService
         $this->runtimeConfigCacheById = [];
         $this->runtimeConfigCacheByName = [];
         $this->activeThemeNamesCache = null;
+    }
+
+    public function deleteByTechnicalName(string $technicalName): void
+    {
+        $this->storage->deleteByTechnicalName($technicalName);
+        $this->resetCaches();
     }
 
     /**

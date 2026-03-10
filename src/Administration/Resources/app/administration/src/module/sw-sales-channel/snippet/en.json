@@ -105,6 +105,7 @@
       "labelInputSnippet": "Snippet",
       "buttonDeleteDomain": "Delete domain",
       "messageDeleteDomainError": "The domain \"{url}\" could not be deleted because it is linked to existing product exports.",
+      "foreignKeyDelete": "This sales channel cannot be deleted because it is still in use by {assignment}.",
       "buttonAddDomain": "Add domain",
       "deleteDomainModalTitle": "Delete domain",
       "textConfirmDeleteDomain": "Are you sure you want to delete this domain? The Sales Channel will no longer be accessible by \"{url}\"",
@@ -265,6 +266,10 @@
           },
           "anonymizeIp": {
             "label": "Anonymise IP"
+          },
+          "trackOffcanvasCart": {
+            "label": "Track offcanvas cart",
+            "helpText": "When enabled, a 'view_cart' event is also fired when the offcanvas cart opens, not just on the dedicated cart page. Useful for detailed funnel analysis but may inflate cart view metrics."
           }
         }
       },

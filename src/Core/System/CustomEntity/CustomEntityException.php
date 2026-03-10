@@ -15,10 +15,12 @@ class CustomEntityException extends HttpException
     public const CUSTOM_FIELDS_AWARE_NO_LABEL_PROPERTY = 'NO_LABEL_PROPERTY';
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_NOT_DEFINED = 'LABEL_PROPERTY_NOT_DEFINED';
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE = 'LABEL_PROPERTY_WRONG_TYPE';
-
+    public const ASSOCIATION_REFERENCE_TABLE_NOT_FOUND = 'FRAMEWORK__CUSTOM_ENTITY_ASSOCIATION_REFERENCE_TABLE_NOT_FOUND';
     public const XML_PARSE_ERROR = 'SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR';
-
     public const NOT_FOUND = 'FRAMEWORK__CUSTOM_ENTITY_NOT_FOUND';
+    final public const ENTITY_NOT_GIVEN_CODE = 'SYSTEM__CUSTOM_ENTITY_NOT_GIVEN';
+    final public const DUPLICATE_REFERENCES = 'SYSTEM__CUSTOM_ENTITY_DUPLICATE_REFERENCES';
+    final public const INVALID_REFERENCES = 'SYSTEM__CUSTOM_ENTITY_INVALID_REFERENCES';
 
     public static function noLabelProperty(): self
     {
@@ -65,6 +67,92 @@ class CustomEntityException extends HttpException
             self::CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED,
             'onDelete property {{ onDelete }} are not supported on field {{ name }}',
             ['onDelete' => $onDelete, 'name' => $name]
+        );
+    }
+
+    public static function associationReferenceTableNotFound(string $referenceName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ASSOCIATION_REFERENCE_TABLE_NOT_FOUND,
+            'Association reference table "{{ referenceName }}" not found',
+            ['referenceName' => $referenceName]
+        );
+    }
+
+    /**
+     * @param list<string> $entities
+     */
+    public static function entityNotGiven(string $configFileName, array $entities): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_NOT_GIVEN_CODE,
+            \sprintf(
+                'The entities %s are not given in the entities.xml but are configured in %s',
+                implode(', ', $entities),
+                $configFileName
+            ),
+            [
+                'configFileName' => $configFileName,
+                'entities' => $entities,
+            ]
+        );
+    }
+
+    /**
+     * @param list<string> $duplicates
+     */
+    public static function duplicateReferences(
+        string $configFileName,
+        string $customEntityName,
+        string $xmlElement,
+        array $duplicates
+    ): self {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DUPLICATE_REFERENCES,
+            \sprintf(
+                'In `%s`, the entity `%s` only allows unique fields per xml element, but found the following duplicates inside of `%s`: %s',
+                $configFileName,
+                $customEntityName,
+                $xmlElement,
+                \implode(', ', $duplicates)
+            ),
+            [
+                'configFileName' => $configFileName,
+                'customEntityName' => $customEntityName,
+                'area' => $xmlElement,
+                'duplicates' => $duplicates,
+            ]
+        );
+    }
+
+    /**
+     * @param list<string> $invalidRefs
+     */
+    public static function invalidReferences(
+        string $configFileName,
+        string $customEntityName,
+        string $xmlElement,
+        array $invalidRefs
+    ): self {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_REFERENCES,
+            \sprintf(
+                'In `%s` the entity `%s` has invalid references (regarding `entities.xml`) inside of `%s`: %s',
+                $configFileName,
+                $customEntityName,
+                $xmlElement,
+                \implode(', ', $invalidRefs)
+            ),
+            [
+                'configFileName' => $configFileName,
+                'customEntityName' => $customEntityName,
+                'area' => $xmlElement,
+                'duplicates' => $invalidRefs,
+            ]
         );
     }
 }

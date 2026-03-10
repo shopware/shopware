@@ -3,9 +3,6 @@
  */
 import ApiService from '../api.service';
 
-const { Service } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class TagApiService extends ApiService {
     constructor(httpClient, loginService) {
@@ -65,6 +62,7 @@ export default class TagApiService extends ApiService {
             bulkMergeProgress.total = 0;
 
             const repository = this.getRepository(property.entity);
+            const { Criteria } = Shopware.Data;
 
             do {
                 const criteria = new Criteria(page, limit);
@@ -96,6 +94,6 @@ export default class TagApiService extends ApiService {
     }
 
     getRepository(entity) {
-        return Service('repositoryFactory').create(entity);
+        return Shopware.Service('repositoryFactory').create(entity);
     }
 }

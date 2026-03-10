@@ -1,7 +1,7 @@
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -94,6 +94,18 @@ export default {
             required: false,
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+
+        allowCreateFolder: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -223,6 +235,14 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
+
+        adminEsEnable() {
+            if (!Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     watch: {
@@ -255,9 +275,13 @@ export default {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountedComponent();
+    },
+
     methods: {
         createdComponent() {
-            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem.bind(this));
+            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem);
 
             this.refreshList();
 
@@ -270,6 +294,10 @@ export default {
             };
 
             this.handleMediaGridItemSelected = () => {};
+        },
+
+        beforeUnmountedComponent() {
+            Shopware.Utils.EventBus.off('sw-media-library-item-updated', this.refreshItem);
         },
 
         /*
@@ -361,7 +389,9 @@ export default {
 
             let criteria = this.nextMediaCriteria;
 
-            if (this.isValidTerm(this.term)) {
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else if (this.isValidTerm(this.term)) {
                 const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
 
                 if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
@@ -374,12 +404,10 @@ export default {
                 criteria = this.searchRankingService.buildSearchQueriesForEntity(searchRankingFields, this.term, criteria);
             }
 
-            // only fetch items of current folder
             if (!this.isValidTerm(this.term)) {
                 criteria.addFilter(Criteria.equals('mediaFolderId', this.folderId));
             }
 
-            // search only in current and all subFolders
             if (this.folderId != null && this.isValidTerm(this.term)) {
                 criteria.addFilter(
                     Criteria.multi('OR', [

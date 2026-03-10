@@ -19,7 +19,9 @@ class RedisIncrementer extends AbstractIncrementer
      * @param RedisTypeHint $redis
      */
     public function __construct(
-        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        /**
+         * @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future)
+         */
         private $redis
     ) {
     }
@@ -57,7 +59,7 @@ class RedisIncrementer extends AbstractIncrementer
     {
         $keys = $this->getKeys($cluster);
 
-        if (empty($keys)) {
+        if ($keys === []) {
             return [];
         }
 
@@ -93,11 +95,11 @@ class RedisIncrementer extends AbstractIncrementer
     {
         $keysToDelete = $this->getKeys($cluster);
 
-        if (!empty($keys)) {
+        if ($keys !== []) {
             $keysToDelete = array_map(fn (string $keySuffix) => $this->getKey($cluster, $keySuffix), $keys);
         }
 
-        if (empty($keysToDelete)) {
+        if ($keysToDelete === []) {
             return;
         }
 
@@ -121,7 +123,7 @@ class RedisIncrementer extends AbstractIncrementer
         $keys = $this->redis->keys($this->getKey($cluster));
         \assert(\is_array($keys));
 
-        if (empty($keys) || !\method_exists($this->redis, 'getOption')) {
+        if ($keys === [] || !\method_exists($this->redis, 'getOption')) {
             return [];
         }
 

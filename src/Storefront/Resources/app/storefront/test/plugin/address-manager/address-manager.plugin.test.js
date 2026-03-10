@@ -186,7 +186,10 @@ describe('AddressManagerPlugin test', () => {
             '/widgets/account/address-manager?type=shipping',
             {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
             },
         );
     });

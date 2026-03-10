@@ -337,6 +337,20 @@ class ImportExportProfileRepositoryTest extends TestCase
         static::assertCount($num, $records);
     }
 
+    public function testCanSearchByTechnicalName(): void
+    {
+        $data = $this->prepareImportExportProfileTestData();
+        $this->repository->create(array_values($data), $this->context);
+
+        $criteria = new Criteria();
+        $criteria->setTerm('technical');
+
+        $result = $this->repository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $result);
+        static::assertInstanceOf(ImportExportProfileEntity::class, $result->first());
+    }
+
     /**
      * Prepare a defined number of test data.
      *

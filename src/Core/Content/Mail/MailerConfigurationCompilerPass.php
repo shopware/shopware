@@ -33,6 +33,6 @@ class MailerConfigurationCompilerPass implements CompilerPassInterface
         // use the same message bus from symfony/mailer configuration.
         // matching: https://developer.shopware.com/docs/guides/hosting/infrastructure/message-queue.html#sending-mails-over-the-message-queue
         $originalMailer = $container->getDefinition('mailer.mailer');
-        $mailer->replaceArgument(5, $originalMailer->getArgument(1));
+        $mailer->replaceArgument(6, $originalMailer->getArgument(1));
     }
 }

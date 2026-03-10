@@ -31,7 +31,7 @@ class AddCustomerTagAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function requirements(): array
     {
@@ -57,7 +57,7 @@ class AddCustomerTagAction extends FlowAction implements DelayableAction
         }
 
         $tagIds = array_keys($config['tagIds']);
-        if (empty($tagIds)) {
+        if ($tagIds === []) {
             return;
         }
 

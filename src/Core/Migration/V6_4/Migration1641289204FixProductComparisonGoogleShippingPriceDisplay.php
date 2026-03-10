@@ -10,8 +10,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1641289204FixProductComparisonGoogleShippingPriceDisplay extends MigrationStep

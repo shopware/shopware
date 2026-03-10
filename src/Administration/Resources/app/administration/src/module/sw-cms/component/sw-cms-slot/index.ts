@@ -38,6 +38,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showElementSettings: false,
+            isElementSettingsInitialized: false,
             showElementSelection: false,
             elementNotFound: false,
         };
@@ -54,6 +55,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         elementConfig() {
             return this.cmsServiceState.elementRegistry[this.element.type];
+        },
+
+        elementModalTitle() {
+            const title = this.$t('sw-cms.detail.title.elementSettingsModal');
+            if (this.elementConfig?.label !== undefined) {
+                return `${title} (${this.$t(this.elementConfig.label)})`;
+            }
+            return title;
         },
 
         cmsElements() {
@@ -153,11 +162,15 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.elementConfig?.defaultConfig || this.element?.locked) {
                 return;
             }
+
+            this.isElementSettingsInitialized = true;
             this.showElementSettings = true;
         },
 
         onCloseSettingsModal() {
-            if (!this.showElementSettings) return;
+            if (!this.showElementSettings) {
+                return;
+            }
 
             const childComponent = this.$refs.elementComponentRef as {
                 handleUpdateContent: () => void;

@@ -171,7 +171,7 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
             wrapper
                 .find(`.${classes.root}`)
                 .find('.sw-system-config--field-core-newsletter-subscribe-url')
-                .find("input[id='core.newsletter.subscribeUrl']")
+                .find("input[aria-label='Subscription URL']")
                 .attributes('placeholder'),
         ).toBe('/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%');
     });

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('discovery')]
 class ProductListingReadinessCheck extends BaseCheck
 {
-    private const LISTING_PAGE = 'frontend.navigation.page';
+    private const LISTING_PAGE = NavigationPageSeoUrlRoute::ROUTE_NAME;
 
     private const MESSAGE_SUCCESS = 'Product listing pages are OK for provided sales channels.';
 

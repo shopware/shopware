@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
-abstract class CountryRegionMissingError extends Error
+abstract class CountryRegionMissingError extends Error implements AddressErrorInterface
 {
     protected const KEY = 'country-region-missing';
 

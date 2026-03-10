@@ -1,6 +1,7 @@
 parameters:
     default_cdn_strategy: "id"
     env(APP_URL): ''
+    env(PRODUCT_ANALYTICS_GATEWAY_URL): 'https://product-analytics-gateway.services.shopware.io'
     APP_URL: "%env(string:APP_URL)%"
     env(REDIS_PREFIX): ''
 
@@ -135,6 +136,41 @@ shopware:
             - 'klar_cpid'
             - 'klar_adid'
 
+        # Cache policies (feature flag CACHE_REWORK)
+        policies:
+            no_cache_private:
+                headers:
+                    cache_control:
+                        private: true
+                        no_cache: true
+                        max_age: 0
+                        s_maxage: 0
+
+            store_api.cacheable:
+                headers:
+                    cache_control:
+                        public: true
+                        max_age: 0
+                        s_maxage: 1800
+                        stale_while_revalidate: 86400
+                        stale_if_error: 7200
+
+            storefront.cacheable:
+                headers:
+                    cache_control:
+                        public: true
+                        max_age: 0
+                        must_revalidate: true
+                        s_maxage: 7200
+
+        default_policies:
+            storefront:
+                cacheable: storefront.cacheable
+                uncacheable: no_cache_private
+            store_api:
+                cacheable: store_api.cacheable
+                uncacheable: no_cache_private
+
     profiler:
         integrations: []
     filesystem:
@@ -155,8 +191,8 @@ shopware:
         theme:
         asset:
         sitemap:
-        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html"]
-        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml"]
+        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html", "vtt", "srt", "sub", "ass", "ssa", "step", "stp"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml", "vtt", "srt", "sub", "ass","ssa", "step", "stp"]
         private_local_download_strategy: "php"
         private_local_path_prefix: ""
         batch_write_size: 250
@@ -179,6 +215,7 @@ shopware:
             #     config:
             #         url: 'redis://localhost'
 
+        # @deprecated tag:v6.8.0, will be removed
         message_queue:
             type: 'mysql'
 
@@ -195,6 +232,8 @@ shopware:
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
+        static_token: # Optionally used for 'Authorization: Static ...' header in addition to normal bearer authorization for specific HTTP endpoints
+            health_check: ''
         rate_limiter:
             login:
                 enabled: true
@@ -252,6 +291,17 @@ shopware:
                     - limit: 10
                       interval: '90 seconds'
             contact_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
+            revocation_request_form:
                 enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'
@@ -341,15 +391,13 @@ shopware:
         expire_days: 120
         storage:
             # supported types: mysql, redis
+            # for redis also the shopware.cart.storage.config.connection is required to point to a valid redis connection
             type: "mysql"
-            # config:
-                # dsn: 'redis://localhost'
 
     number_range:
         # supported types: mysql, redis
+        # for redis also the shopware.number_range.config.connection is required to point to a valid redis connection
         increment_storage: "mysql"
-        # config:
-            # dsn: 'redis://localhost'
 
     sales_channel_context:
         expire_days: 120
@@ -519,11 +567,15 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        disable_stampede_protection: false
+        twig:
+            string_template_renderer_cache_dir: '%kernel.cache_dir%/twig/string-template-renderer'
         invalidation:
             delay_enabled: true
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']
+            tag_invalidation_log_enabled: false
 
     twig:
         allowed_php_functions: []
@@ -559,6 +611,8 @@ shopware:
             show_banner: true
         sales_channel:
             domain_rewrite: []
+        extensions:
+            disable: []
         elasticsearch:
             check_for_existence: true
 
@@ -566,6 +620,7 @@ shopware:
         default: []
 
     messenger:
+        message_max_kib_size: 1024 # in KiB
         scheduled_task:
             requeue_timeout: 12 # requeue stuck messages after 12 hours
         routing_overwrite:
@@ -573,3 +628,7 @@ shopware:
 
     product_stream:
         indexing: true
+    product:
+        allowed_types:
+          - physical
+          - digital

@@ -42,12 +42,12 @@ class ServerTiming implements ProfilerInterface
             return;
         }
 
-        $this->elements[] = \sprintf('%s;dur=%d', str_replace('::', '.', $title), $stopwatchEvent->getDuration());
+        $this->elements[] = \sprintf('%s;dur=%f', str_replace('::', '.', $title), $stopwatchEvent->getDuration());
     }
 
     public function onResponseEvent(ResponseEvent $event): void
     {
-        if (!empty($this->elements)) {
+        if ($this->elements !== []) {
             $response = $event->getResponse();
             $response->headers->set('Server-Timing', implode(', ', $this->elements));
         }

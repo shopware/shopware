@@ -1,0 +1,18 @@
+.sw-cms-el-preview-video {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+    &__img {
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &__icon {
+        height: 35px;
+        position: absolute;
+    }
+}

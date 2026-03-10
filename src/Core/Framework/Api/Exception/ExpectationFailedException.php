@@ -10,15 +10,15 @@ use Symfony\Component\HttpFoundation\Response;
 class ExpectationFailedException extends ShopwareHttpException
 {
     /**
-     * @param array<string> $fails
+     * @param list<string> $fails
      */
     public function __construct(private readonly array $fails)
     {
-        parent::__construct('API Expectations failed', []);
+        parent::__construct('API Expectations failed');
     }
 
     /**
-     * @return array<string> $failedExpectations
+     * @return array<string>
      */
     public function getParameters(): array
     {

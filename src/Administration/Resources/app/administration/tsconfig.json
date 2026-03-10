@@ -3,10 +3,13 @@
     "target": "ES2023",
     "lib": ["ES2020", "DOM", "ES2023"],
     "module": "commonjs",
-    "rootDir": "./",
     "baseUrl": "./",
     "paths": {
       "src": ["src"],
+      "@shopware-ag/dive/quickview": ["./node_modules/@shopware-ag/dive/build/plugins/quickview/index.d.ts"],
+      "@shopware-ag/dive/toolbox": ["./node_modules/@shopware-ag/dive/build/plugins/toolbox/index.d.ts"],
+      "@shopware-ag/dive/orbitcontroller": ["./node_modules/@shopware-ag/dive/build/plugins/orbitcontroller/index.d.ts"],
+      "@shopware-ag/dive/assetexporter": ["./node_modules/@shopware-ag/dive/build/plugins/assetexporter/index.d.ts"],
     },
     "types": [
       "vite/client",
@@ -25,7 +28,6 @@
   "include": [
     "build.ts",
     "./src/**/*",
-    "./scripts/**/*",
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
     "./build/plugins.vite.ts",

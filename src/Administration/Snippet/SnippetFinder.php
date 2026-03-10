@@ -11,7 +11,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPath;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPathCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
-use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 use Symfony\Component\Filesystem\Path;
@@ -37,7 +37,8 @@ class SnippetFinder implements SnippetFinderInterface
         private readonly Connection $connection,
         private readonly Filesystem $translationReader,
         private readonly TranslationConfig $translationConfig,
-        private readonly TranslationLoader $translationLoader,
+        private readonly AbstractTranslationLoader $translationLoader,
+        private readonly HtmlSanitizer $htmlSanitizer,
     ) {
     }
 
@@ -91,11 +92,11 @@ class SnippetFinder implements SnippetFinderInterface
 
         $snippetFiles = new SnippetPathCollection();
         array_map(
-            fn (string $path) => $snippetFiles->add(new SnippetPath($path, true)),
+            static fn (string $path) => $snippetFiles->add(new SnippetPath($path, true)),
             $this->findLocalSnippetFiles($snippetNames, $localPaths),
         );
         array_map(
-            fn (string $path) => $snippetFiles->add(new SnippetPath($path)),
+            static fn (string $path) => $snippetFiles->add(new SnippetPath($path)),
             $this->findRemoteSnippetFiles($snippetNames, $remotePaths),
         );
 
@@ -241,7 +242,7 @@ class SnippetFinder implements SnippetFinderInterface
             } else {
                 $content = $this->translationReader->read($file->location);
             }
-            if (!empty($content)) {
+            if ($content !== '') {
                 $snippets[] = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR) ?? [];
             }
         }
@@ -283,12 +284,10 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function sanitizeAppSnippets(array $snippets): array
     {
-        $sanitizer = new HtmlSanitizer();
-
         $sanitizedSnippets = [];
         foreach ($snippets as $key => $value) {
             if (\is_string($value)) {
-                $sanitizedSnippets[$key] = $sanitizer->sanitize($value);
+                $sanitizedSnippets[$key] = $this->htmlSanitizer->sanitize($value);
 
                 continue;
             }
@@ -338,7 +337,7 @@ class SnippetFinder implements SnippetFinderInterface
         $files = [];
         foreach ($paths as $path) {
             $snippetPaths = \array_map(
-                fn (string $name) => Path::join($path->location, $name),
+                static fn (string $name) => Path::join($path->location, $name),
                 $snippetNames
             );
             $existingSnippetNames = \array_filter(

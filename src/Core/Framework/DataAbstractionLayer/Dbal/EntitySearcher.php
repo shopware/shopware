@@ -71,7 +71,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $query = $this->criteriaQueryBuilder->build($query, $definition, $criteria, $context);
 
-        if (!empty($criteria->getIds())) {
+        if ($criteria->getIds() !== []) {
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
@@ -151,7 +151,7 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        $query->setMaxResults($criteria->getLimit() * 6 + 1);
+        $query->setMaxResults((int) $criteria->getLimit() * 6 + 1);
     }
 
     /**
@@ -177,9 +177,9 @@ class EntitySearcher implements EntitySearcherInterface
 
     /**
      * @param array<string>|array<array<string, string>> $ids
-     * @param array<string, mixed> $data
+     * @param array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}> $data
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}>
      */
     private function sortByIdArray(array $ids, array $data): array
     {

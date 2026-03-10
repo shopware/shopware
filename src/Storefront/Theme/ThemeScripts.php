@@ -47,10 +47,9 @@ readonly class ThemeScripts
 
         $runtimeConfig = $this->themeRuntimeConfigService->getResolvedRuntimeConfig($themeId);
 
-        if ($runtimeConfig === null) {
+        if ($runtimeConfig?->scriptFiles === null) {
             return [];
         }
-        \assert($runtimeConfig->scriptFiles !== null);
 
         return $runtimeConfig->scriptFiles;
     }

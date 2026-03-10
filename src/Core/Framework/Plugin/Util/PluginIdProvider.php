@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginException;
 
 #[Package('framework')]
 class PluginIdProvider
@@ -25,8 +26,10 @@ class PluginIdProvider
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('baseClass', $pluginBaseClassName));
-        /** @var string $id */
         $id = $this->pluginRepo->searchIds($criteria, $context)->firstId();
+        if ($id === null) {
+            throw PluginException::notFound($pluginBaseClassName);
+        }
 
         return $id;
     }

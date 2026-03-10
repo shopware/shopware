@@ -21,9 +21,6 @@ class ConfiguredSystemConfigLoader extends AbstractSystemConfigLoader
         return $this->decorated;
     }
 
-    /**
-     * @return array<mixed>
-     */
     public function load(?string $salesChannelId): array
     {
         $config = $this->decorated->load($salesChannelId);

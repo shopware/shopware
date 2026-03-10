@@ -19,18 +19,48 @@ describe('error.store', () => {
     describe('actions', () => {
         describe('addApiError', () => {
             it('adds an API error', () => {
-                const error = new ShopwareError({ code: 'TEST-001', detail: 'Test error' });
-                store.addApiError({ expression: 'entity.field', error });
+                const base = { code: 'TEST-001', detail: 'Test error' };
+
+                store.addApiError({
+                    expression: 'entity.field',
+                    error: new ShopwareError(base),
+                });
+
                 // @ts-expect-error
-                expect(store.api.entity.field).toEqual({ ...error, selfLink: 'entity.field' });
+                const actual = store.api.entity.field as ShopwareError;
+
+                expect(actual).toBeInstanceOf(ShopwareError);
+                expect(actual).toMatchObject({
+                    selfLink: 'entity.field',
+                    _code: base.code,
+                    _detail: base.detail,
+                    _status: '',
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    _id: expect.any(String),
+                });
             });
 
             it('adds a nested API error', () => {
-                const error = new ShopwareError({ code: 'TEST-002', detail: 'Nested error' });
-                store.addApiError({ expression: 'entity.nested.field', error });
+                const base = { code: 'TEST-002', detail: 'Nested error' };
+
+                store.addApiError({
+                    expression: 'entity.nested.field',
+                    error: new ShopwareError(base),
+                });
+
                 // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                expect(store.api.entity.nested.field).toEqual({ ...error, selfLink: 'entity.nested.field' });
+                const actual = store.api.entity.nested.field as ShopwareError;
+
+                expect(actual).toBeInstanceOf(ShopwareError);
+                expect(actual).toMatchObject({
+                    selfLink: 'entity.nested.field',
+                    _code: base.code,
+                    _detail: base.detail,
+                    _status: '',
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    _id: expect.any(String),
+                });
             });
         });
 

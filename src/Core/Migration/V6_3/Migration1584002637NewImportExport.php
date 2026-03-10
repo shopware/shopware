@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1584002637NewImportExport extends MigrationStep
@@ -123,7 +121,7 @@ class Migration1584002637NewImportExport extends MigrationStep
     }
 
     /**
-     * @return array<int, array{id: string, width: int, height: int}>
+     * @return list<array{id: string, width: int, height: int}>
      */
     private function getThumbnailSizes(Connection $connection): array
     {

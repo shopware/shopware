@@ -1,8 +1,7 @@
-import { mount } from '@vue/test-utils';
-
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
+import { mount } from '@vue/test-utils';
 
 const orderFixture = {
     id: 'order1',

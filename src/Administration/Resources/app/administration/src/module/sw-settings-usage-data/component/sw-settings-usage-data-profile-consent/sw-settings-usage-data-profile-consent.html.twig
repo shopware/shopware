@@ -1,0 +1,52 @@
+<mt-card
+    class="sw-settings-usage-data-profile-consent"
+    :title="$t('sw-settings-usage-data.consent-modal.title')"
+>
+    <div class="sw-settings-usage-data-profile-consent__intro">
+        <img
+            alt=""
+            :src="unionPath"
+        >
+
+        <p>{{ $t('sw-settings-usage-data.consent-modal.share-user-data') }}</p>
+    </div>
+
+    <div class="sw-settings-usage-data-profile-consent__consent">
+        <sw-settings-usage-data-user-data-consent-card
+            :is-loading="suspended || isLoading"
+            :consent="userDataConsent"
+            @update:consent="updateConsent"
+        />
+
+        <div>
+            <sw-settings-usage-data-consent-check-list />
+
+            <i18n-t
+                class="sw-settings-usage-data-profile-consent__legal-link"
+                tag="p"
+                keypath="sw-settings-usage-data.consent-modal.external-links.label"
+            >
+                <template #data-use-details>
+                    <mt-link
+                        :to="$t('sw-settings-usage-data.consent-modal.external-links.data-use-details.link')"
+                        type="external"
+                        target="_blank"
+                        @click="onLegalLinkClick('data_use_details')"
+                    >
+                        {{ $t('sw-settings-usage-data.consent-modal.external-links.data-use-details.label') }}
+                    </mt-link>
+                </template>
+                <template #privacy-policy>
+                    <mt-link
+                        :to="$t('sw-settings-usage-data.consent-modal.external-links.privacy-policy.link')"
+                        type="external"
+                        target="_blank"
+                        @click="onLegalLinkClick('privacy_policy')"
+                    >
+                        {{ $t('sw-settings-usage-data.consent-modal.external-links.privacy-policy.label') }}
+                    </mt-link>
+                </template>
+            </i18n-t>
+        </div>
+    </div>
+</mt-card>

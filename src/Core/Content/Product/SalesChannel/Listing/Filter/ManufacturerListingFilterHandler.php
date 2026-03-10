@@ -30,7 +30,7 @@ class ManufacturerListingFilterHandler extends AbstractListingFilterHandler
 
         return new Filter(
             'manufacturer',
-            !empty($ids),
+            $ids !== [],
             [new EntityAggregation('manufacturer', 'product.manufacturerId', 'product_manufacturer')],
             new EqualsAnyFilter('product.manufacturerId', $ids),
             $ids
@@ -51,7 +51,7 @@ class ManufacturerListingFilterHandler extends AbstractListingFilterHandler
             $ids = explode('|', $ids);
         }
 
-        /** @var list<string> $ids */
+        /** @var list<non-falsy-string> $ids */
         $ids = array_filter((array) $ids);
 
         return $ids;

@@ -1,8 +1,9 @@
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-preview-v2.html.twig';
 import './sw-media-preview-v2.scss';
 
 const { Context, Filter } = Shopware;
-const { fileReader } = Shopware.Utils;
+const { fileReader, EventBus } = Shopware.Utils;
 
 /**
  * @status ready
@@ -29,19 +30,6 @@ export default {
     emits: [
         'click',
         'media-preview-play',
-    ],
-
-    playableVideoFormats: [
-        'video/mp4',
-        'video/ogg',
-        'video/webm',
-    ],
-
-    playableAudioFormats: [
-        'audio/mp3',
-        'audio/mpeg',
-        'audio/ogg',
-        'audio/wav',
     ],
 
     placeholderThumbnailsBasePath: '/administration/administration/static/img/media-preview/',
@@ -187,11 +175,11 @@ export default {
         },
 
         isPlayable() {
-            if (this.$options.playableVideoFormats.includes(this.mimeType)) {
-                return true;
-            }
+            return isPlayableMediaFormat(this.mimeType);
+        },
 
-            return this.$options.playableAudioFormats.includes(this.mimeType);
+        showUnsupportedFormatWarning() {
+            return shouldShowUnsupportedFormatWarning(this.mimeType);
         },
 
         isIcon() {
@@ -223,6 +211,10 @@ export default {
         },
 
         previewUrl() {
+            if (!this.trueSource) {
+                return '';
+            }
+
             if (this.isFile) {
                 this.getDataUrlFromFile();
                 return this.dataUrl;
@@ -275,27 +267,31 @@ export default {
         },
 
         sourceSet() {
-            if (this.isFile || this.isUrl) {
+            if (this.isFile || this.isUrl || !this.trueSource) {
                 return '';
             }
 
-            if (this.trueSource.thumbnails.length === 0) {
-                return '';
+            return this.buildSourceSet(this.trueSource);
+        },
+
+        videoCoverMedia() {
+            if (!this.trueSource || typeof this.trueSource !== 'object') {
+                return null;
             }
 
-            const sources = [];
-            this.trueSource.thumbnails.forEach((thumbnail) => {
-                const url = thumbnail.url;
+            return this.trueSource.extensions?.videoCoverMedia ?? null;
+        },
 
-                if (this.feature.isActive('v6.8.0.0')) {
-                    sources.push(`${url} ${thumbnail.width}w`);
-                } else {
-                    const encoded = encodeURI(url);
-                    sources.push(`${encoded} ${thumbnail.width}w`);
-                }
-            });
+        videoCoverPoster() {
+            return this.videoCoverMedia?.url ?? null;
+        },
 
-            return sources.join(', ');
+        hasVideoCover() {
+            return Boolean(this.videoCoverPoster) && !this.mediaIsPrivate;
+        },
+
+        videoPreloadValue() {
+            return this.hasVideoCover ? 'none' : 'metadata';
         },
     },
 
@@ -305,10 +301,21 @@ export default {
             this.imagePreviewFailed = false;
             this.fetchSourceIfNecessary();
         },
+        previewUrl(newUrl, oldUrl) {
+            if (!newUrl || newUrl === oldUrl) {
+                return;
+            }
+
+            this.reloadMediaElement();
+        },
     },
 
     created() {
         this.createdComponent();
+    },
+
+    beforeUnmount() {
+        this.beforeUnmountedComponent();
     },
 
     mounted() {
@@ -318,6 +325,11 @@ export default {
     methods: {
         createdComponent() {
             this.fetchSourceIfNecessary();
+            EventBus.on('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
+        },
+
+        beforeUnmountedComponent() {
+            EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
         },
 
         mountedComponent() {
@@ -331,12 +343,14 @@ export default {
 
             if (typeof this.source !== 'string') {
                 this.trueSource = this.source[0] ?? this.source;
+                await this.ensureVideoCoverMedia();
 
                 return;
             }
 
             try {
                 this.trueSource = await this.mediaRepository.get(this.source, Context.api);
+                await this.ensureVideoCoverMedia();
             } catch {
                 this.trueSource = this.source;
             }
@@ -360,6 +374,20 @@ export default {
             this.dataUrl = await fileReader.readAsDataURL(this.trueSource);
         },
 
+        reloadMediaElement() {
+            if (!this.isPlayable || (this.mimeTypeGroup !== 'video' && this.mimeTypeGroup !== 'audio')) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                const element = this.$refs.mediaElement;
+
+                if (typeof element?.load === 'function') {
+                    element.load();
+                }
+            });
+        },
+
         removeUrlPreview() {
             this.urlPreviewFailed = true;
         },
@@ -368,6 +396,90 @@ export default {
             if (!this.isFile) {
                 this.imagePreviewFailed = true;
             }
+        },
+
+        onMediaLibraryItemUpdated(mediaId) {
+            const currentMediaId = this.getCurrentMediaId();
+
+            if (!currentMediaId || currentMediaId !== mediaId) {
+                return;
+            }
+
+            this.fetchSourceIfNecessary();
+        },
+
+        getCurrentMediaId() {
+            if (typeof this.source === 'string') {
+                return this.source;
+            }
+
+            const entity = Array.isArray(this.source) ? this.source[0] : this.source;
+            return entity?.id ?? this.trueSource?.id ?? null;
+        },
+
+        async ensureVideoCoverMedia() {
+            if (!this.trueSource || typeof this.trueSource !== 'object') {
+                return;
+            }
+
+            const coverMediaId = this.getVideoCoverMediaId(this.trueSource);
+
+            if (!coverMediaId) {
+                return;
+            }
+
+            const existingCover = this.trueSource.extensions?.videoCoverMedia;
+            if (existingCover && existingCover.id === coverMediaId) {
+                return;
+            }
+
+            try {
+                const coverMedia = await this.mediaRepository.get(coverMediaId, Context.api);
+
+                this.trueSource.extensions = {
+                    ...(this.trueSource.extensions ?? {}),
+                    videoCoverMedia: coverMedia,
+                };
+            } catch {
+                // ignore fetch errors for cover preview
+            }
+        },
+
+        getVideoCoverMediaId(mediaEntity) {
+            const metaData = mediaEntity?.metaData;
+
+            if (!metaData || typeof metaData !== 'object') {
+                return null;
+            }
+
+            const videoMeta = metaData.video;
+            if (!videoMeta || typeof videoMeta !== 'object') {
+                return null;
+            }
+
+            const coverMediaId = videoMeta.coverMediaId;
+
+            return typeof coverMediaId === 'string' ? coverMediaId : null;
+        },
+
+        buildSourceSet(media) {
+            if (!media || media instanceof File || media instanceof URL || typeof media === 'string') {
+                return '';
+            }
+
+            const thumbnails = Array.isArray(media.thumbnails) ? media.thumbnails : [];
+
+            if (thumbnails.length === 0) {
+                return '';
+            }
+
+            const sources = thumbnails.map((thumbnail) => {
+                const url = this.feature.isActive('v6.8.0.0') ? thumbnail.url : encodeURI(thumbnail.url);
+
+                return `${url} ${thumbnail.width}w`;
+            });
+
+            return sources.join(', ');
         },
     },
 };

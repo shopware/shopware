@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -131,6 +132,7 @@ class ApiExceptionTest extends TestCase
         static::assertSame('API Expectations failed', $exception->getMessage());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvalidSyncOperation(): void
     {
         $exception = ApiException::invalidSyncOperation('Message');
@@ -288,5 +290,16 @@ class ApiExceptionTest extends TestCase
 
         static::assertSame(ApiException::class, $exception::class);
         static::assertSame(ApiException::API_EXPECTED_USER, $exception->getErrorCode());
+    }
+
+    public function testUnsupportedStoreApiSchemaEndpoint(): void
+    {
+        $exception = ApiException::unsupportedStoreApiSchemaEndpoint();
+
+        static::assertSame(ApiException::API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT, $exception->getErrorCode());
+        static::assertSame(
+            'The Store-API does not support the entity schema endpoint. Use `/store-api/_info/openapi3.json` for the OpenAPI specification.',
+            $exception->getMessage()
+        );
     }
 }

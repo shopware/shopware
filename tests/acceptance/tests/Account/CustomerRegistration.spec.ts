@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
-test('As a new customer, I must be able to register in the Storefront.', { tag: ['@Registration'] }, async ({
+test('As a new customer, I must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccount,
@@ -15,7 +15,7 @@ test('As a new customer, I must be able to register in the Storefront.', { tag: 
     await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
 });
 
-test('As a new customer, I should not be able to register with empty postal code when it is required.', { tag: '@Registration' }, async ({
+test('As a new customer, I should not be able to register with empty postal code when it is required.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     Register,

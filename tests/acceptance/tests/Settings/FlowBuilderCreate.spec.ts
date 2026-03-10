@@ -21,7 +21,7 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
         active: true,
         triggerSearchTerm: 'placed',
         triggerLabel: 'Checkout / Order / Placed',
-        condition: 'Customers from USA',
+        condition: 'Shopping cart / Order with digital products',
         trueAction: 'Send email',
         trueActionIdentifier: 'Order confirmation',
         falseAction: 'Add tag',

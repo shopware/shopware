@@ -64,10 +64,12 @@ describe('src/module/sw-sso-error/page/index', () => {
         const wrapper = await createWrapper(false);
         await flushPromises();
 
-        expect(wrapper.find('.sw-sso-error__title').text()).toBe('sw-sso-error.error-card.title');
-        expect(wrapper.find('.sw-sso-error__description').text()).toBe('sw-sso-error.error-card.text');
-        expect(wrapper.find('.sw-button.sw-button--primary').text()).toBe('sw-sso-error.error-card.button');
-        expect(wrapper.find('.sw-sso-error-card__small-text').text()).toBe('sw-sso-error.error-card.loggedInAsPrefix');
+        expect(wrapper.find('.sw-sso-error__title').text()).toBe('global.sw-sso-error.error-card.title');
+        expect(wrapper.find('.sw-sso-error__description').text()).toBe('global.sw-sso-error.error-card.text');
+        expect(wrapper.find('.sw-button.sw-button--primary').text()).toBe('global.sw-sso-error.error-card.button');
+        expect(wrapper.find('.sw-sso-error-card__small-text').text()).toBe(
+            'global.sw-sso-error.error-card.loggedInAsPrefix',
+        );
         expect(wrapper.find('.sw-sso-error-card__small-text-email').text()).toBe('foo@bar.baz');
     });
 

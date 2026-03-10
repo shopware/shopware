@@ -1,5 +1,8 @@
 {% block sw_cms_mapping_field %}
-<div class="sw-cms-mapping-field">
+<div
+    class="sw-cms-mapping-field"
+    :class="{ 'is--disabled': disabled }"
+>
 
     {% block sw_cms_mapping_field_info %}
     <div class="sw-cms-mapping-field__info">
@@ -17,6 +20,7 @@
                 v-if="!isMapped"
                 class="sw-cms-mapping-field__selection"
                 :menu-width="360"
+                :disabled="disabled"
             >
                 {% block sw_cms_mapping_field_mapping_selection_action %}
                 <template #button>
@@ -50,6 +54,7 @@
             <div
                 v-else
                 class="sw-cms-mapping-field__action-remove"
+                :class="{ 'is--disabled': disabled }"
                 role="button"
                 tabindex="0"
                 @click="onMappingRemove"
@@ -71,7 +76,7 @@
         v-if="!isMapped"
         class="sw-cms-mapping-field__form-field"
     >
-        <slot> </slot>
+        <slot></slot>
     </div>
     {% endblock %}
 

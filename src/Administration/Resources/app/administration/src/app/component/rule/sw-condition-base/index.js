@@ -49,7 +49,7 @@ export default {
         conditionClasses() {
             return {
                 'has--error': this.hasError,
-                'is--disabled': this.hasNoComponent || this.disabled,
+                'is--disabled': this.isDisabled,
             };
         },
 
@@ -69,6 +69,10 @@ export default {
 
         value() {
             return this.condition.value;
+        },
+
+        isDisabled() {
+            return this.disabled || this.hasNoComponent;
         },
 
         hasNoComponent() {

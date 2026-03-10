@@ -2,16 +2,19 @@
  * @sw-package framework
  */
 
-import type { uiMediaModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/media-modal';
+import type { uiMediaModalOpen, uiMediaModalOpenSaveMedia } from '@shopware-ag/meteor-admin-sdk/es/ui/media-modal';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type MediaModalConfig = Omit<uiMediaModalOpen, 'responseType'>;
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type SaveMediaModalConfig = Omit<uiMediaModalOpenSaveMedia, 'responseType'>;
 
 const mediaModalStore = Shopware.Store.register({
     id: 'mediaModal',
 
     state: () => ({
         mediaModal: null as MediaModalConfig | null,
+        saveMediaModal: null as SaveMediaModalConfig | null,
     }),
 
     actions: {
@@ -21,6 +24,14 @@ const mediaModalStore = Shopware.Store.register({
 
         closeModal(): void {
             this.mediaModal = null;
+        },
+
+        closeSaveModal(): void {
+            this.saveMediaModal = null;
+        },
+
+        openSaveModal(modalConfig: SaveMediaModalConfig): void {
+            this.saveMediaModal = modalConfig;
         },
     },
 });

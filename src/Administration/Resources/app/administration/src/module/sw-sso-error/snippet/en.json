@@ -1,15 +1,17 @@
 {
-  "sw-sso-error": {
-    "general": {
-      "title": "SSO error",
-      "description": "Shopware login error"
-    },
-    "error-card": {
-      "title": "No access to this store",
-      "text": "Your login was successful, but you don't have access to this Shopware store.",
-      "button": "Log in with different account",
-      "loggedInAsPrefix": "Logged in as:",
-      "logoAltText": "Shopware logo"
+  "global": {
+    "sw-sso-error": {
+      "general": {
+        "title": "SSO error",
+        "description": "Shopware login error"
+      },
+      "error-card": {
+        "title": "No access to this store",
+        "text": "Your login was successful, but you don't have access to this Shopware store.",
+        "button": "Log in with different account",
+        "loggedInAsPrefix": "Logged in as:",
+        "logoAltText": "Shopware logo"
+      }
     }
   }
 }

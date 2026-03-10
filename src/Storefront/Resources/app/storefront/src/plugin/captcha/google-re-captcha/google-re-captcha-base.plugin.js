@@ -2,6 +2,26 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 export default class GoogleReCaptchaBasePlugin extends Plugin {
     init() {
+        const recaptchaScript = document.getElementById('recaptcha-script');
+        if (!recaptchaScript) {
+            return;
+        }
+
+        if (!recaptchaScript.hasAttribute('src')) {
+            const dataSrc = recaptchaScript.getAttribute('data-src');
+            if (dataSrc && this._isValidUrl(dataSrc)) {
+                recaptchaScript.setAttribute('src', encodeURI(dataSrc));
+            }
+        }
+
+        // The shim script in main.js ensures window.grecaptcha and window.grecaptcha.ready exist.
+        // The callback .bind(this) ensures 'this' context is correct in _executeGoogleReCaptchaInitialization.
+        if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
+            window.grecaptcha.ready(this._executeGoogleReCaptchaInitialization.bind(this));
+        }
+    }
+
+    _executeGoogleReCaptchaInitialization() {
         this._getForm();
 
         if (!this._form) {
@@ -14,12 +34,16 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
             throw new Error('Input field for Google reCAPTCHA is missing!');
         }
 
+        // this.grecaptcha should be set by the time grecaptcha.ready's callback executes.
         this.grecaptcha = window.grecaptcha;
+        if (!this.grecaptcha || (typeof this.grecaptcha.render !== 'function' && typeof this.grecaptcha.execute !== 'function')) {
+            throw new Error('Google reCAPTCHA object (window.grecaptcha) methods (render/execute) not available.');
+        }
+
         this._formSubmitting = false;
         this.formPluginInstances = window.PluginManager.getPluginInstancesFromElement(this._form);
 
         this._setGoogleReCaptchaHandleSubmit();
-
         this._registerEvents();
     }
 
@@ -69,12 +93,12 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
 
         let ajaxSubmitFound = false;
 
-        this.formPluginInstances.forEach(plugin => {
+        for (const plugin of this.formPluginInstances.values()) {
             if (typeof plugin.sendAjaxFormSubmit === 'function' && plugin.options.useAjax !== false) {
                 ajaxSubmitFound = true;
                 plugin.sendAjaxFormSubmit();
             }
-        });
+        }
 
         if (ajaxSubmitFound) {
             return;
@@ -96,10 +120,19 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
     }
 
     _setGoogleReCaptchaHandleSubmit() {
-        this.formPluginInstances.forEach(plugin => {
+        for (const plugin of this.formPluginInstances.values()) {
             if (typeof plugin.sendAjaxFormSubmit === 'function' && plugin.options.useAjax !== false) {
                 plugin.formSubmittedByCaptcha = true;
             }
-        });
+        }
+    }
+
+    _isValidUrl(url) {
+        try {
+            const parsedUrl = new URL(url);
+            return ['http:', 'https:'].includes(parsedUrl.protocol);
+        } catch (e) {
+            return false;
+        }
     }
 }

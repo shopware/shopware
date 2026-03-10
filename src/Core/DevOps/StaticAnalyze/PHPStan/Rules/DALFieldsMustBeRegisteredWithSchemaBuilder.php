@@ -102,8 +102,6 @@ class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
             ->getNativeReflection()
             ->getProperty('fieldMapping');
 
-        $reflectionProperty->setAccessible(true);
-
         return $reflectionProperty->getValue();
     }
 

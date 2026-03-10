@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,7 +29,8 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
      */
     public function __construct(
         private readonly OrderService $orderService,
-        private readonly EntityRepository $orderRepository
+        private readonly EntityRepository $orderRepository,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -36,12 +39,24 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/order/state/cancel', name: 'store-api.order.state.cancel', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/order/state/cancel',
+        name: 'store-api.order.state.cancel',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
-        $orderId = $request->get('orderId', null);
+        if (!$this->systemConfigService->getBool('core.cart.enableOrderRefunds', $context->getSalesChannelId())) {
+            throw OrderException::orderNotCancellable();
+        }
 
-        if ($orderId === null) {
+        $orderId = RequestParamHelper::get($request, 'orderId');
+
+        if (!$orderId) {
             throw OrderException::invalidRequestParameter('orderId');
         }
 

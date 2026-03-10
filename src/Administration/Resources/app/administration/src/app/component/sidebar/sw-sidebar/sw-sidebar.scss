@@ -1,22 +1,14 @@
-@import "~scss/variables";
-
-$sw-sidebar-color-background: var(--color-elevation-surface-default);
-$sw-sidebar-color-border: var(--color-border-primary-default);
-$sw-sidebar-item-width: 400px;
-$sw-sidebar-navigation-width: 64px;
-$sw-sidebar-transition: cubic-bezier(0.5, 0.32, 0.01, 1) 0.3s;
-
 .sw-sidebar {
     height: 100%;
-    background-color: $sw-sidebar-color-background;
-    border-left: 1px solid $sw-sidebar-color-border;
+    background-color: var(--color-elevation-surface-default);
+    border-left: 1px solid var(--color-border-primary-default);
     display: grid;
-    grid-template-columns: $sw-sidebar-navigation-width auto;
-    width: $sw-sidebar-navigation-width;
-    transition: width $sw-sidebar-transition;
+    grid-template-columns: var(--scale-size-64) auto;
+    width: var(--scale-size-64);
+    transition: width cubic-bezier(0.5, 0.32, 0.01, 1) 0.3s;
 
     &.is--opened {
-        width: $sw-sidebar-navigation-width + $sw-sidebar-item-width;
+        width: calc(var(--scale-size-64) + 25rem);
     }
 
     .sw-sidebar__navigation {

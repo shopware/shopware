@@ -21,6 +21,7 @@ import ViewportDetection from 'src/helper/viewport-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 import FocusHandler from 'src/helper/focus-handler.helper';
 import FormValidation from 'src/helper/form-validation.helper';
+import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 
 /*
 import utils
@@ -33,6 +34,7 @@ import (synchronously) plugins
  */
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 import SpeculationRulesPlugin from 'src/plugin/speculation-rules/speculation-rules.plugin';
+import AlertAriaPlugin from 'src/plugin/alert-aria/alert-aria.plugin';
 
 window.Feature = Feature;
 window.eventEmitter = new NativeEventEmitter();
@@ -98,11 +100,13 @@ PluginManager.register('DatePicker', () => import('src/plugin/date-picker/date-p
 PluginManager.register('FormCmsHandler', () => import('src/plugin/forms/form-cms-handler.plugin'), '.cms-element-form form');
 PluginManager.register('CountryStateSelect', () => import('src/plugin/forms/form-country-state-select.plugin'), '[data-country-state-select]');
 PluginManager.register('ClearInput', () => import('src/plugin/clear-input-button/clear-input.plugin'), '[data-clear-input]'); // Not used in core, but implemented for plugins
-PluginManager.register('CmsGdprVideoElement', () => import('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin'), '[data-cms-gdpr-video-element]');
+PluginManager.register('CmsVideo', () => import('src/plugin/cms-video/cms-video.plugin'), '[data-cms-video-element]');
 PluginManager.register('BuyBox', () => import('src/plugin/buy-box/buy-box.plugin'), '[data-buy-box]');
 PluginManager.register('BasicCaptcha', () => import('src/plugin/captcha/basic-captcha.plugin'), '[data-basic-captcha]');
 PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-selector/quantity-selector.plugin'), '[data-quantity-selector]');
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
+PluginManager.register('CmsGdprVideoElement', () => import('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin'), '[data-cms-gdpr-video-element]');
+PluginManager.register('AlertAria', AlertAriaPlugin, '[data-alert-aria]'); // Plugin not async to prevent unreliable load time for the screenreader.
 
 /**
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
@@ -142,13 +146,50 @@ if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', () => import('src/plugin/google-analytics/google-analytics.plugin'));
 }
 
-if (window.googleReCaptchaV2Active) {
-    PluginManager.register('GoogleReCaptchaV2', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'), '[data-google-re-captcha-v2]');
+// This logic ensures `grecaptcha.ready()` can be safely called at any time.
+// Callbacks passed to `grecaptcha.ready()` before reCAPTCHA loads are enqueued
+// and executed by the reCAPTCHA script once it loads.
+if ((window.googleReCaptchaV2Active || window.googleReCaptchaV3Active) && typeof window.grecaptcha === 'undefined') {
+    window.grecaptcha = {
+        ready: (cb) => {
+            const c = '___grecaptcha_cfg';
+            window[c] = window[c] || {};
+            window[c].fns = window[c].fns || [];
+            window[c].fns.push(cb);
+        },
+    };
 }
 
-if (window.googleReCaptchaV3Active) {
-    PluginManager.register('GoogleReCaptchaV3', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'), '[data-google-re-captcha-v3]');
+/**
+ * Registers Google reCAPTCHA plugins based on current cookie preferences
+ */
+function registerGoogleReCaptchaPlugins() {
+    // depends on the value that is set via Shopware\Core\Content\Cookie\Service\CookieProvider for cookie.groupRequiredAccepted
+    const cookiesAccepted = CookieStorage.getItem('cookie-preference') === '1';
+
+    if (cookiesAccepted || !window.useDefaultCookieConsent) {
+        if (window.googleReCaptchaV2Active) {
+            PluginManager.register(
+                'GoogleReCaptchaV2',
+                () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'),
+                '[data-google-re-captcha-v2]',
+            );
+        }
+
+        if (window.googleReCaptchaV3Active) {
+            PluginManager.register(
+                'GoogleReCaptchaV3',
+                () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'),
+                '[data-google-re-captcha-v3]',
+            );
+        }
+    }
 }
+
+// Make the function globally available
+window.registerGoogleReCaptchaPlugins = registerGoogleReCaptchaPlugins;
+// Register Google reCAPTCHA plugins on inital page load
+registerGoogleReCaptchaPlugins();
 
 /*
 run plugins
@@ -163,13 +204,13 @@ document.addEventListener('DOMContentLoaded', () => {
      * This leads to console errors in some browsers, if an element within the modal still has focus.
      */
     const modals = document.querySelectorAll('.modal');
-    modals.forEach((modal) => {
+    for (const modal of modals) {
         modal.addEventListener('hide.bs.modal', () => {
             if (document.activeElement instanceof HTMLElement) {
                 document.activeElement.blur();
             }
         });
-    });
+    }
 
 }, false);
 
@@ -183,4 +224,3 @@ run utils
 new TimezoneUtil();
 
 BootstrapUtil.initBootstrapPlugins();
-

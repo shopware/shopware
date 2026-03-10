@@ -48,9 +48,9 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: (entity) => {
                             return {
-                                create: repositoryFactoryCreateMock,
-                                search: repositoryFactorySearchMock,
-                                searchIds: repositoryFactorySearchIdsMock,
+                                create: (...args) => repositoryFactoryCreateMock(...args),
+                                search: (...args) => repositoryFactorySearchMock(...args),
+                                searchIds: (...args) => repositoryFactorySearchIdsMock(...args),
                                 save: repositoryFactorySaveMock,
                                 get: () => {
                                     switch (entity) {

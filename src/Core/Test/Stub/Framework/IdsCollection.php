@@ -33,7 +33,7 @@ class IdsCollection
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      *
      * @return array{id: string}[]
      */
@@ -54,9 +54,9 @@ class IdsCollection
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      *
-     * @return array<string>
+     * @return array<string, string>
      */
     public function getByteList(array $keys): array
     {
@@ -64,7 +64,7 @@ class IdsCollection
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      *
      * @return array<string, string>
      */

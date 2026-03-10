@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -79,10 +78,10 @@ class CurrencyFormatterTest extends TestCase
     {
         $this->formatter->formatCurrencyByLanguage(19.9999, 'EUR', Uuid::randomHex(), $this->createContext(2));
 
-        static::assertNotEmpty(ReflectionHelper::getPropertyValue($this->formatter, 'formatter'));
+        static::assertNotEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
         $this->formatter->reset();
 
-        static::assertEmpty(ReflectionHelper::getPropertyValue($this->formatter, 'formatter'));
+        static::assertEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
     }
 
     /**

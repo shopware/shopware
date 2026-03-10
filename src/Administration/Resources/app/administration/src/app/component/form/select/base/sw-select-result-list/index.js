@@ -236,7 +236,7 @@ export default {
         },
 
         onScroll(event) {
-            if (this.getBottomDistance(event.target) > 0) {
+            if (Math.floor(this.getBottomDistance(event.target)) > 0) {
                 return;
             }
 

@@ -163,7 +163,7 @@
                         ref="swSettingsTagGrid"
                         class="sw-settings-tag-list__grid"
                         identifier="sw-settings-tag-list"
-                        :items="tags"
+                        :data-source="tags"
                         :columns="tagColumns"
                         :repository="tagRepository"
                         :full-page="total > 0"
@@ -464,11 +464,10 @@
                     {% endblock %}
 
                     {% block sw_settings_tag_list_empty_state %}
-                    <sw-empty-state
+                    <mt-empty-state
                         v-else
-                        :absolute="false"
-                        :show-description="false"
-                        :title="$tc('sw-settings-tag.list.titleEmptyStateList')"
+                        :icon="$route.meta.$module.icon"
+                        :headline="$tc('sw-settings-tag.list.titleEmptyStateList')"
                     />
                     {% endblock %}
 

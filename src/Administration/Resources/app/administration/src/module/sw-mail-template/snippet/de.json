@@ -13,6 +13,8 @@
     },
     "list": {
       "textMailTemplateOverview": "E-Mail-Templates",
+      "tabMailTemplates": "Templates",
+      "tabHeaderFooter": "Kopf- und Fußzeilen",
       "titleMailTemplateList": "Templates",
       "titleMailFooterList": "Fußzeilen",
       "buttonAddMailTemplate": "E-Mail-Template hinzufügen",
@@ -136,7 +138,8 @@
     "modal": {
       "title": "Mehrere Zuweisungen",
       "mainContent": "Für die folgenden Verkaufskanäle existiert bereits ein Kopf- und Fußzeilen-Template. Wenn Du dieses Template speicherst, wird die Zuweisung des bisherigen Templates überschrieben.",
-      "affectedList": "Die folgenden Verkaufskanäle sind betroffen:"
+      "affectedList": "Die folgenden Verkaufskanäle sind betroffen:",
+      "confirmButton": "Trotzdem fortfahren"
     }
   },
   "sw-privileges": {

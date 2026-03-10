@@ -272,6 +272,7 @@ class ProductControllerTest extends TestCase
             'test' => 'test',
             'productId' => $productId,
             'parentId' => $parentId,
+            'redirectTo' => 'frontend.product.reviews',
         ]);
 
         $productReview = new ProductReviewEntity();
@@ -307,6 +308,7 @@ class ProductControllerTest extends TestCase
             [
                 'reviews' => $reviewResult,
                 'ratingSuccess' => null,
+                'redirectTo' => 'frontend.product.reviews',
             ],
             $this->controller->renderStorefrontParameters
         );

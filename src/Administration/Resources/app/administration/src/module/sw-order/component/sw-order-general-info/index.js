@@ -141,18 +141,18 @@ export default {
         },
 
         transaction() {
-            for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
-                ) {
-                    return this.order.transactions[i];
-                }
-            }
-
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                for (let i = 0; i < this.order.transactions.length; i += 1) {
+                    if (
+                        ![
+                            'cancelled',
+                            'failed',
+                        ].includes(this.order.transactions[i].stateMachineState.technicalName)
+                    ) {
+                        return this.order.transactions[i];
+                    }
+                }
+
                 return this.order.transactions.last();
             }
 
@@ -387,7 +387,7 @@ export default {
             ]);
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showModal = false;
             Store.get('swOrderDetail').setLoading([
                 'states',
@@ -401,20 +401,29 @@ export default {
                     transition = this.orderStateMachineService.transitionOrderTransactionState(
                         this.transaction.id,
                         this.currentActionName,
-                        { documentIds: docIds, sendMail },
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
                     );
                     break;
                 case 'order_delivery':
                     transition = this.orderStateMachineService.transitionOrderDeliveryState(
                         this.delivery.id,
                         this.currentActionName,
-                        { documentIds: docIds, sendMail },
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
                     );
                     break;
                 case 'order':
                     transition = this.orderStateMachineService.transitionOrderState(this.order.id, this.currentActionName, {
                         documentIds: docIds,
                         sendMail,
+                        internalComment,
                     });
                     break;
                 default:

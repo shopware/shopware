@@ -89,6 +89,8 @@
                                                                     data-form-ajax-submit="true"
                                                                     data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
+                                                                    <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
+
                                                                     {% if app.request.get('sort') %}
                                                                     <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
                                                                 {% endif %}
@@ -128,6 +130,8 @@
                                                                         method="post"
                                                                         data-form-ajax-submit="true"
                                                                         data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
+
+                                                                        <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
 
                                                                         {% if app.request.get('language') %}
                                                                         <input type="hidden" name="language" value="{{ app.request.get('language') }}">
@@ -201,6 +205,8 @@
                                                               data-form-ajax-pagination="true">
 
                                                             <input type="hidden" name="p" value="1">
+
+                                                            <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
 
                                                             {% if app.request.get('language') %}
                                                                 <input type="hidden" name="language" value="{{ app.request.get('language') }}">

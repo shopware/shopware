@@ -32,7 +32,7 @@ class FinishPageTest extends TestCase
 
     public function testMissingOrderThrows(): void
     {
-        $request = new Request([], [], ['orderId' => 'foo']);
+        $request = new Request(['orderId' => 'foo']);
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $this->expectException(OrderException::class);
@@ -44,7 +44,7 @@ class FinishPageTest extends TestCase
     {
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
-        $request = new Request([], [], ['orderId' => $orderId]);
+        $request = new Request(['orderId' => $orderId]);
         $eventWasThrown = false;
         $criteria = new Criteria([$orderId]);
 

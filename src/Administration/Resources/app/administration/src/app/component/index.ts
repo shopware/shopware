@@ -59,6 +59,7 @@ export default () => {
         () => import('src/app/component/utils/sw-duplicated-media-v2/index'),
     );
     Shopware.Component.register('sw-color-badge', () => import('src/app/component/utils/sw-color-badge/index'));
+    Shopware.Component.register('sw-upload-status', () => import('src/app/component/utils/sw-upload-status'));
     Shopware.Component.register('sw-tree-item', () => import('src/app/component/tree/sw-tree-item/index'));
     Shopware.Component.register('sw-tree-input-field', () => import('src/app/component/tree/sw-tree-input-field/index'));
     Shopware.Component.register('sw-tree', () => import('src/app/component/tree/sw-tree/index'));
@@ -494,6 +495,14 @@ export default () => {
     Shopware.Component.register('sw-media-modal-move', () => import('src/app/component/media/sw-media-modal-move'));
     Shopware.Component.register('sw-media-modal-replace', () => import('src/app/component/media/sw-media-modal-replace'));
     Shopware.Component.register('sw-media-preview-v2', () => import('src/app/component/media/sw-media-preview-v2'));
+    Shopware.Component.register('sw-model-editor', () => import('src/app/component/media/sw-model-editor'));
+    Shopware.Component.extend(
+        'sw-model-editor-collapse',
+        'sw-collapse',
+        () => import('src/app/component/media/sw-model-editor-collapse'),
+    );
+    Shopware.Component.register('sw-model-viewer', () => import('src/app/component/media/sw-model-viewer'));
+    Shopware.Component.register('sw-vector-field', () => import('src/app/component/media/sw-vector-field'));
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
     Shopware.Component.register('sw-media-upload-v2', () => import('src/app/component/media/sw-media-upload-v2'));
     Shopware.Component.register('sw-media-url-form', () => import('src/app/component/media/sw-media-url-form'));

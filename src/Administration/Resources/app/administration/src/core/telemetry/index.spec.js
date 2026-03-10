@@ -1,0 +1,284 @@
+import { createMemoryHistory, createRouter } from 'vue-router';
+import { Telemetry } from './index';
+import { TelemetryEvent } from './types';
+import TaggedButtons from './ElementQueries/tagged-buttons';
+
+describe('src/core/telemetry/index.js', () => {
+    let mockLoginService;
+
+    beforeEach(() => {
+        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
+        jest.useFakeTimers({
+            now: new Date('2025-09-23'),
+        });
+
+        document.body = document.createElement('body');
+
+        mockLoginService = {
+            addOnLoginListener: jest.fn(),
+            addOnLogoutListener: jest.fn(),
+        };
+
+        Shopware.Service = jest.fn((serviceName) => {
+            if (serviceName === 'loginService') {
+                return mockLoginService;
+            }
+            return undefined;
+        });
+    });
+
+    it('throws exception if initialized twice', () => {
+        const telemetry = new Telemetry({ queries: [] });
+
+        telemetry.initialize();
+
+        expect(() => {
+            telemetry.initialize();
+        }).toThrow('Telemetry is already initialized');
+    });
+
+    describe('manual tracking', () => {
+        it('should track a custom event', () => {
+            const telemetry = new Telemetry({ queries: [] });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            telemetry.track({ test: 'test-action' });
+
+            expect(eventBusSpy).toHaveBeenCalled();
+            expect(eventBusSpy).toHaveBeenCalledWith(
+                'telemetry',
+                new TelemetryEvent('programmatic', { test: 'test-action' }),
+            );
+        });
+    });
+
+    describe('user changes', () => {
+        it('should dispatch identify event when user logs in', () => {
+            const telemetry = new Telemetry({ queries: [] });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            const currentUser = {
+                id: '8b8ebef4-7fa3-4844-ab7e-120463ea558b',
+                admin: true,
+            };
+            Shopware.Store.get('session').currentUser = currentUser;
+
+            let loginCallback;
+            mockLoginService.addOnLoginListener.mockImplementation((callback) => {
+                loginCallback = callback;
+            });
+
+            telemetry.initialize();
+            loginCallback();
+
+            expect(eventBusSpy).toHaveBeenCalledWith(
+                'telemetry',
+                new TelemetryEvent('identify', {
+                    userId: currentUser.id,
+                    locale: null,
+                    isAdmin: currentUser.admin,
+                }),
+            );
+        });
+
+        it('should dispatch reset event when user logs out', () => {
+            const telemetry = new Telemetry({ queries: [] });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            let logoutCallback;
+            mockLoginService.addOnLogoutListener.mockImplementation((callback) => {
+                logoutCallback = callback;
+            });
+
+            telemetry.initialize();
+            logoutCallback();
+
+            expect(eventBusSpy).toHaveBeenCalledWith('telemetry', new TelemetryEvent('reset', {}));
+        });
+    });
+
+    describe('page changes', () => {
+        it('emits page change event after a router push', async () => {
+            const telemetry = new Telemetry({ queries: [] });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            const router = createRouter({
+                routes: [
+                    {
+                        path: '/',
+                        name: 'home',
+                        component: { template: '<div>Home</div>' },
+                    },
+                    {
+                        path: '/test',
+                        name: 'test',
+                        component: { template: '<div>Test</div>' },
+                    },
+                ],
+                history: createMemoryHistory(),
+            });
+            Shopware.Application.view.router = router;
+            await router.push({ name: 'home' });
+
+            Shopware.Application.viewInitialized = Promise.resolve();
+
+            telemetry.initialize();
+
+            await router.push({ name: 'test' });
+
+            expect(eventBusSpy).toHaveBeenCalled();
+            expect(eventBusSpy).toHaveBeenCalledWith(
+                'telemetry',
+                new TelemetryEvent('page_change', {
+                    from: router.resolve('/'),
+                    to: router.resolve('/test'),
+                }),
+            );
+        });
+
+        it('does not emit page change event when navigating to the same route', async () => {
+            const telemetry = new Telemetry({ queries: [] });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            const router = createRouter({
+                routes: [
+                    {
+                        path: '/',
+                        name: 'home',
+                        component: { template: '<div>Home</div>' },
+                    },
+                    {
+                        path: '/test',
+                        name: 'test',
+                        component: { template: '<div>Test</div>' },
+                    },
+                ],
+                history: createMemoryHistory(),
+            });
+            Shopware.Application.view.router = router;
+            await router.push({ name: 'home' });
+
+            Shopware.Application.viewInitialized = Promise.resolve();
+
+            telemetry.initialize();
+
+            await router.push({ name: 'test' });
+            await router.push({ name: 'test' });
+
+            expect(eventBusSpy).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('auto tracked elements', () => {
+        it('emit user_interaction on clickable elements', async () => {
+            const telemetry = new Telemetry({
+                queries: [
+                    () =>
+                        document ? [document.getElementById('tested-element')] : [],
+                ],
+            });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            telemetry.initialize();
+
+            const element = document.createElement('div');
+            element.setAttribute('id', 'tested-element');
+            document.body.appendChild(element);
+
+            await flushPromises();
+
+            element.click();
+
+            expect(eventBusSpy).toHaveBeenCalled();
+            expect(eventBusSpy).toHaveBeenCalledWith(
+                'telemetry',
+                new TelemetryEvent('user_interaction', {
+                    target: element,
+                    originalEvent: expect.anything(),
+                }),
+            );
+        });
+
+        it('does not register listener twice', async () => {
+            const telemetry = new Telemetry({
+                queries: [
+                    () =>
+                        document ? [document.getElementById('tested-element')] : [],
+                    () =>
+                        document ? [document.getElementById('tested-element')] : [],
+                ],
+            });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            telemetry.initialize();
+
+            const element = document.createElement('div');
+            element.setAttribute('id', 'tested-element');
+            document.body.appendChild(element);
+
+            await flushPromises();
+
+            element.click();
+            expect(eventBusSpy).toHaveBeenCalled();
+            expect(eventBusSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('overrides the event listened to if data-analytics-event is set', async () => {
+            const telemetry = new Telemetry({
+                queries: [
+                    () =>
+                        document ? [document.getElementById('tested-element')] : [],
+                ],
+            });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            telemetry.initialize();
+
+            const element = document.createElement('div');
+            element.setAttribute('id', 'tested-element');
+            element.setAttribute('data-analytics-event', 'test-event');
+            document.body.appendChild(element);
+
+            await flushPromises();
+
+            element.click();
+            expect(eventBusSpy).not.toHaveBeenCalled();
+
+            element.dispatchEvent(new Event('test-event'));
+            expect(eventBusSpy).toHaveBeenCalled();
+        });
+    });
+
+    describe('debug', () => {
+        it('registers a listener if debug is turned on', async () => {
+            const telemetry = new Telemetry({ queries: [] });
+            telemetry.initialize();
+
+            const onSpy = jest.spyOn(Shopware.Utils.EventBus, 'on');
+            const offSpy = jest.spyOn(Shopware.Utils.EventBus, 'off');
+
+            telemetry.debug = true;
+            await flushPromises();
+            expect(onSpy).toHaveBeenCalled();
+
+            telemetry.debug = false;
+            await flushPromises();
+            expect(offSpy).toHaveBeenCalled();
+        });
+
+        it('collects all observed nodes when debug is turned on', async () => {
+            const telemetry = new Telemetry({ queries: [TaggedButtons] });
+
+            telemetry.initialize();
+            telemetry.debug = true;
+
+            const element = document.createElement('button');
+            element.setAttribute('data-analytics-id', 'tested-element');
+            document.body.appendChild(element);
+
+            await flushPromises();
+
+            expect(telemetry.observedNodes).toEqual([element]);
+        });
+    });
+});

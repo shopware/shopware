@@ -61,6 +61,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="cache.object"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
@@ -120,6 +121,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\LocaleProvider"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" class="Shopware\Core\Framework\Store\Services\ExtensionDataProvider">

@@ -43,19 +43,19 @@ class StateMachineTransitionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of state machine transition.'),
 
-            (new StringField('action_name', 'actionName'))->addFlags(new Required()),
+            (new StringField('action_name', 'actionName'))->addFlags(new Required())->setDescription('Unique name of the action.'),
 
-            (new FkField('state_machine_id', 'stateMachineId', StateMachineDefinition::class))->addFlags(new Required()),
+            (new FkField('state_machine_id', 'stateMachineId', StateMachineDefinition::class))->addFlags(new Required())->setDescription('Unique identity of state machine.'),
             new ManyToOneAssociationField('stateMachine', 'state_machine_id', StateMachineDefinition::class, 'id', false),
 
-            (new FkField('from_state_id', 'fromStateId', StateMachineStateDefinition::class))->addFlags(new Required()),
+            (new FkField('from_state_id', 'fromStateId', StateMachineStateDefinition::class))->addFlags(new Required())->setDescription('Unique identity of from state.'),
             new ManyToOneAssociationField('fromStateMachineState', 'from_state_id', StateMachineStateDefinition::class, 'id', false),
 
-            (new FkField('to_state_id', 'toStateId', StateMachineStateDefinition::class))->addFlags(new Required()),
+            (new FkField('to_state_id', 'toStateId', StateMachineStateDefinition::class))->addFlags(new Required())->setDescription('Unique identity of to state.'),
             new ManyToOneAssociationField('toStateMachineState', 'to_state_id', StateMachineStateDefinition::class, 'id', false),
-            new CustomFields(),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }
 }

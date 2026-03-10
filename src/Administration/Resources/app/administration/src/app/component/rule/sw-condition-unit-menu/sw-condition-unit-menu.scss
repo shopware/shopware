@@ -1,20 +1,17 @@
 @import "~scss/variables";
-@import "~scss/mixins";
-
-$sw-condition-unit-menu-horizontal-padding: 12px;
-$sw-condition-unit-menu-vertical-padding: 8px;
-$sw-condition-unit-menu-button-vertical-margin: 4px;
 
 .sw-condition-unit-menu__label {
-    height: calc(100% - $sw-condition-unit-menu-button-vertical-margin * 2);
-    margin-block: $sw-condition-unit-menu-button-vertical-margin;
-    background-color: $color-gray-100;
-    padding: $sw-condition-unit-menu-vertical-padding $sw-condition-unit-menu-horizontal-padding;
-    font-size: $font-size-xs;
-    border-radius: $border-radius-default;
-    color: $color-darkgray-200;
-    border: none;
-    outline: none;
+    height: calc(100% - var(--scale-size-12));
+    margin-block: var(--scale-size-6);
+    margin-right: var(--scale-size-2);
+    background-color: var(--color-interaction-secondary-default);
+    border: 1px solid var(--color-border-primary-default);
+    padding: var(--scale-size-8) var(--scale-size-12);
+    font-size: var(--font-size-xs);
+    border-radius: var(--border-radius-button);
+    color: var(--color-text-primary-default);
+    display: flex;
+    align-items: center;
 }
 
 .sw-condition-unit-menu {
@@ -23,50 +20,53 @@ $sw-condition-unit-menu-button-vertical-margin: 4px;
 
     &:hover:not(:disabled),
     &:focus-visible:not(:disabled) {
-        background-color: $color-gray-200;
+        background-color: var(--color-interaction-secondary-hover);
     }
 
     &:disabled {
-        color: $color-gray-500;
+        color: var(--color-text-primary-default);
         cursor: initial;
     }
 
     &__menu {
-        background-color: $color-white;
-        border: 1px solid $color-gray-300;
-        border-radius: $border-radius-default;
+        background-color: var(--color-background-primary-default);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
         box-shadow: 0 3px 6px rgba(120, 138, 155, 25%);
-        padding: 8px;
-        width: 240px;
+        padding: var(--scale-size-8);
+        width: var(--scale-size-224);
     }
 
     &__menu-item {
-        font-size: $font-size-xs;
-        padding: 8px 16px;
-        border-radius: $border-radius-default;
+        font-size: var(--font-size-xs);
+        padding: var(--scale-size-8) var(--scale-size-16);
+        border-radius: var(--border-radius-button);
         outline: none;
         cursor: pointer;
 
         &:hover,
         &:focus-visible {
-            background-color: $color-shopware-brand-50;
-            color: $color-shopware-brand-500;
+            background-color: var(--color-background-brand-default);
+            color: var(--color-text-brand-default);
         }
 
         &__shortcut {
-            margin-left: 8px;
-            color: $color-gray-500;
+            margin-left: var(--scale-size-8);
+            color: var(--color-text-secondary-disabled);
+        }
+
+        &__label {
+            color: var(--color-text-primary-default);
         }
 
         &__selected-label {
-            color: $color-shopware-brand-500;
-            font-weight: bold;
+            color: var(--color-text-brand-default);
+            font-weight: var(--font-weight-medium);
         }
     }
 }
 
 .sw-condition-unit-menu__icon {
-    @include size(8px);
-
-    margin-left: 4px;
+    color: var(--color-text-primary-default);
+    margin-left: var(--scale-size-8);
 }

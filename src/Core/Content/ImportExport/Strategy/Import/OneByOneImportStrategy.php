@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Strategy\Import;
 
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -61,6 +63,15 @@ class OneByOneImportStrategy implements ImportStrategyService
 
             return new ImportResult([$result], []);
         } catch (\Throwable $exception) {
+            if ($exception instanceof WriteTypeIntendException
+                && $createEntities === false
+                && $updateEntities === true
+            ) {
+                $exception = ImportExportException::updateEntityNotFound(
+                    $this->repository->getDefinition()->getEntityName()
+                );
+            }
+
             $event = new ImportExportExceptionImportRecordEvent($exception, $record, $row, $config, $context);
             $this->eventDispatcher->dispatch($event);
 

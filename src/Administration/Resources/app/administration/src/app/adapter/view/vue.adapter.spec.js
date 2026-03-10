@@ -21,6 +21,7 @@ import { h, defineComponent } from 'vue';
 window.performance.mark = () => {};
 window.performance.measure = () => {};
 window.performance.clearMarks = () => {};
+window.performance.clearMeasures = () => {};
 
 jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
     return jest.fn();
@@ -637,7 +638,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             await vueAdapter.initDependencies();
 
             // create div with id app
-            document.body.innerHTML = '<div id="app"></div>';
+            // loading indicator is always present next to the #app initially (and removal after mounting needs to be tested)
+            document.body.innerHTML = '<div id="page-loading-screen"></div><div id="app"></div>';
 
             rootComponent = vueAdapter.init('#app', router, {});
         });
@@ -705,6 +707,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-select',
                 'mt-switch',
                 'mt-text-field',
+                'mt-search',
                 'mt-textarea',
                 'mt-icon',
                 'mt-data-table',
@@ -753,6 +756,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             await flushPromises();
 
             expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
+        });
+
+        it('should remove the loading indicator after vue is mounted', async () => {
+            expect(document.getElementById('page-loading-screen')).not.toBeNull();
+            await flushPromises();
+            expect(document.getElementById('page-loading-screen')).toBeNull();
         });
     });
 });

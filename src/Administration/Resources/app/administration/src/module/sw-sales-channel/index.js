@@ -79,7 +79,7 @@ Module.register('sw-sales-channel', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#14D7A5',
-    icon: 'regular-server',
+    icon: 'solid-server',
     entity: 'sales_channel',
 
     searchMatcher: (regex, labelType, manifest) => {

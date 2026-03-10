@@ -112,6 +112,10 @@ export default {
 
                 // add event listener only for the first component with shortcuts
                 if (initialLength === 0 && activeShortcuts.length > 0) {
+                    // The event listener is intentionally not removed to keep global shortcuts working.
+                    // It will be active for the lifetime of the application, which is acceptable.
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
                     document.addEventListener('keydown', (event) => {
                         // Find any active component instance to get the context for $device
                         const anyInstance = activeShortcuts[0]?.instance;

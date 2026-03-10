@@ -48,9 +48,15 @@ test('Shop administrator should be able to create a landing page.', {tag: '@Cate
         await ShopAdmin.expects(AdminLandingPageDetail.layoutAssignmentCardTitle).toHaveText(layoutName);
         await ShopAdmin.expects(AdminLandingPageDetail.layoutAssignmentCardHeadline).toHaveText(layoutName);
         await ShopAdmin.expects(AdminLandingPageDetail.layoutAssignmentContentSection).toBeVisible();
-        await ShopAdmin.expects(AdminLandingPageDetail.layoutResetButton).toBeVisible();
         await ShopAdmin.expects(AdminLandingPageDetail.changeLayoutButton).toBeVisible();
-        await ShopAdmin.expects(AdminLandingPageDetail.editInDesignerButton).toBeVisible();
+
+        await AdminLandingPageDetail.page.locator('.sw-category-layout-card__desc-actions-menu').click();
+
+        const editButton = ShopAdmin.page.locator('.sw-category-detail-layout__open-in-pagebuilder').first()
+        await ShopAdmin.expects(editButton).toBeVisible();
+
+        const deleteButton = ShopAdmin.page.locator('.sw-category-detail-layout__layout-reset').first()
+        await ShopAdmin.expects(deleteButton).toBeVisible();
     });
 
 });

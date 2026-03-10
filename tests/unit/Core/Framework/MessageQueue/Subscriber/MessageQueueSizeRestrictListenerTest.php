@@ -24,7 +24,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $serializer = new Serializer();
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true, 1024);
 
         $envelope = new Envelope(new \stdClass());
 
@@ -39,10 +39,12 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $serializer = new Serializer();
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
+        $maxMessageSizeKiB = 1024;
+
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true, $maxMessageSizeKiB);
 
         $message = new \stdClass();
-        $message->a = str_repeat('a', MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT);
+        $message->a = str_repeat('a', $maxMessageSizeKiB * 1024);
         $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, ['test' => $this->createMock(SyncTransport::class)]);
@@ -56,9 +58,26 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $serializer = new Serializer();
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true, 1024);
 
         $envelope = new Envelope(new \stdClass());
+
+        $event = new SendMessageToTransportsEvent($envelope, []);
+
+        $listener($event);
+    }
+
+    public function testMessageNoMessageSizeLimitNoException(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $serializer = new Serializer();
+
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true, 0);
+
+        $message = new \stdClass();
+        $message->a = str_repeat('a', 1024 * 1024 * 2);
+        $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, []);
 
@@ -69,16 +88,20 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
     {
         $serializer = new Serializer();
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
+        $maxMessageSizeKiB = 1024;
+
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true, $maxMessageSizeKiB);
 
         $message = new \stdClass();
-        $message->a = str_repeat('a', MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT);
+        $message->a = str_repeat('a', $maxMessageSizeKiB * 1024);
         $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, []);
 
         $this->expectException(MessageQueueException::class);
-        $this->expectExceptionMessage('The message "stdClass" exceeds the 256 kB size limit with its size of 256.0859375 kB.');
+        // 0.0859375 is the overhead of the serialization
+        $size = $maxMessageSizeKiB + 0.0859375;
+        $this->expectExceptionMessage('The message "stdClass" exceeds the ' . $maxMessageSizeKiB . ' KiB size limit with its size of ' . $size . ' KiB.');
 
         $listener($event);
     }
@@ -89,7 +112,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $serializer = new Serializer();
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), false);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), false, 1024);
 
         $envelope = new Envelope(new \stdClass());
 
@@ -104,10 +127,12 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $serializer = new Serializer();
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), false);
+        $maxMessageSizeKiB = 1024;
+
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), false, $maxMessageSizeKiB);
 
         $message = new \stdClass();
-        $message->a = str_repeat('a', MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT);
+        $message->a = str_repeat('a', $maxMessageSizeKiB * 1024);
         $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, []);

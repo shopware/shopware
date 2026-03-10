@@ -47,6 +47,7 @@ class CustomFieldPersister
 
     private function upsertCustomFieldSets(?CustomFields $customFields, string $appId, Context $context): void
     {
+        /** @var array<string, string> $allCustomFields */
         $allCustomFields = $this->connection->fetchAllKeyValue(
             'SELECT id, name FROM custom_field_set WHERE app_id = :appId',
             ['appId' => Uuid::fromHexToBytes($appId)]
@@ -68,8 +69,8 @@ class CustomFieldPersister
             }
         }
 
-        if (!$customFields || empty($customFields->getCustomFieldSets())) {
-            if (!empty($existingCustomFieldSets)) {
+        if (!$customFields || $customFields->getCustomFieldSets() === []) {
+            if ($existingCustomFieldSets !== []) {
                 $this->deleteObsoleteIds(
                     array_values($existingCustomFieldSets),
                     [],
@@ -93,20 +94,21 @@ class CustomFieldPersister
                 continue;
             }
 
+            $customFieldSetId = $existingCustomFieldSets[$customFieldSet->getName()];
+
             $existingRelations = Uuid::fromBytesToHexList(
                 $this->connection->fetchAllKeyValue(
                     'SELECT entity_name, id FROM custom_field_set_relation WHERE set_id = :setId',
-                    ['setId' => Uuid::fromHexToBytes($existingCustomFieldSets[$customFieldSet->getName()])]
+                    ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
                 )
             );
             $existingFields = Uuid::fromBytesToHexList(
                 $this->connection->fetchAllKeyValue(
                     'SELECT name, id FROM custom_field WHERE set_id = :setId',
-                    ['setId' => Uuid::fromHexToBytes($existingCustomFieldSets[$customFieldSet->getName()])]
+                    ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
                 )
             );
-            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields);
-            $entityData['id'] = $existingCustomFieldSets[$customFieldSet->getName()];
+            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, $customFieldSetId);
 
             $obsoleteRelations = array_merge($obsoleteRelations, array_values($existingRelations));
             $obsoleteFields = array_merge($obsoleteFields, array_values($existingFields));
@@ -132,19 +134,19 @@ class CustomFieldPersister
      */
     private function deleteObsoleteIds(array $obsoleteFieldSets, array $obsoleteRelations, array $obsoleteFields, Context $context): void
     {
-        if (!empty($obsoleteFieldSets)) {
+        if ($obsoleteFieldSets !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteFieldSets);
 
             $this->customFieldSetRepository->delete($ids, $context);
         }
 
-        if (!empty($obsoleteRelations)) {
+        if ($obsoleteRelations !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteRelations);
 
             $this->customFieldSetRelationRepository->delete($ids, $context);
         }
 
-        if (!empty($obsoleteFields)) {
+        if ($obsoleteFields !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteFields);
 
             $this->customFieldRepository->delete($ids, $context);

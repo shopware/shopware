@@ -16,9 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Kernel;
-use Shopware\Core\Migration\V6_5\Migration1670854818RemoveEventActionTable;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Tests\Unit\Core\DevOps\System\Command\OpenApiValidationCommandTest;
+use Shopware\Tests\Unit\Core\DevOps\Test\Command\Fixture\Migration1763996000Dummy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -86,7 +86,7 @@ class MakeCoverageTestCommandTest extends TestCase
             'classes' => [
                 SystemDumpDatabaseCommand::class, // normal case
                 'not-a-class', // not a class
-                Migration1670854818RemoveEventActionTable::class, // migration test
+                Migration1763996000Dummy::class, // migration test
                 'src/Core/DevOps/DevOps.php', // pass a string that is a php file that is a class
                 'src/Core/Framework/ShopwareException.php', // pass a string that is a php file that is not a class
                 'src/Core/DevOps/NotAClass.php', // pass a string that is a php file not existing
@@ -107,9 +107,9 @@ class MakeCoverageTestCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
+        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Tests/Unit/Core/DevOps/Test/Command/Fixture/Migration1763996000DummyTest.php'));
         static::assertIsString($devOpsTest = file_get_contents($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
-        static::assertIsString($migrationTest = file_get_contents($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
+        static::assertIsString($migrationTest = file_get_contents($this->projectDir . '/tests/migration/Tests/Unit/Core/DevOps/Test/Command/Fixture/Migration1763996000DummyTest.php'));
         static::assertSame($this->getDevOpsTestTemplate(), $devOpsTest);
         static::assertSame($this->getMigrationTestTemplate(), $migrationTest);
 
@@ -132,7 +132,7 @@ class MakeCoverageTestCommandTest extends TestCase
             'classes' => [
                 SystemDumpDatabaseCommand::class, // normal case
                 'not-a-class', // not a class
-                Migration1670854818RemoveEventActionTable::class, // migration test
+                Migration1763996000Dummy::class, // migration test
                 'src/Core/DevOps/DevOps.php', // pass a string that is a php file that is a class
                 'src/Core/Framework/ShopwareException.php', // pass a string that is a php file that is not a class
                 'src/Core/DevOps/NotAClass.php', // pass a string that is a php file not existing
@@ -146,7 +146,7 @@ class MakeCoverageTestCommandTest extends TestCase
 
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
+        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Tests/Unit/Core/DevOps/Test/Command/Fixture/Migration1763996000DummyTest.php'));
 
         static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
         static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Content/Cms/Subscriber/UnusedMediaSubscriberTest.php'));
@@ -188,21 +188,21 @@ EOF;
         return <<<EOF
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_5;
+namespace Shopware\Tests\Migration\Tests\Unit\Core\DevOps\Test\Command\Fixture;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_5\Migration1670854818RemoveEventActionTable;
+use Shopware\Tests\Unit\Core\DevOps\Test\Command\Fixture\Migration1763996000Dummy;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(Migration1670854818RemoveEventActionTable::class)]
-class Migration1670854818RemoveEventActionTableTest extends TestCase
+#[CoversClass(Migration1763996000Dummy::class)]
+class Migration1763996000DummyTest extends TestCase
 {
     private Connection \$connection;
 
@@ -213,7 +213,7 @@ class Migration1670854818RemoveEventActionTableTest extends TestCase
 
     public function testMigration(): void
     {
-        \$migration = new Migration1670854818RemoveEventActionTable();
+        \$migration = new Migration1763996000Dummy();
         static::assertSame(9999999, \$migration->getCreationTimestamp());
 
         // make sure a migration can run multiple times without failing

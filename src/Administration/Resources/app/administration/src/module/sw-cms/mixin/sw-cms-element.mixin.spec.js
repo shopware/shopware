@@ -6,6 +6,7 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const defaultElement = {
     id: 'sw-cms-el-text-1234',
+    type: 'text',
     config: {
         overrideFromProp: 'foo',
     },
@@ -74,7 +75,6 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
             ],
         };
 
-        // Config structure is derived from the default config -> module/sw-cms/elements/text/index.js
         const expectedElementConfig = {
             content: {
                 source: 'static',
@@ -84,12 +84,15 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
                 source: 'static',
                 value: null,
             },
-            overrideFromCategory: 'bar',
+            overrideFromProp: 'foo',
         };
 
         const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
-        wrapper.vm.initElementConfig('text');
 
+        /**
+         * Existing properties on the element will remain ("overrideFromProp").
+         * Properties on the content-entity, that dont exist in the config are ignored ("overrideFromCategory").
+         */
         expect(wrapper.vm.element.config).toEqual(expectedElementConfig);
     });
 
@@ -171,110 +174,5 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         Shopware.Store.get('swProductDetail').product = mockProduct;
 
         expect(wrapper.vm.product).toMatchObject(mockProduct);
-    });
-
-    it('should return correct moduleEntity based on route meta', async () => {
-        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
-        const mockCategory = {
-            id: 'category-1',
-            name: 'Test Category',
-            translations: [],
-        };
-
-        Shopware.Store.get('swCategoryDetail').category = mockCategory;
-        expect(wrapper.vm.moduleEntity).toMatchObject(mockCategory);
-    });
-
-    it('should return null when no module entity is defined', async () => {
-        const wrapper = await createWrapper();
-
-        wrapper.vm.$route = {
-            meta: {},
-        };
-
-        expect(wrapper.vm.moduleEntity).toBeNull();
-    });
-
-    it('should return null for unknown module entity', async () => {
-        const wrapper = await createWrapper();
-
-        wrapper.vm.$route = {
-            meta: {
-                $module: {
-                    entity: 'foo-bar',
-                },
-            },
-        };
-
-        expect(wrapper.vm.moduleEntity).toBeNull();
-    });
-
-    it('should return configOverride from entity slot config', async () => {
-        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
-        Shopware.Store.get('swCategoryDetail').category = {
-            id: 'category-1',
-            translated: {
-                slotConfig: {
-                    [defaultElement.id]: {
-                        content: 'override content',
-                    },
-                },
-            },
-        };
-
-        expect(wrapper.vm.configOverride.content).toBe('override content');
-    });
-
-    it('should fall back to element translated config when no entity config found', async () => {
-        const wrapper = await createWrapper({
-            ...defaultElement,
-            translated: {
-                config: {
-                    content: 'translated content',
-                },
-            },
-        });
-
-        expect(wrapper.vm.configOverride.content).toBe('translated content');
-    });
-
-    it('should return slot config from entity translated data', async () => {
-        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
-        Shopware.Store.get('swCategoryDetail').category = {
-            id: 'category-1',
-            translated: {
-                slotConfig: {
-                    [defaultElement.id]: {
-                        content: 'entity content',
-                    },
-                },
-            },
-        };
-
-        const slotConfig = wrapper.vm.getEntitySlotConfig();
-
-        expect(slotConfig.content).toBe('entity content');
-    });
-
-    it('should fall back to default translations when no translated config found', async () => {
-        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
-
-        Shopware.Store.get('swCategoryDetail').category = {
-            id: 'category-1',
-            translations: [
-                {
-                    languageId: Shopware.Context.api.systemLanguageId,
-                    slotConfig: {
-                        [defaultElement.id]: {
-                            content: 'default content',
-                        },
-                    },
-                },
-            ],
-        };
-
-        const slotConfig = wrapper.vm.getEntitySlotConfig();
-
-        expect(slotConfig.content).toBe('default content');
     });
 });

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -18,6 +19,8 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -44,8 +47,35 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @deprecated tag:v6.8.0
+     * Use unsubscribeWithResponse() instead.
+     * Starting with v6.8.0, the API route response is changing.
+     * This method will be removed.
+     */
+    public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                self::class,
+                __FUNCTION__,
+                'v6.8.0.0',
+                'unsubscribeWithResponse()'
+            )
+        );
+
+        $response = $this->unsubscribeWithResponse($dataBag, $context);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new NoContentResponse();
+        }
+
+        return $response;
+    }
+
     #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
-    public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
+    public function unsubscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $data = $dataBag->only('email');
 
@@ -66,7 +96,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         $event = new NewsletterUnsubscribeEvent($context->getContext(), $recipient, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
-        return new NoContentResponse();
+        return new SuccessResponse();
     }
 
     private function getNewsletterRecipient(string $email, SalesChannelContext $context): NewsletterRecipientEntity

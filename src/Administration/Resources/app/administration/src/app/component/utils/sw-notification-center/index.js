@@ -47,10 +47,10 @@ export default {
         Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
-    beforeDestroyed() {
+    beforeUnmount() {
         this.unsubscribeFromStore?.();
 
-        this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
+        Shopware.Utils.EventBus.off('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     methods: {

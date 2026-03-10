@@ -48,7 +48,7 @@ class CartRestorer
             $currentContext->getSalesChannelId(),
         );
 
-        if (empty($customerPayload) || !empty($customerPayload['permissions'])) {
+        if ($customerPayload === [] || !empty($customerPayload['permissions'])) {
             return $this->replaceContextToken($customerId, $currentContext, $token);
         }
 
@@ -73,7 +73,7 @@ class CartRestorer
             $customerId
         );
 
-        if (empty($customerPayload) || !empty($customerPayload['permissions']) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
+        if ($customerPayload === [] || !empty($customerPayload['permissions']) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
             return $this->replaceContextToken($customerId, $currentContext);
         }
 
@@ -141,7 +141,7 @@ class CartRestorer
             ($originalToken === null) ? $customerId : null,
         );
 
-        $this->updateImpersonation($currentContext);
+        $this->updateRequestState($currentContext);
 
         return $currentContext;
     }
@@ -152,11 +152,19 @@ class CartRestorer
         $this->contextPersister->delete($guestContext->getToken(), $guestContext->getSalesChannelId(), $customerId);
     }
 
-    private function updateImpersonation(SalesChannelContext $context): void
+    private function updateRequestState(SalesChannelContext $context): void
     {
         $request = $this->requestStack->getMainRequest();
 
-        if (!$request?->hasSession()) {
+        if ($request === null) {
+            return;
+        }
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
+        $request->attributes->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
+
+        if (!$request->hasSession()) {
             return;
         }
 
@@ -195,8 +203,8 @@ class CartRestorer
 
         if ($currentContext->getImitatingUserId() !== $customerContext->getImitatingUserId()) {
             $customerContext->setImitatingUserId($currentContext->getImitatingUserId());
-            $this->updateImpersonation($customerContext);
         }
+        $this->updateRequestState($customerContext);
 
         $errors = $restoredCart->getErrors();
         $result = $this->cartRuleLoader->loadByToken($customerContext, $restoredCart->getToken());

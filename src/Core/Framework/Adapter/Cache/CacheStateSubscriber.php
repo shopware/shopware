@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -15,12 +16,20 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Cache states will be removed, use cache keys instead
  */
 #[Package('framework')]
 class CacheStateSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @deprecated tag:v6.8.0 - Cache states will be removed, use cache hash instead
+     */
     final public const STATE_LOGGED_IN = 'logged-in';
 
+    /**
+     * @deprecated tag:v6.8.0 - Cache states will be removed, use cache hash instead
+     */
     final public const STATE_CART_FILLED = 'cart-filled';
 
     /**
@@ -35,6 +44,10 @@ class CacheStateSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+            return [];
+        }
+
         return [
             KernelEvents::CONTROLLER => [
                 ['setStates', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE_POST],
@@ -46,11 +59,19 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function login(CustomerLoginEvent $event): void
     {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+            return;
+        }
+
         $event->getSalesChannelContext()->addState(self::STATE_LOGGED_IN);
     }
 
     public function cartChanged(CartChangedEvent $event): void
     {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+            return;
+        }
+
         $event->getSalesChannelContext()->removeState(self::STATE_CART_FILLED);
 
         if ($event->getCart()->getLineItems()->count() > 0) {
@@ -60,6 +81,10 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function setStates(ControllerEvent $event): void
     {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+            return;
+        }
+
         $request = $event->getRequest();
 
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {

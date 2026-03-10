@@ -26,7 +26,7 @@ class SalesChannelExceptionTest extends TestCase
     }
 
     /**
-     * @return array<string, array{exception: ShopwareHttpException|SalesChannelException, statusCode: int, errorCode: string, message: string}>
+     * @return iterable<string, array{exception: ShopwareHttpException|SalesChannelException, statusCode: int, errorCode: string, message: string}>
      */
     public static function exceptionDataProvider(): iterable
     {
@@ -91,6 +91,13 @@ class SalesChannelExceptionTest extends TestCase
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CHECKOUT__UNKNOWN_PAYMENT_METHOD',
             'message' => 'Could not find payment method with id "myCustomPaymentMethod"',
+        ];
+
+        yield SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE => [
+            'exception' => SalesChannelException::contextTokenNotAccessible(),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE,
+            'message' => 'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
         ];
     }
 }

@@ -79,7 +79,7 @@ class CategorySubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array{SystemConfigService, CategoryEntity, string|null, string|null}>
+     * @return iterable<string, array{SystemConfigService, CategoryEntity, string|null, string|null}>
      */
     public static function categoryLoadedEventDataProvider(): iterable
     {
@@ -106,7 +106,7 @@ class CategorySubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array{SystemConfigService, CategoryEntity, string|null, string|null, string}>
+     * @return iterable<string, array{SystemConfigService, CategoryEntity, string|null, string|null, string}>
      */
     public static function salesChannelCategoryLoadedEventDataProvider(): iterable
     {

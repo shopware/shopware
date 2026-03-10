@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -53,7 +52,7 @@ class MailServiceTest extends TestCase
     public function testPluginsCanExtendMailData(): void
     {
         $renderer = clone static::getContainer()->get(StringTemplateRenderer::class);
-        $property = ReflectionHelper::getProperty(StringTemplateRenderer::class, 'twig');
+        $property = new \ReflectionProperty(StringTemplateRenderer::class, 'twig');
 
         $twig = $property->getValue($renderer);
         \assert($twig instanceof Environment);

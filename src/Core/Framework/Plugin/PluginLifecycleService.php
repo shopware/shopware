@@ -50,6 +50,7 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
@@ -60,6 +61,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 class PluginLifecycleService
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+    final public const PLUGIN_LIFECYCLE_METHOD_ACTIVATE = 'activate';
 
     /**
      * @var array{plugin: PluginEntity, context: Context}|null
@@ -67,6 +69,13 @@ class PluginLifecycleService
     private static ?array $pluginToBeDeleted = null;
 
     private static bool $registeredListener = false;
+
+    /**
+     * For `executeComposerRemoveCommand`, we need to keep the original event dispatcher, because during plugin
+     * deactivation, the kernel is rebooted and the dispatcher replaced with the new one,
+     * but the KernelEvents are triggered on the original event dispatcher.
+     */
+    private EventDispatcherInterface $originalEventDispatcher;
 
     /**
      * @param EntityRepository<PluginCollection> $pluginRepo
@@ -88,7 +97,9 @@ class PluginLifecycleService
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly RequestStack $requestStack,
     ) {
+        $this->originalEventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -153,8 +164,14 @@ class PluginLifecycleService
 
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
-            if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
-                $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+            try {
+                if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
+                    $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+                }
+            } finally {
+                if ($plugin->getInstalledAt()) {
+                    $this->uninstallPlugin($plugin, $shopwareContext, true);
+                }
             }
 
             throw $e;
@@ -342,7 +359,7 @@ class PluginLifecycleService
             return $activateContext;
         }
 
-        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'activate');
+        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, self::PLUGIN_LIFECYCLE_METHOD_ACTIVATE);
 
         $this->eventDispatcher->dispatch(new PluginPreActivateEvent($plugin, $activateContext));
 
@@ -408,7 +425,7 @@ class PluginLifecycleService
             $dependantPlugins
         );
 
-        if (\count($dependants) > 0) {
+        if ($dependants !== []) {
             throw PluginException::hasActiveDependants($plugin->getName(), $dependants);
         }
 
@@ -492,6 +509,14 @@ class PluginLifecycleService
         self::$pluginToBeDeleted = null;
 
         $this->removePluginComposerDependency($plugin, $context);
+    }
+
+    /**
+     * @internal only exists for overriding in tests
+     */
+    protected function isCLI(): bool
+    {
+        return \PHP_SAPI === 'cli';
     }
 
     private function removePluginComposerDependency(PluginEntity $plugin, Context $context): void
@@ -586,6 +611,12 @@ class PluginLifecycleService
 
     private function rebuildContainerWithNewPluginState(PluginEntity $plugin, string $pluginNamespace): void
     {
+        // Release session lock before container rebuild (to avoid holding file based session lock during long operation)
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request && $request->hasSession() && $request->getSession()->isStarted()) {
+            $request->getSession()->save(); // Releases flock() on session file
+        }
+
         $kernel = $this->container->get('kernel');
 
         $pluginDir = $kernel->getContainer()->getParameter('kernel.plugin_dir');
@@ -715,11 +746,10 @@ class PluginLifecycleService
 
     private function executeComposerRemoveCommand(PluginEntity $plugin, Context $shopwareContext): void
     {
-        if (\PHP_SAPI === 'cli') {
+        if ($this->isCLI()) {
             // only remove the plugin composer dependency directly when running in CLI
             // otherwise do it async in kernel.response
             $this->removePluginComposerDependency($plugin, $shopwareContext);
-        /* @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI */
         } else {
             self::$pluginToBeDeleted = [
                 'plugin' => $plugin,
@@ -727,10 +757,9 @@ class PluginLifecycleService
             ];
 
             if (!self::$registeredListener) {
-                $this->eventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
+                $this->originalEventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
                 self::$registeredListener = true;
             }
         }
-        /* @codeCoverageIgnoreEnd */
     }
 }

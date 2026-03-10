@@ -25,6 +25,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: '',
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data(): {

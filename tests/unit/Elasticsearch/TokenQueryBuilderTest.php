@@ -26,12 +26,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
@@ -42,6 +42,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[CoversClass(TokenQueryBuilder::class)]
+#[Package('inventory')]
 class TokenQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';
@@ -91,15 +92,36 @@ class TokenQueryBuilderTest extends TestCase
             'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
         ]);
 
-        $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
 
         static::assertNotNull($query);
 
+        $expectedFuzziness = 'AUTO:3,8';
+        $expectedMaxExpansions = 5;
+
+        $nameQuery = self::disMax([
+            self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+            self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
+            self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+        ], 1000);
+
+        $nameQuery['dis_max']['_name'] = json_encode([
+            'field' => 'name',
+            'term' => 'foo',
+            'ranking' => 1000,
+        ]);
+
+        $tagQuery = self::disMax([
+            self::term('tags.name', 'foo', 1),
+            self::match('tags.name.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
+            self::prefix('tags.name.search', 'foo', 0.4),
+        ], 500);
+
         $expected = self::bool([
-            self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false, explain: true),
-            self::nested(root: 'tags', query: self::textMatch(field: 'tags.name', query: 'foo', boost: 500, andSearch: false), explainPayload: [
+            $nameQuery,
+            self::nested(root: 'tags', query: $tagQuery, explainPayload: [
                 'inner_hits' => [
                     '_source' => false,
                     'explain' => true,
@@ -123,7 +145,8 @@ class TokenQueryBuilderTest extends TestCase
     public function testBuildWithSynonyms(): void
     {
         $config = [
-            self::config(field: 'name', ranking: 1000, tokenize: true, and: false, prefixMatch: false),
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false, prefixMatch: true),
+            self::config(field: 'name', ranking: 800, tokenize: true, and: true, prefixMatch: false),
             self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
         ];
 
@@ -138,9 +161,24 @@ class TokenQueryBuilderTest extends TestCase
 
         static::assertNotNull($query);
 
+        $expectedFuzziness = 'AUTO:3,8';
+        $expectedMaxExpansions = 5;
+
         $expected = self::bool([
-            self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false, prefixMatch: false),
-            self::nested('tags', self::textMatch(field: 'tags.name', query: 'foo', boost: 500, andSearch: false)),
+            self::disMax([
+                self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+            ], 1000),
+            self::disMax([
+                self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, $expectedFuzziness, 'and', $expectedMaxExpansions),
+            ], 800),
+            self::nested('tags', self::disMax([
+                self::term('tags.name', 'foo', 1),
+                self::match('tags.name.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
+                self::prefix('tags.name.search', 'foo', 0.4),
+            ], 500)),
         ]);
 
         static::assertSame($expected, $query->toArray());
@@ -196,9 +234,54 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo',
             'expected' => self::bool([
-                self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false),
-                self::nested('tags', self::textMatch(field: 'tags.name', query: 'foo', boost: 500, andSearch: false)),
+                self::disMax([
+                    self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                ], 1000),
+                self::nested('tags', self::disMax([
+                    self::term('tags.name', 'foo', 1),
+                    self::match('tags.name.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::prefix('tags.name.search', 'foo', 0.4),
+                ], 500)),
             ]),
+        ];
+
+        yield 'Test term is normalized' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            ],
+            'term' => ' FoO ',
+            'expected' => self::disMax([
+                self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+            ], 1000),
+        ];
+
+        yield 'Test term with spaces is normalized' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            ],
+            'term' => ' FoO     BaR    Baz    ',
+            'expected' => self::disMax([
+                self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', 'bar', 'baz'], 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.8, 'AUTO:3,8', 'or', 5),
+                self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.6, 3, 5),
+            ], 1000),
+        ];
+
+        yield 'Tokenized field uses ngram match for long term' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            ],
+            'term' => 'foooooooooo',
+            'expected' => self::disMax([
+                self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foooooooooo', 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.8, 'AUTO:3,8', 'or', 20),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.4),
+                self::matchSimple('name.' . Defaults::LANGUAGE_SYSTEM . '.ngram', 'foooooooooo', 0.4),
+            ], 1000),
         ];
 
         yield 'Test multiple fields' => [
@@ -210,9 +293,21 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo 2023',
             'expected' => self::bool([
-                self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                self::textMatch('ean', 'foo 2023', 2000, null, false),
-                self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
+                self::disMax([
+                    self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.8, 0, 'and', 10),
+                    self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
+                ], 1000),
+                self::disMax([
+                    self::terms('ean', ['foo', '2023'], 1),
+                    self::match('ean.search', 'foo 2023', 0.8, 0, 'and', 10),
+                    self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
+                ], 2000),
+                self::nested('tags', self::disMax([
+                    self::terms('tags.name', ['foo', '2023'], 1),
+                    self::match('tags.name.search', 'foo 2023', 0.8, 0, 'and', 10),
+                    self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
+                ], 500)),
             ]),
         ];
 
@@ -225,7 +320,11 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => '2023',
             'expected' => self::bool([
-                self::textMatch($prefix . 'evolvesText', '2023', 500, null, false),
+                self::disMax([
+                    self::term($prefix . 'evolvesText', '2023', 1),
+                    self::match($prefix . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
+                    self::prefix($prefix . 'evolvesText.search', '2023', 0.4),
+                ], 500),
                 self::term($prefix . 'evolvesInt', 2023, 400),
                 self::term($prefix . 'evolvesFloat', 2023.0, 500),
                 self::nested('categories', self::term('categories.childCount', 2023, 500)),
@@ -249,11 +348,27 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo',
             'expected' => self::bool([
-                self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false),
-                self::nested('tags', self::textMatch('tags.name', 'foo', 500, andSearch: false)),
+                self::disMax([
+                    self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                ], 1000),
+                self::nested('tags', self::disMax([
+                    self::term('tags.name', 'foo', 1),
+                    self::match('tags.name.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::prefix('tags.name.search', 'foo', 0.4),
+                ], 500)),
                 self::nested('categories', self::disMax([
-                    self::textMatch('categories.name', 'foo', 200, Defaults::LANGUAGE_SYSTEM, andSearch: false),
-                    self::textMatch('categories.name', 'foo', 160, self::SECOND_LANGUAGE_ID, andSearch: false),
+                    self::disMax([
+                        self::term('categories.name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                        self::match('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                        self::prefix('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                    ], 200),
+                    self::disMax([
+                        self::term('categories.name.' . self::SECOND_LANGUAGE_ID, 'foo', 1),
+                        self::match('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                        self::prefix('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.4),
+                    ], 160),
                 ])),
             ]),
         ];
@@ -267,9 +382,21 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo 2023',
             'expected' => self::bool([
-                self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                self::textMatch('ean', 'foo 2023', 2000, null, false),
-                self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
+                self::disMax([
+                    self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.8, 0, 'and', 10),
+                    self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
+                ], 1000),
+                self::disMax([
+                    self::terms('ean', ['foo', '2023'], 1),
+                    self::match('ean.search', 'foo 2023', 0.8, 0, 'and', 10),
+                    self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
+                ], 2000),
+                self::nested('tags', self::disMax([
+                    self::terms('tags.name', ['foo', '2023'], 1),
+                    self::match('tags.name.search', 'foo 2023', 0.8, 0, 'and', 10),
+                    self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
+                ], 500)),
             ]),
         ];
 
@@ -283,8 +410,16 @@ class TokenQueryBuilderTest extends TestCase
             'term' => '2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::textMatch($prefixCfLang1 . 'evolvesText', '2023', 500, null, false),
-                    self::textMatch($prefixCfLang2 . 'evolvesText', '2023', 400, null, false),
+                    self::disMax([
+                        self::term($prefixCfLang1 . 'evolvesText', '2023', 1),
+                        self::match($prefixCfLang1 . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
+                        self::prefix($prefixCfLang1 . 'evolvesText.search', '2023', 0.4),
+                    ], 500),
+                    self::disMax([
+                        self::term($prefixCfLang2 . 'evolvesText', '2023', 1),
+                        self::match($prefixCfLang2 . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
+                        self::prefix($prefixCfLang2 . 'evolvesText.search', '2023', 0.4),
+                    ], 400),
                 ]),
                 self::disMax([
                     self::term($prefixCfLang1 . 'evolvesInt', 2023, 400),
@@ -307,10 +442,60 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo',
             'expected' => self::disMax([
-                self::textMatch($prefixCfLang1 . 'evolvesText', 'foo', 500, null, false),
-                self::textMatch($prefixCfLang2 . 'evolvesText', 'foo', 400, null, false),
+                self::disMax([
+                    self::term($prefixCfLang1 . 'evolvesText', 'foo', 1),
+                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
+                    self::prefix($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4),
+                ], 500),
+                self::disMax([
+                    self::term($prefixCfLang2 . 'evolvesText', 'foo', 1),
+                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
+                    self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4),
+                ], 400),
             ]),
         ];
+    }
+
+    public function testBuildWithLanguageAnalyzerDisabled(): void
+    {
+        $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
+        $tokenQueryBuilder = new TokenQueryBuilder(
+            $this->getRegistry(),
+            new CustomFieldServiceMock([
+                'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
+                'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
+                'evolvesText' => new StringField('evolvesText', 'evolvesText'),
+            ]),
+            $storage,
+            4,
+            false
+        );
+
+        $context = Context::createDefaultContext();
+        $context->assign([
+            'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
+        ]);
+
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+        ];
+
+        $term = 'foo bar';
+        $query = $tokenQueryBuilder->build('product', $term, $config, $context);
+
+        static::assertNotNull($query);
+        $queryArray = $query->toArray();
+
+        $matchQuery = $queryArray['dis_max']['queries'][1]['match'] ?? null;
+        static::assertNotNull($matchQuery);
+        $searchField = 'name.' . Defaults::LANGUAGE_SYSTEM . '.search';
+        static::assertArrayHasKey($searchField, $matchQuery);
+        static::assertSame('sw_whitespace_analyzer', $matchQuery[$searchField]['analyzer'] ?? null);
+
+        $matchPhrasePrefixQuery = $queryArray['dis_max']['queries'][2]['match_phrase_prefix'] ?? null;
+        static::assertNotNull($matchPhrasePrefixQuery);
+        static::assertArrayHasKey($searchField, $matchPhrasePrefixQuery);
+        static::assertSame('sw_whitespace_analyzer', $matchPhrasePrefixQuery[$searchField]['analyzer'] ?? null);
     }
 
     public function testDecoration(): void
@@ -363,10 +548,12 @@ class TokenQueryBuilderTest extends TestCase
      */
     private static function term(string $field, string|int|float $query, int|float $boost): array
     {
+        $normalizedBoost = ($boost === 1 || $boost === 1.0) ? 1 : (float) $boost;
+
         return [
             'term' => [
                 $field => [
-                    'boost' => (float) $boost,
+                    'boost' => $normalizedBoost,
                     'value' => $query,
                 ],
             ],
@@ -388,7 +575,7 @@ class TokenQueryBuilderTest extends TestCase
             ],
         ];
 
-        if (!empty($explainPayload)) {
+        if ($explainPayload !== []) {
             $nested['nested'] = array_merge($nested['nested'], $explainPayload);
         }
 
@@ -398,66 +585,37 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private static function textMatch(string $field, string|int|float $query, int|float $boost, ?string $languageId = null, ?bool $tokenized = true, ?bool $andSearch = true, bool $explain = false, ?bool $prefixMatch = true): array
-    {
-        $languageField = $field;
-
-        if ($languageId !== null) {
-            $languageField .= '.' . $languageId;
-        }
-
-        $tokenCount = \count(\explode(' ', (string) $query));
-
-        $queries = [
-            self::match($languageField . '.search', $query, $boost, $tokenized ? 'auto' : 1, $andSearch),
-        ];
-
-        if ($prefixMatch) {
-            $queries[] = self::matchPhrasePrefix($languageField . '.search', $query, $boost * 0.6);
-        }
-
-        if ($tokenized && $tokenCount === 1) {
-            $queries[] = self::match($languageField . '.ngram', $query, $boost * 0.4, null, $andSearch);
-        }
-
-        $dismax = self::disMax($queries);
-
-        if ($explain) {
-            $dismax['dis_max']['_name'] = json_encode([
-                'field' => $field,
-                'term' => $query,
-                'ranking' => $boost,
-            ]);
-        }
-
-        return $dismax;
-    }
-
-    /**
-     * @return array{match: array<string, array{query: string|int|float, boost: float, fuzziness?: int|string|null}>}
-     */
-    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = 0, ?bool $andSearch = false): array
+    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'or', ?int $maxExpansions = null, ?string $analyzer = null): array
     {
         $payload = [
             'query' => $query,
             'boost' => (float) $boost,
+            'fuzziness' => $fuzziness,
+            'operator' => $operator,
+            'fuzzy_transpositions' => true,
+            'max_expansions' => $maxExpansions,
+            'prefix_length' => 1,
+            'analyzer' => $analyzer,
         ];
-
-        if (preg_match('/\d{3,}/', (string) $query)) {
-            $fuzziness = 0;
-        }
-
-        if ($fuzziness !== null) {
-            $payload['fuzziness'] = $fuzziness;
-        }
-
-        if (!\str_contains($field, '.ngram')) {
-            $payload['operator'] = $andSearch ? 'and' : 'or';
-        }
 
         return [
             'match' => [
-                $field => $payload,
+                $field => array_filter($payload, static fn ($value) => $value !== null),
+            ],
+        ];
+    }
+
+    /**
+     * @return array{match: array<string, array{query: string, boost: float}>}
+     */
+    private static function matchSimple(string $field, string $query, float $boost): array
+    {
+        return [
+            'match' => [
+                $field => [
+                    'query' => $query,
+                    'boost' => $boost,
+                ],
             ],
         ];
     }
@@ -467,12 +625,18 @@ class TokenQueryBuilderTest extends TestCase
      *
      * @return array{dis_max: array{queries: array<mixed>}}
      */
-    private static function disMax(array $queries): array
+    private static function disMax(array $queries, float|int|null $boost = null): array
     {
+        $payload = [
+            'queries' => $queries,
+        ];
+
+        if ($boost !== null) {
+            $payload['boost'] = (float) $boost;
+        }
+
         return [
-            'dis_max' => [
-                'queries' => $queries,
-            ],
+            'dis_max' => $payload,
         ];
     }
 
@@ -493,15 +657,48 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int}>}
      */
-    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3): array
+    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3, int $maxExpansion = 10, ?string $analyzer = null): array
     {
+        $payload = [
+            'query' => $query,
+            'boost' => $boost,
+            'slop' => $slop,
+            'max_expansions' => $maxExpansion,
+            'analyzer' => $analyzer,
+        ];
+
         return [
             'match_phrase_prefix' => [
+                $field => array_filter($payload, static fn ($value) => $value !== null),
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string> $tokens
+     *
+     * @return array{terms: non-empty-array<string, array<string>|float|int>}
+     */
+    private static function terms(string $field, array $tokens, int|float $boost): array
+    {
+        return [
+            'terms' => [
+                $field => $tokens,
+                'boost' => $boost,
+            ],
+        ];
+    }
+
+    /**
+     * @return array{prefix: array<string, array{value: string|int|float, boost: float}>}
+     */
+    private static function prefix(string $field, string|int|float $query, float $boost): array
+    {
+        return [
+            'prefix' => [
                 $field => [
-                    'query' => $query,
+                    'value' => $query,
                     'boost' => $boost,
-                    'slop' => $slop,
-                    'max_expansions' => 10,
                 ],
             ],
         ];

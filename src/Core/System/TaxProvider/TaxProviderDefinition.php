@@ -57,15 +57,15 @@ class TaxProviderDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new StringField('identifier', 'identifier'))->addFlags(new Required()),
-            (new BoolField('active', 'active'))->addFlags(new ApiAware()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of tax provider.'),
+            (new StringField('identifier', 'identifier'))->addFlags(new Required())->setDescription('Unique identity of tax provider.'),
+            (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('When boolean value is `true`, the tax providers are available for selection in the storefront.'),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
-            (new BoolField('active', 'active'))->addFlags(new ApiAware()),
-            (new IntField('priority', 'priority'))->addFlags(new Required(), new ApiAware()),
-            (new StringField('process_url', 'processUrl'))->addFlags(new ApiAware()),
-            new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class),
-            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new ApiAware()),
+            (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('When boolean value is `true`, the tax providers are available for selection in the storefront.'),
+            (new IntField('priority', 'priority'))->addFlags(new Required(), new ApiAware())->setDescription('A numerical value to prioritize one of the tax providers from the list.'),
+            (new StringField('process_url', 'processUrl'))->addFlags(new ApiAware())->setDescription('External URL makes request to get tax info.'),
+            (new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class))->setDescription('Unique identity of availability Rule.'),
+            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of app.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 
             new TranslationsAssociationField(TaxProviderTranslationDefinition::class, 'tax_provider_id'),

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
@@ -47,6 +48,49 @@ class HtmlSanitizerTest extends TestCase
         $filteredString = $sanitizer->sanitize($unfilteredString, null, false, 'test.bootstrap');
 
         static::assertSame('<a href="\&quot;%target%\&quot;" data-bs-toggle="\&quot;modal\&quot;">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen"', $filteredString);
+    }
+
+    #[DataProvider('entityProvider')]
+    public function testSanitizeHtmlEntities(string $input, string $expected): void
+    {
+        $sets = $this->getDefaultSets();
+        $fieldSets = $this->getDefaultFieldsSets();
+        $sanitizer = new HtmlSanitizer(null, false, $sets, $fieldSets);
+
+        static::assertSame($expected, $sanitizer->sanitize($input));
+    }
+
+    public static function entityProvider(): \Generator
+    {
+        yield 'double encoded umlaut' => [
+            'Luxuri&amp;ouml;ser Herrenmantel in Grau.',
+            'Luxuriöser Herrenmantel in Grau.',
+        ];
+
+        yield 'single encoded umlaut' => [
+            'Luxuri&ouml;ser Herrenmantel in Grau.',
+            'Luxuriöser Herrenmantel in Grau.',
+        ];
+
+        yield 'plain text' => [
+            'Luxuriöser Herrenmantel in Grau.',
+            'Luxuriöser Herrenmantel in Grau.',
+        ];
+
+        yield 'quotes' => [
+            'String with &quot;quotes&quot;',
+            'String with "quotes"',
+        ];
+
+        yield 'double encoded quotes' => [
+            'String with &amp;quot;quotes&amp;quot;',
+            'String with "quotes"',
+        ];
+
+        yield 'allowed tag' => [
+            '&lt;b&gt;Bold&lt;/b&gt;',
+            '<b>Bold</b>',
+        ];
     }
 
     /**

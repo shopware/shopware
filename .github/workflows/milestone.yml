@@ -27,6 +27,8 @@ jobs:
           env:
             NEXT_MINOR: ${{ steps.versions.outputs.next-minor }}
             NEXT_PATCH: ${{ steps.versions.outputs.next-patch }}
+            FREEZE_START: "${{ vars.FREEZE_START }}"
+            FROZEN_VERSION: "${{ vars.FROZEN_VERSION }}"
           with:
             result-encoding: string
             script: |
@@ -34,22 +36,34 @@ jobs:
                 const nextPatch = process.env.NEXT_PATCH.substring(1);
 
                 const versionRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
+                const versionBaseRef = versionRegex.exec(context.payload.pull_request.base.ref);
 
                 // Use next minor if target is trunk or is an issue
                 if (context.payload.pull_request.base.ref == "trunk") {
+                  const nextMinorRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
+                  const nextMinorSplitted = nextMinorRegex.exec(nextMinor);
+                  const today = new Date();
+                  const freezeStart = new Date(process.env.FREEZE_START);
+                  const frozenVersion = process.env.FROZEN_VERSION;
+                  // Skip minor if it is in a frozen state
+                  if (today >= freezeStart && nextMinor == frozenVersion) {
+                    nextMinorSplitted[3]++;
+                    return `${nextMinorSplitted.slice(1, nextMinorSplitted.length -1).join(".")}.0`;
+                  }
                   return nextMinor;
-                } else if (versionRegex.test(context.payload.pull_request.base.ref)) {
+                } else if (versionBaseRef !== null) {
+                    const refVersion = `${versionBaseRef.slice(1, versionBaseRef.length - 1).join(".")}.0`
                     try {
                         await github.rest.repos.getReleaseByTag({
                             owner: "shopware",
                             repo: "shopware",
-                            tag: `v${context.payload.pull_request.base.ref}`
+                            tag: `v${refVersion}`
                         });
                         // Use next patch if target is a version branch and the minor is released
                         return nextPatch;
                     } catch(err) {
                         // Use next minor if target is a version branch and the minor is not released
-                        return `${context.payload.pull_request.base.ref}`;
+                        return `${refVersion}`;
                     }
                 }
 
@@ -81,11 +95,11 @@ jobs:
 
   set_milestone:
     name: Set milestone
-    if: ${{ github.event.action == 'closed' && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
+    if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - name: Set milestone

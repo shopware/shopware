@@ -14,7 +14,6 @@ async function createWrapper(privileges = []) {
                     template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
                 },
                 'sw-entity-listing': true,
-                'sw-empty-state': true,
                 'sw-loader': true,
                 'router-link': true,
                 'sw-search-bar': true,
@@ -44,7 +43,13 @@ async function createWrapper(privileges = []) {
                 },
             },
             mocks: {
-                $route: { query: '' },
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
         },
     });
@@ -182,11 +187,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state')).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 

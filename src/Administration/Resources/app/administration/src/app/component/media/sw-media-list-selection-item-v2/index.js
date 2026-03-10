@@ -32,6 +32,12 @@ export default {
             required: false,
             default: false,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

@@ -87,10 +87,10 @@ This does not scale, when we create new folders for the compiled theme files on 
 So the asset files are now stored in a separate folder, that is not dependent on the sales channel or the theme configuration.
 We use the `themeId` as the folder name, so the assets are still unique per theme, but they are not duplicated for every sales channel.
 
-### PaaS / Platform.sh
+### PaaS / Upsun
 
-Platform.sh currently does not offer to store the theme assets on an internal storage, therefore the assets need to be stored locally.
-Additionally, Platform.sh uses `immutable deploys`, meaning that once a version is deployed the file system is read-only and no changes can be made to the local files.
+Upsun currently does not offer to store the theme assets on an internal storage, therefore the assets need to be stored locally.
+Additionally, Upsun uses `immutable deploys`, meaning that once a version is deployed the file system is read-only and no changes can be made to the local files.
 
 The theme compile is executed on PaaS during the `build` step, where there is no DB connection, so we can't use the new default implementation of the `AbstractThemePathBuilder`, which stores the new `seed` in the DB during the theme compile.
 But because of the `immutable deploys` it is not possible to recompile the theme at runtime, a new deployment is needed to recompile the theme.
@@ -98,5 +98,5 @@ So PaaS was not affected by the issues during the theme compilation, and instead
 
 That means that PaaS does not need the seeding mechanism, so we add a implementation for the `AbstractThemePathBuilder` that ignores the seed and will always return the same path for a given theme and sales channel combination (like the old default implementation).
 
-Once Platform.sh allows to store the theme assets externally we can move the theme compile from the `build` to the `deploy` step and can then use the default `seeding` implementation, as we have access to the DB in the deploy step.
+Once Upsun allows to store the theme assets externally we can move the theme compile from the `build` to the `deploy` step and can then use the default `seeding` implementation, as we have access to the DB in the deploy step.
 Then you can also recompile the theme at runtime and PaaS will also benefit from the new theme compile mechanism.

@@ -95,21 +95,14 @@
 
         {% block sw_product_detail_reviews_empty_state %}
 
-        <sw-empty-state
+        <mt-empty-state
             v-if="!total"
-            :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
-            :subline="$tc('sw-product.reviewForm.messageEmptySubline')"
-            :absolute="false"
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-product.reviewForm.messageEmptyTitle')"
+            :description="$tc('sw-product.reviewForm.messageEmptySubline')"
             empty-module
         >
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-product.reviewForm.messageEmptyTitle')"
-                >
-            </template>
-
-            <template #actions>
+            <template #button>
                 {% block sw_product_detail_reviews_empty_state_button %}
                 <mt-button
                     ghost
@@ -120,7 +113,7 @@
                 </mt-button>
                 {% endblock %}
             </template>
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
 
         {% block sw_product_detail_reviews_modal_delete %}

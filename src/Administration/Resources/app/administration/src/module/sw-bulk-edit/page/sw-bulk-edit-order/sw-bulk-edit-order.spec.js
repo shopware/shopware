@@ -46,7 +46,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-bulk-edit-order-documents': await wrapTestComponent('sw-bulk-edit-order-documents'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -54,6 +53,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
+                    'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', { sync: true }),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -345,11 +345,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-renderer').exists()).toBeTruthy();
     });
 
-    it('should disable status mails and documents by default', async () => {
+    it('should disable transitionInternalComment, status mails and documents by default', async () => {
         wrapper = await createWrapper();
 
         await flushPromises();
 
+        expect(
+            wrapper
+                .find('.sw-bulk-edit-change-field-transitionInternalComment .mt-field--checkbox__container input')
+                .attributes().disabled,
+        ).toBeDefined();
         expect(
             wrapper.find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input').attributes()
                 .disabled,
@@ -359,7 +364,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         ).toBeDefined();
     });
 
-    it('should enable status mails when one of the status fields has changed', async () => {
+    it('should enable transitionInternalComment and status mails when one of the status fields has changed', async () => {
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -376,6 +381,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
+        expect(
+            wrapper
+                .find('.sw-bulk-edit-change-field-transitionInternalComment .mt-field--checkbox__container input')
+                .attributes().disabled,
+        ).toBeUndefined();
         expect(
             wrapper.find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input').attributes()
                 .disabled,
@@ -531,8 +541,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         expect(wrapper.vm.selectedIds).toHaveLength(0);
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
     });
 
     it('should open confirm modal', async () => {
@@ -716,6 +725,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 orderDeliveries: {
                     isChanged: false,
                 },
+                transitionInternalComment: {
+                    isChanged: false,
+                },
                 statusMails: {
                     isChanged: false,
                 },
@@ -736,6 +748,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     isChanged: false,
                 },
                 orderDeliveries: {
+                    isChanged: false,
+                },
+                transitionInternalComment: {
                     isChanged: false,
                 },
                 statusMails: {
@@ -762,6 +777,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 orderDeliveries: {
                     isChanged: true,
                 },
+                transitionInternalComment: {
+                    isChanged: false,
+                },
                 statusMails: {
                     isChanged: false,
                 },
@@ -779,7 +797,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should restrict fields on including orders without delivery', async () => {
         wrapper = await createWrapper();
 
-        expect(wrapper.vm.statusFormFields).toHaveLength(5);
+        expect(wrapper.vm.statusFormFields).toHaveLength(6);
         expect(wrapper.vm.statusFormFields[1].name).toBe('orderDeliveries');
 
         await wrapper.vm.$router.push({
@@ -789,7 +807,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.statusFormFields).toHaveLength(4);
+        expect(wrapper.vm.statusFormFields).toHaveLength(5);
         expect(wrapper.vm.statusFormFields[1].name).not.toBe('orderDeliveries');
+    });
+
+    it('should reset order documents isChanged on component creation', async () => {
+        const store = Shopware.Store.get('swBulkEdit');
+        const resetSpy = jest.spyOn(store, 'resetOrderDocumentsIsChanged');
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(resetSpy).toHaveBeenCalled();
     });
 });

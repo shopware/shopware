@@ -27,7 +27,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
      */
     public function isValid(Request $request, array $captchaConfig): bool
     {
-        if (!$request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
+        if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
         }
 
@@ -43,7 +43,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
             $response = $this->client->request('POST', self::GOOGLE_CAPTCHA_VERIFY_ENDPOINT, [
                 'form_params' => [
                     'secret' => $secretKey,
-                    'response' => $request->get(self::CAPTCHA_REQUEST_PARAMETER),
+                    'response' => $request->request->get(self::CAPTCHA_REQUEST_PARAMETER),
                     'remoteip' => $request->getClientIp(),
                 ],
             ]);

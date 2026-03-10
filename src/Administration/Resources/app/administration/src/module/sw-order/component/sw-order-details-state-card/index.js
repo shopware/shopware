@@ -236,12 +236,13 @@ export default {
             this.showStateChangeModal = false;
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showStateChangeModal = false;
 
             this.stateTransitionMethod(this.entity.id, this.currentActionName, {
                 documentIds: docIds,
                 sendMail,
+                internalComment,
             })
                 .then(() => {
                     this.getLastChange();

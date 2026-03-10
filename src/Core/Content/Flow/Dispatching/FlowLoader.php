@@ -29,13 +29,14 @@ class FlowLoader extends AbstractFlowLoader
                 ORDER BY `priority` DESC',
         );
 
-        if (empty($flows)) {
+        if ($flows === []) {
             return [];
         }
 
         foreach ($flows as $key => $flow) {
             try {
-                $payload = unserialize($flow['payload']);
+                /** @phpstan-ignore shopware.unserializeUsage */
+                $payload = \unserialize($flow['payload']);
             } catch (\Throwable $e) {
                 $this->logger->error(
                     "Flow payload is invalid:\n"
@@ -54,6 +55,7 @@ class FlowLoader extends AbstractFlowLoader
         $result = FetchModeHelper::group($flows);
 
         /** @var EventGroupedFlowHolders $result */
+        // @phpstan-ignore varTag.type (with the FetchModeHelper we lose the payload type information)
         return $result;
     }
 }

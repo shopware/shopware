@@ -60,7 +60,8 @@
         "description": "Beschreibung",
         "manufacturerNumber": "Herstellernummer",
         "ean": "GTIN/EAN",
-        "referencePrice": "Grundpreis"
+        "referencePrice": "Grundpreis",
+        "packUnit": "Verpackungseinheit"
       }
     }
   },

@@ -1,16 +1,12 @@
-@import "~scss/variables";
-
 .sw-import-export-exporter {
-    &__title {
-        font-weight: $font-weight-semi-bold;
+    &__profile-select {
+        margin-bottom: var(--scale-size-18) !important;
     }
 
-    .sw-import-export-exporter__link {
-        text-decoration: underline;
-        color: $color-darkgray-200;
-
-        &:hover {
-            color: $color-shopware-brand-500;
-        }
+    &__variants-warning-links {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-2);
+        margin-top: var(--scale-size-8);
     }
 }

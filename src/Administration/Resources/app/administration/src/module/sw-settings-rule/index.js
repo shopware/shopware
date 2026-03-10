@@ -42,7 +42,7 @@ Module.register('sw-settings-rule', {
     title: 'sw-settings-rule.general.mainMenuItemGeneral',
     description: 'sw-settings-rule.general.descriptionTextModule',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'rule',
 

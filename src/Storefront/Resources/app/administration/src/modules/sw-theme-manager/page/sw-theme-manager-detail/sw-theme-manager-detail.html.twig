@@ -1,6 +1,5 @@
 {% block sw_theme_manager_detail %}
     <sw-page class="sw-theme-manager-detail">
-
         {% block sw_theme_manager_detail_search_bar %}
             <template #search-bar>
                 <sw-search-bar
@@ -128,14 +127,21 @@
                         defaultItem="default"
                         positionIdentifier="theme-manager-detail-tabs"
                         @new-item-active="onChangeTab"
+                        :items="tabItems"
                     >
-                        <template #default="{ active }">
-                            <sw-tabs-item v-if="hasMoreThanOneTab"
-                                          v-for="(tab, tabName) in structuredThemeFields.tabs"
-                                          :key="tabName"
-                                          :title="getTabLabel(tab.labelSnippetKey, tab.label)"
-                                          :name="tabName"
-                                          :active="active === tabName">
+
+                        <template
+                            v-if="!feature.isActive('V6_8_0_0')"
+                            #default="{ active }"
+                        >
+                            <sw-tabs-item
+                                v-if="hasMoreThanOneTab"
+                                v-for="(tab, tabName) in orderedTabs"
+                                :key="tabName"
+                                :title="getTabLabel(tab.labelSnippetKey, tab.label)"
+                                :name="tabName"
+                                :active="active === tabName"
+                            >
                                 {{ getTabLabel(tab.labelSnippetKey, tab.label) }}
                             </sw-tabs-item>
                         </template>
@@ -276,11 +282,12 @@
 
                                                     {% block sw_theme_manager_detail_content_fields %}
                                                         <sw-container class="sw-theme-manager-detail__content-section-field">
-                                                            <div v-for="(field, fieldName) in section.fields"
-                                                                 :key="fieldName"
-                                                                 class="sw-theme-manager-detail__content-section-field"
-                                                                 :class="{'sw-theme-manager-detail__content-section-field-full-width': field.fullWidth}">
-                                                                <template v-if="themeConfig[fieldName] && baseThemeConfig[fieldName]">
+                                                            <template v-for="(field, fieldName) in section.fields">
+                                                                <div v-if="themeConfig[fieldName] && baseThemeConfig[fieldName] && themeConfig[fieldName].editable !== false"
+                                                                    :key="fieldName"
+                                                                    class="sw-theme-manager-detail__content-section-field"
+                                                                    :class="{'sw-theme-manager-detail__content-section-field-full-width': field.fullWidth}">
+
                                                                     <template v-if="mapSwFieldTypes(field.type) === 'select'">
                                                                         <sw-inherit-wrapper
                                                                             :class="'sw-field-id-' + fieldName"
@@ -387,7 +394,7 @@
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :model-value="cssValue(currentValue)"
                                                                                     :error="themeConfigErrors[fieldName]"
-                                                                                    @update:modelValue="updateCurrentValue"
+                                                                                    @update:model-value="updateCurrentValue"
                                                                                 />
                                                                             </template>
                                                                         </sw-inherit-wrapper>
@@ -417,8 +424,8 @@
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </template>
-                                                                </template>
-                                                            </div>
+                                                                </div>
+                                                            </template>
                                                         </sw-container>
                                                     {% endblock %}
                                                 </sw-card-section>

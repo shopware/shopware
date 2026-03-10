@@ -2,25 +2,29 @@
 
 namespace Shopware\Core\System\SystemConfig\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
-class InvalidKeyException extends ShopwareHttpException
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, use SystemConfigException::invalidKey() instead
+ */
+class InvalidKeyException extends SystemConfigException
 {
     public function __construct(string $key)
     {
-        parent::__construct('Invalid key \'{{ key }}\'', ['key' => $key]);
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'SystemConfigException::invalidKey()')
+        );
 
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'SYSTEM__INVALID_KEY';
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_KEY,
+            'Invalid key \'{{ key }}\'',
+            ['key' => $key]
+        );
     }
 }

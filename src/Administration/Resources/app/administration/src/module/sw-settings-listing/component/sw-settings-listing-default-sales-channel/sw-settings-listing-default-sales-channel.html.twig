@@ -24,7 +24,6 @@
         {% block sw_settings_listing_default_sales_channeld_setting %}
         <div class="sw-settings-listing-default-sales-channel__options-container">
             {% block sw_settings_listing_default_sales_channel_setting_active %}
-
             <mt-switch
                 v-model="configData[null]['core.defaultSalesChannel.active']"
                 class="sw-settings-listing-default-sales-channel__active-switch"
@@ -33,21 +32,17 @@
             {% endblock %}
 
             {% block sw_settings_listing_default_sales_channel_setting_visibility %}
-            <a
+            <mt-link
                 v-if="salesChannel.length > 0"
                 class="sw-settings-listing-default-sales-channel__quick-link"
-                role="button"
-                tabindex="0"
+                as="button"
+                type="internal"
+                variant="primary"
                 @click="displayAdvancedVisibility"
                 @keydown.enter="displayAdvancedVisibility"
             >
                 {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
-                <mt-icon
-                    class="sw-settings-listing-default-sales-channel__link-icon"
-                    name="regular-long-arrow-right"
-                    size="16px"
-                />
-            </a>
+            </mt-link>
             {% endblock %}
         </div>
         {% endblock %}

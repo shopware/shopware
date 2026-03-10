@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -75,8 +76,22 @@ class DeliveryNoteRendererTest extends TestCase
         $this->productRepository = static::getContainer()->get('product.repository');
     }
 
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(Translator::class)->reset();
+        parent::tearDown();
+    }
+
     public function testDocumentSnapshot(): void
     {
+        $translator = static::getContainer()->get(Translator::class);
+        $translator->injectSettings(
+            $this->salesChannelContext->getSalesChannelId(),
+            $this->salesChannelContext->getLanguageId(),
+            'en-GB',
+            $this->salesChannelContext->getContext()
+        );
+
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
 
@@ -87,7 +102,8 @@ class DeliveryNoteRendererTest extends TestCase
             ],
         ], $this->context);
 
-        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+        $config = [
+            'documentComment' => '<script></script>This is a delivery note.',
             'custom' => [
                 'deliveryDate' => '2023-11-24T12:00:00+00:00',
             ],
@@ -100,31 +116,32 @@ class DeliveryNoteRendererTest extends TestCase
             'displayReturnAddress' => true,
             'companyName' => 'Example Company',
             'documentDate' => '2023-11-24T12:00:00+00:00',
-        ]);
+        ];
 
-        $processedTemplate = $this->deliveryNoteRenderer->render(
-            [$orderId => $operation],
+        $operationHtml = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            $config
+        );
+
+        $processedHtmlTemplate = $this->deliveryNoteRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
-        );
-        static::assertIsString($processedHtml);
-
-        $this->assertHtmlSnapshot(
-            'delivery_note_renderer_default',
-            $processedHtml
-        );
+        $this->assertSnapshot('delivery_note_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     #[DataProvider('deliveryNoteRendererDataProvider')]

@@ -295,6 +295,38 @@ class Tooltip {
         this._isShown = false;
     }
 
+    /**
+     * Cleanup the tooltip and removes all event listeners
+     * so that the tooltip can be garbage collected
+     */
+    destroy() {
+        if (this._parentDOMElementWrapper) {
+            this._parentDOMElementWrapper.removeEventListener('mouseenter', this.onMouseToggle.bind(this));
+            this._parentDOMElementWrapper.removeEventListener('mouseleave', this.onMouseToggle.bind(this));
+        } else {
+            this._parentDOMElement.removeEventListener('mouseenter', this.onMouseToggle.bind(this));
+            this._parentDOMElement.removeEventListener('mouseleave', this.onMouseToggle.bind(this));
+        }
+        this._DOMElement!.removeEventListener('mouseenter', this.onMouseToggle.bind(this));
+        this._DOMElement!.removeEventListener('mouseleave', this.onMouseToggle.bind(this));
+
+        if (this._parentDOMElementWrapper) {
+            this._parentDOMElementWrapper.replaceWith(this._parentDOMElement);
+        }
+
+        this.hideTooltip();
+        this._DOMElement = null;
+        this._parentDOMElementWrapper = null;
+
+        this._isShown = false;
+        this._state = false;
+        if (this._timeout) {
+            clearTimeout(this._timeout);
+        }
+
+        this._timeout = undefined;
+    }
+
     _placeTooltip() {
         let possiblePlacements = availableTooltipPlacements;
         let placement = this._placement;

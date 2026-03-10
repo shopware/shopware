@@ -26,7 +26,8 @@ class BlueGreenDeploymentServiceTest extends TestCase
         $this->setEnvVars([BlueGreenDeploymentService::ENV_NAME => '0']);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->exactly(3))->method('executeQuery');
+        $connection->expects($this->exactly(2))->method('executeQuery');
+        $connection->expects($this->exactly(1))->method('executeStatement');
 
         $service = new BlueGreenDeploymentService();
         $session = new Session(new MockArraySessionStorage());
@@ -43,13 +44,14 @@ class BlueGreenDeploymentServiceTest extends TestCase
         $this->setEnvVars([BlueGreenDeploymentService::ENV_NAME => '1']);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->exactly(3))
+        $connection->expects($this->exactly(2))
             ->method('executeQuery')
             ->willReturnOnConsecutiveCalls(
                 $this->createMock(Result::class),
                 static::throwException(TestExceptionFactory::createException('test')),
-                $this->createMock(Result::class)
             );
+
+        $connection->expects($this->exactly(1))->method('executeStatement');
 
         $service = new BlueGreenDeploymentService();
         $session = new Session(new MockArraySessionStorage());

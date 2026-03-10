@@ -65,7 +65,7 @@
                                 "type": "string",
                                 "enum": ["administration"]
                             },
-                            "scopes": {
+                            "scope": {
                                 "$ref": "#/components/schemas/OAuthScopes"
                             },
                             "username": {
@@ -79,7 +79,7 @@
                         },
                         "required": [
                             "client_id",
-                            "scopes",
+                            "scope",
                             "username",
                             "password"
                         ]
@@ -97,7 +97,7 @@
                                 "type": "string",
                                 "enum": ["administration"]
                             },
-                            "scopes": {
+                            "scope": {
                                 "$ref": "#/components/schemas/OAuthScopes"
                             },
                             "refresh_token": {
@@ -105,7 +105,7 @@
                                 "type": "string"
                             }
                         },
-                        "required": ["client_id", "scopes", "refresh_token"]
+                        "required": ["client_id", "scope", "refresh_token"]
                     }
                 ]
             }

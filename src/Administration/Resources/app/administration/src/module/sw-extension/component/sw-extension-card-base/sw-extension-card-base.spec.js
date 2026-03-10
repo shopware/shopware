@@ -105,7 +105,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             },
         });
 
-        expect(wrapper.vm.image).toBe('administration/administration/static/img/theme/default_theme_preview.jpg');
+        expect(wrapper.vm.image).toBe('administration/administration/static/img/theme/default_theme_preview.webp');
     });
 
     it('should be installed', async () => {

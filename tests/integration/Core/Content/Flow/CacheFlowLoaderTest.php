@@ -39,7 +39,6 @@ class CacheFlowLoaderTest extends TestCase
         $flowLoader = static::getContainer()->get(CachedFlowLoader::class);
         $class = new \ReflectionClass($flowLoader);
         $property = $class->getProperty('flows');
-        $property->setAccessible(true);
         $property->setValue(
             $flowLoader,
             ['abc']

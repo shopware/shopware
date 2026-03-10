@@ -22,7 +22,7 @@ class CustomFieldExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomFieldException::CUSTOM_FIELD_NAME_INVALID, $exception->getErrorCode());
-        static::assertSame('Invalid custom field name: It must begin with a letter or underscore, followed by letters, numbers, or underscores.', $exception->getMessage());
+        static::assertSame('Invalid field name: Only letters, numbers, or underscores are allowed, and it must start with a letter or underscore.', $exception->getMessage());
         static::assertSame(['field' => 'name', 'value' => $name], $exception->getParameters());
     }
 }

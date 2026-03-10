@@ -37,7 +37,9 @@ frame-ancestors 'none';
         <parameter key="shopware_http_cache_enabled_default">1</parameter>
         <parameter key="shopware.http.cache.enabled">%env(default:shopware_http_cache_enabled_default:SHOPWARE_HTTP_CACHE_ENABLED)%</parameter>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <parameter key="shopware_http_cache_default_ttl_default">7200</parameter>
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <parameter key="shopware.http.cache.default_ttl">%env(default:shopware_http_cache_default_ttl_default:SHOPWARE_HTTP_DEFAULT_TTL)%</parameter>
     </parameters>
 
@@ -146,6 +148,10 @@ frame-ancestors 'none';
             <argument type="tagged_iterator" tag="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationInfo">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument>%kernel.shopware_core_dir%</argument>
@@ -230,6 +236,15 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\MaintenanceModeResolver">
             <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\Validation\RouteBlocklistService">
+            <argument type="service" id="router"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlockedValidator">
+            <argument type="service" id="Shopware\Core\Framework\Routing\Validation\RouteBlocklistService"/>
+            <tag name="validator.constraint_validator"/>
         </service>
 
         <!-- Custom Entity -->
@@ -349,6 +364,10 @@ frame-ancestors 'none';
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\SwTwigFunctionResetter" public="true">
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder">
             <argument type="tagged_iterator" tag="shopware.twig.hierarchy_builder"/>
         </service>
@@ -373,6 +392,8 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension">
             <tag name="twig.extension" />
+            <tag name="shopware.seo_url.twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension">
@@ -387,8 +408,15 @@ frame-ancestors 'none';
             <tag name="twig.extension"/>
         </service>
 
+        <service class="Symfony\Bridge\Twig\Extension\TranslationExtension" id="twig.extension.trans">
+            <argument type="service" id="translator"/>
+            <tag name="twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension">
             <tag name="twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\InstanceOfExtension">
@@ -411,15 +439,29 @@ frame-ancestors 'none';
         <service id="Cocur\Slugify\Bridge\Twig\SlugifyExtension">
             <argument type="service" id="slugify"/>
             <tag name="twig.extension"/>
+            <tag name="shopware.seo_url.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter">
             <tag name="twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension">
+            <tag name="shopware.app_script.twig.extension"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension">
+            <argument type="service" id="twig.extension.intl"/>
+            <tag name="twig.extension"/>
+        </service>
+
 
         <service id="Shopware\Core\Framework\Adapter\Twig\SecurityExtension">
             <argument>%shopware.twig.allowed_php_functions%</argument>
             <tag name="twig.extension"/>
+            <tag name="shopware.seo_url.twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\InAppPurchaseExtension">
@@ -429,7 +471,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer">
             <argument type="service" id="twig"/>
-            <argument>%twig.cache%</argument>
+            <argument>%shopware.cache.twig.string_template_renderer_cache_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator"
@@ -540,65 +582,6 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Log\LogEntryDefinition">
             <tag name="shopware.entity.definition"/>
-        </service>
-
-        <!-- Changelog -->
-        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator" public="false">
-            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
-            <argument type="service" id="validator"/>
-            <argument type="service" id="filesystem"/>
-            <argument>%kernel.project_dir%</argument>
-            <argument>%shopware.feature.flags%</argument>
-            <argument>%kernel.environment%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator">
-            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
-            <argument type="service" id="validator"/>
-            <argument type="service" id="filesystem"/>
-            <argument>%kernel.project_dir%</argument>
-            <argument>%shopware.feature.flags%</argument>
-            <argument>%kernel.environment%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter">
-            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
-            <argument type="service" id="validator"/>
-            <argument type="service" id="filesystem"/>
-            <argument>%kernel.project_dir%</argument>
-            <argument>%shopware.feature.flags%</argument>
-            <argument>%kernel.environment%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator">
-            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
-            <argument type="service" id="validator"/>
-            <argument type="service" id="filesystem"/>
-            <argument>%kernel.project_dir%</argument>
-            <argument>%shopware.feature.flags%</argument>
-            <argument>%kernel.environment%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />
-
-        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogCreateCommand">
-            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator"/>
-            <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogReleaseCommand">
-            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator"/>
-            <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand">
-            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter"/>
-            <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogCheckCommand">
-            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator"/>
-            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver">
@@ -732,14 +715,10 @@ frame-ancestors 'none';
             <argument>%shopware.cache.invalidation.http_cache%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
-        </service>
+        <service id="Shopware\Core\Framework\Util\Backtrace\BacktraceCollector"/>
 
-        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService"/>
-            <tag name="kernel.event_subscriber"/>
+        <service id="Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor">
+            <tag name="container.env_var_processor"/>
         </service>
     </services>
 </container>

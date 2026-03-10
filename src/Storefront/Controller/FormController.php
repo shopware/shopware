@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -26,6 +27,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class FormController extends StorefrontController
 {
     final public const SUBSCRIBE = 'subscribe';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
+     */
     final public const UNSUBSCRIBE = 'unsubscribe';
 
     /**
@@ -34,11 +38,20 @@ class FormController extends StorefrontController
     public function __construct(
         private readonly AbstractContactFormRoute $contactFormRoute,
         private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
-        private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute
+        private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute,
+        private readonly AbstractRevocationRequestRoute $abstractRevocationRequestRoute,
     ) {
     }
 
-    #[Route(path: '/form/contact', name: 'frontend.form.contact.send', defaults: ['XmlHttpRequest' => true, '_captcha' => true], methods: ['POST'])]
+    #[Route(
+        path: '/form/contact',
+        name: 'frontend.form.contact.send',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_CAPTCHA => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function sendContactForm(RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $response = [];
@@ -81,7 +94,15 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
-    #[Route(path: '/form/newsletter', name: 'frontend.form.newsletter.register.handle', defaults: ['XmlHttpRequest' => true, '_captcha' => true], methods: ['POST'])]
+    #[Route(
+        path: '/form/newsletter',
+        name: 'frontend.form.newsletter.register.handle',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_CAPTCHA => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function handleNewsletter(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $subscribe = $data->get('option') === self::SUBSCRIBE;
@@ -95,8 +116,58 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
+    #[Route(
+        path: '/form/revocation/request',
+        name: 'frontend.form.revocation.request',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_CAPTCHA => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function sendRevocationRequest(RequestDataBag $data, SalesChannelContext $context): JsonResponse
+    {
+        $response = [];
+
+        try {
+            $message = $this->abstractRevocationRequestRoute->request($data, $context)
+                ->getIndividualSuccessMessage();
+
+            if ($message === '') {
+                $message = $this->trans('revocationRequest.success');
+            }
+
+            $response[] = [
+                'type' => 'success',
+                'alert' => $message,
+            ];
+        } catch (ConstraintViolationException $formViolations) {
+            $violations = [];
+            foreach ($formViolations->getViolations() as $violation) {
+                $violations[] = $violation->getMessage();
+            }
+            $response[] = [
+                'type' => 'danger',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'danger',
+                    'list' => $violations,
+                ]),
+            ];
+        } catch (RateLimitExceededException $exception) {
+            $response[] = [
+                'type' => 'info',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'info',
+                    'content' => $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]),
+                ]),
+            ];
+        }
+
+        return new JsonResponse($response);
+    }
+
     /**
-     * @return array<int, array<string|int, mixed>>
+     * @return list<array<string|int, mixed>>
      */
     private function handleSubscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): array
     {
@@ -143,7 +214,7 @@ class FormController extends StorefrontController
     }
 
     /**
-     * @return array<int, array<string|int, mixed>>
+     * @return list<array<string|int, mixed>>
      */
     private function handleUnsubscribe(RequestDataBag $data, SalesChannelContext $context): array
     {

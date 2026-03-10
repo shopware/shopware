@@ -10,6 +10,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('fundamentals@after-sales')]
 class ImportExportBeforeImportRowEvent extends Event
 {
+    /**
+     * @param array<string, mixed> $row
+     */
     public function __construct(
         private array $row,
         private readonly Config $config,
@@ -17,11 +20,17 @@ class ImportExportBeforeImportRowEvent extends Event
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRow(): array
     {
         return $this->row;
     }
 
+    /**
+     * @param array<string, mixed> $row
+     */
     public function setRow(array $row): void
     {
         $this->row = $row;

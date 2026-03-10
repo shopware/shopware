@@ -14,7 +14,7 @@ class ScalarBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInt
 {
     private string $string = 'string';
 
-    private bool $bool = true;
+    private true $bool = true;
 
     private int $int = 3;
 
@@ -32,10 +32,10 @@ class ScalarBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInt
     public function getEncodeValues(string $shopwareVersion): array
     {
         return [
-            'string' => 'string',
-            'bool' => true,
-            'int' => 3,
-            'float' => 1.3,
+            'string' => $this->getString(),
+            'bool' => $this->isBool(),
+            'int' => $this->getInt(),
+            'float' => $this->getFloat(),
         ];
     }
 

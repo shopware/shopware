@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -36,7 +37,7 @@ class ManyToManyIdFieldUpdater
     {
         $definition = $this->registry->getByEntityName($entity);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -57,7 +58,7 @@ class ManyToManyIdFieldUpdater
         $fields = $definition->getFields()->filterInstance(ManyToManyIdField::class);
 
         if ($propertyName) {
-            $fields = $fields->filter(fn (ManyToManyIdField $field) => $field->getPropertyName() === $propertyName);
+            $fields = $fields->filter(fn (Field $field) => $field->getPropertyName() === $propertyName);
         }
 
         if ($fields->count() <= 0) {

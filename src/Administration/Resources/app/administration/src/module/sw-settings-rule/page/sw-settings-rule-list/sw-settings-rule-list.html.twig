@@ -74,7 +74,7 @@
                 ref="swRuleGrid"
                 identifier="sw-settings-rule-list"
                 class="sw-rule-list-grid"
-                :items="rules"
+                :data-source="rules"
                 :columns="getRuleColumns()"
                 :repository="ruleRepository"
                 :is-loading="isLoading"
@@ -141,9 +141,10 @@
             {% endblock %}
 
             {% block sw_settings_rule_list_empty_message %}
-            <sw-empty-state
+            <mt-empty-state
                 v-else-if="!isLoading && !total"
-                :title="$tc('sw-settings-rule.list.messageEmpty')"
+                :icon="$route.meta.$module.icon"
+                :headline="$tc('sw-settings-rule.list.messageEmpty')"
             />
             {% endblock %}
         </div>

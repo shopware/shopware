@@ -5,22 +5,25 @@
         padding: 0;
     }
 
-    &__card.is--disabled .mt-card__content {
-        &::after {
-            content: "";
-            position: absolute;
-            z-index: 10;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background: var(--color-background-primary-disabled);
-            mix-blend-mode: multiply;
-        }
+    &.is--inherited:not(.sw-form-field-renderer),
+    &.is--disabled {
+        .sw-product-properties__card .mt-card__content {
+            &::after {
+                content: "";
+                position: absolute;
+                z-index: 10;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background: var(--color-background-primary-disabled);
+                mix-blend-mode: multiply;
+            }
 
-        .sw-data-grid {
-            border-bottom-left-radius: $border-radius-lg;
-            border-bottom-right-radius: $border-radius-lg;
+            .sw-data-grid {
+                border-bottom-left-radius: $border-radius-lg;
+                border-bottom-right-radius: $border-radius-lg;
+            }
         }
     }
 

@@ -119,6 +119,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\File\DownloadResponseGenerator">
+            <argument type="service" id="logger"/>
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
@@ -267,6 +268,13 @@
             <argument type="service" id="http_client"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator">
+            <factory class="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator" method="create"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy"/>
+            <argument>%shopware.filesystem.public%</argument>
+            <argument type="service" id="logger"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface" class="Shopware\Core\Content\Media\MediaUrlPlaceholderHandler" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
@@ -287,6 +295,11 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Cms\Type\ImageGalleryTypeDataResolver">
+            <tag name="shopware.cms.data_resolver" />
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Cms\VideoCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
             <argument type="service" id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver"/>
         </service>
@@ -354,8 +367,44 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Subscriber\VideoCoverLoadedSubscriber">
+            <argument type="service" id="media.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Subscriber\VideoCoverCleanupSubscriber">
+            <argument type="service" id="media.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Service\VideoCoverService">
+            <argument type="service" id="media.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Api\MediaVideoCoverController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Media\Service\VideoCoverService"/>
+            <tag name="controller.service_arguments"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Content\Media\SalesChannel\MediaRoute" public="true">
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="logger"/>
+            <argument type="service" id="media.repository"/>
+            <tag name="messenger.message_handler" />
         </service>
     </services>
 </container>

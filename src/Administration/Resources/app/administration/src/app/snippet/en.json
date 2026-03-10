@@ -13,6 +13,7 @@
       "INVALID_URL": "Please enter a valid url.",
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
+      "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "The URL {path} conflicts with the existing route {blockedSegment} and cannot be used.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
       "DUPLICATED_NAME": "This name is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
@@ -53,6 +54,7 @@
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
       "notificationSaveErrorMessageRequiredFieldsInvalid": "Please fill in all required fields.",
+      "notificationSaveErrorMessageRequiredField": "The field is required.",
       "unspecifiedSaveErrorMessage": "An error occurred.",
       "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved.",
       "messageDeleteSuccess": "\"{name}\" deleted.",
@@ -184,7 +186,9 @@
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
       "tooltipRestoreInheritance": "Restore inheritance",
-      "tooltipRemoveInheritance": "Remove inheritance"
+      "tooltipRemoveInheritance": "Remove inheritance",
+      "ariaLinkInheritance": "Link inheritance",
+      "ariaUnlinkInheritance": "Unlink inheritance"
     },
     "sw-field-copyable": {
       "tooltip": {
@@ -301,6 +305,8 @@
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
       "labelContextMenuMove": "Move",
+      "labelContextMenuSetCover": "Set cover image",
+      "labelContextMenuRemoveCover": "Remove cover",
       "notification": {
         "errorBlankItemName": {
           "message": "Media item could not be saved: Please enter a name."
@@ -316,6 +322,18 @@
         },
         "settingsSuccess": {
           "message": "Settings have been saved."
+        },
+        "coverSaveSuccess": {
+          "message": "Cover image has been saved."
+        },
+        "coverRemoveSuccess": {
+          "message": "Cover image has been removed."
+        },
+        "coverSelectionInvalid": {
+          "message": "Please select an image to use as the cover."
+        },
+        "coverSaveError": {
+          "message": "Cover image could not be saved."
         }
       },
       "labelUploading": "Uploading..."
@@ -437,7 +455,8 @@
     "sw-media-preview-v2": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
       "fallbackAudioTagSupport": "Your browser does not support the audio tag",
-      "textNoMedia": "No media available"
+      "textNoMedia": "No media available",
+      "warningUnsupportedFormat": "Format \"{format}\" may not be supported in all browsers."
     },
     "sw-media-upload": {
       "buttonFileUpload": "Upload file",
@@ -445,6 +464,10 @@
       "buttonSwitchToFileUpload": "Upload file from your computer",
       "buttonSwitchToUrlUpload": "Upload file from URL",
       "buttonOpenMedia": "Open media",
+      "snackbar": {
+        "message": "Uploading file | Uploading files ({processed}/{total})",
+        "errorMessage": "File could not be uploaded. | Some files could not be uploaded."
+      },
       "notification": {
         "success": {
           "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved."
@@ -461,6 +484,18 @@
         "illegalFileUrl": {
           "title": "Invalid URL",
           "message": "Upload from local URLs not allowed."
+        },
+        "illegalFileType": {
+          "message": "The file \"{name}\" could not be uploaded. This file type is not supported."
+        },
+        "requestCanceled": {
+          "message": "The upload has been cancelled."
+        },
+        "payloadTooLarge": {
+          "message": "File is too large. Please reduce the file size or check the server configuration."
+        },
+        "transportError": {
+          "message": "Upload failed due to a connection or server timeout. Please check your connection or server limits."
         }
       },
       "caption": "Drag files here to upload"
@@ -795,6 +830,7 @@
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
+        "lineItemProductType": "Item with product type",
         "numberOfReviews": "Number of approved reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
@@ -880,6 +916,14 @@
           "options": {
             "is-download": "Digital",
             "is-physical": "Physical"
+          }
+        }
+      },
+      "cartLineItemProductType": {
+        "productType": {
+          "options": {
+            "digital": "Digital",
+            "physical": "Physical"
           }
         }
       },
@@ -1054,6 +1098,8 @@
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
+      "customer_password_changed": "Customer password changed",
+      "revocation_request_sent": "The revocation request form has been sent.",
       "mail_after_create_message": "Email created",
       "mail_before_send": "Email is being sent",
       "mail_sent": "Email sent",
@@ -1534,7 +1580,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before.",
+            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.",
             "name": "Keep the shop identifier"
           },
           "reinstall-apps": {
@@ -1559,7 +1605,6 @@
   },
   "sw-wizard": {
     "backButton": "Back",
-    "closeButton": "Close",
     "finishButton": "Finish",
     "nextButton": "Next"
   },
@@ -1598,6 +1643,7 @@
     "messageNoResultSubline": "Edit your filters or your search terms to find results. Please also check the configuration of your search.",
     "messageNoResultSublineBefore": "Edit your filters or your search terms to find results. Please also check",
     "messageNoResultSublineLink": "the configuration",
+    "messageNoResultLink": "Go to search preferences",
     "messageNoResultSublineAfter": "of your search."
   },
   "sw-restricted-rules": {
@@ -1675,5 +1721,32 @@
   },
   "sw-context-button": {
     "ariaLabel": "Open context menu"
+  },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Lock uniform scale",
+    "unlock-uniform-scale": "Unlock uniform scale"
+  },
+  "sw-model-editor": {
+    "titleModal": "Model Editor",
+    "open-model-editor-tooltip": "Open Model Editor",
+    "edit-options": {
+      "move-tooltip": "Move object",
+      "rotate-tooltip": "Rotate object",
+      "scale-tooltip": "Scale object"
+    },
+    "properties": {
+      "transformation": {
+        "label":"Transformation",
+        "position": {
+          "label": "Position"
+        },
+        "rotation": {
+          "label": "Rotation"
+        },
+        "scale": {
+          "label": "Scale"
+        }
+      }
+    }
   }
 }

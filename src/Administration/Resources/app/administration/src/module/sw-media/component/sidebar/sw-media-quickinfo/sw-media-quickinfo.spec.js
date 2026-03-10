@@ -11,6 +11,7 @@ const itemMock = (options = {}) => {
         },
         id: '4a12jd3kki9yyy765gkn5hdb',
         fileName: 'demo.jpg',
+        fileExtension: 'jpg',
         avatarUsers: [],
         categories: [],
         productManufacturers: [],
@@ -83,6 +84,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
             },
             stubs: {
+                'mt-button': true,
                 'sw-page': {
                     template: `
                         <div class="sw-page">
@@ -100,6 +102,9 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
                 'sw-media-quickinfo-metadata-item': true,
                 'sw-media-preview-v2': true,
+                'sw-modal': true,
+                'sw-model-viewer': true,
+                'sw-model-editor': true,
                 'sw-media-tag': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-field-error': true,
@@ -117,6 +122,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 'sw-external-link': true,
                 'sw-media-quickinfo-usage': true,
                 'sw-media-modal-move': true,
+                'sw-media-modal-v2': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
             },
@@ -151,6 +157,7 @@ function provide3DMockOptions() {
             {
                 fileName: 'smth.glb',
                 fileExtension: 'glb',
+                mimeType: 'model/gltf-binary',
             },
             true,
             false,
@@ -160,6 +167,7 @@ function provide3DMockOptions() {
             {
                 fileName: 'smth.glb',
                 fileExtension: 'glb',
+                mimeType: 'model/gltf-binary',
             },
             true,
             false,
@@ -168,6 +176,7 @@ function provide3DMockOptions() {
         [
             {
                 fileName: 'smth.glb',
+                mimeType: 'model/gltf-binary',
                 url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
             },
             true,
@@ -177,6 +186,7 @@ function provide3DMockOptions() {
         [
             {
                 fileName: 'smth.glb',
+                mimeType: 'model/gltf-binary',
                 url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
             },
             true,
@@ -191,9 +201,13 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = [];
     });
 
+    afterEach(() => {
+        Shopware.Store.get('actionButtons').buttons = [];
+    });
+
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.quickaction--delete');
         expect(deleteMenuItem.classes()).toContain('sw-media-sidebar__quickaction--disabled');
@@ -203,7 +217,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = ['media.deleter'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.quickaction--delete');
         expect(deleteMenuItem.classes()).not.toContain('sw-media-sidebar__quickaction--disabled');
@@ -211,7 +225,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.quickaction--move');
         expect(editMenuItem.classes()).toContain('sw-media-sidebar__quickaction--disabled');
@@ -221,7 +235,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = ['media.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.quickaction--move');
         expect(editMenuItem.classes()).not.toContain('sw-media-sidebar__quickaction--disabled');
@@ -255,7 +269,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                     }),
             },
         );
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.onChangeFileName('newFileName');
 
@@ -269,7 +283,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = ['media.editor'];
 
         const wrapper = await createWrapper(mockOptions);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle').exists()).toBe(isSpatial);
     });
@@ -284,7 +298,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             };
 
             const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const arToggle = wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
             expect(arToggle.exists()).toBe(isSpatial);
@@ -331,7 +345,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             };
 
             const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const arToggle = wrapper.findComponent('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
             expect(arToggle.exists()).toBe(isSpatial);
@@ -397,7 +411,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             };
 
             const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const arToggle = wrapper.findComponent('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
             expect(arToggle.exists()).toBe(true);
@@ -412,9 +426,29 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         },
     );
 
+    it('shows cover actions only for playable video formats', async () => {
+        global.activeAclRoles = ['media.editor'];
+
+        const playableWrapper = await createWrapper({
+            mimeType: 'video/mp4',
+            mediaType: { name: 'VIDEO' },
+        });
+        await flushPromises();
+
+        expect(playableWrapper.find('.quickaction--set-cover').exists()).toBe(true);
+
+        const unsupportedWrapper = await createWrapper({
+            mimeType: 'video/x-msvideo',
+            mediaType: { name: 'VIDEO' },
+        });
+        await flushPromises();
+
+        expect(unsupportedWrapper.find('.quickaction--set-cover').exists()).toBe(false);
+    });
+
     it('should build augmented reality tooltip', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const tooltip = wrapper.vm.buildAugmentedRealityTooltip('global.sw-media-media-item.tooltip.ar');
         expect(tooltip).toBe('global.sw-media-media-item.tooltip.ar');
@@ -452,5 +486,133 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         await wrapper.vm.onSave();
 
         expect(eventBusEmitSpy).toHaveBeenCalledWith('sw-media-library-item-updated', wrapper.vm.item.id);
+    });
+
+    it('should show action button from apps', async () => {
+        Shopware.Store.get('actionButtons').add({
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+        });
+
+        const wrapper = await createWrapper({ hasFile: true });
+
+        const actionButton = wrapper.find('.quickaction--custom');
+        expect(actionButton.exists()).toBeTruthy();
+    });
+
+    it('should not show action button from apps if the file type is not supported', async () => {
+        Shopware.Store.get('actionButtons').add({
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+            fileTypes: ['pdf'], // our test item has type .jpg
+        });
+
+        const wrapper = await createWrapper({ hasFile: true });
+
+        const actionButton = wrapper.find('.quickaction--custom');
+        expect(actionButton.exists()).toBeFalsy();
+    });
+
+    it('should call the action button method', async () => {
+        const actionButtonMethod = jest.fn();
+        const action = {
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+            callback: actionButtonMethod,
+        };
+
+        Shopware.Store.get('actionButtons').add(action);
+
+        const wrapper = await createWrapper({ hasFile: true });
+        const actionButton = wrapper.find('.quickaction--custom');
+
+        await actionButton.trigger('click');
+
+        expect(actionButtonMethod).toHaveBeenCalled();
+    });
+
+    it.each([
+        { mimeType: 'video/quicktime', shouldShowWarning: true },
+        { mimeType: 'video/mp4', shouldShowWarning: false },
+    ])(
+        'should show warning banner if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)',
+        async ({ mimeType, shouldShowWarning }) => {
+            const wrapper = await createWrapper({ mimeType, hasFile: true });
+            await flushPromises();
+
+            const banner = wrapper.find('.sw-media-quickinfo__unsupported-format-banner');
+            expect(banner.exists()).toBe(shouldShowWarning);
+        },
+    );
+
+    it.each([
+        { mimeType: 'model/gltf-binary', fileExtension: 'glb', fileName: 'test.glb' },
+        { mimeType: 'model/gltf+json', fileExtension: 'gltf', fileName: 'test.gltf' },
+    ])('should show model viewer for $mimeType mime type', async ({ mimeType, fileExtension, fileName }) => {
+        const wrapper = await createWrapper({
+            mimeType,
+            hasFile: true,
+            fileExtension,
+            fileName,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('sw-model-viewer-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-media-preview-v2-stub').exists()).toBe(false);
+    });
+
+    it.each([
+        { mimeType: 'model/step', fileExtension: 'step', fileName: 'test.step' },
+        { mimeType: 'model/obj', fileExtension: 'obj', fileName: 'test.obj' },
+    ])(
+        'should not show model viewer for non-gltf model mime type $mimeType',
+        async ({ mimeType, fileExtension, fileName }) => {
+            const wrapper = await createWrapper({
+                mimeType,
+                hasFile: true,
+                fileExtension,
+                fileName,
+            });
+            await flushPromises();
+
+            expect(wrapper.find('sw-model-viewer-stub').exists()).toBe(false);
+            expect(wrapper.find('sw-media-preview-v2-stub').exists()).toBe(true);
+        },
+    );
+
+    it('should have showModelEditorModal initially set to false', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
+    });
+
+    it('should set showModelEditorModal to true when openModelEditorModal is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
+
+        wrapper.vm.openModelEditorModal();
+
+        expect(wrapper.vm.showModelEditorModal).toBe(true);
+    });
+
+    it('should set showModelEditorModal to false when closeModelEditorModal is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.showModelEditorModal = true;
+        expect(wrapper.vm.showModelEditorModal).toBe(true);
+
+        wrapper.vm.closeModelEditorModal();
+
+        expect(wrapper.vm.showModelEditorModal).toBe(false);
     });
 });

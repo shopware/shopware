@@ -34,6 +34,8 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
      * @param EntityRepository<AppCollection> $appRepository
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      * @param ?EntityRepository<ThemeCollection> $themeRepository
+     *
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
      */
     public function __construct(
         private readonly StoreClient $storeClient,

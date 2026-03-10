@@ -35,6 +35,12 @@ class RequirementsController extends InstallerController
             return $this->redirectToRoute('installer.license');
         }
 
-        return $this->renderInstaller('@Installer/installer/requirements.html.twig', ['requirementChecks' => $checks]);
+        return $this->renderInstaller(
+            '@Installer/installer/requirements.html.twig',
+            [
+                'requirementChecks' => $checks,
+                'noWayBack' => $request->getSession()->has('extendSteps'),
+            ]
+        );
     }
 }

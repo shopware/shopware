@@ -1,7 +1,8 @@
 @import "~scss/variables";
 
 .sw-cms-page-form {
-    margin: 0 40px;
+    max-width: 60rem;
+    margin: 0 auto;
 
     &.is--compact {
         .sw-cms-page-form__section-divider {
@@ -15,6 +16,7 @@
 
         .sw-cms-page-form__section-actions {
             position: static;
+            padding: 1rem 0;
         }
 
         .sw-cms-page-form__section-action {
@@ -22,15 +24,15 @@
             max-width: $content-width;
             width: 100%;
             margin: 9px auto;
-
-            @media screen and (max-width: 1360px) {
-                max-width: 770px;
-            }
         }
 
         .sw-cms-page-form__section-action-label {
             width: 100%;
         }
+    }
+
+    .sw-cms-page-form__banner-inheritance {
+        margin-bottom: 0;
     }
 
     .sw-cms-page-form__element-config {
@@ -57,7 +59,6 @@
 
     .sw-cms-page-form__block-card {
         margin: 0 auto;
-        margin-top: 18px;
     }
 
     .sw-cms-page-form__block-card + .sw-cms-page-form__block-card {
@@ -78,8 +79,6 @@
 
     &__section {
         position: relative;
-        padding: 50px 30px 70px;
-        border-bottom: 2px solid $color-gray-300;
         width: 100%;
 
         &:first-of-type {
@@ -92,6 +91,14 @@
 
         &:last-of-type {
             border-bottom: 0 none;
+        }
+
+        .mt-card__wrapper {
+            margin-bottom: 1rem;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
         }
     }
 

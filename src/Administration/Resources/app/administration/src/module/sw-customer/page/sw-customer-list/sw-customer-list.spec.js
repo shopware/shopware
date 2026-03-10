@@ -15,6 +15,11 @@ async function createWrapper(privileges = []) {
                         page: 1,
                         limit: 25,
                     },
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
                 },
             },
             provide: {
@@ -23,32 +28,38 @@ async function createWrapper(privileges = []) {
                         create: () => {
                             return Promise.resolve(
                                 entity === 'customer'
-                                    ? [
-                                          {
-                                              id: '1a2b3c',
-                                              entity: 'customer',
-                                              customerId: 'd4c3b2a1',
-                                              productId: 'd4c3b2a1',
-                                              salesChannelId: 'd4c3b2a1',
-                                          },
-                                      ]
+                                    ? {
+                                          data: [
+                                              {
+                                                  id: '1a2b3c',
+                                                  entity: 'customer',
+                                                  customerId: 'd4c3b2a1',
+                                                  productId: 'd4c3b2a1',
+                                                  salesChannelId: 'd4c3b2a1',
+                                              },
+                                          ],
+                                          total: 1,
+                                      }
                                     : [],
                             );
                         },
                         search: () => {
                             return Promise.resolve(
                                 entity === 'customer'
-                                    ? [
-                                          {
-                                              id: '1a2b3c',
-                                              entity: 'customer',
-                                              customerId: 'd4c3b2a1',
-                                              productId: 'd4c3b2a1',
-                                              salesChannelId: 'd4c3b2a1',
-                                              sourceEntitiy: 'customer',
-                                              createdById: '123213132',
-                                          },
-                                      ]
+                                    ? {
+                                          data: [
+                                              {
+                                                  id: '1a2b3c',
+                                                  entity: 'customer',
+                                                  customerId: 'd4c3b2a1',
+                                                  productId: 'd4c3b2a1',
+                                                  salesChannelId: 'd4c3b2a1',
+                                                  sourceEntitiy: 'customer',
+                                                  createdById: '123213132',
+                                              },
+                                          ],
+                                          total: 1,
+                                      }
                                     : [],
                             );
                         },
@@ -89,16 +100,18 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-search-bar': true,
                 'sw-entity-listing': {
-                    props: ['items'],
+                    props: [
+                        'items',
+                        'dataSource',
+                    ],
                     template: `
                         <div>
-                            <template v-for="item in items">
+                            <template v-for="item in (dataSource || items)">
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>`,
                 },
                 'sw-language-switch': true,
-                'sw-empty-state': true,
                 'sw-context-menu-item': true,
                 'router-link': true,
                 'sw-avatar': true,
@@ -278,11 +291,9 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state')).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
@@ -294,5 +305,16 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
         const manualLabel = wrapper.find('.sw-customer-list__created-by-admin-label');
         expect(manualLabel).toBeTruthy();
+    });
+
+    it('should consider criteria filters via updateCriteria', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const filter = Criteria.equals('foo', 'bar');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toContainEqual(filter);
     });
 });

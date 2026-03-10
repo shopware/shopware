@@ -10,22 +10,25 @@
 {% block layout_navigation_offcanvas_navigation_category_item_link %}
     <li class="navigation-offcanvas-list-item">
         {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link %}
-            <a class="navigation-offcanvas-link nav-item nav-link{% if isActive %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
-               href="{{ url }}"
+            <a
+                class="navigation-offcanvas-link nav-item nav-link{% if isActive %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
+                href="{{ url }}"
+                title="{{ name }}"
+                itemprop="url"
                 {% if hasChildren %}
                     data-href="{{ path('frontend.menu.offcanvas', {navigationId: item.category.id}) }}"
                 {% endif %}
-               itemprop="url"
-                {% if item.category.shouldOpenInNewTab %}target="_blank"{% endif %}
-               title="{{ name }}">
+                {% if item.category.shouldOpenInNewTab %}
+                    target="_blank"
+                {% endif %}
+            >
                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_text %}
                     <span itemprop="name">{{ name }}</span>
                     {% if hasChildren %}
                         {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
-                            <span
-                                class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
-                            {% sw_icon 'arrow-medium-right' style { pack:'solid', size: 'sm' } %}
-                        </span>
+                            <span class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
+                                {% sw_icon 'arrow-medium-right' style { pack:'solid', size: 'sm' } %}
+                            </span>
                         {% endblock %}
                     {% endif %}
                 {% endblock %}

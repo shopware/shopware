@@ -43,7 +43,7 @@ class DeleteNotUsedMediaCommand extends Command
         $this->addOption('folder-entity', null, InputOption::VALUE_REQUIRED, 'Restrict deletion of not used media in default location folders of the provided entity name');
         $this->addOption('limit', null, InputOption::VALUE_OPTIONAL, 'The limit of media entries to query');
         $this->addOption('offset', null, InputOption::VALUE_OPTIONAL, 'The offset to start from');
-        $this->addOption('grace-period-days', null, InputOption::VALUE_REQUIRED, 'The offset to start from', 20);
+        $this->addOption('grace-period-days', null, InputOption::VALUE_REQUIRED, 'Restrict deletion of not used media uploaded in the last n days', 20);
         $this->addOption('dry-run', description: 'Show list of files to be deleted');
         $this->addOption('report', description: 'Generate a list of files to be deleted');
     }
@@ -69,7 +69,9 @@ class DeleteNotUsedMediaCommand extends Command
             return $this->dryRun($input, $output);
         }
 
-        $confirm = $io->confirm('Are you sure that you want to delete unused media files?', false);
+        $confirm = $input->isInteractive()
+            ? $io->confirm('Are you sure that you want to delete unused media files?', false)
+            : true;
 
         if (!$confirm) {
             $io->caution('Aborting due to user input.');
@@ -161,7 +163,7 @@ class DeleteNotUsedMediaCommand extends Command
                     MemorySizeCalculator::formatToBytes($media->getFileSize() ?? 0),
                 ];
 
-                $output->write(\sprintf("\n%s", implode(',', array_map(fn ($col) => \sprintf('"%s"', $col), $row))));
+                $output->write(\sprintf("\n%s", implode(',', array_map(static fn ($col) => \sprintf('"%s"', (string) $col), $row))));
             }
         }
 
@@ -182,8 +184,8 @@ class DeleteNotUsedMediaCommand extends Command
         );
 
         $totalCount = 0;
-        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, function ($batchNum, array $medias) use ($io, $cursor, &$totalCount) {
-            if ($batchNum === 0 && \count($medias) === 0) {
+        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, function ($batchNum, array $medias) use ($io, $cursor, &$totalCount, $input) {
+            if ($batchNum === 0 && $medias === []) {
                 return true;
             }
 
@@ -223,7 +225,9 @@ class DeleteNotUsedMediaCommand extends Command
                 return true;
             }
 
-            return $io->confirm('Show next page?', false);
+            return $input->isInteractive()
+                ? $io->confirm('Show next page?', false)
+                : true;
         });
 
         if ($totalCount === 0) {
@@ -259,7 +263,7 @@ class DeleteNotUsedMediaCommand extends Command
         }
 
         // last remaining batch
-        if (\count($batch) > 0) {
+        if ($batch !== []) {
             return $callback($i++, $batch);
         }
 

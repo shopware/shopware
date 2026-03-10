@@ -899,7 +899,7 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getCountryIds(): array
     {

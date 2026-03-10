@@ -108,7 +108,15 @@ describe('form-validation', () => {
         expect(emailField.classList).toContain(formValidation.config.invalidClass);
         expect(emailFeedback.innerHTML).toBe('<div class="invalid-feedback">Invalid email address.</div>');
 
-        // Valid email field
+        // Valid IDN email field
+        emailField.value = 'valid@ëxämplé.com';
+
+        invalidFields = formValidation.validateForm(form);
+        expect(invalidFields.length).toBe(2);
+        expect(emailField.classList).not.toContain(formValidation.config.invalidClass);
+        expect(emailFeedback.innerHTML).toBe('');
+
+        // Valid ASCII email field
         emailField.value = 'test@test.com';
 
         invalidFields = formValidation.validateForm(form);
@@ -250,6 +258,50 @@ describe('form-validation', () => {
         const form = document.getElementById('testForm');
 
         expect(formValidation.isFormElement(form)).toBe(true);
+    });
+
+    test('should set field as not required', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="name">Username</label>
+                    <input type="text" name="name" id="name" data-validation="required,email" aria-describedby="name-feedback">
+                    <div id="name-feedback" class="form-field-feedback"></div>
+                </div>
+            </form>
+        `;
+
+        const field = document.getElementById('name');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        formValidation.setFieldNotRequired(field);
+
+        expect(field.getAttribute('data-validation')).toBe('email');
+        expect(field.hasAttribute('aria-required')).toBe(false);
+    });
+
+    test('should not remove validation rules when setFieldNotRequired is called on non-required field', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" data-validation="email,minLength" aria-describedby="email-feedback">
+                    <div id="email-feedback" class="form-field-feedback"></div>
+                </div>
+            </form>
+        `;
+
+        const field = document.getElementById('email');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        formValidation.setFieldNotRequired(field);
+
+        expect(field.getAttribute('data-validation')).toBe('email,minLength');
+        expect(field.hasAttribute('aria-required')).toBe(false);
     });
 
     test('should use custom validator', () => {
@@ -409,5 +461,152 @@ describe('form-validation', () => {
         // Should use the override, not the default "Input should not be empty."
         expect(feedback.textContent).toBe('Username cannot be blank!');
         expect(field.classList).toContain(formValidation.config.invalidClass);
+    });
+
+    describe('validateGrecaptcha', () => {
+        let mockDispatchEvent;
+        let originalUseDefaultCookieConsent;
+
+        beforeEach(() => {
+            // Mock window.useDefaultCookieConsent
+            originalUseDefaultCookieConsent = window.useDefaultCookieConsent;
+            window.useDefaultCookieConsent = true;
+
+            // Mock document.dispatchEvent
+            mockDispatchEvent = jest.spyOn(document, 'dispatchEvent').mockImplementation(() => true);
+
+            // Initialize grecaptcha validator
+            window.validationMessages = {
+                ...window.validationMessages,
+                grecaptcha: 'Please accept cookies to use reCAPTCHA.',
+            };
+
+            formValidation = new FormValidation();
+        });
+
+        afterEach(() => {
+            window.useDefaultCookieConsent = originalUseDefaultCookieConsent;
+            mockDispatchEvent.mockRestore();
+        });
+
+        test('should return true when useDefaultCookieConsent is disabled', () => {
+            window.useDefaultCookieConsent = false;
+
+            const field = document.createElement('input');
+            field.setAttribute('name', '_grecaptcha_v3');
+
+            const result = formValidation.validateGrecaptcha('', field);
+
+            expect(result).toBe(true);
+            expect(mockDispatchEvent).not.toHaveBeenCalled();
+        });
+
+        test('should return true for non-grecaptcha fields', () => {
+            const field = document.createElement('input');
+            field.setAttribute('name', 'regular-field');
+
+            const result = formValidation.validateGrecaptcha('', field);
+
+            expect(result).toBe(true);
+            expect(mockDispatchEvent).not.toHaveBeenCalled();
+        });
+
+        test('should return true when GRECAPTCHA cookie is accepted (v3)', () => {
+            const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
+            mockGetItem.mockReturnValue('1');
+
+            const field = document.createElement('input');
+            field.setAttribute('name', '_grecaptcha_v3');
+
+            const result = formValidation.validateGrecaptcha('', field);
+
+            expect(result).toBe(true);
+            expect(mockDispatchEvent).not.toHaveBeenCalled();
+
+            mockGetItem.mockRestore();
+        });
+
+        test('should return true when GRECAPTCHA cookie is accepted (v2)', () => {
+            const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
+            mockGetItem.mockReturnValue('1');
+
+            const field = document.createElement('input');
+            field.setAttribute('name', '_grecaptcha_v2');
+
+            const result = formValidation.validateGrecaptcha('', field);
+
+            expect(result).toBe(true);
+            expect(mockDispatchEvent).not.toHaveBeenCalled();
+
+            mockGetItem.mockRestore();
+        });
+
+        test('should return false and dispatch showCookieBar event when GRECAPTCHA cookie is not accepted (v3)', () => {
+            const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
+            mockGetItem.mockReturnValue(null);
+
+            const field = document.createElement('input');
+            field.setAttribute('name', '_grecaptcha_v3');
+
+            const result = formValidation.validateGrecaptcha('', field);
+
+            expect(result).toBe(false);
+            expect(mockDispatchEvent).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: 'showCookieBar',
+                })
+            );
+
+            mockGetItem.mockRestore();
+        });
+
+        test('should return false and dispatch showCookieBar event when GRECAPTCHA cookie is not accepted (v2)', () => {
+            const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
+            mockGetItem.mockReturnValue('0');
+
+            const field = document.createElement('input');
+            field.setAttribute('name', '_grecaptcha_v2');
+
+            const result = formValidation.validateGrecaptcha('', field);
+
+            expect(result).toBe(false);
+            expect(mockDispatchEvent).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: 'showCookieBar',
+                })
+            );
+
+            mockGetItem.mockRestore();
+        });
+
+        test('should return true when field parameter is invalid', () => {
+            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const result = formValidation.validateGrecaptcha('', null);
+
+            expect(result).toBe(true);
+            expect(consoleErrorSpy).toHaveBeenCalledWith('[FormValidation]: Missing or invalid required parameter "field".');
+            expect(mockDispatchEvent).not.toHaveBeenCalled();
+
+            consoleErrorSpy.mockRestore();
+        });
+
+        test('should dispatch CustomEvent with correct type', () => {
+            const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
+            mockGetItem.mockReturnValue(null);
+
+            const field = document.createElement('input');
+            field.setAttribute('name', '_grecaptcha_v3');
+
+            formValidation.validateGrecaptcha('', field);
+
+            expect(mockDispatchEvent).toHaveBeenCalledTimes(1);
+            const [eventArg] = mockDispatchEvent.mock.calls[0];
+
+            expect(eventArg).toBeInstanceOf(CustomEvent);
+            expect(eventArg.type).toBe('showCookieBar');
+
+            mockGetItem.mockRestore();
+        });
     });
 });

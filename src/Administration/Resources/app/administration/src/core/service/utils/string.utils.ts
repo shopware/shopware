@@ -3,11 +3,11 @@
  *
  * @module core/service/utils/string
  */
-import capitalizeString from 'lodash/capitalize';
-import camelCase from 'lodash/camelCase';
-import kebabCase from 'lodash/kebabCase';
-import snakeCase from 'lodash/snakeCase';
-import upperFirst from 'lodash/upperFirst';
+import capitalizeString from 'lodash-es/capitalize';
+import camelCase from 'lodash-es/camelCase';
+import kebabCase from 'lodash-es/kebabCase';
+import snakeCase from 'lodash-es/snakeCase';
+import upperFirst from 'lodash-es/upperFirst';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

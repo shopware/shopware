@@ -27,7 +27,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -50,7 +49,7 @@ class MediaSerializerTest extends TestCase
         $mediaFolderRepository = $this->createMock(EntityRepository::class);
         $mediaRepository = $this->createMock(EntityRepository::class);
 
-        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository, new UrlEncodingTwigFilter());
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
@@ -103,7 +102,7 @@ class MediaSerializerTest extends TestCase
         $mediaFolderRepository = $this->createMock(EntityRepository::class);
         $mediaRepository = $this->createMock(EntityRepository::class);
 
-        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository, new UrlEncodingTwigFilter());
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
@@ -164,7 +163,7 @@ class MediaSerializerTest extends TestCase
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
-        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository, new UrlEncodingTwigFilter());
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
@@ -215,7 +214,7 @@ class MediaSerializerTest extends TestCase
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
-        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository, new UrlEncodingTwigFilter());
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
@@ -262,7 +261,7 @@ class MediaSerializerTest extends TestCase
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
-        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository, new UrlEncodingTwigFilter());
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $actual = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, ['url' => 'invalid']);
@@ -284,7 +283,7 @@ class MediaSerializerTest extends TestCase
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
-        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository, new UrlEncodingTwigFilter());
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
         $config = new Config([], [], []);
 
@@ -304,7 +303,7 @@ class MediaSerializerTest extends TestCase
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
-        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository, new UrlEncodingTwigFilter());
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $record = [
@@ -322,8 +321,7 @@ class MediaSerializerTest extends TestCase
             $this->createMock(MediaService::class),
             $this->createMock(FileSaver::class),
             static::getContainer()->get('media_folder.repository'),
-            static::getContainer()->get('media.repository'),
-            new UrlEncodingTwigFilter()
+            static::getContainer()->get('media.repository')
         );
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);

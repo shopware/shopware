@@ -95,9 +95,16 @@
       "placeholderDescription": "Set a description for this rule...",
       "placeholderPriority": "Set a priority for this rule...",
       "placeholderTags": "Enter a tag...",
+      "placeholderType": "Enter a type...",
       "messageSaveSuccess": "The rule \"{name}\" has been saved.",
       "ruleCard": "Condition",
       "messageSaveError": "An error occurred while saving rule",
+      "productStreamIndexingWarning": {
+        "title": "Dynamic Product Group indexing is disabled",
+        "message": "The condition “Item in dynamic product group” will never be true.",
+        "action": "Learn more in our documentation"
+      },
+      "productStatesConditionWarning": "The condition \"Item with product state\" is deprecated and will be removed in v6.8. Please use \"Item with product type\" instead.",
       "tabGeneral": "General",
       "tabAssignments": "Assignments",
       "buttonAddAssignment":  "Add assignment",

@@ -15,6 +15,14 @@ Shopware.Component.register(
 );
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-profile-index-privacy-preferences',
+    () => import('./view/sw-profile-index-privacy-preferences'),
+);
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-profile', {
     type: 'core',
@@ -47,6 +55,14 @@ Module.register('sw-profile', {
                 searchPreferences: {
                     component: 'sw-profile-index-search-preferences',
                     path: 'search-preferences',
+                    meta: {
+                        parentPath: 'sw.profile.index',
+                        privilege: 'user.update_profile',
+                    },
+                },
+                privacyPreferences: {
+                    component: 'sw-profile-index-privacy-preferences',
+                    path: 'privacy-preferences',
                     meta: {
                         parentPath: 'sw.profile.index',
                         privilege: 'user.update_profile',

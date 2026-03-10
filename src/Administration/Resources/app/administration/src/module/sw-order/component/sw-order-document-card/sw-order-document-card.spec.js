@@ -1,10 +1,9 @@
+/**
+ * @sw-package after-sales
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
-
-/**
- * @sw-package checkout
- */
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -40,6 +39,7 @@ const documentFixture = {
     },
     config: {
         documentNumber: '1000',
+        documentDate: '2023/01/01',
     },
     id: 'document1',
     deepLinkCode: 'abcd',
@@ -88,13 +88,10 @@ const documentTypeFixture = [
     },
 ];
 
-async function createWrapper() {
+async function createWrapper(routeName = 'sw.order.detail.details') {
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
-                },
                 'sw-card-section': {
                     template: '<div class="sw-card-section"><slot></slot></div>',
                 },
@@ -126,9 +123,9 @@ async function createWrapper() {
                 ),
                 'sw-order-document-settings-credit-note-modal': true,
                 'sw-order-document-settings-storno-modal': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
-                    sync: true,
-                }),
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
+                'sw-bulk-edit-modal': await wrapTestComponent('sw-bulk-edit-modal', { sync: true }),
+                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
                 'sw-data-grid-column-boolean': {
                     props: ['value'],
                     template: '<div class="sw-data-grid-column-boolean"><slot></slot></div>',
@@ -209,7 +206,12 @@ async function createWrapper() {
             mocks: {
                 $route: {
                     query: '',
-                    name: 'sw.order.detail.documents',
+                    name: routeName,
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
                 },
             },
             directives: {
@@ -488,6 +490,22 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.vm.sendDocument).toEqual(documentFixture);
     });
 
+    it('should show file types on order documents route', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper('sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        const columns = wrapper.findAll('.sw-data-grid__cell--header');
+        // 5 data columns + 1 action column
+        expect(columns).toHaveLength(6);
+        expect(columns[3].text()).toBe('sw-order.documentCard.labelAvailableFormats');
+    });
+
     it('should show attach column when attachView is true', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
@@ -499,8 +517,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
-        // 5 data columns + 1 action column
-        expect(columns).toHaveLength(6);
+        // 4 data columns + 1 action column
+        expect(columns).toHaveLength(5);
 
         await wrapper.setProps({
             attachView: true,
@@ -508,7 +526,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         columns = wrapper.findAll('.sw-data-grid__cell--header');
         expect(columns).toHaveLength(6);
-        expect(columns[5].text()).toBe('sw-order.documentCard.labelAttach');
+        expect(columns[4].text()).toBe('sw-order.documentCard.labelAttach');
     });
 
     it('should show card filter when order has document', async () => {
@@ -603,6 +621,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
+
+        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        expect(wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').element.value).toBe('1000');
+
         await wrapper.find('.sw-order-document-settings-modal__send-button').trigger('click');
         await flushPromises();
 
@@ -628,11 +650,65 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
+
+        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        expect(wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').element.value).toBe('1000');
+
         await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.downloadDocument).toHaveBeenCalled();
         wrapper.vm.downloadDocument.mockRestore();
+    });
+
+    it('should call downloadDocument with xml fileType for zugferd_invoice', async () => {
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+
+        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
+
+        await wrapper.setData({
+            currentDocumentType: {
+                id: '5',
+                name: 'E-Invoice (ZUGFeRD)',
+                technicalName: 'zugferd_invoice',
+                translated: { name: 'E-Invoice (ZUGFeRD)' },
+            },
+            showModal: true,
+        });
+
+        await flushPromises();
+
+        await wrapper.find('.sw-order-document-settings-modal__document-number input').setValue('1000');
+        await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
+        await flushPromises();
+
+        expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'xml');
+        downloadDocumentSpy.mockRestore();
+    });
+
+    it('should call downloadDocument with pdf fileType for regular invoice', async () => {
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+
+        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
+
+        await wrapper.setData({
+            currentDocumentType: {
+                id: '1',
+                name: 'Invoice',
+                technicalName: 'invoice',
+                translated: { name: 'Invoice' },
+            },
+            showModal: true,
+        });
+
+        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
+        await flushPromises();
+
+        expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'pdf');
+        downloadDocumentSpy.mockRestore();
     });
 
     it('should show permission tooltip message on Create document button correctly', async () => {
@@ -692,7 +768,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render the only pdf on available formats column', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper('sw.order.detail.documents');
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -709,7 +785,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render html and pdf on available formats column', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper('sw.order.detail.documents');
 
         await wrapper.setData({
             documents: getCollection('document', [

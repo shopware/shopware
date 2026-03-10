@@ -32,6 +32,7 @@
             <mt-button
                 size="small"
                 variant="secondary"
+                data-analytics-id="sw-order-create-address-modal.close-address-modal"
                 @click="onCloseAddressModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -43,6 +44,7 @@
                 :is-loading="isLoading"
                 variant="primary"
                 size="small"
+                data-analytics-id="sw-order-create-address-modal.submit-address-form"
                 @click="onSubmitAddressForm"
             >
                 {{ $tc('sw-customer.detailAddresses.buttonSaveAndSelect') }}
@@ -70,6 +72,7 @@
                         class="sw-order-create-address-modal__add-btn"
                         size="small"
                         variant="secondary"
+                        data-analytics-id="sw-order-create-address-modal.add-new-address"
                         @click="onAddNewAddress"
                     >
                         <mt-icon
@@ -126,6 +129,7 @@
                     <mt-button
                         v-if="!isCurrentSelected(address.id)"
                         variant="secondary"
+                        data-analytics-id="sw-order-create-address-modal.select-existing-address"
                         @click="onSelectExistingAddress(address)"
                     >
                         {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
@@ -143,6 +147,7 @@
         <mt-button
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-create-address-modal.cancel"
             @click="onCancel"
         >
             {{ $tc('sw-customer.detailAddresses.buttonClose') }}

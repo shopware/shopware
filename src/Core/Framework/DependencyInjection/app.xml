@@ -236,6 +236,11 @@
             <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Cookie\AppCookieCollectListener">
+            <argument type="service" id="app.repository"/>
+            <tag name="kernel.event_listener"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService"/>
@@ -287,7 +292,6 @@
             <argument type="string">%kernel.project_dir%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister"/>
-            <argument type="service" id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
             <argument>%kernel.shopware_version%</argument>
@@ -530,7 +534,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
-            <tag name="shopware.app_url_changed_resolver"/>
+            <tag name="shopware.app_url_changed_resolver" priority="-100"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy">
@@ -540,7 +544,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="event_dispatcher"/>
 
-            <tag name="shopware.app_url_changed_resolver"/>
+            <tag name="shopware.app_url_changed_resolver" priority="100"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy">
@@ -548,7 +552,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler" on-invalid="null"/>
 
-            <tag name="shopware.app_url_changed_resolver"/>
+            <tag name="shopware.app_url_changed_resolver" priority="0"/>
         </service>
 
         <!-- DELTA -->

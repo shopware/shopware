@@ -25,6 +25,7 @@ async function createWrapper() {
         {
             props: {
                 element: {
+                    type: 'buy-box',
                     data: {},
                     config: {},
                 },
@@ -44,13 +45,36 @@ async function createWrapper() {
                     },
                     'sw-tabs-item': true,
                     'sw-entity-single-select': true,
-
                     'sw-product-variant-info': true,
                     'sw-select-result': true,
                     'sw-select-field': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
                 provide: {
-                    cmsService: Shopware.Service('cmsService'),
+                    cmsService: {
+                        getCmsElementRegistry: () => ({
+                            'buy-box': {
+                                defaultConfig: {
+                                    product: {
+                                        source: 'static',
+                                        value: null,
+                                    },
+                                    alignment: {
+                                        source: 'static',
+                                        value: null,
+                                    },
+                                },
+                            },
+                        }),
+                    },
                     repositoryFactory: {
                         create: () => {
                             return {

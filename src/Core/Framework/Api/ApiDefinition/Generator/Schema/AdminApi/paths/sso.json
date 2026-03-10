@@ -53,6 +53,54 @@
                     }
                 }
             }
+        },
+        "\/oauth\/sso\/auth": {
+            "get": {
+                "tags": [
+                    "Experimental",
+                    "SSO Login forward"
+                ],
+                "summary": "Experimental: Redirect to SSO login",
+                "description": "Experimental: Creates a redirection to the SSO login page",
+                "operationId": "ssoAuth",
+                "responses": {
+                    "302": {
+                        "description": "Experimental: Forwards to SSO login Page"
+                    }
+                }
+            }
+        },
+        "\/_info\/is-sso": {
+            "get": {
+                "tags": [
+                    "Experimental",
+                    "Is SSO environment"
+                ],
+                "summary": "Experimental: Is SSO environment",
+                "description": "Experimental: Returns a boolean which indicates the it is a SSO environment or not",
+                "operationId": "isSso",
+                "responses": {
+                    "200": {
+                        "description": "Experimental: Returns if it is a SSO environment or not"
+                    }
+                }
+            }
+        },
+        "\/_action\/sso\/invite-user": {
+            "post": {
+                "tags": [
+                    "Experimental",
+                    "Invite a new SSO user"
+                ],
+                "summary": "Experimental: Invite a new SSO user",
+                "description": "Experimental: Invite a new SSO user and sends a e-mail with the invite",
+                "operationId": "inviteUser",
+                "responses": {
+                    "200": {
+                        "description": "Experimental: Invite a new SSO user and sends a e-mail with the invite"
+                    }
+                }
+            }
         }
     }
 }

@@ -232,6 +232,7 @@ async function createWrapper() {
                 meta: {
                     $module: {
                         entity: 'product',
+                        icon: 'solid-content',
                     },
                 },
             },
@@ -248,6 +249,13 @@ async function createWrapper() {
                     router,
                 ],
                 provide: {
+                    productTypeService: {
+                        fetchProductTypes: () =>
+                            Promise.resolve([
+                                'physical',
+                                'digital',
+                            ]),
+                    },
                     numberRangeService: {},
                     repositoryFactory: {
                         create: (name) => {
@@ -304,9 +312,6 @@ async function createWrapper() {
                     },
                     'sw-data-grid-settings': {
                         template: '<div></div>',
-                    },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
                     },
                     'sw-pagination': {
                         template: '<div></div>',
@@ -654,11 +659,9 @@ describe('module/sw-product/page/sw-product-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
@@ -669,7 +672,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         wrapper.vm.$router.push = jest.fn();
         await wrapper.setData({
             selection: {
-                foo: { states: ['is-download'] },
+                foo: { type: 'digital' },
             },
         });
 
@@ -718,5 +721,16 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         expect(products).toHaveLength(1);
         expect(products[0].productNumber).toBe('SW10001');
+    });
+
+    it('should consider criteria filters via updateCriteria', async () => {
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        const filter = Criteria.equals('foo', 'bar');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toContainEqual(filter);
     });
 });

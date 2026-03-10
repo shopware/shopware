@@ -296,7 +296,7 @@ class TranslatedVersionsTest extends TestCase
             'Expected %s with language chain %s but got %s, version context: %s',
             $name,
             (string) print_r($context->getLanguageIdChain(), true),
-            $product->getName(),
+            (string) $product->getName(),
             $context->getVersionId() === Defaults::LIVE_VERSION ? 'NO' : 'YES'
         ));
 

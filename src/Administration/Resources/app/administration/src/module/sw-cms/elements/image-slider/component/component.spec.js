@@ -52,11 +52,39 @@ async function createWrapper() {
             global: {
                 sync: false,
                 provide: {
-                    cmsService: Shopware.Service('cmsService'),
+                    cmsService: {
+                        getCmsElementRegistry: () => ({
+                            'image-slider': {
+                                defaultConfig: {
+                                    sliderItems: {
+                                        source: 'static',
+                                        value: [],
+                                    },
+                                    navigationArrows: {
+                                        source: 'static',
+                                        value: 'outside',
+                                    },
+                                    navigationDots: {
+                                        source: 'static',
+                                        value: null,
+                                    },
+                                    displayMode: {
+                                        source: 'static',
+                                        value: 'standard',
+                                    },
+                                    verticalAlign: {
+                                        source: 'static',
+                                        value: null,
+                                    },
+                                },
+                            },
+                        }),
+                    },
                 },
             },
             props: {
                 element: {
+                    type: 'image-slider',
                     config: {},
                     data: {},
                 },
@@ -99,7 +127,7 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
         const image = wrapper.get('.sw-cms-el-image-slider__image');
 
         expect(image.attributes('src')).toBe(
-            `${MOCK_ASSET_PATH}administration/administration/static/img/cms/preview_mountain_large.jpg`,
+            `${MOCK_ASSET_PATH}administration/administration/static/img/cms/preview_mountain_large.webp`,
         );
     });
 

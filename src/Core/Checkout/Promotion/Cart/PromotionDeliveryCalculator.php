@@ -67,11 +67,12 @@ class PromotionDeliveryCalculator
 
         $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
 
+        // build exclusions list before reducing line items
+        $exclusions = $this->buildExclusions($discountLineItems, $toCalculate, $context);
+
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
         $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
-
-        $exclusions = $this->buildExclusions($checkedDiscountLineItems, $toCalculate, $context);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -550,6 +551,8 @@ class PromotionDeliveryCalculator
 
     private function isAutomaticDiscount(LineItem $discountItem): bool
     {
-        return empty($discountItem->getPayloadValue('code'));
+        $code = $discountItem->getPayloadValue('code');
+
+        return $code === null || $code === '';
     }
 }

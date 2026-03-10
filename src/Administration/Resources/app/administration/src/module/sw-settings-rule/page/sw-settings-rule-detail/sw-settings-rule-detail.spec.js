@@ -1,5 +1,5 @@
 import { config, mount } from '@vue/test-utils';
-import { kebabCase } from 'lodash';
+import kebabCase from 'lodash-es/kebabCase';
 import { createRouter, createWebHistory } from 'vue-router';
 
 /**
@@ -249,7 +249,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-text-field': true,
                 'sw-card-filter': true,
                 'sw-settings-rule-assignment-listing': true,
-                'sw-empty-state': true,
+                'mt-empty-state': true,
                 'sw-settings-rule-add-assignment-modal': true,
                 'sw-extension-teaser-popover': true,
             },

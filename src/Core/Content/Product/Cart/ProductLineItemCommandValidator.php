@@ -121,11 +121,11 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
         $ids = array_values(array_filter($ids));
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
-        /** @var array<string, int> $products */
+        /** @var array<string, int<0, max>> $products */
         $products = \array_flip($this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
             ['ids' => $ids],

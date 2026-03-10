@@ -54,7 +54,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     {
         $groupIds = $request->request->all(self::PROPERTY_GROUP_IDS_REQUEST_PARAM);
 
-        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true) && empty($groupIds)) {
+        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true) && $groupIds === []) {
             return null;
         }
 
@@ -65,7 +65,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     {
         $ids = $this->collectOptionIds($result);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -159,7 +159,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
         $aggregations = [$propertyAggregation, $optionAggregation];
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return new Filter('properties', false, $aggregations, new AndFilter([]), [], false);
         }
 
@@ -217,11 +217,16 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             $ids = explode('|', $ids);
         }
 
-        /** @var list<string> $ids */
-        $ids = array_filter((array) $ids, function ($id) {
-            return Uuid::isValid((string) $id);
-        });
+        $return = [];
+        foreach ((array) $ids as $id) {
+            if (!\is_string($id)) {
+                continue;
+            }
+            if (Uuid::isValid($id)) {
+                $return[] = $id;
+            }
+        }
 
-        return $ids;
+        return $return;
     }
 }

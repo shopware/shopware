@@ -2,6 +2,13 @@
  * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
+import { MtSearch } from '@shopware-ag/meteor-component-library';
+
+Shopware.Utils.debounce = function debounce(fn) {
+    return function execFunction(...args) {
+        fn.apply(this, args);
+    };
+};
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal-mapping', () => {
     let wrapper;
@@ -63,12 +70,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         validationService: {},
                     },
                     stubs: {
-                        'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                        'mt-search': MtSearch,
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-import-export-entity-path-select': true,
                         'sw-context-menu-item': true,
                         'sw-context-button': true,
-
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -249,6 +255,26 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(upwardsButton.attributes('disabled')).toBeDefined();
     });
 
+    it.each([
+        ['.sw-data-grid__row--0 .sw-button-group .mt-button:first-of-type'],
+        ['.sw-data-grid__row--2 .sw-button-group .mt-button:last-of-type'],
+    ])('should have first and last position buttons disabled with shifted positions', async (selector) => {
+        const profileMock = getProfileMock();
+        profileMock.systemDefault = false;
+
+        // shifted positions can occur when mappings are added and deleted again
+        profileMock.mapping[0].position = 2;
+        profileMock.mapping[1].position = 3;
+        profileMock.mapping[2].position = 4;
+
+        wrapper = await createWrapper(profileMock);
+        await flushPromises();
+
+        const upwardsButton = wrapper.find(selector);
+
+        expect(upwardsButton.attributes('disabled')).toBeDefined();
+    });
+
     it('should add a mapping', async () => {
         const profileMock = getProfileMock();
         profileMock.systemDefault = false;
@@ -374,5 +400,39 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         ];
 
         expect(actualEventData).toEqual(expectedEventData);
+    });
+
+    it('should filter mappings when searching', async () => {
+        wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
+
+        let visibleMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(visibleMappings).toHaveLength(3);
+
+        const searchInput = wrapper.find('.mt-search input');
+        await searchInput.setValue('product');
+
+        visibleMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(visibleMappings).toHaveLength(1);
+
+        const visibleKey = visibleMappings[0].find('sw-import-export-entity-path-select-stub').attributes('value');
+        expect(visibleKey).toBe('productNumber');
+    });
+
+    it('should show all mappings again when clearing search', async () => {
+        wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
+
+        const searchInput = wrapper.find('.mt-search input');
+
+        await searchInput.setValue('product');
+
+        let visibleMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(visibleMappings).toHaveLength(1);
+
+        await searchInput.setValue('');
+
+        visibleMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(visibleMappings).toHaveLength(3);
     });
 });

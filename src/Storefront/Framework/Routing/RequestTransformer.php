@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -107,10 +107,19 @@ class RequestTransformer implements RequestTransformerInterface
         if ($salesChannel === null) {
             // this class and therefore the "isSalesChannelRequired" method is currently not extendable
             // which can cause problems when adding custom paths
-            throw new SalesChannelMappingException($request->getUri());
+            throw StorefrontFrameworkException::salesChannelMappingException($request->getUri());
         }
 
-        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
+        /**
+         * Use getBasePath() instead of getBaseUrl() to exclude the script name (e.g. /index.php)
+         * from the absolute base url. The sales channel domain url never contains the script name,
+         * so including it would cause the str_replace below to fail, leaving $baseUrl as the full
+         * domain url instead of just the virtual path (e.g. /de).
+         *
+         * getBasePath() = /subdir           (directory only)
+         * getBaseUrl()  = /subdir/index.php (includes script name when explicitly in the url)
+         */
+        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBasePath();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
 
         $resolved = $this->resolveSeoUrl(
@@ -156,7 +165,7 @@ class RequestTransformer implements RequestTransformerInterface
          */
         $transformedServerVars = array_merge(
             $request->server->all(),
-            ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . $resolved['pathInfo']]
+            ['REQUEST_URI' => rtrim($request->getBasePath(), '/') . $resolved['pathInfo']]
         );
 
         $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
@@ -206,8 +215,9 @@ class RequestTransformer implements RequestTransformerInterface
             );
         }
 
-        $transformedRequest->headers->add($request->headers->all());
         $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+        // add all headers from the original request, overrides the headers from the domain mapping if they are passed on the request directly
+        $transformedRequest->headers->add($request->headers->all());
         $transformedRequest->attributes->set(self::ORIGINAL_REQUEST_URI, $currentRequestUri);
 
         return $transformedRequest;
@@ -258,7 +268,7 @@ class RequestTransformer implements RequestTransformerInterface
     {
         $domains = $this->domainLoader->load();
 
-        if (empty($domains)) {
+        if ($domains === []) {
             return null;
         }
 
@@ -276,7 +286,7 @@ class RequestTransformer implements RequestTransformerInterface
         // reduce shops to which base url is the beginning of the request
         $domains = array_filter($domains, fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
 
-        if (empty($domains)) {
+        if ($domains === []) {
             return null;
         }
 
@@ -340,6 +350,6 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private function containsBaseUrl(string $seoPathInfo, string $baseUrl): bool
     {
-        return !empty($baseUrl) && mb_strpos($seoPathInfo, $baseUrl) === 0;
+        return $baseUrl !== '' && str_starts_with($seoPathInfo, $baseUrl);
     }
 }

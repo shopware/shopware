@@ -41,11 +41,11 @@
                 position-identifier="sw-settings-units-content"
                 :class="{ 'sw-settings-units-card-empty': isEmpty }"
             >
-                <sw-empty-state
+                <mt-empty-state
                     v-if="!isLoading && isEmpty"
-                    :title="$tc('sw-settings-units.empty-state.title')"
-                    :subline="$tc('sw-settings-units.empty-state.subline')"
-                    icon="regular-box"
+                    :icon="$route.meta.$module.icon"
+                    :headline="$tc('sw-settings-units.empty-state.title')"
+                    :description="$tc('sw-settings-units.empty-state.subline')"
                 />
 
                 <template #grid>

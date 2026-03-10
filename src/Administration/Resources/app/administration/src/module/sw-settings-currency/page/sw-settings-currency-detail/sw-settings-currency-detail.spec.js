@@ -57,7 +57,6 @@ async function createWrapper(privileges = []) {
                     'sw-text-field': true,
                     'sw-language-info': true,
                     'sw-settings-price-rounding': true,
-                    'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-card-filter': true,
                     'sw-data-grid-column-boolean': true,
@@ -65,6 +64,15 @@ async function createWrapper(privileges = []) {
                     'sw-entity-listing': true,
                     'sw-settings-currency-country-modal': true,
                     'sw-custom-field-set-renderer': true,
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                 },
             },
         },

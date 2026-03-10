@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\Fingerprint;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\FingerprintCustomCompare;
 use Shopware\Core\Framework\App\ShopId\FingerprintGenerator;
 use Shopware\Core\Framework\App\ShopId\FingerprintMatch;
 use Shopware\Core\Framework\App\ShopId\FingerprintMismatch;
@@ -113,6 +114,61 @@ class FingerprintGeneratorTest extends TestCase
             ),
         ];
     }
+
+    /**
+     * @param array<string, string> $fingerprints
+     */
+    #[DataProvider('fingerprintsWithCustomComparison')]
+    public function testComparesFingerPrintUsingCustomComparison(array $fingerprints, FingerprintComparisonResult $result): void
+    {
+        $fingerprintGenerator = new FingerprintGenerator([
+            new LevenshteinFingerprint(),
+        ]);
+
+        static::assertEquals($result, $fingerprintGenerator->matchFingerprints($fingerprints));
+    }
+
+    public static function fingerprintsWithCustomComparison(): \Generator
+    {
+        yield 'custom comparison perfect match' => [
+            [
+                'levenshtein' => 'BBBBBBBBBB',
+            ],
+            new FingerprintComparisonResult(
+                [
+                    'levenshtein' => new FingerprintMatch('levenshtein', 'BBBBBBBBBB', 100),
+                ],
+                [],
+                75,
+            ),
+        ];
+
+        yield 'custom comparison partial mismatch' => [
+            [
+                'levenshtein' => 'AAAAABBBBB',
+            ],
+            new FingerprintComparisonResult(
+                [],
+                [
+                    'levenshtein' => new FingerprintMismatch('levenshtein', 'AAAAABBBBB', 'BBBBBBBBBB', 50),
+                ],
+                75,
+            ),
+        ];
+
+        yield 'custom comparison full mismatch' => [
+            [
+                'levenshtein' => 'AAAAAAAAAA',
+            ],
+            new FingerprintComparisonResult(
+                [],
+                [
+                    'levenshtein' => new FingerprintMismatch('levenshtein', 'AAAAAAAAAA', 'BBBBBBBBBB', 100),
+                ],
+                75,
+            ),
+        ];
+    }
 }
 
 /**
@@ -175,5 +231,39 @@ class BazFingerprint implements Fingerprint
     public function getStamp(): string
     {
         return 'baz';
+    }
+}
+
+/**
+ * @internal
+ */
+class LevenshteinFingerprint implements Fingerprint, FingerprintCustomCompare
+{
+    public function getIdentifier(): string
+    {
+        return 'levenshtein';
+    }
+
+    public function getScore(): int
+    {
+        return 100;
+    }
+
+    public function getStamp(): string
+    {
+        return 'BBBBBBBBBB';
+    }
+
+    public function compare(?string $storedStamp): int
+    {
+        $newStamp = $this->getStamp();
+        $lev = levenshtein($storedStamp ?? '', $newStamp);
+        $maxLen = max(\strlen($storedStamp ?? ''), \strlen($newStamp));
+
+        if ($maxLen === 0) {
+            return 0;
+        }
+
+        return (int) (($lev / $maxLen) * 100);
     }
 }

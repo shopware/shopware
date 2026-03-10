@@ -47,7 +47,7 @@ class MakeCoverageTestCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $filteredClasses = $this->filterExcludedClasses(array_unique($classes), $input, $io);
 
-        if (empty($filteredClasses)) {
+        if ($filteredClasses === []) {
             $io->note('No coverage tests are created');
 
             return self::SUCCESS;
@@ -101,7 +101,7 @@ class MakeCoverageTestCommand extends Command
             $tests[] = $testFileName;
         }
 
-        if (empty($tests)) {
+        if ($tests === []) {
             $io->note('No coverage tests are created');
 
             return self::SUCCESS;
@@ -115,7 +115,7 @@ class MakeCoverageTestCommand extends Command
     /**
      * @param array<string> $classes
      *
-     * @return array<class-string>
+     * @return list<class-string>
      */
     private function filterExcludedClasses(array $classes, InputInterface $input, SymfonyStyle $io): array
     {
@@ -128,14 +128,14 @@ class MakeCoverageTestCommand extends Command
         $excludedFiles = $xml->source()->excludeFiles();
 
         foreach ($classes as $class) {
-            $class = $this->getClassname($class);
+            $className = $this->getClassname($class);
 
-            if ($class === null || !class_exists($class)) {
-                $io->warning(\sprintf('Class or file %s does not exist', $class));
+            if ($className === null || !class_exists($className)) {
+                $io->warning(\sprintf('Class or file "%s" does not exist', $className ?? $class));
 
                 continue;
             }
-            $reflection = new \ReflectionClass($class);
+            $reflection = new \ReflectionClass($className);
             $fileName = str_replace($this->projectDir, '', (string) $reflection->getFileName());
 
             $failReason = null;
@@ -152,13 +152,13 @@ class MakeCoverageTestCommand extends Command
                     continue;
                 }
 
-                if (!empty($excludedDir->prefix()) && str_ends_with($fileName, $excludedDir->prefix())) {
+                if ($excludedDir->prefix() !== '' && str_ends_with($fileName, $excludedDir->prefix())) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
 
                     continue;
                 }
 
-                if (!empty($excludedDir->suffix()) && str_ends_with($fileName, $excludedDir->suffix())) {
+                if ($excludedDir->suffix() !== '' && str_ends_with($fileName, $excludedDir->suffix())) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
                 }
             }
@@ -175,7 +175,7 @@ class MakeCoverageTestCommand extends Command
                 continue;
             }
 
-            $filteredClasses[] = $class;
+            $filteredClasses[] = $className;
         }
 
         return array_values(array_unique($filteredClasses));

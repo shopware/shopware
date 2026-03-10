@@ -38,7 +38,7 @@ Module.register('sw-customer', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#F88962',
-    icon: 'regular-users',
+    icon: 'solid-users',
     favicon: 'icon-module-customers.png',
     entity: 'customer',
 

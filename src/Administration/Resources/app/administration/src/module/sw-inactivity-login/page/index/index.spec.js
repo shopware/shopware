@@ -148,7 +148,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(loginByUserName).toHaveBeenCalledWith('max', '');
 
         expect(wrapper.vm.passwordError !== null).toBe(true);
-        const passwordError = wrapper.findByText('span', 'sw-inactivity-login.modal.errors.password');
+        const passwordError = wrapper.findByText('span', 'global.sw-inactivity-login.modal.errors.password');
         expect(passwordError.exists()).toBe(true);
     });
 

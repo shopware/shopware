@@ -109,7 +109,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $isGuest = $data->getBoolean('guest');
 
-        if ($data->has('accountType') && empty($data->get('accountType'))) {
+        if ($data->has('accountType') && $data->getString('accountType') === '') {
             $data->remove('accountType');
         }
 
@@ -329,6 +329,10 @@ class RegisterRoute extends AbstractRegisterRoute
             $billingAddress->set('salutationId', $data->get('salutationId'));
         }
 
+        if ($shippingAddress instanceof DataBag) {
+            $shippingAddress->set('salutationId', $data->get('salutationId'));
+        }
+
         $definition = $this->getCustomerCreateValidationDefinition($isGuest, $data, $context);
 
         if ($additionalValidations) {
@@ -337,7 +341,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($validateStorefrontUrl) {
             $definition
-                ->add('storefrontUrl', new NotBlank(), new Choice($this->getDomainUrls($context)));
+                ->add('storefrontUrl', new NotBlank(), new Choice(choices: $this->getDomainUrls($context)));
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
@@ -424,9 +428,9 @@ class RegisterRoute extends AbstractRegisterRoute
 
         return new \DateTime(\sprintf(
             '%d-%d-%d',
-            $birthdayYear,
-            $birthdayMonth,
-            $birthdayDay
+            (int) $birthdayYear,
+            (int) $birthdayMonth,
+            (int) $birthdayDay
         ));
     }
 
@@ -617,13 +621,10 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string
     {
-        $urlTemplate = $this->systemConfigService->get(
+        $urlTemplate = $this->systemConfigService->getString(
             'core.loginRegistration.confirmationUrl',
             $context->getSalesChannelId()
-        );
-        if (!\is_string($urlTemplate)) {
-            $urlTemplate = '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
-        }
+        ) ?: '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
 
         $emailHash = Hasher::hash($customer->getEmail(), 'sha1');
 

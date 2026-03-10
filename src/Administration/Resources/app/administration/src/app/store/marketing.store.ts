@@ -79,7 +79,7 @@ const marketingStore = Shopware.Store.register({
                     langIsoCode,
                     snippets,
                 ]) => {
-                    Shopware.Snippet.mergeLocaleMessage(langIsoCode, snippets);
+                    Shopware.Snippet?.mergeLocaleMessage(langIsoCode, snippets);
                 },
             );
         },

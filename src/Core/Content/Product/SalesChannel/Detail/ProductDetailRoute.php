@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
@@ -15,6 +16,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -70,7 +72,12 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/product/{productId}', name: 'store-api.product.detail', methods: ['POST'], defaults: ['_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/product/{productId}',
+        name: 'store-api.product.detail',
+        methods: [Request::METHOD_POST, Request::METHOD_GET],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+    )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
@@ -180,7 +187,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
         $variantListingConfig = json_decode((string) $productData['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
-        if (isset($variantListingConfig['displayParent']) && (bool) $variantListingConfig['displayParent'] === true) {
+        if (isset($variantListingConfig['displayParent']) && (bool) $variantListingConfig['displayParent'] === true && !isset($variantListingConfig['mainVariantId'])) {
             return null;
         }
 
@@ -214,9 +221,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $criteria->setTerm($term);
 
         $criteria->setTitle('product-detail-route::find-best-variant-by-term');
-        $variantId = $this->productRepository->searchIds($criteria, $context);
 
-        return $variantId->firstId();
+        return $this->productRepository->searchIds($criteria, $context)->firstId();
     }
 
     private function createCriteria(string $pageId, Request $request): Criteria
@@ -224,7 +230,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $criteria = new Criteria([$pageId]);
         $criteria->setTitle('product::cms-page');
 
-        $slots = $request->get('slots');
+        $slots = RequestParamHelper::get($request, 'slots');
 
         if (\is_string($slots)) {
             $slots = explode('|', $slots);

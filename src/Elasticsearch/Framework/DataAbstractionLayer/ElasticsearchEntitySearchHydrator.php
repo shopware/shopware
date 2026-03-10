@@ -101,9 +101,9 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
 
     /**
      * @param array<string|array<string>> $ids
-     * @param array<int|string, array<string, mixed>> $data
+     * @param array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}> $data
      *
-     * @return array<string, array<mixed>>
+     * @return array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}>
      */
     private function sortByIdArray(array $ids, array $data): array
     {

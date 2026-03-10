@@ -13,7 +13,37 @@ import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 
-import * as MeteorImport from '@shopware-ag/meteor-component-library';
+import MtBanner from '@shopware-ag/meteor-component-library/dist/esm/MtBanner';
+import MtLoader from '@shopware-ag/meteor-component-library/dist/esm/MtLoader';
+import MtProgressBar from '@shopware-ag/meteor-component-library/dist/esm/MtProgressBar';
+import MtButton from '@shopware-ag/meteor-component-library/dist/esm/MtButton';
+import MtCheckbox from '@shopware-ag/meteor-component-library/dist/esm/MtCheckbox';
+import MtEmailField from '@shopware-ag/meteor-component-library/dist/esm/MtEmailField';
+import MtEmptyState from '@shopware-ag/meteor-component-library/dist/esm/MtEmptyState';
+import MtNumberField from '@shopware-ag/meteor-component-library/dist/esm/MtNumberField';
+import MtPasswordField from '@shopware-ag/meteor-component-library/dist/esm/MtPasswordField';
+import MtSelect from '@shopware-ag/meteor-component-library/dist/esm/MtSelect';
+import MtSlider from '@shopware-ag/meteor-component-library/dist/esm/MtSlider';
+import MtSwitch from '@shopware-ag/meteor-component-library/dist/esm/MtSwitch';
+import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextField';
+import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
+import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
+import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
+import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
+import MtToast from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
+import MtFloatingUi from '@shopware-ag/meteor-component-library/dist/esm/MtFloatingUi';
+import MtTextEditorToolbarButton from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbarButton';
+import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
+import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
+import MtModalClose from '@shopware-ag/meteor-component-library/dist/esm/MtModalClose';
+import MtModalTrigger from '@shopware-ag/meteor-component-library/dist/esm/MtModalTrigger';
+import MtModalAction from '@shopware-ag/meteor-component-library/dist/esm/MtModalAction';
+import MtUrlField from '@shopware-ag/meteor-component-library/dist/esm/MtUrlField';
+import MtSearch from '@shopware-ag/meteor-component-library/dist/esm/MtSearch';
+import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
+import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
+import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
+
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
@@ -41,9 +71,24 @@ export default class VueAdapter extends ViewAdapter {
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
         this.vueComponents = {};
+
         this.app = createApp({
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
+            mounted() {
+                // `DELAY` matches animation-delay that is used in `administration/index.html`
+                const DELAY = 2000;
+                const MIN_VISIBLE_TIME = 300;
+
+                const startTime = window._pageLoadTime_;
+                const elapsedTime = Date.now() - startTime;
+                // prevent flickering, show loading indicator longer than necessary:
+                const buffer = elapsedTime < DELAY ? 0 : Math.max(DELAY + MIN_VISIBLE_TIME - elapsedTime, 0);
+
+                setTimeout(() => {
+                    document.getElementById('page-loading-screen')?.remove();
+                }, buffer);
+            },
         });
     }
 
@@ -243,112 +288,7 @@ export default class VueAdapter extends ViewAdapter {
             'sw-system-config',
             'sw-settings-search-searchable-content',
             // base
-            'sw-address',
-            'sw-alert',
-            'sw-alert-deprecated',
-            'sw-avatar',
-            'sw-avatar-deprecated',
-            'sw-button-deprecated',
-            'sw-button-group',
-            'sw-card-deprecated',
-            'sw-card-filter',
-            'sw-chart',
-            'sw-chart-card',
-            'sw-circle-icon',
-            'sw-collapse',
-            'sw-description-list',
-            'sw-error-summary',
-            'sw-help-text',
-            'sw-highlight-text',
             'sw-icon',
-            'sw-icon-deprecated',
-            'sw-inheritance-switch',
-            'sw-label',
-            'sw-price-preview',
-            'sw-product-image',
-            'sw-product-variant-info',
-            'sw-property-search',
-            'sw-radio-panel',
-            'sw-rating-stars',
-            'sw-simple-search-field',
-            'sw-sorting-select',
-            'sw-tabs-deprecated',
-            'sw-user-card',
-            // form
-            'sw-url-field',
-            'sw-textarea-field-deprecated',
-            'sw-textarea-field',
-            'sw-text-field-deprecated',
-            'sw-text-field',
-            'sw-text-editor',
-            'sw-text-editor-toolbar-table-button',
-            'sw-text-editor-toolbar-button',
-            'sw-text-editor-toolbar',
-            'sw-text-editor-table-toolbar',
-            'sw-text-editor-link-menu',
-            'sw-tagged-field',
-            'sw-switch-field',
-            'sw-snippet-field-edit-modal',
-            'sw-snippet-field',
-            'sw-select-rule-create',
-            'sw-select-option',
-            'sw-select-field-deprecated',
-            'sw-select-field',
-            'sw-radio-field',
-            'sw-purchase-price-field',
-            'sw-price-field',
-            'sw-password-field',
-            'sw-number-field',
-            'sw-maintain-currencies-modal',
-            'sw-list-price-field',
-            'sw-gtc-checkbox',
-            'sw-form-field-renderer',
-            'sw-file-input',
-            'sw-field-copyable',
-            'sw-email-field',
-            'sw-dynamic-url-field',
-            'sw-custom-field-set-renderer',
-            'sw-confirm-field',
-            'sw-colorpicker-deprecated',
-            'sw-colorpicker',
-            'sw-checkbox-field-deprecated',
-            'sw-checkbox-field',
-            'sw-boolean-radio-group',
-            'sw-entity-single-select',
-            'sw-entity-multi-select',
-            'sw-entity-multi-id-select',
-            'sw-entity-many-to-many-select',
-            'sw-entity-advanced-selection-modal',
-            'sw-advanced-selection-rule',
-            'sw-advanced-selection-product',
-            'sw-single-select',
-            'sw-select-selection-list',
-            'sw-select-result-list',
-            'sw-select-result',
-            'sw-select-base',
-            'sw-multi-tag-select',
-            'sw-multi-select',
-            'sw-field-error',
-            'sw-contextual-field',
-            'sw-block-field',
-            'sw-base-field',
-            'sw-code-editor',
-            'sw-datepicker',
-            'sw-datepicker-deprecated',
-            'sw-url-field-deprecated',
-            'sw-switch-field-deprecated',
-            'sw-select-number-field',
-            'sw-password-field-deprecated',
-            'sw-number-field-deprecated',
-            'sw-email-field-deprecated',
-            'sw-compact-colorpicker',
-            'sw-entity-tag-select',
-            'sw-entity-advanced-selection-modal-grid',
-            'sw-multi-tag-ip-select',
-            'sw-grouped-single-select',
-            'sw-price-preview',
-            'sw-context-menu',
-            'sw-context-menu-item',
         ];
 
         syncComponents.forEach((componentName) => {
@@ -372,6 +312,32 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     /**
+     * Registers an async component with a hidden loading component.
+     *
+     * @private
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private registerAsyncComponent(componentName: string, importMethod: () => Promise<any>) {
+        this.app.component(
+            componentName,
+            defineAsyncComponent({
+                loader: importMethod,
+                // Delay before showing the loading component. Default: 200ms.
+                delay: 0,
+                loadingComponent: {
+                    name: 'async-loading-component',
+                    inheritAttrs: false,
+                    render() {
+                        return h('div', {
+                            style: { display: 'none' },
+                        });
+                    },
+                },
+            }),
+        );
+    }
+
+    /**
      * Initializes all core components as Vue components.
      */
     async initComponents() {
@@ -387,45 +353,65 @@ export default class VueAdapter extends ViewAdapter {
         /**
          * Initialize all meteor components
          */
-        const meteorComponents: (keyof typeof MeteorImport)[] = [
-            'MtBanner',
-            'MtLoader',
-            'MtProgressBar',
-            'MtButton',
-            'MtCheckbox',
-            'MtColorpicker',
-            'MtEmailField',
-            'MtEmptyState',
-            'MtNumberField',
-            'MtPasswordField',
-            'MtSelect',
-            'MtSlider',
-            'MtSwitch',
-            'MtTextField',
-            'MtTextarea',
-            'MtIcon',
-            'MtDataTable',
-            'MtPagination',
-            'MtSkeletonBar',
-            'MtToast',
-            'MtFloatingUi',
-            'MtPopover',
-            'MtTextEditorToolbarButton',
-            'MtModal',
-            'MtModalRoot',
-            'MtModalClose',
-            'MtModalTrigger',
-            'MtModalAction',
-            'MtUrlField',
-            'MtSearch',
-            'MtLink',
-            'MtUnitField',
-        ];
+        const meteorComponents = {
+            MtBanner,
+            MtLoader,
+            MtProgressBar,
+            MtButton,
+            MtCheckbox,
+            MtEmailField,
+            MtEmptyState,
+            MtNumberField,
+            MtPasswordField,
+            MtSelect,
+            MtSlider,
+            MtSwitch,
+            MtTextField,
+            MtTextarea,
+            MtIcon,
+            MtPagination,
+            MtSkeletonBar,
+            MtToast,
+            MtFloatingUi,
+            MtTextEditorToolbarButton,
+            MtModal,
+            MtModalRoot,
+            MtModalClose,
+            MtModalTrigger,
+            MtModalAction,
+            MtUrlField,
+            MtSearch,
+            MtLink,
+            MtUnitField,
+            MtSnackbar,
+        } as const;
 
-        meteorComponents.forEach((componentName) => {
-            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            this.app.component(componentNameAsKebabCase, MeteorImport[componentName] as VueComponent);
-        });
+        const lazyMeteorComponents = {
+            MtDataTable: () => import('@shopware-ag/meteor-component-library/dist/esm/MtDataTable'),
+            MtColorpicker: () => import('@shopware-ag/meteor-component-library/dist/esm/MtColorpicker'),
+            MtPopover: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopover'),
+            MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
+        };
+
+        Object.entries(meteorComponents).forEach(
+            ([
+                componentName,
+                component,
+            ]) => {
+                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+                this.app.component(componentNameAsKebabCase, component as VueComponent);
+            },
+        );
+
+        Object.entries(lazyMeteorComponents).forEach(
+            ([
+                componentName,
+                importMethod,
+            ]) => {
+                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+                this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
+            },
+        );
 
         return this.vueComponents;
     }
@@ -480,26 +466,10 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            // load async components
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.app?.component(
+            this.registerAsyncComponent(
                 componentName,
-                defineAsyncComponent({
-                    // the loader function
-                    // @ts-expect-error - resolved config does not match completely a standard vue component
-                    loader: () => this.componentResolver(componentName),
-                    // Delay before showing the loading component. Default: 200ms.
-                    delay: 0,
-                    loadingComponent: {
-                        name: 'async-loading-component',
-                        inheritAttrs: false,
-                        render() {
-                            return h('div', {
-                                style: { display: 'none' },
-                            });
-                        },
-                    },
-                }),
+                // @ts-expect-error - resolved config does not match completely a standard vue component
+                () => this.componentResolver(componentName),
             );
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
@@ -658,6 +628,11 @@ export default class VueAdapter extends ViewAdapter {
      * Initialises the standard locales.
      */
     initLocales() {
+        /**
+         * Snippet registration should be done with
+         * reactivity in mind. So that updates later
+         * from the locale factory are reflected in the i18n instance.
+         */
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;

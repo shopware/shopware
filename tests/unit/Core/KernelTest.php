@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -46,7 +45,7 @@ class KernelTest extends TestCase
         $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc');
         $containerBuilder->compile();
 
-        ReflectionHelper::getMethod(Kernel::class, 'dumpContainer')->invoke(
+        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
             $this->createKernel(),
             new ConfigCache($this->tmpProjectDir . '/cache-file', true),
             $containerBuilder,
@@ -65,7 +64,7 @@ class KernelTest extends TestCase
         $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc_');
         $containerBuilder->compile();
 
-        ReflectionHelper::getMethod(Kernel::class, 'dumpContainer')->invoke(
+        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
             $this->createKernel(),
             new ConfigCache($this->tmpProjectDir . '/cache', true),
             $containerBuilder,

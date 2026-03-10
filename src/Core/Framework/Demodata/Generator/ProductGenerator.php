@@ -42,7 +42,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         private readonly Connection $connection,
         private readonly DefinitionInstanceRegistry $registry,
         private readonly InheritanceUpdater $updater,
-        private readonly StatesUpdater $statesUpdater
+        private readonly ?StatesUpdater $statesUpdater = null
     ) {
     }
 
@@ -130,7 +130,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             }
         }
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             $this->write($payload, $context);
         }
 
@@ -184,16 +184,14 @@ class ProductGenerator implements DemodataGeneratorInterface
         $variants = [];
         foreach ($combinations as $options) {
             $price = $this->faker->randomFloat(2, 1, 1000);
-            $tax = $taxes->get(array_rand($taxes->getIds()));
-            if (!$tax instanceof TaxEntity) {
-                continue;
-            }
+            $tax = $this->getRandomTax($taxes);
             $taxRate = 1 + ($tax->getTaxRate() / 100);
 
             $id = Uuid::randomHex();
             $variants[] = [
                 'id' => $id,
                 'productNumber' => 'SW_' . $id,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),
@@ -230,6 +228,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         return [
             'downloads' => $downloads,
+            'type' => ProductDefinition::TYPE_DIGITAL,
             'maxPurchase' => 1,
             'deliveryTimeId' => $instantDeliveryId,
         ];
@@ -253,7 +252,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         }
 
         $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-        $this->statesUpdater->update($all, $context);
+        $this->statesUpdater?->update($all, $context);
 
         $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
@@ -281,12 +280,12 @@ class ProductGenerator implements DemodataGeneratorInterface
     ): array {
         $price = $this->faker->randomFloat(2, 1, 1000);
         $purchasePrice = $this->faker->randomFloat(2, 1, 1000);
-        $tax = $taxes->get(array_rand($taxes->getIds()));
-        \assert($tax instanceof TaxEntity);
+        $tax = $this->getRandomTax($taxes);
         $taxRate = 1 + ($tax->getTaxRate() / 100);
 
         return [
             'id' => Uuid::randomHex(),
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => 'SW_' . Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
             'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $taxRate, 'linked' => true]],
@@ -357,7 +356,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $tagAssignments = [];
 
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
             if (!empty($chosenTags)) {
@@ -397,7 +396,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getMediaIds(string $entity = 'product'): array
     {
@@ -459,5 +458,20 @@ class ProductGenerator implements DemodataGeneratorInterface
         $id = $this->connection->fetchOne('SELECT LOWER(HEX(delivery_time_id)) FROM delivery_time_translation WHERE `name` = "Instant download" LIMIT 1');
 
         return \is_string($id) ? $id : null;
+    }
+
+    private function getRandomTax(TaxCollection $taxes): TaxEntity
+    {
+        $taxIds = $taxes->getIds();
+        if ($taxIds === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
+        $tax = $taxes->get((string) array_rand($taxIds));
+        if (!$tax instanceof TaxEntity) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
+        return $tax;
     }
 }

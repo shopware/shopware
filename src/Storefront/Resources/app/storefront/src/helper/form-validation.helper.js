@@ -1,3 +1,5 @@
+import CookieStorageHelper from './storage/cookie-storage.helper';
+
 /**
  * @module FormValidation
  *
@@ -96,6 +98,7 @@ export default class FormValidation {
         this.addValidator('email', this.validateEmail, validationMessages['email']);
         this.addValidator('confirmation', this.validateConfirmation, validationMessages['confirmation']);
         this.addValidator('minLength', this.validateMinLength, validationMessages['minLength']);
+        this.addValidator('grecaptcha', this.validateGrecaptcha, validationMessages['grecaptcha']);
     }
 
     /**
@@ -117,7 +120,7 @@ export default class FormValidation {
             return false;
         }
 
-        if (errorMessage && errorMessage.length) {
+        if (errorMessage?.length) {
             this.errorMessages.set(validatorName, errorMessage);
         }
 
@@ -285,14 +288,31 @@ export default class FormValidation {
 
     /**
      * Checks if the value is a valid email address.
+     * Supports IDN
      *
      * @param {string} value
      * @returns {boolean}
      */
     validateEmail(value) {
         const emailRegEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        let emailAddress = value;
 
-        return emailRegEx.test(value);
+        if (emailAddress.includes('@')) {
+            const [user, domain] = emailAddress.split('@');
+
+            // eslint-disable-next-line no-control-regex
+            if (domain && /[^\u0000-\u007F]/.test(domain)) {
+                try {
+                    const url = new URL(`https://${domain}`);
+                    const asciiDomain = url.hostname;
+                    emailAddress = `${user}@${asciiDomain}`;
+                } catch (e) {
+                    // If URL parsing fails, fall back to standard validation
+                }
+            }
+        }
+
+        return emailRegEx.test(emailAddress);
     }
 
     /**
@@ -341,6 +361,39 @@ export default class FormValidation {
         const minLength = minLengthAttr ? minLengthAttr : this.config.defaultMinLength;
 
         return value.length >= minLength;
+    }
+
+    /**
+     * Validates Google reCAPTCHA v3/v2 cookies.
+     * Checks if the required cookies are set to allow reCAPTCHA functionality.
+     * This validates that users have accepted cookies before trying to use reCAPTCHA.
+     * Dispatches a custom event to show the cookie bar if validation fails.
+     *
+     * @param {string} _value - The field value (unused for cookie validation)
+     * @param {HTMLElement} field
+     * @returns {boolean}
+     */
+    validateGrecaptcha(_value, field) {
+        if (!(field instanceof HTMLElement)) {
+            console.error('[FormValidation]: Missing or invalid required parameter "field".');
+            return true;
+        }
+
+        const fieldName = field.getAttribute('name');
+
+        if (!window.useDefaultCookieConsent || (fieldName !== '_grecaptcha_v3' && fieldName !== '_grecaptcha_v2')) {
+            return true;
+        }
+
+        const grecaptchaCookie = CookieStorageHelper.getItem('_GRECAPTCHA');
+        const grecaptchaCookieAccepted = grecaptchaCookie === '1';
+
+        if (!grecaptchaCookieAccepted) {
+            const showCookieBarEvent = new CustomEvent('showCookieBar');
+            document.dispatchEvent(showCookieBarEvent);
+        }
+
+        return grecaptchaCookieAccepted;
     }
 
     /**
@@ -431,7 +484,7 @@ export default class FormValidation {
         const label = document.querySelector(`[for="${field.id}"]`);
         const requiredLabel = label.querySelector('.form-required-label');
 
-        if (validationRules) {
+        if (validationRules && validationRules.includes('required')) {
             const rules = validationRules.split(',');
             rules.splice(rules.indexOf('required'), 1);
             field.setAttribute('data-validation', rules.join(','));

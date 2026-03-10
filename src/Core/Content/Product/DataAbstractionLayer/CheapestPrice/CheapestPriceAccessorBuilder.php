@@ -45,20 +45,24 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         $parts = explode('.', $accessor);
+        $lastAccessorPart = array_last($parts);
 
         // is tax state explicitly requested? => overwrite selector
-        if (\in_array(end($parts), ['net', 'gross'], true)) {
-            $jsonAccessor = end($parts);
+        if (\in_array($lastAccessorPart, ['net', 'gross'], true)) {
+            $jsonAccessor = $lastAccessorPart;
             array_pop($parts);
+            $lastAccessorPart = array_last($parts);
         }
 
         // filter / search / sort for list prices? => extend selector
-        if (end($parts) === 'listPrice') {
+        if ($lastAccessorPart === 'listPrice') {
             $jsonAccessor = 'listPrice.' . $jsonAccessor;
             array_pop($parts);
+            $lastAccessorPart = array_last($parts);
         }
 
-        if (end($parts) === 'percentage') {
+        $isPercentageAccessor = $lastAccessorPart === 'percentage';
+        if ($isPercentageAccessor) {
             $jsonAccessor = 'percentage.' . $jsonAccessor;
             array_pop($parts);
         }
@@ -121,7 +125,12 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
             );
         }
 
-        return \sprintf('COALESCE(%s)', implode(',', $select));
+        $coalesceArguments = implode(',', $select);
+        if ($isPercentageAccessor) {
+            $coalesceArguments .= ', 0';
+        }
+
+        return \sprintf('COALESCE(%s)', $coalesceArguments);
     }
 
     private function useCashRounding(Context $context): bool

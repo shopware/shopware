@@ -6,9 +6,9 @@ use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
-use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Core\Framework\Api\OAuth\User\User;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('framework')]

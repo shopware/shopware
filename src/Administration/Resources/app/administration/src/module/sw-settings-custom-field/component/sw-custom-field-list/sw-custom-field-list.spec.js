@@ -63,7 +63,7 @@ function mockCustomFieldRepository() {
     return new Repository();
 }
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], repo = mockCustomFieldRepository()) {
     customFields = mockCustomFieldData();
 
     return mount(
@@ -79,7 +79,7 @@ async function createWrapper(privileges = []) {
                 provide: {
                     repositoryFactory: {
                         create() {
-                            return mockCustomFieldRepository();
+                            return repo;
                         },
                     },
                     acl: {
@@ -94,9 +94,6 @@ async function createWrapper(privileges = []) {
                 },
                 stubs: {
                     'mt-card': true,
-                    'sw-empty-state': {
-                        template: '<div></div>',
-                    },
                     'sw-simple-search-field': {
                         template: '<div></div>',
                     },
@@ -128,12 +125,65 @@ async function createWrapper(privileges = []) {
                     'sw-custom-field-detail': true,
                     'sw-select-field': true,
                 },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
+                },
             },
         },
     );
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-custom-field-list', () => {
+    it('should store api error', async () => {
+        const repoMock = {
+            search: jest.fn(() => Promise.resolve(mockCustomFieldRepository().search())),
+            save: jest.fn(() =>
+                // eslint-disable-next-line prefer-promise-reject-errors
+                Promise.reject({
+                    response: {
+                        data: {
+                            errors: [
+                                {
+                                    code: 'SOME_ERROR_CODE',
+                                    detail: 'Some error happened',
+                                },
+                            ],
+                        },
+                    },
+                }),
+            ),
+        };
+
+        const wrapper = await createWrapper(['custom_field.editor'], repoMock);
+        await flushPromises();
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.find('.sw-custom-field-list__edit-action').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-custom-field-detail-stub').exists()).toBe(true);
+        await wrapper.getComponent('sw-custom-field-detail-stub').vm.$emit('custom-field-edit-save', customFields[0]);
+        await flushPromises();
+
+        expect(repoMock.save).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenNthCalledWith(1, { message: 'Some error happened' });
+
+        const errors = Shopware.Store.get('error').getAllApiErrors();
+        expect(errors).toHaveLength(1);
+
+        const error = errors[0]?.id0?.name?.error;
+        expect(error).toBeInstanceOf(Shopware.Classes.ShopwareError);
+        expect(error.code).toBe('SOME_ERROR_CODE');
+        expect(error.selfLink).toBe('custom_field.id0.name.error');
+    });
+
     it('should always have a pagination', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

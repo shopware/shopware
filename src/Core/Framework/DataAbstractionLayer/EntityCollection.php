@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @template TElement of Entity
  *
- * @extends Collection<TElement>
+ * @extends Collection<TElement, string>
  */
 #[Package('framework')]
 class EntityCollection extends Collection
@@ -170,7 +170,7 @@ class EntityCollection extends Collection
 
         $values = [];
         foreach ($this->elements as $element) {
-            if (empty($fields)) {
+            if ($fields === []) {
                 $values[$element->getUniqueIdentifier()] = $element->getCustomFields();
 
                 continue;
@@ -251,6 +251,7 @@ class EntityCollection extends Collection
 
     protected function getExpectedClass(): string
     {
+        /** @phpstan-ignore return.type (The base Entity class is used as fallback. Typically, there is a dedicated Entity class) */
         return Entity::class;
     }
 

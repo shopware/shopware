@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -12,7 +13,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -114,8 +115,8 @@ class DocumentControllerTest extends TestCase
         /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
-        /** @var DocumentTypeEntity $type */
         $type = $documentTypeRepository->search($criteria, $context)->first();
+        static::assertNotNull($type);
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -170,11 +171,12 @@ class DocumentControllerTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         static::assertNotNull($order);
 
-        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $order->getDeepLinkCode());
+        $deepLinkCode = $order->getDeepLinkCode();
+        static::assertIsString($deepLinkCode);
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $deepLinkCode);
         $this->getBrowser()->request('GET', $endpoint);
 
         static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
@@ -190,7 +192,9 @@ class DocumentControllerTest extends TestCase
         static::assertNotEmpty($response['errors']);
         static::assertSame('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
 
-        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
+        $deepLinkCode = $order->getDeepLinkCode();
+        static::assertIsString($deepLinkCode);
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $deepLinkCode);
 
         $this->getBrowser()->request('GET', $endpoint);
 
@@ -204,7 +208,6 @@ class DocumentControllerTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         static::assertNotNull($order);
 
@@ -213,7 +216,9 @@ class DocumentControllerTest extends TestCase
             []
         )->authorizeBrowser($this->getBrowser());
 
-        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
+        $deepLinkCode = $order->getDeepLinkCode();
+        static::assertIsString($deepLinkCode);
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $deepLinkCode);
 
         $this->getBrowser()->request('GET', $endpoint);
 
@@ -234,84 +239,81 @@ class DocumentControllerTest extends TestCase
         static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $this->getBrowser()->getResponse()->headers->get('content-type'));
     }
 
-    public function testCreateDocuments(): void
-    {
+    #[DataProvider('documentGenerationDataProvider')]
+    public function testCreateDocuments(
+        string $documentType,
+        bool $requiresExistingInvoice,
+        bool $requiresCreditItem,
+    ): void {
         static::assertNotNull($customer = $this->salesChannelContext->getCustomer());
-        $order1 = $this->createOrder($customer->getId(), $this->context);
-        $order2 = $this->createOrder($customer->getId(), $this->context);
-        $this->createDocument(InvoiceRenderer::TYPE, $order1->getId(), [
-            'documentType' => 'invoice',
-            'custom' => [
-                'invoiceNumber' => '1100',
-            ],
-        ], $this->context);
 
-        $this->createDocument(InvoiceRenderer::TYPE, $order2->getId(), [
-            'documentType' => 'invoice',
-            'documentRangerType' => 'document_invoice',
-            'custom' => [
-                'invoiceNumber' => '1101',
-            ],
-        ], $this->context);
-
-        $requests = [
-            'invoice' => [
-                [
-                    'orderId' => $order1->getId(),
-                ],
-                [
-                    'orderId' => $order2->getId(),
-                ],
-            ],
-            'credit_note' => [
-                [
-                    'orderId' => $order1->getId(),
-                ],
-                [
-                    'orderId' => $order2->getId(),
-                ],
-            ],
-            'delivery_note' => [
-                [
-                    'orderId' => $order1->getId(),
-                ],
-                [
-                    'orderId' => $order2->getId(),
-                ],
-            ],
-            'storno' => [
-                [
-                    'orderId' => $order1->getId(),
-                ],
-                [
-                    'orderId' => $order2->getId(),
-                ],
-            ],
-        ];
-
-        $documentIds = [];
-
-        foreach ($requests as $type => $payload) {
-            $this->getBrowser()->jsonRequest(
-                'POST',
-                \sprintf('/api/_action/order/document/%s/create', $type),
-                $payload
-            );
-
-            $response = $this->getBrowser()->getResponse();
-            static::assertSame(200, $response->getStatusCode());
-            $response = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertArrayHasKey('data', $response);
-            static::assertNotEmpty($data = $response['data']);
-            static::assertCount(2, $data);
-
-            $documentIds = array_merge($documentIds, $this->getDocumentIds($data));
+        $orders = [];
+        for ($i = 0; $i < 2; ++$i) {
+            $orders[] = $this->createOrder($customer->getId(), $this->context);
         }
 
+        if ($requiresExistingInvoice) {
+            $this->generateInvoice($orders);
+        }
+
+        if ($requiresCreditItem) {
+            $this->createCreditItems($orders);
+        }
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            \sprintf('/api/_action/order/document/%s/create', $documentType),
+            [
+                [
+                    'orderId' => $orders[0]->getId(),
+                ],
+                [
+                    'orderId' => $orders[1]->getId(),
+                ],
+            ]
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+        $response = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('data', $response);
+
+        $data = $response['data'];
+        static::assertNotEmpty($data);
+        static::assertCount(2, $data);
+
+        $documentIds = $this->getDocumentIds($data);
         $documents = $this->getDocumentByDocumentIds($documentIds);
 
         static::assertNotEmpty($documents);
-        static::assertCount(8, $documents);
+        static::assertCount(2, $documents);
+    }
+
+    public static function documentGenerationDataProvider(): \Generator
+    {
+        yield 'create invoice' => [
+            'documentType' => 'invoice',
+            'requiresExistingInvoice' => false,
+            'requiresCreditItem' => false,
+        ];
+
+        yield 'create credit note' => [
+            'documentType' => 'credit_note',
+            'requiresExistingInvoice' => true,
+            'requiresCreditItem' => true,
+        ];
+
+        yield 'create delivery note' => [
+            'documentType' => 'delivery_note',
+            'requiresExistingInvoice' => false,
+            'requiresCreditItem' => false,
+        ];
+
+        yield 'create storno' => [
+            'documentType' => 'storno',
+            'requiresExistingInvoice' => true,
+            'requiresCreditItem' => false,
+        ];
     }
 
     public function testCreateDocumentWithInvalidDocumentTypeName(): void
@@ -336,7 +338,7 @@ class DocumentControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertSame('DOCUMENT__INVALID_RENDERER_TYPE', $response['errors'][0]['code']);
+        static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
     }
 
     public function testCreateStornoDocumentsWithoutInvoiceDocument(): void
@@ -589,5 +591,55 @@ class DocumentControllerTest extends TestCase
         }
 
         return $collection;
+    }
+
+    /**
+     * @param array<int, OrderEntity> $orders
+     */
+    private function generateInvoice(array $orders): void
+    {
+        foreach ($orders as $index => $order) {
+            static::assertInstanceOf(OrderEntity::class, $order);
+
+            $invoiceConfig = new DocumentConfiguration();
+            $invoiceConfig->setDocumentNumber('INVOICE-' . (string) $index + 1);
+
+            $operationInvoiceA = new DocumentGenerateOperation(
+                $order->getId(),
+                FileTypes::PDF,
+                $invoiceConfig->jsonSerialize()
+            );
+
+            $invoice = $this->documentGenerator->generate(
+                InvoiceRenderer::TYPE,
+                [$order->getId() => $operationInvoiceA],
+                $this->context
+            )->getSuccess()->first();
+
+            static::assertNotNull($invoice);
+        }
+    }
+
+    /**
+     * @param array<int, OrderEntity> $orders
+     */
+    private function createCreditItems(array $orders): void
+    {
+        foreach ($orders as $order) {
+            $this->orderRepository->upsert([[
+                'id' => $order->getId(),
+                'lineItems' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'identifier' => Uuid::randomHex(),
+                        'quantity' => 1,
+                        'label' => 'Credit item',
+                        'type' => LineItem::CREDIT_LINE_ITEM_TYPE,
+                        'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
+                    ],
+                ],
+            ]], $this->context);
+        }
     }
 }

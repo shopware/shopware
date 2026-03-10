@@ -45,7 +45,7 @@ class IniMock
 
             $mockedNs[] = substr($ns, 0, $nsDivider);
         } elseif (str_starts_with($class, 'Tests\\')) {
-            $mockedNs[] = substr($class, 6, strrpos($class, '\\') - 6);
+            $mockedNs[] = substr($class, 6, (int) strrpos($class, '\\') - 6);
         }
 
         foreach ($mockedNs as $ns) {

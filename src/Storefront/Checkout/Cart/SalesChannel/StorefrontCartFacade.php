@@ -123,11 +123,19 @@ class StorefrontCartFacade
             }
 
             if ($error instanceof ShippingMethodChangedError) {
-                $cartErrors->add(new ShippingMethodBlockedError($error->getOldShippingMethodName()));
+                $cartErrors->add(new ShippingMethodBlockedError(
+                    id: $error->getOldShippingMethodId(),
+                    name: $error->getOldShippingMethodName(),
+                    reason: $error->getReason(),
+                ));
             }
 
             if ($error instanceof PaymentMethodChangedError) {
-                $cartErrors->add(new PaymentMethodBlockedError($error->getOldPaymentMethodName()));
+                $cartErrors->add(new PaymentMethodBlockedError(
+                    id: $error->getOldPaymentMethodId(),
+                    name: $error->getOldPaymentMethodName(),
+                    reason: $error->getReason(),
+                ));
             }
 
             $cartErrors->remove($error->getId());

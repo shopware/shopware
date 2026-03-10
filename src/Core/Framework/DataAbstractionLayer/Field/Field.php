@@ -29,6 +29,8 @@ abstract class Field extends Struct
 
     private ?DefinitionInstanceRegistry $registry = null;
 
+    private string $description = '';
+
     public function __construct(protected string $propertyName)
     {
         $this->addFlags(new ApiAware(AdminApiSource::class));
@@ -121,6 +123,18 @@ abstract class Field extends Struct
     public function getFlags(): array
     {
         return array_values($this->flags);
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
     }
 
     public function getSerializer(): FieldSerializerInterface

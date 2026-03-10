@@ -73,6 +73,10 @@ class NetPriceCalculator
             $listPrice = $this->round($listPrice, $config);
         }
 
+        if ($listPrice <= 0) {
+            return null;
+        }
+
         return ListPrice::createFromUnitPrice($unitPrice, $listPrice);
     }
 

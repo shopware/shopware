@@ -55,10 +55,10 @@ class ProductFeatureSetDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of product feature set.'),
             new TranslatedField('name'),
             new TranslatedField('description'),
-            new JsonField('features', 'features'),
+            (new JsonField('features', 'features'))->setDescription('The actual product features.'),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'product_feature_set_id', 'id'))->addFlags(new SetNullOnDelete(), new ReverseInherited('featureSet')),
             (new TranslationsAssociationField(ProductFeatureSetTranslationDefinition::class, 'product_feature_set_id'))->addFlags(new Required()),
         ]);

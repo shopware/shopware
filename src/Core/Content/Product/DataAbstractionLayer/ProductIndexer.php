@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -41,6 +42,10 @@ class ProductIndexer extends EntityIndexer
     final public const RATING_AVERAGE_UPDATER = 'product.rating-average';
     final public const STREAM_UPDATER = 'product.stream';
     final public const SEARCH_KEYWORD_UPDATER = 'product.search-keyword';
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+     */
     final public const STATES_UPDATER = 'product.states';
     private const UPDATE_IDS_CHUNK_SIZE = 50;
 
@@ -64,8 +69,8 @@ class ProductIndexer extends EntityIndexer
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
         private readonly AbstractProductStreamUpdater $streamUpdater,
-        private readonly StatesUpdater $statesUpdater,
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly ?StatesUpdater $statesUpdater
     ) {
     }
 
@@ -80,7 +85,7 @@ class ProductIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -91,7 +96,7 @@ class ProductIndexer extends EntityIndexer
     {
         $ids = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -156,7 +161,7 @@ class ProductIndexer extends EntityIndexer
         }
 
         $ids = array_values(array_unique(array_filter($ids)));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -188,18 +193,6 @@ class ProductIndexer extends EntityIndexer
             });
         }
 
-        if ($message->allow(self::STREAM_UPDATER)) {
-            Profiler::trace('product:indexer:streams', function () use ($ids, $context): void {
-                $this->streamUpdater->updateProducts($ids, $context);
-            });
-        }
-
-        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            Profiler::trace('product:indexer:many-to-many', function () use ($ids, $context): void {
-                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
-            });
-        }
-
         if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
             Profiler::trace('product:indexer:category', function () use ($ids, $context): void {
                 $this->categoryDenormalizer->update($ids, $context);
@@ -224,9 +217,23 @@ class ProductIndexer extends EntityIndexer
             });
         }
 
-        if ($message->allow(self::STATES_UPDATER)) {
+        if (!Feature::isActive('v6.8.0.0') && $message->allow(self::STATES_UPDATER)) {
             Profiler::trace('product:indexer:states', function () use ($ids, $context): void {
-                $this->statesUpdater->update($ids, $context);
+                $this->statesUpdater?->update($ids, $context);
+            });
+        }
+
+        // STREAM_UPDATER should be ran after other fields updater like categoriesRo or cheapestPriceUpdater so it could use the correct latest value
+        if ($message->allow(self::STREAM_UPDATER)) {
+            Profiler::trace('product:indexer:streams', function () use ($ids, $context): void {
+                $this->streamUpdater->updateProducts($ids, $context);
+            });
+        }
+
+        // manyToManyIdFieldUpdater should be run last so it can get the correct streamIds, categoryIds etc
+        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
+            Profiler::trace('product:indexer:many-to-many', function () use ($ids, $context): void {
+                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
             });
         }
 

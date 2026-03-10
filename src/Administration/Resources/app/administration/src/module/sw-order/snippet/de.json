@@ -328,6 +328,7 @@
     },
     "stateCard": {
       "cardTitle": "Statusverlauf",
+      "cartTitleChangeState": "Status ändern",
       "headlineOrderState": "Bestellstatus",
       "headlineTransactionState": "Zahlungsstatus",
       "headlineDeliveryState": "Lieferstatus",
@@ -337,6 +338,7 @@
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
+      "labelInternalComment": "Interner Kommentar",
       "labelSelectStateButton": "Status aktualisieren",
       "labelSendMailSwitch": "E-Mail an Kunden senden",
       "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
@@ -390,7 +392,6 @@
       "info": {
         "summary": {
           "and": "und",
-          "on": "am",
           "by": "durch",
           "lastChanged": "Zuletzt geändert",
           "with": "mit"
@@ -431,10 +432,11 @@
       "labelDeliveryDate": "Lieferdatum",
       "labelDocumentNumber": "Nummer",
       "labelDocumentStornoNumber": "Stornonummer",
-      "labelInvoiceNumber": "Rechnungsnummer",
-      "selectInvoiceNumber": "Rechnungsnummer wählen",
+      "labelInvoiceNumber": "Rechnung",
+      "selectInvoiceNumber": "Rechnung wählen",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
+      "labelCreateDownload": "Erstellen und herunterladen",
       "labelCreateDownloadPdf": "Erstellen und PDF herunterladen",
       "labelCreateSend": "Beleg erstellen und senden",
       "labelCreate": "Beleg erstellen",
@@ -470,7 +472,8 @@
         "user": "Geändert von",
         "transaction": "Zahlung",
         "delivery": "Versand",
-        "order": "Bestellung"
+        "order": "Bestellung",
+        "internalComment": "Interner Kommentar"
       }
     },
     "newCustomerModal": {

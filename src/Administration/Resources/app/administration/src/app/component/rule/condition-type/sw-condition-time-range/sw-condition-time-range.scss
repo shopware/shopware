@@ -1,8 +1,6 @@
-@import "~scss/variables";
-
 .sw-condition-time-range {
     display: grid;
-    gap: 4px;
+    gap: var(--scale-size-4);
     grid-template-columns: 1fr 1fr 1fr;
 
     .wrapper {
@@ -26,7 +24,6 @@
     .sw-single-select.sw-select {
         .sw-single-select__selection-text,
         .sw-single-select__selection-input {
-            padding: 8px;
             min-height: 0;
         }
     }

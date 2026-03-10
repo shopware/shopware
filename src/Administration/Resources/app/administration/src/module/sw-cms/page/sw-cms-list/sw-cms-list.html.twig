@@ -111,6 +111,17 @@
                     </div>
                     {% endblock %}
 
+                    {% block sw_cms_list_listing_list_empty_state %}
+                    <mt-empty-state
+                        v-if="isValidTerm(term) && !isLoading && !total"
+                        :icon="$route.meta.$module.icon"
+                        :headline="$tc('sw-empty-state.messageNoResultTitle')"
+                        :style="{ minHeight: '200px' }"
+                        :link-text="$t('sw-empty-state.messageNoResultLink')"
+                        :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
+                    />
+                    {% endblock %}
+
                     {% block sw_cms_list_listing_list %}
                     <div class="sw-cms-list__list">
 
@@ -389,25 +400,6 @@
                         </mt-card>
                         {% endblock %}
                     </div>
-                    {% endblock %}
-
-                    {% block sw_cms_list_listing_list_empty_state %}
-                    <sw-empty-state
-                        v-if="isValidTerm(term) && !isLoading && !total"
-                        :title="$tc('sw-empty-state.messageNoResultTitle')"
-                        :style="{ minHeight: '200px' }"
-                    >
-                        <template #default>
-                            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                            <router-link
-                                class="sw-empty-state__description-link"
-                                :to="{ name: 'sw.profile.index.searchPreferences' }"
-                            >
-                                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                            </router-link>
-                            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                        </template>
-                    </sw-empty-state>
                     {% endblock %}
                 </div>
                 {% endblock %}

@@ -300,14 +300,10 @@ class ProductVisibilityTest extends TestCase
     private function resetSearchKeywordUpdaterConfig(): void
     {
         $class = new \ReflectionClass($this->searchKeywordUpdater);
-        $property = $class->getProperty('decorated');
-        $property->setAccessible(true);
-        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+        $searchKeywordUpdaterInner = $class->getProperty('decorated')->getValue($this->searchKeywordUpdater);
 
         $class = new \ReflectionClass($searchKeywordUpdaterInner);
-        $property = $class->getProperty('config');
-        $property->setAccessible(true);
-        $property->setValue(
+        $class->getProperty('config')->setValue(
             $searchKeywordUpdaterInner,
             []
         );

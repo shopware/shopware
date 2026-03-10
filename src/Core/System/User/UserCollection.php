@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@framework')]
 class UserCollection extends EntityCollection
 {
+    /**
+     * @return array<string, string>
+     */
     public function getLocaleIds(): array
     {
         return $this->fmap(fn (UserEntity $user) => $user->getLocaleId());

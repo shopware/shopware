@@ -175,7 +175,7 @@ export default {
         destroyedComponent() {
             this.closeExpandedMenu();
 
-            document.removeEventListener('scroll', this.scrollEventListener, true);
+            document.removeEventListener('scroll', this.scrollEventHandler, true);
             document.removeEventListener('mouseup', this.onMouseUp);
 
             if (this.$el?.parentElement?.contains(this.$el)) {

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\InAppPurchase;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -56,24 +57,12 @@ class AppPayloadServiceHelper
 
         foreach ($array as $propertyName => $property) {
             if ($property instanceof SalesChannelContext) {
-                $salesChannelContext = $property->jsonSerialize();
-
-                foreach ($salesChannelContext as $subPropertyName => $subProperty) {
-                    if (!$subProperty instanceof Entity) {
-                        continue;
-                    }
-
-                    $salesChannelContext[$subPropertyName] = $this->encodeEntity($subProperty);
-                }
-
-                $array[$propertyName] = $salesChannelContext;
+                $array[$propertyName] = $this->encodeSalesChannelContext($property);
+            } elseif ($property instanceof Entity) {
+                $array[$propertyName] = $this->encodeEntity($property);
+            } elseif ($property instanceof RequestDataBag) {
+                $array[$propertyName] = $property->all();
             }
-
-            if (!$property instanceof Entity) {
-                continue;
-            }
-
-            $array[$propertyName] = $this->encodeEntity($property);
         }
 
         return $array;
@@ -126,5 +115,21 @@ class AppPayloadServiceHelper
             $entity,
             '/api'
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function encodeSalesChannelContext(SalesChannelContext $salesChannelContext): array
+    {
+        $array = $salesChannelContext->jsonSerialize();
+
+        foreach ($array as $propertyName => $property) {
+            if ($property instanceof Entity) {
+                $array[$propertyName] = $this->encodeEntity($property);
+            }
+        }
+
+        return $array;
     }
 }

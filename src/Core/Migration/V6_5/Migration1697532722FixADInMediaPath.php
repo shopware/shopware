@@ -20,7 +20,7 @@ class Migration1697532722FixADInMediaPath extends MigrationStep
     public function update(Connection $connection): void
     {
         // replace /ad/ with /g0/ in media.path and media_thumbnail.path
-        $connection->executeQuery('UPDATE media SET path = REPLACE(path, \'/ad/\', \'/g0/\') WHERE path LIKE \'%/ad/%\'');
-        $connection->executeQuery('UPDATE media_thumbnail SET path = REPLACE(path, \'/ad/\', \'/g0/\') WHERE path LIKE \'%/ad/%\'');
+        $connection->executeStatement('UPDATE media SET path = REPLACE(path, \'/ad/\', \'/g0/\') WHERE path LIKE \'%/ad/%\'');
+        $connection->executeStatement('UPDATE media_thumbnail SET path = REPLACE(path, \'/ad/\', \'/g0/\') WHERE path LIKE \'%/ad/%\'');
     }
 }

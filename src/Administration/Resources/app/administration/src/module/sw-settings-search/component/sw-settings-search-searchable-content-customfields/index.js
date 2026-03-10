@@ -74,6 +74,7 @@ export default {
         customFieldFilteredCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('customFieldSet');
+            criteria.addFilter(Criteria.equals('includeInSearch', true));
 
             if (!this.searchConfigs) {
                 return criteria;
@@ -101,6 +102,7 @@ export default {
         customFieldCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('customFieldSet');
+            criteria.addFilter(Criteria.equals('includeInSearch', true));
 
             return criteria;
         },

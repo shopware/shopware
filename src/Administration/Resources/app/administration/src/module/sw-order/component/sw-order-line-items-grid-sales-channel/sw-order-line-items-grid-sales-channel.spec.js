@@ -204,7 +204,6 @@ async function createWrapper() {
                         template: '<a class="router-link" href="#"><slot></slot></a>',
                         props: ['to'],
                     },
-                    'sw-empty-state': true,
                     'sw-loader': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
@@ -233,8 +232,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should show empty state when there is not item', async () => {
         const wrapper = await createWrapper({});
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('only product item should have redirect link', async () => {

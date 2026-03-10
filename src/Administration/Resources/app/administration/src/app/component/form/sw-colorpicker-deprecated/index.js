@@ -416,8 +416,8 @@ export default {
             document.body.style.userSelect = null;
             this.isDragging = false;
 
-            window.removeEventListener('mousemove', this.moveSelector);
-            window.removeEventListener('mouseup', this.removeDragging);
+            window.removeEventListener('mousemove', this.moveSelector, false);
+            window.removeEventListener('mouseup', this.removeDragging, false);
         },
 
         setSingleRGBValue(newColorValue, type) {

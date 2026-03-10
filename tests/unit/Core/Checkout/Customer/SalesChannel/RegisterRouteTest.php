@@ -415,6 +415,69 @@ class RegisterRouteTest extends TestCase
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
 
+    public function testSalutationIdIsAssignedToShippingAndBilling(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
+
+        $salutationId = Uuid::randomHex();
+        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
+        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(function (array $create) use ($salutationId) {
+                static::assertCount(1, $create);
+                static::assertArrayHasKey('salutationId', $create[0]);
+                static::assertSame($create[0]['salutationId'], $salutationId);
+                static::assertIsArray($create[0]['addresses']);
+                static::assertCount(2, $create[0]['addresses']);
+                foreach ($create[0]['addresses'] as $address) {
+                    static::assertArrayHasKey('salutationId', $address);
+                    static::assertSame($address['salutationId'], $salutationId);
+                }
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $register = $this->createRegisterRoute(
+            salutationRepository: $salutationRepository,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
+        );
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
+            'shippingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'salutationId' => '',
+        ];
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $register->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
     public function testRedirectParameters(): void
     {
         $systemConfigService = new StaticSystemConfigService([
@@ -598,6 +661,7 @@ class RegisterRouteTest extends TestCase
                 'countryId' => $countryId,
                 'id' => Uuid::randomHex(),
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'salutationId' => $salutationId,
             ],
             'salutationId' => $salutationId,
             'lastName' => 'Mustermann',
@@ -710,6 +774,7 @@ class RegisterRouteTest extends TestCase
             'shippingAddress' => [
                 'id' => Uuid::randomHex(),
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'salutationId' => $salutationId,
             ],
             'salutationId' => $salutationId,
             'lastName' => 'Mustermann',

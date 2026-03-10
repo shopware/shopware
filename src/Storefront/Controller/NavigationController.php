@@ -11,6 +11,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook;
@@ -49,8 +50,8 @@ class NavigationController extends StorefrontController
         path: '/',
         name: 'frontend.home.page',
         options: ['seo' => true],
-        defaults: ['_httpCache' => true],
-        methods: ['GET'],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: [Request::METHOD_GET],
     )]
     public function home(Request $request, SalesChannelContext $context): Response
     {
@@ -63,10 +64,10 @@ class NavigationController extends StorefrontController
 
     #[Route(
         path: '/navigation/{navigationId}',
-        name: 'frontend.navigation.page',
+        name: NavigationPageSeoUrlRoute::ROUTE_NAME,
         options: ['seo' => true],
-        defaults: ['_httpCache' => true],
-        methods: ['GET'],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: [Request::METHOD_GET],
     )]
     public function index(SalesChannelContext $context, Request $request): Response
     {
@@ -94,8 +95,11 @@ class NavigationController extends StorefrontController
     #[Route(
         path: '/widgets/menu/offcanvas',
         name: 'frontend.menu.offcanvas',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true],
-        methods: ['GET'],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET],
     )]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
@@ -116,8 +120,12 @@ class NavigationController extends StorefrontController
     #[Route(
         path: '/_esi/global/header',
         name: 'frontend.header',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true],
-        methods: ['GET'],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+            '_esi' => true,
+        ],
+        methods: [Request::METHOD_GET],
     )]
     public function header(Request $request, SalesChannelContext $context): Response
     {
@@ -127,15 +135,19 @@ class NavigationController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', [
             'header' => $header,
-            'headerParameters' => $request->get('headerParameters') ?? [],
+            'headerParameters' => $request->query->all()['headerParameters'] ?? [],
         ]);
     }
 
     #[Route(
         path: '/_esi/global/footer',
         name: 'frontend.footer',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true],
-        methods: ['GET'],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+            '_esi' => true,
+        ],
+        methods: [Request::METHOD_GET],
     )]
     public function footer(Request $request, SalesChannelContext $context): Response
     {
@@ -145,7 +157,7 @@ class NavigationController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', [
             'footer' => $footer,
-            'footerParameters' => $request->get('footerParameters') ?? [],
+            'footerParameters' => $request->query->all()['footerParameters'] ?? [],
         ]);
     }
 }

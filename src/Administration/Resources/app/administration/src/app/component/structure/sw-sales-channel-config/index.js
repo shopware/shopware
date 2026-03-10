@@ -37,7 +37,10 @@ export default {
             type: Object,
             required: false,
             default: () => {
-                return new Criteria(1, 25);
+                const criteria = new Criteria(1, 25);
+                criteria.addSorting(Criteria.sort('name'));
+
+                return criteria;
             },
         },
     },

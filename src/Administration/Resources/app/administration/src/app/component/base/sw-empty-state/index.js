@@ -5,6 +5,8 @@ import './sw-empty-state.scss';
  * @sw-package framework
  *
  * @private
+ *
+ * @deprecated tag:v6.8.0 - Will be removed
  */
 export default {
     template,

@@ -68,7 +68,7 @@ class TestBootstrapper
         if ($this->isForceInstall() || !$this->dbExists()) {
             $this->install();
 
-            if (!empty($this->activePlugins)) {
+            if ($this->activePlugins !== []) {
                 $this->installPlugins();
             }
         } elseif ($this->forceInstallPlugins) {
@@ -230,7 +230,7 @@ class TestBootstrapper
         }
 
         $parts = explode('\\', (string) $baseClass);
-        $pluginName = end($parts);
+        $pluginName = $parts[array_key_last($parts)];
 
         $this->addActivePlugins($pluginName);
 

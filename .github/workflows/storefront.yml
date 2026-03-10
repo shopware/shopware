@@ -23,7 +23,7 @@ jobs:
           install-storefront: true
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # 4
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -42,13 +42,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
 
       - name: Install ludtwig
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
+          gh release download v0.11.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
           mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
@@ -92,7 +92,7 @@ jobs:
         run: npm run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # 5
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -106,12 +106,12 @@ jobs:
       WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
         with:
           node-version: 22
       - name: Cache npm packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: src/Storefront/Resources/app/storefront/node_modules
           key: ${{ runner.os }}-storefront-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}

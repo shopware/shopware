@@ -53,7 +53,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 
@@ -134,7 +134,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
                     $language = $order->getLanguage();
                     if ($language === null) {
-                        throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
+                        throw DocumentException::generationError('Can not generate delivery note document because no language exists. OrderId: ' . $operation->getOrderId());
                     }
 
                     $doc = new RenderedDocument(

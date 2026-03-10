@@ -570,6 +570,8 @@ export default Shopware.Component.wrapComponentConfig({
             if (!dragSectionHasBlock && !dropSectionHasBlock) {
                 this.page.sections![dragSectionIndex].blocks!.add(dragData.block);
             }
+
+            this.$emit('page-save');
         },
 
         onBlockStageDrop(dragData: DragData, dropData: DropData) {

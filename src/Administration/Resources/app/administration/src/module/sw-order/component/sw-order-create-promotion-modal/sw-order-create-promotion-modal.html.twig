@@ -32,6 +32,7 @@
         <mt-button
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-create-promotion-modal.cancel"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -44,6 +45,7 @@
             variant="primary"
             :is-loading="isLoading"
             :disabled="hasNoAutomaticPromotions"
+            data-analytics-id="sw-order-create-promotion-modal.save"
             @click="onSave"
         >
             {{ $tc('sw-order.promotionModal.buttonDisable') }}

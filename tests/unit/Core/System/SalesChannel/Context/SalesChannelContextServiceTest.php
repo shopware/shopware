@@ -25,7 +25,6 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -251,12 +250,12 @@ class SalesChannelContextServiceTest extends TestCase
     {
         $token = 'test-token';
         $originalContext = new Context(new SystemSource());
-        $originalContext->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $originalContext->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('withPermissions')->willReturn($this->createMock(RuleLoaderResult::class));
         $context->expects($this->once())
             ->method('addState')
-            ->with(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+            ->with(Context::ELASTICSEARCH_EXPLAIN_MODE);
         $session = [
             'foo' => 'bar',
             'languageId' => Defaults::LANGUAGE_SYSTEM,

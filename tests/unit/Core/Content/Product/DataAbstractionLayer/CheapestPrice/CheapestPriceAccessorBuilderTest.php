@@ -53,7 +53,7 @@ class CheapestPriceAccessorBuilderTest extends TestCase
 
         $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');
 
-        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100))', $sql);
+        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100), 0)', $sql);
     }
 
     public function testWithPercentageAccessorWithRule(): void
@@ -67,7 +67,7 @@ class CheapestPriceAccessorBuilderTest extends TestCase
 
         $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');
 
-        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100))', $sql);
+        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100), 0)', $sql);
     }
 
     public function testRuleLimit(): void
@@ -82,6 +82,6 @@ class CheapestPriceAccessorBuilderTest extends TestCase
 
         $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');
 
-        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100))', $sql);
+        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100), 0)', $sql);
     }
 }

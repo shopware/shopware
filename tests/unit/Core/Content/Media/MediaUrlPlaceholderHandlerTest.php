@@ -92,12 +92,14 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
                 'path' => 'media/12/34/cat.pdf',
                 'created_at' => self::DATETIME,
                 'updated_at' => self::DATETIME,
+                'mime_type' => 'application/pdf',
             ],
             [
                 'id' => Uuid::fromHexToBytes(self::MEDIA2_ID),
                 'path' => 'media/56/78/dog.pdf',
                 'created_at' => self::DATETIME,
                 'updated_at' => self::DATETIME,
+                'mime_type' => 'application/pdf',
             ],
         ]);
         $this->connection->method('executeQuery')->willReturn($result);

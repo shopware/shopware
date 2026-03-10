@@ -15,18 +15,7 @@
         "welcome": {
             "modalTitle": "Willkommen",
             "headlineWelcome": "Willkommen in der Shopware 6 Administration",
-            "messageWelcome": "Dieser Einrichtungs-Assistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration.<br>Willst Du Deinen Shop in einer anderen Sprache verwenden und dadurch auch Kunden in anderen Ländern erreichen? Dann kannst Du hier einfach die gewünschten Sprachpakete installieren.",
-            "headlineChangeLanguage": "Installiere zusätzliche Sprachpakete",
-            "switchLanguageModalTitle": "Wähle die Sprache der Benutzeroberfläche",
-            "confirmLanguageSwitch": "Sprache wechseln",
-            "switchLanguageMessage": "Die Sprach-Erweiterung \"{pluginName}\" wurde erfolgreich installiert. Möchtest Du die Sprache der Benutzeroberfläche ändern?",
-            "pluginsInstalled": "Sprach-Erweiterung installiert",
-            "pluginsInstalledMessage": "Sprach-Erweiterung installiert: | Sprach-Erweiterung für folgende Sprachen wurden installiert: ",
-            "pluginNotFoundMessage": "Die Sprach-Erweiterung {languageName} konnte nicht gefunden werden.",
-            "pluginInstallationFailedMessage": "Erweiterung konnte nicht installiert werden: ",
-            "pluginActivationFailedMessage": "Erweiterung konnte nicht aktiviert werden: ",
-            "tryAgainLater": "Bitte versuche es später erneut.",
-            "noConnectionMessage": "Verbindungsprobleme, die gewünschte Sprache kann derzeit nicht installiert werden."
+            "messageWelcome": "Dieser Einrichtungsassistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration."
         },
         "dataImport": {
             "modalTitle": "Dein Start in Shopware 6",

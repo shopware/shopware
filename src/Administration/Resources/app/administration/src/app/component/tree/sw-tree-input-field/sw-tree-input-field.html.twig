@@ -3,10 +3,8 @@
     class="sw-tree-item sw-tree-input-field is--no-children"
     :class="classes"
 >
-
     {% block sw_tree_input_fieldelement %}
     <div class="sw-tree-item__element">
-
         {% block sw_tree_input_fieldelement_grip %}
         <div class="sw-tree-item__icon">
             <mt-icon
@@ -29,6 +27,7 @@
                 />
                 {% endblock %}
             </slot>
+
             <span
                 v-if="disabled"
                 class="sw-tree-input-field__language-warning"

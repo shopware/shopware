@@ -537,13 +537,12 @@ class ApplicationBootstrapper {
      * Initialize the initializers right away cause these are the mandatory services for the application
      * to boot successfully.
      */
-    private initializeLoginInitializer(): Promise<unknown[]> {
+    private async initializeLoginInitializer(): Promise<unknown[]> {
         const loginInitializer = [
             'login',
             'baseComponents',
-            'locale',
             'coreDirectives',
-            'apiServices',
+            'locale',
             'store',
         ];
 
@@ -574,6 +573,9 @@ class ApplicationBootstrapper {
         });
 
         this.$container.digest(pre);
+        // Ensure that the api services are available for the locale.init.ts
+        await Shopware.Application.getContainer('init-pre').apiServices;
+
         this.$container.digest(init);
         this.$container.digest(post);
 

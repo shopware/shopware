@@ -6,54 +6,8 @@
             :src="assetFilter('/administration/administration/static/img/first-run-wizard/shopware-account.svg')"
             alt=""
         >
+
         <div>
-            <h5 class="headline">
-                {{ $tc('sw-first-run-wizard.shopwareAccount.headline') }}
-            </h5>
-            <p
-                class="message"
-                v-html="$tc('sw-first-run-wizard.shopwareAccount.message')"
-            ></p>
-            <p class="create-account">
-                {{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountText') }}
-                <a
-                    class="external-link"
-                    :href="$tc('sw-first-run-wizard.shopwareAccount.registerAccountUrl')"
-                    target="_blank"
-                    rel="noopener"
-                >
-                    {{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountHere') }}
-                </a>.
-            </p>
-            <div class="input-fields">
-
-                <mt-text-field
-                    v-model="shopwareId"
-                    name="shopwareId"
-                    validation="required"
-                    :label="$tc('sw-first-run-wizard.shopwareAccount.emailAddressLabel')"
-                    :placeholder="$tc('sw-first-run-wizard.shopwareAccount.emailAddressPlaceholder')"
-                />
-            </div>
-
-            <div class="input-fields">
-                <mt-password-field
-                    v-model="password"
-                    :label="$tc('sw-first-run-wizard.shopwareAccount.passwordLabel')"
-                    :placeholder="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
-                />
-            </div>
-            <p class="forgot-password">
-                <a
-                    class="external-link"
-                    :href="$tc('sw-first-run-wizard.shopwareAccount.forgotPasswordUrl')"
-                    target="_blank"
-                    rel="noopener"
-                >
-                    {{ $tc('sw-first-run-wizard.shopwareAccount.forgotPasswordText') }}
-                </a>
-            </p>
-
             <div
                 v-if="accountError"
                 class="sw-first-run-wizard-shopware-account__error"
@@ -65,6 +19,59 @@
                     {{ $tc('sw-first-run-wizard.error.messageLoginDataInvalid') }}
                 </mt-banner>
             </div>
+
+            <h5 class="headline">
+                {{ $tc('sw-first-run-wizard.shopwareAccount.headline') }}
+            </h5>
+
+            <p
+                class="message"
+                v-html="$tc('sw-first-run-wizard.shopwareAccount.message')"
+            ></p>
+
+            <p class="create-account">
+                <span>{{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountText') }}</span>
+
+                <mt-link
+                    class="external-link"
+                    :to="$tc('sw-first-run-wizard.shopwareAccount.registerAccountUrl')"
+                    variant="primary"
+                    type="external"
+                    target="_blank"
+                >
+                    {{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountHere') }}
+                </mt-link>
+            </p>
+
+            <div class="input-field-mail">
+                <mt-text-field
+                    v-model="shopwareId"
+                    name="shopwareId"
+                    validation="required"
+                    :label="$tc('sw-first-run-wizard.shopwareAccount.emailAddressLabel')"
+                    :placeholder="$tc('sw-first-run-wizard.shopwareAccount.emailAddressPlaceholder')"
+                />
+            </div>
+
+            <div class="input-field-password">
+                <mt-password-field
+                    v-model="password"
+                    :label="$tc('sw-first-run-wizard.shopwareAccount.passwordLabel')"
+                    :placeholder="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
+                />
+            </div>
+
+            <p class="forgot-password">
+                <mt-link
+                    class="external-link"
+                    :to="$tc('sw-first-run-wizard.shopwareAccount.forgotPasswordUrl')"
+                    variant="primary"
+                    type="external"
+                    target="_blank"
+                >
+                    {{ $tc('sw-first-run-wizard.shopwareAccount.forgotPasswordText') }}
+                </mt-link>
+            </p>
         </div>
     </sw-container>
 </div>

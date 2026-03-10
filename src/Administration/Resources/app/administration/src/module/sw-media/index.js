@@ -3,6 +3,7 @@
  */
 import './mixin/media-grid-listener.mixin';
 import './mixin/media-sidebar-modal.mixin';
+import './mixin/video-cover.mixin';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
@@ -26,6 +27,8 @@ Shopware.Component.register('sw-media-display-options', () => import('./componen
 Shopware.Component.register('sw-media-breadcrumbs', () => import('./component/sw-media-breadcrumbs'));
 Shopware.Component.register('sw-media-library', () => import('./component/sw-media-library'));
 Shopware.Component.register('sw-media-modal-v2', () => import('./component/sw-media-modal-v2'));
+
+Shopware.Component.register('sw-media-save-modal', () => import('./component/sw-media-save-modal'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -37,7 +40,7 @@ Module.register('sw-media', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#ff68b4',
-    icon: 'regular-image',
+    icon: 'solid-image',
     favicon: 'icon-module-content.png',
     entity: 'media',
 

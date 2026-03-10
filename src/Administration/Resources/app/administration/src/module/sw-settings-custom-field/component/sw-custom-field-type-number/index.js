@@ -16,20 +16,39 @@ export default {
             },
             numberTypes: [
                 {
-                    id: 'int',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelInt'),
+                    value: 'int',
+                    label: this.$tc('sw-settings-custom-field.customField.detail.labelInt'),
                 },
                 {
-                    id: 'float',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelFloat'),
+                    value: 'float',
+                    label: this.$tc('sw-settings-custom-field.customField.detail.labelFloat'),
                 },
             ],
         };
     },
 
+    computed: {
+        isIntField() {
+            return this.currentCustomField.config.numberType === 'int';
+        },
+    },
+
     watch: {
         'currentCustomField.config.numberType'(value) {
             this.currentCustomField.type = value;
+
+            if (value === 'int') {
+                if (this.currentCustomField.config.step !== null && this.currentCustomField.config.step !== undefined) {
+                    const roundedStep = Math.round(this.currentCustomField.config.step);
+                    this.currentCustomField.config.step = roundedStep >= 1 ? roundedStep : 1;
+                }
+                if (this.currentCustomField.config.min !== null && this.currentCustomField.config.min !== undefined) {
+                    this.currentCustomField.config.min = Math.round(this.currentCustomField.config.min);
+                }
+                if (this.currentCustomField.config.max !== null && this.currentCustomField.config.max !== undefined) {
+                    this.currentCustomField.config.max = Math.round(this.currentCustomField.config.max);
+                }
+            }
         },
     },
 

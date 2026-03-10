@@ -21,6 +21,7 @@ async function createWrapper() {
         },
         props: {
             element: {
+                type: 'text',
                 config: {
                     content: {
                         value: '',
@@ -46,6 +47,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'text',
                 config: {
                     content: {
                         source: 'mapped',
@@ -80,6 +82,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'text',
                 config: {
                     content: {
                         source: 'mapped',
@@ -98,6 +101,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'text',
                 config: {
                     content: {
                         source: 'mapped',

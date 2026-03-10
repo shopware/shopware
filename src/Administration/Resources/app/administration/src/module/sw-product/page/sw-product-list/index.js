@@ -6,7 +6,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -18,6 +18,7 @@ export default {
         'repositoryFactory',
         'numberRangeService',
         'acl',
+        'productTypeService',
         'filterFactory',
     ],
 
@@ -28,7 +29,7 @@ export default {
     ],
 
     data() {
-        return {
+        const data = {
             products: null,
             currencies: [],
             sortBy: 'createdAt',
@@ -41,6 +42,16 @@ export default {
             cloning: false,
             productEntityVariantModal: false,
             filterCriteria: [],
+            productTypeOptions: [
+                {
+                    label: this.$t('sw-product.type.physical'),
+                    value: 'physical',
+                },
+                {
+                    label: this.$t('sw-product.type.digital'),
+                    value: 'digital',
+                },
+            ],
             defaultFilters: [
                 'product-number-filter',
                 'active-filter',
@@ -54,12 +65,19 @@ export default {
                 'sales-filter',
                 'tags-filter',
                 'product-states-filter',
+                'product-type-filter',
             ],
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
             showBulkEditModal: false,
             searchConfigEntity: 'product',
         };
+
+        if (Shopware.Feature.isActive('v6.8.0.0')) {
+            data.defaultFilters = data.defaultFilters.filter((filter) => filter !== 'product-states-filter');
+        }
+
+        return data;
     },
 
     metaInfo() {
@@ -121,12 +139,19 @@ export default {
             return new Criteria(1, 500);
         },
 
+        salesChannelCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
+
+            return criteria;
+        },
+
         showVariantModal() {
             return !!this.productEntityVariantModal;
         },
 
         listFilterOptions() {
-            return {
+            const filters = {
                 'product-number-filter': {
                     property: 'productNumber',
                     type: 'string-filter',
@@ -146,7 +171,6 @@ export default {
                     label: this.$tc('sw-product.filters.stockFilter.label'),
                     numberType: 'int',
                     step: 1,
-                    min: 0,
                     fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
                     toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
                 },
@@ -166,6 +190,7 @@ export default {
                     property: 'visibilities.salesChannel',
                     label: this.$tc('sw-product.filters.salesChannelsFilter.label'),
                     placeholder: this.$tc('sw-product.filters.salesChannelsFilter.placeholder'),
+                    criteria: this.salesChannelCriteria,
                 },
                 'categories-filter': {
                     property: 'categories',
@@ -210,6 +235,13 @@ export default {
                         },
                     ],
                 },
+                'product-type-filter': {
+                    property: 'type',
+                    label: this.$t('sw-product.filters.productTypeFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productTypeFilter.placeholder'),
+                    type: 'multi-select-filter',
+                    options: this.productTypeOptions,
+                },
                 'release-date-filter': {
                     property: 'releaseDate',
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
@@ -219,6 +251,12 @@ export default {
                     showTimeframe: true,
                 },
             };
+
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                delete filters['product-states-filter'];
+            }
+
+            return filters;
         },
 
         listFilters() {
@@ -250,14 +288,13 @@ export default {
         stockColorVariantFilter() {
             return Shopware.Filter.getByName('stockColorVariant');
         },
-    },
 
-    watch: {
-        productCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
         },
     },
 
@@ -277,12 +314,25 @@ export default {
         async getList() {
             this.isLoading = true;
 
+            this.productTypeService.fetchProductTypes().then((types) => {
+                this.productTypeOptions = types.map((type) => {
+                    return {
+                        label: this.$te(`sw-product.type.${type}`) ? this.$t(`sw-product.type.${type}`) : type,
+                        value: type,
+                    };
+                });
+            });
+
             let criteria = await Shopware.Service('filterService').mergeWithStoredFilters(
                 this.storeKey,
                 this.productCriteria,
             );
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
 
             // Clone product query to its variant
             const variantCriteria = cloneDeep(criteria);
@@ -370,10 +420,12 @@ export default {
             this.getList();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {
@@ -482,7 +534,7 @@ export default {
         },
 
         productIsDigital(productEntity) {
-            return productEntity.states && productEntity.states.includes('is-download');
+            return productEntity.type && productEntity.type === 'digital';
         },
 
         openVariantModal(item) {
@@ -495,7 +547,7 @@ export default {
 
         onBulkEditItems() {
             let includesDigital = '0';
-            const digital = Object.values(this.selection).filter((product) => product.states.includes('is-download'));
+            const digital = Object.values(this.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }

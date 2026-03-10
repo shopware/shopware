@@ -67,14 +67,14 @@ class BusinessEventEncoderTest extends TestCase
 
     public function testInvalidType(): void
     {
-        static::expectException(\RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
         $this->businessEventEncoder->encode(new InvalidTypeBusinessEvent());
     }
 
     public function testInvalidAvailableData(): void
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            static::expectException(\RuntimeException::class);
+            $this->expectException(\RuntimeException::class);
             $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
 
             return;
@@ -95,7 +95,7 @@ class BusinessEventEncoderTest extends TestCase
     public function testEncodeWithInvalidObjectOrData(): void
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            static::expectException(\RuntimeException::class);
+            $this->expectException(\RuntimeException::class);
             $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
 
             return;

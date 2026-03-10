@@ -21,6 +21,7 @@ use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\State;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -44,7 +45,11 @@ class ServiceController
     ) {
     }
 
-    #[Route(path: 'api/services/trigger-update', name: 'api.services.trigger-update', methods: ['POST'])]
+    #[Route(
+        path: 'api/services/trigger-update',
+        name: 'api.services.trigger-update',
+        methods: [Request::METHOD_POST]
+    )]
     public function triggerUpdate(Context $context): Response
     {
         $integrationId = $this->extractIntegrationIdOrFail($context);
@@ -60,7 +65,15 @@ class ServiceController
         return new JsonResponse([]);
     }
 
-    #[Route(path: '/api/service/activate/{serviceName}', name: 'api.service.activate', defaults: ['auth_required' => true, '_acl' => ['api_service_toggle']], methods: ['POST'])]
+    #[Route(
+        path: '/api/service/activate/{serviceName}',
+        name: 'api.service.activate',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function activate(string $serviceName, Context $context): JsonResponse
     {
         $this->extractIntegrationIdOrFail($context);
@@ -80,7 +93,15 @@ class ServiceController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/service/deactivate/{serviceName}', name: 'api.service.deactivate', defaults: ['auth_required' => true, '_acl' => ['api_service_toggle']], methods: ['POST'])]
+    #[Route(
+        path: '/api/service/deactivate/{serviceName}',
+        name: 'api.service.deactivate',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function deactivate(string $serviceName, Context $context): JsonResponse
     {
         $this->extractIntegrationIdOrFail($context);
@@ -100,7 +121,15 @@ class ServiceController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/service/uninstall/{serviceName}', name: 'api.service.uninstall', defaults: ['auth_required' => true, '_acl' => ['api_service_toggle']], methods: ['POST'])]
+    #[Route(
+        path: '/api/service/uninstall/{serviceName}',
+        name: 'api.service.uninstall',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function uninstall(string $serviceName, Context $context): JsonResponse
     {
         $this->extractIntegrationIdOrFail($context);
@@ -117,13 +146,29 @@ class ServiceController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/service/list', name: 'api.service.list', defaults: ['auth_required' => true, '_acl' => ['system.plugin_maintain']], methods: ['GET'])]
+    #[Route(
+        path: '/api/service/list',
+        name: 'api.service.list',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function list(Context $context): JsonResponse
     {
         return new JsonResponse($this->loadAllServices($context));
     }
 
-    #[Route(path: '/api/services/disable', name: 'api.services.disable', defaults: ['auth_required' => true, '_acl' => ['system.plugin_maintain']], methods: ['POST'])]
+    #[Route(
+        path: '/api/services/disable',
+        name: 'api.services.disable',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function disableServices(Context $context): Response
     {
         $this->manager->disable($context);
@@ -131,7 +176,15 @@ class ServiceController
         return new Response();
     }
 
-    #[Route(path: '/api/services/enable', name: 'api.services.enable', defaults: ['auth_required' => true, '_acl' => ['system.plugin_maintain']], methods: ['POST'])]
+    #[Route(
+        path: '/api/services/enable',
+        name: 'api.services.enable',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function enableServices(): Response
     {
         $this->manager->enable();
@@ -139,7 +192,15 @@ class ServiceController
         return new Response();
     }
 
-    #[Route(path: '/api/services/categorized-permissions/{serviceName}', name: 'api.services.categorized_permissions', defaults: ['auth_required' => true, '_acl' => ['system.plugin_maintain']], methods: ['GET'])]
+    #[Route(
+        path: '/api/services/categorized-permissions/{serviceName}',
+        name: 'api.services.categorized_permissions',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function categorizedPermissions(string $serviceName, Context $context): Response
     {
         $criteria = new Criteria();
@@ -149,7 +210,6 @@ class ServiceController
             new EqualsFilter('name', $serviceName),
         )->addAssociation('app.acl_role');
 
-        /** @var AppEntity|null $service */
         $service = $this->appRepository->search($criteria, $context)->first();
 
         if ($service === null) {
@@ -191,8 +251,8 @@ class ServiceController
 
     private function loadService(Context $context): ?AppEntity
     {
-        /** @var AdminApiSource $source */
         $source = $context->getSource();
+        \assert($source instanceof AdminApiSource);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('integrationId', $source->getIntegrationId()));

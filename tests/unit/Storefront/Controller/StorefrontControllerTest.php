@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
@@ -33,9 +34,11 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Error\SyntaxError;
@@ -204,6 +207,31 @@ class StorefrontControllerTest extends TestCase
         static::assertSame('/foo/generated', $response->getTargetUrl());
     }
 
+    public function testCreateActionResponseWithRedirectToRouteNotFoundException(): void
+    {
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('generate')
+            ->with('foo', ['foo' => 'bar'], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willThrowException(new RouteNotFoundException());
+
+        $request = new Request(
+            [
+                'redirectTo' => 'foo',
+                'redirectParameters' => ['foo' => 'bar'],
+            ]
+        );
+
+        $container = new ContainerBuilder();
+        $container->set('router', $router);
+        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+
+        $this->controller->setContainer($container);
+        $this->expectExceptionObject(StorefrontException::routeNotFound('foo'));
+        $this->controller->testCreateActionResponse($request);
+    }
+
     public function testCreateActionResponseWithEmptyRedirectToWillRedirectToHomePage(): void
     {
         $router = $this->createMock(RouterInterface::class);
@@ -318,6 +346,48 @@ class StorefrontControllerTest extends TestCase
         static::assertNotInstanceOf(RedirectResponse::class, $response);
         static::assertSame('<html lang="en">test</html>', $response->getContent());
         static::assertSame('text/html', $response->headers->get('Content-Type'));
+    }
+
+    public function testCreateActionResponseWithForwardToRouteNotFoundException(): void
+    {
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('generate')
+            ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
+            ->willThrowException(new RouteNotFoundException());
+
+        $request = new Request(
+            [
+                'forwardTo' => 'foo',
+                'forwardParameters' => ['foo' => 'bar'],
+            ]
+        );
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $controllerResolver = $this->createMock(ControllerResolverInterface::class);
+        $controllerResolver
+            ->method('getController')
+            ->willReturn(fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
+
+        $kernel = new HttpKernel(
+            $this->createMock(EventDispatcherInterface::class),
+            $controllerResolver,
+            $requestStack,
+        );
+
+        $container = new ContainerBuilder();
+        $container->set('router', $router);
+        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('request_stack', $requestStack);
+        $container->set(RequestTransformerInterface::class, $this->createMock(RequestTransformerInterface::class));
+        $container->set('http_kernel', $kernel);
+
+        $this->controller->setContainer($container);
+        $this->expectExceptionObject(StorefrontException::routeNotFound('foo'));
+        $this->controller->testCreateActionResponse($request);
     }
 
     public function testCreateActionResponseWithNeitherRedirectNorForwardTo(): void
@@ -487,6 +557,49 @@ class StorefrontControllerTest extends TestCase
         static::assertCount(1, $flashes['danger']);
 
         static::assertSame('A very nasty error', $flashes['danger'][0]);
+    }
+
+    public function testAddressError(): void
+    {
+        $error = new AddressValidationError(
+            true,
+            new ConstraintViolationList(),
+            'address-id-123',
+        );
+
+        $cart = new Cart('foo');
+        $cart->addErrors($error);
+
+        $request = new Request();
+        $session = new Session(new TestSessionStorage());
+
+        $request->setSession($session);
+        $request->attributes->set('_route', 'some.route');
+
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator
+            ->expects($this->once())
+            ->method('trans')
+            ->with('checkout.billing-address-invalid', ['%url%' => 'errorUrl', '%isBillingAddress%' => true, '%violations%' => $error->getViolations()])
+            ->willReturn('A very nasty error');
+
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('generate')
+            ->with('frontend.account.address.edit.page', ['addressId' => 'address-id-123', 'redirectTo' => 'some.route'])
+            ->willReturn('errorUrl');
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $stack);
+        $container->set('translator', $translator);
+        $container->set('router', $router);
+
+        $this->controller->setContainer($container);
+        $this->controller->testAddCartErrors($cart);
     }
 
     public function testRenderView(): void

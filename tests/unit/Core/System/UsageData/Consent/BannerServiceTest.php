@@ -120,7 +120,7 @@ class BannerServiceTest extends TestCase
         $userConfigRepository = new StaticEntityRepository([
             new IdSearchResult(
                 1,
-                [['data' => [], 'primaryKey' => $primaryKeyUserConfig]],
+                [$primaryKeyUserConfig => ['data' => [], 'primaryKey' => $primaryKeyUserConfig]],
                 $criteria,
                 Context::createDefaultContext(),
             ),

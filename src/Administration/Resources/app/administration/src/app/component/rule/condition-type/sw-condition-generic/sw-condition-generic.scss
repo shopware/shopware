@@ -1,36 +1,33 @@
-@import "~scss/variables";
-
-.sw-condition {
-    .sw-condition-generic.sw-condition__condition-value {
+.sw-condition-generic {
+    .sw-condition__condition-value {
         display: flex;
 
         .sw-condition-operator-select,
         .is--max-content {
             max-width: max-content;
-            min-width: 128px;
+            min-width: var(--scale-size-128);
         }
     }
 
-    .sw-condition-generic__input-wrapper {
+    &__input-wrapper {
         position: relative;
         z-index: 10;
         width: 100%;
         height: 100%;
 
-        .sw-field--datepicker .sw-field__hint {
-            color: $color-darkgray-200;
-            background-color: $color-gray-50;
+        .sw-form-field-renderer {
+            height: 100%;
 
-            .mt-icon {
-                display: none;
+            input {
+                height: 100%;
             }
         }
     }
 
-    .sw-condition-generic__unit-menu {
+    &__unit-menu {
+        right: var(--scale-size-4);
         height: 100%;
         position: absolute;
-        right: 4px;
         top: 50%;
         transform: translateY(-50%);
         text-align: left;

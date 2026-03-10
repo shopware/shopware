@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\Semver\VersionParser;
 use Doctrine\DBAL\Connection;
-use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -104,7 +103,6 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly string $projectDir,
         private readonly Connection $connection,
         private readonly FlowActionPersister $flowBuilderActionPersister,
-        private readonly ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
@@ -323,12 +321,6 @@ class AppLifecycle extends AbstractAppLifecycle
         ];
         $this->updateMetadata($updatePayload, $context);
 
-        // updates the snippets if the administration bundle is available
-        if ($this->appAdministrationSnippetPersister !== null) {
-            $snippets = $this->getSnippets($app);
-            $this->appAdministrationSnippetPersister->updateSnippets($app, $snippets, $context);
-        }
-
         return $app;
     }
 
@@ -363,25 +355,6 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         return Action::createFromXmlFile($fs->path('Resources/flow.xml'));
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function getSnippets(AppEntity $app): array
-    {
-        $fs = $this->sourceResolver->filesystemForApp($app);
-
-        if (!$fs->has('Resources/app/administration/snippet')) {
-            return [];
-        }
-
-        $snippets = [];
-        foreach ($fs->findFiles('*.json', 'Resources/app/administration/snippet') as $file) {
-            $snippets[$file->getFilenameWithoutExtension()] = $file->getContents();
-        }
-
-        return $snippets;
     }
 
     /**
@@ -459,7 +432,7 @@ class AppLifecycle extends AbstractAppLifecycle
             }
         }
 
-        if (empty($update)) {
+        if ($update === []) {
             return;
         }
 
@@ -590,7 +563,7 @@ class AppLifecycle extends AbstractAppLifecycle
             }
         }
 
-        if (\count($dataUpdate) > 0) {
+        if ($dataUpdate !== []) {
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($dataUpdate): void {
                 $this->aclRoleRepository->update($dataUpdate, $context);
             });
@@ -619,7 +592,7 @@ class AppLifecycle extends AbstractAppLifecycle
             }
         }
 
-        if (\count($dataUpdate) > 0) {
+        if ($dataUpdate !== []) {
             $this->aclRoleRepository->update($dataUpdate, $context);
         }
     }
@@ -778,24 +751,24 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $usedFeatures = [];
 
-        if (\count($manifest->getAdmin()?->getModules() ?? []) > 0) {
+        if (($manifest->getAdmin()?->getModules() ?? []) !== []) {
             // if there is no app secret but the manifest specifies modules, throw an exception in dev mode
             $usedFeatures[] = 'Admin Modules';
         }
 
-        if (\count($manifest->getPayments()?->getPaymentMethods() ?? []) > 0) {
+        if (($manifest->getPayments()?->getPaymentMethods() ?? []) !== []) {
             $usedFeatures[] = 'Payment Methods';
         }
 
-        if (\count($manifest->getTax()?->getTaxProviders() ?? []) > 0) {
+        if (($manifest->getTax()?->getTaxProviders() ?? []) !== []) {
             $usedFeatures[] = 'Tax providers';
         }
 
-        if (\count($manifest->getWebhooks()?->getWebhooks() ?? []) > 0) {
+        if (($manifest->getWebhooks()?->getWebhooks() ?? []) !== []) {
             $usedFeatures[] = 'Webhooks';
         }
 
-        if (\count($usedFeatures) > 0) {
+        if ($usedFeatures !== []) {
             throw AppException::appSecretRequiredForFeatures($app->getName(), $usedFeatures);
         }
     }

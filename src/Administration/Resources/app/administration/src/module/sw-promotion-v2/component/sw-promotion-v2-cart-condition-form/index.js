@@ -113,34 +113,18 @@ export default {
         },
     },
 
-    watch: {
-        promotion() {
-            this.loadSetGroups();
-        },
-    },
-
     created() {
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
-            if (this.promotion) {
-                this.loadSetGroups();
-            }
-
             this.promotionSyncService.loadPackagers().then((keys) => {
                 this.packagerKeys = keys;
             });
 
             this.promotionSyncService.loadSorters().then((keys) => {
                 this.sorterKeys = keys;
-            });
-        },
-
-        loadSetGroups() {
-            this.promotionGroupRepository.search(this.setGroupCriteria).then((groups) => {
-                this.promotion.setgroups = groups;
             });
         },
 

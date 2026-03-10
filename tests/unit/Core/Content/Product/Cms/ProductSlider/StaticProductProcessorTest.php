@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor;
+use Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -33,10 +35,13 @@ class StaticProductProcessorTest extends TestCase
 
     private SystemConfigService&MockObject $configService;
 
+    private EventDispatcherInterface&MockObject $eventDispatcher;
+
     protected function setUp(): void
     {
         $this->config = new FieldConfigCollection();
         $this->configService = $this->createMock(SystemConfigService::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
     }
 
     public function testGetDecorated(): void
@@ -60,6 +65,10 @@ class StaticProductProcessorTest extends TestCase
         $config = new FieldConfig('products', FieldConfig::SOURCE_STATIC, $expectedIds);
         $this->config->add($config);
 
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(ProductSliderStaticCriteriaEvent::class));
+
         $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
         static::assertInstanceOf(CriteriaCollection::class, $collection);
 
@@ -72,6 +81,32 @@ class StaticProductProcessorTest extends TestCase
 
         $ids = $criteria->getIds();
         static::assertSame($expectedIds, $ids);
+    }
+
+    public function testCollectEventCanModifyCriteria(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1']);
+        $this->config->add($config);
+
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->willReturnCallback(function (ProductSliderStaticCriteriaEvent $event): ProductSliderStaticCriteriaEvent {
+                $event->criteria->addAssociation('manufacturer');
+
+                return $event;
+            });
+
+        $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
+
+        $list = $collection->all();
+        $list = array_shift($list);
+        $criteria = $list['product-slider_id'] ?? null;
+        static::assertInstanceOf(Criteria::class, $criteria);
+        static::assertTrue($criteria->hasAssociation('manufacturer'));
     }
 
     public function testEnrichWithAvailableProducts(): void
@@ -161,11 +196,11 @@ class StaticProductProcessorTest extends TestCase
 
     private function getProcessor(): StaticProductProcessor
     {
-        return new StaticProductProcessor($this->configService);
+        return new StaticProductProcessor($this->configService, $this->eventDispatcher);
     }
 
     private function hideUnavailableProducts(bool $value): void
     {
-        $this->configService->expects($this->once())->method('get')->willReturn($value);
+        $this->configService->expects($this->once())->method('getBool')->willReturn($value);
     }
 }

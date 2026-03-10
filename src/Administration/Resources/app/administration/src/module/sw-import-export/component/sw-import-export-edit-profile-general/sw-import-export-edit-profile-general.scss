@@ -1,9 +1,8 @@
 .sw-import-export-edit-profile-general {
-    &__type-select.sw-field {
-        margin-bottom: 0;
-    }
-
     &__text {
-        margin-bottom: 24px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
+        margin-bottom: var(--scale-size-24);
     }
 }

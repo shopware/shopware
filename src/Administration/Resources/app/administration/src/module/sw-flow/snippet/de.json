@@ -189,7 +189,10 @@
         "placeholderDeliveryStatus": "Versandstatus wählen ...",
         "messageNoStatusError": "Mindestens ein Status muss ausgewählt sein",
         "forceTransition": "Statuswechsel erzwingen",
-        "forceTransitionHelpText": "Statuswechsel werden durchgeführt, ohne den Ausgangspunkt oder die üblichen Übergangspfade (state machine) zu beachten."
+        "forceTransitionHelpText": "Statuswechsel werden durchgeführt, ohne den Ausgangspunkt oder die üblichen Übergangspfade (state machine) zu beachten.",
+        "transitionWarning": {
+          "message": "Vorsicht bei der Verwendung von Statuswechseln, da diese zu fehlerhaften Flows führen können, wenn der Statuswechsel nicht gültig ist. Um solche Probleme zu vermeiden, kann die Option \"Statuswechsel erzwingen\" aktiviert werden."
+        }
       },
       "document": {
         "titleCreateDocument": "Dokumente erzeugen",
@@ -247,6 +250,7 @@
         "labelAdmin": "Administrator",
         "labelCustom": "Benutzerdefiniert",
         "labelContactFormMail": "Anfragesteller",
+        "labelRevocationRequestFormMail": "Anfragesteller",
         "labelRecipient": "Empfänger",
         "placeholderRecipient": "E-Mail-Empfänger auswählen ...",
         "useDifferentReplyToLabel": "Absender",
@@ -301,6 +305,8 @@
       "paymentMethod": "Zahlungsart",
       "contactForm": "Kontaktformular",
       "reviewForm": "Produktbewertung",
+      "revocationRequestMerchant": "Widerrufsantrag erhalten",
+      "revocationRequestCustomer": "Widerrufsantrag gesendet",
       "group": "Gruppe",
       "recovery": "Wiederherstellung",
       "registration": "Registrierung",
@@ -354,7 +360,8 @@
       "unconfirmed": "Unbestätigt",
       "pending": "Ausstehend",
       "changed": "Geändert",
-      "update": "Aktualisierung"
+      "update": "Aktualisierung",
+      "password": "Passwort"
     }
   },
   "sw-privileges": {

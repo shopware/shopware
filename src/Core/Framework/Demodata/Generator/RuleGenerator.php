@@ -64,9 +64,7 @@ class RuleGenerator implements DemodataGeneratorInterface
     {
         $this->faker = $context->getFaker();
 
-        /** @var list<string> $paymentMethodIds */
         $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
-        /** @var list<string> $shippingMethodIds */
         $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
 
         $criteria = (new Criteria())->addFilter(
@@ -81,7 +79,7 @@ class RuleGenerator implements DemodataGeneratorInterface
 
         $ids = $this->ruleRepository->searchIds($criteria, $context->getContext());
 
-        if (!empty($ids->getIds())) {
+        if ($ids->getIds() !== []) {
             return;
         }
 

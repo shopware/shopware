@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\JWT\Struct;
 
 use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Validation\ValidatorFactory;
 
@@ -16,8 +15,6 @@ use Shopware\Core\Framework\Validation\ValidatorFactory;
 #[Package('checkout')]
 class JWKCollection extends Collection
 {
-    use AssignArrayTrait;
-
     /**
      * @param array{keys: array<int, JSONWebKey>} $data
      */

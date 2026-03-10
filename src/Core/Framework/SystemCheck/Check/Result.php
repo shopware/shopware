@@ -3,12 +3,13 @@
 namespace Shopware\Core\Framework\SystemCheck\Check;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class Result
+class Result extends Struct
 {
     /**
      * @param mixed[] $extra

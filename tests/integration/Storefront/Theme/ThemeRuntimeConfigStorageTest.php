@@ -190,6 +190,29 @@ class ThemeRuntimeConfigStorageTest extends TestCase
         static::assertNull($retrievedThemeId);
     }
 
+    public function testDeleteByTechnicalName(): void
+    {
+        $technicalName1 = 'theme1-' . Uuid::randomHex();
+        $technicalName2 = 'theme2-' . Uuid::randomHex();
+
+        $config1 = $this->createThemeRuntimeConfig(['technicalName' => $technicalName1]);
+        $config2 = $this->createThemeRuntimeConfig(['technicalName' => $technicalName2]);
+
+        $this->storage->save($config1);
+        $this->storage->save($config2);
+
+        // Verify both exist
+        static::assertNotNull($this->storage->getByName($technicalName1));
+        static::assertNotNull($this->storage->getByName($technicalName2));
+
+        // Delete first theme
+        $this->storage->deleteByTechnicalName($technicalName1);
+
+        // Verify first is gone, second still exists
+        static::assertNull($this->storage->getByName($technicalName1));
+        static::assertNotNull($this->storage->getByName($technicalName2));
+    }
+
     /**
      * @param ThemeRuntimeConfigArrayOverrides $overrides
      */

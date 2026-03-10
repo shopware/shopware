@@ -1,14 +1,23 @@
 {% block sw_cms_el_config_html %}
 <div class="sw-cms-el-config-html">
-    <sw-code-editor
-        :value="element.config.content.value"
-        :set-focus="true"
-        @update:value="onInput"
-        @blur="onBlur"
-    />
+    <sw-cms-inherit-wrapper
+        field="content"
+        :element="element"
+        :label="$t('sw-cms.elements.html.labelContent')"
+    >
+        <template #default="{ isInherited }">
+            <sw-code-editor
+                v-model:value="element.config.content.value"
+                :disabled="isInherited"
+                :set-focus="true"
+                @update:value="onInput"
+                @blur="onBlur"
+            />
+        </template>
+    </sw-cms-inherit-wrapper>
 
     <mt-banner variant="attention">
-        {{ $tc('sw-cms.elements.html.config.warning') }}
+        {{ $t('sw-cms.elements.html.config.warning') }}
     </mt-banner>
 </div>
 {% endblock %}

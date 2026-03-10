@@ -53,9 +53,9 @@ export default Object.freeze({
         default: 5000,
     },
     MEDIA: {
-        previewCamera: 'bundles/administration/administration/static/img/cms/preview_camera_large.jpg',
-        previewMountain: 'bundles/administration/administration/static/img/cms/preview_mountain_large.jpg',
-        previewPlant: 'bundles/administration/administration/static/img/cms/preview_plant_large.jpg',
-        previewGlasses: 'bundles/administration/administration/static/img/cms/preview_glasses_large.jpg',
+        previewCamera: 'bundles/administration/administration/static/img/cms/preview_camera_large.webp',
+        previewMountain: 'bundles/administration/administration/static/img/cms/preview_mountain_large.webp',
+        previewPlant: 'bundles/administration/administration/static/img/cms/preview_plant_large.webp',
+        previewGlasses: 'bundles/administration/administration/static/img/cms/preview_glasses_large.webp',
     },
 });

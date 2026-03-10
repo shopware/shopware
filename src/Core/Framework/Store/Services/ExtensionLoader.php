@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -49,6 +50,8 @@ class ExtensionLoader
 
     /**
      * @param ?EntityRepository<ThemeCollection> $themeRepository
+     *
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
      */
     public function __construct(
         private readonly ?EntityRepository $themeRepository,
@@ -57,7 +60,8 @@ class ExtensionLoader
         private readonly ConfigurationService $configurationService,
         private readonly LocaleProvider $localeProvider,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly InAppPurchase $inAppPurchase
+        private readonly InAppPurchase $inAppPurchase,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -130,9 +134,16 @@ class ExtensionLoader
     {
         $extensions = new ExtensionCollection();
 
-        foreach ($collection as $app) {
-            $plugin = $this->loadFromPlugin($context, $app);
-            $extensions->set($plugin->getName(), $plugin);
+        foreach ($collection as $plugin) {
+            try {
+                $extension = $this->loadFromPlugin($context, $plugin);
+                $extensions->set($extension->getName(), $extension);
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to load plugin extension data', [
+                    'plugin' => $plugin->getName(),
+                    'exception' => $e->getMessage(),
+                ]);
+            }
         }
 
         return $extensions;
@@ -146,7 +157,7 @@ class ExtensionLoader
 
         $id = $this->getLocalesCodesFromLanguageIds([$languageId]);
 
-        if (empty($id)) {
+        if ($id === []) {
             return null;
         }
 
@@ -170,10 +181,12 @@ class ExtensionLoader
     {
         $isTheme = false;
 
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         if (interface_exists(ThemeInterface::class) && class_exists($plugin->getBaseClass())) {
             $implementedInterfaces = class_implements($plugin->getBaseClass());
 
             if (\is_array($implementedInterfaces)) {
+                /** @phpstan-ignore phpat.restrictNamespacesInCore */
                 $isTheme = \array_key_exists(ThemeInterface::class, $implementedInterfaces);
             }
         }

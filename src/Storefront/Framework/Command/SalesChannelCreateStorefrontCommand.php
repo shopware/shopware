@@ -76,10 +76,11 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 
     private function guessSnippetSetId(?string $isoCode = null): string
     {
+        $isoCode = $isoCode ?: 'en-GB';
         $snippetSet = $this->getSnippetSetId($isoCode);
 
         if ($snippetSet === null) {
-            $snippetSet = $this->getSnippetSetId();
+            $snippetSet = $this->getSnippetSetId('en-GB');
         }
 
         if ($snippetSet === null) {
@@ -89,9 +90,8 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         return $snippetSet;
     }
 
-    private function getSnippetSetId(?string $isoCode = null): ?string
+    private function getSnippetSetId(string $isoCode): ?string
     {
-        $isoCode = $isoCode ?: 'en-GB';
         $isoCode = str_replace('_', '-', $isoCode);
         $criteria = (new Criteria())
             ->setLimit(1)

@@ -29,6 +29,7 @@ import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
+import type ProductTypeApiService from 'src/app/service/product-type.api.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type {
@@ -142,7 +143,8 @@ import type SsoInvitationService from './core/service/api/sso-invitation.service
 import type CMSConstant from './module/sw-cms/constant/sw-cms.constant';
 import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.constant';
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
-
+import type SnippetApiService from './core/service/api/snippet.api.service';
+import type ConsentApiService from './core/consent/consent.api.service';
 // trick to make it an "external module" to support global type extension
 
 // base methods for subContainer
@@ -222,6 +224,7 @@ declare global {
         _sw_extension_component_collection: DevtoolComponent[];
         _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
+        _pageLoadTime_: number;
     }
 
     const _features_: {
@@ -281,7 +284,7 @@ declare global {
         searchTypeService: $TSFixMe;
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
         shortcutService: $TSFixMe;
-        snippetService: $TSFixMe;
+        snippetService: SnippetApiService;
         stateStyleDataProviderService: StateStyleService;
         storeService: StoreApiService;
         systemConfigApiService: SystemConfigApiService;
@@ -296,6 +299,8 @@ declare global {
         ssoSettingsService: SsoSettingsService;
         ssoInvitationService: SsoInvitationService;
         shopIdChangeService: ShopIdChangeService;
+        productTypeService: ProductTypeApiService;
+        consentApiService: ConsentApiService;
     }
 
     interface MixinContainer {
@@ -328,6 +333,7 @@ declare global {
     interface InitPostContainer extends SubContainer<'init-post'> {}
     interface InitPreContainer extends SubContainer<'init-pre'> {
         state: $TSFixMe;
+        apiServices: Promise<typeof ApiServiceFactory>;
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'> {
@@ -563,5 +569,16 @@ declare module 'axios' {
     interface AxiosRequestConfig {
         // adds the shopware API version to the RequestConfig
         version?: number;
+        // Opt-in flag to use axios v1 instead of v0 for this request
+        useAxiosV1?: boolean;
+    }
+}
+
+declare module 'axios-v1' {
+    interface AxiosRequestConfig {
+        // adds the shopware API version to the RequestConfig
+        version?: number;
+        // Opt-in flag to use axios v1 instead of v0 for this request
+        useAxiosV1?: boolean;
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Cms\Extension;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -66,6 +67,8 @@ final class CmsSlotsDataEnrichExtension extends Extension
          * @public
          *
          * @description Allows you to access to the current resolver-context
+         *
+         * @param ResolverContext|EntityResolverContext $resolverContext
          */
         public readonly ResolverContext $resolverContext,
     ) {

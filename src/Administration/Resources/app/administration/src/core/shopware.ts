@@ -52,6 +52,7 @@ import CUSTOMER from '../module/sw-customer/constant/sw-customer.constant';
 import FLOW from '../module/sw-flow/constant/flow.constant';
 import InAppPurchase from './in-app-purchase';
 import ExtensionApi from './extension-api';
+import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
 
@@ -260,6 +261,11 @@ class ShopwareClass implements CustomShopwareProperties {
     public Data = data;
 
     public get Snippet() {
+        // @ts-expect-error - type is currently not available
+        if (!Shopware.Application.view?.i18n) {
+            return null;
+        }
+
         return {
             // @ts-expect-error - type is currently not available
             ...Shopware.Application.view.i18n.global,
@@ -310,6 +316,8 @@ class ShopwareClass implements CustomShopwareProperties {
     public _private = {
         ApiServices: ApiServices,
     };
+
+    public Telemetry = Telemetry;
 }
 
 const ShopwareInstance = new ShopwareClass();

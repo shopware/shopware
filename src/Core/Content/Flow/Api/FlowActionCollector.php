@@ -76,7 +76,7 @@ class FlowActionCollector
         $requirementsName = [];
         foreach ($service->requirements() as $requirement) {
             $className = explode('\\', $requirement);
-            $requirementsName[] = lcfirst(end($className));
+            $requirementsName[] = lcfirst(array_last($className));
         }
 
         $delayable = false;

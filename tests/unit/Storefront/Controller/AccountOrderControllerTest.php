@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRouteResponse
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -50,6 +51,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[CoversClass(AccountOrderController::class)]
+#[Package('checkout')]
 class AccountOrderControllerTest extends TestCase
 {
     private AccountOrderControllerTestClass $controller;

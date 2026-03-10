@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -157,6 +158,8 @@ trait OrderActionTrait
 
     private function cancelOrder(): void
     {
+        $this->getContainer()->get(SystemConfigService::class)->set('core.cart.enableOrderRefunds', true);
+
         $this->browser
             ->request(
                 'POST',

@@ -21,8 +21,8 @@ class EmptyPrice extends CalculatedPrice
         ?ListPrice $listPrice = null,
         ?RegulationPrice $regulationPrice = null
     ) {
-        $calculatedTaxes = $calculatedTaxes ?? new CalculatedTaxCollection();
-        $taxRules = $taxRules ?? new TaxRuleCollection();
+        $calculatedTaxes ??= new CalculatedTaxCollection();
+        $taxRules ??= new TaxRuleCollection();
 
         parent::__construct($unitPrice, $totalPrice, $calculatedTaxes, $taxRules, $quantity, $referencePrice, $listPrice, $regulationPrice);
     }

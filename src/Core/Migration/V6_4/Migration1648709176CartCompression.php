@@ -7,11 +7,10 @@ use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1648709176CartCompression extends MigrationStep
@@ -29,16 +28,16 @@ class Migration1648709176CartCompression extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'cart', 'compressed')) {
+        if (!TableHelper::columnExists($connection, 'cart', 'compressed')) {
             $connection->executeStatement('ALTER TABLE `cart` ADD `compressed` tinyint(1) NOT NULL DEFAULT 0;');
         }
 
         // after adding the payload column, we may save carts as compressed serialized objects, there is no way of return at this point
-        if (!$this->columnExists($connection, 'cart', 'payload')) {
+        if (!TableHelper::columnExists($connection, 'cart', 'payload')) {
             $connection->executeStatement('ALTER TABLE `cart` ADD `payload` LONGBLOB NULL;');
         }
 
-        if (!$this->columnExists($connection, 'cart', 'cart')) {
+        if (!TableHelper::columnExists($connection, 'cart', 'cart')) {
             return;
         }
 

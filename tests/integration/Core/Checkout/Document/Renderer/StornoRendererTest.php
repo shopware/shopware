@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -83,8 +84,22 @@ class StornoRendererTest extends TestCase
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
     }
 
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(Translator::class)->reset();
+        parent::tearDown();
+    }
+
     public function testDocumentSnapshot(): void
     {
+        $translator = static::getContainer()->get(Translator::class);
+        $translator->injectSettings(
+            $this->salesChannelContext->getSalesChannelId(),
+            $this->salesChannelContext->getLanguageId(),
+            'en-GB',
+            $this->salesChannelContext->getContext()
+        );
+
         $cart = $this->generateDemoCart([19]);
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
@@ -103,50 +118,48 @@ class StornoRendererTest extends TestCase
         static::assertNotNull($result);
         $invoiceId = $result->getId();
 
-        $operation = new DocumentGenerateOperation(
+        $config = [
+            'documentComment' => '<script></script>This is a cancellation invoice.',
+            'custom' => [
+                'invoiceNumber' => '1001',
+            ],
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
+
+        $operationHtml = new DocumentGenerateOperation(
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
-            [
-                'custom' => [
-                    'invoiceNumber' => '1001',
-                ],
-                'itemsPerPage' => 10,
-                'displayHeader' => true,
-                'displayFooter' => true,
-                'displayPrices' => true,
-                'displayPageCount' => true,
-                'displayLineItems' => true,
-                'displayCompanyAddress' => true,
-                'displayReturnAddress' => true,
-                'companyName' => 'Example Company',
-                'documentDate' => '2023-11-24T12:00:00+00:00',
-            ],
+            $config,
             $invoiceId
         );
 
-        $processedTemplate = $this->stornoRenderer->render(
-            [$orderId => $operation],
+        $processedHtmlTemplate = $this->stornoRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
-        );
-        static::assertIsString($processedHtml);
-
-        $this->assertHtmlSnapshot(
-            'storno_renderer_default',
-            $processedHtml
-        );
+        $this->assertSnapshot('storno_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     /**
@@ -174,7 +187,7 @@ class StornoRendererTest extends TestCase
             'displayHeader' => true,
         ];
 
-        if (!empty($additionalConfig)) {
+        if ($additionalConfig !== []) {
             $config = array_merge($config, $additionalConfig);
         }
 
@@ -230,7 +243,7 @@ class StornoRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $errors);
         static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertSame(
-            "Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: $orderId",
+            "Unable to generate document. Can not generate cancellation invoice document because no invoice document exists. OrderId: $orderId",
             $errors[$orderId]->getMessage()
         );
     }

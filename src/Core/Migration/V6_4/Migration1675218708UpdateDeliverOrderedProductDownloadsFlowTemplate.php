@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class Migration1675218708UpdateDeliverOrderedProductDownloadsFlowTemplate extends MigrationStep
@@ -43,7 +41,7 @@ class Migration1675218708UpdateDeliverOrderedProductDownloadsFlowTemplate extend
 
         $flowTemplateConfig = json_decode((string) $flowTemplate['config'], true);
         $ruleIds = array_filter(array_column($flowTemplateConfig['sequences'], 'ruleId'));
-        $ruleId = !empty($ruleIds) ? $ruleIds[0] : null;
+        $ruleId = $ruleIds[0] ?? null;
 
         $ruleSequenceId = Uuid::randomHex();
         $sequenceConfig = [

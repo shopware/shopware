@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -59,7 +60,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     public function update(array $ids, Context $context): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -235,7 +236,7 @@ class SearchKeywordUpdater implements ResetInterface
 
             $fields = array_filter($fields, fn (Field $field) => $field instanceof AssociationField);
 
-            if (empty($fields)) {
+            if ($fields === []) {
                 continue;
             }
 
@@ -257,12 +258,26 @@ class SearchKeywordUpdater implements ResetInterface
 
             // filter the associations that have no translations in given language,
             // as we automatically use the parent languages keywords for those
+            // Also include products where the association is NULL (not assigned)
             $translationLanguageAccessor = \sprintf(
                 '%s.%s.languageId',
                 $association,
                 $translationField->getPropertyName()
             );
-            $filters[] = new EqualsFilter($translationLanguageAccessor, $context->getLanguageId());
+
+            // Check if FK field exists (e.g., 'manufacturerId' for 'manufacturer')
+            $foreignKeyField = $association . 'Id';
+            $fkField = EntityDefinitionQueryHelper::getField($foreignKeyField, $definition, $definition->getEntityName());
+
+            if (!$fkField instanceof FkField) {
+                $filters[] = new EqualsFilter($translationLanguageAccessor, $context->getLanguageId());
+                continue;
+            }
+
+            $filters[] = new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter($foreignKeyField, null),
+                new EqualsFilter($translationLanguageAccessor, $context->getLanguageId()),
+            ]);
         }
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
@@ -286,12 +301,12 @@ class SearchKeywordUpdater implements ResetInterface
 
         $query->setParameter('languageIds', Uuid::fromHexToBytesList([$languageId, Defaults::LANGUAGE_SYSTEM]), ArrayParameterType::BINARY);
 
-        /** @var array<int, ConfigField> $all */
+        /** @var list<ConfigField> $all */
         $all = $query->executeQuery()->fetchAllAssociative();
 
         $fields = array_filter($all, fn (array $field) => $field['language_id'] === $languageId);
 
-        if (!empty($fields)) {
+        if ($fields !== []) {
             $this->config[$languageId] = $fields;
 
             return $fields;

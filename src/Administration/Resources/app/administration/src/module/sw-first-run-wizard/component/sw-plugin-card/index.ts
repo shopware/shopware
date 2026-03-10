@@ -4,7 +4,6 @@ import './sw-plugin-card.scss';
 
 type ComponentData = {
     pluginIsLoading: boolean;
-    pluginIsSaveSuccessful: boolean;
 };
 
 type RecommendedPlugin = {
@@ -49,7 +48,6 @@ export default Shopware.Component.wrapComponentConfig({
     data(): ComponentData {
         return {
             pluginIsLoading: false,
-            pluginIsSaveSuccessful: false,
         };
     },
 
@@ -70,11 +68,9 @@ export default Shopware.Component.wrapComponentConfig({
 
         async setupPlugin(): Promise<void> {
             this.pluginIsLoading = true;
-            this.pluginIsSaveSuccessful = false;
 
             try {
                 await this.extensionHelperService.downloadAndActivateExtension(this.plugin.name, this.plugin.type);
-                this.pluginIsSaveSuccessful = true;
                 this.$emit('extension-activated');
             } catch (error: unknown) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call

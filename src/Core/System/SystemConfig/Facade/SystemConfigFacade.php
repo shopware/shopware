@@ -19,6 +19,9 @@ class SystemConfigFacade
 {
     private const PRIVILEGE = 'system_config:read';
 
+    /**
+     * @var array<string, list<string>>
+     */
     private array $appData = [];
 
     /**
@@ -39,7 +42,7 @@ class SystemConfigFacade
      * @param string $key The key of the configuration value e.g. `core.listing.defaultSorting`.
      * @param string|null $salesChannelId The SalesChannelId if you need the config value for a specific SalesChannel, if you don't provide a SalesChannelId, the one of the current Context is used as default.
      *
-     * @return array|bool|float|int|string|null
+     * @return array<string, mixed>|bool|float|int|string|null
      *
      * @example test-config/script.twig 4 1 Read an arbitrary system_config value.
      */
@@ -67,7 +70,7 @@ class SystemConfigFacade
      * @param string $key The name of the configuration value specified in the config.xml e.g. `exampleTextField`.
      * @param string|null $salesChannelId The SalesChannelId if you need the config value for a specific SalesChannel, if you don't provide a SalesChannelId, the one of the current Context is used as default.
      *
-     * @return array|bool|float|int|string|null
+     * @return array<string, mixed>|bool|float|int|string|null
      *
      * @example test-config/script.twig 5 1 Read your app's config value.
      */
@@ -86,6 +89,9 @@ class SystemConfigFacade
         return $this->systemConfigService->get($key, $salesChannelId);
     }
 
+    /**
+     * @return list<string>
+     */
     private function fetchAppPrivileges(string $appId): array
     {
         if (\array_key_exists($appId, $this->appData)) {
@@ -99,10 +105,10 @@ class SystemConfigFacade
             WHERE `app`.`id` = :appId
         ', ['appId' => Uuid::fromHexToBytes($appId)]);
 
-        if (!$privileges) {
+        if (!\is_string($privileges)) {
             throw new \RuntimeException(\sprintf('Privileges for app with id "%s" not found.', $appId));
         }
 
-        return $this->appData[$appId] = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
+        return $this->appData[$appId] = json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

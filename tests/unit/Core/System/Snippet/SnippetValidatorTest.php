@@ -43,11 +43,11 @@ class SnippetValidatorTest extends TestCase
         $missingSnippets = $invalidData->missingSnippets->getElements();
         static::assertCount(2, $missingSnippets);
 
-        $missingSnippetEnGB = $missingSnippets[0];
+        $missingSnippetEnGB = $missingSnippets[1];
         static::assertSame('german', $missingSnippetEnGB->getKeyPath());
         static::assertSame('exampleGerman', $missingSnippetEnGB->getAvailableTranslation());
 
-        $missingSnippetdeDE = $missingSnippets[1];
+        $missingSnippetdeDE = $missingSnippets[0];
         static::assertSame('english', $missingSnippetdeDE->getKeyPath());
         static::assertSame('exampleEnglish', $missingSnippetdeDE->getAvailableTranslation());
 

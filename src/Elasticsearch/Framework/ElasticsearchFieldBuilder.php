@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Framework;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
-use Shopware\Elasticsearch\Product\CustomFieldUpdater;
+use Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper;
 
 #[Package('inventory')]
 class ElasticsearchFieldBuilder
@@ -42,7 +42,7 @@ class ElasticsearchFieldBuilder
 
             $languageFields[$languageId] = $fieldConfig;
 
-            if (\array_key_exists($locale, $this->languageAnalyzerMapping)) {
+            if (\array_key_exists($locale, $this->languageAnalyzerMapping) && isset($languageFields[$languageId]['fields']['search']['analyzer'])) {
                 $languageFields[$languageId]['fields']['search']['analyzer'] = $this->languageAnalyzerMapping[$locale];
             }
         }
@@ -116,9 +116,13 @@ class ElasticsearchFieldBuilder
         ];
 
         foreach ($fieldMapping as $name => $type) {
-            $esType = CustomFieldUpdater::getTypeFromCustomFieldType($type);
+            $esType = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType($type);
 
             $mapping['properties'][$name] = $esType;
+        }
+
+        if ($mapping['properties'] === []) {
+            unset($mapping['properties']);
         }
 
         return $mapping;

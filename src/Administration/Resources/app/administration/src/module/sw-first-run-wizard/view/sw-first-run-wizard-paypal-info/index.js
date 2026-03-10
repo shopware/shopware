@@ -103,8 +103,11 @@ export default {
                     this.isInstallingPlugin = false;
                     this.pluginInstallationFailed = true;
 
-                    if (error.response?.data?.errors) {
-                        this.pluginError = error.response.data.errors.pop();
+                    const raw = error?.response?.data?.errors?.pop() || error?.message || error;
+                    const text = raw?.detail;
+
+                    if (typeof text === 'string') {
+                        this.pluginError = text.length <= 200 ? text : `${text.slice(0, 200)}...`;
                     }
 
                     return true;

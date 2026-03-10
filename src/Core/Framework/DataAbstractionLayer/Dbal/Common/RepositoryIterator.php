@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -77,19 +78,19 @@ class RepositoryIterator
 
         $values = $ids->getIds();
 
-        if (empty($values)) {
+        if ($values === []) {
             return null;
         }
 
         if (!$this->autoIncrement) {
-            $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+            $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
             return $values;
         }
 
-        $last = end($values);
+        $last = array_last($values);
         if (!\is_string($last)) {
-            throw new \RuntimeException('Expected string as last element of ids array');
+            throw DataAbstractionLayerException::repositoryIteratorExpectedStringLastId();
         }
 
         $increment = $ids->getDataFieldOfId($last, 'autoIncrement') ?? 0;
@@ -108,9 +109,9 @@ class RepositoryIterator
         $result = $this->repository->search(clone $this->criteria, $this->context);
 
         // increase offset for next iteration
-        $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+        $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
-        if (empty($result->getIds())) {
+        if ($result->getIds() === []) {
             return null;
         }
 

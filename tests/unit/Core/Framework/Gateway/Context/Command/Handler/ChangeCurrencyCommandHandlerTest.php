@@ -32,7 +32,7 @@ class ChangeCurrencyCommandHandlerTest extends TestCase
 
         $currencyResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'currencyId', 'data' => []]],
+            ['currencyId' => ['primaryKey' => 'currencyId', 'data' => []]],
             $expectedCriteria,
             $context->getContext()
         );

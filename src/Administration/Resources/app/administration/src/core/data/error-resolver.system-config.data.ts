@@ -1,7 +1,5 @@
 import ShopwareError from 'src/core/data/ShopwareError';
 
-const { string } = Shopware.Utils;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 interface ApiError {
     code: string;
@@ -119,7 +117,7 @@ export default class ErrorResolverSystemConfig {
     }
 
     private getErrorPath(key: string) {
-        key = string.camelCase(key);
+        key = Shopware.Utils.string.camelCase(key);
 
         return `${ErrorResolverSystemConfig.ENTITY_NAME}.${key}`;
     }

@@ -80,7 +80,7 @@ class DemodataCommandTest extends TestCase
         $tester->execute([]);
 
         static::assertFalse($eventCalled, 'Event was fired.');
-        static::assertStringContainsString('Demo data command should only be used in production environment.', $tester->getDisplay());
+        static::assertStringContainsString('Demo data command requires the app environment set to production to run.', $tester->getDisplay());
         static::assertSame(Command::INVALID, $tester->getStatusCode());
     }
 

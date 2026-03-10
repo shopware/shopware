@@ -15,16 +15,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
-    final public const EXPLAIN_MODE = 'explain-mode';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Framework\Context::ELASTICSEARCH_EXPLAIN_MODE instead.
+     */
+    final public const EXPLAIN_MODE = Context::ELASTICSEARCH_EXPLAIN_MODE;
     final public const MAX_LIMIT = 10000;
     final public const RESULT_STATE = 'loaded-by-elastic';
 
@@ -72,7 +75,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 'body' => $this->convertSearch($criteria, $definition, $context, $search),
             ];
 
-            if ($context->hasState(self::EXPLAIN_MODE)) {
+            if ($context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE)) {
                 $params['include_named_queries_score'] = true;
                 $params['track_scores'] = true;
             }
@@ -94,7 +97,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
             return $result;
         } catch (\Throwable $e) {
-            if ($e instanceof ElasticsearchException && $e->getErrorCode() === ElasticsearchException::EMPTY_QUERY) {
+            if ($e instanceof EmptyQueryException) {
                 return new IdSearchResult(0, [], $criteria, $context);
             }
 
@@ -130,7 +133,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
-        if ($context->hasState(self::EXPLAIN_MODE)) {
+        if ($context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE)) {
             $search->setExplain(true);
         }
 
@@ -165,7 +168,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $grouping = array_shift($groupings);
 
         $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
-        if (empty($groupings)) {
+        if ($groupings === []) {
             return ['field' => $accessor];
         }
 

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
+use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
 class ProductStreamProcessor extends AbstractProductSliderProcessor
@@ -34,6 +36,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     public function __construct(
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -52,6 +55,8 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = $this->collectByProductStream($resolverContext, $products, $config);
+
+        $this->eventDispatcher->dispatch(new ProductSliderStreamCriteriaEvent($slot, $criteria, $resolverContext->getSalesChannelContext()));
 
         $collection = new CriteriaCollection();
         $collection->add(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
@@ -103,6 +108,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $limit = $elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT;
 
         $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addFilter(...$filters);
         $criteria->setLimit($limit);
 
@@ -128,7 +134,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         Criteria $originCriteria
     ): ProductCollection {
         $finalProductIds = $this->collectFinalProductIds($streamResult);
-        if (\count($finalProductIds) === 0) {
+        if ($finalProductIds === []) {
             return new ProductCollection();
         }
 
@@ -171,14 +177,15 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
     private function addRandomSort(Criteria $criteria): void
     {
+        // these fields should be compatible with Elasticsearch mapped fields for sorting, see: \Shopware\Elasticsearch\Product\ElasticsearchProductDefinition::getMapping
         $fields = [
             'id',
             'stock',
             'releaseDate',
-            'manufacturer.id',
-            'unit.id',
-            'tax.id',
-            'cover.id',
+            'manufacturerId',
+            'deliveryTimeId',
+            'taxId',
+            'coverId',
         ];
         shuffle($fields);
         $fields = \array_slice($fields, 0, 2);

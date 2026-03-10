@@ -36,10 +36,10 @@ trait BasicTestDataBehaviour
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.translationCode.code', 'de-DE'));
 
-        /** @var string $languageId */
-        $languageId = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
-        return $languageId;
+        return $id;
     }
 
     abstract protected static function getContainer(): ContainerInterface;
@@ -57,8 +57,8 @@ trait BasicTestDataBehaviour
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -76,8 +76,8 @@ trait BasicTestDataBehaviour
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -118,8 +118,8 @@ trait BasicTestDataBehaviour
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -159,8 +159,8 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addSorting(new FieldSorting('salutationKey'));
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -205,8 +205,8 @@ trait BasicTestDataBehaviour
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -219,8 +219,8 @@ trait BasicTestDataBehaviour
         $criteria = (new Criteria())->setLimit(1)
             ->addFilter(new EqualsFilter('iso', 'DE'));
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -234,8 +234,8 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addSorting(new FieldSorting('level'), new FieldSorting('name'));
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -249,8 +249,8 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addSorting(new FieldSorting('name'));
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -264,8 +264,8 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addSorting(new FieldSorting('technicalName'));
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }
@@ -281,8 +281,8 @@ trait BasicTestDataBehaviour
             ->addFilter(new EqualsFilter('technicalName', $state))
             ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
 
-        /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        \assert($id !== null);
 
         return $id;
     }

@@ -528,7 +528,14 @@ export default {
 
             const path = this.getPath(event);
 
-            if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
+            if (
+                path.some(
+                    (el) =>
+                        el.classList?.contains('sw-popover__wrapper') ||
+                        el.classList?.contains('mt-popover-deprecated__wrapper') ||
+                        el.classList?.contains('mt-floating-ui__content'),
+                )
+            ) {
                 return;
             }
 
@@ -759,6 +766,8 @@ export default {
         },
 
         setTableSelectorListeners(selector) {
+            // eslint-disable-next-line max-len
+            // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             selector.addEventListener('mousedown', (e) => {
                 this.tableData.curCol = e.target.parentElement;
                 this.tableData.nextCol = this.tableData.curCol.nextElementSibling;
@@ -771,6 +780,8 @@ export default {
         },
 
         setTableListeners() {
+            // eslint-disable-next-line max-len
+            // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             this.$el.addEventListener('mousemove', (e) => {
                 if (this.tableData.curCol) {
                     const diffX = e.pageX - this.tableData.pageX;
@@ -783,6 +794,8 @@ export default {
                 }
             });
 
+            // eslint-disable-next-line max-len
+            // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             this.$el.addEventListener('mouseup', () => {
                 this.tableData.curCol = null;
                 this.tableData.nextCol = null;

@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1661771388FixDefaultCountryStatesTranslationAreMissing extends MigrationStep
@@ -330,7 +328,7 @@ class Migration1661771388FixDefaultCountryStatesTranslationAreMissing extends Mi
             'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
         ]);
 
-        if (empty($missingTranslations)) {
+        if ($missingTranslations === []) {
             return;
         }
 

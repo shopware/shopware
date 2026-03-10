@@ -47,6 +47,7 @@
             <mt-number-field
                 v-model="pattern.codeLength"
                 class="sw-promotion-v2-generate-codes-modal__replacement"
+                number-type="int"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
                 :min="1"
                 :max="20"
@@ -110,6 +111,7 @@
             <mt-number-field
                 v-model="codeAmount"
                 class="sw-promotion-v2-generate-codes-modal__code-amount"
+                number-type="int"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
                 :min="1"
             />

@@ -1,43 +1,46 @@
-@import "~scss/variables";
-
 .sw-first-run-wizard-shopware-account {
     align-self: center;
 
     &__illustration {
-        height: 254px;
-        margin-top: 50px;
+        height: var(--scale-size-256);
+        margin-top: var(--scale-size-48);
     }
 
     &__error {
-        margin-top: 25px;
-    }
-
-    .external-link {
-        text-decoration: none;
-        color: $color-shopware-brand-500;
-        font-size: $font-size-xs;
-        font-weight: normal;
-        letter-spacing: 0.1px;
-        line-height: 22px;
+        margin-top: var(--scale-size-24);
     }
 
     .headline {
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
-        letter-spacing: 0.1px;
-        line-height: 25px;
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
+        margin-bottom: var(--scale-size-8);
     }
 
     .message {
-        margin-top: 10px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-primary-default);
     }
 
     .create-account {
-        margin-top: 10px;
+        margin-top: var(--scale-size-6);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-primary-default);
     }
 
-    .input-fields {
-        margin: 25px 0;
+    .input-field-mail {
+        margin-top: var(--scale-size-24);
+    }
+
+    .input-field-password {
+        .mt-password-field {
+            margin-bottom: var(--scale-size-8);
+        }
     }
 
     .forgot-password {

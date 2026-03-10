@@ -8,8 +8,10 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -240,7 +242,12 @@ class SeoActionControllerTest extends TestCase
         static::assertArrayHasKey('errors', $result);
         static::assertSame(404, $response->getStatusCode());
 
-        static::assertSame(SeoUrlRouteNotFoundException::ERROR_CODE, $result['errors'][0]['code']);
+        $expectedErrorCode = SeoException::SEO_URL_ROUTE_NOT_FOUND;
+        if (!Feature::isActive('v6.8.0.0')) {
+            $expectedErrorCode = SeoUrlRouteNotFoundException::ERROR_CODE;
+        }
+
+        static::assertSame($expectedErrorCode, $result['errors'][0]['code']);
     }
 
     public function testUpdateDefaultCanonical(): void
@@ -372,6 +379,51 @@ class SeoActionControllerTest extends TestCase
         static::assertCount(0, $seoUrls);
     }
 
+    public function testPreviewWithPrepareCriteriaMethodActiveProductFiltering(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        // We need to create enough inactive products to test the limit=10 behavior
+        $inactiveProductIds = [];
+        for ($i = 1; $i <= 10; ++$i) {
+            $inactiveProductId = $this->createTestProduct($salesChannelId, ['name' => "Inactive Product $i", 'active' => false]);
+            $inactiveProductIds[] = $inactiveProductId;
+        }
+
+        // Create an active product that should be returned
+        $activeProductId = $this->createTestProduct($salesChannelId);
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $activeProductId, [
+            'id' => $activeProductId,
+            'name' => 'Active Product',
+            'active' => true,
+        ]);
+
+        $data = [
+            'routeName' => 'frontend.detail.page',
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => '{{ product.name }}',
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $data, 'Should return exactly 1 active product (prepareCriteria filters out inactive products)');
+
+        $foreignKeys = array_column($data, 'foreignKey');
+        static::assertContains($activeProductId, $foreignKeys, 'Active product should be included');
+
+        foreach ($inactiveProductIds as $inactiveProductId) {
+            static::assertNotContains($inactiveProductId, $foreignKeys, "Inactive product $inactiveProductId should be filtered out by prepareCriteria");
+        }
+    }
+
     /**
      * @return array<Product>
      */
@@ -396,7 +448,10 @@ class SeoActionControllerTest extends TestCase
         return json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data'];
     }
 
-    private function createTestProduct(string $salesChannelId = TestDefaults::SALES_CHANNEL): string
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function createTestProduct(string $salesChannelId = TestDefaults::SALES_CHANNEL, array $data = []): string
     {
         $id = Uuid::randomHex();
         $product = [
@@ -424,7 +479,7 @@ class SeoActionControllerTest extends TestCase
                 ],
             ],
         ];
-        $this->getBrowser()->jsonRequest('POST', '/api/product', $product);
+        $this->getBrowser()->jsonRequest('POST', '/api/product', array_merge($product, $data));
 
         return $id;
     }

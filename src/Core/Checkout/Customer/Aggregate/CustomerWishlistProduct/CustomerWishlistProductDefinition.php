@@ -48,11 +48,11 @@ class CustomerWishlistProductDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the product in customer wishlist.'),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the product.'),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
 
-            (new FkField('customer_wishlist_id', 'wishlistId', CustomerWishlistDefinition::class))->addFlags(new Required()),
+            (new FkField('customer_wishlist_id', 'wishlistId', CustomerWishlistDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the wishlist.'),
             new ManyToOneAssociationField('wishlist', 'customer_wishlist_id', CustomerWishlistDefinition::class, 'id', false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
         ]);

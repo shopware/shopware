@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
@@ -33,7 +35,12 @@ class CategoryListRoute extends AbstractCategoryListRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/category', name: 'store-api.category.search', defaults: ['_entity' => 'category'], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/store-api/category',
+        name: 'store-api.category.search',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => CategoryDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(Criteria $criteria, SalesChannelContext $context): CategoryListRouteResponse
     {
         $rootIds = array_filter([
@@ -42,7 +49,7 @@ class CategoryListRoute extends AbstractCategoryListRoute
             $context->getSalesChannel()->getServiceCategoryId(),
         ]);
 
-        if (!empty($rootIds)) {
+        if ($rootIds !== []) {
             $filter = new OrFilter();
 
             foreach ($rootIds as $rootId) {

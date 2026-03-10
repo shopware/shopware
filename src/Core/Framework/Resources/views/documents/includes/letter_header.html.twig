@@ -16,7 +16,7 @@ All blocks of this template are available in the template which renders this tem
         <div class="recipient-address-container" tabindex="0">
             {% block document_recipient %}
                 {% set address %}
-                    <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
+                    <span class="company-address-small">{{ addressParts|join(' - ')|sw_sanitize(null, true) }}</span><br><br>
                 {% endset %}
 
                 {% if config.displayReturnAddress and address is not empty %}
@@ -29,7 +29,7 @@ All blocks of this template are available in the template which renders this tem
                 } %}<br/>
 
                 {% if (customer.customer.vatIds|first and config.displayCustomerVatId) or (customer.customer.vatIds|first and billingAddress.country.companyTax.enabled and config.displayAdditionalNoteDelivery and billingAddress.country.id in config.deliveryCountries) %}
-                    {{ 'document.vatId'|trans({'%vatId%': customer.customer.vatIds|first})|sw_sanitize }}<br>
+                    {{ 'document.vatId'|trans({'%vatId%': customer.customer.vatIds|first})|sw_sanitize(null, true) }}<br>
                 {% endif %}
             {% endblock %}
         </div>
@@ -40,11 +40,11 @@ All blocks of this template are available in the template which renders this tem
                     {% for part in addressParts %}
                         {% if loop.first and config.companyName %}
                             <tr>
-                                <td class="bold">{{ part }}</td>
+                                <td class="bold">{{ part|sw_sanitize(null, true) }}</td>
                             </tr>
                         {% elseif config.displayCompanyAddress %}
                             <tr>
-                                <td>{{ part }}</td>
+                                <td>{{ part|sw_sanitize(null, true) }}</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -54,7 +54,7 @@ All blocks of this template are available in the template which renders this tem
                         {% block document_side_info_phone_number %}
                             <tr>
                                 <td>
-                                    {{'document.phoneNumber'|trans({'%phoneNumber%': config.companyPhone })|sw_sanitize }}
+                                    {{'document.phoneNumber'|trans({'%phoneNumber%': config.companyPhone })|sw_sanitize(null, true) }}
                                 </td>
                             </tr>
                         {% endblock %}
@@ -63,7 +63,7 @@ All blocks of this template are available in the template which renders this tem
                     {% if config.companyEmail %}
                         {% block document_side_info_email %}
                             <tr>
-                                <td>{{ config.companyEmail }}</td>
+                                <td>{{ config.companyEmail|sw_sanitize(null, true) }}</td>
                             </tr>
                         {% endblock %}
                     {% endif %}
@@ -71,7 +71,7 @@ All blocks of this template are available in the template which renders this tem
                     {% if config.companyUrl %}
                         {% block document_side_company_url %}
                             <tr>
-                                <td>{{ config.companyUrl }}</td>
+                                <td>{{ config.companyUrl|sw_sanitize(null, true) }}</td>
                             </tr>
                         {% endblock %}
                     {% endif %}
@@ -84,7 +84,7 @@ All blocks of this template are available in the template which renders this tem
                         {% block document_side_info_customer_number %}
                             <tr>
                                 <td>
-                                    {{ 'document.customerNumber'|trans({'%customerNumber%': customer.customerNumber})|sw_sanitize }}
+                                    {{ 'document.customerNumber'|trans({'%customerNumber%': customer.customerNumber})|sw_sanitize(null, true) }}
                                 </td>
                             </tr>
                         {% endblock %}
@@ -92,7 +92,7 @@ All blocks of this template are available in the template which renders this tem
                         {% block document_side_info_order_number %}
                             <tr>
                                 <td>
-                                    {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber })|sw_sanitize }}
+                                    {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber })|sw_sanitize(null, true) }}
                                 </td>
                             </tr>
                         {% endblock %}
@@ -100,7 +100,7 @@ All blocks of this template are available in the template which renders this tem
                         {% block document_side_info_order_date %}
                             <tr>
                                 <td>
-                                    {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|format_date('medium', locale=locale)})|sw_sanitize }}
+                                    {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|format_date('medium', locale=locale)})|sw_sanitize(null, true) }}
                                 </td>
                             </tr>
                         {% endblock %}
@@ -108,7 +108,7 @@ All blocks of this template are available in the template which renders this tem
                         {% block document_side_info_date %}
                             <tr>
                                 <td>
-                                    {{ 'document.date'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
+                                    {{ 'document.date'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize(null, true) }}
                                 </td>
                             </tr>
                         {% endblock %}

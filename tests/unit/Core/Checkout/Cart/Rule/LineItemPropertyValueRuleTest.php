@@ -133,7 +133,7 @@ class LineItemPropertyValueRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool, list<string>, list<string>, string}>
+     * @return iterable<string, array{bool, list<string>, list<string>, string}>
      */
     public static function getMatchValues(): iterable
     {

@@ -55,6 +55,7 @@
         :search-placeholder="$tc('sw-sales-channel-switch.placeholderSelect')"
         :reset-option="$tc('sw-sales-channel-switch.labelDefaultOption')"
         :value="salesChannelId"
+        :criteria="salesChannelCriteria"
         entity="sales_channel"
         show-clearable-button
         @update:value="onChange"

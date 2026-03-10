@@ -113,12 +113,12 @@ class OffCanvasSingleton {
     /**
      * Opens the offcanvas and its backdrop
      *
-     * @param {HTMLElement} offCanvas
+     * @param {HTMLElement} _offCanvas
      * @param {function} callback
      *
      * @private
      */
-    _openOffcanvas(offCanvas, callback) {
+    _openOffcanvas(_offCanvas, callback) {
         window.focusHandler.saveFocusState('offcanvas');
 
         OffCanvasSingleton.bsOffcanvas.show();
@@ -160,7 +160,9 @@ class OffCanvasSingleton {
 
         window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-        closeTriggers.forEach(trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+        closeTriggers.forEach(trigger => {
+            trigger.addEventListener(event, this.close.bind(this, delay));
+        });
     }
 
     _setAriaAttrs() {
@@ -179,9 +181,18 @@ class OffCanvasSingleton {
      * @private
      */
     _removeExistingOffCanvas() {
-        OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
-        return offCanvasElements.forEach(offCanvas => offCanvas.remove());
+        offCanvasElements.forEach(offCanvas => {
+            // Properly dispose of Bootstrap Offcanvas instance to clean up backdrop
+            const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
+            if (offCanvasInstance && typeof offCanvasInstance.dispose === 'function') {
+                offCanvasInstance.dispose();
+            }
+            offCanvas.remove();
+        });
+
+        // Clear the singleton reference after disposal
+        OffCanvasSingleton.bsOffcanvas = null;
     }
 
     /**

@@ -82,7 +82,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
 
             <tag name="shopware.demodata_generator" option-name="products" option-default="1000"/>
         </service>
@@ -153,6 +153,12 @@
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition" />
 
             <tag name="shopware.demodata_generator" option-name="mail-header-footer" option-default="3" option-description="Mail header/footer count"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\SalesChannelDomainGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
+
+            <tag name="shopware.demodata_generator" option-name="sales-channel-domain" option-default="1"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\UserGenerator">

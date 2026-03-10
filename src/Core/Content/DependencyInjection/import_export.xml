@@ -135,7 +135,6 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="media.repository"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
             <tag name="kernel.reset" method="reset"/>
@@ -237,6 +236,7 @@
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry"/>
             <tag name="messenger.message_handler" />
         </service>
 

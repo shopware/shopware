@@ -16,7 +16,7 @@
                 v-if="!item.locked"
                 :class="'sw-cms-el-config-product-listing-config-sorting-grid__grid_item_' + item.id"
                 variant="danger"
-                :disabled="isDefaultSorting(item)"
+                :disabled="disabled || isDefaultSorting(item)"
                 @click="onDelete(item)"
             >
                 {{ $tc('global.default.delete') }}

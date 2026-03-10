@@ -2,23 +2,13 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
-
-Shopware.Mixin.register('cms-element', {
-    props: {
-        element: {
-            type: Object,
-            required: true,
-        },
-    },
-    methods: {
-        initElementConfig() {},
-    },
-});
+import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-config-form', { sync: true }), {
         global: {
             provide: {
+                cmsService: Shopware.Service('cmsService'),
                 systemConfigApiService: {
                     getValues: (query) => {
                         expect(query).toBe('core.basicInformation');
@@ -49,24 +39,48 @@ async function createWrapper() {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-select-field': {
+                'mt-select': {
                     template:
-                        '<select class="sw-select-field" :value="value" @change="$emit(`update:value`, $ev.target.value)"><slot></slot></select>',
-                    props: ['value'],
+                        '<select class="mt-select" :value="modelValue" @change="$emit(`update:modelValue`, $event.target.value)"><slot></slot></select>',
+                    props: [
+                        'modelValue',
+                        'options',
+                        'disabled',
+                    ],
                 },
-                'sw-text-field': {
+                'mt-text-field': {
                     template:
-                        '<input class="sw-text-field" :value="value" @input="$emit(`update:value`, $ev.target.value)" />',
-                    props: ['value'],
+                        '<input class="mt-text-field" :value="modelValue" @input="$emit(`update:modelValue`, $event.target.value)" />',
+                    props: [
+                        'modelValue',
+                        'disabled',
+                    ],
                 },
-                'sw-textarea-field': {
+                'mt-textarea': {
                     template:
-                        '<textarea class="sw-textarea-field" :value="value" @input="$emit(`update:value`, $ev.target.value)" />',
-                    props: ['value'],
+                        '<textarea class="mt-textarea" :value="modelValue" @input="$emit(`update:modelValue`, $event.target.value)" />',
+                    props: [
+                        'modelValue',
+                        'disabled',
+                    ],
                 },
                 'sw-tagged-field': {
                     template: '<div class="sw-tagged-field"></div>',
-                    props: ['value'],
+                    props: [
+                        'value',
+                        'name',
+                        'placeholder',
+                        'disabled',
+                    ],
+                },
+                'sw-cms-inherit-wrapper': {
+                    template: '<div><slot :isInherited="false"></slot></div>',
+                    props: [
+                        'field',
+                        'element',
+                        'contentEntity',
+                        'label',
+                    ],
                 },
             },
         },
@@ -89,6 +103,15 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/elements/form/config/sw-cms-el-config-form', () => {
+    beforeAll(async () => {
+        await setupCmsEnvironment();
+        await import('src/module/sw-cms/elements/form');
+    });
+
+    afterEach(() => {
+        Shopware.Store.get('cmsPage').resetCmsPageState();
+    });
+
     it('should add the core.basicInformation.email if it does not exist', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

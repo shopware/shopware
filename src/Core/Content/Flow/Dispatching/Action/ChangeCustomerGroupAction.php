@@ -31,7 +31,7 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function requirements(): array
     {
@@ -65,6 +65,7 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
             [
                 'id' => $customerId,
                 'groupId' => $customerGroupId,
+                'requestedGroupId' => null,
             ],
         ], $context);
     }

@@ -1,0 +1,41 @@
+{% block page_checkout_cart_add_product %}
+<div class="col-md-5 cart-add-product-container">
+    <form action="{{ path('frontend.checkout.product.add-by-number') }}" method="post">
+        {% block page_checkout_cart_add_product_redirect %}
+            <input type="hidden"
+                   name="redirectTo"
+                   value="frontend.checkout.cart.page">
+        {% endblock %}
+
+        {% block page_checkout_cart_add_product_label %}
+            <label class="visually-hidden" for="addProductInput">
+                {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
+            </label>
+        {% endblock %}
+
+        {% block page_checkout_cart_add_product_input_group %}
+            <div class="input-group">
+                {% block page_checkout_cart_add_product_input %}
+                    <input type="text"
+                           name="number"
+                           class="form-control"
+                           id="addProductInput"
+                           placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}"
+                           aria-label="{{ 'checkout.addProductLabel'|trans|striptags }}"
+                           aria-describedby="addProductButton"
+                           required="required">
+                {% endblock %}
+
+                {% block page_checkout_cart_add_product_submit %}
+                    <button class="btn btn-outline-secondary add-product-button"
+                            type="submit"
+                            aria-labelledby="addProductInput"
+                            id="addProductButton">
+                        {% sw_icon 'checkmark' %}
+                    </button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </form>
+</div>
+{% endblock %}

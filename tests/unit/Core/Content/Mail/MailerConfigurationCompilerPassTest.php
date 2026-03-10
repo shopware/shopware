@@ -24,7 +24,7 @@ class MailerConfigurationCompilerPassTest extends TestCase
         $container->setDefinition('mailer.default_transport', new Definition(\ArrayObject::class));
         $container->setDefinition('mailer.transports', new Definition(\ArrayObject::class));
         $container->setDefinition('mailer.mailer', new Definition(\ArrayObject::class, [null, new Reference('message_bus')]));
-        $container->setDefinition(MailSender::class, new Definition(MailSender::class, [new Reference('mailer.default_transport'), new Reference('filesystem'), new Reference('config_service'), 0, new Reference('logger'), new Reference('message_bus')]));
+        $container->setDefinition(MailSender::class, new Definition(MailSender::class, [new Reference('mailer.default_transport'), new Reference('filesystem'), new Reference('config_service'), 0, new Reference('logger'), 0, new Reference('message_bus')]));
 
         $pass = new MailerConfigurationCompilerPass();
         $pass->process($container);
@@ -51,6 +51,6 @@ class MailerConfigurationCompilerPassTest extends TestCase
 
         $mailer = $container->getDefinition(MailSender::class);
         $originalMailer = $container->getDefinition('mailer.mailer');
-        static::assertSame($originalMailer->getArgument(1), $mailer->getArgument(5));
+        static::assertSame($originalMailer->getArgument(1), $mailer->getArgument(6));
     }
 }

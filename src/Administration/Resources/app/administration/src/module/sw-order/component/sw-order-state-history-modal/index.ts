@@ -1,3 +1,4 @@
+import './sw-order-state-history-modal.scss';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
@@ -23,6 +24,7 @@ interface StateMachineHistoryData {
     };
     entity: string;
     referencedId?: string;
+    internalComment?: string;
 }
 
 interface CombinedStates {
@@ -142,6 +144,10 @@ export default Component.wrapComponentConfig({
                     property: 'order',
                     label: this.$tc('sw-order.stateHistoryModal.column.order'),
                 },
+                {
+                    property: 'internalComment',
+                    label: this.$tc('sw-order.stateHistoryModal.column.internalComment'),
+                },
             ];
         },
 
@@ -234,7 +240,8 @@ export default Component.wrapComponentConfig({
                                     // @ts-expect-error - states exists
                                     order_transaction: entry.fromStateMachineState,
                                 },
-                                { ...entry, user: undefined },
+                                entry,
+                                true,
                             ),
                         );
                     }
@@ -272,16 +279,18 @@ export default Component.wrapComponentConfig({
         createEntry(
             states: CombinedStates,
             entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>,
+            hideUser = false,
         ): StateMachineHistoryData {
             return {
                 order: states.order,
                 transaction: states.order_transaction,
                 delivery: states.order_delivery,
                 createdAt: 'orderDateTime' in entry ? entry.orderDateTime : entry.createdAt,
-                user: 'user' in entry ? entry.user : undefined,
+                user: !hideUser && 'user' in entry ? entry.user : undefined,
                 integration: 'integration' in entry ? entry.integration : undefined,
                 entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
                 referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
+                internalComment: 'internalComment' in entry ? entry.internalComment : undefined,
             };
         },
 

@@ -47,7 +47,7 @@ class TokenizerTest extends TestCase
                 ['österreicher', 'essen'],
             ],
             'text with special chars' => [
-                '!Example"§$%``=)(/&%%$§""!',
+                '!Example"§$%``=)(/\&%%$§""!',
                 ['example'],
             ],
             'text with allowed chars' => [
@@ -68,6 +68,11 @@ class TokenizerTest extends TestCase
                 'Synergistic Copper DM.10000 Face@Master',
                 ['synergistic', 'copper', 'dm.10000', 'face@master'],
                 ['.', '@'],
+            ],
+            'text with allowed chars "/"' => [
+                '0000/0440',
+                ['0000/0440'],
+                ['/'],
             ],
         ];
     }

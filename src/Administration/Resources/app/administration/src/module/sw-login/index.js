@@ -2,9 +2,6 @@
  * @sw-package framework
  */
 
-import de from './snippet/de.json';
-import en from './snippet/en.json';
-
 const { Component, Module } = Shopware;
 
 /** @private */
@@ -27,11 +24,6 @@ Module.register('sw-login', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#F19D12',
-
-    snippets: {
-        'de-DE': de,
-        'en-GB': en,
-    },
 
     routes: {
         index: {

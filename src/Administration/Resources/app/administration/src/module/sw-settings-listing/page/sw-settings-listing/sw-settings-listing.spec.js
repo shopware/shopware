@@ -339,6 +339,28 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 id: '23456787654321234567876566',
                 translations: [],
             },
+            {
+                locked: false,
+                key: 'availability',
+                value: 'availability',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.available',
+                        order: 'desc',
+                        position: 1,
+                        naturalSorting: 0,
+                    },
+                ],
+                label: 'Availability',
+                createdAt: '2020-08-10T06:19:53.126+00:00',
+                updatedAt: null,
+                translated: { label: 'Availability' },
+                apiAlias: null,
+                id: '23456787654321234567876555',
+                translations: [],
+            },
         ];
 
         entities.total = entities.length;
@@ -383,6 +405,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage': 'Rating Average',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.clearanceSale': 'Clearance sale',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt': 'Creation date',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.available': 'Available',
     };
 
     async function createWrapper() {

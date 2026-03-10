@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import '../../mixin/sw-cms-state.mixin';
 
 let resizeObserverList = [];
 
@@ -69,6 +70,13 @@ async function createWrapper() {
                         ],
                     },
                     'sw-extension-component-section': true,
+                    'sw-cms-form-sync': {
+                        template: '<slot />',
+                        props: [
+                            'element',
+                            'contentEntity',
+                        ],
+                    },
                 },
                 provide: {
                     cmsService: {

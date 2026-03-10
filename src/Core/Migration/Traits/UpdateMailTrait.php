@@ -60,7 +60,7 @@ trait UpdateMailTrait
         $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
         $languages = array_unique(array_filter($languages));
 
-        if (empty($languages)) {
+        if ($languages === []) {
             return;
         }
 
@@ -89,7 +89,7 @@ trait UpdateMailTrait
         $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
         $languages = array_unique(array_filter($languages));
 
-        if (empty($languages)) {
+        if ($languages === []) {
             return;
         }
 

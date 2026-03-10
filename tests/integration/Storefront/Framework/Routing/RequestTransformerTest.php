@@ -292,9 +292,7 @@ class RequestTransformerTest extends TestCase
 
         $request = Request::create('http://base.test' . $virtualUrl . '/detail/87a78cf58f114d5587ae23c140825694');
         $ref = new \ReflectionClass($request);
-        $prob = $ref->getProperty('baseUrl');
-        $prob->setAccessible(true);
-        $prob->setValue($request, $baseUrl);
+        $ref->getProperty('baseUrl')->setValue($request, $baseUrl);
 
         $resolved = $this->requestTransformer->transform($request);
 
@@ -302,7 +300,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @return array<string, string[]>
+     * @return iterable<string, string[]>
      */
     public static function seoRedirectProvider(): iterable
     {

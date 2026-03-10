@@ -102,7 +102,7 @@ class UnusedMediaSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function createContent(): array
     {

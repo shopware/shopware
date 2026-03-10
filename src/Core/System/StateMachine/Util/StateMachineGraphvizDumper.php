@@ -174,7 +174,7 @@ class StateMachineGraphvizDumper
             \assert(\is_string($k));
             if ($v !== null) {
                 \assert(\is_scalar($v) || $v instanceof \Stringable);
-                $code[] = \sprintf('%s="%s"', $k, $v);
+                $code[] = \sprintf('%s="%s"', $k, (string) $v);
             }
         }
 

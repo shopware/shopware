@@ -23,6 +23,8 @@
             <directory suffix=".php">src</directory>
         </include>
         <exclude>
+            <directory suffix="Exception.php">src</directory>
+
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
             <directory suffix="Definition.php">src/Administration/Notification/</directory>
             <directory suffix="Entity.php">src/Administration/Notification/</directory>
@@ -38,27 +40,17 @@
             <directory suffix="Struct.php">src/Administration/Snippet/</directory>
             <directory suffix="Collection.php">src/Administration/Snippet/</directory>
 
-            <file>src/Core/Framework/Adapter/Twig/functions.php</file>
-            <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
-            <directory suffix=".php">src/Core/Framework/Test</directory>
-            <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
-            <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
-            <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
-            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
-            <directory suffix=".php">src/Core/DevOps/Test/Command/stubs</directory>
-            <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
-            <directory suffix=".php">src/Core/Migration/Test</directory>
-            <directory suffix=".php">src/Elasticsearch/Test</directory>
-            <directory suffix=".php">src/Storefront/Test</directory>
-            <directory suffix=".php">src/tests/unit/Core/System/Snippet/Mock</directory>
-
             <directory suffix="Definition.php">src/Core/</directory>
             <directory suffix="Entity.php">src/Core/</directory>
             <directory suffix="Event.php">src/Core/</directory>
             <directory suffix="Field.php">src/Core/</directory>
             <directory suffix="Struct.php">src/Core/</directory>
             <directory suffix="Collection.php">src/Core/</directory>
+
+            <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
+            <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
+            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
+            <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
 
             <directory suffix="Definition.php">src/Storefront/Checkout</directory>
             <directory suffix="Entity.php">src/Storefront/Checkout</directory>
@@ -95,6 +87,29 @@
             <directory suffix="Field.php">src/Storefront/Theme</directory>
             <directory suffix="Struct.php">src/Storefront/Theme</directory>
             <directory suffix="Collection.php">src/Storefront/Theme</directory>
+
+            <!-- All fixtures, stubs, traits used for tests -->
+            <directory suffix=".php">src/Core/Content/Test</directory>
+            <directory suffix=".php">src/Core/DevOps/Test</directory>
+            <directory suffix=".php">src/Core/Framework/Test</directory>
+            <directory suffix=".php">src/Core/Migration/Test</directory>
+            <directory suffix=".php">src/Core/Migration/Traits</directory>
+            <directory suffix=".php">src/Core/Test</directory>
+            <directory suffix=".php">src/Elasticsearch/Test</directory>
+            <directory suffix=".php">src/Storefront/Test</directory>
+
+            <!-- All former migrations -->
+            <directory suffix=".php">src/Administration/Migration/V6_4</directory>
+            <directory suffix=".php">src/Core/Migration/V6_3</directory>
+            <directory suffix=".php">src/Core/Migration/V6_4</directory>
+            <directory suffix=".php">src/Core/Migration/V6_5</directory>
+            <directory suffix=".php">src/Elasticsearch/Migration/V6_5</directory>
+            <directory suffix=".php">src/Storefront/Migration/V6_3</directory>
+            <directory suffix=".php">src/Storefront/Migration/V6_4</directory>
+            <directory suffix=".php">src/Storefront/Migration/V6_5</directory>
+
+            <!-- Helper class and its output DTOs and exception, which could not be unit tested -->
+            <directory suffix=".php">src/Core/Framework/Util/Database</directory>
         </exclude>
     </source>
     <php>
@@ -128,7 +143,6 @@
             <directory>tests/integration/Core/Framework/Adapter</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
-            <directory>tests/integration/Core/Framework/Changelog</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
         </testsuite>
 
@@ -142,6 +156,7 @@
             <directory>tests/integration/Core/Framework/Log</directory>
             <directory>tests/integration/Core/Framework/MessageQueue</directory>
             <directory>tests/integration/Core/Framework/Migration</directory>
+            <directory>tests/integration/Core/Framework/Notification</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch3">
@@ -151,6 +166,7 @@
             <directory>tests/integration/Core/Framework/Rule</directory>
             <directory>tests/integration/Core/Framework/Script</directory>
             <directory>tests/integration/Core/Framework/Seo</directory>
+            <directory>tests/integration/Core/Framework/Sso</directory>
             <directory>tests/integration/Core/Framework/Store</directory>
             <directory>tests/integration/Core/Framework/Telemetry</directory>
             <directory>tests/integration/Core/Framework/TestCaseBase</directory>

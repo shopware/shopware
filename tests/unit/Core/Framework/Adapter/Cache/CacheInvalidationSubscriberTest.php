@@ -11,6 +11,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,8 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
 /**
  * @internal
@@ -51,7 +54,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $salesChannelId = Uuid::randomHex();
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->once())
+        $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(
                 [
@@ -61,11 +64,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 true
             );
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $cacheInvalidator,
-            $this->createMock(Connection::class),
-            true
-        );
+        $subscriber = $this->createSubscriber();
 
         $subscriber->invalidateContext(new EntityWrittenContainerEvent(
             Context::createDefaultContext(),
@@ -90,13 +89,10 @@ class CacheInvalidationSubscriberTest extends TestCase
     public function testInvalidateMediaWithoutVariantsWillInvalidateOnlyProducts(): void
     {
         $productId = '123';
-        $event = new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []);
+        $mediaId = Uuid::randomHex();
+        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidator,
-            $this->connection,
-            true
-        );
+        $subscriber = $this->createSubscriber();
         $this->connection->method('fetchAllAssociative')
             ->willReturn([['product_id' => $productId, 'version_id' => null]]);
 
@@ -105,6 +101,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->with(
                 [
                     EntityCacheKeyGenerator::buildProductTag($productId),
+                    MediaRoute::buildName($mediaId),
                 ],
                 false
             );
@@ -116,13 +113,10 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $productId = '123';
         $variants = ['456', '789'];
-        $event = new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []);
+        $mediaId = Uuid::randomHex();
+        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidator,
-            $this->connection,
-            true
-        );
+        $subscriber = $this->createSubscriber();
         $this->connection->method('fetchAllAssociative')
             ->willReturn([
                 ['product_id' => $productId, 'variant_id' => $variants[0]],
@@ -136,6 +130,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                     EntityCacheKeyGenerator::buildProductTag($productId),
                     EntityCacheKeyGenerator::buildProductTag($variants[0]),
                     EntityCacheKeyGenerator::buildProductTag($variants[1]),
+                    MediaRoute::buildName($mediaId),
                 ],
                 false
             );
@@ -148,11 +143,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidator,
-            $this->connection,
-            true
-        );
+        $subscriber = $this->createSubscriber();
 
         // Test when sales channel navigation settings change
         $event = new EntityWrittenContainerEvent(
@@ -190,11 +181,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $categoryId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidator,
-            $this->connection,
-            true
-        );
+        $subscriber = $this->createSubscriber();
 
         // Test when category structural data changes (parentId, visible, active, afterCategoryId)
         $event = new EntityWrittenContainerEvent(
@@ -233,11 +220,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $categoryId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidator,
-            $this->connection,
-            true
-        );
+        $subscriber = $this->createSubscriber();
 
         // Test when categories are deleted
         $event = new EntityWrittenContainerEvent(
@@ -272,11 +255,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $categoryTranslationId = ['categoryId' => Uuid::randomHex(), 'languageId' => Uuid::randomHex()];
         $context = Context::createDefaultContext();
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidator,
-            $this->connection,
-            true
-        );
+        $subscriber = $this->createSubscriber();
 
         // Test when category translation name changes
         $event = new EntityWrittenContainerEvent(
@@ -314,11 +293,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $categoryId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidator,
-            $this->connection,
-            true
-        );
+        $subscriber = $this->createSubscriber();
 
         // Test when both sales channel settings and category data change
         $event = new EntityWrittenContainerEvent(
@@ -370,11 +345,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $categoryId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $subscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidator,
-            $this->connection,
-            true
-        );
+        $subscriber = $this->createSubscriber();
 
         // Test when category data changes that don't affect navigation (e.g., description)
         $event = new EntityWrittenContainerEvent(
@@ -407,6 +378,37 @@ class CacheInvalidationSubscriberTest extends TestCase
         $subscriber->invalidateNavigationRoute($event);
     }
 
+    public function testInvalidateConfigKeyClearsObjectCache(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([CachedSystemConfigLoader::CACHE_TAG], true);
+
+        $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], 'sc-id', true));
+    }
+
+    public function testInvalidateConfigKeyInvalidatesHttpCacheWhenNotSilent(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $subscriber = $this->createSubscriber();
+
+        $expects = $this->exactly(2);
+        $this->cacheInvalidator->expects($expects)
+            ->method('invalidate')
+            ->willReturnCallback(function (array $tags, bool $immediate = false) use ($expects, $salesChannelId): void {
+                match ($expects->numberOfInvocations()) {
+                    1 => static::assertSame([CachedSystemConfigLoader::CACHE_TAG], $tags),
+                    2 => static::assertSame(['system.config-' . $salesChannelId], $tags),
+                    default => static::fail('Unexpected invocation'),
+                };
+            });
+
+        $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], $salesChannelId, false));
+    }
+
     public function createSnippetEvent(): EntityWrittenContainerEvent
     {
         return new EntityWrittenContainerEvent(
@@ -428,6 +430,15 @@ class CacheInvalidationSubscriberTest extends TestCase
                 ),
             ]),
             [],
+        );
+    }
+
+    private function createSubscriber(): CacheInvalidationSubscriber
+    {
+        return new CacheInvalidationSubscriber(
+            $this->cacheInvalidator,
+            $this->connection,
+            true
         );
     }
 }

@@ -41,10 +41,19 @@ export default {
             required: true,
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `productType` prop instead
+         */
         productStates: {
             type: Array,
             required: false,
             default: () => ['all'],
+        },
+
+        productType: {
+            type: String,
+            required: false,
+            default: 'all',
         },
     },
 
@@ -161,7 +170,7 @@ export default {
             ];
 
             // adding download files to second last index
-            if (this.productStates.includes('is-download')) {
+            if (this.productType === 'digital') {
                 columns.splice(columns.length - 1, 0, {
                     property: 'downloads',
                     label: this.$tc('sw-product.variations.generatedListColumnDownload'),
@@ -217,7 +226,14 @@ export default {
             },
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         productStates() {
+            this.getList();
+        },
+
+        productType() {
             this.getList();
         },
 
@@ -289,7 +305,7 @@ export default {
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
-                if (this.product.parentId) {
+                if (!this.product?.id || this.product.parentId) {
                     return;
                 }
 
@@ -301,18 +317,16 @@ export default {
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria(1, 25);
 
-                const productStates = this.productStates.filter((state) => state !== 'all');
-                const productStatesFilter = productStates.map((productState) => {
-                    return Criteria.equals('states', productState);
-                });
-
                 // Criteria for Search
                 searchCriteria.setTotalCountMode(1);
                 searchCriteria
                     .setPage(this.page)
                     .setLimit(this.limit)
-                    .addFilter(Criteria.equals('product.parentId', this.product.id))
-                    .addFilter(Criteria.multi('AND', productStatesFilter));
+                    .addFilter(Criteria.equals('product.parentId', this.product.id));
+
+                if (this.productType !== 'all') {
+                    searchCriteria.addFilter(Criteria.equals('type', this.productType));
+                }
 
                 searchCriteria.getAssociation('media').addSorting(Criteria.sort('position'));
                 searchCriteria.addAssociation('media.media');
@@ -322,7 +336,7 @@ export default {
                     .addSorting(Criteria.sort('groupId'))
                     .addSorting(Criteria.sort('id'));
 
-                if (productStates.includes('is-download')) {
+                if (this.productType === 'digital') {
                     searchCriteria.addAssociation('downloads.media');
                 }
 
@@ -338,7 +352,7 @@ export default {
 
                 // check for other sort values
                 if (this.sortBy === 'name') {
-                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection));
+                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection, true));
                 } else {
                     searchCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }
@@ -704,17 +718,27 @@ export default {
 
                 this.updateVariantListingConfig(variantIds);
 
-                this.productRepository.syncDeleted(variantIds).then(() => {
-                    this.modalLoading = false;
-                    this.toBeDeletedVariantIds = [];
+                this.productRepository
+                    .syncDeleted(variantIds)
+                    .then(() => {
+                        this.modalLoading = false;
+                        this.toBeDeletedVariantIds = [];
 
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess'),
+                        this.createNotificationSuccess({
+                            message: this.$t('sw-product.variations.generatedListMessageDeleteSuccess'),
+                        });
+
+                        this.$refs.variantGrid.resetSelection();
+                        this.getList();
+                    })
+                    .catch(() => {
+                        this.modalLoading = false;
+                        this.toBeDeletedVariantIds = [];
+
+                        this.createNotificationError({
+                            message: this.$t('sw-product.variations.generatedListMessageDeleteError'),
+                        });
                     });
-
-                    this.$refs.variantGrid.resetSelection();
-                    this.getList();
-                });
             });
         },
 
@@ -747,9 +771,7 @@ export default {
             await this.$nextTick();
 
             let includesDigital = '0';
-            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) =>
-                product.states.includes('is-download'),
-            );
+            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }
@@ -771,7 +793,7 @@ export default {
         },
 
         variantIsDigital(variant) {
-            return this.productStates.includes('all') && variant.states && variant.states.includes('is-download');
+            return this.productType === 'all' && variant.type === 'digital';
         },
 
         updateVariantListingConfig(variantIds) {

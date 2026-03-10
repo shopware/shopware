@@ -5,6 +5,17 @@ import { mount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 
 describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
+    let originalMediaLoad;
+
+    beforeAll(() => {
+        originalMediaLoad = HTMLMediaElement.prototype.load;
+        HTMLMediaElement.prototype.load = jest.fn();
+    });
+
+    afterAll(() => {
+        HTMLMediaElement.prototype.load = originalMediaLoad;
+    });
+
     const createWrapper = async (componentConfig = {}) => {
         const config = {
             props: {
@@ -157,7 +168,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
     it('should handle relative path sources', async () => {
         const wrapper = await createWrapper({
             props: {
-                source: '/bundles/administration/static/img/cms/preview_mountain_large.jpg',
+                source: '/bundles/administration/static/img/cms/preview_mountain_large.webp',
             },
             global: {
                 provide: {
@@ -204,7 +215,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
     it('previewUrl function should handle relative paths', async () => {
         const wrapper = await createWrapper({
             props: {
-                source: '/bundles/administration/static/img/cms/preview_mountain_large.jpg',
+                source: '/bundles/administration/static/img/cms/preview_mountain_large.webp',
             },
             global: {
                 provide: {
@@ -263,5 +274,123 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         await wrapper.setData({ trueSource });
 
         expect(wrapper.vm.sourceSet).toBe('');
+    });
+
+    it.each([
+        { mimeType: 'video/quicktime', shouldShowWarning: true },
+        { mimeType: 'video/mp4', shouldShowWarning: false },
+    ])(
+        'should show warning icon if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)',
+        async ({ mimeType, shouldShowWarning }) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                imagePreviewFailed: true,
+                trueSource: { mimeType, thumbnails: [] },
+            });
+            await flushPromises();
+
+            const warningIcon = wrapper.find('.sw-media-preview-v2__warning-icon');
+            expect(warningIcon.exists()).toBe(shouldShowWarning);
+        },
+    );
+
+    it('uses video cover poster and preload none when cover exists', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url',
+                    extensions: {
+                        videoCoverMedia: { url: 'cover-url' },
+                    },
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const videoElement = wrapper.find('video');
+        expect(videoElement.attributes('poster')).toBe('cover-url');
+        expect(videoElement.attributes('preload')).toBe('none');
+    });
+
+    it('falls back to metadata preload when no cover exists', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url',
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const videoElement = wrapper.find('video');
+        expect(videoElement.attributes('poster')).toBeUndefined();
+        expect(videoElement.attributes('preload')).toBe('metadata');
+    });
+
+    it('fetches cover media when only metadata id exists', async () => {
+        const coverMedia = { id: 'cover-id', url: 'cover-url' };
+        const getMock = jest.fn().mockResolvedValue(coverMedia);
+
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    id: 'video-id',
+                    mimeType: 'video/mp4',
+                    metaData: {
+                        video: {
+                            coverMediaId: 'cover-id',
+                        },
+                    },
+                },
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => Promise.resolve(),
+                            get: getMock,
+                            search: () => Promise.resolve(),
+                        }),
+                    },
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(getMock).toHaveBeenCalledWith('cover-id', Shopware.Context.api);
+        expect(wrapper.vm.videoCoverMedia).toEqual(coverMedia);
+    });
+
+    it('reloads the media element when the preview url changes for video', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url-1',
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const reloadSpy = jest.spyOn(wrapper.vm, 'reloadMediaElement');
+        reloadSpy.mockClear();
+
+        await wrapper.setData({
+            trueSource: {
+                mimeType: 'video/mp4',
+                url: 'video-url-2',
+            },
+        });
+
+        await flushPromises();
+
+        expect(reloadSpy).toHaveBeenCalled();
+        expect(HTMLMediaElement.prototype.load).toHaveBeenCalled();
     });
 });

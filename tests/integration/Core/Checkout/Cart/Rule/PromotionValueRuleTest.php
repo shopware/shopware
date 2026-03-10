@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
@@ -277,7 +276,7 @@ class PromotionValueRuleTest extends TestCase
         /** @var AndRule $andRule */
         $andRule = $rule->getPayload();
         static::assertInstanceOf(PromotionValueRule::class, $andRule->getRules()[0]);
-        $filterRule = ReflectionHelper::getProperty(PromotionValueRule::class, 'filter')->getValue($andRule->getRules()[0]);
+        $filterRule = (new \ReflectionProperty(PromotionValueRule::class, 'filter'))->getValue($andRule->getRules()[0]);
         static::assertInstanceOf(AndRule::class, $filterRule);
         static::assertInstanceOf(PromotionCodeOfTypeRule::class, $filterRule->getRules()[0]);
     }

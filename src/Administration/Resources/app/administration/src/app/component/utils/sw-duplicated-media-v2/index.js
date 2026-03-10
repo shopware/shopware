@@ -188,7 +188,7 @@ export default {
         },
 
         isDuplicatedNameError(error) {
-            return error.response.data.errors.some((err) => {
+            return error?.response?.data?.errors?.some((err) => {
                 return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
             });
         },
@@ -317,6 +317,7 @@ export default {
         },
 
         async keepFile(uploadTask) {
+            const originalTargetId = uploadTask.targetId;
             const oldTarget = await this.mediaRepository.get(uploadTask.targetId, Context.api);
             if (!oldTarget.hasFile) {
                 await this.mediaRepository.delete(oldTarget.id, Context.api);
@@ -333,6 +334,7 @@ export default {
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
             const newTarget = searchResult[0];
             uploadTask.targetId = newTarget.id;
+            uploadTask.originalTargetId = originalTargetId;
 
             this.mediaService.keepFile(uploadTask.uploadTag, uploadTask);
         },

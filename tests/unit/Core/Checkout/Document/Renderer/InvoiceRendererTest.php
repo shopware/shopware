@@ -183,6 +183,8 @@ class InvoiceRendererTest extends TestCase
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->method('fetchAllAssociative')->willReturn($ordersLanguageId);
 
+        $userCallCount = 0;
+
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturnCallback(function (Criteria $criteria, Context $context) use (&$userCallCount, $DELanguageId, $orderSearchResult) {
             ++$userCallCount;
@@ -453,6 +455,7 @@ class InvoiceRendererTest extends TestCase
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setOrder($order);
         $orderCustomer->setCustomer($customer);
+        $orderCustomer->setVatIds(['VAT123']);
         $order->setOrderCustomer($orderCustomer);
         $order->setPrimaryOrderDeliveryId($orderDeliverId);
 
@@ -476,7 +479,6 @@ class InvoiceRendererTest extends TestCase
             $address = new OrderAddressEntity();
             $address->setCountry($country);
             $country->setCheckVatIdPattern($orderSettings['shouldCheckVatIdPattern'] ?? false);
-            $address->setVatId('VAT123');
             $delivery->setShippingOrderAddress($address);
         }
 

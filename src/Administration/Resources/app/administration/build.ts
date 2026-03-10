@@ -5,6 +5,7 @@
 import { spawn } from 'child_process';
 import { build } from 'vite';
 import concurrently from 'concurrently';
+import { exportViteServerMapping } from './build/vite-plugins/utils';
 
 async function runPluginsBuild(): Promise<void> {
     // Assuming ts-node is installed as a dependency
@@ -20,6 +21,8 @@ async function runPluginsBuild(): Promise<void> {
             },
         );
 
+        // When the process closes, then the listeners do not need to be removed anymore
+        // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
         process.on('close', (code) => {
             if (code === 0) {
                 resolve();
@@ -33,6 +36,7 @@ async function runPluginsBuild(): Promise<void> {
 async function main() {
     const mode = process.env.VITE_MODE;
     const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
+    await exportViteServerMapping();
 
     if (mode === 'production') {
         try {

@@ -59,6 +59,7 @@
                                                type="radio"
                                                name="points"
                                                value="{{ point }}"
+                                               aria-label="{{ "detail.review#{point}PointRatingText"|trans|sw_sanitize }}"
                                             {% if currentPoints >= point %} checked="checked"{% endif %}>
 
                                         {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {

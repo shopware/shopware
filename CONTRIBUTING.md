@@ -6,11 +6,23 @@ If you want more details about available licensing or the contribution agreement
 
 ## Contributing to the Shopware code base
 If you want to learn how to contribute code to Shopware, please refer to [Contributing Code](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html).
-Also, make sure that you add a changelog file that describes your changes in a meaningful way. For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/adr/2020-08-03-implement-new-changelog.md).
+Also, make sure that if you change something in a manner that is relevant to external developers please describe your change in a meaningful way. For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).
 
 ## Local Docker Setup
+The repository contains a Docker setup to run the application locally.
 
-The repository contains a Docker setup to run the application locally. You can start the containers with `docker compose up -d` and build the project with `docker compose exec web composer setup`.
+Checkout the repository and navigate to the directory. To start the containers run:
+
+```
+docker compose up -d
+```
+
+When the containers have started successfully you can call commands inside the container by adding `docker compose exec web` as a prefix to your command. You can now build Shopware by runnning:
+
+```
+docker compose exec web composer setup
+```
+
 This will download the necessary dependencies and set up the environment for development. After the setup is complete, you can access the application at [http://localhost:8000](http://localhost:8000).
 
 The Administration can be accessed at [http://localhost:8000/admin](http://localhost:8000/admin) and the Username is `admin` with the Password `shopware`.
@@ -21,7 +33,7 @@ To run the Administration Watcher you can use:
 docker compose exec web composer watch:admin
 ```
 
-and the Watcher is available at [http://localhost:5173](http://localhost:5173).
+The watched Administration is available at [http://localhost:5173](http://localhost:5173).
 
 To run the Storefront Watcher you can use:
 
@@ -29,13 +41,13 @@ To run the Storefront Watcher you can use:
 docker compose exec web composer watch:storefront
 ```
 
-and the Watcher is available at [http://localhost:9998](http://localhost:9998).
+The watched Storefront is available at [http://localhost:9998](http://localhost:9998).
 
 To access the database you can go to [http://localhost:9080](http://localhost:9080) and use the following credentials:
 
+- Server: `database`
 - Username: `root`
 - Password: `root`
-- Database: `database`
 
 ### Configuring PHPStorm to Run in Docker
 
@@ -52,6 +64,19 @@ docker compose exec web composer setup
 
 For all commands see [Command Overview](#command-overview).
 
+### Using Dev Containers in VS Code
+If you are using VS Code or other IDEs based on VS Code, like Cursor AI, you can use the Dev Containers feature to access the container with your IDE to get full terminal support and other improvements.
+
+**Usage**
+- Make sure to install the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension in VS Code.
+- Open the repository in your IDE.
+- From the VS Code command palette (Ctrl + Shift + P), enter: **Dev Containers: Reopen in Container**.
+
+The IDE should now restart the window with your environment set up for editing right within the container. It will also start the Docker container if you haven't done yet, so everytime you reopen the project as the container setup, the container will start automatically. The terminal and other tools, such as agent commands in Cursor, will now use the correct shell of the container. Also, PHP tools and other extensions should be set up for optimized use with Shopware.
+
+### Changing environment variables
+
+You can create a `.env` file to override the default environment variables. These are loaded automatically without having to restart the containers. **Except for the `APP_ENV` variable**, which requires `docker compose up -d` to apply the changes.
 
 ### Enable Profiler/Debugging for PHP
 
@@ -95,6 +120,7 @@ services:
         ports: !override []
         environment:
             APP_URL: https://web.sw-trunk.orb.local
+            SYMFONY_TRUSTED_PROXIES: 'private_ranges'
     database:
         ports: !override []
     adminer:
@@ -111,10 +137,16 @@ The APP_URL environment variable always starts with `web.<project-name>.orb.loca
 
 You can also open `https://orb.local` in your browser and see all running containers and their URLs.
 
+The `SYMFONY_TRUSTED_PROXIES` setting is required to access Shopware via HTTPS using OrbStack's `.orb.local` domains.
+
 To run the Storefront Watcher you will need to set an additional `PROXY_URL` environment variable. This is needed to make the watcher work with the OrbStack routing.
 
 ```bash
 docker compose run --rm -p 9998:9998 -p 9999:9999 -e PROXY_URL=http://localhost web composer watch:storefront
+```
+and for the admin watcher accordingly:
+```bash
+docker compose run --rm -p 5173:5173 -e PROXY_URL=http://localhost web composer watch:admin
 ```
 
 ## Command Overview

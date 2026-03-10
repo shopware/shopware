@@ -208,7 +208,7 @@ class SnippetService
 
         $aggregation = $this->snippetRepository->aggregate($criteria, $context)->get('distinct_author');
 
-        if (!$aggregation instanceof TermsResult || empty($aggregation->getBuckets())) {
+        if (!$aggregation instanceof TermsResult || $aggregation->getBuckets() === []) {
             $result = [];
         } else {
             $result = $aggregation->getKeys();
@@ -306,6 +306,15 @@ class SnippetService
     }
 
     /**
+     *  Collects snippet files for each given locale.
+     *
+     *  For each locale (e.g., "es-AR"), the method first tries to load files
+     *  that match the exact locale. If that locale contains a region separator ("-"),
+     *  it will also load files for the base language (e.g., "es").
+     *
+     *  The base language snippet files are prepended, ensuring country-specific
+     *  snippets (e.g. "es-AR") override more general ones ("es").
+     *
      * @param array<string, string> $isoList
      *
      * @return array<string, list<AbstractSnippetFile>>
@@ -314,7 +323,26 @@ class SnippetService
     {
         $result = [];
         foreach ($isoList as $iso) {
-            $result[$iso] = $this->snippetFileCollection->getSnippetFilesByIso($iso);
+            // Load all snippet files that match the exact locale (e.g., "es-AR")
+            $files = $this->snippetFileCollection->getSnippetFilesByIso($iso);
+            preg_match(
+                SnippetPatterns::COMPLETE_LOCALE_PATTERN,
+                $iso,
+                $matchedPattern,
+                \PREG_UNMATCHED_AS_NULL
+            );
+
+            // If the locale has a region (e.g., "es-AR"), try to load its base language ("es")
+            $region = $matchedPattern['region'] ?? '';
+            if ($region !== '' && strtolower($region) !== $iso) {
+                $language = $matchedPattern['language'] ?? '';
+                \assert($language !== '');
+                $fallbackFiles = $this->snippetFileCollection->getSnippetFilesByIso($language);
+                // Prepend fallback files so region-specific ones override them
+                $files = [...$fallbackFiles, ...$files];
+            }
+
+            $result[$iso] = $files;
         }
 
         return $result;
@@ -550,12 +578,12 @@ class SnippetService
     {
         $result = [];
         foreach ($array as $index => $value) {
-            $newIndex = $prefix . (empty($prefix) ? '' : '.') . $index;
+            $newIndex = $prefix . ($prefix === '' ? '' : '.') . $index;
 
             if (\is_array($value)) {
                 $result = [...$result, ...$this->flatten($value, $newIndex, $additionalParameters)];
             } else {
-                if (!empty($additionalParameters)) {
+                if ($additionalParameters !== null && $additionalParameters !== []) {
                     $result[$newIndex] = array_merge([
                         'value' => $value,
                         'origin' => $value,

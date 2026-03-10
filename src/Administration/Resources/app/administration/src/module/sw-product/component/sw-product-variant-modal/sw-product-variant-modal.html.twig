@@ -366,6 +366,7 @@
             <mt-number-field
                 v-if="isInlineEdit"
                 v-model="item.stock"
+                number-type="int"
                 :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />
@@ -497,11 +498,10 @@
     {% endblock %}
 
     {% block sw_product_variant_modal_body_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-else
-        title=""
-        :subline="$tc('sw-product.list.variantGridEmptyStateSubline')"
-        :absolute="false"
+        :icon="$route.meta.$module.icon"
+        :headline="$tc('sw-product.list.variantGridEmptyStateSubline')"
     />
     {% endblock %}
 

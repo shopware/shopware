@@ -55,7 +55,6 @@ async function createWrapper() {
                     'sw-context-menu': true,
                     'sw-card-filter': true,
                     'sw-entity-advanced-selection-modal-grid': true,
-                    'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-time-ago': true,

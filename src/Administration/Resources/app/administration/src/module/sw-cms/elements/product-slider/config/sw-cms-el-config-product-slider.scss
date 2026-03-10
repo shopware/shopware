@@ -19,6 +19,10 @@
         margin-bottom: 0;
     }
 
+    &__tab-settings-rotate-config {
+        margin-top: 16px;
+    }
+
     .sw-select-result .sw-select-result__result-item-text {
         display: block;
 
@@ -44,7 +48,6 @@
     }
 
     .sw-cms-el-config-product-slider__product-stream-preview-link-container {
-        margin-top: -20px;
         text-align: right;
     }
 
@@ -63,6 +66,10 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
+    }
+
+    .sw-cms-el-config-product-slider__tab-settings-navigation {
+        margin-bottom: 16px;
     }
 }
 

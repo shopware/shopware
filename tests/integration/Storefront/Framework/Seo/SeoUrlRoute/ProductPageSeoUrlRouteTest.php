@@ -43,14 +43,14 @@ class ProductPageSeoUrlRouteTest extends TestCase
             ->create([$product], Context::createDefaultContext());
 
         $this->generateAndAssert(
-            ids: $ids->getList(['p1']),
+            ids: array_values($ids->getList(['p1'])),
             template: '{{ product.mainCategories.first.category.translated.name }}',
             salesChannelId: TestDefaults::SALES_CHANNEL,
             expected: ['c1']
         );
 
         $this->generateAndAssert(
-            ids: $ids->getList(['p1']),
+            ids: array_values($ids->getList(['p1'])),
             template: '{{ product.mainCategories.first.category.translated.name }}',
             salesChannelId: $salesChannel['id'],
             expected: ['c2']
@@ -58,8 +58,8 @@ class ProductPageSeoUrlRouteTest extends TestCase
     }
 
     /**
-     * @param array<string> $ids
-     * @param array<string> $expected
+     * @param list<string> $ids
+     * @param list<string> $expected
      */
     private function generateAndAssert(array $ids, string $template, string $salesChannelId, array $expected): void
     {

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Extension\CheckoutCartRuleLoaderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
@@ -221,11 +222,19 @@ class CartRuleLoader implements ResetInterface
 
         $country = $context->getShippingLocation()->getCountry();
 
-        $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
-        $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country) && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
+        if ($context->getCustomer()?->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country)
+                && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
 
-        if ($isReachedCustomerTaxFreeAmount || $isReachedCompanyTaxFreeAmount) {
-            return CartPrice::TAX_STATE_FREE;
+            if ($isReachedCompanyTaxFreeAmount) {
+                return CartPrice::TAX_STATE_FREE;
+            }
+        } else {
+            $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
+
+            if ($isReachedCustomerTaxFreeAmount) {
+                return CartPrice::TAX_STATE_FREE;
+            }
         }
 
         if ($this->taxDetector->useGross($context)) {

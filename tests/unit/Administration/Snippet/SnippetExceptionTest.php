@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Administration\Snippet;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -13,6 +14,20 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SnippetException::class)]
 class SnippetExceptionTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     * */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDuplicatedFirstLevelKey(): void
+    {
+        $exception = SnippetException::duplicatedFirstLevelKey(['id1', 'id2', 'id3']);
+
+        static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_DUPLICATED_FIRST_LEVEL_KEY_EXCEPTION, $exception->getErrorCode());
+        static::assertSame('The following keys on the first level are duplicated and can not be overwritten: id1, id2, id3', $exception->getMessage());
+        static::assertSame(['duplicatedKeys' => 'id1, id2, id3'], $exception->getParameters());
+    }
+
     public function testDefaultLanguageNotGiven(): void
     {
         $exception = SnippetException::defaultLanguageNotGiven('languageId');

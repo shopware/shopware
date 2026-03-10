@@ -52,7 +52,7 @@ export default Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            this.initElementConfig(this.elementData.name);
+            this.initElementConfig();
 
             /**
              * @deprecated tag:v6.8.0 - Will be removed

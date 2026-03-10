@@ -155,6 +155,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     it('should have disabled fields with no rights', async () => {
         const wrapper = await createWrapper({
             linkType: 'external',
+            externalLink: 'https://example.com',
         });
 
         const linkTypeField = wrapper.find('sw-single-select-stub');

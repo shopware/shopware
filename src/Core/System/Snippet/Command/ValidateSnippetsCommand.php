@@ -9,6 +9,7 @@ use Shopware\Core\System\Snippet\SnippetValidator;
 use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,11 +17,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ * @deprecated tag:v6.8.0 - reason:parameter-name-change - alias 'snippets:validate' will be removed
+ *
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */
 #[AsCommand(
-    name: 'snippets:validate',
-    description: 'Validates snippets',
+    name: 'translation:validate',
+    description: 'Validates completeness and correct pluralization of snippets',
+    aliases: ['snippets:validate'],
 )]
 #[Package('discovery')]
 class ValidateSnippetsCommand extends Command
@@ -85,6 +90,7 @@ class ValidateSnippetsCommand extends Command
         }
 
         $questionHelper = $this->getHelper('question');
+        \assert($questionHelper instanceof QuestionHelper);
 
         foreach ($missingSnippetsCollection->getIterator() as $missingSnippetStruct) {
             $question = \sprintf(

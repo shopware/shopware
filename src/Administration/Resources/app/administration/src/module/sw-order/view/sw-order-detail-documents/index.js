@@ -1,8 +1,8 @@
-import template from './sw-order-detail-documents.html.twig';
-
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
+
+import template from './sw-order-detail-documents.html.twig';
 
 const { Store } = Shopware;
 

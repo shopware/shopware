@@ -1,15 +1,16 @@
-/* stylelint-disable max-nesting-depth */
-@import "~scss/variables";
-
 .sw-mail-template-detail {
-    .sw-card {
-        .sw-single-select,
-        .sw-multi-select {
-            margin-bottom: 20px;
+    &__html-editor,
+    &__subject-field,
+    &__sender-name-field,
+    &__description-field {
+        margin-bottom: 0;
+
+        .sw-field {
+            margin-bottom: 0;
         }
     }
 
-    .sw-mail-template-detail__available-variables-sidebar-container {
+    &__available-variables-sidebar-container {
         height: 100%;
     }
 
@@ -18,53 +19,39 @@
             max-height: 100%;
         }
 
-        .icon--regular-circle-xxs {
-            display: none;
-        }
-
-        .sw-mail-template-detail__copy_icon {
-            display: none;
-        }
-
-        .icon--regular-folder {
-            display: none;
-        }
-
+        .icon--regular-circle-xxs,
+        .sw-mail-template-detail__copy_icon,
+        .icon--regular-folder,
         .icon--regular-folder-open {
             display: none;
         }
 
         .sw-tree-item__children {
             .sw-mail-template-detail__copy_icon {
-                color: $color-gray-700;
-                max-width: 15px;
                 display: block;
+                max-width: var(--scale-size-14);
+                color: var(--color-icon-secondary-default);
 
-                :hover {
-                    color: $color-shopware-brand-500;
+                &:hover {
+                    color: var(--color-icon-brand-default);
                 }
 
-                :active {
-                    color: $color-shopware-brand-800;
+                &:active {
+                    color: var(--color-icon-brand-hover);
                 }
             }
         }
     }
 
-    .sw-mail-template-detail__test-mail-sidebar {
-        .sw-mail-template-detail__test-mail-sidebar-container {
-            padding: 20px;
-            border-top: 1px solid $color-gray-300;
-
-            label {
-                font-weight: bold;
-            }
-        }
+    &__test-mail-sidebar-container {
+        padding: var(--scale-size-20);
+        border-top: 1px solid var(--color-border-primary-default);
     }
 
-    .sw-mail-template-detail__attachments-info-grid {
+    &__attachments-info-grid {
         position: relative;
-        margin-top: 20px;
-        border: 1px solid $color-gray-300;
+        margin-top: var(--scale-size-20);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
     }
 }

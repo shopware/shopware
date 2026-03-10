@@ -11,7 +11,6 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
@@ -95,7 +94,6 @@ class SeoUrlGeneratorTest extends TestCase
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
 
-        /** @var \Traversable<SeoUrlEntity> $urls */
         $urls = $this->seoUrlGenerator->generate(
             [$id],
             $template,
@@ -123,7 +121,6 @@ class SeoUrlGeneratorTest extends TestCase
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
 
-        /** @var SeoUrlEntity[] $urls */
         $urls = $this->seoUrlGenerator->generate(
             [$id],
             $template,
@@ -135,7 +132,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertIsIterable($urls);
 
         foreach ($urls as $url) {
-            if (!empty($pathInfo)) {
+            if ($pathInfo !== '') {
                 static::assertStringEndsWith($pathInfo, $url->getSeoPathInfo());
             }
         }
@@ -249,7 +246,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['parent', 'redProduct', 'greenProduct']);
+        $productIds = array_values($ids->getList(['parent', 'redProduct', 'greenProduct']));
         $template = '{{ product.translated.name|lower }}{% if product.options %}{% for var in product.options|sort((a,b)=> a.position <=> b.position) %}-{{ var.name }}{% endfor %}{% endif %}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -275,7 +272,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['product']);
+        $productIds = array_values($ids->getList(['product']));
         $template = '{% if product.categories %}{% for var in product.categories %}{{ var.translated.name }}-{% endfor %}{% endif %}{{ product.manufacturer.translated.name }}-{{ product.translated.name|lower }}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -299,7 +296,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['product']);
+        $productIds = array_values($ids->getList(['product']));
         $template = '{{ product.translated.name|lastBigLetter }}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -318,10 +315,9 @@ class SeoUrlGeneratorTest extends TestCase
 
         static::assertCount(2, $categoryIds, 'this is important for the test as you need more items to iterate for a context switch test');
 
-        /** @var SeoUrlRouteInterface $seoRoute */
         $seoRoute = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
+        static::assertNotNull($seoRoute);
 
-        /** @var \Generator<SeoUrlEntity> $firstRun */
         $firstRun = $this->seoUrlGenerator->generate(
             $categoryIds,
             'template first run',
@@ -329,7 +325,6 @@ class SeoUrlGeneratorTest extends TestCase
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
-        /** @var \Generator<SeoUrlEntity> $secondRun */
         $secondRun = $this->seoUrlGenerator->generate(
             $categoryIds,
             'template second run',
@@ -338,7 +333,6 @@ class SeoUrlGeneratorTest extends TestCase
             $this->salesChannelContext->getSalesChannel()
         );
 
-        /** @var SeoUrlEntity $url */
         foreach ($firstRun as $url) {
             static::assertSame('template first run', $url->getSeoPathInfo());
 
@@ -350,7 +344,6 @@ class SeoUrlGeneratorTest extends TestCase
             break;
         }
 
-        /** @var SeoUrlEntity $url */
         foreach ($firstRun as $url) {
             static::assertSame('template first run', $url->getSeoPathInfo());
         }
@@ -360,17 +353,19 @@ class SeoUrlGeneratorTest extends TestCase
     {
         $logger = new class extends AbstractLogger {
             /**
-             * @var mixed[]
+             * @var array<int|string, array<string, list<array<string, mixed>>>>
              */
             public array $logs = [];
 
             /**
              * @param int|string $level
-             * @param mixed[] $context
+             * @param array<string, mixed> $context
+             *
+             * @throws void
              */
             public function log(mixed $level, string|\Stringable $message, array $context = []): void
             {
-                $this->logs[$level][$message][] = $context;
+                $this->logs[$level][(string) $message][] = $context;
             }
         };
         $seoUrlGenerator = new SeoUrlGenerator(
@@ -382,8 +377,8 @@ class SeoUrlGeneratorTest extends TestCase
             $logger,
         );
 
-        /** @var SeoUrlRouteInterface $seoRoute */
         $seoRoute = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
+        static::assertNotNull($seoRoute);
 
         $urls = $seoUrlGenerator->generate(
             [$this->getValidCategoryId()],
@@ -402,7 +397,6 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertNotSame([], $logger->logs);
         $logger->logs = [];
 
-        /** @var \Generator<SeoUrlEntity> $urls */
         $urls = $seoUrlGenerator->generate(
             [$this->getValidCategoryId()],
             // invalid twig context
@@ -452,7 +446,7 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getCategoryIds(int $count): array
     {

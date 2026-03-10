@@ -19,6 +19,11 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
                 stubs: {
@@ -40,13 +45,14 @@ async function createWrapper(privileges = []) {
                     'sw-entity-listing': {
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowDelete',
                             'detailRoute',
                         ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
                                     <div class="sw-entity-listing__context-menu-edit-action"
@@ -62,7 +68,6 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>`,
                     },
-                    'sw-empty-state': true,
                     'router-link': true,
                     'sw-search-bar': true,
                     'sw-language-info': true,
@@ -316,11 +321,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 

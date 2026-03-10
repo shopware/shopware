@@ -86,7 +86,7 @@ class HttpCacheIntegrationTest extends TestCase
         $this->assertCacheHeader('GET /: fresh', $response);
     }
 
-    public function testCacheHitWithDifferentCacheKeys(): void
+    public function testCacheHashCookieChange(): void
     {
         $kernel = $this->getCacheKernel();
 
@@ -94,7 +94,6 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertIsString($appUrl);
 
         $request = $this->createRequest($appUrl);
-        $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'a');
 
         $response = $kernel->handle($request);
         $this->assertCacheHeader('GET /: miss, store', $response);
@@ -104,8 +103,9 @@ class HttpCacheIntegrationTest extends TestCase
 
         $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'b');
 
+        // cache miss as request hash differs, no store as it also differs from hash calculated from context
         $response = $kernel->handle($request);
-        $this->assertCacheHeader('GET /: miss, store', $response);
+        $this->assertCacheHeader('GET /: miss', $response);
     }
 
     public function testCacheForAppScriptEndpointIsEnabledByDefault(): void

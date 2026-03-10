@@ -33,7 +33,8 @@ class BanMediaUrl
                 $params[] = new UrlParams(
                     id: $changed['thumbnailId'],
                     source: UrlParamsSource::THUMBNAIL,
-                    path: $changed['path']
+                    path: $changed['path'],
+                    mimeType: $changed['mimeType']
                 );
 
                 continue;
@@ -42,17 +43,18 @@ class BanMediaUrl
             $params[] = new UrlParams(
                 id: $changed['mediaId'],
                 source: UrlParamsSource::MEDIA,
-                path: $changed['path']
+                path: $changed['path'],
+                mimeType: $changed['mimeType']
             );
         }
 
-        if (empty($params)) {
+        if ($params === []) {
             return;
         }
 
         $urls = $this->generator->generate($params);
 
-        if (empty($urls)) {
+        if ($urls === []) {
             return;
         }
 

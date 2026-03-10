@@ -29,7 +29,6 @@
         <div class="sw-order-general-info__summary-sub">
             {% block sw_order_detail_base_general_info_summary_sub_description %}
             <div class="sw-order-general-info__summary-sub-description">
-                {{ $tc('sw-order.generalTab.info.summary.on') }}
                 <sw-time-ago
                     :date="order.orderDateTime"
                     :date-time-format="{ month: '2-digit', day: '2-digit' }"

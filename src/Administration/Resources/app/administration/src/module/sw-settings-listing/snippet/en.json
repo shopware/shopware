@@ -7,6 +7,7 @@
       "buttonSave": "Save",
       "messageSaveSuccess": "Configuration saved.",
       "messageSaveError": "Configuration could not be saved due to: \"{message}\"",
+      "messageSaveDefaultValuesEmpty": "Default value is required",
       "labelDefaultSorting": "Default sorting",
       "labelDefaultSearchResultSorting": "Default search result sorting",
       "placeholderDefaultSorting": "Select a default sorting...",
@@ -31,7 +32,8 @@
               "cheapestPrice": "Cheapest product price",
               "price": "Default price",
               "sales": "Units sold",
-              "createdAt": "Creation date"
+              "createdAt": "Creation date",
+              "available": "Available"
             },
             "customField": "Custom field",
             "_score": "_score"

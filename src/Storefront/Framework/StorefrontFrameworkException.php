@@ -2,23 +2,23 @@
 
 namespace Shopware\Storefront\Framework;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
+use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class StorefrontFrameworkException extends HttpException
 {
     public const APP_TEMPLATE_FILE_NOT_READABLE = 'STOREFRONT__APP_TEMPLATE_NOT_READABLE';
-
     public const APP_REQUEST_NOT_AVAILABLE = 'STOREFRONT__APP_REQUEST_NOT_AVAILABLE';
     public const SALES_CHANNEL_CONTEXT_OBJECT_NOT_FOUND = 'STOREFRONT__SALES_CHANNEL_CONTEXT_OBJECT_NOT_FOUND';
     public const MEDIA_ILLEGAL_FILE_TYPE = 'STOREFRONT__MEDIA_ILLEGAL_FILE_TYPE';
-
     public const INVALID_ARGUMENT = 'STOREFRONT__INVALID_ARGUMENT';
+    public const SALES_CHANNEL_MAPPING_EXCEPTION = 'FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING';
+    public const MEDIA_VALIDATOR_MISSING = 'STOREFRONT__MEDIA_VALIDATOR_MISSING';
 
     public static function appTemplateFileNotReadable(string $path): self
     {
@@ -64,6 +64,28 @@ class StorefrontFrameworkException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_ARGUMENT,
             $message
+        );
+    }
+
+    public static function salesChannelMappingException(string $url): self
+    {
+        return new SalesChannelMappingException($url);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return only self
+     */
+    public static function mediaValidatorMissing(string $type): self|MediaValidatorMissingException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new MediaValidatorMissingException($type);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_VALIDATOR_MISSING,
+            'No validator for {{ type }} was found.',
+            ['type' => $type],
         );
     }
 }

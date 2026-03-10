@@ -38,6 +38,9 @@ export default class ListingPlugin extends Plugin {
         scrollTopListingWrapper: true,
         // how much px the scrolling should be offset
         scrollOffset: 15,
+        // Skip popstate handling for hash-only changes (fixes anchor links)
+        // Set to false to disable this fix for testing
+        ignoreHashOnlyPopstate: true,
     };
 
     init() {
@@ -63,6 +66,9 @@ export default class ListingPlugin extends Plugin {
         this._cmsProductListingWrapperActive = !!this._cmsProductListingWrapper;
 
         this._allFiltersInitializedDebounce = Debouncer.debounce(this.sendDisabledFiltersRequest.bind(this), 100);
+
+        // Track current path for hash-only popstate detection
+        this._lastPathWithoutHash = this._getPathWithoutHash();
 
         this._registerEvents();
     }
@@ -200,17 +206,17 @@ export default class ListingPlugin extends Plugin {
             mapped[paramKey] = paramValue;
         });
 
-        let query = new URLSearchParams(mapped).toString();
-        this.sendDataRequest(query);
+        let queryParams = new URLSearchParams(mapped);
+        this.sendDataRequest(queryParams);
 
         delete mapped['slots'];
         delete mapped['no-aggregations'];
         delete mapped['reduce-aggregations'];
         delete mapped['only-aggregations'];
-        query = new URLSearchParams(mapped).toString();
+        queryParams = new URLSearchParams(mapped);
 
         if (pushHistory) {
-            this._updateHistory(query);
+            this._updateHistory(queryParams);
         }
 
         if (this.options.scrollTopListingWrapper) {
@@ -233,6 +239,7 @@ export default class ListingPlugin extends Plugin {
 
     /**
      * @private
+     * @returns {URLSearchParams} 
      */
     _getDisabledFiltersParamsFromParams(params) {
         const filterParams = Object.assign({}, {'only-aggregations': 1, 'reduce-aggregations': 1}, params);
@@ -240,11 +247,20 @@ export default class ListingPlugin extends Plugin {
         delete filterParams['order'];
         delete filterParams['no-aggregations'];
 
-        return filterParams;
+        return new URLSearchParams(filterParams);
     }
+    /**
+     * Update the browser history.
+     *
+     * @private
+     * @param {URLSearchParams} queryParams
+     */
+    _updateHistory(queryParams) {
+        const url = this._buildUrl(window.location.pathname, queryParams);
+        window.history.pushState({}, '', url);
 
-    _updateHistory(query) {
-        window.history.pushState({}, '', `${window.location.pathname}?${query}`);
+        // Update tracked path for hash-only popstate detection
+        this._lastPathWithoutHash = this._getPathWithoutHash();
     }
 
     /**
@@ -401,7 +417,7 @@ export default class ListingPlugin extends Plugin {
     /**
      * Send request to get filtered product data.
      *
-     * @param {String} filterParams - active filters as querystring
+     * @param {URLSearchParams} filterParams - active filters as querystring
      */
     sendDataRequest(filterParams) {
         if (this._filterPanelActive) {
@@ -416,7 +432,9 @@ export default class ListingPlugin extends Plugin {
             this.sendDisabledFiltersRequest();
         }
 
-        fetch(`${this.options.dataUrl}?${filterParams}`, {
+        const url = this._buildUrl(this.options.dataUrl, filterParams);
+
+        fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then((response) => response.text())
@@ -450,9 +468,9 @@ export default class ListingPlugin extends Plugin {
         this._allFiltersInitializedDebounce = () => {};
 
         const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
-        const paramsString = new URLSearchParams(filterParams).toString();
+        const url = this._buildUrl(this.options.filterUrl, filterParams);
 
-        fetch(`${this.options.filterUrl}?${paramsString}`, {
+        fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => response.json())
@@ -513,6 +531,15 @@ export default class ListingPlugin extends Plugin {
      * @private
      */
     _onWindowPopstate() {
+        // Skip if this is just an anchor/hash navigation (not a filter/page change)
+        // Browsers fire popstate for hash changes
+        if (this.options.ignoreHashOnlyPopstate && this._lastPathWithoutHash) {
+            const currentPathWithoutHash = this._getPathWithoutHash();
+            if (this._lastPathWithoutHash === currentPathWithoutHash) {
+                return;
+            }
+        }
+
         this.refreshRegistry();
 
         this._registry.forEach(filterItem => {
@@ -527,5 +554,34 @@ export default class ListingPlugin extends Plugin {
         }
 
         this.changeListing(false);
+    }
+    /**
+     * Get current path without hash (pathname + search).
+     * Used for hash-only popstate detection (Safari/Firefox anchor link fix).
+     *
+     * @private
+     * @return {string}
+     */
+    _getPathWithoutHash() {
+        return window.location.pathname + window.location.search;
+    }
+
+    /**
+     * @private
+     * @param {string} pathname
+     * @param {URLSearchParams} queryParams
+     * @param {string} [base]
+     * @return {string}
+     */
+    _buildUrl(pathname, queryParams, base = window.location.origin) {
+        const url = new URL(pathname, base);
+
+        if (queryParams.size > 0) {
+            queryParams.forEach((value, key) => {
+                url.searchParams.append(key, value);
+            });
+        }
+
+        return url.toString();
     }
 }

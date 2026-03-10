@@ -55,7 +55,7 @@ class AfterSort
 
         $lastId = $first->getId();
 
-        while (\count($elements) > 0) {
+        while ($elements !== []) {
             foreach ($elements as $index => $element) {
                 // @phpstan-ignore property.dynamicName
                 if ($lastId !== $element->$propertyName) {
@@ -81,7 +81,7 @@ class AfterSort
                 $lastId = $nextItem->getId();
             }
 
-            if (!\count($elements)) {
+            if ($elements === []) {
                 break;
             }
         }

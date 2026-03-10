@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBu
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -134,9 +133,12 @@ class ThumbnailExtensionTest extends TestCase
      */
     private function renderTemplate(string $templatePath, array $data): string
     {
+        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
+        static::assertNotFalse($storefrontBundleFileName);
+
         [$twig, $templateFinder] = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname((string) ReflectionHelper::getFileName(Storefront::class))),
+            new BundleFixture('Storefront', \dirname($storefrontBundleFileName)),
         ]);
 
         $templatePath = $templateFinder->find($templatePath);

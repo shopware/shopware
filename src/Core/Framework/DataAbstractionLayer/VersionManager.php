@@ -79,7 +79,7 @@ class VersionManager
     /**
      * @param array<array<string, mixed|null>> $rawData
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
@@ -93,7 +93,7 @@ class VersionManager
     /**
      * @param array<array<string, mixed|null>> $rawData
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
@@ -107,7 +107,7 @@ class VersionManager
     /**
      * @param array<array<string, mixed|null>> $rawData
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
@@ -132,7 +132,7 @@ class VersionManager
 
     public function createVersion(EntityDefinition $definition, string $id, WriteContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        $versionId = $versionId ?? Uuid::randomHex();
+        $versionId ??= Uuid::randomHex();
         $versionData = ['id' => $versionId];
 
         if ($name) {
@@ -198,7 +198,7 @@ class VersionManager
         // release lock to ensure no other merge is running
         $lock->release();
 
-        // dispatch events to trigger indexer and other subscribts
+        // dispatch events to trigger indexer and other subscribers
         $writes = EntityWrittenContainerEvent::createWithWrittenEvents($result->getWritten(), $liveContext->getContext(), []);
 
         $deletes = EntityWrittenContainerEvent::createWithDeletedEvents($result->getDeleted(), $liveContext->getContext(), []);
@@ -213,7 +213,7 @@ class VersionManager
     }
 
     /**
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function clone(
         EntityDefinition $definition,
@@ -227,7 +227,7 @@ class VersionManager
     }
 
     /**
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     private function cloneEntity(
         EntityDefinition $definition,
@@ -378,7 +378,7 @@ class VersionManager
                 }
 
                 $nested = array_filter($nested);
-                if (empty($nested)) {
+                if ($nested === []) {
                     continue;
                 }
 
@@ -394,7 +394,7 @@ class VersionManager
                     $nested[] = ['id' => $item['id']];
                 }
 
-                if (empty($nested)) {
+                if ($nested === []) {
                     continue;
                 }
 
@@ -416,8 +416,8 @@ class VersionManager
             }
         }
 
-        /** @phpstan-ignore empty.variable (might be overridden by reference) */
-        if (!empty($extensions)) {
+        /** @phpstan-ignore notIdentical.alwaysFalse (might be overridden by reference) */
+        if ($extensions !== []) {
             $payload['extensions'] = $extensions;
         }
 
@@ -477,7 +477,7 @@ class VersionManager
                 continue;
             }
 
-            if (mb_strpos('version', $entityName) === 0) {
+            if (str_starts_with('version', $entityName)) {
                 continue;
             }
 
@@ -550,9 +550,9 @@ class VersionManager
 
         foreach ($pkFields as $pkField) {
             /*
-             * `EntityTranslationDefinition`s dont have an `id`, they use a composite primary key consisting of the
-             * entity id and the `languageId`. When cloning the entity we want to copy the `languageId`. The entity id
-             * has to be unset, so that its set by the parent, resulting in a valid primary key.
+             * `EntityTranslationDefinition` doesn't have an `id`; they use a composite primary key consisting of the
+             * entity id and the `languageId`. When cloning the entity, we want to copy the `languageId`. The entity id
+             * has to be unset so that it's set by the parent, resulting in a valid primary key.
              */
             if (
                 $field instanceof TranslationsAssociationField
@@ -760,7 +760,7 @@ class VersionManager
                         }
 
                         $payload = $data->getPayload();
-                        if (empty($payload)) {
+                        if ($payload === null || $payload === []) {
                             break;
                         }
                         $payload = $this->addVersionToPayload($payload, $definition, Defaults::LIVE_VERSION);
@@ -801,7 +801,7 @@ class VersionManager
             $operations[] = new SyncOperation('delete-' . $entity, $entity, 'delete', $payload);
         }
 
-        if (empty($operations)) {
+        if ($operations === []) {
             return new WriteResult([], [], []);
         }
 

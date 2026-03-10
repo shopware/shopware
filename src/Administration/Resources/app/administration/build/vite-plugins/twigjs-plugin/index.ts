@@ -7,9 +7,7 @@ import type { Plugin } from 'vite';
  */
 
 const isTwigFile = /\.twig$/;
-const isTwigRawFile = /\.twig\?raw$/;
 const isHTMLFile = /\.html$/;
-const isHTMLRawFile = /\.html\?raw$/;
 
 /* @private */
 export default function twigPlugin(): Plugin {
@@ -21,7 +19,7 @@ export default function twigPlugin(): Plugin {
                 return;
             }
 
-            if (!(isTwigFile.test(id) || isHTMLFile.test(id) || isTwigRawFile.test(id) || isHTMLRawFile.test(id))) {
+            if (!(isTwigFile.test(id) || isHTMLFile.test(id))) {
                 return;
             }
 

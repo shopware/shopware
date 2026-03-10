@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Event\BeforeSalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
@@ -46,8 +47,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class OrderConverter
 {
+    /**
+     * @deprecated tag:v6.8.0 - not used anymore and will be removed
+     */
     final public const CART_CONVERTED_TO_ORDER_EVENT = 'cart.convertedToOrder.event';
 
+    /**
+     * @deprecated tag:v6.8.0 - not used anymore and will be removed
+     */
     final public const CART_TYPE = 'recalculation';
 
     final public const ORIGINAL_ID = 'originalId';
@@ -384,11 +391,14 @@ class OrderConverter
         }
 
         $options = array_merge($options, $overrideOptions);
+        $event = new BeforeSalesChannelContextAssembledEvent($order, $context, $options);
+        $this->eventDispatcher->dispatch($event);
 
-        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
+        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $event->getOptions());
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
         $salesChannelContext->setTaxState($order->getTaxStatus() ?? $order->getPrice()->getTaxStatus());
+        $salesChannelContext->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
 
         if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
             $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);

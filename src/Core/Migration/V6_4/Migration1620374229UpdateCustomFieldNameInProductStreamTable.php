@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1620374229UpdateCustomFieldNameInProductStreamTable extends MigrationStep
@@ -30,7 +28,7 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTable extends Migra
             ORDER BY custom_field.`name` ASC
         ');
 
-        if (empty($customFields)) {
+        if ($customFields === []) {
             return;
         }
 

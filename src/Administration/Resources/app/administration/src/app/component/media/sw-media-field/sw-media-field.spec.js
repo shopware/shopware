@@ -20,8 +20,8 @@ describe('src/app/component/media/sw-media-field', () => {
                         </div>
                     `,
                     },
-                    'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
+                    'sw-upload-listener': true,
                     'sw-simple-search-field': true,
                     'sw-loader': true,
                     'sw-pagination': true,
@@ -141,5 +141,28 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(config).toEqual({
             targetSelector: '.mt-modal__content-inner',
         });
+    });
+
+    it('should render sw-upload-listener with correct upload tag and auto-upload', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ showPicker: true });
+
+        const uploadListener = wrapper.find('sw-upload-listener-stub');
+
+        expect(uploadListener.exists()).toBe(true);
+        expect(uploadListener.attributes('upload-tag')).toBe(wrapper.vm.uploadTag);
+        expect(uploadListener.attributes()).toHaveProperty('auto-upload');
+    });
+
+    it('should set media id and close picker when upload finishes', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ showPicker: true, showUploadField: true });
+
+        const targetId = 'new-media-id-123';
+        wrapper.vm.exposeNewId({ targetId });
+
+        expect(wrapper.emitted('update:value')).toEqual([[targetId]]);
+        expect(wrapper.vm.showUploadField).toBe(false);
+        expect(wrapper.vm.showPicker).toBe(false);
     });
 });

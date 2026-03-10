@@ -27,7 +27,9 @@ class RedisCartPersister extends AbstractCartPersister
      * @internal
      */
     public function __construct(
-        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        /**
+         * @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future)
+         */
         private $redis,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
@@ -50,6 +52,7 @@ class RedisCartPersister extends AbstractCartPersister
         }
 
         try {
+            /** @phpstan-ignore shopware.unserializeUsage */
             $value = @\unserialize($value);
         } catch (\Throwable) {
             throw CartException::tokenNotFound($token);

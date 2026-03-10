@@ -269,9 +269,11 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
+        $fileName = $media->getFileName();
+        static::assertIsString($fileName);
         $url = \sprintf(
             '/api/_action/media/provide-name?fileName=%s&extension=png',
-            $media->getFileName()
+            $fileName
         );
 
         $this->getBrowser()->jsonRequest(
@@ -283,7 +285,7 @@ class MediaUploadControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame($media->getFileName() . '_(1)', $result['fileName']);
+        static::assertSame($fileName . '_(1)', $result['fileName']);
     }
 
     public function testProvideNameProvidesOwnName(): void
@@ -292,9 +294,11 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
+        $fileName = $media->getFileName();
+        static::assertIsString($fileName);
         $url = \sprintf(
             '/api/_action/media/provide-name?fileName=%s&extension=png&mediaId=%s',
-            $media->getFileName(),
+            $fileName,
             $media->getId()
         );
 
@@ -307,7 +311,7 @@ class MediaUploadControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame($media->getFileName(), $result['fileName']);
+        static::assertSame($fileName, $result['fileName']);
     }
 
     private function getMediaEntity(): MediaEntity

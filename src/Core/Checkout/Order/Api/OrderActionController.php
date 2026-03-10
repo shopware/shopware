@@ -37,7 +37,11 @@ class OrderActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/state/{transition}', name: 'api.action.order.state_machine.order.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order/{orderId}/state/{transition}',
+        name: 'api.action.order.state_machine.order.transition_state',
+        methods: [Request::METHOD_POST]
+    )]
     public function orderStateTransition(
         string $orderId,
         string $transition,
@@ -45,7 +49,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order', $orderId, $documentTypes, $skipSentDocuments);
         } else {
@@ -73,7 +77,11 @@ class OrderActionController extends AbstractController
         return new JsonResponse($toPlace->jsonSerialize());
     }
 
-    #[Route(path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}', name: 'api.action.order.state_machine.order_transaction.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}',
+        name: 'api.action.order.state_machine.order_transaction.transition_state',
+        methods: [Request::METHOD_POST]
+    )]
     public function orderTransactionStateTransition(
         string $orderTransactionId,
         string $transition,
@@ -81,7 +89,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order_transaction', $orderTransactionId, $documentTypes, $skipSentDocuments);
         } else {
@@ -109,7 +117,11 @@ class OrderActionController extends AbstractController
         return new JsonResponse($toPlace->jsonSerialize());
     }
 
-    #[Route(path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}', name: 'api.action.order.state_machine.order_delivery.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}',
+        name: 'api.action.order.state_machine.order_delivery.transition_state',
+        methods: [Request::METHOD_POST]
+    )]
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,
         string $transition,
@@ -117,7 +129,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order_delivery', $orderDeliveryId, $documentTypes, $skipSentDocuments);
         } else {
@@ -148,7 +160,12 @@ class OrderActionController extends AbstractController
     /**
      * @throws PaymentException
      */
-    #[Route(path: '/api/_action/order_transaction_capture_refund/{refundId}', name: 'api.action.order.order_transaction_capture_refund', methods: ['POST'], defaults: ['_acl' => ['order_refund.editor']])]
+    #[Route(
+        path: '/api/_action/order_transaction_capture_refund/{refundId}',
+        name: 'api.action.order.order_transaction_capture_refund',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_refund.editor']],
+        methods: [Request::METHOD_POST]
+    )]
     public function refundOrderTransactionCapture(string $refundId, Context $context): JsonResponse
     {
         $this->paymentRefundProcessor->processRefund($refundId, $context);
@@ -202,7 +219,7 @@ class OrderActionController extends AbstractController
         $documents = $query->executeQuery()->fetchAllAssociative();
 
         $documentsGroupByType = FetchModeHelper::group($documents);
-        /** @var array<string, array<array{sent: int, doc_id: string}>> $documentsGroupByType */
+        /** @var array<string, list<array{sent: string, doc_id: string}>> $documentsGroupByType */
         $documentIds = [];
         foreach ($documentsGroupByType as $groupedDocuments) {
             // Latest document of type

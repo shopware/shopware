@@ -53,7 +53,7 @@ Shopware.Service('cmsService').registerCmsElement({
         },
         availableSortings: {
             source: 'static',
-            value: [],
+            value: {},
         },
         defaultSorting: {
             source: 'static',

@@ -24,14 +24,14 @@ All blocks of this template are available in the template which renders this tem
                     {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': order.deliveries.first.shippingMethod.translated.name})|sw_sanitize }}<br><br>
                 {% endblock %}
                 {% block document_payment_shipping_additional %}
-                    {{ 'document.paymentShippingInfo.additionalInfo'|trans|sw_sanitize }}<br>
+                    {{ 'document.paymentShippingInfo.additionalInfo'|trans|sw_sanitize(null, true) }}<br>
                 {% endblock %}
                 {% block document_payment_shipping_service_date_notice %}
-                    {{ 'document.serviceDateNotice'|trans|sw_sanitize }}<br>
+                    {{ 'document.serviceDateNotice'|trans|sw_sanitize(null, true) }}<br>
                 {% endblock %}
                 {% block document_intra_community %}
                     {% if config.intraCommunityDelivery %}
-                        {{ 'document.intraCommunity'|trans|sw_sanitize }}<br>
+                        {{ 'document.intraCommunity'|trans|sw_sanitize(null, true) }}<br>
                     {% endif %}
                 {% endblock %}
             {% endblock %}

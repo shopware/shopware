@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
@@ -273,7 +272,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
         /** @var AndRule $andRule */
         $andRule = $rule->getPayload();
         static::assertInstanceOf(LineItemGoodsTotalRule::class, $andRule->getRules()[0]);
-        $filterRule = ReflectionHelper::getProperty(LineItemGoodsTotalRule::class, 'filter')->getValue($andRule->getRules()[0]);
+        $filterRule = (new \ReflectionProperty(LineItemGoodsTotalRule::class, 'filter'))->getValue($andRule->getRules()[0]);
         static::assertInstanceOf(AndRule::class, $filterRule);
         static::assertInstanceOf(LineItemOfTypeRule::class, $filterRule->getRules()[0]);
     }

@@ -48,11 +48,11 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of product keyword.'),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new ApiAware(), new Required())->setDescription('Unique identity of the language.'),
 
-            (new StringField('keyword', 'keyword'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('reversed', 'reversed'))->addFlags(new Computed()),
+            (new StringField('keyword', 'keyword'))->addFlags(new ApiAware(), new Required())->setDescription('The keywords that help to search the product.'),
+            (new StringField('reversed', 'reversed'))->addFlags(new Computed())->setDescription('The keywords are revered for the search.'),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ]);
     }

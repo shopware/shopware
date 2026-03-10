@@ -61,7 +61,7 @@ class CustomerBirthdayRuleTest extends TestCase
         static::assertArrayHasKey('operator', $constraints, 'operator constraints not found');
 
         static::assertEquals(new Type(type: 'string'), $constraints['birthday'][1]);
-        static::assertEquals(new Choice($operators), $constraints['operator'][1]);
+        static::assertEquals(new Choice(choices: $operators), $constraints['operator'][1]);
     }
 
     #[DataProvider('getMatchBirthdayValues')]

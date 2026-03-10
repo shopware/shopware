@@ -39,6 +39,7 @@ class ContentTest extends TestCase
         $expectedResources = [
             'breadcrumb',
             'category',
+            'cookie',
             'media',
             'media_path',
             'product',
@@ -52,10 +53,12 @@ class ContentTest extends TestCase
             'delivery_time',
             'import_export',
             'contact_form',
+            'revocation_request_form',
             'sitemap',
             'landing_page',
             'flow',
             'measurement_system',
+            'media_test',
             'installed.json',
             'MailerConfigurationCompilerPass.php',
         ];

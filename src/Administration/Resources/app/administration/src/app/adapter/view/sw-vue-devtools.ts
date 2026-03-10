@@ -276,16 +276,22 @@ function highlightElement(component: DevtoolComponent): void {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function makeElementClickable(component: DevtoolComponent, api: DevtoolsPluginApi<any>): void {
     highlightElement(component);
+
     if (component.$el) {
         component.$el?.classList.add(CLICKABLE_CLASS);
-        component.$el.DEVTOOL_EVENT_LISTENER = (): void => {
+
+        const onElementClick = (): void => {
             const { nodeId } = getExtensionInformation(component);
 
             api.selectInspectorNode(POSITION_INSPECTOR_ID, nodeId);
+
+            component.$el?.removeEventListener('click', onElementClick);
         };
 
+        component.$el.DEVTOOL_EVENT_LISTENER = onElementClick;
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        component.$el.addEventListener('click', component.$el.DEVTOOL_EVENT_LISTENER);
+        component.$el.addEventListener('click', onElementClick);
     }
 }
 

@@ -50,6 +50,9 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @internal
@@ -80,6 +83,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     private CommandExecutor&MockObject $commandExecutor;
 
+    private RequestStack&MockObject $requestStackMock;
+
     protected function setUp(): void
     {
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
@@ -99,6 +104,8 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->method('getNamespace')->willReturn('MockPlugin');
         $this->pluginMock->method('getMigrationNamespace')->willReturn('migration');
 
+        $this->requestStackMock = $this->createMock(RequestStack::class);
+
         $this->pluginLifecycleService = new PluginLifecycleService(
             $this->pluginRepoMock,
             $this->eventDispatcher,
@@ -115,7 +122,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->pluginServiceMock,
             $this->createMock(VersionSanitizer::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->requestStackMock,
         );
     }
 
@@ -390,6 +398,65 @@ class PluginLifecycleServiceTest extends TestCase
         $this->commandExecutor->expects($this->once())->method('remove');
 
         $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
+    }
+
+    public function testUninstallPluginWithComposerCommandExecutionDisabledAfterUpdateWithoutCli(): void
+    {
+        $pluginLifecycleService = $this->getMockBuilder(PluginLifecycleService::class)
+            ->setConstructorArgs([
+                $this->pluginRepoMock,
+                $this->eventDispatcher,
+                $this->kernelPluginCollectionMock,
+                $this->container,
+                $this->migrationLoaderMock,
+                $this->createMock(AssetService::class),
+                $this->commandExecutor,
+                $this->requirementsValidatorMock,
+                $this->cacheItemPoolInterfaceMock,
+                Kernel::SHOPWARE_FALLBACK_VERSION,
+                $this->createMock(SystemConfigService::class),
+                $this->createMock(CustomEntityPersister::class),
+                $this->createMock(CustomEntitySchemaUpdater::class),
+                $this->pluginServiceMock,
+                $this->createMock(VersionSanitizer::class),
+                $this->createMock(DefinitionInstanceRegistry::class),
+                $this->requestStackMock,
+            ])
+            ->onlyMethods(['isCLI'])
+            ->getMock();
+
+        $pluginLifecycleService->expects($this->once())->method('isCLI')->willReturn(false);
+
+        $plugin = $this->getPluginEntityMock();
+        $plugin->setInstalledAt(new \DateTime());
+        $plugin->setActive(true);
+        $plugin->setUpgradeVersion('1.0.1');
+        $plugin->setManagedByComposer(true);
+        $plugin->setComposerName('swag/mock-plugin');
+        $plugin->setPath('custom/plugins/mock-plugin');
+
+        $this->pluginMock->method('rebuildContainer')->willReturn(true);
+        $this->pluginMock->method('executeComposerCommands')->willReturn(true);
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->method('getContainer')->willReturn($this->container);
+        $this->container->set('kernel', $kernel);
+        $this->container->setParameter('kernel.plugin_dir', 'custom/plugins');
+        $this->container->set(KernelPluginLoader::class, $this->createMock(KernelPluginLoader::class));
+
+        // mock replaced event dispatcher like it is during plugin deactivation & kernel reboot
+        $replacedEventDispatcher = new CollectingEventDispatcher();
+        $this->container->set('event_dispatcher', $replacedEventDispatcher);
+
+        $this->commandExecutor->expects($this->never())->method('remove');
+
+        $pluginLifecycleService->uninstallPlugin($plugin, Context::createDefaultContext());
+
+        static::assertEmpty($replacedEventDispatcher->getListeners());
+        static::assertCount(1, $this->eventDispatcher->getListeners());
+
+        // need to reset the static properties to avoid side effects in other test cases
+        $reflection = new \ReflectionClass(PluginLifecycleService::class);
+        $reflection->setStaticPropertyValue('pluginToBeDeleted', null);
     }
 
     public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdateButInstalledViaComposerDirectly(): void
@@ -769,6 +836,50 @@ class PluginLifecycleServiceTest extends TestCase
             ->with($context);
 
         $this->pluginLifecycleService->onResponse();
+    }
+
+    public function testActivatePluginClosesSession(): void
+    {
+        $pluginEntityMock = $this->getPluginEntityMock();
+        $pluginEntityMock->setInstalledAt(new \DateTime());
+        $pluginEntityMock->setActive(false);
+        $context = Context::createDefaultContext(new SalesChannelApiSource(Uuid::randomHex()));
+
+        $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
+
+        $kernelMock = $this->createMock(Kernel::class);
+        $containerMock = $this->createMock(Container::class);
+        $containerMock->method('getParameter')->with('kernel.plugin_dir')->willReturn('tmp');
+        $containerMock->method('get')->willReturn($this->eventDispatcher);
+        $kernelMock->method('getContainer')->willReturn($containerMock);
+
+        $this->container->set('kernel', $kernelMock);
+        $this->container->set(KernelPluginLoader::class, new FakeKernelPluginLoader(
+            [
+                [
+                    'baseClass' => Plugin::class,
+                    'active' => false,
+                ],
+            ]
+        ));
+
+        $sessionMock = $this->createMock(SessionInterface::class);
+        $sessionMock->expects($this->once())->method('isStarted')->willReturn(true);
+
+        $request = new Request();
+        $request->setSession($sessionMock);
+        $this->requestStackMock->method('getCurrentRequest')->willReturn($request);
+
+        // Validate that session is saved (to release session locks) before kernel reboot (long operation)
+        $sessionSaved = false;
+        $sessionMock->expects($this->once())->method('save')->willReturnCallback(function () use (&$sessionSaved): void {
+            $sessionSaved = true;
+        });
+        $kernelMock->expects($this->once())->method('reboot')->willReturnCallback(function () use (&$sessionSaved): void {
+            static::assertTrue($sessionSaved, 'Session must be saved before kernel reboot to prevent session lock issues');
+        });
+
+        $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
     }
 
     private function getPluginEntityMock(): PluginEntity

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@framework')]
 class CurrencyTranslationCollection extends EntityCollection
 {
+    /**
+     * @return array<string, string>
+     */
     public function getCurrencyIds(): array
     {
         return $this->fmap(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId());
@@ -21,6 +24,9 @@ class CurrencyTranslationCollection extends EntityCollection
         return $this->filter(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId() === $id);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId());

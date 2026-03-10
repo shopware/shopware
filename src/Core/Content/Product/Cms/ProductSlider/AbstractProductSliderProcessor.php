@@ -27,6 +27,10 @@ abstract class AbstractProductSliderProcessor
     protected function filterOutOutOfStockHiddenCloseoutProducts(ProductCollection $products): ProductCollection
     {
         return $products->filter(function (ProductEntity $product) {
+            if ($product->getChildCount() > 0) {
+                return true;
+            }
+
             if ($product->getIsCloseout() && $product->getStock() <= 0) {
                 return false;
             }

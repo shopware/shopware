@@ -55,11 +55,7 @@ class LandingPageUrlProviderTest extends TestCase
             'test-landing-pages-sitemap',
         );
 
-        $this->landingPageUrlProvider = new LandingPageUrlProvider(
-            static::getContainer()->get(ConfigHandler::class),
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get(RouterInterface::class),
-        );
+        $this->landingPageUrlProvider = static::getContainer()->get(LandingPageUrlProvider::class);
     }
 
     public function testLandingPageUrlIsCorrect(): void
@@ -127,6 +123,7 @@ class LandingPageUrlProviderTest extends TestCase
             $configHandler,
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(RouterInterface::class),
+            static::getContainer()->get('event_dispatcher'),
         );
 
         $urlResult = $landingPageUrlProvider->getUrls($this->salesChannelContext, 20);

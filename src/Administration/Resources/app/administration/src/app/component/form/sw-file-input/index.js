@@ -86,6 +86,10 @@ export default {
         this.mountedComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         mountedComponent() {
             if (this.$refs.dropzone) {
@@ -99,6 +103,21 @@ export default {
 
                 window.addEventListener('dragenter', this.onDragEnter);
                 window.addEventListener('dragleave', this.onDragLeave);
+            }
+        },
+
+        beforeUnmountComponent() {
+            if (this.$refs.dropzone) {
+                [
+                    'dragover',
+                    'drop',
+                ].forEach((event) => {
+                    window.removeEventListener(event, this.stopEventPropagation, false);
+                });
+                this.$refs.dropzone.removeEventListener('drop', this.onDrop);
+
+                window.removeEventListener('dragenter', this.onDragEnter);
+                window.removeEventListener('dragleave', this.onDragLeave);
             }
         },
 

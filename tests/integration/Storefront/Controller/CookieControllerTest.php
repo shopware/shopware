@@ -36,7 +36,7 @@ class CookieControllerTest extends TestCase
 
         $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
-        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_Comfort features"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_comfort-features"]'));
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_wishlist-enabled"]'));
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_youtube-video"]'));
     }
@@ -49,7 +49,7 @@ class CookieControllerTest extends TestCase
 
         $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
-        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_Comfort features"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_comfort-features"]'));
         static::assertCount(0, $crawler->filterXPath('//input[@id="cookie_wishlist-enabled"]'));
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_youtube-video"]'));
     }
@@ -82,7 +82,7 @@ class CookieControllerTest extends TestCase
         $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
-        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_Technically required"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_technically-required"]'));
         static::assertCount(0, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
@@ -100,7 +100,7 @@ class CookieControllerTest extends TestCase
         $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
-        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_Technically required"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_technically-required"]'));
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
 
         $systemConfig->set('core.basicInformation.activeCaptchasV3', [
@@ -119,7 +119,7 @@ class CookieControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
 
-        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_Technically required"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_technically-required"]'));
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
     }
 

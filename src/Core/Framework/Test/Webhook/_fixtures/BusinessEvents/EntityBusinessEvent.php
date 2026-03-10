@@ -24,9 +24,6 @@ class EntityBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInt
             ->add('tax', new EntityType(TaxDefinition::class));
     }
 
-    /**
-     * @return array<string, array<string, mixed>>
-     */
     public function getEncodeValues(string $shopwareVersion): array
     {
         return [
@@ -41,7 +38,6 @@ class EntityBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInt
                 'translated' => [],
                 'createdAt' => $this->tax->getCreatedAt() ? $this->tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                 'updatedAt' => null,
-                'extensions' => [],
                 'apiAlias' => 'tax',
             ],
         ];

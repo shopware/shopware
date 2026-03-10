@@ -83,19 +83,17 @@ class ProductConfiguratorOrderTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $a
+     * @param array<string, string> $groupIds
      */
-    private static function ashuffle(array &$a): bool
+    private function shuffle(array &$groupIds): void
     {
-        $keys = array_keys($a);
+        $keys = array_keys($groupIds);
         shuffle($keys);
         $shuffled = [];
         foreach ($keys as $key) {
-            $shuffled[$key] = $a[$key];
+            $shuffled[$key] = $groupIds[$key];
         }
-        $a = $shuffled;
-
-        return true;
+        $groupIds = $shuffled;
     }
 
     /**
@@ -121,7 +119,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $optionIds = [];
 
-        self::ashuffle($groupIds);
+        $this->shuffle($groupIds);
 
         $configuratorSettings = [];
         foreach ($groupIds as $groupName => $groupId) {

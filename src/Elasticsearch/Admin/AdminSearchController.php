@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
-use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']])]
 #[Package('inventory')]
 final readonly class AdminSearchController
 {
@@ -34,7 +34,7 @@ final readonly class AdminSearchController
     #[Route(path: '/api/_admin/es-search', name: 'api.admin.es-search', methods: ['POST'])]
     public function elastic(Request $request, Context $context): Response
     {
-        if ($this->adminEsHelper->getEnabled() === false) {
+        if ($this->adminEsHelper->isEnabled() === false) {
             throw ElasticsearchAdminException::esNotEnabled();
         }
 
@@ -45,7 +45,7 @@ final readonly class AdminSearchController
             throw ElasticsearchAdminException::missingTermParameter();
         }
 
-        $limit = $request->get('limit', 10);
+        $limit = RequestParamHelper::get($request, 'limit', 10);
 
         $results = $this->searcher->search($term, $entities, $context, $limit);
 

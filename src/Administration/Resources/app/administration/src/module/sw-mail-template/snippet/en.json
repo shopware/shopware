@@ -13,6 +13,8 @@
     },
     "list": {
       "textMailTemplateOverview": "Email templates",
+      "tabMailTemplates": "Templates",
+      "tabHeaderFooter": "Headers and Footers",
       "titleMailTemplateList": "Templates",
       "titleMailFooterList": "Footer",
       "buttonAddMailTemplate": "Add email template",
@@ -136,7 +138,8 @@
     "modal": {
       "title": "Multiple assignments",
       "mainContent": "There is already a header and footer template assigned to the following Sales Channels. If you go on and save, that assignment will be overwritten with your changes.",
-      "affectedList": "The following Sales Channels are affected:"
+      "affectedList": "The following Sales Channels are affected:",
+      "confirmButton": "Continue anyway"
     }
   },
   "sw-privileges": {

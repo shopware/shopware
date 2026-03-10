@@ -86,6 +86,9 @@ class CustomerValueResolverTest extends TestCase
             $request->attributes->set(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED, $loginRequired);
         }
 
+        $requestStack = static::getContainer()->get('request_stack');
+        $requestStack->push($request);
+
         if ($context) {
             $salesChannelResolver->resolve($request);
         }

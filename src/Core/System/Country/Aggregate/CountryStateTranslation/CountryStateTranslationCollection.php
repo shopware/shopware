@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@discovery')]
 class CountryStateTranslationCollection extends EntityCollection
 {
+    /**
+     * @return array<string, string>
+     */
     public function getCountryStateIds(): array
     {
         return $this->fmap(fn (CountryStateTranslationEntity $countryStateTranslation) => $countryStateTranslation->getCountryStateId());
@@ -21,6 +24,9 @@ class CountryStateTranslationCollection extends EntityCollection
         return $this->filter(fn (CountryStateTranslationEntity $countryStateTranslation) => $countryStateTranslation->getCountryStateId() === $id);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(fn (CountryStateTranslationEntity $countryStateTranslation) => $countryStateTranslation->getLanguageId());

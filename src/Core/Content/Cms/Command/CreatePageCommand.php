@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Cms\Command;
 
 use Faker\Factory;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -23,19 +24,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CreatePageCommand extends Command
 {
     /**
-     * @var array<string>
+     * @var non-empty-list<string>|null
      */
-    private array $products;
+    private ?array $products = null;
 
     /**
-     * @var array<string>
+     * @var non-empty-list<string>|null
      */
-    private array $categories;
+    private ?array $categories = null;
 
     /**
-     * @var array<string>
+     * @var non-empty-list<string>|null
      */
-    private array $media;
+    private ?array $media = null;
 
     /**
      * @param EntityRepository<CmsPageCollection> $cmsPageRepository
@@ -120,7 +121,7 @@ class CreatePageCommand extends Command
             return;
         }
 
-        $keys = array_map(fn ($id) => ['id' => $id], $pages->getIds());
+        $keys = array_map(static fn ($id) => ['id' => $id], $pages->getIds());
 
         $this->cmsPageRepository->delete($keys, $context);
     }
@@ -132,12 +133,14 @@ class CreatePageCommand extends Command
 
     private function getRandomProductId(Context $context): string
     {
-        if (empty($this->products)) {
+        if ($this->products === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $productIds */
             $productIds = $this->productRepository->searchIds($criteria, $context)->getIds();
+            if ($productIds === []) {
+                throw CmsException::pageCreationFailure('No products found');
+            }
             $this->products = $productIds;
         }
 
@@ -146,12 +149,14 @@ class CreatePageCommand extends Command
 
     private function getRandomCategoryId(Context $context): string
     {
-        if (empty($this->categories)) {
+        if ($this->categories === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $categoryIds */
             $categoryIds = $this->categoryRepository->searchIds($criteria, $context)->getIds();
+            if ($categoryIds === []) {
+                throw CmsException::pageCreationFailure('No categories found');
+            }
             $this->categories = $categoryIds;
         }
 
@@ -160,12 +165,14 @@ class CreatePageCommand extends Command
 
     private function getRandomMediaId(Context $context): string
     {
-        if (empty($this->media)) {
+        if ($this->media === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $mediaIds */
             $mediaIds = $this->mediaRepository->searchIds($criteria, $context)->getIds();
+            if ($mediaIds === []) {
+                throw CmsException::pageCreationFailure('No medias found');
+            }
             $this->media = $mediaIds;
         }
 

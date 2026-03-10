@@ -24,11 +24,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('framework')]
 class RequestCriteriaBuilder
 {
+    /**
+     * State indicating that no explicit limit was provided in the request.
+     * When this state is set, the criteria limit comes from a static fallback value,
+     * and dynamic system configuration should be preferred instead.
+     */
+    public const STATE_NO_EXPLICIT_LIMIT_IN_REQUEST = 'no-explicit-limit-in-request';
+
+    final public const KNOWN_FIELDS = [
+        'ids',
+        'total-count-mode',
+        'limit',
+        'page',
+        'includes',
+        'excludes',
+        'filter',
+        'grouping',
+        'post-filter',
+        'query',
+        'term',
+        'sort',
+        'aggregations',
+        'associations',
+        'fields',
+    ];
+
     private const TOTAL_COUNT_MODE_MAPPING = [
         'none' => Criteria::TOTAL_COUNT_MODE_NONE,
         'exact' => Criteria::TOTAL_COUNT_MODE_EXACT,
@@ -42,16 +68,28 @@ class RequestCriteriaBuilder
         private readonly AggregationParser $aggregationParser,
         private readonly ApiCriteriaValidator $validator,
         private readonly CriteriaArrayConverter $converter,
-        private readonly ?int $maxLimit = null
+        private readonly CompressedCriteriaDecoder $compressedCriteriaDecoder,
+        private readonly ?int $maxLimit = null,
     ) {
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         if ($request->isMethod(Request::METHOD_GET)) {
+            // Check for _criteria parameter first
+            if ($request->query->has('_criteria')) {
+                $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
+
+                return $this->fromArray($payload, $criteria, $definition, $context);
+            }
             $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
         } else {
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
+        }
+
+        // @deprecated tag:v6.8.0 - switch the default to 0
+        if ($request->headers->get(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, '1') === '0') {
+            $criteria->addState(Criteria::STATE_DISABLE_SEARCH_INFO);
         }
 
         return $criteria;
@@ -119,6 +157,7 @@ class RequestCriteriaBuilder
 
             if ($criteria->getLimit() === null && $maxLimit !== null) {
                 $criteria->setLimit($maxLimit);
+                $criteria->addState(self::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
             }
 
             if (isset($payload['page'])) {
@@ -267,7 +306,7 @@ class RequestCriteriaBuilder
     {
         $parts = array_filter(explode(',', $query));
 
-        if (empty($parts)) {
+        if ($parts === []) {
             throw DataAbstractionLayerException::invalidSortQuery('The "sort" parameter needs to be a sorting array or a comma separated list of fields', '/sort');
         }
 

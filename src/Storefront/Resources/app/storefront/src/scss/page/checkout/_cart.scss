@@ -1,4 +1,5 @@
-.is-act-cartpage {
+.is-act-cartpage, // @deprecated tag:v6.8.0 - Body class `is-act-cartpage` will be removed, use active route class `is-active-route-frontend-checkout-cart-page` instead.
+.is-active-route-frontend-checkout-cart-page {
     .checkout {
         .checkout-container {
             @extend .row;

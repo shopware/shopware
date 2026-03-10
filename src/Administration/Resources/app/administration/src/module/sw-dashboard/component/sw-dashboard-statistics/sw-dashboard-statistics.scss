@@ -1,16 +1,11 @@
-@import "~scss/variables";
-
-$content-max-width: 960px;
-
 .sw-dashboard-statistics {
     &__card-headline {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        max-width: $content-max-width;
+        max-width: 960px;
         margin: 0 auto;
-        padding-top: var(--scale-size-32);
-        padding-bottom: var(--scale-size-16);
+        padding: var(--scale-size-32) 0 var(--scale-size-16);
 
         h1 {
             color: var(--color-text-primary-default);
@@ -19,34 +14,31 @@ $content-max-width: 960px;
             font-weight: var(--font-weight-regular);
             margin-bottom: 0;
         }
-
-        &-timerange {
-            color: var(--color-text-primary-default);
-        }
     }
 
-    &__intro-stats-today {
-        &-stats {
-            display: flex;
-            justify-content: center;
-            padding: 40px 20px;
-            border-bottom: 1px solid var(--color-border-primary-default);
+    &__card-headline-timerange {
+        color: var(--color-text-primary-default);
+    }
+
+    &__intro-stats-today-stats {
+        display: flex;
+        justify-content: center;
+        padding: var(--scale-size-40) var(--scale-size-20);
+        border-bottom: 1px solid var(--color-border-primary-default);
+    }
+
+    &__intro-stats-today-single-stat {
+        display: flex;
+        margin-right: var(--scale-size-40);
+
+        &-number-type {
+            font-size: var(--font-size-m);
+            color: var(--color-text-secondary-default);
+            margin: var(--scale-size-10) var(--scale-size-10) 0 0;
         }
 
-        &-single-stat {
-            display: flex;
-            margin-right: 40px;
-
-            &-number-type {
-                font-size: var(--font-size-m);
-                color: var(--color-text-secondary-default);
-                margin-top: var(--scale-size-10);
-                margin-right: var(--scale-size-10);
-            }
-
-            &-number-value {
-                font-size: $font-size-3xl;
-            }
+        &-number-value {
+            font-size: var(--font-size-3xl);
         }
     }
 

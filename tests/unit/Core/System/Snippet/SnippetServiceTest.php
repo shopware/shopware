@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language as LanguageDto;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
@@ -27,6 +29,7 @@ use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
@@ -307,6 +310,116 @@ class SnippetServiceTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string,string> $expectedSnippets
+     */
+    #[DataProvider('getListDataProvider')]
+    public function testGetList(string $iso, array $expectedSnippets): void
+    {
+        $availableFixtures = [
+            'agnostic.es',
+            'country.es-AR',
+            'country.fr-CA',
+            'agnostic.zh',
+            'country.zh-Hans-CN',
+        ];
+
+        $baseIso = \explode('-', $iso, 2)[0];
+
+        $baseFileName = 'agnostic.' . $baseIso;
+        $countryFileName = 'country.' . $iso;
+
+        $snippetCollection = new SnippetFileCollection();
+        // only add files that exist in fixtures list
+        if (\in_array($baseFileName, $availableFixtures, true)) {
+            $snippetCollection->add(new MockSnippetFile($baseFileName, $baseIso));
+        }
+
+        if (\in_array($countryFileName, $availableFixtures, true)) {
+            $snippetCollection->add(new MockSnippetFile($countryFileName, $iso));
+        }
+
+        // Create snippet set entity representing available snippet set
+        $snippetSet = new SnippetSetEntity();
+        $setId = Uuid::randomHex();
+        $snippetSet->setId($setId);
+        $snippetSet->setIso($iso);
+        $snippetSet->setName('test');
+        $snippetSet->setBaseFile($countryFileName . '.json');
+
+        $snippetSetCollection = new SnippetSetCollection();
+        $snippetSetCollection->add($snippetSet);
+
+        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
+        $snippetSetRepository = new StaticEntityRepository([
+            static function ($criteria, $context) use ($snippetSetCollection) {
+                return $snippetSetCollection;
+            },
+        ]);
+        /** @var StaticEntityRepository<SnippetCollection> $snippetRepository */
+        $snippetRepository = new StaticEntityRepository([
+            static function ($criteria, $context) {
+                return new SnippetCollection();
+            },
+        ]);
+
+        $service = $this->createSnippetService(
+            snippetRepository: $snippetRepository,
+            snippetSetRepository: $snippetSetRepository,
+            snippetFileCollection: $snippetCollection,
+            connection: $this->connection,
+        );
+
+        $context = Context::createDefaultContext();
+        $result = $service->getList(1, 10, $context, [], []);
+
+        // Assert the total count matches the number of expected translation keys
+        static::assertSame(\count($expectedSnippets), $result['total']);
+
+        // Assert each expected translation key is present and has the correct value
+        foreach ($expectedSnippets as $translationKey => $value) {
+            static::assertArrayHasKey($translationKey, $result['data']);
+            static::assertSame($value, $result['data'][$translationKey][0]['value']);
+        }
+    }
+
+    /**
+     * Data provider for getList tests.
+     */
+    public static function getListDataProvider(): \Generator
+    {
+        yield 'agnostic locale es without country' => [
+            'iso' => 'es',
+            'expectedSnippets' => [
+                'title' => 'Agnostic ES',
+                'baseOnly' => 'Agnostic ES',
+            ],
+        ];
+
+        yield 'es-AR iso falls back to es' => [
+            'iso' => 'es-AR',
+            'expectedSnippets' => [
+                'title' => 'Country es-AR',
+                'baseOnly' => 'Agnostic ES',
+            ],
+        ];
+
+        yield 'country exists without base' => [
+            'iso' => 'fr-CA',
+            'expectedSnippets' => [
+                'title' => 'Country fr-CA',
+            ],
+        ];
+
+        yield 'country es-EM does not exist - only base es exists' => [
+            'iso' => 'es-EM',
+            'expectedSnippets' => [
+                'title' => 'Agnostic ES',
+                'baseOnly' => 'Agnostic ES',
+            ],
+        ];
+    }
+
     private function addThemes(): void
     {
         $this->snippetCollection->add(new MockSnippetFile('storefront.de', 'de', '{}', true, 'Storefront'));
@@ -315,16 +428,43 @@ class SnippetServiceTest extends TestCase
         $this->snippetCollection->add(new MockSnippetFile('swagtheme.en', 'en', '{}', true, 'SwagTheme'));
     }
 
+    /**
+     * All parameters are optional. When provided they override defaults.
+     *
+     * @param StaticEntityRepository<SnippetCollection>|null $snippetRepository
+     * @param StaticEntityRepository<SnippetSetCollection>|null $snippetSetRepository
+     */
     private function createSnippetService(
         ?EventDispatcherInterface $eventDispatcher = null,
+        ?EntityRepository $snippetRepository = null,
+        ?EntityRepository $snippetSetRepository = null,
+        ?SnippetFileCollection $snippetFileCollection = null,
+        ?Connection $connection = null,
+        ?SnippetFilterFactory $snippetFilterFactory = null,
+        ?ExtensionDispatcher $extensionDispatcher = null
     ): SnippetService {
+        if ($snippetRepository === null) {
+            $snippetRepository = new StaticEntityRepository([]);
+        }
+
+        if ($snippetSetRepository === null) {
+            $snippetSetRepository = new StaticEntityRepository([]);
+        }
+
+        $snippetFileCollection = $snippetFileCollection ?? $this->snippetCollection;
+        $connection = $connection ?? $this->connection;
+        $snippetFilterFactory = $snippetFilterFactory ?? $this->createMock(SnippetFilterFactory::class);
+        $extensionDispatcher = $extensionDispatcher ?? new ExtensionDispatcher(new EventDispatcher());
+
+        /** @var EntityRepository<SnippetCollection> $snippetRepository */
+        /** @var EntityRepository<SnippetSetCollection> $snippetSetRepository */
         return new SnippetService(
-            $this->connection,
-            $this->snippetCollection,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(SnippetFilterFactory::class),
-            new ExtensionDispatcher(new EventDispatcher()),
+            $connection,
+            $snippetFileCollection,
+            $snippetRepository,
+            $snippetSetRepository,
+            $snippetFilterFactory,
+            $extensionDispatcher,
             $eventDispatcher ?? new EventDispatcher(),
             $this->flysystem,
             $this->filesystem,

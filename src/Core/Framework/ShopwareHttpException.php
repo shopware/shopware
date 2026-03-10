@@ -91,7 +91,7 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
                 continue;
             }
 
-            $formattedKey = preg_replace('/[^a-z]/i', '', $key);
+            $formattedKey = (string) preg_replace('/[^a-z]/i', '', $key);
             $regex[\sprintf('/\{\{(\s+)?(%s)(\s+)?\}\}/', $formattedKey)] = $value;
         }
 

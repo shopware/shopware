@@ -24,7 +24,7 @@ class CustomerNewsletterSalesChannelsUpdater
      */
     public function update(array $ids, bool $reverseUpdate = false): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -162,7 +162,7 @@ SQL;
             ];
         }
 
-        if (empty($parameters)) {
+        if ($parameters === []) {
             return;
         }
 

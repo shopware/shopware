@@ -27,6 +27,7 @@
         variant="secondary"
         size="default"
         :is-loading="isOrderLoading || isLoading"
+        data-analytics-id="sw-order-promotion-field.apply-automatic-promotions"
         @click="applyAutomaticPromotions"
     >
         {{ $t('sw-order.detailsTab.promotionsField.automaticPromotions.labelButton') }}

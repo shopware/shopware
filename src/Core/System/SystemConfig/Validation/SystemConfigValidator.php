@@ -59,7 +59,7 @@ class SystemConfigValidator
                 }
             }
 
-            if (empty($subDefinition->getProperties())) {
+            if ($subDefinition->getProperties() === []) {
                 continue;
             }
 
@@ -99,7 +99,7 @@ class SystemConfigValidator
     /**
      * @param array<string, mixed> $elementConfig
      *
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     private function buildConstraintsWithConfigs(array $elementConfig, bool $allowNulls): array
     {

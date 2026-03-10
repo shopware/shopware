@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
@@ -295,6 +296,42 @@ class TranslationLoaderTest extends TestCase
         static::assertFalse($language['active']);
     }
 
+    public function testSnippetSetOnlyCreatedOnce(): void
+    {
+        $this->localeRepository = new StaticEntityRepository([
+            $this->getSearchResult('locale'),
+            $this->getSearchResult('locale'),
+        ]);
+
+        $this->languageRepository = new StaticEntityRepository([
+            $this->getSearchResult('language'),
+            $this->getSearchResult('language'),
+        ]);
+
+        $this->snippetSetRepository = new StaticEntityRepository([
+            $this->getEmptySearchResult(),
+            $this->getSearchResult('snippet-set'),
+        ]);
+
+        $loader = $this->getTranslationLoader();
+
+        $loader->load('es-ES', $this->context);
+
+        static::assertCount(1, $this->snippetSetRepository->creates);
+        $createdSnippetSets = $this->snippetSetRepository->creates[0];
+        static::assertIsArray($createdSnippetSets);
+        static::assertCount(1, $createdSnippetSets);
+
+        $loader->load('es-ES', $this->context);
+        static::assertCount(1, $this->snippetSetRepository->creates);
+    }
+
+    public function testGetDecoratedThrowsException(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->getTranslationLoader()->getDecorated();
+    }
+
     private function getTranslationLoader(): TranslationLoader
     {
         return new TranslationLoader(
@@ -310,11 +347,13 @@ class TranslationLoaderTest extends TestCase
 
     private function getSearchResult(string $entity): IdSearchResult
     {
+        $id = $this->ids->get($entity);
+
         return new IdSearchResult(
             1,
-            [[
-                'data' => $this->ids->get($entity),
-                'primaryKey' => $this->ids->get($entity),
+            [$id => [
+                'data' => [],
+                'primaryKey' => $id,
             ]],
             new Criteria(),
             $this->context

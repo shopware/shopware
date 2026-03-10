@@ -148,6 +148,9 @@
           "name": "Name"
         }
       }
+    },
+    "tabPrivacyPreferences": {
+      "title": "Datenschutzeinstellungen"
     }
   },
   "sw-privileges": {

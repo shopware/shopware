@@ -4,7 +4,7 @@
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -160,6 +160,14 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     created() {
@@ -222,7 +230,13 @@ export default {
         async getList() {
             this.isLoading = true;
 
-            const criteria = await this.addQueryScores(this.term, this.listCriteria);
+            let criteria;
+            if (this.adminEsEnable) {
+                criteria = this.listCriteria;
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, this.listCriteria);
+            }
             if (!this.entitySearchable) {
                 this.isLoading = false;
                 this.total = 0;

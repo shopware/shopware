@@ -206,7 +206,7 @@ class ScriptExecutorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: array<string>, 1: array<string, mixed>}>
+     * @return iterable<string, array{0: array<string>, 1: array<string, mixed>}>
      */
     public static function executeProvider(): iterable
     {

@@ -4,7 +4,6 @@
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/component/base/sw-empty-state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const defaultCategoryId = 'default-category-id';
@@ -72,7 +71,6 @@ async function createWrapper(
                     'sw-data-grid-skeleton': true,
                     'sw-loader': true,
                     'sw-skeleton': true,
-                    'sw-empty-state': true,
                     'sw-sorting-select': true,
                     'sw-modal': {
                         template: `
@@ -108,7 +106,13 @@ async function createWrapper(
                     'sw-time-ago': true,
                 },
                 mocks: {
-                    $route: { query: '' },
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                     ...mocks,
                 },
                 provide: {
@@ -1145,11 +1149,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();

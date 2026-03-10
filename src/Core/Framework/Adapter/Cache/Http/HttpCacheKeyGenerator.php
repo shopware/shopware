@@ -2,11 +2,16 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\SalesChannelRequest;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -15,10 +20,26 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class HttpCacheKeyGenerator
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed as it is already part of the cache cookie
+     */
     final public const CURRENCY_COOKIE = 'sw-currency';
     final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed use cache cookie event instead
+     */
     final public const SYSTEM_STATE_COOKIE = 'sw-states';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed use cache cookie event instead
+     */
     final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+    /**
+     * Header to hint reverse proxy that cache was dynamically bypassed (and url still can be cached for other requests).
+     * This allows decreasing TTLs for `hit-for-pass` objects in reverse proxies for such cases, while keeping higher TTLs
+     * for generally not-cacheable pages.
+     */
+    final public const HEADER_DYNAMIC_CACHE_BYPASS = 'sw-dynamic-cache-bypass';
+
     /**
      * Virtual path of the "domain"
      *
@@ -49,9 +70,9 @@ class HttpCacheKeyGenerator
      * headers, use a `vary` header to indicate them, and each representation will
      * be stored independently under the same cache key.
      *
-     * @return string A key for the given request
+     * @return CacheKey The cache key for the given request
      */
-    public function generate(Request $request): string
+    public function generate(Request $request, ?Response $response = null): CacheKey
     {
         $event = new HttpCacheKeyEvent($request);
 
@@ -59,13 +80,16 @@ class HttpCacheKeyGenerator
 
         $event->add('hash', $this->cacheHash);
 
-        $this->addCookies($request, $event);
+        $this->addCookies($request, $response, $event);
 
         $this->dispatcher->dispatch($event);
 
         $parts = $event->getParts();
 
-        return 'http-cache-' . Hasher::hash(implode('|', $parts));
+        return new CacheKey(
+            'http-cache-' . Hasher::hash(implode('|', $parts)),
+            $event->isCacheable
+        );
     }
 
     private function getRequestUri(Request $request): string
@@ -91,26 +115,31 @@ class HttpCacheKeyGenerator
         );
     }
 
-    private function addCookies(Request $request, HttpCacheKeyEvent $event): void
+    private function addCookies(Request $request, ?Response $response, HttpCacheKeyEvent $event): void
     {
-        // this will be changed within v6.6 lane that we only use the context cache cookie and developers can change the cookie instead
-        // with this change, the reverse proxies are much easier to configure
-        if ($request->cookies->has(self::CONTEXT_CACHE_COOKIE)) {
+        if ($cacheCookie = $this->getCookieValue($request, $response, self::CONTEXT_CACHE_COOKIE)) {
             $event->add(
                 self::CONTEXT_CACHE_COOKIE,
-                $request->cookies->get(self::CONTEXT_CACHE_COOKIE, '')
+                $cacheCookie
             );
+
+            if ($cacheCookie === HttpCacheCookieEvent::NOT_CACHEABLE) {
+                $event->isCacheable = false;
+            }
 
             return;
         }
 
-        if ($request->cookies->has(self::CURRENCY_COOKIE)) {
-            $event->add(
-                self::CURRENCY_COOKIE,
-                $request->cookies->get(self::CURRENCY_COOKIE, '')
-            );
+        /** @deprecated tag:v6.8.0 - Currency cookie will be removed */
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            if ($currencyCookie = $this->getCookieValue($request, $response, self::CURRENCY_COOKIE)) {
+                $event->add(
+                    self::CURRENCY_COOKIE,
+                    $currencyCookie
+                );
 
-            return;
+                return;
+            }
         }
 
         if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)) {
@@ -119,5 +148,33 @@ class HttpCacheKeyGenerator
                 $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
             );
         }
+    }
+
+    /**
+     * get Cookie value, if exists use response cookie value instead of request cookie value as request cookies can be overwritten by the client
+     */
+    private function getCookieValue(Request $request, ?Response $response, string $cookieName): ?string
+    {
+        if ($response) {
+            $cookie = Cookie::create($cookieName);
+
+            $responseCookies = $response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY);
+
+            $responseCookie = $responseCookies[$cookie->getDomain()][$cookie->getPath()][$cookieName] ?? null;
+
+            if ($responseCookie) {
+                // if the response contains the cookie, we use it instead of the request cookie
+                // as the request cookie can be overwritten by the client
+                // however the response cookie is only set if it differs from the request cookie,
+                // so we need to fall back to the request cookie when the response cookie is not set
+                return $responseCookie->getValue();
+            }
+        }
+
+        if ($request->cookies->has($cookieName)) {
+            return (string) $request->cookies->get($cookieName);
+        }
+
+        return null;
     }
 }

@@ -35,7 +35,9 @@
                                     }
                                 },
                                 "type": "object",
-                                "required": ["orderId"]
+                                "required": [
+                                    "orderId"
+                                ]
                             }
                         }
                     }
@@ -79,6 +81,20 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -97,34 +113,50 @@
                                                 "type": "boolean"
                                             },
                                             "filter": {
-                                              "type": "array",
-                                              "description": "Pass the deepLinkCode criteria filter to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
-                                              "items": {
-                                                "allOf": [
-                                                  {
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "type": { "type": "string", "enum": ["equals"] },
-                                                      "field": { "type": "string", "enum": ["deepLinkCode"] },
-                                                      "value": { "type": "string" }
-                                                    },
-                                                    "required": ["type", "field", "value"]
-                                                  }
-                                                ]
-                                              }
+                                                "type": "array",
+                                                "description": "Pass the deepLinkCode criteria filter to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                                "items": {
+                                                    "allOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "type": {
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "equals"
+                                                                    ]
+                                                                },
+                                                                "field": {
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "deepLinkCode"
+                                                                    ]
+                                                                },
+                                                                "value": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "type",
+                                                                "field",
+                                                                "value"
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
                                             },
                                             "email": {
-                                              "description": "The email address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
-                                              "type": "string",
-                                              "format": "email"
+                                                "description": "The email address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                                "type": "string",
+                                                "format": "email"
                                             },
                                             "zipcode": {
-                                              "description": "The zip/postal code of the billing address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
-                                              "type": "string"
+                                                "description": "The zip/postal code of the billing address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                                "type": "string"
                                             },
                                             "login": {
-                                              "description": "If set and when handling a guest order, a context token will be returned in the response header with a logged-in session.",
-                                              "type": "boolean"
+                                                "description": "If set and when handling a guest order, a context token will be returned in the response header with a logged-in session.",
+                                                "type": "boolean"
                                             }
                                         },
                                         "type": "object"

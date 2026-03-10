@@ -80,7 +80,7 @@ class RuleConditionPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($upserts): void {
                 $this->appScriptConditionRepository->upsert($upserts, $context);
             });
@@ -95,7 +95,6 @@ class RuleConditionPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var array<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scripts);
@@ -109,7 +108,6 @@ class RuleConditionPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var array<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scripts);
@@ -132,7 +130,7 @@ class RuleConditionPersister
     {
         $ids = $toBeRemoved->getIds();
 
-        if (!empty($ids)) {
+        if ($ids !== []) {
             $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->appScriptConditionRepository->delete($ids, $context);
@@ -188,13 +186,13 @@ class RuleConditionPersister
             }
 
             if ($field instanceof MultiSelectField) {
-                $constraints[$field->getName()][] = new All(constraints: new Choice(array_keys($field->getOptions())));
+                $constraints[$field->getName()][] = new All(constraints: new Choice(choices: array_keys($field->getOptions())));
 
                 continue;
             }
 
             if ($field instanceof SingleSelectField) {
-                $constraints[$field->getName()][] = new Choice(array_keys($field->getOptions()));
+                $constraints[$field->getName()][] = new Choice(choices: array_keys($field->getOptions()));
 
                 continue;
             }

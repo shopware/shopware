@@ -8,12 +8,16 @@ use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
+use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -24,18 +28,21 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ImitateCustomerRoute::class)]
 class ImitateCustomerRouteTest extends TestCase
 {
-    public function testImitateCustomer(): void
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testImitateCustomerOld(): void
     {
         $customerId = Uuid::randomHex();
         $userId = Uuid::randomHex();
+        $token = 'testToken';
 
-        $imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator('testAppSecret');
-
-        $token = $imitateCustomerTokenGenerator->generate(
-            TestDefaults::SALES_CHANNEL,
-            $customerId,
-            $userId
-        );
+        $imitateCustomerTokenGenerator = $this->createMock(ImitateCustomerTokenGenerator::class);
+        $imitateCustomerTokenGenerator
+            ->expects($this->once())
+            ->method('validate')
+            ->with($token, TestDefaults::SALES_CHANNEL, $customerId, $userId);
 
         $accountService = $this->createMock(AccountService::class);
         $accountService->method('loginById')->willReturn('newToken');
@@ -56,6 +63,102 @@ class ImitateCustomerRouteTest extends TestCase
             ImitateCustomerRoute::TOKEN => $token,
             ImitateCustomerRoute::CUSTOMER_ID => $customerId,
             ImitateCustomerRoute::USER_ID => $userId,
+        ]);
+
+        $response = $route->imitateCustomerLogin($dataBag, $salesChannelContext);
+
+        static::assertSame('newToken', $response->getToken());
+    }
+
+    public function testImitateCustomer(): void
+    {
+        $token = 'testToken';
+        $tokenStruct = new ImitateCustomerToken();
+        $tokenStruct->customerId = Uuid::randomHex();
+        $tokenStruct->iss = Uuid::randomHex();
+        $tokenStruct->salesChannelId = TestDefaults::SALES_CHANNEL;
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->assign(['customer' => null]);
+
+        $imitateCustomerTokenGenerator = $this->createMock(ImitateCustomerTokenGenerator::class);
+        $imitateCustomerTokenGenerator
+            ->expects($this->once())
+            ->method('decode')
+            ->with($token)
+            ->willReturn($tokenStruct);
+
+        $accountService = $this->createMock(AccountService::class);
+        $accountService
+            ->expects($this->once())
+            ->method('loginById')
+            ->with($tokenStruct->customerId, $salesChannelContext)
+            ->willReturn('newToken');
+
+        $route = new ImitateCustomerRoute(
+            $accountService,
+            $imitateCustomerTokenGenerator,
+            $this->createMock(LogoutRoute::class),
+            $this->createMock(SalesChannelContextFactory::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(DataValidator::class),
+        );
+
+        $dataBag = new RequestDataBag([
+            ImitateCustomerRoute::TOKEN => $token,
+        ]);
+
+        $response = $route->imitateCustomerLogin($dataBag, $salesChannelContext);
+
+        static::assertSame('newToken', $response->getToken());
+    }
+
+    public function testImitateCustomerWithLoggedInUser(): void
+    {
+        $token = 'testToken';
+        $tokenStruct = new ImitateCustomerToken();
+        $tokenStruct->customerId = Uuid::randomHex();
+        $tokenStruct->iss = Uuid::randomHex();
+        $tokenStruct->salesChannelId = TestDefaults::SALES_CHANNEL;
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $imitateCustomerTokenGenerator = $this->createMock(ImitateCustomerTokenGenerator::class);
+        $imitateCustomerTokenGenerator
+            ->expects($this->once())
+            ->method('decode')
+            ->with($token)
+            ->willReturn($tokenStruct);
+
+        $salesChannelContextFactory = $this->createMock(SalesChannelContextFactory::class);
+        $salesChannelContextFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with('loggedOutToken', TestDefaults::SALES_CHANNEL)
+            ->willReturn($salesChannelContext);
+
+        $accountService = $this->createMock(AccountService::class);
+        $accountService
+            ->expects($this->once())
+            ->method('loginById')
+            ->with($tokenStruct->customerId, $salesChannelContext)
+            ->willReturn('newToken');
+
+        $logoutRoute = $this->createMock(LogoutRoute::class);
+        $logoutRoute
+            ->expects($this->once())
+            ->method('logout')
+            ->willReturn(new ContextTokenResponse('loggedOutToken'));
+
+        $route = new ImitateCustomerRoute(
+            $accountService,
+            $imitateCustomerTokenGenerator,
+            $logoutRoute,
+            $salesChannelContextFactory,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(DataValidator::class),
+        );
+
+        $dataBag = new RequestDataBag([
+            ImitateCustomerRoute::TOKEN => $token,
         ]);
 
         $response = $route->imitateCustomerLogin($dataBag, $salesChannelContext);

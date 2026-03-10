@@ -18,6 +18,7 @@
         {% block sw_product_detail_layout_content %}
         <sw-product-layout-assignment
             :cms-page="currentPage"
+            :product="product"
             @modal-layout-open="onOpenLayoutModal"
             @button-edit-click="onOpenInPageBuilder"
             @button-delete-click="onResetLayout"

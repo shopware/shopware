@@ -55,6 +55,23 @@ async function createWrapper(useTime) {
     });
 }
 
+Shopware.Service().register('timezoneService', () => {
+    return {
+        getTimezoneOptions() {
+            return [
+                {
+                    label: 'UTC',
+                    value: 'UTC',
+                },
+                {
+                    label: 'Europe/Berlin',
+                    value: 'Europe/Berlin',
+                },
+            ];
+        },
+    };
+});
+
 describe('component/rule/sw-condition-date-range', () => {
     it('should toggle selection without and with time', async () => {
         const wrapper = await createWrapper();
@@ -105,7 +122,7 @@ describe('component/rule/sw-condition-date-range', () => {
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01');
-        expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00+00:00');
+        expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00');
     });
 
     it('should select a fromDate with time', async () => {
@@ -146,7 +163,7 @@ describe('component/rule/sw-condition-date-range', () => {
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
-        expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00+00:00');
+        expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00');
     });
 
     it('should select a toDate without time', async () => {
@@ -175,7 +192,7 @@ describe('component/rule/sw-condition-date-range', () => {
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01');
-        expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59+00:00');
+        expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59');
     });
 
     it('should select a toDate with time', async () => {
@@ -216,6 +233,6 @@ describe('component/rule/sw-condition-date-range', () => {
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
-        expect(wrapper.vm.toDate).toBe('1900-01-01T12:30:00+00:00');
+        expect(wrapper.vm.toDate).toBe('1900-01-01T12:30:00');
     });
 });

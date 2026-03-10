@@ -1,9 +1,8 @@
+/**
+ * @sw-package after-sales
+ */
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
-
-/**
- * @sw-package checkout
- */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -49,6 +48,16 @@ export default {
             },
         },
 
+        invoices() {
+            return this.order.documents.filter((document) => {
+                return (
+                    document.documentType.technicalName === 'invoice' ||
+                    document.documentType.technicalName === 'zugferd_invoice' ||
+                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                );
+            });
+        },
+
         invoiceNumberOptions() {
             return this.invoiceNumbers.map((item) => {
                 return {
@@ -67,23 +76,19 @@ export default {
         createdComponent() {
             this.$super('createdComponent');
 
-            const invoiceNumbers = this.order.documents
-                .filter((document) => {
-                    return (
-                        document.documentType.technicalName === 'invoice' ||
-                        document.documentType.technicalName === 'zugferd_invoice' ||
-                        document.documentType.technicalName === 'zugferd_embedded_invoice'
-                    );
-                })
-                .map((item) => {
-                    return item.config.custom.invoiceNumber;
-                });
+            const invoiceNumbers = this.invoices.map((item) => {
+                return item.config.custom.invoiceNumber;
+            });
 
             this.invoiceNumbers = [...new Set(invoiceNumbers)].sort();
         },
 
         onCreateDocument(additionalAction = false) {
             this.$emit('loading-document');
+
+            const selectedInvoice = this.invoices.find((item) => {
+                return item.config.custom.invoiceNumber === this.documentConfig.custom.invoiceNumber;
+            });
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService
@@ -96,11 +101,11 @@ export default {
                             });
                         }
                         this.documentConfig.documentNumber = response.number;
-                        this.callDocumentCreate(additionalAction);
+                        this.callDocumentCreate(additionalAction, selectedInvoice?.id);
                     });
             } else {
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
-                this.callDocumentCreate(additionalAction);
+                this.callDocumentCreate(additionalAction, selectedInvoice?.id);
             }
         },
     },

@@ -2,13 +2,13 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
-        "\/_action\/media\/{mediaId}\/upload": {
+        "/_action/media/{mediaId}/upload": {
             "post": {
                 "tags": [
                     "Asset Management"
                 ],
                 "summary": "Upload a file to a media entity",
-                "description": "Adds a new file to a media entity. If the entity has an existing file, it will be replaced.\n\nThe are two methods of providing a file to this route:\n * Use a typical file upload and provide the file in the request\n * Fetch the file from an url. This only works if the `shopware.media.enable_url_upload_feature` variable is set to true in the shop environment.\nTo use file upload via url, the content type has to be `application\/json` and the parameter `url` has to be provided.",
+                "description": "Adds a new file to a media entity. If the entity has an existing file, it will be replaced.\n\nThe are two methods of providing a file to this route:\n * Use a typical file upload and provide the file in the request\n * Fetch the file from an url. This only works if the `shopware.media.enable_url_upload_feature` variable is set to true in the shop environment.\nTo use file upload via url, the content type has to be `application/json` and the parameter `url` has to be provided.",
                 "operationId": "upload",
                 "parameters": [
                     {
@@ -17,8 +17,7 @@
                         "description": "Identifier of the media entity.",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "$ref": "#/components/schemas/MediaId"
                         }
                     },
                     {
@@ -41,13 +40,13 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application\/octet-stream": {
+                        "application/octet-stream": {
                             "schema": {
                                 "type": "string",
                                 "format": "binary"
                             }
                         },
-                        "application\/json": {
+                        "application/json": {
                             "schema": {
                                 "required": [
                                     "url"
@@ -264,6 +263,13 @@
                                     "deduplicate": {
                                         "type": "boolean",
                                         "description": "Whether to deduplicate based on path"
+                                    },
+                                    "thumbnails": {
+                                        "type": "array",
+                                        "description": "Optional list of external thumbnail URLs for the media entity. Used for CDNs that pre-generated thumbnails alongside the main media file.\nNot to be confused with [remote thumbnails](https://developer.shopware.com/docs/guides/plugins/plugins/content/media/remote-thumbnail-generation.html#remote-thumbnail-generation), which are generated based on a pattern.",
+                                        "items": {
+                                            "$ref": "#/components/schemas/ExternalThumbnail"
+                                        }
                                     }
                                 },
                                 "required": ["url", "mimeType"]
@@ -292,7 +298,117 @@
                 }
             }
         },
-        "\/_action\/media\/{mediaId}\/video-cover": {
+        "/_action/media/{mediaId}/external-thumbnails": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Add external thumbnails to media",
+                "description": "Attaches external thumbnail URLs to an existing external media entity. The media must have an HTTP/HTTPS path (i.e. be an external media link).\n\nUsed for CDNs that pre-generated thumbnails alongside the main media file.\nNot to be confused with [remote thumbnails](https://developer.shopware.com/docs/guides/plugins/plugins/content/media/remote-thumbnail-generation.html#remote-thumbnail-generation), which are generated based on a pattern.\n\nThe thumbnail sized are matched against existing thumbnails sizes and a matching size will automatically be assigned. If there's not existing size, a **new thumbnail size will automatically be created** for each missing size.",
+                "operationId": "addExternalThumbnails",
+                "parameters": [
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "description": "ID of the external media entity the thumbnails will be attached to.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/MediaId"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "thumbnails": {
+                                        "type": "array",
+                                        "description": "List of external thumbnails to attach",
+                                        "items": {
+                                            "$ref": "#/components/schemas/ExternalThumbnail"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Thumbnails attached successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mediaId": {
+                                            "description": "ID of the media entity the thumbnails were attached to.",
+                                            "$ref": "#/components/schemas/MediaId"
+                                        },
+                                        "thumbnailsCreated": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Media is not an external media entity or path is missing"
+                    },
+                    "404": {
+                        "description": "Media entity not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Delete all external thumbnails from media",
+                "description": "Removes all externally stored thumbnail entries from the given media entity. Only works on external media (media with an HTTP/HTTPS path). Used to replace outdated thumbnails with new ones.",
+                "operationId": "deleteExternalThumbnails",
+                "parameters": [
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "description": "ID of the external media entity the thumbnails will be deleted from..",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/MediaId"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thumbnails deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mediaId": {
+                                            "description": "ID of the media entity the thumbnails were deleted from.",
+                                            "$ref": "#/components/schemas/MediaId"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Media is not an external media entity or path is missing"
+                    },
+                    "404": {
+                        "description": "Media entity not found"
+                    }
+                }
+            }
+        },
+        "/_action/media/{mediaId}/video-cover": {
             "post": {
                 "tags": [
                     "Asset Management"
@@ -307,14 +423,13 @@
                         "required": true,
                         "description": "ID of the video media entity",
                         "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "$ref": "#/components/schemas/MediaId"
                         }
                     }
                 ],
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {

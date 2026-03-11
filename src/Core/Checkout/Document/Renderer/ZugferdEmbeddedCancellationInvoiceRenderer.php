@@ -32,11 +32,8 @@ class ZugferdEmbeddedCancellationInvoiceRenderer extends AbstractDocumentRendere
         throw new DecorationPatternException(self::class);
     }
 
-    public function render(
-        array $operations,
-        Context $context,
-        DocumentRendererConfig $rendererConfig
-    ): RendererResult {
+    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
+    {
         $cancellationInvoice = $this->cancellationInvoiceRenderer->render(
             $operations,
             $context,

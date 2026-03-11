@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
-use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCancellationInvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
@@ -18,18 +18,18 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(ZugferdEmbeddedRenderer::class)]
-class ZugferdEmbeddedRendererTest extends TestCase
+#[CoversClass(ZugferdEmbeddedCancellationInvoiceRenderer::class)]
+class ZugferdEmbeddedCancellationInvoiceRendererTest extends TestCase
 {
     public function testSupports(): void
     {
-        $renderer = new ZugferdEmbeddedRenderer(
+        $renderer = new ZugferdEmbeddedCancellationInvoiceRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
             new ZugferdEmbeddedService('version')
         );
 
-        static::assertSame('zugferd_embedded_invoice', $renderer->supports());
+        static::assertSame('zugferd_embedded_cancellation_invoice', $renderer->supports());
     }
 
     public function testRenderCallsService(): void
@@ -46,8 +46,8 @@ class ZugferdEmbeddedRendererTest extends TestCase
         $electronicResult = new RendererResult();
         $electronicResult->addSuccess('order1', new RenderedDocument(content: $xml));
 
-        $invoiceRenderer = $this->createMock(AbstractDocumentRenderer::class);
-        $invoiceRenderer
+        $cancellationInvoiceRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $cancellationInvoiceRenderer
             ->method('render')
             ->willReturn($baseResult);
 
@@ -56,8 +56,8 @@ class ZugferdEmbeddedRendererTest extends TestCase
             ->method('render')
             ->willReturn($electronicResult);
 
-        $renderer = new ZugferdEmbeddedRenderer(
-            $invoiceRenderer,
+        $renderer = new ZugferdEmbeddedCancellationInvoiceRenderer(
+            $cancellationInvoiceRenderer,
             $electronicRenderer,
             new ZugferdEmbeddedService('version')
         );

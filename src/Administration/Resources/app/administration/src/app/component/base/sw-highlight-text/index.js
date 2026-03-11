@@ -119,12 +119,14 @@ export default {
 
         // Remove regex special characters from search string
         escapeRegExp(string) {
+            const escapeRegex = RegExp.escape ?? ((value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
             if (Context.app.adminEsEnable) {
                 // remove simple query string syntax
-                return RegExp.escape(string.replace(/[+-.*~"|()]/g, '').replace(/ AND | and | OR | or |  +/g, ' '));
+                return escapeRegex(string.replace(/[+-.*~"|()]/g, '').replace(/ AND | and | OR | or |  +/g, ' '));
             }
 
-            return RegExp.escape(string);
+            return escapeRegex(string);
         },
     },
 };

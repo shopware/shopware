@@ -81,6 +81,12 @@ const LIFECYCLE_HOOK_MAP = {
 
 const LIFECYCLE_HOOKS = Object.keys(LIFECYCLE_HOOK_MAP);
 
+/**
+ * Options API property keys that indicate an override is using Options API patterns.
+ * `extends` is included so checkUnsupportedFeatures() can emit its warning.
+ */
+const OPTION_KEYS = ['data', 'methods', 'computed', 'watch', 'mixins', 'inject', 'extends'] as const;
+
 interface MergedConfig extends ComponentConfig {
     _lifecycleHooks?: Record<string, LifecycleHookFn[]>;
 }
@@ -96,19 +102,10 @@ interface MergedConfig extends ComponentConfig {
  */
 export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
     const extended = overrideConfig as ExtendedComponentConfig;
+    const hasOptionKeys = OPTION_KEYS.some((key) => !!extended[key]);
     const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!extended[hook]);
 
-    return !!(
-        overrideConfig.data ||
-        overrideConfig.methods ||
-        overrideConfig.computed ||
-        overrideConfig.watch ||
-        (overrideConfig.mixins && overrideConfig.mixins.length > 0) ||
-        overrideConfig.inject ||
-        // Include extends so checkUnsupportedFeatures() can emit its warning
-        extended.extends ||
-        hasLifecycleHooks
-    );
+    return hasOptionKeys || hasLifecycleHooks;
 }
 
 /**

@@ -48,9 +48,9 @@ class StaticFileConfigLoader extends AbstractConfigLoader
 
     private function prepareCollections(array $fileObject): array
     {
-        $fileObject['styleFiles'] = array_map(fn (array $file) => (new File(''))->assign($file), $fileObject['styleFiles']);
+        $fileObject['styleFiles'] = array_map(static fn (array $file) => (new File(''))->assign($file), $fileObject['styleFiles']);
 
-        $fileObject['scriptFiles'] = array_map(fn (array $file) => (new File(''))->assign($file), $fileObject['scriptFiles']);
+        $fileObject['scriptFiles'] = array_map(static fn (array $file) => (new File(''))->assign($file), $fileObject['scriptFiles']);
 
         $fileObject['styleFiles'] = new FileCollection($fileObject['styleFiles']);
         $fileObject['scriptFiles'] = new FileCollection($fileObject['scriptFiles']);

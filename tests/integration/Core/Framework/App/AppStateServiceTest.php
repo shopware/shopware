@@ -78,7 +78,7 @@ class AppStateServiceTest extends TestCase
         $this->assertAppState($appId, false);
 
         $eventWasReceived = false;
-        $onAppInstalled = function (AppActivatedEvent $event) use ($appId, &$eventWasReceived): void {
+        $onAppInstalled = static function (AppActivatedEvent $event) use ($appId, &$eventWasReceived): void {
             $eventWasReceived = true;
             static::assertSame($appId, $event->getApp()->getId());
         };
@@ -104,7 +104,7 @@ class AppStateServiceTest extends TestCase
         $this->assertAppState($appId, true);
 
         $eventWasReceived = false;
-        $onAppInstalled = function (AppDeactivatedEvent $event) use ($appId, &$eventWasReceived): void {
+        $onAppInstalled = static function (AppDeactivatedEvent $event) use ($appId, &$eventWasReceived): void {
             $eventWasReceived = true;
             static::assertSame($appId, $event->getApp()->getId());
         };

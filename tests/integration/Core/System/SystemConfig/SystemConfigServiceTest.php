@@ -378,7 +378,7 @@ class SystemConfigServiceTest extends TestCase
 
         $called = false;
 
-        $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, function (SystemConfigChangedHook $event) use (&$called): void {
+        $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, static function (SystemConfigChangedHook $event) use (&$called): void {
             static::assertSame([
                 'changes' => ['foo.bar'],
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -413,7 +413,7 @@ class SystemConfigServiceTest extends TestCase
         $dispatchedEvents = [];
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $listener = function (
+        $listener = static function (
             BeforeSystemConfigMultipleChangedEvent|SystemConfigMultipleChangedEvent|SystemConfigChangedHook $event
         ) use (&$dispatchedEvents): void {
             $eventClass = $event::class;

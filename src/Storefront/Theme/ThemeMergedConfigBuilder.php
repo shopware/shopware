@@ -55,7 +55,7 @@ class ThemeMergedConfigBuilder
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 
-        $baseTheme = $this->themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
+        $baseTheme = $this->themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
         if ($baseTheme === null) {
             throw ThemeException::couldNotFindThemeByName(StorefrontPluginRegistry::BASE_THEME_NAME);
         }
@@ -111,7 +111,7 @@ class ThemeMergedConfigBuilder
         // Check if the theme is a database copy of a physical theme.
         // If so, use the technical name of the parent theme.
         if ($theme->getTechnicalName() === null && $theme->getParentThemeId() !== null) {
-            $parentTheme = $this->themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $theme->getParentThemeId())->first();
+            $parentTheme = $this->themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $theme->getParentThemeId())->first();
 
             if ($parentTheme instanceof ThemeEntity) {
                 $themeConfig['themeTechnicalName'] = $parentTheme->getTechnicalName();
@@ -256,7 +256,7 @@ class ThemeMergedConfigBuilder
     private function getParentThemes(ThemeCollection $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
     {
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
-            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', (string) $parentThemeName))->first();
+            $parentTheme = $themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', (string) $parentThemeName))->first();
 
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
@@ -268,7 +268,7 @@ class ThemeMergedConfigBuilder
         }
 
         if ($mainTheme->getParentThemeId()) {
-            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
+            $parentTheme = $themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
 
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;

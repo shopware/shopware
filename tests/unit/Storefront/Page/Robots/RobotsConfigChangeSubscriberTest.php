@@ -107,7 +107,7 @@ class RobotsConfigChangeSubscriberTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->exactly(2))->method('error')
-            ->willReturnCallback(function (string $message, array $context): void {
+            ->willReturnCallback(static function (string $message, array $context): void {
                 static::assertStringContainsString('Robots.txt parsing issue', $message);
                 static::assertArrayHasKey('scope', $context);
                 static::assertArrayHasKey('lineNumber', $context);
@@ -138,7 +138,7 @@ class RobotsConfigChangeSubscriberTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');
         $logger->expects($this->once())->method('warning')
-            ->willReturnCallback(function (string $message, array $context): void {
+            ->willReturnCallback(static function (string $message, array $context): void {
                 static::assertStringContainsString('Robots.txt parsing issue', $message);
                 static::assertArrayHasKey('scope', $context);
                 static::assertArrayHasKey('lineNumber', $context);

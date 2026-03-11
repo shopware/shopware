@@ -5,12 +5,16 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
+use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailData;
 use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -37,6 +41,16 @@ class MediaUploadServiceTest extends TestCase
      */
     private StaticEntityRepository $mediaRepository;
 
+    /**
+     * @var StaticEntityRepository<MediaThumbnailCollection>
+     */
+    private StaticEntityRepository $mediaThumbnailRepository;
+
+    /**
+     * @var StaticEntityRepository<MediaThumbnailSizeCollection>
+     */
+    private StaticEntityRepository $mediaThumbnailSizeRepository;
+
     private FileFetcher&MockObject $fileFetcher;
 
     private FileSaver&MockObject $fileSaver;
@@ -52,6 +66,8 @@ class MediaUploadServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->mediaRepository = new StaticEntityRepository([]);
+        $this->mediaThumbnailRepository = new StaticEntityRepository([]);
+        $this->mediaThumbnailSizeRepository = new StaticEntityRepository([]);
         $this->fileFetcher = $this->createMock(FileFetcher::class);
         $this->fileSaver = $this->createMock(FileSaver::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -62,7 +78,9 @@ class MediaUploadServiceTest extends TestCase
             $this->fileFetcher,
             $this->fileSaver,
             $this->eventDispatcher,
-            $this->httpClient
+            $this->httpClient,
+            $this->mediaThumbnailRepository,
+            $this->mediaThumbnailSizeRepository,
         );
 
         $this->context = Context::createDefaultContext();
@@ -404,6 +422,150 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame($mediaFolderId, $createdMedia['mediaFolderId']);
 
         (new Filesystem())->remove($filePath);
+    }
+
+    public function testAddExternalThumbnailsToMedia(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $collection = new ExternalThumbnailCollection([
+            new ExternalThumbnailData('https://localhost:8000/thumb-200.jpg', 200, 200),
+            new ExternalThumbnailData('https://localhost:8000/thumb-400.jpg', 400, 400),
+        ]);
+
+        $this->mediaThumbnailSizeRepository->addSearch([], []);
+
+        $this->mediaUploadService->addExternalThumbnailsToMedia($mediaId, $collection, $this->context);
+
+        static::assertCount(2, $this->mediaThumbnailSizeRepository->creates);
+        static::assertCount(1, $this->mediaThumbnailSizeRepository->creates[0]);
+        static::assertCount(1, $this->mediaThumbnailSizeRepository->creates[1]);
+
+        static::assertCount(1, $this->mediaThumbnailRepository->creates);
+        $createdThumbnails = $this->mediaThumbnailRepository->creates[0];
+        static::assertCount(2, $createdThumbnails);
+
+        static::assertSame($mediaId, $createdThumbnails[0]['mediaId']);
+        static::assertSame('https://localhost:8000/thumb-200.jpg', $createdThumbnails[0]['path']);
+        static::assertSame(200, $createdThumbnails[0]['width']);
+        static::assertSame(200, $createdThumbnails[0]['height']);
+
+        static::assertSame($mediaId, $createdThumbnails[1]['mediaId']);
+        static::assertSame('https://localhost:8000/thumb-400.jpg', $createdThumbnails[1]['path']);
+        static::assertSame(400, $createdThumbnails[1]['width']);
+        static::assertSame(400, $createdThumbnails[1]['height']);
+    }
+
+    public function testDeleteAllExternalThumbnailsSkipsMediaWithZeroThumbnails(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaThumbnailRepository->addSearch([]);
+        $this->mediaUploadService->deleteAllExternalThumbnails($mediaId, $this->context);
+
+        static::assertCount(0, $this->mediaThumbnailRepository->deletes);
+    }
+
+    public function testLinkURLWithThumbnails(): void
+    {
+        $url = 'https://localhost:8000/image.jpg';
+        $thumbnails = new ExternalThumbnailCollection([
+            new ExternalThumbnailData('https://localhost:8000/thumb-200.jpg', 200, 200),
+        ]);
+        $params = new MediaUploadParameters(
+            fileName: 'test.jpg',
+            mimeType: 'image/jpeg',
+            thumbnails: $thumbnails
+        );
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getHeaders')->willReturn(['content-length' => ['1024']]);
+
+        $this->httpClient
+            ->expects($this->once())
+            ->method('request')
+            ->with('HEAD', $url)
+            ->willReturn($response);
+
+        $this->mediaThumbnailSizeRepository->addSearch([]);
+
+        $this->mediaUploadService = new MediaUploadService(
+            $this->mediaRepository,
+            $this->fileFetcher,
+            $this->fileSaver,
+            $this->eventDispatcher,
+            $this->httpClient,
+            $this->mediaThumbnailRepository,
+            $this->mediaThumbnailSizeRepository,
+        );
+
+        $result = $this->mediaUploadService->linkURL($url, $this->context, $params);
+
+        static::assertIsString($result);
+        static::assertCount(1, $this->mediaRepository->creates);
+        static::assertCount(1, $this->mediaThumbnailRepository->creates);
+        static::assertSame('https://localhost:8000/thumb-200.jpg', $this->mediaThumbnailRepository->creates[0][0]['path']);
+    }
+
+    public function testGetOrCreateThumbnailSizeReuseExistingSize(): void
+    {
+        $existingSizeId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $collection = new ExternalThumbnailCollection([
+            new ExternalThumbnailData('https://localhost:8000/thumb.jpg', 300, 300),
+        ]);
+
+        $this->mediaThumbnailSizeRepository->addSearch([$existingSizeId]);
+
+        $this->mediaUploadService->addExternalThumbnailsToMedia($mediaId, $collection, $this->context);
+
+        static::assertCount(0, $this->mediaThumbnailSizeRepository->creates);
+
+        static::assertCount(1, $this->mediaThumbnailRepository->creates);
+        static::assertSame($existingSizeId, $this->mediaThumbnailRepository->creates[0][0]['mediaThumbnailSizeId']);
+    }
+
+    public function testDeleteAllExternalThumbnailsDeletesFoundThumbnails(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $thumbnailId1 = Uuid::randomHex();
+        $thumbnailId2 = Uuid::randomHex();
+
+        $this->mediaThumbnailRepository->addSearch([$thumbnailId1, $thumbnailId2]);
+
+        $this->mediaUploadService->deleteAllExternalThumbnails($mediaId, $this->context);
+
+        static::assertCount(1, $this->mediaThumbnailRepository->deletes);
+        static::assertCount(2, $this->mediaThumbnailRepository->deletes[0]);
+        static::assertSame(
+            [$thumbnailId1, $thumbnailId2],
+            array_column($this->mediaThumbnailRepository->deletes[0], 'id'),
+        );
+    }
+
+    public function testCreateExternalThumbnailsThrowsOnInvalidUrl(): void
+    {
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('Provided URL "not-a-valid-url" is invalid.');
+
+        MediaUploadService::validateExternalUrl('not-a-valid-url');
+    }
+
+    public function testCreateExternalThumbnailsSkipsCreateWhenCollectionIsEmpty(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $collection = new ExternalThumbnailCollection([]);
+
+        $this->mediaUploadService->addExternalThumbnailsToMedia($mediaId, $collection, $this->context);
+
+        static::assertCount(0, $this->mediaThumbnailRepository->creates);
+    }
+
+    public function testIsExternalUrl(): void
+    {
+        static::assertTrue(MediaUploadService::isExternalUrl('http://localhost:8000/image.jpg'));
+        static::assertTrue(MediaUploadService::isExternalUrl('https://localhost:8000/image.jpg'));
+        static::assertFalse(MediaUploadService::isExternalUrl('file:///image.jpg'));
+        static::assertFalse(MediaUploadService::isExternalUrl('/image.jpg'));
     }
 }
 

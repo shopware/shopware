@@ -73,7 +73,7 @@ class DeliveryCalculatorTest extends TestCase
         $delivery
             ->expects($this->once())
             ->method('setShippingCosts')
-            ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+            ->willReturnCallback(static function ($costsParameter) use (&$newCosts): void {
                 $newCosts = $costsParameter;
             });
 
@@ -153,7 +153,7 @@ class DeliveryCalculatorTest extends TestCase
         $delivery
             ->expects($this->once())
             ->method('setShippingCosts')
-            ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+            ->willReturnCallback(static function ($costsParameter) use (&$newCosts): void {
                 $newCosts = $costsParameter;
             });
 
@@ -239,7 +239,7 @@ class DeliveryCalculatorTest extends TestCase
         $delivery
             ->expects($this->once())
             ->method('setShippingCosts')
-            ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+            ->willReturnCallback(static function ($costsParameter) use (&$newCosts): void {
                 $newCosts = $costsParameter;
             });
 

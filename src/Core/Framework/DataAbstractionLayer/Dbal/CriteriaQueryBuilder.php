@@ -50,7 +50,7 @@ class CriteriaQueryBuilder
         }
 
         if ($criteria->getTerm()) {
-            $pattern = $this->interpreter->interpret($criteria->getTerm(), $context);
+            $pattern = $this->interpreter->interpret($criteria->getTerm());
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $criteria->addQuery(...$queries);
         }
@@ -214,7 +214,7 @@ class CriteriaQueryBuilder
             $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
-        $minScore = array_map(fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
+        $minScore = array_map(static fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
         \assert($minScore !== []);
 
         $minScore = min($minScore);

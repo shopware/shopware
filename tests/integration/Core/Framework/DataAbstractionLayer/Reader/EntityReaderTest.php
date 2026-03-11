@@ -1453,7 +1453,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
+        $streets = $customer->getAddresses()->map(static fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertSame(['A', 'B', 'D'], array_values($streets));
 
         $criteria = new Criteria([$id]);
@@ -1468,7 +1468,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
+        $streets = $customer->getAddresses()->map(static fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertSame(['X', 'E', 'D'], array_values($streets));
     }
 
@@ -2447,7 +2447,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $result);
         $seoUrlCollection = $result->getSeoUrls();
         static::assertNotNull($seoUrlCollection);
-        $urls = $seoUrlCollection->map(fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
+        $urls = $seoUrlCollection->map(static fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
 
         static::assertSame($expected, array_values($urls));
     }
@@ -2514,7 +2514,7 @@ class EntityReaderTest extends TestCase
                     'isDeleted' => true,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $criteria->getAssociation('seoUrls')->addSorting(
                     new FieldSorting('isCanonical', FieldSorting::DESCENDING),
                     new FieldSorting('isDeleted', FieldSorting::ASCENDING),
@@ -2544,7 +2544,7 @@ class EntityReaderTest extends TestCase
                     'isCanonical' => false,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $criteria->getAssociation('seoUrls')->addSorting(
                     new FieldSorting('salesChannel.id', FieldSorting::DESCENDING),
                     new FieldSorting('isCanonical', FieldSorting::DESCENDING)
@@ -2580,7 +2580,7 @@ class EntityReaderTest extends TestCase
                     'isCanonical' => false,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $filter = new OrFilter([
                     new EqualsFilter('isCanonical', true),
                 ]);

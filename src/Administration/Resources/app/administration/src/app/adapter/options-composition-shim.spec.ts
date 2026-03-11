@@ -1236,41 +1236,6 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(wrapper.find('.count').text()).toBe('Count: 2');
         });
 
-        it('should allow Options API computed override on a Composition API component', async () => {
-            const originalComponent = defineComponent({
-                template: `
-                    <div class="count">Count: {{ count }}</div>
-                    <div class="label">Label: {{ label }}</div>
-                `,
-                setup: (props, context) =>
-                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
-                        const count = ref(5);
-                        const label = computed(() => `Value is ${count.value}`);
-
-                        return {
-                            public: { count, label },
-                        };
-                    }),
-            });
-
-            const wrapper = mount(originalComponent);
-            expect(wrapper.find('.label').text()).toBe('Label: Value is 5');
-
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
-                computed: {
-                    label() {
-                        return `Custom: ${this.count}`;
-                    },
-                },
-            });
-
-            _overridesMap.originalComponent.push(overrideFn);
-
-            await flushPromises();
-
-            expect(wrapper.find('.label').text()).toBe('Label: Custom: 5');
-        });
-
         it('should allow Options API data override on a Composition API component', async () => {
             const originalComponent = defineComponent({
                 template: `

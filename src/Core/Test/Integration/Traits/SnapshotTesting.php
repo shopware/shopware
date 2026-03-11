@@ -132,7 +132,7 @@ trait SnapshotTesting
         }
 
         $content = \is_array($data)
-            ? json_encode($data, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES) . \PHP_EOL
+            ? json_encode($data, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION) . \PHP_EOL
             : $data;
 
         file_put_contents($filePath, $content);

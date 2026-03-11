@@ -257,6 +257,7 @@ class DocumentDeleteSubscriberTest extends TestCase
         $errorDetail = $content['errors'][0]['detail'];
         static::assertStringContainsString(': credit_note', $errorDetail);
         static::assertStringContainsString(\sprintf(' (%s).', $creditNoteDocumentId2), $errorDetail);
+        static::assertStringNotContainsString(\sprintf(' (%s).', $creditNoteDocumentId), $errorDetail);
     }
 
     /*

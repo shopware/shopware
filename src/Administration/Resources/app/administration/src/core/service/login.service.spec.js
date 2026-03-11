@@ -31,6 +31,17 @@ let lastUserActivity = null;
 
 describe('core/service/login.service.js', () => {
     beforeAll(async () => {
+        // JSDOM does not provide navigator.locks — mock it so that
+        // the Web Locks based refresh logic works in unit tests.
+        if (!navigator.locks) {
+            Object.defineProperty(navigator, 'locks', {
+                value: {
+                    request: jest.fn((_name, callback) => callback()),
+                },
+                configurable: true,
+            });
+        }
+
         Object.defineProperty(document, 'cookie', {
             // eslint-disable-next-line func-names
             set: function (value) {
@@ -533,5 +544,301 @@ describe('core/service/login.service.js', () => {
         loginService.isLoggedIn();
 
         expect(logoutListener).toHaveBeenCalled();
+    });
+
+    describe('token refresh behavior', () => {
+        it('should refresh token without Web Locks API support', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+
+            const originalLocks = navigator.locks;
+            try {
+                Object.defineProperty(navigator, 'locks', {
+                    value: undefined,
+                    configurable: true,
+                });
+
+                clientMock.onPost('/oauth/token').replyOnce(200, {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'aCcEsS_tOkEn',
+                    refresh_token: 'rEfReSh_ToKeN',
+                });
+
+                await loginService.loginByUsername('admin', 'shopware');
+
+                clientMock.onPost('/oauth/token').replyOnce(200, {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'fallback_token',
+                    refresh_token: 'fallback_refresh',
+                });
+
+                await expect(loginService.refreshToken()).resolves.toBe('fallback_token');
+            } finally {
+                Object.defineProperty(navigator, 'locks', {
+                    value: originalLocks,
+                    configurable: true,
+                });
+            }
+        });
+
+        it('should clear token when refresh fails after all retries', async () => {
+            jest.useFakeTimers();
+
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onPost('/oauth/token').reply(400, {
+                error: 'invalid_grant',
+            });
+
+            const refreshPromise = loginService.refreshToken();
+            const advanceTimePromise = jest.advanceTimersByTimeAsync(2000);
+
+            // two retries (500ms + 1000ms) + buffer for async scheduling
+            await expect(refreshPromise).rejects.toThrow();
+            await advanceTimePromise;
+
+            expect(loginService.getToken()).toBe(false);
+            expect(loginService.isLoggedIn()).toBe(false);
+
+            jest.useRealTimers();
+        });
+
+        it('should retry with interval when refresh fails once', async () => {
+            jest.useFakeTimers();
+
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+            clientMock.resetHistory();
+
+            clientMock.onPost('/oauth/token').replyOnce(400, { error: 'invalid_grant' });
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'new_token',
+                refresh_token: 'new_refresh',
+            });
+
+            const refreshPromise = loginService.refreshToken();
+            const advanceTimePromise = jest.advanceTimersByTimeAsync(1000);
+
+            await expect(refreshPromise).resolves.toBe('new_token');
+            await advanceTimePromise;
+
+            expect(clientMock.history.post).toHaveLength(2);
+            expect(loginService.getToken()).toBe('new_token');
+
+            jest.useRealTimers();
+        });
+
+        it('should logout after max refresh retries are reached', async () => {
+            jest.useFakeTimers();
+
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').reply((config) => {
+                const payload = JSON.parse(config.data);
+
+                if (payload.grant_type === 'password') {
+                    return [
+                        200,
+                        {
+                            token_type: 'Bearer',
+                            expires_in: 600,
+                            access_token: 'aCcEsS_tOkEn',
+                            refresh_token: 'rEfReSh_ToKeN',
+                        },
+                    ];
+                }
+
+                return [
+                    400,
+                    { error: 'invalid_grant' },
+                ];
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            const refreshPromise = loginService.refreshToken();
+            const advanceTimePromise = jest.advanceTimersByTimeAsync(2000);
+
+            // two retries (500ms + 1000ms) + buffer for async scheduling
+            await expect(refreshPromise).rejects.toThrow();
+            await advanceTimePromise;
+
+            expect(loginService.isLoggedIn()).toBe(false);
+
+            jest.useRealTimers();
+        });
+
+        it('should handle concurrent refresh calls in the same tab with singleton promise', async () => {
+            jest.useFakeTimers();
+
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'shared_token',
+                refresh_token: 'shared_refresh',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.reset();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'tab1_new_token',
+                refresh_token: 'tab1_new_refresh',
+            });
+
+            const firstRefreshCallPromise = loginService.refreshToken();
+            const secondRefreshCallPromise = loginService.refreshToken();
+
+            await expect(firstRefreshCallPromise).resolves.toBe('tab1_new_token');
+            await expect(secondRefreshCallPromise).resolves.toBe('tab1_new_token');
+
+            const refreshRequests = clientMock.history.post.filter(
+                (req) => JSON.parse(req.data).grant_type === 'refresh_token',
+            );
+            expect(refreshRequests).toHaveLength(1);
+
+            expect(loginService.isLoggedIn()).toBe(true);
+            expect(loginService.getToken()).toBe('tab1_new_token');
+
+            jest.useRealTimers();
+        });
+
+        it('should notify token changed listeners when the token gets updated', () => {
+            const { loginService } = loginServiceFactory();
+
+            const tokenChangedListener = jest.fn();
+            loginService.addOnTokenChangedListener(tokenChangedListener);
+
+            loginService.setBearerAuthentication({
+                access: 'initial_token',
+                refresh: 'initial_refresh',
+                expiry: 3600,
+            });
+
+            expect(tokenChangedListener).toHaveBeenCalledTimes(1);
+
+            loginService.setBearerAuthentication({
+                access: 'updated_token',
+                refresh: 'updated_refresh',
+                expiry: 3600,
+            });
+
+            expect(tokenChangedListener).toHaveBeenCalledTimes(2);
+            expect(tokenChangedListener).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    access: 'updated_token',
+                }),
+            );
+        });
+    });
+
+    describe('multi-tab token synchronization', () => {
+        it('should synchronize token across tabs via cookie storage', () => {
+            const { loginService } = loginServiceFactory();
+            const { loginService: loginServiceTab2 } = loginServiceFactory();
+
+            loginService.setBearerAuthentication({
+                access: 'test_token',
+                refresh: 'test_refresh',
+                expiry: 3600,
+            });
+
+            expect(loginServiceTab2.getToken()).toBe('test_token');
+            expect(loginServiceTab2.getBearerAuthentication('refresh')).toBe('test_refresh');
+        });
+
+        it('should share refreshed token when two tabs refresh concurrently', async () => {
+            jest.useFakeTimers();
+
+            const originalLocks = navigator.locks;
+            let lockQueue = Promise.resolve();
+
+            Object.defineProperty(navigator, 'locks', {
+                value: {
+                    request: jest.fn((_name, callback) => {
+                        const run = lockQueue.then(() => callback());
+                        lockQueue = run.catch(() => undefined);
+
+                        return run;
+                    }),
+                },
+                configurable: true,
+            });
+
+            const tab1 = loginServiceFactory();
+            const tab2 = loginServiceFactory();
+
+            try {
+                tab1.clientMock.onPost('/oauth/token').replyOnce(200, {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'initial_access_token',
+                    refresh_token: 'initial_refresh_token',
+                });
+
+                await tab1.loginService.loginByUsername('admin', 'shopware');
+
+                tab1.clientMock.resetHistory();
+                tab2.clientMock.resetHistory();
+
+                tab1.clientMock.onPost('/oauth/token').replyOnce(200, {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'refreshed_access_token',
+                    refresh_token: 'refreshed_refresh_token',
+                });
+
+                const tab1RefreshPromise = tab1.loginService.refreshToken();
+                const tab2RefreshPromise = tab2.loginService.refreshToken();
+
+                await Promise.all([
+                    expect(tab1RefreshPromise).resolves.toBe('refreshed_access_token'),
+                    expect(tab2RefreshPromise).resolves.toBe('refreshed_access_token'),
+                ]);
+
+                const tab1RefreshRequests = tab1.clientMock.history.post.filter(
+                    (req) => JSON.parse(req.data).grant_type === 'refresh_token',
+                );
+                const tab2RefreshRequests = tab2.clientMock.history.post.filter(
+                    (req) => JSON.parse(req.data).grant_type === 'refresh_token',
+                );
+
+                expect(tab1RefreshRequests).toHaveLength(1);
+                expect(tab2RefreshRequests).toHaveLength(0);
+                expect(tab2.loginService.getToken()).toBe('refreshed_access_token');
+            } finally {
+                Object.defineProperty(navigator, 'locks', {
+                    value: originalLocks,
+                    configurable: true,
+                });
+
+                jest.useRealTimers();
+            }
+        });
     });
 });

@@ -11,6 +11,7 @@ test(
         StorefrontHome,
         StorefrontProductDetail,
         SalesChannelBaseConfig,
+        AdminApiContext,
     }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
@@ -46,6 +47,12 @@ test(
         const propertyGroups: PropertyGroup[] = [propertyGroupColor];
         const variantProducts = await TestDataService.createVariantProducts(parentProduct, propertyGroups, {
             price: prices,
+        });
+
+        await AdminApiContext.post('_action/indexing/product.indexer?_response=detail', {
+            data: {
+                offset: 0,
+            },
         });
 
         await TestDataService.clearCaches();

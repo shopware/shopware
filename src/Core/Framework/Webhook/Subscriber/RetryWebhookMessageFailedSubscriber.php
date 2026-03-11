@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
@@ -20,13 +21,17 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 {
     private const MAX_WEBHOOK_ERROR_COUNT = 10;
 
+    private readonly WebhookFailureStrategy $failureStrategy;
+
     /**
      * @internal
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly RelatedWebhooks $relatedWebhooks
+        private readonly RelatedWebhooks $relatedWebhooks,
+        string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ) {
+        $this->failureStrategy = WebhookFailureStrategy::from($failureStrategy);
     }
 
     public static function getSubscribedEvents(): array
@@ -69,16 +74,37 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $webhookErrorCount = $webhook['error_count'] + 1;
-        $params = ['error_count' => $webhookErrorCount];
-
-        if ($webhookErrorCount >= self::MAX_WEBHOOK_ERROR_COUNT) {
-            $params = array_merge($params, [
-                'error_count' => 0,
-                'active' => 0,
-            ]);
-        }
+        $params = match ($this->failureStrategy) {
+            WebhookFailureStrategy::DisableOnThreshold => $this->handleDisableOnThreshold($webhook),
+            WebhookFailureStrategy::Ignore => $this->handleIgnore($webhook),
+        };
 
         $this->relatedWebhooks->updateRelated($webhookId, $params, $context);
+    }
+
+    /**
+     * @param array{active: int, error_count: int} $webhook
+     *
+     * @return array<string, int>
+     */
+    private function handleDisableOnThreshold(array $webhook): array
+    {
+        $errorCount = $webhook['error_count'] + 1;
+
+        if ($errorCount >= self::MAX_WEBHOOK_ERROR_COUNT) {
+            return ['error_count' => 0, 'active' => 0];
+        }
+
+        return ['error_count' => $errorCount];
+    }
+
+    /**
+     * @param array{active: int, error_count: int} $webhook
+     *
+     * @return array<string, int>
+     */
+    private function handleIgnore(array $webhook): array
+    {
+        return ['error_count' => $webhook['error_count'] + 1];
     }
 }

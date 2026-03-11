@@ -632,3 +632,6 @@ shopware:
         allowed_types:
           - physical
           - digital
+
+    webhook:
+        failure_strategy: disable_on_threshold

@@ -12,7 +12,7 @@ type AmplitudeModule = typeof AmplitudeClient;
 type AnonymousAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 type PrivacyAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 
-const AMPLITUDE_MAX_RETRIES = 3;
+const AMPLITUDE_MAX_RETRIES = 2;
 const AMPLITUDE_LOG_LEVEL = AmplitudeTypes.LogLevel.None;
 
 let stopTelemetryConsentWatch: (() => void) | null = null;

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * @phpstan-type DefaultExceptionData array{code: string, status: string, title: string, detail: string|null, meta?: array{trace: array<int|string, mixed>, file: string, line: int, previous?: mixed}}
@@ -45,6 +46,11 @@ class ErrorResponseFactory
             $errors = $this->convert($errors);
 
             return $errors;
+        }
+
+        $previous = $exception->getPrevious();
+        if ($exception instanceof HttpException && $previous instanceof ValidationFailedException) {
+            return $this->convertValidationExceptionToErrors($exception, $previous);
         }
 
         return [$this->convertExceptionToError($exception, $debug)];
@@ -103,6 +109,30 @@ class ErrorResponseFactory
         }
 
         return $error;
+    }
+
+    /**
+     * @return list<DefaultExceptionData>
+     */
+    private function convertValidationExceptionToErrors(\Throwable $exception, ValidationFailedException $validationException): array
+    {
+        $statusCode = $this->getStatusCodeFromException($exception);
+        $errors = [];
+
+        foreach ($validationException->getViolations() as $violation) {
+            $propertyPath = $violation->getPropertyPath();
+            $detail = $violation->getMessage();
+
+            $errors[] = [
+                'code' => (string) $violation->getCode(),
+                'status' => (string) $statusCode,
+                'title' => 'Validation Failed',
+                'detail' => $detail,
+                'source' => ['pointer' => '/' . str_replace('.', '/', $propertyPath)],
+            ];
+        }
+
+        return $errors;
     }
 
     /**

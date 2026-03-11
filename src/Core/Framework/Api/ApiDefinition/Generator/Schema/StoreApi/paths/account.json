@@ -704,7 +704,8 @@
         "/account/login": {
             "post": {
                 "tags": [
-                    "Login & Registration"
+                    "Login & Registration",
+                    "TEMP:GENERATE"
                 ],
                 "summary": "Log in a customer",
                 "description": "Logs in customers given their credentials.",
@@ -721,6 +722,7 @@
                                 "properties": {
                                     "username": {
                                         "description": "Email",
+                                        "format": "email",
                                         "type": "string"
                                     },
                                     "password": {
@@ -758,7 +760,8 @@
         "/account/login/imitate-customer": {
             "post": {
                 "tags": [
-                    "Login & Registration"
+                    "Login & Registration",
+                    "TEMP:GENERATE"
                 ],
                 "summary": "Imitate the log in as a customer",
                 "description": "Imitate the log in as a customer given a generated token.",
@@ -768,26 +771,51 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "token",
-                                    "customerId",
-                                    "userId"
-                                ],
-                                "properties": {
-                                    "token": {
-                                        "description": "Generated customer impersonation token",
-                                        "type": "string"
+                                "oneOf": [
+                                    {
+                                        "title": "LegacyImpersonationPayload",
+                                        "type": "object",
+                                        "deprecated": true,
+                                        "required": [
+                                            "token",
+                                            "customerId",
+                                            "userId"
+                                        ],
+                                        "properties": {
+                                            "token": {
+                                                "description": "Generated customer impersonation token (legacy UUID token).",
+                                                "deprecated": true,
+                                                "format": "uuid",
+                                                "type": "string"
+                                            },
+                                            "customerId": {
+                                                "description": "ID of the customer.",
+                                                "deprecated": true,
+                                                "format": "uuid",
+                                                "type": "string"
+                                            },
+                                            "userId": {
+                                                "description": "ID of the user who generated the token.",
+                                                "deprecated": true,
+                                                "format": "uuid",
+                                                "type": "string"
+                                            }
+                                        }
                                     },
-                                    "customerId": {
-                                        "description": "ID of the customer",
-                                        "type": "string"
-                                    },
-                                    "userId": {
-                                        "description": "ID of the user who generated the token",
-                                        "type": "string"
+                                    {
+                                        "title": "JwtImpersonationPayload",
+                                        "type": "object",
+                                        "required": [
+                                            "token"
+                                        ],
+                                        "properties": {
+                                            "token": {
+                                                "description": "Generated customer impersonation JWT token. IMPORTANT: Flag v6.8.0.0 is required to use this version of the endpoint.",
+                                                "type": "string"
+                                            }
+                                        }
                                     }
-                                },
-                                "type": "object"
+                                ]
                             }
                         }
                     }
@@ -904,6 +932,7 @@
                                 "properties": {
                                     "email": {
                                         "description": "Email of the customer. Has to be unique, unless `guest` is `true`",
+                                        "format": "email",
                                         "type": "string"
                                     },
                                     "password": {
@@ -968,7 +997,6 @@
                                 },
                                 "required": [
                                     "email",
-                                    "password",
                                     "firstName",
                                     "lastName",
                                     "acceptedDataProtection",
@@ -977,7 +1005,7 @@
                                 ],
                                 "oneOf": [
                                     {
-                                        "properties": {
+                                        "title": "PrivateCustomerRegister",                                        "properties": {
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
@@ -995,6 +1023,7 @@
                                         }
                                     },
                                     {
+                                        "title": "BusinessCustomerRegister",
                                         "required": [
                                             "accountType",
                                             "company",
@@ -1016,7 +1045,8 @@
                                                 "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
                                                 "type": "array",
                                                 "items": {
-                                                    "type": "string"
+                                                    "type": "string",
+                                                    "minLength": 1
                                                 },
                                                 "minItems": 1
                                             }

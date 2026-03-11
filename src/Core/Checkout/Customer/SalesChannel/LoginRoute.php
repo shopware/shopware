@@ -3,17 +3,17 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
@@ -26,7 +26,7 @@ class LoginRoute extends AbstractLoginRoute
     public function __construct(
         private readonly AccountService $accountService,
         private readonly RequestStack $requestStack,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
     ) {
     }
 
@@ -36,13 +36,10 @@ class LoginRoute extends AbstractLoginRoute
     }
 
     #[Route(path: '/store-api/account/login', name: 'store-api.account.login', methods: ['POST'])]
-    public function login(#[\SensitiveParameter] RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
+    public function login(#[\SensitiveParameter] #[MapRequestPayload] LoginCustomerRequestDTO $data, SalesChannelContext $context): Response
     {
-        EmailIdnConverter::encodeDataBag($data);
-        $email = (string) $data->get('email', $data->get('username'));
-
         if ($this->requestStack->getMainRequest() !== null) {
-            $cacheKey = strtolower($email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
+            $cacheKey = strtolower($data->username) . '-' . $this->requestStack->getMainRequest()->getClientIp();
 
             try {
                 $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $cacheKey);
@@ -52,8 +49,8 @@ class LoginRoute extends AbstractLoginRoute
         }
 
         $token = $this->accountService->loginByCredentials(
-            $email,
-            (string) $data->get('password'),
+            $data->username,
+            $data->password,
             $context
         );
 
@@ -61,6 +58,9 @@ class LoginRoute extends AbstractLoginRoute
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
         }
 
-        return new ContextTokenResponse($token);
+        $response = new JsonResponse(new LoginCustomerResponseDTO());
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+
+        return $response;
     }
 }

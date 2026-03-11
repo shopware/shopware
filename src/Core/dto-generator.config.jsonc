@@ -1,0 +1,20 @@
+// To run generation be in this directory and run
+// npx https://pkg.pr.new/@shopware/api-gen@2310 phpDto generate -c ./dto-generator.config.jsonc 
+{
+  // we load schema from local instance -> when all endpoints
+  // are in JSONs we can do this static-only
+  "schemaUrl": "http://localhost:8000/store-api/_info/openapi3.json",
+  "outputDir": ".",
+  // just a prefix for namespace
+  "namespace": "Shopware\\Core",
+  // tag which we want to generate, 
+  // change it for example to "Login & Registration" to 
+  // see all DTOs from that area
+  "tag": "TEMP:GENERATE",
+  // mapping routes to specific directories to keep 
+  // DTOs in proper domains
+  "routes": {
+    "/account/**": "Checkout/Customer/SalesChannel",
+    "/customer-group-registration/config/**": "Checkout/Customer/SalesChannel"
+  }
+}

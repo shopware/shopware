@@ -461,6 +461,67 @@ class ThumbnailServiceTest extends TestCase
         $service->deleteThumbnails(new MediaEntity(), $this->context);
     }
 
+    public function testGenerateSkipsExternalMediaCompletely(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('external-thumb-id-1');
+        $mediaThumbnailEntity->setPath('http://localhost:8000/thumb.jpg');
+        $mediaThumbnailEntity->setWidth(200);
+        $mediaThumbnailEntity->setHeight(200);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('http://localhost:8000/image.jpg');
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
+
+        static::assertSame(0, $result);
+        static::assertEmpty($this->thumbnailRepository->deletes);
+    }
+
+    public function testUpdateThumbnailsSkipsExternalMedia(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('external-thumb-id-1');
+        $mediaThumbnailEntity->setPath('http://localhost:8000/thumb.jpg');
+        $mediaThumbnailEntity->setWidth(200);
+        $mediaThumbnailEntity->setHeight(200);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('http://localhost:8000/image.jpg');
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->updateThumbnails($media, $this->context, false);
+
+        static::assertSame(0, $result);
+        static::assertEmpty($this->thumbnailRepository->deletes);
+    }
+
+    public function testUpdateThumbnailsDeletesAllThumbnailsForNonImageLocalMedia(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('thumb-id-1');
+        $mediaThumbnailEntity->setPath('/path/to/thumb.pdf');
+        $mediaThumbnailEntity->setWidth(100);
+        $mediaThumbnailEntity->setHeight(100);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('/path/to/file.pdf');
+        $media->setMediaType(new DocumentType());
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->updateThumbnails($media, $this->context, false);
+
+        static::assertSame(0, $result);
+        static::assertCount(1, $this->thumbnailRepository->deletes);
+    }
+
     private function createMediaEntity(MediaThumbnailEntity $mediaThumbnailEntity, MediaFolderEntity $mediaFolderEntity): MediaEntity
     {
         $mediaEntity = new MediaEntity();

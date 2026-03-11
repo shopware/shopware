@@ -6,7 +6,7 @@
 
 ## Default CMS page ID now persisted for categories
 
-Now the default CMS page ID is automatically written to the database when a category is saved without a `cmsPageId`. A migration also backfills all existing categories that have no CMS page assigned.
+The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
 
 The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` will be removed without replacement.
 

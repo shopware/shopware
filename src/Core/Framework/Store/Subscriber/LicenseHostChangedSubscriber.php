@@ -42,8 +42,8 @@ class LicenseHostChangedSubscriber implements EventSubscriberInterface
         }
 
         // The shop secret & IAP key is unique for each license host and thus cannot remain the same
-        $this->systemConfigService->delete(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET);
-        $this->systemConfigService->delete(InAppPurchaseProvider::CONFIG_STORE_IAP_KEY);
+        $this->systemConfigService->delete(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, null, true);
+        $this->systemConfigService->delete(InAppPurchaseProvider::CONFIG_STORE_IAP_KEY, null, false);
 
         // Log out all users to enforce re-authentication
         $this->connection->executeStatement('UPDATE user SET store_token = NULL');

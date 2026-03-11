@@ -383,6 +383,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             const consentStore = useConsentStore();
             const eventBusOnSpy = jest.spyOn(Shopware.Utils.EventBus, 'on');
 
+            jest.useFakeTimers();
             consentStore.consents.product_analytics.status = 'revoked';
 
             await initAmplitude();
@@ -403,6 +404,12 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
             await flushPromises();
 
+            expect(init).not.toHaveBeenCalled();
+            expect(eventBusOnSpy).not.toHaveBeenCalledWith('telemetry', expect.any(Function));
+
+            jest.runOnlyPendingTimers();
+            await flushPromises();
+
             expect(init).toHaveBeenCalledTimes(1);
             expect(eventBusOnSpy).toHaveBeenCalledWith('telemetry', expect.any(Function));
             expect(setOptOut).toHaveBeenCalledWith(false);
@@ -420,6 +427,64 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             );
 
             expect(track.mock.calls).toHaveLength(1);
+
+            jest.useRealTimers();
+        });
+
+        it('does not start telemetry before the deferred runtime activation finishes', async () => {
+            const { track } = await import('@amplitude/analytics-browser');
+            const consentStore = useConsentStore();
+
+            jest.useFakeTimers();
+            consentStore.consents.product_analytics.status = 'revoked';
+
+            await initAmplitude();
+            track.mockClear();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'accepted',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('page_change', {
+                    from: { name: 'sw.dashboard.index', path: '/sw/dashboard/index' },
+                    to: {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        fullPath: '/sw-product/index?order=asc&page=1&limit=50',
+                    },
+                }),
+            );
+
+            expect(track).not.toHaveBeenCalled();
+
+            jest.runOnlyPendingTimers();
+            await flushPromises();
+
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('page_change', {
+                    from: { name: 'sw.dashboard.index', path: '/sw/dashboard/index' },
+                    to: {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        fullPath: '/sw-product/index?order=asc&page=1&limit=50',
+                    },
+                }),
+            );
+
+            expect(track.mock.calls).toHaveLength(1);
+
+            jest.useRealTimers();
         });
 
         it('does not send consent events when gateway base url is missing', async () => {

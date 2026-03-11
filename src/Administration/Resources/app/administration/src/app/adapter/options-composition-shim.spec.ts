@@ -343,6 +343,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="doubled">Doubled: {{ doubled }}</div>
+                    <button @click="doubled = 8">Set doubled</button>
                 `,
                 setup: (props, context) =>
                     createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
@@ -382,6 +383,12 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             // getter: 5 * 4 = 20
             expect(wrapper.find('.doubled').text()).toBe('Doubled: 20');
+
+            // setter: doubled = 8 → count = 8 / 4 = 2, getter: 2 * 4 = 8
+            await wrapper.find('button').trigger('click');
+            await flushPromises();
+            expect(wrapper.find('.count').text()).toBe('Count: 2');
+            expect(wrapper.find('.doubled').text()).toBe('Doubled: 8');
         });
 
         it('should allow computed to access previousState values via this', async () => {

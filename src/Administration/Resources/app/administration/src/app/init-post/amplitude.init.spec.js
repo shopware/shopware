@@ -1,3 +1,4 @@
+import { CookieStorage } from 'cookie-storage';
 import initAmplitude from './amplitude.init';
 import { TelemetryEvent } from '../../core/telemetry/types';
 import { ConsentEvent } from '../../core/consent/events';
@@ -26,6 +27,7 @@ jest.mock('@amplitude/analytics-browser', () => ({
 
 describe('src/app/post-init/amplitude.init.ts', () => {
     let mockLoginService;
+    let storage;
     const testShopId = 'knneBsx7LiKySnUq';
     const testUserId = '8b8ebef4-7fa3-4844-ab7e-120463ea558b';
 
@@ -41,9 +43,16 @@ describe('src/app/post-init/amplitude.init.ts', () => {
         global.fetch = jest.fn(() => Promise.resolve({ ok: true }));
         document.cookie = `${amplitudeCookieName}=test-value`;
         document.cookie = `${amplitudeMarketingCookieName}=test-value`;
+        storage = new CookieStorage({
+            path: '/',
+            domain: null,
+            secure: false,
+            sameSite: 'Lax',
+        });
 
         mockLoginService = {
             addOnLogoutListener: jest.fn(),
+            getStorage: jest.fn(() => storage),
         };
 
         Shopware.Service = jest.fn((serviceName) => {
@@ -321,7 +330,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
         });
 
         it('stops telemetry after consent is revoked during runtime', async () => {
-            const { createInstance, reset, setOptOut, setUserId } = await import('@amplitude/analytics-browser');
+            const { createInstance, reset, setOptOut } = await import('@amplitude/analytics-browser');
             const consentStore = useConsentStore();
             const eventBusOffSpy = jest.spyOn(Shopware.Utils.EventBus, 'off');
 
@@ -357,7 +366,6 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             });
             expect(mockDeleteUserAmplitudeClient.flush).toHaveBeenCalledTimes(1);
             expect(setOptOut).toHaveBeenCalledWith(true);
-            expect(setUserId).toHaveBeenCalledWith(undefined);
             expect(reset).toHaveBeenCalled();
             expect(document.cookie).not.toContain(`${amplitudeCookieName}=`);
             expect(document.cookie).not.toContain(`${amplitudeMarketingCookieName}=`);

@@ -11,23 +11,20 @@ export default function clearAmplitudeCookies(): void {
         return;
     }
 
-    const amplitudeCookieName = `AMP_${getAmplitudeBrowserApiKeyPrefix()}`;
-    const amplitudeMarketingCookieName = `AMP_MKTG_${getAmplitudeBrowserApiKeyPrefix()}`;
+    const loginService = Shopware.Service('loginService');
+    const storage = loginService?.getStorage();
 
-    const cookieNames = document.cookie
-        .split(';')
-        .map((cookie) => cookie.trim().split('=')[0])
-        .filter((cookieName) => cookieName === amplitudeCookieName || cookieName === amplitudeMarketingCookieName);
-
-    if (cookieNames.length === 0) {
+    if (!storage) {
         return;
     }
 
-    cookieNames.forEach((cookieName) => {
-        expireCookie(cookieName);
-    });
-}
+    const basePath = Shopware.Context?.api?.basePath;
 
-function expireCookie(cookieName: string): void {
-    document.cookie = `${cookieName}=; Max-Age=0; path=/; SameSite=Lax`;
+    [`AMP_${getAmplitudeBrowserApiKeyPrefix()}`, `AMP_MKTG_${getAmplitudeBrowserApiKeyPrefix()}`].forEach((cookieName) => {
+        if (typeof basePath === 'string') {
+            storage.removeItem(cookieName, { path: basePath });
+        }
+
+        storage.removeItem(cookieName);
+    });
 }

@@ -125,7 +125,6 @@ export default async function (): Promise<void> {
             privacyAmplitude.flush();
         }
         amplitude.setOptOut(true);
-        amplitude.setUserId(undefined);
         amplitude.flush();
         amplitude.reset();
         clearAmplitudeCookies();

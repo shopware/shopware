@@ -18,6 +18,7 @@
     position: absolute;
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-width: none; /* Hide scrollbar */
     inset: 0;
 }
 

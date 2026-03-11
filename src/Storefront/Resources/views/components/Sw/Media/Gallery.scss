@@ -8,13 +8,16 @@
 }
 
 .sw-media-gallery--thumbnail-nav-underneath {
-    grid-template-columns: 1fr;
+    grid-template-columns: 100%;
     grid-template-rows: max-content 1fr;
+
+    .sw-media-gallery__thumbnail-nav {
+        order: 2;
+    }
 }
 
 .sw-media-gallery__previews {
     overflow: hidden;
-    background-color: var(--bs-gray-200);
     flex: 1;
     min-width: 0;
 }
@@ -25,16 +28,4 @@
 
 .sw-media-gallery__preview {
     cursor: zoom-in;
-}
-
-.sw-media-gallery__fullscreen-image-media {
-    cursor: zoom-in;
-    transition: transform 0.1s ease-in-out;
-    transform: scale(1);
-    transform-origin: center center;
-}
-
-.sw-media-gallery__fullscreen-image-media.is--zoomed {
-    transform: scale(1.8);
-    cursor: zoom-out;
 }

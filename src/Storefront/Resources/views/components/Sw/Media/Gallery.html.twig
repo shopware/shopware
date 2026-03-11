@@ -3,11 +3,17 @@
 {# @internal #}
 
 {#
+    @prop displayMode - String 'original' | 'fixedHeight'
     @prop mediaItems - Array of Shopware\Core\Content\Media
     @prop thumbnailSize - Number - The size of the thumbnail in pixels
+    @prop thumbnailNavigationPosition - String 'left' | 'underneath'
+    @prop showNavigationArrows - Boolean - Show the navigation arrows
+    @prop showMagnifier - Boolean - Show the magnifier
+    @prop useSchemaMarkup - Boolean - Use itemprop schema markup for SEO
+    @prop showFullScreenGallery - Boolean - Show the full screen gallery
 #}
 
-{% props 
+{% props
     mediaItems,
     displayMode = 'original',
     thumbnailSize = 70,
@@ -25,15 +31,20 @@
             left: 'sw-media-gallery--thumbnail-nav-left',
             underneath: 'sw-media-gallery--thumbnail-nav-underneath',
         },
+        displayMode: {
+            original: 'sw-media-gallery--display-mode-original',
+            fixedHeight: 'sw-media-gallery--display-mode-fixed-height',
+        },
     },
 }) %}
 
 {% set mediaGalleryOptions = {
     showMagnifier,
+    thumbnailNavigationPosition,
 } %}
 
 {% set defaultAttributes = {
-    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition }),
+    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode }),
     'data-component': 'Sw:Media:Gallery',
     'data-component-options': mediaGalleryOptions|json_encode,
 } %}
@@ -62,40 +73,10 @@
     </div>
 </div>
 
-<twig:Sw:Content:Modal
-    id="sw-media-gallery-modal"
-    title="Media Gallery"
-    size="full"
-    :fullscreen="true"
->
-    <twig:block name="modal_content">
-
-        <button
-            type="button"
-            class="btn btn-light"
-            data-bs-dismiss="modal"
-            aria-label="{{ closeLabel }}"
-            style="position: absolute; padding: 0;top: 1rem; right: 1rem; width: 40px; height: 40px; z-index: 1;">
-            <twig:Sw:Icon name="x" size="sm" />
-        </button>
-
-        <div style="display: grid; grid-template-columns: 70px 1fr; padding: 1rem;">
-
-            <twig:Sw:Media:ThumbnailNav 
-                :mediaItems="mediaItems" 
-                :thumbnailSize="thumbnailSize"
-            />
-
-            <div class="sw-media-gallery__fullscreen-image" style="overflow: scroll;">
-                {% for mediaItem in mediaItems %}
-                    <twig:Sw:Media 
-                        :hidden="not loop.first"
-                        class="sw-media-gallery__fullscreen-image-media img-fluid"
-                        :media="mediaItem"
-                    />
-                {% endfor %}
-            </div>
-        </div>
-    </twig:block>
-
-</twig:Sw:Content:Modal>
+{% if showFullScreenGallery %}
+    <twig:Sw:Media:GalleryLightbox
+        id="sw-media-gallery-modal"
+        :mediaItems="mediaItems"
+        :thumbnailSize="thumbnailSize"
+    />
+{% endif %}

@@ -1,0 +1,52 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    mediaItems,
+    thumbnailSize = 70,
+%}
+
+{% set galleryLightboxCVA = cva({
+    base: 'sw-media-gallery-lightbox',
+}) %}
+
+{% set defaultAttributes = {
+    class: galleryLightboxCVA.apply({}),
+    id: 'sw-media-gallery-modal',
+    size: 'full',
+    fullscreen: true,
+} %}
+
+<twig:Sw:Content:Modal {{ ...attributes.defaults(defaultAttributes)}}>
+    <twig:block name="modal_content">
+
+        <button
+            type="button"
+            class="btn btn-light"
+            data-bs-dismiss="modal"
+            aria-label="{{ closeLabel }}"
+            style="position: absolute; padding: 0;top: 1rem; right: 1rem; width: 40px; height: 40px; z-index: 1;">
+            <twig:Sw:Icon name="x" size="sm" />
+        </button>
+
+        <div class="sw-media-gallery-lightbox__content">
+
+            <twig:Sw:Media:ThumbnailNav 
+                :mediaItems="mediaItems" 
+                :thumbnailSize="thumbnailSize"
+            />
+
+            <div class="sw-media-gallery__fullscreen-image" style="overflow: scroll;">
+                {% for mediaItem in mediaItems %}
+                    <twig:Sw:Media 
+                        :hidden="not loop.first"
+                        class="sw-media-gallery__fullscreen-image-media img-fluid"
+                        :media="mediaItem"
+                    />
+                {% endfor %}
+            </div>
+        </div>
+    </twig:block>
+
+</twig:Sw:Content:Modal>

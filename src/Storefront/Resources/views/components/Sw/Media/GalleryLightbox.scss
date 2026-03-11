@@ -1,0 +1,31 @@
+.sw-media-gallery-lightbox {
+    overflow: hidden;
+}
+
+.sw-media-gallery-lightbox__content {
+    display: grid; 
+    grid-template-columns: 70px 1fr; 
+    grid-gap: 1rem;
+    padding: 1rem;
+    height: 100vh;
+}
+
+.sw-media-gallery__fullscreen-image {
+    overflow: scroll;
+    display: flex;
+    place-content: center;
+    scrollbar-width: none; // Hide scrollbar
+}
+
+.sw-media-gallery__fullscreen-image-media {
+    cursor: zoom-in;
+    transition: transform 0.1s ease-in-out;
+    transform: scale(1);
+    transform-origin: center center;
+    height: 100%;
+}
+
+.sw-media-gallery__fullscreen-image-media.is--zoomed {
+    transform: scale(1.8);
+    cursor: zoom-out;
+}

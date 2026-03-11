@@ -204,8 +204,8 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
 
         await wrapper.find('.sw-order-select-document-type-modal__type-switch input').setChecked(true);
 
-        expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(3);
-        expect(wrapper.findAll('.is--disabled')).toHaveLength(3);
+        expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(1);
+        expect(wrapper.findAll('.is--disabled')).toHaveLength(1);
     });
 
     it('should not add help text & disable if invoice is already created', async () => {

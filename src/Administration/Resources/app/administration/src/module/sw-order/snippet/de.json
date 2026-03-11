@@ -628,8 +628,6 @@
         "helpText": {
           "storno": "Eine Stornorechnung kann nicht ohne Rechnung erstellt werden.",
           "credit_note": "Um eine Gutschrift zu erstellen, fügen Sie zunächst eine Gutschriftsposition hinzu.",
-          "zugferd_invoice": "Eine ZUGFeRD Rechnung kann nicht ohne Rechnung erstellt werden.",
-          "zugferd_embedded_invoice": "Eine eingebettete ZUGFeRD Rechnung kann nicht ohne Rechnung erstellt werden.",
           "zugferd_cancellation_invoice": "Eine ZUGFeRD Stornorechnung kann nicht ohne Rechnung erstellt werden."
         }
       }

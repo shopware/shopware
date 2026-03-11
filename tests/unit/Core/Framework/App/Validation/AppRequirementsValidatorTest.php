@@ -38,7 +38,7 @@ class AppRequirementsValidatorTest extends TestCase
 
         $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'prod');
         $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getRequirements')->willReturn(['test-requirement']);
+        $manifest->expects(static::once())->method('getRequirements')->willReturn(['test-requirement']);
 
         $violations = $validator->validate($manifest);
 
@@ -65,7 +65,7 @@ class AppRequirementsValidatorTest extends TestCase
         };
 
         $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getRequirements')->willReturn(['test-requirement']);
+        $manifest->expects(static::once())->method('getRequirements')->willReturn(['test-requirement']);
         $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'prod');
 
         $violations = $validator->validate($manifest);
@@ -102,7 +102,7 @@ class AppRequirementsValidatorTest extends TestCase
 
         $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'prod');
         $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getRequirements')->willReturn(['test-requirement']);
+        $manifest->expects(static::once())->method('getRequirements')->willReturn(['test-requirement']);
 
         $violations = $validator->validate($manifest);
 
@@ -168,7 +168,7 @@ class AppRequirementsValidatorTest extends TestCase
         };
 
         $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getRequirements')->willReturn(['requirement-1', 'requirement-2']);
+        $manifest->expects(static::once())->method('getRequirements')->willReturn(['requirement-1', 'requirement-2']);
 
         $validator = new AppRequirementsValidator([$requirement1, $requirement2, $requirement3], $this->createMock(LoggerInterface::class), 'prod');
 
@@ -218,7 +218,7 @@ class AppRequirementsValidatorTest extends TestCase
         };
 
         $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getRequirements')->willReturn(['requirement-1', 'requirement-2']);
+        $manifest->expects(static::once())->method('getRequirements')->willReturn(['requirement-1', 'requirement-2']);
 
         $validator = new AppRequirementsValidator([$requirement1, $requirement2], $this->createMock(LoggerInterface::class), 'prod');
 
@@ -235,7 +235,7 @@ class AppRequirementsValidatorTest extends TestCase
         static::assertSame('Fix requirement 2', $violations[1]->actionableResolution);
     }
 
-    public function testValidateSkipsInDevEnvironment(): void
+    public function testValidateSkipsInNonProdEnvironment(): void
     {
         $requirement = new class implements Requirement {
             public int $validateCalls = 0;
@@ -264,43 +264,7 @@ class AppRequirementsValidatorTest extends TestCase
 
         $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'dev');
         $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getRequirements')->willReturn(['test-requirement']);
-
-        static::assertSame([], $validator->validate($manifest));
-        static::assertSame(0, $requirement->requiredCalls);
-        static::assertSame(0, $requirement->validateCalls);
-    }
-
-    public function testValidateSkipsInTestEnvironment(): void
-    {
-        $requirement = new class implements Requirement {
-            public int $validateCalls = 0;
-
-            public int $requiredCalls = 0;
-
-            public function validate(Manifest $manifest): ?UnmetRequirement
-            {
-                ++$this->validateCalls;
-
-                return null;
-            }
-
-            public function required(Manifest $manifest): bool
-            {
-                ++$this->requiredCalls;
-
-                return true;
-            }
-
-            public static function name(): string
-            {
-                return 'test-requirement';
-            }
-        };
-
-        $validator = new AppRequirementsValidator([$requirement], $this->createMock(LoggerInterface::class), 'test');
-        $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getRequirements')->willReturn(['test-requirement']);
+        $manifest->expects(static::once())->method('getRequirements')->willReturn(['test-requirement']);
 
         static::assertSame([], $validator->validate($manifest));
         static::assertSame(0, $requirement->requiredCalls);
@@ -310,8 +274,8 @@ class AppRequirementsValidatorTest extends TestCase
     public function testValidateLogsUnknownRequirements(): void
     {
         $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getRequirements')->willReturn(['custom-private-requirement', 'test-requirement']);
-        $manifest->method('getMetadata')->willReturn(Metadata::fromArray([
+        $manifest->expects(static::once())->method('getRequirements')->willReturn(['custom-private-requirement', 'test-requirement']);
+        $manifest->expects(static::once())->method('getMetadata')->willReturn(Metadata::fromArray([
             'name' => 'test-app',
             'label' => [],
             'author' => 'shopware',

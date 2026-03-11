@@ -74,7 +74,7 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
             $response = $this->guzzle->get($healthCheckUrl, [
                 RequestOptions::TIMEOUT => 1,
                 RequestOptions::CONNECT_TIMEOUT => 1,
-                RequestOptions::ALLOW_REDIRECTS => ['max' => 3],
+                RequestOptions::ALLOW_REDIRECTS => false,
             ]);
 
             if ($response->getStatusCode() === Response::HTTP_OK) {
@@ -82,6 +82,12 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
 
                 return null;
             }
+
+            return $this->fail($manifest, \sprintf(
+                'Health check at "%s" returned HTTP %d. Ensure the Shopware instance is running and publicly reachable.',
+                $healthCheckUrl,
+                $response->getStatusCode()
+            ));
         } catch (RequestException $e) {
             $response = $e->getResponse();
             if ($response !== null) {
@@ -102,8 +108,6 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
                 $healthCheckUrl
             ));
         }
-
-        return $this->fail($manifest, $this->failureReason);
     }
 
     private function fail(Manifest $manifest, string $reason): UnmetRequirement

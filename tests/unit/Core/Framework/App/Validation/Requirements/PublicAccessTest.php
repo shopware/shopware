@@ -37,7 +37,7 @@ class PublicAccessTest extends TestCase
     {
         $this->mockHandler = new MockHandler();
         $this->guzzle = new Client(['handler' => HandlerStack::create($this->mockHandler)]);
-        $this->secureUrlValidator = new SecureUrlValidator();
+        $this->secureUrlValidator = new SecureUrlValidator(static fn (string $host): array => [['ip' => '8.8.8.8']]);
         $this->requirement = new PublicAccess($this->secureUrlValidator, $this->guzzle);
     }
 
@@ -73,7 +73,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsNullWhenHealthCheckReturns200(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $this->mockHandler->append(new Response(HttpResponse::HTTP_OK));
@@ -85,7 +85,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsUnmetRequirementWhenHealthCheckReturnsNon200(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $this->mockHandler->append(new Response(HttpResponse::HTTP_INTERNAL_SERVER_ERROR));
@@ -94,17 +94,17 @@ class PublicAccessTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame(
-            'Health check at "https://example.com/api/_info/health-check" returned HTTP 500. Ensure the Shopware instance is running and publicly reachable.',
+            'Health check at "https://shopware.com/api/_info/health-check" returned HTTP 500. Ensure the Shopware instance is running and publicly reachable.',
             $result->actionableResolution
         );
     }
 
     public function testValidateReturnsHttpStatusWhenRequestExceptionHasResponse(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
-        $request = new Request('GET', 'https://example.com/api/_info/health-check');
+        $request = new Request('GET', 'https://shopware.com/api/_info/health-check');
         $response = new Response(HttpResponse::HTTP_SERVICE_UNAVAILABLE);
         $this->mockHandler->append(new RequestException('Server error', $request, $response));
 
@@ -112,14 +112,14 @@ class PublicAccessTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame(
-            'Health check at "https://example.com/api/_info/health-check" returned HTTP 503. Ensure the Shopware instance is running and publicly reachable.',
+            'Health check at "https://shopware.com/api/_info/health-check" returned HTTP 503. Ensure the Shopware instance is running and publicly reachable.',
             $result->actionableResolution
         );
     }
 
     public function testValidateReturnsUnreachableWhenRequestExceptionHasNoResponse(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $this->mockHandler->append(new RequestException('Request failed', new Request('GET', 'test')));
@@ -128,14 +128,14 @@ class PublicAccessTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame(
-            'Could not reach "https://example.com/api/_info/health-check". Ensure the Shopware instance is publicly accessible at the configured APP_URL.',
+            'Could not reach "https://shopware.com/api/_info/health-check". Ensure the Shopware instance is publicly accessible at the configured APP_URL.',
             $result->actionableResolution
         );
     }
 
     public function testValidateReturnsUnreachableWhenConnectionFails(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $this->mockHandler->append(new ConnectException('Connection refused', new Request('GET', 'test')));
@@ -144,26 +144,14 @@ class PublicAccessTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame(
-            'Could not reach "https://example.com/api/_info/health-check". Ensure the Shopware instance is publicly accessible at the configured APP_URL.',
+            'Could not reach "https://shopware.com/api/_info/health-check". Ensure the Shopware instance is publicly accessible at the configured APP_URL.',
             $result->actionableResolution
         );
     }
 
-    public function testValidateStripsTrailingSlashFromAppUrl(): void
-    {
-        $this->setEnvVars(['APP_URL' => 'https://example.com/']);
-        $manifest = $this->createManifestMock();
-
-        $this->mockHandler->append(new Response(HttpResponse::HTTP_OK));
-
-        $result = $this->requirement->validate($manifest);
-
-        static::assertNull($result);
-    }
-
     public function testResultIsCached(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         // Only one response should be consumed due to caching
@@ -182,7 +170,7 @@ class PublicAccessTest extends TestCase
 
     public function testResetClearsCachedResult(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         // First response: success

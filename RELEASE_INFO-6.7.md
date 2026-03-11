@@ -18,6 +18,30 @@ To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` featur
 Customers can now conveniently submit revocation requests through an online form.
 Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
 
+### External media thumbnail support
+
+External media entities can now have external thumbnail URLs attached to them, which is useful for CDNs that provide pre-generated thumbnails alongside the main media file.
+
+Two new API endpoints have been added:
+- `POST /api/_action/media/{id}/external-thumbnails` - Add thumbnails to existing external media
+- `DELETE /api/_action/media/{id}/external-thumbnails` - Remove all external thumbnails from media
+
+Both endpoints require the target media entity to be external (i.e. its path must be an HTTP/HTTPS URL). Attempting to call them on regular file-based media returns an error.
+
+When creating external media via `POST /api/_action/media/external-link`, you can now provide an optional `thumbnails` array directly in the request body:
+
+```json
+{
+  "url": "https://cdn.example.com/image.jpg",
+  "thumbnails": [
+    { "url": "https://cdn.example.com/image-200x200.jpg", "width": 200, "height": 200 },
+    { "url": "https://cdn.example.com/image-400x400.jpg", "width": 400, "height": 400 }
+  ]
+}
+```
+
+The same `thumbnails` payload shape is accepted by `POST /api/_action/media/{id}/external-thumbnails`.
+
 ## API
 
 ### Deprecation of newsletter route methods
@@ -74,7 +98,7 @@ Product main categories are now inherited from parent product if not explicitly 
 
 ### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
 
-The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed.
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed. 
 But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
 This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
 Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
@@ -306,6 +330,14 @@ This is done by changing the DOM within the `aria-live` region after a short del
 ### Fixed custom headers for app flow action webhooks in async mode
 
 Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
+
+### New webhook event: `app.system_heartbeat`
+
+A new hookable event `app.system_heartbeat` was added to indicate that a Shopware instance is up and running.
+This gives app developers a lightweight, platform-native heartbeat signal they can use for operational monitoring or connectivity checks without relying on custom polling.
+
+The heartbeat is emitted by a recurrent scheduled task on a weekly basis, so apps should treat it as a periodic liveness signal, not as a strict scheduling mechanism or real-time telemetry signal.
+No additional ACL privileges are required for this event.
 
 ## Hosting & Configuration
 

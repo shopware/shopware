@@ -47,7 +47,7 @@ All requirement validators implement a common `Requirement` interface with metho
 
 **3. Validator Architecture**
 - `AppRequirementsValidator` orchestrates validation across all registered requirement validators
-- Individual requirement classes (e.g., `RequiresPublicAccess`) handle specific validation logic
+- Individual requirement classes (e.g., `PublicAccess`) handle specific validation logic
 - Dependency injection allows easy extension with new requirement types
 
 **4. Integration Points**
@@ -57,7 +57,7 @@ Requirements validation is integrated into:
 - Clear error reporting through `AppException::requirementsNotMet()`
 
 **5. Initial Implementation**
-The first requirement validator `RequiresPublicAccess` validates that:
+The first requirement validator `PublicAccess` validates that:
 - The `APP_URL` environment variable is configured
 - The URL uses HTTPS scheme
 - The URL is not a localhost or IP address
@@ -96,6 +96,6 @@ The system is designed for easy extension:
 - The feature is opt-in through manifest declarations
 - Existing apps continue to function without modification
 - New apps can gradually adopt requirement declarations as needed
-- The `RequiresPublicAccess` validator includes caching to minimize performance impact
+- The `PublicAccess` validator includes caching to minimize performance impact
 
 This implementation establishes a foundation for reliable app deployment while maintaining backward compatibility and providing clear guidance for both app developers and platform administrators.

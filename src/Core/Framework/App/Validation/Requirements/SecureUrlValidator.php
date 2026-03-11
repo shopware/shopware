@@ -31,9 +31,11 @@ readonly class SecureUrlValidator
     ];
 
     private const RESERVED_EXACT = [
+        'example.com',
         'example.net',
         'example.org',
         'home.arpa',
+        'localdomain',
     ];
 
     /**
@@ -59,6 +61,8 @@ readonly class SecureUrlValidator
         if (!\is_string($host)) {
             return false;
         }
+
+        $host = rtrim($host, '.');
 
         if (!$this->hasHttpsScheme($url)) {
             return false;

@@ -16,7 +16,7 @@ class SecureUrlValidatorTest extends TestCase
     #[DataProvider('urlValidationProvider')]
     public function testUrlValidation(string $url, bool $expected): void
     {
-        $validator = new SecureUrlValidator(static fn (string $host): array => [['ip' => '203.0.113.1']]);
+        $validator = new SecureUrlValidator(static fn (string $host): array => [['ip' => '8.8.8.8']]);
 
         static::assertSame($expected, $validator->isValidTarget($url));
     }
@@ -24,23 +24,23 @@ class SecureUrlValidatorTest extends TestCase
     public static function urlValidationProvider(): \Generator
     {
         // Valid URLs
-        yield 'HTTPS domain' => ['https://example.com', true];
-        yield 'HTTPS domain with port' => ['https://example.com:8443', true];
-        yield 'HTTPS domain with path' => ['https://example.com/path', true];
-        yield 'HTTPS subdomain' => ['https://shop.example.com', true];
-        yield 'HTTPS domain with query params' => ['https://example.com?param=value', true];
-        yield 'HTTPS domain with fragment' => ['https://example.com#fragment', true];
-        yield 'HTTPS domain with complex path' => ['https://example.com/path/to/resource', true];
+        yield 'HTTPS domain' => ['https://shopware.com', true];
+        yield 'HTTPS domain with port' => ['https://shopware.com:8443', true];
+        yield 'HTTPS domain with path' => ['https://shopware.com/path', true];
+        yield 'HTTPS subdomain' => ['https://shop.shopware.com', true];
+        yield 'HTTPS domain with query params' => ['https://shopware.com?param=value', true];
+        yield 'HTTPS domain with fragment' => ['https://shopware.com#fragment', true];
+        yield 'HTTPS domain with complex path' => ['https://shopware.com/path/to/resource', true];
 
         // Invalid URLs - HTTP instead of HTTPS
-        yield 'HTTP URL' => ['http://example.com', false];
-        yield 'HTTP with port' => ['http://example.com:8080', false];
+        yield 'HTTP URL' => ['http://shopware.com', false];
+        yield 'HTTP with port' => ['http://shopware.com:8080', false];
 
         // Invalid URLs - No scheme or wrong scheme
-        yield 'No scheme' => ['example.com', false];
-        yield 'Protocol relative' => ['//example.com', false];
-        yield 'FTP scheme' => ['ftp://example.com', false];
-        yield 'File scheme' => ['file://example.com', false];
+        yield 'No scheme' => ['shopware.com', false];
+        yield 'Protocol relative' => ['//shopware.com', false];
+        yield 'FTP scheme' => ['ftp://shopware.com', false];
+        yield 'File scheme' => ['file://shopware.com', false];
 
         // Invalid URLs - IP addresses
         yield 'IPv4 address' => ['https://192.168.1.1', false];
@@ -64,10 +64,19 @@ class SecureUrlValidatorTest extends TestCase
         yield '.invalid TLD' => ['https://myshop.invalid', false];
         yield '.onion TLD' => ['https://hidden.onion', false];
         yield '.home.arpa TLD' => ['https://mydevice.home.arpa', false];
+        yield 'example.com exact' => ['https://example.com', false];
         yield 'example.net exact' => ['https://example.net', false];
         yield 'example.org exact' => ['https://example.org', false];
         yield 'home.arpa exact' => ['https://home.arpa', false];
+        yield 'localdomain exact' => ['https://localdomain', false];
         yield 'nested .test subdomain' => ['https://deep.sub.myshop.test', false];
+
+        // Invalid URLs - Reserved domains with trailing dot (FQDN notation)
+        yield 'Localhost with trailing dot' => ['https://localhost.', false];
+        yield '.test with trailing dot' => ['https://myshop.test.', false];
+        yield '.local with trailing dot' => ['https://myshop.local.', false];
+        yield 'example.com with trailing dot' => ['https://example.com.', false];
+        yield 'example.net with trailing dot' => ['https://example.net.', false];
 
         // Invalid URLs - Malformed
         yield 'Invalid URL' => ['not-a-url', false];
@@ -77,23 +86,23 @@ class SecureUrlValidatorTest extends TestCase
 
     public function testPublicIpv4Passes(): void
     {
-        $validator = new SecureUrlValidator(static fn (string $host): array => [['ip' => '203.0.113.1']]);
+        $validator = new SecureUrlValidator(static fn (string $host): array => [['ip' => '8.8.8.8']]);
 
-        static::assertTrue($validator->isValidTarget('https://myshop.com'));
+        static::assertTrue($validator->isValidTarget('https://shopware.com'));
     }
 
     public function testPublicIpv6Passes(): void
     {
-        $validator = new SecureUrlValidator(static fn (string $host): array => [['ipv6' => '2001:db8::1']]);
+        $validator = new SecureUrlValidator(static fn (string $host): array => [['ipv6' => '2001:4860:4860::8888']]);
 
-        static::assertTrue($validator->isValidTarget('https://myshop.com'));
+        static::assertTrue($validator->isValidTarget('https://shopware.com'));
     }
 
     public function testUnresolvableHostFails(): void
     {
         $validator = new SecureUrlValidator(static fn (string $host): array => []);
 
-        static::assertFalse($validator->isValidTarget('https://myshop.com'));
+        static::assertFalse($validator->isValidTarget('https://shopware.com'));
     }
 
     /**
@@ -104,7 +113,7 @@ class SecureUrlValidatorTest extends TestCase
     {
         $validator = new SecureUrlValidator(static fn (string $host): array => [$record]);
 
-        static::assertFalse($validator->isValidTarget('https://myshop.com'));
+        static::assertFalse($validator->isValidTarget('https://shopware.com'));
     }
 
     public static function nonPublicIpProvider(): \Generator

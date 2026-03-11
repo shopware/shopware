@@ -110,7 +110,7 @@ readonly class SalesChannelDomainUtil
             }
             $responseTime += microtime(true) - $requestStart;
 
-            if (!($response instanceof RedirectResponse)) {
+            if (!$response instanceof RedirectResponse) {
                 break;
             }
 

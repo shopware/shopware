@@ -29,7 +29,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class DownloadRouteTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<OrderLineItemDownloadCollection> */
+    /**
+     * @var MockObject&EntityRepository<OrderLineItemDownloadCollection>
+     */
     private MockObject&EntityRepository $downloadRepository;
 
     private MockObject&DownloadResponseGenerator $downloadResponseGenerator;

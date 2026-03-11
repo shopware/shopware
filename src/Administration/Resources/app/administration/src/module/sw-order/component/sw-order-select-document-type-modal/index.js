@@ -178,12 +178,16 @@ export default {
         },
 
         onRadioFieldChange() {
+            if (!this.documentType) {
+                return;
+            }
+
             this.$emit('update:value', this.documentTypeCollection.get(this.documentType));
         },
 
         onChangeShowZugferd() {
             this.showZugferd = !this.showZugferd;
-            this.documentType = this.filteredDocumentTypes.find((documentType) => !documentType.disabled).value || null;
+            this.documentType = this.filteredDocumentTypes.find((documentType) => !documentType.disabled)?.value || null;
 
             this.onRadioFieldChange();
         },

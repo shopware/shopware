@@ -7,8 +7,8 @@ use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -81,7 +81,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
 
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
-        $this->expectException(ShopSecretInvalidException::class);
+        $this->expectExceptionObject(StoreException::shopSecretInvalid());
         $middleware($response, $request);
 
         foreach ($this->fetchAllUserStoreTokens() as $token) {

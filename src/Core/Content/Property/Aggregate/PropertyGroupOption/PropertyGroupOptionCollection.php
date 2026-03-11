@@ -77,6 +77,8 @@ class PropertyGroupOptionCollection extends EntityCollection
      * Performance optimization: By design this skips the expected class validation,
      * should only be used internally, when we need to add a lot of entities, that are already validated.
      *
+     * Also, adds support for PartialEntity to be added.
+     *
      * @param array<PropertyGroupOptionEntity> $options
      */
     public function fillOptions(array $options): void

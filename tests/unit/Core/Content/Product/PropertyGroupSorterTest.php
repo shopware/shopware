@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Content\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\PropertyGroupSorter;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -29,7 +31,20 @@ class PropertyGroupSorterTest extends TestCase
         $sorter->getDecorated();
     }
 
-    public function testSortSkipsInvisibleAndGroupLessOptionsAndGroupsByGroupId(): void
+    /**
+     * @return \Generator<string, array{class-string<PropertyGroupOptionEntity|PartialEntity>}>
+     */
+    public static function optionEntityTypeProvider(): \Generator
+    {
+        yield 'PropertyGroupOptionEntity' => [PropertyGroupOptionEntity::class];
+        yield 'PartialEntity' => [PartialEntity::class];
+    }
+
+    /**
+     * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
+     */
+    #[DataProvider('optionEntityTypeProvider')]
+    public function testSkipsInvisibleAndGroupLessOptionsAndGroupsByGroupId(string $entityType): void
     {
         $visibleGroupId = Uuid::randomHex();
         $visibleGroup = $this->createGroup($visibleGroupId, PropertyGroupDefinition::SORTING_TYPE_POSITION, true);
@@ -37,14 +52,14 @@ class PropertyGroupSorterTest extends TestCase
         $hiddenGroup = $this->createGroup(Uuid::randomHex(), PropertyGroupDefinition::SORTING_TYPE_POSITION, false);
 
         $options = $this->createOptionsCollection(
-            $this->createOption($visibleGroupId, 'blue', 2, $visibleGroup),
-            $this->createOption($visibleGroupId, 'red', 1, $visibleGroup),
-            $this->createOption($hiddenGroup->getId(), 'hidden', 1, $hiddenGroup),
-            $this->createOption(Uuid::randomHex(), 'without-group', 1, null),
+            $this->createOption($entityType, $visibleGroupId, 'blue', 2, $visibleGroup),
+            $this->createOption($entityType, $visibleGroupId, 'red', 1, $visibleGroup),
+            $this->createOption($entityType, $hiddenGroup->getId(), 'hidden', 1, $hiddenGroup),
+            $this->createOption($entityType, Uuid::randomHex(), 'without-group', 1, null),
         );
 
         $sorter = new PropertyGroupSorter();
-        $result = $sorter->sort($options);
+        $result = $sorter->sortUsingLocaleCode($options, 'en-GB');
 
         static::assertCount(1, $result);
 
@@ -55,23 +70,84 @@ class PropertyGroupSorterTest extends TestCase
         static::assertSame(['red', 'blue'], $this->extractOptionNames($group->getOptions()));
     }
 
-    public function testSortUsesProvidedLocaleForPositionTiebreaker(): void
+    /**
+     * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
+     */
+    #[DataProvider('optionEntityTypeProvider')]
+    public function testUsesProvidedLocaleForPositionTiebreaker(string $entityType): void
     {
         $groupId = Uuid::randomHex();
         $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_POSITION, true);
 
         $options = $this->createOptionsCollection(
-            $this->createOption($groupId, 'b', 1, $group),
-            $this->createOption($groupId, 'ä', 1, $group),
+            $this->createOption($entityType, $groupId, 'b', 1, $group),
+            $this->createOption($entityType, $groupId, 'ä', 1, $group),
         );
 
         $sorter = new PropertyGroupSorter();
-        $result = $sorter->sort(...[$options, 'de-DE']);
+        $result = $sorter->sortUsingLocaleCode($options, 'de-DE');
 
         $sortedGroup = $result->first();
         static::assertNotNull($sortedGroup);
         static::assertNotNull($sortedGroup->getOptions());
         static::assertSame(['ä', 'b'], $this->extractOptionNames($sortedGroup->getOptions()));
+    }
+
+    /**
+     * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
+     */
+    #[DataProvider('optionEntityTypeProvider')]
+    public function testSortsAlphanumericallyWhenConfigured(string $entityType): void
+    {
+        $groupId = Uuid::randomHex();
+        $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC, true);
+
+        $options = $this->createOptionsCollection(
+            $this->createOption($entityType, $groupId, 'cherry', 3, $group),
+            $this->createOption($entityType, $groupId, 'apple', 1, $group),
+            $this->createOption($entityType, $groupId, 'banana', 2, $group),
+        );
+
+        $sorter = new PropertyGroupSorter();
+        $result = $sorter->sortUsingLocaleCode($options, 'en-GB');
+
+        $sortedGroup = $result->first();
+        static::assertNotNull($sortedGroup);
+        static::assertNotNull($sortedGroup->getOptions());
+        static::assertSame(['apple', 'banana', 'cherry'], $this->extractOptionNames($sortedGroup->getOptions()));
+    }
+
+    /**
+     * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
+     */
+    #[DataProvider('optionEntityTypeProvider')]
+    public function testGroupsMultipleVisibleGroups(string $entityType): void
+    {
+        $groupAId = Uuid::randomHex();
+        $groupBId = Uuid::randomHex();
+        $groupA = $this->createGroup($groupAId, PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC, true);
+        $groupB = $this->createGroup($groupBId, PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC, true);
+
+        $options = $this->createOptionsCollection(
+            $this->createOption($entityType, $groupAId, 'red', 1, $groupA),
+            $this->createOption($entityType, $groupBId, 'large', 1, $groupB),
+            $this->createOption($entityType, $groupAId, 'blue', 2, $groupA),
+        );
+
+        $sorter = new PropertyGroupSorter();
+        $result = $sorter->sortUsingLocaleCode($options, 'en-GB');
+
+        static::assertCount(2, $result);
+
+        $resultA = $result->get($groupAId);
+        static::assertNotNull($resultA);
+        static::assertNotNull($resultA->getOptions());
+        static::assertSame(['blue', 'red'], $this->extractOptionNames($resultA->getOptions()));
+
+        $resultB = $result->get($groupBId);
+        static::assertNotNull($resultB);
+        static::assertNotNull($resultB->getOptions());
+        static::assertSame(['large'], $this->extractOptionNames($resultB->getOptions()));
     }
 
     private function createGroup(string $id, string $sortingType, bool $visibleOnProductDetailPage): PropertyGroupEntity
@@ -91,7 +167,19 @@ class PropertyGroupSorterTest extends TestCase
         return $group;
     }
 
-    private function createOption(string $groupId, string $name, int $position, ?PropertyGroupEntity $group): PropertyGroupOptionEntity
+    /**
+     * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
+     */
+    private function createOption(string $entityType, string $groupId, string $name, int $position, ?PropertyGroupEntity $group): Entity
+    {
+        if ($entityType === PartialEntity::class) {
+            return $this->createPartialOption($groupId, $name, $position, $group);
+        }
+
+        return $this->createPropertyGroupOption($groupId, $name, $position, $group);
+    }
+
+    private function createPropertyGroupOption(string $groupId, string $name, int $position, ?PropertyGroupEntity $group): PropertyGroupOptionEntity
     {
         $option = new PropertyGroupOptionEntity();
         $option->setId(Uuid::randomHex());
@@ -107,17 +195,32 @@ class PropertyGroupSorterTest extends TestCase
         return $option;
     }
 
+    private function createPartialOption(string $groupId, string $name, int $position, ?PropertyGroupEntity $group): PartialEntity
+    {
+        $option = new PartialEntity();
+        $option->assign([
+            'id' => Uuid::randomHex(),
+            'groupId' => $groupId,
+            'name' => $name,
+            'position' => $position,
+            'group' => $group,
+            'translated' => [
+                'name' => $name,
+                'position' => $position,
+            ],
+        ]);
+
+        return $option;
+    }
+
     /**
      * @return EntityCollection<PropertyGroupOptionEntity|PartialEntity>
      */
-    private function createOptionsCollection(PropertyGroupOptionEntity ...$options): EntityCollection
+    private function createOptionsCollection(Entity ...$options): EntityCollection
     {
-        /** @var EntityCollection<PropertyGroupOptionEntity|PartialEntity> $collection */
         $collection = new EntityCollection();
 
-        foreach ($options as $option) {
-            $collection->add($option);
-        }
+        $collection->fill($options);
 
         return $collection;
     }
@@ -129,7 +232,7 @@ class PropertyGroupSorterTest extends TestCase
     {
         $names = [];
         foreach ($options as $option) {
-            $names[] = (string) ($option->getTranslation('name') ?? $option->getName() ?? '');
+            $names[] = (string) ($option->getTranslation('name') ?? $option->get('name') ?? '');
         }
 
         return $names;

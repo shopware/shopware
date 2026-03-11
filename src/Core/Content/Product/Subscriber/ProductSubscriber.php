@@ -107,8 +107,10 @@ class ProductSubscriber implements EventSubscriberInterface
             $assigns = [];
 
             if (($properties = $product->get('properties')) !== null) {
-                /** @phpstan-ignore-next-line deprecated.method will be fixed with v6.8.0 */
-                $assigns['sortedProperties'] = $this->propertyGroupSorter->sort($properties, $event->getSalesChannelContext()->getLanguageInfo()->localeCode);
+                $assigns['sortedProperties'] = $this->propertyGroupSorter->sortUsingLocaleCode(
+                    $properties,
+                    $event->getSalesChannelContext()->getLanguageInfo()->localeCode,
+                );
             }
 
             $assigns['calculatedMaxPurchase'] = $this->maxPurchaseCalculator->calculate($product, $event->getSalesChannelContext());

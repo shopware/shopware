@@ -209,7 +209,8 @@ class ProductSubscriberTest extends TestCase
         $productVariationBuilder = $this->createMock(ProductVariationBuilder::class);
         $productVariationBuilder->expects($this->once())->method('build');
 
-        $propertyGroupSorter = new PropertyGroupSorter();
+        $propertyGroupSorter = $this->createMock(AbstractPropertyGroupSorter::class);
+        $propertyGroupSorter->expects($this->once())->method('sortUsingLocaleCode');
 
         $subscriber = new ProductSubscriber(
             $productVariationBuilder,

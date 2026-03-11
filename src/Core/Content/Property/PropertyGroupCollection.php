@@ -46,11 +46,11 @@ class PropertyGroupCollection extends EntityCollection
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $localeCode will be added
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - required parameter $localeCode will be added
      */
-    public function sortByConfig(/* ?string $localeCode = null */): void
+    public function sortByConfig(/* string $localeCode */): void
     {
-        $localeCode = \func_num_args() === 1 ? func_get_arg(0) : null;
+        $localeCode = \func_num_args() === 1 ? func_get_arg(0) : '';
 
         $collator = $this->createCollator($localeCode);
 
@@ -70,7 +70,7 @@ class PropertyGroupCollection extends EntityCollection
                 $nameCol[] = (string) $collator->getSortKey($name);
 
                 if ($sortingByPosition) {
-                    $posititionCol[] = (int) ($element->getTranslation('position') ?? $element->getPosition() ?? 0);
+                    $posititionCol[] = (int) ($element->getTranslation('position') ?? $element->get('position') ?? 0);
                 }
             }
 
@@ -106,9 +106,9 @@ class PropertyGroupCollection extends EntityCollection
         return PropertyGroupEntity::class;
     }
 
-    private function createCollator(?string $localeCode = null): \Collator
+    private function createCollator(string $localeCode): \Collator
     {
-        $locale = ($localeCode !== null && $localeCode !== '') ? \Locale::canonicalize($localeCode) : null;
+        $locale = $localeCode !== '' ? \Locale::canonicalize($localeCode) : '';
         if ($locale === null || $locale === '') {
             $locale = \Locale::getDefault() ?: 'en_US';
         }

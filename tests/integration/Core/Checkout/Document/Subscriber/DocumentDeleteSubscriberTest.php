@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
@@ -27,6 +28,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -181,6 +184,164 @@ class DocumentDeleteSubscriberTest extends TestCase
         $this->documentRepository->delete([['id' => $invoiceDocumentId]], $this->context);
     }
 
+    public function testDeleteDocumentsInBulkShouldThrowExceptionAndReturnJustDependedDocumentsWhichAreNotRequestedForDeletion(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCart(1));
+        $invoiceGenerationResult = $this->createDocument(
+            InvoiceRenderer::TYPE,
+            $orderId,
+            [],
+            $this->context,
+        )->first();
+        static::assertNotNull($invoiceGenerationResult);
+
+        $invoiceDocumentId = $invoiceGenerationResult->getId();
+
+        $this->addCreditItemToOrder($orderId);
+
+        $creditNoteDocumentGenerationResult = $this->createDocument(
+            CreditNoteRenderer::TYPE,
+            $orderId,
+            ['referencedDocumentId' => $invoiceDocumentId],
+            $this->context,
+        )->first();
+        static::assertNotNull($creditNoteDocumentGenerationResult);
+
+        $creditNoteDocumentId = $creditNoteDocumentGenerationResult->getId();
+
+        /*
+         * add second credit item and credit note to have more than one dependent document
+         */
+        $this->addCreditItemToOrder($orderId);
+
+        $creditNoteDocumentGenerationResult2 = $this->createDocument(
+            CreditNoteRenderer::TYPE,
+            $orderId,
+            ['referencedDocumentId' => $invoiceDocumentId],
+            $this->context,
+        )->first();
+        static::assertNotNull($creditNoteDocumentGenerationResult2);
+
+        $creditNoteDocumentId2 = $creditNoteDocumentGenerationResult2->getId();
+
+        $data = [
+            [
+                'key' => 'test',
+                'action' => SyncController::ACTION_DELETE,
+                'entity' => static::getContainer()->get(DocumentDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $creditNoteDocumentId,
+                    ],
+                    [
+                        'id' => $invoiceDocumentId,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request(
+            Request::METHOD_POST,
+            '/api/_action/sync',
+            [],
+            [],
+            [],
+            json_encode($data, \JSON_THROW_ON_ERROR)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $content);
+        static::assertCount(1, $content['errors']);
+        $errorDetail = $content['errors'][0]['detail'];
+        static::assertStringContainsString(': credit_note', $errorDetail);
+        static::assertStringContainsString(\sprintf(' (%s).', $creditNoteDocumentId2), $errorDetail);
+    }
+
+    /*
+     * deleting documents that have dependent documents (credit notes depend on an invoice),
+     * will not throwing an error when the depending document is part of the request
+     * and the requested ids are in the correct order
+     * e.g. first the credit note, then the invoice
+     *
+     * currently the wrong order of ids will throw an exception
+     * this should be adjusted in future
+     */
+    public function testDeleteDocumentsInBulkShouldNotThrowExceptionWhenDependentDocumentIsInRequestListAndOrderOfIdsHasCorrectOrder(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCart(1));
+        $invoiceGenerationResult = $this->createDocument(
+            InvoiceRenderer::TYPE,
+            $orderId,
+            [],
+            $this->context,
+        )->first();
+        static::assertNotNull($invoiceGenerationResult);
+
+        $invoiceDocumentId = $invoiceGenerationResult->getId();
+        $invoiceMediaId = $invoiceGenerationResult->getMediaId();
+        static::assertNotNull($invoiceMediaId);
+        $invoiceA11yMediaId = $invoiceGenerationResult->getA11yMediaId();
+        static::assertNotNull($invoiceA11yMediaId);
+
+        static::assertTrue($this->hasMediaEntity($invoiceMediaId));
+        static::assertTrue($this->hasMediaEntity($invoiceA11yMediaId));
+
+        $this->addCreditItemToOrder($orderId);
+
+        $creditNoteDocumentGenerationResult = $this->createDocument(
+            CreditNoteRenderer::TYPE,
+            $orderId,
+            ['referencedDocumentId' => $invoiceDocumentId],
+            $this->context,
+        )->first();
+        static::assertNotNull($creditNoteDocumentGenerationResult);
+
+        $creditNoteDocumentId = $creditNoteDocumentGenerationResult->getId();
+        $creditNoteMediaId = $creditNoteDocumentGenerationResult->getMediaId();
+        static::assertNotNull($creditNoteMediaId);
+        $creditNoteA11yMediaId = $creditNoteDocumentGenerationResult->getA11yMediaId();
+        static::assertNotNull($creditNoteA11yMediaId);
+
+        static::assertTrue($this->hasMediaEntity($creditNoteMediaId));
+        static::assertTrue($this->hasMediaEntity($creditNoteA11yMediaId));
+
+        $data = [
+            [
+                'key' => 'test',
+                'action' => SyncController::ACTION_DELETE,
+                'entity' => static::getContainer()->get(DocumentDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $creditNoteDocumentId,
+                    ],
+                    [
+                        'id' => $invoiceDocumentId,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request(
+            Request::METHOD_POST,
+            '/api/_action/sync',
+            [],
+            [],
+            [],
+            json_encode($data, \JSON_THROW_ON_ERROR)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $documents = $content['deleted']['document'];
+        static::assertCount(2, $documents);
+        foreach ($documents as $document) {
+            static::assertContains($document, [$invoiceDocumentId, $creditNoteDocumentId]);
+        }
+    }
+
     private function addCreditItemToOrder(string $orderId): void
     {
         $this->orderRepository->upsert(
@@ -206,7 +367,9 @@ class DocumentDeleteSubscriberTest extends TestCase
     {
         return (bool) $this->connection->fetchAssociative(
             'SELECT * FROM media WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($mediaId)],
+            [
+                'id' => Uuid::fromHexToBytes($mediaId),
+            ],
         );
     }
 }

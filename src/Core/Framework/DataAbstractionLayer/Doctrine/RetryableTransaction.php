@@ -32,6 +32,43 @@ class RetryableTransaction
     }
 
     /**
+     * Executes the given closure inside a DBAL transaction. In case of a deadlock (RetryableException) the transaction
+     * is rolled back. There are no retries, and the original exception is re-thrown.
+     *
+     * @template TReturn of mixed
+     *
+     * @param \Closure(Connection): TReturn $closure
+     *
+     * @return TReturn
+     */
+    public static function transactional(Connection $connection, \Closure $closure)
+    {
+        $originalNestingLevel = $connection->getTransactionNestingLevel();
+        try {
+            return $connection->transactional($closure);
+        } catch (\Throwable $e) {
+            if ($originalNestingLevel > 0) {
+                // If this RetryableTransaction was executed inside another transaction, do not retry this nested
+                // transaction. Remember that the whole (outermost) transaction was already rolled back by the database
+                // when any RetryableException is thrown.
+                // Rethrow the exception here so only the outermost transaction is retried which in turn includes this
+                // nested transaction.
+                throw $e;
+            }
+
+            // after failure and rollback in transactional we need to make sure the nesting level
+            // is correct (see https://github.com/doctrine/dbal/issues/6651) and transaction is rolled back
+            // it's safe to assume that correct nesting level is 0, as we check for transaction nesting level
+            // in condition above
+            self::fixConnection($connection);
+
+            // we still throw the exception, so it can be handled gracefully by the caller
+            // however the transactionNestingLevel is fixed, so this won't cause follow up issues
+            throw $e;
+        }
+    }
+
+    /**
      * @template TReturn of mixed
      *
      * @param \Closure(Connection): TReturn $closure The function to execute transactionally.

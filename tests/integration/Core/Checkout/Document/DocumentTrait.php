@@ -59,7 +59,7 @@ trait DocumentTrait
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'email' => Uuid::randomHex() . '@example.com',
+            'email' => 'test@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

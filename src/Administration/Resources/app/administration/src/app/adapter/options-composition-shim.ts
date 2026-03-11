@@ -9,7 +9,7 @@
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, max-len */
+/* eslint-disable max-len */
 
 import {
     ref,
@@ -31,11 +31,41 @@ import {
 import type { Ref, ComputedRef, WatchOptions } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 
+// ─── Local types ────────────────────────────────────────────────────────────
+
+type LifecycleHookFn = (...args: unknown[]) => void;
+type AnyFn = (...args: unknown[]) => unknown;
+type ComponentState = Record<string, unknown>;
+
+interface ComputedObjectDefinition {
+    get?: () => unknown;
+    set?: (val: unknown) => void;
+}
+type ComputedDefinition = (() => unknown) | ComputedObjectDefinition;
+
+interface WatchObjectDefinition {
+    handler: (newVal: unknown, oldVal: unknown) => void;
+    immediate?: boolean;
+    deep?: boolean;
+    flush?: 'pre' | 'post' | 'sync';
+}
+type SingleWatchDefinition = ((newVal: unknown, oldVal: unknown) => void) | WatchObjectDefinition | string;
+type WatchDefinition = SingleWatchDefinition | SingleWatchDefinition[];
+
+/** Extended config that allows indexing with lifecycle hook names without explicit casts. */
+type ExtendedComponentConfig = ComponentConfig & Record<string, unknown>;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type OverrideFn = (previousState: ComponentState, props: ComponentState, context?: unknown) => ComponentState;
+
+// ─── Lifecycle hook registry ─────────────────────────────────────────────────
+
 /**
  * Maps Options API lifecycle hook names to their Composition API equivalents.
  * `null` means the hook runs immediately (beforeCreate/created happen during setup).
+ * Cast is required because Vue's registration functions have complex internal generics.
  */
-const LIFECYCLE_HOOK_MAP: Record<string, ((...args: any[]) => any) | null> = {
+const LIFECYCLE_HOOK_MAP = {
     beforeCreate: null,
     created: null,
     beforeMount: onBeforeMount,
@@ -47,12 +77,12 @@ const LIFECYCLE_HOOK_MAP: Record<string, ((...args: any[]) => any) | null> = {
     activated: onActivated,
     deactivated: onDeactivated,
     errorCaptured: onErrorCaptured,
-};
+} as Record<string, ((fn: () => void) => void) | null>;
 
 const LIFECYCLE_HOOKS = Object.keys(LIFECYCLE_HOOK_MAP);
 
 interface MergedConfig extends ComponentConfig {
-    _lifecycleHooks?: Record<string, ((...args: any[]) => void)[]>;
+    _lifecycleHooks?: Record<string, LifecycleHookFn[]>;
 }
 
 /**
@@ -65,7 +95,8 @@ interface MergedConfig extends ComponentConfig {
  * @returns true if shim should activate, false otherwise
  */
 export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
-    const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!(overrideConfig as any)[hook]);
+    const extended = overrideConfig as ExtendedComponentConfig;
+    const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!extended[hook]);
 
     return !!(
         overrideConfig.data ||
@@ -75,7 +106,7 @@ export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
         (overrideConfig.mixins && overrideConfig.mixins.length > 0) ||
         overrideConfig.inject ||
         // Include extends so checkUnsupportedFeatures() can emit its warning
-        (overrideConfig as any).extends ||
+        extended.extends ||
         hasLifecycleHooks
     );
 }
@@ -91,17 +122,20 @@ export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
 export function convertOptionsApiOverrideToCompositionApi(
     componentName: string,
     optionsConfig: ComponentConfig,
-): (previousState: any, props: any, context?: any) => any {
+): OverrideFn {
     logDeprecationWarning(componentName);
     checkUnsupportedFeatures(componentName, optionsConfig);
 
-    return (previousState: any, props: any) => {
-        const result: Record<string, any> = {};
+    return (previousState: ComponentState, props: ComponentState): ComponentState => {
+        const result: ComponentState = {};
 
         const mergedConfig = mergeMixins(optionsConfig);
 
         if (mergedConfig.data) {
-            Object.assign(result, convertData(mergedConfig.data));
+            Object.assign(
+                result,
+                convertData(mergedConfig.data as unknown as (() => Record<string, unknown>) | Record<string, unknown>),
+            );
         }
 
         // Resolve inject values from Vue's provide/inject system.
@@ -113,15 +147,15 @@ export function convertOptionsApiOverrideToCompositionApi(
         const thisProxy = createThisProxy(previousState, props, result, injectedValues);
 
         if (mergedConfig.computed) {
-            Object.assign(result, convertComputed(mergedConfig.computed, thisProxy));
+            Object.assign(result, convertComputed(mergedConfig.computed as Record<string, ComputedDefinition>, thisProxy));
         }
 
         if (mergedConfig.methods) {
-            Object.assign(result, convertMethods(mergedConfig.methods, thisProxy));
+            Object.assign(result, convertMethods(mergedConfig.methods as Record<string, AnyFn>, thisProxy));
         }
 
         if (mergedConfig.watch) {
-            setupWatchers(mergedConfig.watch, thisProxy);
+            setupWatchers(mergedConfig.watch as Record<string, WatchDefinition>, thisProxy);
         }
 
         if (mergedConfig._lifecycleHooks) {
@@ -150,8 +184,8 @@ function flattenMixins(mixin: ComponentConfig): ComponentConfig[] {
  * Supports all three Vue inject forms: array, object-with-string, object-with-options.
  * Must be called during component setup() to have access to the provide/inject chain.
  */
-function resolveInject(injectConfig: ComponentConfig['inject']): Record<string, any> {
-    const resolved: Record<string, any> = {};
+function resolveInject(injectConfig: ComponentConfig['inject']): ComponentState {
+    const resolved: ComponentState = {};
 
     if (!injectConfig) {
         return resolved;
@@ -162,7 +196,8 @@ function resolveInject(injectConfig: ComponentConfig['inject']): Record<string, 
             resolved[key] = vueInject(key);
         });
     } else {
-        Object.entries(injectConfig as Record<string, any>).forEach(
+        const objectConfig = injectConfig as Record<string, string | { from?: string; default?: unknown }>;
+        Object.entries(objectConfig).forEach(
             ([
                 localKey,
                 spec,
@@ -185,12 +220,14 @@ function resolveInject(injectConfig: ComponentConfig['inject']): Record<string, 
     return resolved;
 }
 
+type InjectConfig = ComponentConfig['inject'];
+
 /**
  * Merges two inject configurations (array or object form) into a single normalized object.
  * Existing (component-level) entries win on conflict, matching Vue's merge strategy.
  */
-function mergeInjectConfigs(existing: ComponentConfig['inject'], incoming: ComponentConfig['inject']): Record<string, any> {
-    const normalized: Record<string, any> = {};
+function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): ComponentState {
+    const normalized: ComponentState = {};
 
     if (Array.isArray(existing)) {
         existing.forEach((key: string) => {
@@ -207,7 +244,8 @@ function mergeInjectConfigs(existing: ComponentConfig['inject'], incoming: Compo
             }
         });
     } else if (incoming && typeof incoming === 'object') {
-        Object.entries(incoming as Record<string, any>).forEach(
+        const incomingObj = incoming as Record<string, unknown>;
+        Object.entries(incomingObj).forEach(
             ([
                 key,
                 val,
@@ -226,15 +264,20 @@ function mergeInjectConfigs(existing: ComponentConfig['inject'], incoming: Compo
  * Merges mixins into the component configuration
  */
 function mergeMixins(config: ComponentConfig): MergedConfig {
-    const lifecycleHooks: Record<string, ((...args: any[]) => void)[]> = {};
+    const lifecycleHooks: Record<string, LifecycleHookFn[]> = {};
     // Collect data factories in merge order so each is called exactly once.
     // Mixin factories are pushed first (deepest ancestor first via flattenMixins),
     // then the component's own factory last — so component keys win on conflict.
-    const allDataFns: Array<() => Record<string, any>> = [];
+    const allDataFns: Array<() => Record<string, unknown>> = [];
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const merged: MergedConfig = {
+        // Vue's ComponentOptions types methods/computed/watch as `any` internally
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         methods: { ...config.methods },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         computed: { ...config.computed },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         watch: { ...config.watch },
         inject: config.inject,
     };
@@ -242,26 +285,35 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
     if (config.mixins && config.mixins.length > 0) {
         const allMixins = config.mixins.flatMap((m) => flattenMixins(m as ComponentConfig));
         allMixins.forEach((mixin: ComponentConfig) => {
+            const extendedMixin = mixin as ExtendedComponentConfig;
+
             // Collect lifecycle hooks from mixin (mixin hooks fire before component hooks)
             LIFECYCLE_HOOKS.forEach((hook: string) => {
-                if ((mixin as any)[hook]) {
+                if (extendedMixin[hook]) {
                     if (!lifecycleHooks[hook]) {
                         lifecycleHooks[hook] = [];
                     }
-                    lifecycleHooks[hook].push((mixin as any)[hook]);
+                    lifecycleHooks[hook].push(extendedMixin[hook] as LifecycleHookFn);
                 }
             });
 
             // Collect the mixin's data factory without calling it yet
             if (mixin.data) {
-                allDataFns.push(typeof mixin.data === 'function' ? (mixin.data as () => any) : () => mixin.data);
+                const mixinData = mixin.data;
+                allDataFns.push(
+                    typeof mixinData === 'function'
+                        ? () => (mixinData as unknown as () => Record<string, unknown>)()
+                        : () => mixinData as unknown as Record<string, unknown>,
+                );
             }
 
             if (mixin.methods) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 merged.methods = { ...mixin.methods, ...merged.methods };
             }
 
             if (mixin.computed) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 merged.computed = { ...mixin.computed, ...merged.computed };
             }
 
@@ -277,21 +329,27 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
 
     // Add the component's own data factory last so its keys win over mixin keys
     if (config.data) {
-        allDataFns.push(typeof config.data === 'function' ? (config.data as () => any) : () => config.data);
+        const configData = config.data;
+        allDataFns.push(
+            typeof configData === 'function'
+                ? () => (configData as unknown as () => Record<string, unknown>)()
+                : () => configData as unknown as Record<string, unknown>,
+        );
     }
 
     // Produce a single merged factory that calls each original factory exactly once
     if (allDataFns.length > 0) {
-        merged.data = () => allDataFns.reduce<Record<string, any>>((acc, fn) => ({ ...acc, ...fn() }), {});
+        merged.data = () => allDataFns.reduce<Record<string, unknown>>((acc, fn) => ({ ...acc, ...fn() }), {});
     }
 
     // Component's own hooks go last (after mixin hooks), matching Vue's merge strategy
+    const extendedConfig = config as ExtendedComponentConfig;
     LIFECYCLE_HOOKS.forEach((hook: string) => {
-        if ((config as any)[hook]) {
+        if (extendedConfig[hook]) {
             if (!lifecycleHooks[hook]) {
                 lifecycleHooks[hook] = [];
             }
-            lifecycleHooks[hook].push((config as any)[hook]);
+            lifecycleHooks[hook].push(extendedConfig[hook] as LifecycleHookFn);
         }
     });
 
@@ -305,23 +363,16 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
 /**
  * Converts Options API methods to Composition API functions
  */
-function convertMethods(
-    methods: Record<string, (...args: any[]) => any>,
-    thisProxy: any,
-): Record<string, (...args: any[]) => any> {
-    const converted: Record<string, (...args: any[]) => any> = {};
+function convertMethods(methods: Record<string, AnyFn>, thisProxy: object): ComponentState {
+    const converted: ComponentState = {};
 
     Object.entries(methods).forEach(
         ([
             name,
             method,
-        ]: [
-            string,
-            (...args: any[]) => any,
         ]) => {
-            converted[name] = function (this: any, ...args: any[]) {
-                // Bind `this` to proxy that maps to previousState
-                return method.call(thisProxy, ...args);
+            converted[name] = function (...args: unknown[]) {
+                return method.apply(thisProxy, args);
             };
         },
     );
@@ -335,27 +386,32 @@ function convertMethods(
  * Vue instance properties ($emit, $t, $route, etc.) remain available
  * even when accessed outside the setup() context (e.g. in event handlers).
  */
-function createThisProxy(previousState: any, props: any, localState: any, injectedValues: Record<string, any> = {}): any {
+function createThisProxy(
+    previousState: ComponentState,
+    props: ComponentState,
+    localState: ComponentState,
+    injectedValues: ComponentState = {},
+): object {
     const componentInstance = getCurrentInstance();
 
     return new Proxy(
         {},
         {
-            get(target: any, prop: string | symbol) {
+            get(_target: object, prop: string | symbol): unknown {
                 if (typeof prop !== 'string') {
                     return undefined;
                 }
 
                 // Handle $super calls
                 if (prop === '$super') {
-                    return (methodName: string, ...args: any[]) => {
+                    return (methodName: string, ...args: unknown[]): unknown => {
                         if (previousState[methodName] && typeof previousState[methodName] === 'function') {
-                            return previousState[methodName](...args);
+                            return (previousState[methodName] as AnyFn)(...args);
                         }
 
                         // Support $super for computed properties (refs/computedRefs)
                         if (previousState[methodName] !== undefined && isRef(previousState[methodName])) {
-                            return previousState[methodName].value;
+                            return (previousState[methodName] as Ref).value;
                         }
 
                         throw new Error(`$super: method "${methodName}" not found in previous state`);
@@ -364,8 +420,9 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
 
                 // Forward Vue instance properties ($emit, $t, $tc, $route, $router, $refs, $nextTick, etc.)
                 if (prop.startsWith('$')) {
-                    if (componentInstance?.proxy && prop in componentInstance.proxy) {
-                        return (componentInstance.proxy as any)[prop];
+                    const proxy = componentInstance?.proxy as Record<string, unknown> | null | undefined;
+                    if (proxy && prop in proxy) {
+                        return proxy[prop];
                     }
                     return undefined;
                 }
@@ -399,14 +456,14 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
 
                 return undefined;
             },
-            set(target: any, prop: string | symbol, value: any) {
+            set(_target: object, prop: string | symbol, value: unknown): boolean {
                 if (typeof prop !== 'string') {
                     return false;
                 }
 
                 if (prop in localState) {
                     if (isRef(localState[prop])) {
-                        localState[prop].value = value;
+                        (localState[prop] as Ref).value = value;
                         return true;
                     }
                     localState[prop] = value;
@@ -415,7 +472,7 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
 
                 if (prop in previousState) {
                     if (isRef(previousState[prop])) {
-                        previousState[prop].value = value;
+                        (previousState[prop] as Ref).value = value;
                         return true;
                     }
                     console.error(`[Options API Shim] Cannot set property "${prop}" - property is not a ref or is readonly`);
@@ -439,31 +496,28 @@ function createThisProxy(previousState: any, props: any, localState: any, inject
 /**
  * Helper to unwrap refs for property access
  */
-function unwrapRef(value: any): any {
+function unwrapRef(value: unknown): unknown {
     return isRef(value) ? value.value : value;
 }
 
 /**
  * Converts Options API computed properties to Composition API computed refs
  */
-function convertComputed(computedDefs: Record<string, any>, thisProxy: any): Record<string, ComputedRef> {
+function convertComputed(computedDefs: Record<string, ComputedDefinition>, thisProxy: object): Record<string, ComputedRef> {
     const converted: Record<string, ComputedRef> = {};
 
     Object.entries(computedDefs).forEach(
         ([
             name,
             computedDef,
-        ]: [
-            string,
-            any,
         ]) => {
             if (typeof computedDef === 'function') {
                 // Simple getter
                 converted[name] = computed(() => computedDef.call(thisProxy));
             } else if (computedDef && typeof computedDef === 'object' && (computedDef.get || computedDef.set)) {
                 // Getter/setter
-                const getter = computedDef.get ? () => computedDef.get.call(thisProxy) : undefined;
-                const setter = computedDef.set ? (val: any) => computedDef.set.call(thisProxy, val) : undefined;
+                const getter = computedDef.get ? () => computedDef.get!.call(thisProxy) : undefined;
+                const setter = computedDef.set ? (val: unknown) => computedDef.set!.call(thisProxy, val) : undefined;
 
                 if (getter && setter) {
                     converted[name] = computed({
@@ -483,7 +537,7 @@ function convertComputed(computedDefs: Record<string, any>, thisProxy: any): Rec
 /**
  * Converts Options API data() function to refs
  */
-function convertData(dataFn: (() => Record<string, any>) | Record<string, any>): Record<string, Ref> {
+function convertData(dataFn: (() => Record<string, unknown>) | Record<string, unknown>): Record<string, Ref> {
     const data = typeof dataFn === 'function' ? dataFn() : dataFn;
     const converted: Record<string, Ref> = {};
 
@@ -495,9 +549,6 @@ function convertData(dataFn: (() => Record<string, any>) | Record<string, any>):
         ([
             key,
             value,
-        ]: [
-            string,
-            any,
         ]) => {
             converted[key] = ref(value);
         },
@@ -510,9 +561,9 @@ function convertData(dataFn: (() => Record<string, any>) | Record<string, any>):
  * Registers a single watcher from an Options API watch handler definition.
  * Handles function, object-with-options, and string-method-name forms.
  */
-function registerSingleWatcher(source: () => any, handler: any, thisProxy: any): void {
+function registerSingleWatcher(source: () => unknown, handler: SingleWatchDefinition, thisProxy: object): void {
     if (typeof handler === 'function') {
-        watch(source, (newVal: any, oldVal: any) => {
+        watch(source, (newVal: unknown, oldVal: unknown) => {
             handler.call(thisProxy, newVal, oldVal);
         });
     } else if (typeof handler === 'object' && handler.handler) {
@@ -523,15 +574,17 @@ function registerSingleWatcher(source: () => any, handler: any, thisProxy: any):
 
         watch(
             source,
-            (newVal: any, oldVal: any) => {
+            (newVal: unknown, oldVal: unknown) => {
                 handler.handler.call(thisProxy, newVal, oldVal);
             },
             options,
         );
     } else if (typeof handler === 'string') {
-        watch(source, (newVal: any, oldVal: any) => {
-            if (thisProxy[handler] && typeof thisProxy[handler] === 'function') {
-                thisProxy[handler](newVal, oldVal);
+        const methodName = handler;
+        watch(source, (newVal: unknown, oldVal: unknown) => {
+            const proxyAsState = thisProxy as ComponentState;
+            if (proxyAsState[methodName] && typeof proxyAsState[methodName] === 'function') {
+                (proxyAsState[methodName] as AnyFn)(newVal, oldVal);
             }
         });
     }
@@ -540,14 +593,11 @@ function registerSingleWatcher(source: () => any, handler: any, thisProxy: any):
 /**
  * Sets up watchers for Options API watch configuration
  */
-function setupWatchers(watchConfig: Record<string, any>, thisProxy: any): void {
+function setupWatchers(watchConfig: Record<string, WatchDefinition>, thisProxy: object): void {
     Object.entries(watchConfig).forEach(
         ([
             key,
             handler,
-        ]: [
-            string,
-            any,
         ]) => {
             if (key.includes('.')) {
                 console.warn(
@@ -557,7 +607,7 @@ function setupWatchers(watchConfig: Record<string, any>, thisProxy: any): void {
                 return;
             }
 
-            const source = () => thisProxy[key];
+            const source = (): unknown => (thisProxy as ComponentState)[key];
 
             if (Array.isArray(handler)) {
                 handler.forEach((h) => registerSingleWatcher(source, h, thisProxy));
@@ -592,7 +642,7 @@ const ALREADY_PASSED_WHEN_MOUNTED = new Set([
  * - Future hooks (beforeUnmount, unmounted, etc.) cannot be registered and
  *   a warning is logged.
  */
-function setupLifecycleHooks(hooks: Record<string, ((...args: any[]) => void)[]>, thisProxy: any): void {
+function setupLifecycleHooks(hooks: Record<string, LifecycleHookFn[]>, thisProxy: object): void {
     const instance = getCurrentInstance();
 
     Object.entries(hooks).forEach(
@@ -646,8 +696,9 @@ function checkUnsupportedFeatures(componentName: string, config: ComponentConfig
         );
     }
 
+    const extended = config as ExtendedComponentConfig;
     UNSUPPORTED_OPTIONS.forEach((key) => {
-        if ((config as any)[key]) {
+        if (extended[key]) {
             console.warn(
                 `[Options API Shim] "${key}" is not supported by the compatibility shim ` +
                     `in component "${componentName}". This option will be ignored.`,

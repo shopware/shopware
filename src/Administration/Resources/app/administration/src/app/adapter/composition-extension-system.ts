@@ -3,6 +3,7 @@ import { computed, getCurrentInstance, isReactive, isReadonly, isRef, reactive, 
 import { syncRef } from '@vueuse/core';
 import type { SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from './options-composition-shim';
+import type { OverrideFn } from './options-composition-shim';
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -29,9 +30,7 @@ import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '.
  * - overrideComponentSetup: Adds an override for a specific component.
  */
 
-// Disable ESLint rules for this file due to the use of 'any' types and potentially unsafe operations
-// eslint-disable-next-line max-len
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable max-len */
 declare global {
     /**
      * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -48,6 +47,7 @@ declare global {
             title: Ref<string, string>;
         };
         // Fallback for untyped components
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [componentName: string]: { [key: string]: any };
     }
 }
@@ -57,8 +57,7 @@ declare global {
  * Create a reactive map to store overrides for each component
  */
 export const _overridesMap: {
-    // @ts-expect-error - previousState,props and context is any
-    [componentName: string]: Array<(previousState, props, context) => any>;
+    [componentName: string]: Array<OverrideFn>;
 } = reactive({});
 
 /**
@@ -71,8 +70,8 @@ const checkNestedStructure = ({
     path = '',
     componentName,
 }: {
-    oldObj: Record<string, any>;
-    newObj: Record<string, any>;
+    oldObj: Record<string, unknown>;
+    newObj: Record<string, unknown>;
     path?: string;
     componentName: string;
 }): {
@@ -104,8 +103,8 @@ const checkNestedStructure = ({
         ) {
             // Recursively check nested objects
             const nestedResult = checkNestedStructure({
-                oldObj: oldObj[key],
-                newObj: newObj[key],
+                oldObj: oldObj[key] as Record<string, unknown>,
+                newObj: newObj[key] as Record<string, unknown>,
                 path: currentPath,
                 componentName,
             });
@@ -125,6 +124,7 @@ const getComponentContext = (): SetupContext => {
     const instance = getCurrentInstance();
 
     // Construct a context object
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return (
         // @ts-expect-error - "setupContext" is available in the instance when using the setup function
         instance?.setupContext ??
@@ -150,7 +150,7 @@ type Exact<T, Shape> = T extends Shape ? (Exclude<keyof T, keyof Shape> extends 
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createExtendableSetup<
-    PROPS extends { [key: string]: any },
+    PROPS extends Record<string, unknown>,
     CONTEXT,
     COMPONENT_NAME extends keyof ComponentPublicApiMapping,
     SETUP_RESULT extends ComponentPublicApiMapping[COMPONENT_NAME],
@@ -179,7 +179,7 @@ export function createExtendableSetup<
             // eslint-disable-next-line max-len
             `[${options.name}] The original setup function for the originalComponent component must return at least one public or private property.`,
         );
-        return {} as any;
+        return {} as ToRefs<Reactive<Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & PRIVATE_SETUP_RESULT>>;
     }
 
     // Check if any other return value was returned from the original setup
@@ -261,7 +261,7 @@ export function createExtendableSetup<
     const reactiveWrappedState = reactive(wrappedState);
 
     // Keep track of applied overrides to avoid duplicates
-    const appliedOverrides = reactive<any>([]);
+    const appliedOverrides = reactive<OverrideFn[]>([]);
 
     // Function to apply overrides
     const applyOverrides = () => {
@@ -283,6 +283,7 @@ export function createExtendableSetup<
                 (acc, key) => {
                     if (Object.keys(originalSetupResultPublic).includes(key)) {
                         // @ts-expect-error - key is a string
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                         acc[key] = wrappedState[key];
                     }
                     return acc;
@@ -292,6 +293,7 @@ export function createExtendableSetup<
             previousStateResultForExtensions._private = Object.keys(wrappedState).reduce((acc, key) => {
                 if (!Object.keys(originalSetupResultPublic).includes(key)) {
                     // @ts-expect-error - key is a string
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     acc[key] = wrappedState[key];
                 }
                 return acc;
@@ -340,8 +342,8 @@ export function createExtendableSetup<
                 } else if (isReactive(resultValue)) {
                     // Check if new structure contains at least all keys of the old structure (nested)
                     const validationResult = checkNestedStructure({
-                        oldObj: reactiveWrappedState[key],
-                        newObj: resultValue,
+                        oldObj: reactiveWrappedState[key] as Record<string, unknown>,
+                        newObj: resultValue as Record<string, unknown>,
                         componentName: options.name as string,
                         path: key,
                     });
@@ -401,6 +403,7 @@ export function overrideComponentSetup<ORIGINAL_COMPONENT>() {
             previousState: ComponentPublicApiMapping[COMPONENT_NAME],
             props: ExtractedProps<ORIGINAL_COMPONENT>,
             context: SetupContext,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ) => any,
     ): void {
         // Initialize the overrides array for this component if it doesn't exist
@@ -408,7 +411,7 @@ export function overrideComponentSetup<ORIGINAL_COMPONENT>() {
             _overridesMap[componentName] = reactive([]);
         }
 
-        // Add the new override to the array
-        _overridesMap[componentName].push(override);
+        // Add the new override to the array (cast required: typed generics → internal OverrideFn)
+        _overridesMap[componentName].push(override as unknown as OverrideFn);
     };
 }

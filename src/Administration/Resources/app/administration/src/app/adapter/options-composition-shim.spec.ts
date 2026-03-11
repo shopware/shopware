@@ -183,7 +183,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn({}, {});
+            const result = overrideFn({}, {}) as Record<string, any>;
 
             expect(result.count.value).toBe(42);
             expect(result.name.value).toBe('test');
@@ -283,7 +283,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
 
             expect(() => {
                 result.doSomething();
@@ -550,7 +550,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
 
             expect(result.getCount()).toBe(42);
             expect(result.getName()).toBe('test');
@@ -569,7 +569,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
             result.setCount();
 
             expect(previousState.count.value).toBe(100);
@@ -587,7 +587,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, props);
+            const result = overrideFn(previousState, props) as Record<string, any>;
 
             expect(result.getTitle()).toBe('Hello');
         });
@@ -608,7 +608,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
 
             expect(result.getCount()).toBe(999);
         });
@@ -626,7 +626,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
             const value = result.accessUndefined();
 
             expect(value).toBeUndefined();
@@ -653,7 +653,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
             result.accessInternal();
 
             // Filter out the deprecation warning to check only property warnings
@@ -683,7 +683,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
             result.setUnknown();
 
             expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('Cannot set property "unknownProp"'));
@@ -762,7 +762,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn({}, {});
+            const result = overrideFn({}, {}) as Record<string, any>;
 
             expect(result.mixinValue.value).toBe('from-mixin');
             expect(result.localValue.value).toBe('from-override');
@@ -1603,7 +1603,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
 
             expect(result.getDoubledCount()).toBe(20);
         });
@@ -1621,7 +1621,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
             result.addToCount(42);
 
             expect(previousState.count.value).toBe(42);
@@ -2038,7 +2038,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn({}, {});
+            const result = overrideFn({}, {}) as Record<string, any>;
 
             expect(result.user.value.address.city).toBe('Berlin');
 
@@ -2173,7 +2173,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             });
 
-            const result = overrideFn(previousState, {});
+            const result = overrideFn(previousState, {}) as Record<string, any>;
 
             expect(result.getSelectedId()).toBeUndefined();
         });

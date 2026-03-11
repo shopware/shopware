@@ -11,7 +11,7 @@
         </parameter>
     </parameters>
     <services>
-        <!-- Entity definitions -->
+        <!-- region Entity definitions -->
         <service id="Shopware\Core\Content\Media\MediaDefinition">
             <tag name="shopware.entity.definition"/>
             <tag name="shopware.entity.hookable"/>
@@ -48,9 +48,9 @@
         <service id="Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
-        <!-- end of Entity definitions -->
+        <!-- endregion Entity definitions -->
 
-        <!-- message handlers -->
+        <!-- region Message handlers -->
         <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
@@ -65,18 +65,16 @@
 
             <tag name="messenger.message_handler"/>
         </service>
-        <!-- end of message handlers -->
 
-        <service id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
-            <!-- unseralize read optimized (serialized) database objects > restores thumbnails from `RO` into real property-->
-            <tag name="kernel.event_listener" event="media.loaded" method="unserialize" priority="100" />
+        <service id="Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="logger"/>
+            <argument type="service" id="media.repository"/>
+            <tag name="messenger.message_handler" />
         </service>
+        <!-- endregion Message handlers -->
 
-        <service id="Shopware\Core\Content\Media\Subscriber\MediaFolderConfigLoadedSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <!--File Services-->
+        <!-- region File Services-->
         <service id="Shopware\Core\Content\Media\File\FileService">
         </service>
 
@@ -127,8 +125,9 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
             <argument>%shopware.filesystem.private_local_path_prefix%</argument>
         </service>
+        <!-- endregion File Services-->
 
-        <!-- Commands -->
+        <!-- region Commands -->
         <service id="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
@@ -153,7 +152,6 @@
             <tag name="console.command"/>
         </service>
 
-        <!-- Commands -->
         <service id="Shopware\Core\Content\Media\Commands\DeleteThumbnailsCommand">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="media_thumbnail.repository"/>
@@ -161,8 +159,9 @@
 
             <tag name="console.command"/>
         </service>
+        <!-- endregion Commands -->
 
-        <!-- Controller -->
+        <!-- region Controller -->
         <service id="Shopware\Core\Content\Media\Api\MediaUploadController" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
@@ -184,9 +183,29 @@
 
         <service id="Shopware\Core\Content\Media\Api\MediaUploadV2Controller" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaUploadService"/>
+            <argument type="service" id="media.repository"/>
         </service>
 
-        <!-- Metadata -->
+        <service id="Shopware\Core\Content\Media\Api\MediaVideoCoverController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Media\Service\VideoCoverService"/>
+            <tag name="controller.service_arguments"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        <!-- endregion Controller -->
+
+        <!-- region Normalizers -->
+        <service id="Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollectionNormalizer">
+            <tag name="serializer.normalizer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailDataNormalizer">
+            <tag name="serializer.normalizer"/>
+        </service>
+        <!-- endregion Normalizers -->
+
+        <!-- region Metadata -->
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\ImageMetadataLoader">
             <tag name="shopware.metadata.loader"/>
         </service>
@@ -194,8 +213,9 @@
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader">
             <argument type="tagged_iterator" tag="shopware.metadata.loader"/>
         </service>
+        <!-- endregion Metadata -->
 
-        <!-- TypeDetector -->
+        <!-- region TypeDetector -->
         <service id="Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector">
             <tag name="shopware.media_type.detector" priority="10"/>
         </service>
@@ -223,8 +243,9 @@
         <service id="Shopware\Core\Content\Media\TypeDetector\TypeDetector">
             <argument type="tagged_iterator" tag="shopware.media_type.detector"/>
         </service>
+        <!-- endregion TypeDetector -->
 
-        <!-- Services -->
+        <!-- region Services -->
         <service id="Shopware\Core\Content\Media\UnusedMediaPurger">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection" />
@@ -249,9 +270,6 @@
             <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator">
-        </service>
-
         <service id="Shopware\Core\Content\Media\MediaService">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="media_folder.repository"/>
@@ -265,8 +283,22 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="http_client"/>
+            <argument type="service" id="shopware.media.upload.http_client"/>
+            <argument type="service" id="media_thumbnail.repository"/>
+            <argument type="service" id="media_thumbnail_size.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\Service\VideoCoverService">
+            <argument type="service" id="media.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator">
+        </service>
+        <!-- endregion Services -->
+
+        <!-- region Testable service aliases -->
+        <service id="shopware.media.upload.http_client" alias="http_client" public="false"/>
+        <!-- endregion Testable service aliases -->
 
         <service id="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator">
             <factory class="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator" method="create"/>
@@ -280,6 +312,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
         </service>
 
+        <!-- region Resolver -->
         <service id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver">
             <argument type="service" id="shopware.filesystem.public"/>
         </service>
@@ -311,7 +344,9 @@
         <service id="Shopware\Core\Content\Media\Cms\VimeoVideoCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
+        <!-- endregion Resolver -->
 
+        <!-- region DBAL -->
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer">
             <tag name="shopware.entity_indexer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
@@ -339,6 +374,12 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater"/>
 
             <tag name="shopware.entity_indexer"/>
+        </service>
+        <!-- endregion DBAL -->
+
+        <!-- region Event handling -->
+        <service id="Shopware\Core\Content\Media\Subscriber\MediaFolderConfigLoadedSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber">
@@ -379,32 +420,24 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Service\VideoCoverService">
-            <argument type="service" id="media.repository"/>
+        <service id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
+            <!-- unseralize read optimized (serialized) database objects > restores thumbnails from `RO` into real property-->
+            <tag name="kernel.event_listener" event="media.loaded" method="unserialize" priority="100" />
         </service>
+        <!-- endregion Event handling -->
 
-        <service id="Shopware\Core\Content\Media\Api\MediaVideoCoverController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Media\Service\VideoCoverService"/>
-            <tag name="controller.service_arguments"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
+        <!-- region Routes -->
         <service id="Shopware\Core\Content\Media\SalesChannel\MediaRoute" public="true">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
+        <!-- endregion Routes -->
 
+        <!-- region Tasks -->
         <service id="Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaTask">
             <tag name="shopware.scheduled.task"/>
         </service>
+        <!-- endregion Tasks -->
 
-        <service id="Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaHandler">
-            <argument type="service" id="scheduled_task.repository" />
-            <argument type="service" id="logger"/>
-            <argument type="service" id="media.repository"/>
-            <tag name="messenger.message_handler" />
-        </service>
     </services>
 </container>

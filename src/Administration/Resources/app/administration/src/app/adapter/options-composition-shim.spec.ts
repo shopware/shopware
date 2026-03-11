@@ -2041,11 +2041,11 @@ describe('src/app/adapter/options-composition-shim', () => {
     describe('Deep nested reactive data:', () => {
         it('should maintain reactivity for deeply nested object data', async () => {
             const originalComponent = defineComponent({
-                template: '<div class="city">{{ city }}</div>',
+                template: '<div class="city">{{ address.city }}</div>',
                 setup: (props, context) =>
                     createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
-                        const city = ref('initial');
-                        return { public: { city } };
+                        const address = ref({ city: 'initial' });
+                        return { public: { address } };
                     }),
             });
 
@@ -2053,7 +2053,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 data() {
-                    return { city: 'Berlin' };
+                    return { address: { city: 'Berlin' } };
                 },
             });
 

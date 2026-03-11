@@ -4,6 +4,11 @@ namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @internal
+ */
 #[Package('framework')]
 enum WebhookFailureStrategy: string
 {

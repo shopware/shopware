@@ -85,7 +85,7 @@ jobs:
           if: github.event.action == 'published'
           id: sts-production
           with:
-            scope: shopware/production
+            scope: shopware/template
             identity: release
 
         - name: Trigger shopware/production build
@@ -118,7 +118,7 @@ jobs:
             -H "Content-Type: application/json" \
             https://api.github.com/repos/shopwareLabs/testenv-platform/actions/workflows/shopware.yml/dispatches \
             -d '{"ref": "trunk"}'
-  
+
   publish-sbp-release:
     if: github.repository == 'shopware/shopware'
     strategy:

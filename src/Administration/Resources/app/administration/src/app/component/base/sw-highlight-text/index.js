@@ -121,13 +121,14 @@ export default {
         escapeRegExp(string) {
             if (Context.app.adminEsEnable) {
                 // remove simple query string syntax
-                return string
+                return RegExp.escape(
+                    string
                     .replace(/[+-.*~"|()]/g, '')
-                    .replace(/ AND | and | OR | or |  +/g, ' ')
-                    .replace(/[?^${}[\]\\]/g, '\\$&'); // $& means the whole matched string
+                    .replace(/ AND | and | OR | or |  +/g, ' '),
+                );
             }
 
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+            return RegExp.escape(string);
         },
     },
 };

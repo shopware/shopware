@@ -56,7 +56,7 @@ class AppDownloaderTest extends TestCase
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(200);
 
-        $generator = function () use ($response): \Generator {
+        $generator = static function () use ($response): \Generator {
             yield $response => new DataChunk(0, 'chunk1content');
             yield $response => new DataChunk(1, 'chunk2content');
         };
@@ -91,7 +91,7 @@ class AppDownloaderTest extends TestCase
 
         $this->filesystem->expects($this->once())
             ->method('dumpFile')
-            ->willReturnCallback(function (string $path, $contentResource): void {
+            ->willReturnCallback(static function (string $path, $contentResource): void {
                 static::assertSame('/path/to/file.zip', $path);
                 static::assertSame('content', stream_get_contents($contentResource));
             });

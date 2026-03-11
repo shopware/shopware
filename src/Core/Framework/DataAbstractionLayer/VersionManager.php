@@ -530,7 +530,7 @@ class VersionManager
      */
     private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array
     {
-        $fields = $definition->getFields()->filter(fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
+        $fields = $definition->getFields()->filter(static fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
 
         foreach ($fields as $field) {
             $payload[$field->getPropertyName()] = $versionId;
@@ -577,7 +577,7 @@ class VersionManager
         int $childCounter = 1
     ): void {
         // add all cascade delete associations
-        $cascades = $definition->getFields()->filter(function (Field $field) {
+        $cascades = $definition->getFields()->filter(static function (Field $field) {
             $flag = $field->getFlag(CascadeDelete::class);
 
             return $flag ? $flag->isCloneRelevant() : false;

@@ -142,13 +142,13 @@ class ImportExportTest extends AbstractImportExportTestCase
         $beforeExportRecordCalled = false;
         $exceptionExportRecordCalled = false;
 
-        $this->addEventListener($this->listener, EnrichExportCriteriaEvent::class, function () use (&$enrichExportCriteriaCalled): void {
+        $this->addEventListener($this->listener, EnrichExportCriteriaEvent::class, static function () use (&$enrichExportCriteriaCalled): void {
             $enrichExportCriteriaCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportBeforeExportRecordEvent::class, function () use (&$beforeExportRecordCalled): void {
+        $this->addEventListener($this->listener, ImportExportBeforeExportRecordEvent::class, static function () use (&$beforeExportRecordCalled): void {
             $beforeExportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportExceptionExportRecordEvent::class, function () use (&$exceptionExportRecordCalled): void {
+        $this->addEventListener($this->listener, ImportExportExceptionExportRecordEvent::class, static function () use (&$exceptionExportRecordCalled): void {
             $exceptionExportRecordCalled = true;
         });
 
@@ -173,13 +173,13 @@ class ImportExportTest extends AbstractImportExportTestCase
         $afterImportRecordCalled = false;
         $exceptionImportRecordCalled = false;
 
-        $this->addEventListener($this->listener, ImportExportBeforeImportRecordEvent::class, function () use (&$beforeImportRecordCalled): void {
+        $this->addEventListener($this->listener, ImportExportBeforeImportRecordEvent::class, static function () use (&$beforeImportRecordCalled): void {
             $beforeImportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportAfterImportRecordEvent::class, function () use (&$afterImportRecordCalled): void {
+        $this->addEventListener($this->listener, ImportExportAfterImportRecordEvent::class, static function () use (&$afterImportRecordCalled): void {
             $afterImportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportExceptionImportRecordEvent::class, function () use (&$exceptionImportRecordCalled): void {
+        $this->addEventListener($this->listener, ImportExportExceptionImportRecordEvent::class, static function () use (&$exceptionImportRecordCalled): void {
             $exceptionImportRecordCalled = true;
         });
 
@@ -343,7 +343,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $csvColumns = explode(';', $firstLine);
 
         $sortedMappings = $profile['mapping'];
-        usort($sortedMappings, fn ($firstMapping, $secondMapping) => $firstMapping['position'] - $secondMapping['position']);
+        usort($sortedMappings, static fn ($firstMapping, $secondMapping) => $firstMapping['position'] - $secondMapping['position']);
 
         foreach ($sortedMappings as $index => $mapping) {
             static::assertSame(
@@ -1318,7 +1318,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         $mailSent = false;
 
-        $listenerClosure = function () use (&$mailSent): void {
+        $listenerClosure = static function () use (&$mailSent): void {
             $mailSent = true;
         };
 
@@ -1360,7 +1360,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertTrue($result->has('0a1dea4bd2de43929ac210fd17339dde'));
         $customerWithMultipleAddresses = $result->get('0a1dea4bd2de43929ac210fd17339dde');
 
-        $passwords = \array_values(array_map(fn (CustomerEntity $customer) => $customer->getPassword(), $result->getElements()));
+        $passwords = \array_values(array_map(static fn (CustomerEntity $customer) => $customer->getPassword(), $result->getElements()));
         static::assertCount(3, $passwords);
         static::assertNull($passwords[0]);
         static::assertNull($passwords[1]);

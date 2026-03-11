@@ -47,7 +47,7 @@ class MailActionControllerTest extends TestCase
         $this->mailService->expects($this->once())
             ->method('send')
             ->with(
-                static::callback(function (array $data) {
+                static::callback(static function (array $data) {
                     static::assertArrayHasKey('attachmentsConfig', $data);
                     static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
 

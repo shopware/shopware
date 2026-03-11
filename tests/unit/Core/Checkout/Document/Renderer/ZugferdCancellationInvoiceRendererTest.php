@@ -43,7 +43,10 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
     {
         $renderer = new ZugferdCancellationInvoiceRenderer(
             $this->createMock(EntityRepository::class),
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
+            new DocumentConfigLoader(
+                $this->createMock(EntityRepository::class),
+                $this->createMock(EntityRepository::class)
+            ),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             new ReferenceInvoiceLoader($this->createMock(Connection::class)),
@@ -51,7 +54,10 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
             $this->createMock(ZugferdBuilder::class),
         );
 
-        static::assertSame('zugferd_cancellation_invoice', $renderer->supports());
+        static::assertSame(
+            'zugferd_cancellation_invoice',
+            $renderer->supports()
+        );
     }
 
     public function testRender(): void
@@ -102,8 +108,8 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
                     'orderVersionId' => $invoiceVersionId,
                     'versionId' => $invoiceVersionId,
                     'deepLinkCode' => '',
-                    'config' => '{"documentNumber":"INV_1000"}',
-                    'documentNumber' => 'INV_1000',
+                    'config' => '{"documentNumber":"1000"}',
+                    'documentNumber' => '1000',
                 ]]),
             );
         $referenceInvoiceLoader = new ReferenceInvoiceLoader($referenceInvoiceLoaderConnection);
@@ -127,7 +133,10 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
 
         $renderer = new ZugferdCancellationInvoiceRenderer(
             $orderRepositoryMock,
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
+            new DocumentConfigLoader(
+                $this->createMock(EntityRepository::class),
+                $this->createMock(EntityRepository::class)
+            ),
             $eventDispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             $referenceInvoiceLoader,
@@ -135,7 +144,11 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
             $builder,
         );
 
-        $operation = new DocumentGenerateOperation(self::ORDER_ID, FileTypes::XML, ['documentNumber' => 'STORNO_1000']);
+        $operation = new DocumentGenerateOperation(
+            self::ORDER_ID,
+            FileTypes::XML,
+            ['documentNumber' => '1001']
+        );
 
         $rendered = $renderer->render(
             [self::ORDER_ID => $operation],
@@ -167,7 +180,10 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
 
         $renderer = new ZugferdCancellationInvoiceRenderer(
             $orderRepositoryMock,
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
+            new DocumentConfigLoader(
+                $this->createMock(EntityRepository::class),
+                $this->createMock(EntityRepository::class)
+            ),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             $referenceInvoiceLoader,
@@ -182,8 +198,17 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
         );
 
         static::assertNull($result->getOrderSuccess(self::ORDER_ID));
+
         $error = $result->getOrderError(self::ORDER_ID);
+        static::assertNotNull($error);
         static::assertInstanceOf(DocumentException::class, $error);
-        static::assertStringContainsString('Can not generate cancellation invoice document because no invoice document exists.', $error->getMessage());
+
+        static::assertSame(
+            $error->getMessage(),
+            DocumentException::baseInvoiceNotFound(
+                ZugferdCancellationInvoiceRenderer::TYPE,
+                self::ORDER_ID,
+            )->getMessage()
+        );
     }
 }

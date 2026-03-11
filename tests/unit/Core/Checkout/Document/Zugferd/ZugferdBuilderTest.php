@@ -94,7 +94,7 @@ class ZugferdBuilderTest extends TestCase
                 'documentNumber' => '1001',
                 'config' => [
                     'documentDate' => (new \DateTime('2024-01-01'))->format('Y-m-d'),
-                ]
+                ],
             ]
         );
 
@@ -115,8 +115,8 @@ class ZugferdBuilderTest extends TestCase
         static::assertStringContainsString("GrandTotalAmount>$grandTotal<", $xmlContent);
         static::assertStringContainsString("DuePayableAmount>$grandTotal<", $xmlContent);
         static::assertStringContainsString("TypeCode>$typeCode<", $xmlContent);
-        static::assertStringContainsString("IssuerAssignedID>1001<", $xmlContent);
-        static::assertStringContainsString("DateTimeString format=\"102\">20240101<", $xmlContent);
+        static::assertStringContainsString('IssuerAssignedID>1001<', $xmlContent);
+        static::assertStringContainsString('DateTimeString format="102">20240101<', $xmlContent);
 
         foreach ($config as $key => $value) {
             match (true) {

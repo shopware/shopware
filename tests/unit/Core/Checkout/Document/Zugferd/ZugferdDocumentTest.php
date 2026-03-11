@@ -369,7 +369,7 @@ class ZugferdDocumentTest extends TestCase
 
         static::assertSame('1002', $general->getElementsByTagName('ID')->item(0)?->nodeValue);
         static::assertSame(ZugferdInvoiceType::CORRECTION, $general->getElementsByTagName('TypeCode')->item(0)?->nodeValue);
-        static::assertSame('20240103', \trim($general->getElementsByTagName('IssueDateTime')->item(0)?->nodeValue ?? ''));
+        static::assertSame('20240103', \trim($general->getElementsByTagName('IssueDateTime')->item(0)->nodeValue ?? ''));
     }
 
     private function createOrderLineItem(float $price, float $taxRate, bool $isGross, ?int $position = null): OrderLineItemEntity

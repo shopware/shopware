@@ -27,6 +27,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('after-sales')]
 class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
 {
+    use DocumentRendererTrait;
+
     public const TYPE = 'zugferd_cancellation_invoice';
 
     /**
@@ -85,7 +87,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
                     'config' => $documentRefer,
                 ];
 
-                $order = $this->getOrder(
+                $order = $this->fetchOrder(
                     $operation,
                     $invoice['orderVersionId'],
                     $context,
@@ -211,7 +213,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
         );
     }
 
-    private function getOrder(DocumentGenerateOperation $operation, string $versionId, Context $context, DocumentRendererConfig $rendererConfig): OrderEntity
+    private function fetchOrder(DocumentGenerateOperation $operation, string $versionId, Context $context, DocumentRendererConfig $rendererConfig): OrderEntity
     {
         $orderId = $operation->getOrderId();
 

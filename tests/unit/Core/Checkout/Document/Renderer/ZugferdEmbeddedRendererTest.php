@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Renderer;
 
-use horstoeko\zugferd\exception\ZugferdUnknownXmlContentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use setasign\Fpdi\PdfParser\PdfParserException;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +27,7 @@ class ZugferdEmbeddedRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
-            'random-version'
+            new ZugferdEmbeddedService('random-version')
         );
 
         static::assertSame('zugferd_embedded_invoice', $renderer->supports());
@@ -60,7 +60,11 @@ class ZugferdEmbeddedRendererTest extends TestCase
             ->method('render')
             ->willReturn($zugferdResult);
 
-        $embeddedRenderer = new ZugferdEmbeddedRenderer($invoiceRenderer, $zugferdRenderer, 'random-version');
+        $embeddedRenderer = new ZugferdEmbeddedRenderer(
+            $invoiceRenderer,
+            $zugferdRenderer,
+            new ZugferdEmbeddedService('random-version')
+        );
 
         $result = $embeddedRenderer->render([
             'success' => new DocumentGenerateOperation('success'),
@@ -73,8 +77,8 @@ class ZugferdEmbeddedRendererTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $result->getOrderSuccess('success'));
 
-        static::assertInstanceOf(ZugferdUnknownXmlContentException::class, $result->getOrderError('emptyXML'));
-        static::assertInstanceOf(PdfParserException::class, $result->getOrderError('emptyPDF'));
+        static::assertInstanceOf(DocumentException::class, $result->getOrderError('emptyXML'));
+        static::assertInstanceOf(DocumentException::class, $result->getOrderError('emptyPDF'));
         static::assertInstanceOf(\RuntimeException::class, $result->getOrderError('invoiceSuccess'));
         static::assertInstanceOf(\RuntimeException::class, $result->getOrderError('missingZugferd'));
         static::assertInstanceOf(\RuntimeException::class, $result->getOrderError('zugferdSuccess'));

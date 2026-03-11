@@ -81,6 +81,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         $cart->setToken($token);
         $cart->setRuleIds($content['rule_ids']);
+        $cart->setIsNew(false);
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -101,9 +102,17 @@ class RedisCartPersister extends AbstractCartPersister
         }
 
         $content = $this->serializeCart($cart, $context);
+        $options = ['EX' => $this->expireDays * 86400];
 
-        $this->redis->set(self::PREFIX . $cart->getToken(), $content, ['EX' => $this->expireDays * 86400]);
+        if (!$cart->isNew()) {
+            $options[] = 'xx';
+        }
 
+        if ($this->redis->set(self::PREFIX . $cart->getToken(), $content, $options) === false) {
+            return;
+        }
+
+        $cart->setIsNew(false);
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
@@ -124,8 +133,10 @@ class RedisCartPersister extends AbstractCartPersister
         $copyContext->setRuleIds($cart->getRuleIds());
 
         $cart->setToken($newToken);
+        $cart->setIsNew(true);
         $this->save($cart, $copyContext);
         $cart->setToken($oldToken);
+        $cart->setIsNew(false);
 
         $this->delete($oldToken, $context);
     }

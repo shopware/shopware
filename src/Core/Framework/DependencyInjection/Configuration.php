@@ -340,7 +340,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
-                    ->validate()->always()->then(fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                    ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
             ->end();
 
         return $rootNode;
@@ -363,7 +363,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->beforeNormalization()
-                    ->always()->then(function ($flags) {
+                    ->always()->then(static function ($flags) {
                         foreach ($flags as $key => $flag) {
                             // support old syntax
                             if (\is_int($key) && \is_string($flag)) {
@@ -968,7 +968,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                     ->validate()
-                        ->ifTrue(function ($areas) {
+                        ->ifTrue(static function ($areas) {
                             $allowedAreas = ['storefront', 'store_api'];
                             $providedAreas = array_keys($areas);
 
@@ -1041,7 +1041,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
             ->validate()
-                ->ifTrue(function (array $config) {
+                ->ifTrue(static function (array $config) {
                     $policies = array_keys($config['policies'] ?? []);
 
                     // Check default_policies references
@@ -1138,7 +1138,7 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                 ->enumNode('type')
                                     ->isRequired()
-                                    ->values(array_map(fn (Type $type) => $type->value, Type::cases()))
+                                    ->values(array_map(static fn (Type $type) => $type->value, Type::cases()))
                                 ->end()
                                 ->scalarNode('description')->end()
                                 ->scalarNode('unit')->end()

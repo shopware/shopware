@@ -257,7 +257,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
                 'markAsTopseller' => (bool) $item['markAsTopseller'],
-                'visibilities' => array_map(function (array $visibility) {
+                'visibilities' => array_map(static function (array $visibility) {
                     return array_merge([
                         '_count' => 1,
                     ], $visibility);
@@ -279,9 +279,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'categoryTree' => ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'),
-                'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'))),
+                'categoriesRo' => array_values(array_map(static fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'))),
                 'taxId' => $item['taxId'],
-                'tags' => array_filter(array_map(function (array $tag) {
+                'tags' => array_filter(array_map(static function (array $tag) {
                     return empty($tag['id']) ? null : [
                         'id' => $tag['id'],
                         'name' => ElasticsearchIndexingUtils::stripText($tag['name'] ?? ''),
@@ -302,13 +302,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'name' => ElasticsearchFieldMapper::translated(field: 'deliveryTimeName', items: $translation),
                     '_count' => 1,
                 ],
-                'properties' => array_values(array_map(function (string $propertyId) use ($groups) {
+                'properties' => array_values(array_map(static function (string $propertyId) use ($groups) {
                     return array_merge([
                         'id' => $propertyId,
                         '_count' => 1,
                     ], $groups[$propertyId] ?? []);
                 }, ElasticsearchIndexingUtils::parseJson($item, 'propertyIds'))),
-                'options' => array_values(array_map(function (string $optionId) use ($groups) {
+                'options' => array_values(array_map(static function (string $optionId) use ($groups) {
                     return array_merge([
                         'id' => $optionId,
                         '_count' => 1,

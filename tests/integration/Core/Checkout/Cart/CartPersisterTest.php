@@ -250,7 +250,7 @@ class CartPersisterTest extends TestCase
         $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
 
         $caughtEvent = null;
-        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -409,9 +409,9 @@ class CartPersisterTest extends TestCase
         $connection->expects($this->once())
             ->method('prepare')
             ->with(
-                static::callback(fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))
+                static::callback(static fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))
             )
-            ->willReturnCallback(fn (string $sql): Statement => static::getContainer()->get(Connection::class)->prepare($sql));
+            ->willReturnCallback(static fn (string $sql): Statement => static::getContainer()->get(Connection::class)->prepare($sql));
     }
 
     private function createCart(string $token, \DateTimeImmutable $date, ?\DateTimeImmutable $updatedAt = null): void

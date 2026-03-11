@@ -59,7 +59,7 @@ class AssetInstallCommandTest extends TestCase
         $invokedCount = $this->exactly(2);
         $service->expects($invokedCount)
             ->method('copyAssets')
-            ->willReturnCallback(function ($bundle, $force) use ($invokedCount, $exampleBundle): void {
+            ->willReturnCallback(static function ($bundle, $force) use ($invokedCount, $exampleBundle): void {
                 if ($invokedCount->numberOfInvocations() === 1) {
                     static::assertSame($exampleBundle, $bundle);
                     static::assertTrue($force);

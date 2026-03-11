@@ -78,7 +78,7 @@ class AppListCommandTest extends TestCase
     {
         $filterValue = 'test-app';
 
-        $criteria = static::callback(function (Criteria $criteria) use ($filterValue): bool {
+        $criteria = static::callback(static function (Criteria $criteria) use ($filterValue): bool {
             $filters = $criteria->getFilters();
             if (!(\count($filters) === 1 && $filters[0] instanceof MultiFilter)) {
                 return false;

@@ -50,7 +50,7 @@ class ProductCategoryDenormalizerTest extends TestCase
         $this->productRepository->update([
             [
                 'id' => $productFixture['testable-product'],
-                'categories' => \array_map(fn (string $categoryId) => ['id' => $categoryId], $categoryIds),
+                'categories' => \array_map(static fn (string $categoryId) => ['id' => $categoryId], $categoryIds),
             ],
         ], $this->context);
 

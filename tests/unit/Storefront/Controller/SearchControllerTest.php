@@ -301,7 +301,7 @@ class SearchControllerTest extends TestCase
         $dispatcher = new EventDispatcher();
 
         $redirectEvent = null;
-        $dispatcher->addListener(StorefrontRedirectEvent::class, function (StorefrontRedirectEvent $event) use (&$redirectEvent): void {
+        $dispatcher->addListener(StorefrontRedirectEvent::class, static function (StorefrontRedirectEvent $event) use (&$redirectEvent): void {
             $redirectEvent = $event;
         });
 

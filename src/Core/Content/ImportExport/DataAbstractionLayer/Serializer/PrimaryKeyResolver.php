@@ -71,7 +71,7 @@ class PrimaryKeyResolver
             return $record;
         }
 
-        $idFields = $definition->getPrimaryKeys()->filter(fn (Field $field) => $field instanceof IdField);
+        $idFields = $definition->getPrimaryKeys()->filter(static fn (Field $field) => $field instanceof IdField);
         $idField = $idFields->first();
 
         if ($idFields->count() !== 1 || !$idField) {

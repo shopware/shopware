@@ -597,7 +597,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     private function getDummyStruct(): TokenStruct
     {
         $tokenStruct = null;
-        Feature::silent('v6.8.0.0', function () use (&$tokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$tokenStruct): void {
             $tokenStruct = new TokenStruct();
         });
         static::assertInstanceOf(TokenStruct::class, $tokenStruct);

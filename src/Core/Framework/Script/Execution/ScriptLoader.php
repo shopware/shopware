@@ -118,7 +118,7 @@ class ScriptLoader implements EventSubscriberInterface
             }
 
             if (!isset($appIncludes[$script['app_id']])) {
-                $includes = array_filter($scripts, fn (array $include) => $include['hook'] === 'include' && $include['app_id'] === $script['app_id']);
+                $includes = array_filter($scripts, static fn (array $include) => $include['hook'] === 'include' && $include['app_id'] === $script['app_id']);
 
                 $appIncludes[$script['app_id']] = array_map(function (array $include): Script {
                     return new Script(

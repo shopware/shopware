@@ -69,7 +69,7 @@ class ComposerPluginLoaderTest extends TestCase
 
         static::assertNotEmpty($loader->getPluginInfos());
 
-        $entry = array_find($loader->getPluginInfos(), fn (array $plugin) => $plugin['name'] === 'SwagTestComposerLoaded');
+        $entry = array_find($loader->getPluginInfos(), static fn (array $plugin) => $plugin['name'] === 'SwagTestComposerLoaded');
         static::assertNotNull($entry);
 
         static::assertSame('SwagTestComposerLoaded', $entry['name']);

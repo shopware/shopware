@@ -233,7 +233,7 @@ class ServiceController
         $criteria->addFilter(new EqualsFilter('selfManaged', true))
             ->addAssociation('app.acl_role');
 
-        return array_values($this->appRepository->search($criteria, $context)->getEntities()->map(fn (AppEntity $app) => [
+        return array_values($this->appRepository->search($criteria, $context)->getEntities()->map(static fn (AppEntity $app) => [
             'id' => $app->getId(),
             'name' => $app->getName(),
             'label' => $app->getTranslated()['label'] ?? $app->getName(),

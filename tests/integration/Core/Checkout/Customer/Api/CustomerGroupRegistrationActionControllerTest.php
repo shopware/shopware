@@ -42,7 +42,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $this->addEventListener(
             $eventDispatcher,
             CustomerGroupRegistrationDeclined::class,
-            function (CustomerGroupRegistrationDeclined $event) use ($customerId, $requestedCustomerGroup): void {
+            static function (CustomerGroupRegistrationDeclined $event) use ($customerId, $requestedCustomerGroup): void {
                 // Check requested customerGroup is set in event
                 static::assertSame($customerId, $event->getCustomer()->getId());
                 static::assertSame($requestedCustomerGroup->getId(), $event->getCustomerGroup()->getId());

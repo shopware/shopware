@@ -20,7 +20,7 @@ class XmlValidationError extends Error
         protected array $errors = []
     ) {
         $this->errorMessages = array_map(
-            function (\LibXMLError $error) {
+            static function (\LibXMLError $error) {
                 $errorMessage = new ErrorMessage();
                 $errorMessage->assign([
                     'message' => \sprintf('%s on line %d in column %d', trim($error->message), $error->line, $error->column),

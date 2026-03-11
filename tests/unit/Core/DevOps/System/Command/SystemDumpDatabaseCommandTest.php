@@ -60,7 +60,7 @@ class SystemDumpDatabaseCommandTest extends TestCase
         $dumpProcess->method('mustRun')->willReturnSelf();
         $dumpProcess->method('getOutput')->willReturn('-- SQL dump content');
 
-        $processFactory = function (array $cmd) use (&$capturedCommands, $mkdirProcess, $dumpProcess): Process {
+        $processFactory = static function (array $cmd) use (&$capturedCommands, $mkdirProcess, $dumpProcess): Process {
             $capturedCommands[] = $cmd;
 
             return $cmd[0] === 'mkdir' ? $mkdirProcess : $dumpProcess;
@@ -142,7 +142,7 @@ class SystemDumpDatabaseCommandTest extends TestCase
         $command = new SystemDumpDatabaseCommand(
             self::DUMP_DIR,
             $this->connection,
-            fn (array $cmd): Process => $cmd[0] === 'mkdir' ? $mkdirProcess : $dumpProcess,
+            static fn (array $cmd): Process => $cmd[0] === 'mkdir' ? $mkdirProcess : $dumpProcess,
             $this->filesystem,
         );
 

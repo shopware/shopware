@@ -97,7 +97,7 @@ class RuleConditionPersister
 
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scripts);
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => true], $scripts);
 
         $this->appScriptConditionRepository->update($updateSet, $context);
     }
@@ -110,7 +110,7 @@ class RuleConditionPersister
 
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scripts);
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => false], $scripts);
 
         $this->appScriptConditionRepository->update($updateSet, $context);
     }

@@ -71,7 +71,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (TestTask $task) use ($taskId) {
+            ->with(static::callback(static function (TestTask $task) use ($taskId) {
                 static::assertSame($taskId, $task->getTaskId());
 
                 return true;
@@ -114,7 +114,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (TestTask $task) use ($taskId) {
+            ->with(static::callback(static function (TestTask $task) use ($taskId) {
                 static::assertSame($taskId, $task->getTaskId());
 
                 return true;

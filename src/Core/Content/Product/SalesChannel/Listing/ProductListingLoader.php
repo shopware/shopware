@@ -116,7 +116,7 @@ class ProductListingLoader
             array_push($fields, ...$filter->getFields());
         }
 
-        $fields = array_map(fn (string $field) => preg_replace('/^product./', '', $field), $fields);
+        $fields = array_map(static fn (string $field) => preg_replace('/^product./', '', $field), $fields);
 
         if (\in_array('options.id', $fields, true)) {
             return true;

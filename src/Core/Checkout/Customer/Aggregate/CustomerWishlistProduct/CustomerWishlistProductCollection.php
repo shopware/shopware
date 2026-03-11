@@ -19,7 +19,7 @@ class CustomerWishlistProductCollection extends EntityCollection
 
     public function getProducts(): ?ProductCollection
     {
-        return new ProductCollection($this->fmap(fn (CustomerWishlistProductEntity $wishlistProductEntity) => $wishlistProductEntity->getProduct()));
+        return new ProductCollection($this->fmap(static fn (CustomerWishlistProductEntity $wishlistProductEntity) => $wishlistProductEntity->getProduct()));
     }
 
     public function getByProductId(string $productId): ?CustomerWishlistProductEntity

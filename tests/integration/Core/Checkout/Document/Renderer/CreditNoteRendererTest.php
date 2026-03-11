@@ -246,7 +246,7 @@ class CreditNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -309,7 +309,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note successfully' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 foreach ([-100, -200, -300] as $price) {
                     static::assertStringContainsString('credit' . $price, $rendered->getContent());
                 }
@@ -333,7 +333,7 @@ class CreditNoteRendererTest extends TestCase
             [7, 19, 22],
             [],
             null,
-            function (string $orderId, array $errors): void {
+            static function (string $orderId, array $errors): void {
                 static::assertNotEmpty($errors);
                 static::assertArrayHasKey($orderId, $errors);
                 static::assertInstanceOf(\Throwable::class, $errors[$orderId]);
@@ -347,7 +347,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note with document number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('CREDIT_NOTE_9999', $rendered->getNumber());
                 static::assertSame('credit_note_CREDIT_NOTE_9999', $rendered->getName());
             },
@@ -360,7 +360,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note with invoice number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('1000', $rendered->getNumber());
                 static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
@@ -378,7 +378,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note without invoice number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('1000', $rendered->getNumber());
                 static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
@@ -390,7 +390,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render with single page' => [
             [7, 19],
             [-100, -200],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 $rendered = $rendered->getContent();
 
                 static::assertStringContainsString('Credit note 1000 for Invoice no. 1001', $rendered);
@@ -544,7 +544,7 @@ class CreditNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -568,7 +568,7 @@ class CreditNoteRendererTest extends TestCase
             false,
             [7],
             [-100],
-            function (OrderEntity $order): void {
+            static function (OrderEntity $order): void {
                 static::assertNotNull($lineItems = $order->getLineItems());
                 $taxAmount = $lineItems->getPrices()->sum()->getCalculatedTaxes()->getAmount();
 
@@ -581,7 +581,7 @@ class CreditNoteRendererTest extends TestCase
             true,
             [7],
             [-100],
-            function (OrderEntity $order): void {
+            static function (OrderEntity $order): void {
                 static::assertSame($order->getPrice()->getTotalPrice(), \abs(7.0) + \abs(-100.0));
                 static::assertSame($order->getAmountNet(), \abs(-100.0));
             },

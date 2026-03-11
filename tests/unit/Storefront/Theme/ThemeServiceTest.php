@@ -109,7 +109,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(static function (callable $callback): void {
             $callback();
         });
 
@@ -141,7 +141,7 @@ class ThemeServiceTest extends TestCase
 
     public function testAssignThemeSkipCompile(): void
     {
-        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(static function (callable $callback): void {
             $callback();
         });
 
@@ -212,7 +212,7 @@ class ThemeServiceTest extends TestCase
 
         $context = $this->context;
         $this->messageBusMock->expects($this->once())->method('dispatch')
-            ->willReturnCallback(function () use ($themeId, $context): Envelope {
+            ->willReturnCallback(static function () use ($themeId, $context): Envelope {
                 return new Envelope(
                     new CompileThemeMessage(
                         TestDefaults::SALES_CHANNEL,
@@ -283,7 +283,7 @@ class ThemeServiceTest extends TestCase
         $this->themeCompilerMock
             ->expects($this->exactly(2))
             ->method('compileTheme')
-            ->willReturnCallback(function ($salesChannelId, $themeId) use (&$parameters): void {
+            ->willReturnCallback(static function ($salesChannelId, $themeId) use (&$parameters): void {
                 $parameters[] = [$salesChannelId, $themeId];
             });
 

@@ -115,7 +115,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         $existence = EntityExistence::createEmpty();
         $fieldPath = $parameters->getPath() . '/' . $field->getPropertyName();
 
-        $propertyKeys = array_map(fn (Field $field) => $field->getPropertyName(), $field->getPropertyMapping());
+        $propertyKeys = array_map(static fn (Field $field) => $field->getPropertyName(), $field->getPropertyMapping());
 
         // If a mapping is defined, you should not send properties that are undefined.
         // Sending undefined fields will throw an UnexpectedFieldException

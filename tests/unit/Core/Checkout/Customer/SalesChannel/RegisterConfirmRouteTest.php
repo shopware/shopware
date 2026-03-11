@@ -117,7 +117,7 @@ class RegisterConfirmRouteTest extends TestCase
 
         $this->validator->expects($this->once())
             ->method('validate')
-            ->willReturnCallback(function (array $data, DataValidationDefinition $definition): void {
+            ->willReturnCallback(static function (array $data, DataValidationDefinition $definition): void {
                 $properties = $definition->getProperties();
                 static::assertArrayHasKey('doubleOptInRegistration', $properties);
                 static::assertContainsOnlyInstancesOf(IsTrue::class, $properties['doubleOptInRegistration']);

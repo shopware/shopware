@@ -341,7 +341,7 @@ class CartLineItemController extends StorefrontController
             return false;
         }
 
-        $this->addCartErrors($cart, fn (Error $error) => $error->isPersistent());
+        $this->addCartErrors($cart, static fn (Error $error) => $error->isPersistent());
 
         return true;
     }

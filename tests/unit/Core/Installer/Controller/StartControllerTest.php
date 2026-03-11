@@ -70,7 +70,7 @@ class StartControllerTest extends TestCase
         $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/welcome.html.twig',
-                static::callback(function (array $params): bool {
+                static::callback(static function (array $params): bool {
                     $expectedMenuWithExtendedSteps = [
                         [
                             'label' => 'start',

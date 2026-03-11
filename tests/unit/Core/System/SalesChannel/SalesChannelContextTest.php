@@ -87,7 +87,7 @@ class SalesChannelContextTest extends TestCase
         $called = false;
         $salesChannelContext->withPermissions(
             [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
-            function (SalesChannelContext $context) use (&$called): void {
+            static function (SalesChannelContext $context) use (&$called): void {
                 $called = true;
 
                 static::assertTrue($context->hasPermission(AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION));
@@ -107,7 +107,7 @@ class SalesChannelContextTest extends TestCase
         $called = false;
         $salesChannelContext->withPermissions(
             [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
-            function (SalesChannelContext $context) use (&$called): void {
+            static function (SalesChannelContext $context) use (&$called): void {
                 $called = true;
 
                 static::assertEmpty($context->getPermissions());

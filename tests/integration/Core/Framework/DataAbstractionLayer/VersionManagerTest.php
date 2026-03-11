@@ -146,7 +146,7 @@ class VersionManagerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             PreWriteValidationEvent::class,
-            function (PreWriteValidationEvent $event) use (&$called): void {
+            static function (PreWriteValidationEvent $event) use (&$called): void {
                 // we also get a validation event for the version tables
                 if (!$event->getPrimaryKeys('product')) {
                     return;

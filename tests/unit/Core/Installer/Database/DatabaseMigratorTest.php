@@ -65,7 +65,7 @@ class DatabaseMigratorTest extends TestCase
         $this->migrationCollection->expects($this->once())
             ->method('migrateInSteps')
             ->with(null, 1)
-            ->willReturnCallback(fn () => yield 'migration');
+            ->willReturnCallback(static fn () => yield 'migration');
 
         $this->migrationCollection->expects($this->never())
             ->method('migrateDestructiveInSteps');

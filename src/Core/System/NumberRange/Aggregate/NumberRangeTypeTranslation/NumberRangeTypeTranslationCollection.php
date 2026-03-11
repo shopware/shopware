@@ -16,12 +16,12 @@ class NumberRangeTypeTranslationCollection extends EntityCollection
      */
     public function getNumberRangeTypeIds(): array
     {
-        return $this->fmap(fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getNumberRangeTypeId());
+        return $this->fmap(static fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getNumberRangeTypeId());
     }
 
     public function filterByNumberRangeTypeId(string $id): self
     {
-        return $this->filter(fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getNumberRangeTypeId() === $id);
+        return $this->filter(static fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getNumberRangeTypeId() === $id);
     }
 
     /**
@@ -29,12 +29,12 @@ class NumberRangeTypeTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getLanguageId());
+        return $this->fmap(static fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

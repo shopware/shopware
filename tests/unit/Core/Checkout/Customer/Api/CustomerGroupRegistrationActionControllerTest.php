@@ -178,7 +178,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $this->setSearchReturn($context, new CustomerCollection([$customer]));
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $this->contextRestorerMock->method('restoreByCustomer')->willReturnCallback(function (string $customerId, Context $context) use ($customer, $salesChannelContext) {
+        $this->contextRestorerMock->method('restoreByCustomer')->willReturnCallback(static function (string $customerId, Context $context) use ($customer, $salesChannelContext) {
             $salesChannelContext->method('getCustomer')->willReturn($customer);
             $salesChannelContext->method('getContext')->willReturn($context);
 
@@ -197,7 +197,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         );
 
         // test case to ensure the event contains the declined requested customer group
-        $this->eventDispatcherMock->method('dispatch')->willReturnCallback(function (CustomerGroupRegistrationDeclined $customerGroupRegistrationDeclined) use ($customer, $requestedCustomerGroup) {
+        $this->eventDispatcherMock->method('dispatch')->willReturnCallback(static function (CustomerGroupRegistrationDeclined $customerGroupRegistrationDeclined) use ($customer, $requestedCustomerGroup) {
             static::assertSame($customer, $customerGroupRegistrationDeclined->getCustomer());
             static::assertSame($requestedCustomerGroup, $customerGroupRegistrationDeclined->getCustomerGroup());
 
@@ -278,7 +278,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     private function setRestorerReturn(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $this->contextRestorerMock->method('restoreByCustomer')->willReturnCallback(function (string $customerId, Context $context) use ($salesChannelContext) {
+        $this->contextRestorerMock->method('restoreByCustomer')->willReturnCallback(static function (string $customerId, Context $context) use ($salesChannelContext) {
             $customer = new CustomerEntity();
             $customer->setGroupId(Uuid::randomHex());
 

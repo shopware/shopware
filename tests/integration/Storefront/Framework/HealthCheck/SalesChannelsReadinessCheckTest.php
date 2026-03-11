@@ -164,16 +164,16 @@ class SalesChannelsReadinessCheckTest extends TestCase
     private function initUtilMock(SalesChannelDomainUtil&MockObject $util): void
     {
         $util->method('runAsSalesChannelRequest')
-            ->willReturnCallback(function (callable $callback): mixed {
+            ->willReturnCallback(static function (callable $callback): mixed {
                 return $callback();
             });
 
         $util->method('runWhileTrustingAllHosts')
-            ->willReturnCallback(function (callable $callback): mixed {
+            ->willReturnCallback(static function (callable $callback): mixed {
                 return $callback();
             });
 
-        $util->method('generateDomainUrl')->willReturnCallback(function ($domain, $routeName) {
+        $util->method('generateDomainUrl')->willReturnCallback(static function ($domain, $routeName) {
             return $domain . $routeName;
         });
     }

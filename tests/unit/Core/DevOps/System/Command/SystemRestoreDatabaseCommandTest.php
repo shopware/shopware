@@ -56,7 +56,7 @@ class SystemRestoreDatabaseCommandTest extends TestCase
         $restoreProcess->method('getExitCode')->willReturn(0);
         $restoreProcess->expects($this->once())->method('setInput');
 
-        $processFactory = function (array $cmd) use (&$capturedCommands, $restoreProcess): Process {
+        $processFactory = static function (array $cmd) use (&$capturedCommands, $restoreProcess): Process {
             $capturedCommands[] = $cmd;
 
             return $restoreProcess;
@@ -105,7 +105,7 @@ class SystemRestoreDatabaseCommandTest extends TestCase
         $restoreProcess->method('getExitCode')->willReturn(1);
         $restoreProcess->expects($this->once())->method('setInput');
 
-        $processFactory = fn (array $cmd): Process => $restoreProcess;
+        $processFactory = static fn (array $cmd): Process => $restoreProcess;
 
         $this->filesystem->expects($this->once())
             ->method('mkdir')
@@ -133,7 +133,7 @@ class SystemRestoreDatabaseCommandTest extends TestCase
             ->method('setInput')
             ->with('SOME SQL');
 
-        $processFactory = fn (array $cmd): Process => $restoreProcess;
+        $processFactory = static fn (array $cmd): Process => $restoreProcess;
 
         $this->filesystem->expects($this->once())
             ->method('mkdir')

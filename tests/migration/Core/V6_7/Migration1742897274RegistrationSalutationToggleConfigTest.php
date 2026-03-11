@@ -58,7 +58,7 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
     private function getConditionValues(): array
     {
         return array_map(
-            function (string $json) { return json_decode($json, true); },
+            static function (string $json) { return json_decode($json, true); },
             static::getContainer()->get(Connection::class)->fetchAllKeyValue(
                 'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = ?',
                 ['core.loginRegistration.showSalutation'],

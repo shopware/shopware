@@ -307,7 +307,7 @@ class EntityWriter implements EntityWriterInterface
 
             /** @var AssociationField $associationField */
             $associationField = $setNullFields
-                ->filter(fn (Field $setNullField) => $setNullField instanceof AssociationField && $setNullField->getReferenceField() === $field)
+                ->filter(static fn (Field $setNullField) => $setNullField instanceof AssociationField && $setNullField->getReferenceField() === $field)
                 ->first();
 
             $flag = $associationField->getFlag(SetNullOnDelete::class);

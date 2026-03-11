@@ -38,7 +38,7 @@ class ApiRouteInfoResolver
         }
 
         return array_map(
-            fn (string $path, array $methods) => new RouteInfo(path: $path, methods: $methods),
+            static fn (string $path, array $methods) => new RouteInfo(path: $path, methods: $methods),
             array_keys($routes),
             array_values($routes)
         );

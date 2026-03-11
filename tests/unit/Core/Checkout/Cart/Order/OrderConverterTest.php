@@ -903,7 +903,7 @@ class OrderConverterTest extends TestCase
         $productDownload->setMediaId(Uuid::randomHex());
         $productDownload->setPosition(0);
         $productDownloadRepository = $this->createMock(EntityRepository::class);
-        $productDownloadRepository->method('search')->willReturnCallback(function (Criteria $criteria) use ($productDownload): EntitySearchResult {
+        $productDownloadRepository->method('search')->willReturnCallback(static function (Criteria $criteria) use ($productDownload): EntitySearchResult {
             $filters = $criteria->getFilters();
             if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {
                 $value = (new \ReflectionProperty(EqualsAnyFilter::class, 'value'))->getValue($filters[0]);

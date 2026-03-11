@@ -18,12 +18,12 @@ class OrderDeliveryCollection extends EntityCollection
      */
     public function getOrderIds(): array
     {
-        return $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getOrderId());
+        return $this->fmap(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getOrderId());
     }
 
     public function filterByOrderId(string $id): self
     {
-        return $this->filter(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getOrderId() === $id);
+        return $this->filter(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getOrderId() === $id);
     }
 
     /**
@@ -31,12 +31,12 @@ class OrderDeliveryCollection extends EntityCollection
      */
     public function getShippingAddressIds(): array
     {
-        return $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddressId());
+        return $this->fmap(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddressId());
     }
 
     public function filterByShippingAddressId(string $id): self
     {
-        return $this->filter(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddressId() === $id);
+        return $this->filter(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddressId() === $id);
     }
 
     /**
@@ -44,25 +44,25 @@ class OrderDeliveryCollection extends EntityCollection
      */
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethodId());
+        return $this->fmap(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethodId());
     }
 
     public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethodId() === $id);
+        return $this->filter(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethodId() === $id);
     }
 
     public function getShippingAddress(): OrderAddressCollection
     {
         return new OrderAddressCollection(
-            $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddress())
+            $this->fmap(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddress())
         );
     }
 
     public function getShippingMethods(): ShippingMethodCollection
     {
         return new ShippingMethodCollection(
-            $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethod())
+            $this->fmap(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethod())
         );
     }
 

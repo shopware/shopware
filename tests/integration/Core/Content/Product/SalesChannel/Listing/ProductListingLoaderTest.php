@@ -275,7 +275,7 @@ class ProductListingLoaderTest extends TestCase
             'isCloseout' => true,
         ]], $this->salesChannelContext->getContext());
 
-        $variants = array_values(\array_map(fn ($item) => ['id' => $item, 'stock' => 0], $this->variantIds));
+        $variants = array_values(\array_map(static fn ($item) => ['id' => $item, 'stock' => 0], $this->variantIds));
 
         $this->productRepository->update($variants, $this->salesChannelContext->getContext());
 
@@ -294,7 +294,7 @@ class ProductListingLoaderTest extends TestCase
             'configuratorGroupConfig' => [],
         ]], $this->salesChannelContext->getContext());
 
-        $variants = array_values(\array_map(fn ($item) => ['id' => $item, 'active' => false], $this->variantIds));
+        $variants = array_values(\array_map(static fn ($item) => ['id' => $item, 'active' => false], $this->variantIds));
 
         $this->productRepository->update($variants, $this->salesChannelContext->getContext());
 

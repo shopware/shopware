@@ -667,7 +667,7 @@ class EntityWriterTest extends TestCase
 
         static::assertCount(2, $productTranslations, print_r($productTranslations, true));
 
-        $productTranslations = array_map(function ($a) {
+        $productTranslations = array_map(static function ($a) {
             $a['language_id'] = Uuid::fromBytesToHex($a['language_id']);
 
             return $a;

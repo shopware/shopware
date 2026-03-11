@@ -168,7 +168,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
 
             $event->markAsUsed(
                 array_merge(
-                    ...array_map(fn (string $ids) => json_decode($ids, true, \JSON_THROW_ON_ERROR), $usedMediaIds)
+                    ...array_map(static fn (string $ids) => json_decode($ids, true, \JSON_THROW_ON_ERROR), $usedMediaIds)
                 )
             );
         }

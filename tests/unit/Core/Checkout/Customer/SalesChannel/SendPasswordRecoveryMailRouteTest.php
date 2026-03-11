@@ -88,7 +88,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             ->expects($this->once())
             ->method('create')
             ->with(
-                static::callback(function (array $recoveryData): bool {
+                static::callback(static function (array $recoveryData): bool {
                     static::assertCount(1, $recoveryData);
 
                     $updateData = $recoveryData[0];
@@ -142,7 +142,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         $this->eventDispatcher
             ->method('dispatch')
-            ->with(static::callback(function (Event $dispatched) use ($event): bool {
+            ->with(static::callback(static function (Event $dispatched) use ($event): bool {
                 if ($dispatched instanceof CustomerAccountRecoverRequestEvent) {
                     static::assertEquals($event, $dispatched);
                 }

@@ -160,7 +160,7 @@ class DeliveryNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(DeliveryNoteOrdersEvent::class, function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(DeliveryNoteOrdersEvent::class, static function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -191,7 +191,7 @@ class DeliveryNoteRendererTest extends TestCase
     {
         yield 'render delivery_note successfully' => [
             '2000',
-            function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
+            static function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
                 $html = $rendered->getContent();
                 static::assertStringContainsString('<html lang="en-GB">', $html);
                 static::assertStringContainsString('</html>', $html);
@@ -203,7 +203,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         yield 'render delivery_note with document number' => [
             'DELIVERY_NOTE_9999',
-            function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
+            static function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
                 static::assertSame('DELIVERY_NOTE_9999', $rendered->getNumber());
                 static::assertSame('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
 

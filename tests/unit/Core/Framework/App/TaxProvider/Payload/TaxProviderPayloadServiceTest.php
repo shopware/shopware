@@ -159,7 +159,7 @@ class TaxProviderPayloadServiceTest extends TestCase
     public function testGuzzleException(): void
     {
         $client = new Client([
-            'handler' => function (): void {
+            'handler' => static function (): void {
                 throw new TransferException('Something went wrong');
             },
         ]);

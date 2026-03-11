@@ -90,7 +90,7 @@ class EntityWriteResultFactory
                 continue;
             }
 
-            $ids = array_map(fn (EntityWriteResult $result) => $result->getPrimaryKey(), $result);
+            $ids = array_map(static fn (EntityWriteResult $result) => $result->getPrimaryKey(), $result);
 
             if ($ids === []) {
                 continue;
@@ -194,7 +194,7 @@ class EntityWriteResultFactory
             return $parentIds;
         }
 
-        $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
+        $fkField = $definition->getFields()->filter(static function (Field $field) use ($parent) {
             if (!$field instanceof FkField || $field instanceof ReferenceVersionField) {
                 return false;
             }
@@ -210,7 +210,7 @@ class EntityWriteResultFactory
 
         $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $ids, $fkField);
 
-        $mapped = array_map(fn ($id) => ['id' => $id], $primaryKeys);
+        $mapped = array_map(static fn ($id) => ['id' => $id], $primaryKeys);
 
         // recursion call for nested sub entities (order_delivery_position > order_delivery > order)
         $nested = $this->resolveParents($parent, $mapped);
@@ -260,7 +260,7 @@ class EntityWriteResultFactory
      */
     private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
     {
-        $fkFields = $definition->getFields()->filter(fn (Field $field) => $field instanceof FkField && !$field instanceof ReferenceVersionField);
+        $fkFields = $definition->getFields()->filter(static fn (Field $field) => $field instanceof FkField && !$field instanceof ReferenceVersionField);
 
         $mapping = [];
 
@@ -273,7 +273,7 @@ class EntityWriteResultFactory
             $entity = $fkField->getReferenceDefinition()->getEntityName();
             $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
 
-            $mapped = array_map(fn ($id) => ['id' => $id], $primaryKeys);
+            $mapped = array_map(static fn ($id) => ['id' => $id], $primaryKeys);
 
             // after resolving the mapping entities - we resolve the parent for related entity (maybe inherited for products, or sub domain entities)
             $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped);

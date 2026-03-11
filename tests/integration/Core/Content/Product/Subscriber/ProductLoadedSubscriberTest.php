@@ -1122,7 +1122,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);
 
-        $names = $options->map(fn (PropertyGroupOptionEntity $option) => [
+        $names = $options->map(static fn (PropertyGroupOptionEntity $option) => [
             'name' => $option->getName(),
         ]);
 

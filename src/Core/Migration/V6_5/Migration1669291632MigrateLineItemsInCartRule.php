@@ -22,7 +22,7 @@ class Migration1669291632MigrateLineItemsInCartRule extends MigrationStep
     {
         // find all the deprecated rules
         $ruleConditions = $connection->fetchAllAssociative('SELECT DISTINCT rule_id FROM rule_condition WHERE type = "cartLineItemsInCart"');
-        $ruleIds = array_map(fn ($condition) => $condition['rule_id'], $ruleConditions);
+        $ruleIds = array_map(static fn ($condition) => $condition['rule_id'], $ruleConditions);
 
         // migrate the rule condition types
         $connection->executeStatement('UPDATE rule_condition SET type = "cartLineItem" WHERE type = "cartLineItemsInCart"');

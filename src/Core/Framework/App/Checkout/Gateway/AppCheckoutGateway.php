@@ -53,8 +53,8 @@ class AppCheckoutGateway implements CheckoutGatewayInterface
         $collected = new CheckoutGatewayCommandCollection();
 
         $context = $payload->getSalesChannelContext();
-        $paymentMethods = $payload->getPaymentMethods()->map(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getTechnicalName());
-        $shippingMethods = $payload->getShippingMethods()->map(fn (ShippingMethodEntity $shippingMethod) => $shippingMethod->getTechnicalName());
+        $paymentMethods = $payload->getPaymentMethods()->map(static fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getTechnicalName());
+        $shippingMethods = $payload->getShippingMethods()->map(static fn (ShippingMethodEntity $shippingMethod) => $shippingMethod->getTechnicalName());
 
         $appPayload = new AppCheckoutGatewayPayload($context, $payload->getCart(), $paymentMethods, $shippingMethods);
         $apps = $this->getActiveAppsWithCheckoutGateway($context->getContext());

@@ -71,7 +71,7 @@ class UpdatedByFieldTest extends TestCase
         $payload = $this->createOrderPayload();
         $orderRepository->create([$payload], $context);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->update([
                 [
                     'id' => $payload['id'],
@@ -98,7 +98,7 @@ class UpdatedByFieldTest extends TestCase
         $payload = $this->createOrderPayload();
         $orderRepository->create([$payload], $context);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->update([
                 [
                     'id' => $payload['id'],

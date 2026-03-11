@@ -16,12 +16,12 @@ class UnitTranslationCollection extends EntityCollection
      */
     public function getUnitIds(): array
     {
-        return $this->fmap(fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getUnitId());
+        return $this->fmap(static fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getUnitId());
     }
 
     public function filterByUnitId(string $id): self
     {
-        return $this->filter(fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getUnitId() === $id);
+        return $this->filter(static fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getUnitId() === $id);
     }
 
     /**
@@ -29,12 +29,12 @@ class UnitTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getLanguageId());
+        return $this->fmap(static fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

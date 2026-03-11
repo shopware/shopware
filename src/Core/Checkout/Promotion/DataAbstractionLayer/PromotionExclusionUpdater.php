@@ -248,13 +248,13 @@ class PromotionExclusionUpdater
             return [];
         }
 
-        $validValues = array_values(array_filter($hexIds, fn ($hexId) => Uuid::isValid($hexId)));
+        $validValues = array_values(array_filter($hexIds, static fn ($hexId) => Uuid::isValid($hexId)));
 
         if ($validValues === []) {
             return [];
         }
 
-        $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $validValues);
+        $bytes = array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $validValues);
 
         return $bytes;
     }

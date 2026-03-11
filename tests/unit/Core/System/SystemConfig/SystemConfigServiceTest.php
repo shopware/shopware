@@ -56,12 +56,12 @@ class SystemConfigServiceTest extends TestCase
 
     public function testMultipleChangedEventsFired(): void
     {
-        $beforeEventAssert = function (Event|Hookable $event): void {
+        $beforeEventAssert = static function (Event|Hookable $event): void {
             static::assertInstanceOf(BeforeSystemConfigMultipleChangedEvent::class, $event);
             $event->setValue('foo.bar', 40);
         };
 
-        $eventAssert = function (Event|Hookable $event): void {
+        $eventAssert = static function (Event|Hookable $event): void {
             static::assertInstanceOf(SystemConfigMultipleChangedEvent::class, $event);
             static::assertSame(40, $event->getConfig()['foo.bar']);
         };
@@ -70,7 +70,7 @@ class SystemConfigServiceTest extends TestCase
         $this->eventDispatcher
             ->expects($expects)
             ->method('dispatch')
-            ->willReturnCallback(function (Event|Hookable $event) use ($expects, $beforeEventAssert, $eventAssert) {
+            ->willReturnCallback(static function (Event|Hookable $event) use ($expects, $beforeEventAssert, $eventAssert) {
                 match ($expects->numberOfInvocations()) {
                     1 => $beforeEventAssert($event),
                     7 => $eventAssert($event),
@@ -107,7 +107,7 @@ class SystemConfigServiceTest extends TestCase
         $dispatchedHook = null;
         $this->eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function (Event|Hookable $event) use (&$dispatchedHook) {
+            ->willReturnCallback(static function (Event|Hookable $event) use (&$dispatchedHook) {
                 if ($event instanceof SystemConfigChangedHook) {
                     $dispatchedHook = $event;
                 }
@@ -128,7 +128,7 @@ class SystemConfigServiceTest extends TestCase
         $dispatchedHook = null;
         $this->eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function (Event|Hookable $event) use (&$dispatchedHook) {
+            ->willReturnCallback(static function (Event|Hookable $event) use (&$dispatchedHook) {
                 if ($event instanceof SystemConfigChangedHook) {
                     $dispatchedHook = $event;
                 }

@@ -130,7 +130,7 @@ class RevocationRequestRouteTest extends TestCase
     {
         $validatorMock = $this->createMock(DataValidator::class);
 
-        $validatorMock->method('getViolations')->willReturnCallback(function (array $formData): ConstraintViolationList {
+        $validatorMock->method('getViolations')->willReturnCallback(static function (array $formData): ConstraintViolationList {
             $violationList = new ConstraintViolationList();
             if (!\array_key_exists('firstName', $formData) || empty($formData['firstName'])) {
                 $violationList->add(new ConstraintViolation('Invalid firstName', null, [], 'firstName', null, null, null, 'firstName'));

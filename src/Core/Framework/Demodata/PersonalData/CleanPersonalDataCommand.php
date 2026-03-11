@@ -91,7 +91,7 @@ class CleanPersonalDataCommand extends Command
 
             if ($ids !== []) {
                 $this->customerRepository->delete(
-                    array_map(fn ($id) => ['id' => $id], $ids),
+                    array_map(static fn ($id) => ['id' => $id], $ids),
                     $context
                 );
             }

@@ -150,6 +150,6 @@ class UserListCommand extends Command
             throw MaintenanceException::aclRolesNotLoaded($user->getId(), $user->getUsername());
         }
 
-        return array_values($aclRoles->map(fn (AclRoleEntity $role) => $role->getName()));
+        return array_values($aclRoles->map(static fn (AclRoleEntity $role) => $role->getName()));
     }
 }

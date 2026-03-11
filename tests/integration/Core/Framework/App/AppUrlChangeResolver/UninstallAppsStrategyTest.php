@@ -63,7 +63,7 @@ class UninstallAppsStrategyTest extends TestCase
             $themeLifecycleHandler->expects($this->once())
                 ->method('handleUninstall')
                 ->with(
-                    static::callback(fn (AppDeactivatedEvent $event) => $event->getApp()->getName() === $app->getName())
+                    static::callback(static fn (AppDeactivatedEvent $event) => $event->getApp()->getName() === $app->getName())
                 );
         }
 

@@ -64,7 +64,7 @@ class CustomCartProcessor implements CartProcessorInterface, CartDataCollectorIn
             $isDownloadLineItem = $lineItem->isProductType(ProductDefinition::TYPE_DIGITAL);
 
             if (!Feature::isActive('v6.8.0.0')) {
-                Feature::callSilentIfInactive('v6.8.0.0', function () use ($lineItem, &$isDownloadLineItem): void {
+                Feature::callSilentIfInactive('v6.8.0.0', static function () use ($lineItem, &$isDownloadLineItem): void {
                     $isDownloadLineItem = $isDownloadLineItem || $lineItem->hasState(State::IS_DOWNLOAD);
                 });
             }

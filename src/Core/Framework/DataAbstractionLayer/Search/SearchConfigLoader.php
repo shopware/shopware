@@ -55,7 +55,7 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
             );
 
             if ($config !== []) {
-                return array_map(function (array $item): array {
+                return array_map(static function (array $item): array {
                     return [
                         'and_logic' => $item['and_logic'],
                         'excluded_terms' => json_decode($item['excluded_terms'], true),

@@ -320,7 +320,7 @@ class CartFacadeTest extends TestCase
         yield 'Test payload' => [
             'payload-cases',
             [],
-            function (CartFacade $service, IdsCollection $ids): void {
+            static function (CartFacade $service, IdsCollection $ids): void {
                 $item = $service->get($ids->get('p1'));
                 static::assertInstanceOf(ItemFacade::class, $item);
 
@@ -336,7 +336,7 @@ class CartFacadeTest extends TestCase
         yield 'Test add errors' => [
             'add-errors',
             [],
-            function (CartFacade $cart): void {
+            static function (CartFacade $cart): void {
                 static::assertTrue($cart->errors()->has('NO_PRODUCTS_IN_CART'));
                 static::assertTrue($cart->errors()->has('YOU_SHOULD_REALLY_ADD_PRODUCTS'));
                 static::assertTrue($cart->errors()->has('ADD_PRODUCTS_OR_GO_AWAY'));
@@ -348,7 +348,7 @@ class CartFacadeTest extends TestCase
         yield 'Test cart states' => [
             'cart-state',
             [],
-            function (CartFacade $cart): void {
+            static function (CartFacade $cart): void {
                 static::assertTrue($cart->states()->has('my-custom-state'));
                 static::assertFalse($cart->states()->has('default-state'));
             },

@@ -45,7 +45,7 @@ class MediaUploadV2ControllerTest extends TestCase
         /** @var MockHttpClient $httpClient */
         $httpClient = static::getContainer()->get('shopware.media.upload.http_client');
         $httpClient->setResponseFactory(
-            fn () => new MockResponse(
+            static fn () => new MockResponse(
                 '',
                 [
                     'http_code' => 200,
@@ -88,7 +88,7 @@ class MediaUploadV2ControllerTest extends TestCase
 
         static::assertSame(2, $thumbnails->getTotal());
 
-        $urls = $thumbnails->map(fn ($t) => $t->getPath());
+        $urls = $thumbnails->map(static fn ($t) => $t->getPath());
         static::assertContains('https://localhost:8000/image-200.jpg', $urls);
         static::assertContains('https://localhost:8000/image-400.jpg', $urls);
     }

@@ -166,7 +166,7 @@ class CookieControllerTest extends TestCase
 
         // Override the json method to capture the data being passed to it
         $jsonData = null;
-        $controller->jsonCallback = function ($data) use (&$jsonData) {
+        $controller->jsonCallback = static function ($data) use (&$jsonData) {
             $jsonData = $data;
 
             return new JsonResponse($data);

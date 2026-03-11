@@ -109,7 +109,7 @@ class LifecycleManagerTest extends TestCase
         $this->appLifecycle->expects($this->exactly($services->count()))
             ->method('delete')
             ->willReturnCallback(function ($name, $options, $context) use ($services): void {
-                static::assertContains($name, $services->map(fn (AppEntity $service) => $service->getName()));
+                static::assertContains($name, $services->map(static fn (AppEntity $service) => $service->getName()));
                 static::assertArrayHasKey('id', $options);
                 static::assertSame($this->context, $context);
             });

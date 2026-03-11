@@ -174,7 +174,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(static fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertSame($missingPropertyPaths, $foundViolations);
         }

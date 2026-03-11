@@ -691,7 +691,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $actions = $flowActions->getActions()?->getActions() ?? [];
         }
 
-        $webhooks = array_map(function ($action) use ($appId) {
+        $webhooks = array_map(static function ($action) use ($appId) {
             $name = $action->getMeta()->getName();
 
             return [
@@ -710,7 +710,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
 
-        return array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
+        return array_merge($webhooks, array_map(static function (Webhook $webhook) use ($defaultLocale, $appId) {
             /** @var array{name: string, event: string, url: string} $payload */
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;

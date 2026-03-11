@@ -91,7 +91,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
 
                 $orderLineItemCollection = $data['orderDetails'];
@@ -115,7 +115,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
 
                 $orderLineItemCollection = $data['orderDetails'];
@@ -166,7 +166,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
                 static::assertSame('frontend.account.order.single.page', $data['redirectTo']);
                 static::assertSame('BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY', $data['redirectParameters']['deepLinkCode']);
@@ -254,7 +254,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event) use ($differentShippingMethodId): void {
+            static function (StorefrontRenderEvent $event) use ($differentShippingMethodId): void {
                 static::assertSame($differentShippingMethodId, $event->getSalesChannelContext()->getShippingMethod()->getId());
             },
             0,
@@ -270,7 +270,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event) use ($orderShippingMethodId): void {
+            static function (StorefrontRenderEvent $event) use ($orderShippingMethodId): void {
                 static::assertSame($orderShippingMethodId, $event->getSalesChannelContext()->getShippingMethod()->getId());
             },
             0,

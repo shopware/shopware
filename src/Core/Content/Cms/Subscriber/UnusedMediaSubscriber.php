@@ -120,12 +120,12 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     private function executeQueryWithIds(string $sql, UnusedMediaSearchEvent $event): array
     {
         $result = $this->connection->fetchFirstColumn(
-            \sprintf($sql, implode(',', array_map(fn (string $id) => \sprintf('"%s"', $id), $event->getUnusedIds())))
+            \sprintf($sql, implode(',', array_map(static fn (string $id) => \sprintf('"%s"', $id), $event->getUnusedIds())))
         );
 
         // json_decode each row and flatten the result to an array of ids
         return array_merge(
-            ...array_map(fn (string $ids) => json_decode($ids, true, \JSON_THROW_ON_ERROR), $result)
+            ...array_map(static fn (string $ids) => json_decode($ids, true, \JSON_THROW_ON_ERROR), $result)
         );
     }
 }

@@ -183,7 +183,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->storage
             ->expects($this->once())
             ->method('save')
-            ->with(static::callback(function (ThemeRuntimeConfig $config) {
+            ->with(static::callback(static function (ThemeRuntimeConfig $config) {
                 return $config->scriptFiles === ['js/foo/file1.js', 'js/foo/file2.js'];
             }));
 
@@ -230,7 +230,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->storage
             ->expects($this->once())
             ->method('save')
-            ->willReturnCallback(function ($config): void {
+            ->willReturnCallback(static function ($config): void {
                 static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
                 static::assertNotNull($config->scriptFiles);
                 static::assertSame(['js/foo/file1.js', 'js/foo/file2.js'], $config->scriptFiles);
@@ -276,7 +276,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->storage
             ->expects($this->once())
             ->method('save')
-            ->willReturnCallback(function ($config): void {
+            ->willReturnCallback(static function ($config): void {
                 static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
                 static::assertNull($config->scriptFiles);
             });

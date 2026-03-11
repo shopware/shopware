@@ -31,7 +31,7 @@ class ExtensionLoaderTest extends TestCase
         $configurationService = $this->createMock(ConfigurationService::class);
         $configurationService
             ->method('checkConfiguration')
-            ->willReturnCallback(function (string $domain): bool {
+            ->willReturnCallback(static function (string $domain): bool {
                 // Throw exception for the broken plugin
                 if ($domain === 'BrokenPlugin.config') {
                     throw new UtilXmlParsingException('/path/to/config.xml', 'Invalid XML');
@@ -46,7 +46,7 @@ class ExtensionLoaderTest extends TestCase
             ->method('error')
             ->with(
                 'Failed to load plugin extension data',
-                static::callback(function (array $context): bool {
+                static::callback(static function (array $context): bool {
                     return $context['plugin'] === 'BrokenPlugin'
                         && str_contains($context['exception'], 'Invalid XML');
                 })

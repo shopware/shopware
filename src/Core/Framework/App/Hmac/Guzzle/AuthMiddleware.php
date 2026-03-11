@@ -70,7 +70,7 @@ class AuthMiddleware
                 return $handler($request, $options);
             }
 
-            $successCallback = function (ResponseInterface $response) use ($secret, $signature, $request) {
+            $successCallback = static function (ResponseInterface $response) use ($secret, $signature, $request) {
                 if ($response->getStatusCode() !== 401) {
                     if (!$signature->isResponseAuthentic($response, $secret)) {
                         throw new ServerException(

@@ -358,7 +358,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         /** @var EntityRepository<CountryCollection> $repo */
         $repo = static::getContainer()->get('country.repository');
 
-        $countries = $repo->search($criteria, $context)->fmap(function (CountryEntity $country) {
+        $countries = $repo->search($criteria, $context)->fmap(static function (CountryEntity $country) {
             return $country->getIso();
         });
 

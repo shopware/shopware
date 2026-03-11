@@ -21,7 +21,7 @@ class RetryableTransactionTest extends TestCase
     public function testRetryableTransactionRetriesOnDeadlock(): void
     {
         $counter = 0;
-        $f = function () use (&$counter): void {
+        $f = static function () use (&$counter): void {
             ++$counter;
             throw new DeadlockException(
                 new Exception('Deadlock detected'),

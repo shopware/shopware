@@ -55,7 +55,7 @@ class ProductExportController extends AbstractController
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
-                    fn (Error $error) => $error->getErrorMessages(),
+                    static fn (Error $error) => $error->getErrorMessages(),
                     $errors
                 )
             );
@@ -84,7 +84,7 @@ class ProductExportController extends AbstractController
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
-                    fn (Error $error) => $error->getErrorMessages(),
+                    static fn (Error $error) => $error->getErrorMessages(),
                     $errors
                 )
             );

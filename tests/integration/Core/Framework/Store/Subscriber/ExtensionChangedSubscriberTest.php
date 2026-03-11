@@ -31,7 +31,7 @@ class ExtensionChangedSubscriberTest extends TestCase
         $subscriber = new ExtensionChangedSubscriber($this->cache);
         $this->dispatcher->addSubscriber($subscriber);
 
-        $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => 'test-value');
+        $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, static fn () => 'test-value');
     }
 
     public function testPluginWrittenEventClearsCache(): void
@@ -47,7 +47,7 @@ class ExtensionChangedSubscriberTest extends TestCase
 
     public function testAppWrittenEventClearsCache(): void
     {
-        $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => 'test-value');
+        $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, static fn () => 'test-value');
 
         $item = $this->cache->getItem(StoreClient::EXTENSION_LIST_CACHE);
         static::assertTrue($item->isHit());

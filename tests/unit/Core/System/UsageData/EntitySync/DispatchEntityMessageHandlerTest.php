@@ -118,7 +118,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -173,7 +173,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -259,7 +259,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -365,11 +365,11 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 $fields = $definition->getFields()->getElements();
 
                 // filter out all VersionFields
-                $fields = array_filter($fields, function (Field $field) {
+                $fields = array_filter($fields, static function (Field $field) {
                     return !($field instanceof VersionField);
                 });
 
@@ -429,7 +429,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection->method('createExpressionBuilder')
             ->willReturn($expressionBuilder);
         $connection->method('executeQuery')
-            ->with(static::callback(function (string $query) use ($idFieldStorageName) {
+            ->with(static::callback(static function (string $query) use ($idFieldStorageName) {
                 return str_contains($query, EntityDefinitionQueryHelper::escape($idFieldStorageName));
             }));
 
@@ -442,7 +442,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -541,7 +541,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $manyToManyAssociationService = $this->createMock(ManyToManyAssociationService::class);
         $manyToManyAssociationService->expects($this->once())
             ->method('getMappingIdsForAssociationFields')
-            ->with(static::callback(function (array $associationFields) {
+            ->with(static::callback(static function (array $associationFields) {
                 return $associationFields[0] === 'missing';
             }))
             ->willReturn(['associationName' => ['primaryKeyValue' => 'associationValue']]);
@@ -596,7 +596,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -709,11 +709,11 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 $fields = $definition->getFields()->getElements();
 
                 // filter out all VersionFields
-                $fields = array_filter($fields, function (Field $field) {
+                $fields = array_filter($fields, static function (Field $field) {
                     return !($field instanceof VersionField);
                 });
 

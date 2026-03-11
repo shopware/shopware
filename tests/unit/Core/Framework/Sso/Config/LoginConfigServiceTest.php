@@ -389,7 +389,7 @@ class LoginConfigServiceTest extends TestCase
     public function createLoginConfigService(array $rawConfig): LoginConfigService
     {
         $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturnCallback(function ($name, $parameter) {
+        $router->method('generate')->willReturnCallback(static function ($name, $parameter) {
             return $name . '?' . \http_build_query($parameter);
         });
 

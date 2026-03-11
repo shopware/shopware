@@ -398,7 +398,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $expects = $this->exactly(2);
         $this->cacheInvalidator->expects($expects)
             ->method('invalidate')
-            ->willReturnCallback(function (array $tags, bool $immediate = false) use ($expects, $salesChannelId): void {
+            ->willReturnCallback(static function (array $tags, bool $immediate = false) use ($expects, $salesChannelId): void {
                 match ($expects->numberOfInvocations()) {
                     1 => static::assertSame([CachedSystemConfigLoader::CACHE_TAG], $tags),
                     2 => static::assertSame(['system.config-' . $salesChannelId], $tags),

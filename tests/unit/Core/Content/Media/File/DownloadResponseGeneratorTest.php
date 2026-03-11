@@ -244,7 +244,7 @@ class DownloadResponseGeneratorTest extends TestCase
             return $response;
         }
 
-        return new StreamedResponse(function (): void {
+        return new StreamedResponse(static function (): void {
         }, Response::HTTP_OK, $headers);
     }
 }

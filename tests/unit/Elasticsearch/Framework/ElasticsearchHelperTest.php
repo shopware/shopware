@@ -139,7 +139,7 @@ class ElasticsearchHelperTest extends TestCase
         $expectedParsed = new TermQuery('field', 'test');
         $parser = $this->createMock(CriteriaParser::class);
         $parser->method('parseFilter')
-            ->willReturnCallback(function () use ($expectedParsed) {
+            ->willReturnCallback(static function () use ($expectedParsed) {
                 return $expectedParsed;
             });
 
@@ -178,7 +178,7 @@ class ElasticsearchHelperTest extends TestCase
         $expectedParsed = new MatchQuery('fieldB', 'bar', ['boost' => SearchRanking::HIGH_SEARCH_RANKING]);
         $parser = $this->createMock(CriteriaParser::class);
         $parser->method('parseFilter')
-            ->willReturnCallback(function () use ($expectedParsed) {
+            ->willReturnCallback(static function () use ($expectedParsed) {
                 return $expectedParsed;
             });
 

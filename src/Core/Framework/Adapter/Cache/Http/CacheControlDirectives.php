@@ -64,7 +64,7 @@ readonly class CacheControlDirectives
             's_maxage' => $this->sMaxAge,
             'stale_while_revalidate' => $this->staleWhileRevalidate,
             'stale_if_error' => $this->staleIfError,
-        ], fn ($value) => $value !== null);
+        ], static fn ($value) => $value !== null);
     }
 
     /**

@@ -292,7 +292,7 @@ class AppServiceTest extends TestCase
         $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(2, $actionButtons);
 
-        $actionNames = $actionButtons->map(fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
+        $actionNames = $actionButtons->map(static fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
 
         static::assertContains('viewOrder', $actionNames);
         static::assertContains('doStuffWithProducts', $actionNames);

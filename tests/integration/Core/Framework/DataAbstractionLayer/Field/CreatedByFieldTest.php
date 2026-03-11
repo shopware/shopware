@@ -63,7 +63,7 @@ class CreatedByFieldTest extends TestCase
 
         $payload = $this->createOrderPayload();
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->create([$payload], $context);
         });
 
@@ -84,7 +84,7 @@ class CreatedByFieldTest extends TestCase
 
         $payload = $this->createOrderPayload();
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->create([$payload], $context);
         });
 
@@ -105,7 +105,7 @@ class CreatedByFieldTest extends TestCase
 
         $payload = $this->createOrderPayload();
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->create([$payload], $context);
         });
 

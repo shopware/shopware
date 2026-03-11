@@ -60,7 +60,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret($term, $context);
 
-        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $keywords = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         static::assertEqualsCanonicalizing($expected, $keywords);
     }
@@ -71,7 +71,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret('1000', $context);
 
-        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $keywords = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         static::assertNotContains('10100', $keywords);
     }
@@ -86,7 +86,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret($term, $context);
 
-        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $keywords = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         static::assertEqualsCanonicalizing($expected, $keywords);
     }
@@ -133,7 +133,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         ], $context);
 
         $matches = $this->interpreter->interpret($words, $context);
-        $terms = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $terms = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         if (!$andLogic) {
             $flatterTerms = ArrayNormalizer::flatten($matches->getTokenTerms());
@@ -156,7 +156,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         $context = Context::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
-        $terms = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $terms = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         static::assertSame($expected, \array_slice($terms, 0, \count($expected)));
     }

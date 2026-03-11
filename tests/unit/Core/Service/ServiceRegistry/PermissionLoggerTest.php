@@ -59,7 +59,7 @@ class PermissionLoggerTest extends TestCase
         $this->messageBus
             ->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (LogPermissionToRegistryMessage $message) use ($consent) {
+            ->with(static::callback(static function (LogPermissionToRegistryMessage $message) use ($consent) {
                 return $message->permissionsConsent === $consent && $message->consentState === ConsentState::GRANTED;
             }))
             ->willReturn(new Envelope(new \stdClass()));
@@ -93,7 +93,7 @@ class PermissionLoggerTest extends TestCase
         $this->client
             ->expects($this->once())
             ->method('saveConsent')
-            ->with(static::callback(function (SaveConsentRequest $request) use ($consent, $shopId, $licenseHost) {
+            ->with(static::callback(static function (SaveConsentRequest $request) use ($consent, $shopId, $licenseHost) {
                 return $request->identifier === $consent->identifier
                     && $request->consentingUserId === $consent->consentingUserId
                     && $request->shopIdentifier === $shopId
@@ -155,7 +155,7 @@ class PermissionLoggerTest extends TestCase
         $this->client
             ->expects($this->once())
             ->method('saveConsent')
-            ->with(static::callback(function (SaveConsentRequest $request) use ($consent, $shopId) {
+            ->with(static::callback(static function (SaveConsentRequest $request) use ($consent, $shopId) {
                 return $request->identifier === $consent->identifier
                     && $request->consentingUserId === $consent->consentingUserId
                     && $request->shopIdentifier === $shopId
@@ -179,7 +179,7 @@ class PermissionLoggerTest extends TestCase
         $this->messageBus
             ->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (LogPermissionToRegistryMessage $message) use ($consent) {
+            ->with(static::callback(static function (LogPermissionToRegistryMessage $message) use ($consent) {
                 return $message->permissionsConsent === $consent && $message->consentState === ConsentState::REVOKED;
             }))
             ->willReturn(new Envelope(new \stdClass()));

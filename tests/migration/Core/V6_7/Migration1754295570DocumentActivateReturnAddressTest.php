@@ -38,7 +38,7 @@ class Migration1754295570DocumentActivateReturnAddressTest extends TestCase
 
         array_walk(
             $documentConfig,
-            function (array $arr): void {
+            static function (array $arr): void {
                 $arr['config'] = json_decode($arr['config'], true, 512, \JSON_THROW_ON_ERROR);
 
                 static::assertTrue($arr['config']['displayReturnAddress']);

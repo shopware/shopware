@@ -73,7 +73,7 @@ class ProductStreamUpdaterTest extends TestCase
     {
         $connectionMock = $this->createMock(Connection::class);
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects($this->once())->method('dispatch')->willReturnCallback(function ($message) {
+        $messageBusMock->expects($this->once())->method('dispatch')->willReturnCallback(static function ($message) {
             static::assertInstanceOf(ProductStreamMappingIndexingMessage::class, $message);
             static::assertSame('product-stream-1', $message->getData());
             static::assertSame('product_stream_mapping.indexer', $message->getIndexer());
@@ -162,7 +162,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         /** @var StaticEntityRepository<ProductCollection> */
         $repository = new StaticEntityRepository([
-            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
+            static function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
                 static::assertEquals($criteria, $actualCriteria);
                 static::assertEquals($context, $actualContext);
 
@@ -214,7 +214,7 @@ class ProductStreamUpdaterTest extends TestCase
         $newMatches = [Uuid::randomHex(), Uuid::randomHex()];
         /** @var StaticEntityRepository<ProductCollection> */
         $repository = new StaticEntityRepository([
-            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $newMatches): array {
+            static function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $newMatches): array {
                 static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
@@ -223,7 +223,7 @@ class ProductStreamUpdaterTest extends TestCase
 
                 return $newMatches;
             },
-            fn () => [],
+            static fn () => [],
         ], $definition);
 
         $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
@@ -288,13 +288,13 @@ class ProductStreamUpdaterTest extends TestCase
         $definition = new ProductDefinition();
         /** @var StaticEntityRepository<ProductCollection> */
         $repository = new StaticEntityRepository([
-            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $newMatches): array {
+            static function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $newMatches): array {
                 static::assertEquals($criteria, $actualCriteria);
                 static::assertEquals($context, $actualContext);
 
                 return $newMatches;
             },
-            fn () => [],
+            static fn () => [],
         ], $definition);
 
         $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
@@ -361,7 +361,7 @@ class ProductStreamUpdaterTest extends TestCase
 
                 throw new UnmappedFieldException('non-existing-field', $this->createMock(ProductDefinition::class));
             },
-            fn () => [],
+            static fn () => [],
         ], $definition);
 
         $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);

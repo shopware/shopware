@@ -75,7 +75,7 @@ class DownloadService
             throw ImportExportException::fileNotFound($fileId);
         }
 
-        return new StreamedResponse(function () use ($stream): void {
+        return new StreamedResponse(static function () use ($stream): void {
             fpassthru($stream);
         }, Response::HTTP_OK, $headers);
     }

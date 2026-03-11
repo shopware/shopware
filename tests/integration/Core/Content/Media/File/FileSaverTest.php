@@ -678,7 +678,7 @@ class FileSaverTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerClosure = function () use (&$eventDidRun): void {
+        $listenerClosure = static function () use (&$eventDidRun): void {
             $eventDidRun = true;
         };
 

@@ -153,7 +153,7 @@ class DeleteNotUsedMediaCommand extends Command
             $input->getOption('folder-entity'),
         );
 
-        $output->write(implode(',', array_map(fn ($col) => \sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
+        $output->write(implode(',', array_map(static fn ($col) => \sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
         foreach ($mediaBatches as $mediaBatch) {
             foreach ($mediaBatch as $media) {
                 $row = [
@@ -184,7 +184,7 @@ class DeleteNotUsedMediaCommand extends Command
         );
 
         $totalCount = 0;
-        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, function ($batchNum, array $medias) use ($io, $cursor, &$totalCount, $input) {
+        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, static function ($batchNum, array $medias) use ($io, $cursor, &$totalCount, $input) {
             if ($batchNum === 0 && $medias === []) {
                 return true;
             }
@@ -210,7 +210,7 @@ class DeleteNotUsedMediaCommand extends Command
             $io->table(
                 ['Filename', 'Title', 'Uploaded At', 'File Size'],
                 array_map(
-                    fn (MediaEntity $media) => [
+                    static fn (MediaEntity $media) => [
                         $media->getFileNameIncludingExtension(),
                         $media->getTitle(),
                         $media->getUploadedAt()?->format('F jS, Y'),

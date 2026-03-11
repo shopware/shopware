@@ -201,7 +201,7 @@ class StornoRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(StornoOrdersEvent::class, function (StornoOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(StornoOrdersEvent::class, static function (StornoOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -259,7 +259,7 @@ class StornoRendererTest extends TestCase
                 ],
                 'fileTypes' => [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION],
             ],
-            function (?RenderedDocument $rendered = null): void {
+            static function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
                 static::assertStringContainsString('Cancellation no. 1000', $rendered->getContent());
                 static::assertStringContainsString('Cancellation 1000 for Invoice 1001', $rendered->getContent());
@@ -271,7 +271,7 @@ class StornoRendererTest extends TestCase
                 'documentNumber' => 'STORNO_9999',
                 'fileTypes' => [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION],
             ],
-            function (?RenderedDocument $rendered = null): void {
+            static function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
                 static::assertSame('STORNO_9999', $rendered->getNumber());
                 static::assertSame('cancellation_invoice_STORNO_9999', $rendered->getName());

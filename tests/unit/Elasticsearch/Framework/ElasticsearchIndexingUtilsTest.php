@@ -26,7 +26,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
 
         $customFieldsMappingEventDispatched = 0;
 
-        $dispatcher->addListener(ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event) use (&$customFieldsMappingEventDispatched): void {
+        $dispatcher->addListener(ElasticsearchCustomFieldsMappingEvent::class, static function (ElasticsearchCustomFieldsMappingEvent $event) use (&$customFieldsMappingEventDispatched): void {
             ++$customFieldsMappingEventDispatched;
         });
 
@@ -80,7 +80,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->with(
-                static::callback(function (string $sql): bool {
+                static::callback(static function (string $sql): bool {
                     return str_contains($sql, 'custom_field.include_in_search = 1')
                         && str_contains($sql, 'custom_field.active = 1');
                 }),
@@ -122,14 +122,14 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->with(
-                static::callback(function (string $sql): bool {
+                static::callback(static function (string $sql): bool {
                     return str_contains($sql, 'custom_field.name IN (:fields)');
                 }),
-                static::callback(function (array $params): bool {
+                static::callback(static function (array $params): bool {
                     return \in_array('sorting_field', $params['fields'], true)
                         && \in_array('stream_field', $params['fields'], true);
                 }),
-                static::callback(function (array $types): bool {
+                static::callback(static function (array $types): bool {
                     return isset($types['fields']) && $types['fields'] === ArrayParameterType::STRING;
                 })
             )
@@ -229,10 +229,10 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->with(
-                static::callback(function (string $sql): bool {
+                static::callback(static function (string $sql): bool {
                     return str_contains($sql, 'custom_field.name IN (:fields)');
                 }),
-                static::callback(function (array $params): bool {
+                static::callback(static function (array $params): bool {
                     return \in_array('valid_field', $params['fields'], true)
                         && \count($params['fields']) === 1;
                 }),
@@ -322,10 +322,10 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->with(
-                static::callback(function (string $sql): bool {
+                static::callback(static function (string $sql): bool {
                     return str_contains($sql, 'custom_field.name IN (:fields)');
                 }),
-                static::callback(function (array $params): bool {
+                static::callback(static function (array $params): bool {
                     return \in_array('nested_field_a', $params['fields'], true)
                         && \in_array('nested_field_b', $params['fields'], true);
                 }),
@@ -378,7 +378,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
             ->method('fetchAllKeyValue')
             ->with(
                 static::anything(),
-                static::callback(function (array $params): bool {
+                static::callback(static function (array $params): bool {
                     $fields = $params['fields'];
 
                     return \count($fields) === 3

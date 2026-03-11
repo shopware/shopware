@@ -75,7 +75,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage
             FROM `number_range_state`
         ');
 
-        return array_map(fn ($state) => (int) $state, $states);
+        return array_map(static fn ($state) => (int) $state, $states);
     }
 
     public function set(string $configurationId, int $value): void

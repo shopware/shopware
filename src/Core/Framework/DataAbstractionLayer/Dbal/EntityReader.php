@@ -118,7 +118,7 @@ class EntityReader implements EntityReaderInterface
         // Do not re-use `$isPartialLoading` here, as this method could be called for associations
         // and only the initial call is relevant for marking the whole read as partial
         if ($fieldsForPartialLoading !== []) {
-            $fields = $definition->getFields()->filter(function (Field $field) use (&$fieldsForPartialLoading) {
+            $fields = $definition->getFields()->filter(static function (Field $field) use (&$fieldsForPartialLoading) {
                 if ($field->getFlag(PrimaryKey::class)) {
                     $fieldsForPartialLoading[$field->getPropertyName()] = [];
 
@@ -583,7 +583,7 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
+            $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
@@ -697,7 +697,7 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
+            $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
@@ -1140,7 +1140,7 @@ class EntityReader implements EntityReaderInterface
         $wrapper->andWhere($root . '.id IN (:rootIds)');
 
         $bytes = $collection->map(
-            fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
+            static fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
         );
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
@@ -1310,7 +1310,7 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        $related = \array_filter($collection->map(function (Entity $entity) use ($association) {
+        $related = \array_filter($collection->map(static function (Entity $entity) use ($association) {
             if ($association->is(Extension::class)) {
                 return $entity->getExtension($association->getPropertyName());
             }

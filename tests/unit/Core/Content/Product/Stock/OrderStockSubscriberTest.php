@@ -208,12 +208,12 @@ class OrderStockSubscriberTest extends TestCase
         $afterState = array_map($idMapper(['id', 'referenced_id']), $afterState);
 
         $beforeState = array_combine(
-            array_map(fn (array $lineItem) => $lineItem['id'], $beforeState),
+            array_map(static fn (array $lineItem) => $lineItem['id'], $beforeState),
             $beforeState
         );
 
         $afterState = array_combine(
-            array_map(fn (array $lineItem) => $lineItem['id'], $afterState),
+            array_map(static fn (array $lineItem) => $lineItem['id'], $afterState),
             $afterState
         );
 
@@ -235,7 +235,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $stockStorage->expects($this->once())
             ->method('alter')
-            ->with(static::callback(function (array $changes) use ($expectedUpdates): bool {
+            ->with(static::callback(static function (array $changes) use ($expectedUpdates): bool {
                 static::assertSameSize($expectedUpdates, $changes);
 
                 foreach ($expectedUpdates as $i => $expectedUpdate) {

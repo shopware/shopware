@@ -80,7 +80,7 @@ class PromotionCalculator
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
     {
         // sort discount line items by priority before building exclusions and calculating discounts
-        $discountLineItems->sort(function (LineItem $a, LineItem $b) {
+        $discountLineItems->sort(static function (LineItem $a, LineItem $b) {
             return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
         });
 

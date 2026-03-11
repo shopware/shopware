@@ -184,7 +184,7 @@ class NotFoundSubscriberTest extends TestCase
         $httpKernel
             ->expects($this->once())
             ->method('handle')
-            ->with(static::callback(function (Request $request) {
+            ->with(static::callback(static function (Request $request) {
                 return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
             }))
             ->willReturn(new Response());

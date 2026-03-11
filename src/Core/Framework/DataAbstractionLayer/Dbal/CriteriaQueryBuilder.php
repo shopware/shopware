@@ -214,7 +214,7 @@ class CriteriaQueryBuilder
             $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
-        $minScore = array_map(fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
+        $minScore = array_map(static fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
         \assert($minScore !== []);
 
         $minScore = min($minScore);

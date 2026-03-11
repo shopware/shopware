@@ -89,7 +89,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->method('info')
             ->with(
                 'Purged tags (1).',
-                static::callback(function (array $context): bool {
+                static::callback(static function (array $context): bool {
                     static::assertCount(1, $context['tags']);
                     static::assertSame(
                         (new Frame(

@@ -364,7 +364,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->createCustomFieldWithSearchConfig($customFieldName, active: true, searchable: true);
 
         $configFields = $this->queryConfigFieldsDirectly();
-        $customFieldFields = array_filter($configFields, fn ($field) => str_starts_with($field['field'] ?? '', 'customFields.' . $customFieldName));
+        $customFieldFields = array_filter($configFields, static fn ($field) => str_starts_with($field['field'] ?? '', 'customFields.' . $customFieldName));
         static::assertCount(1, $customFieldFields);
 
         $includedField = reset($customFieldFields);

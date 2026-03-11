@@ -184,7 +184,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         ]);
 
         $mock = $this->createMock(DataValidator::class);
-        $mock->method('validate')->willReturnCallback(function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
+        $mock->method('validate')->willReturnCallback(static function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
             foreach ($properties as $propertyName => $value) {
                 static::assertEquals($value, $data[$propertyName] ?? null);
                 static::assertEquals($definition->getProperties()[$propertyName] ?? null, $constraints);
@@ -263,7 +263,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $rateLimiterMock
             ->expects($this->once())
             ->method('ensureAccepted')
-            ->willReturnCallback(function (string $route, string $key): void {
+            ->willReturnCallback(static function (string $route, string $key): void {
                 static::assertSame($route, RateLimiter::NEWSLETTER_FORM);
                 static::assertSame($key, '127.0.0.1');
             });
@@ -388,7 +388,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $dispatchedEvents = [];
         $eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$dispatchedEvents) {
+            ->willReturnCallback(static function ($event) use (&$dispatchedEvents) {
                 $dispatchedEvents[] = $event;
 
                 return $event;

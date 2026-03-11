@@ -2182,6 +2182,7 @@ describe('src/app/adapter/options-composition-shim', () => {
     describe('Watch flush option:', () => {
         it('should forward flush option to Vue watch', async () => {
             const watchCallback = jest.fn();
+            let domTextDuringCallback: string | null = null;
 
             const originalComponent = defineComponent({
                 template: '<div class="count">{{ count }}</div>',
@@ -2192,12 +2193,15 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            mount(originalComponent);
+            const wrapper = mount(originalComponent);
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 watch: {
                     count: {
                         handler(newVal: number) {
+                            // With flush: 'post', the DOM should already be updated when this callback fires.
+                            // With flush: 'pre' (default), domTextDuringCallback would still be '0'.
+                            domTextDuringCallback = wrapper.find('.count').text();
                             watchCallback(newVal);
                         },
                         flush: 'post',
@@ -2218,6 +2222,9 @@ describe('src/app/adapter/options-composition-shim', () => {
             await nextTick();
 
             expect(watchCallback).toHaveBeenCalledWith(42);
+            // Verify flush: 'post' timing — the DOM must already show the updated value
+            // when the callback fires (this assertion would fail with flush: 'pre').
+            expect(domTextDuringCallback).toBe('42');
         });
     });
 

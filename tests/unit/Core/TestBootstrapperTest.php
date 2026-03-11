@@ -56,6 +56,17 @@ class TestBootstrapperTest extends TestCase
         static::assertSame($bootstrapper, $bootstrapper->setSkipDatabaseSetup(false));
     }
 
+    public function testBootstrapSkipsDatabaseSetupWhenFlagIsSet(): void
+    {
+        // Running in the unit suite means no database is available.
+        // If skipDatabaseSetup were ignored, dbExists() would be called and throw.
+        $bootstrapper = (new TestBootstrapper())
+            ->setLoadEnvFile(false)
+            ->setSkipDatabaseSetup(true);
+
+        static::assertSame($bootstrapper, $bootstrapper->bootstrap());
+    }
+
     public function testAddCallingPlugin(): void
     {
         $testBootstrapper = new TestBootstrapper();

@@ -67,7 +67,7 @@ class TestBootstrapper
 
         KernelLifecycleManager::prepare($classLoader);
 
-        if (!$this->skipDatabaseSetup) {
+        if ($this->skipDatabaseSetup) {
             return $this;
         }
 
@@ -470,5 +470,4 @@ class TestBootstrapper
 
         KernelLifecycleManager::bootKernel();
     }
-
 }

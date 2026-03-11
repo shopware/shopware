@@ -16,6 +16,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -597,6 +599,81 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($mediaId);
 
         static::assertSame('http://some.domain/media.png', $media?->get('url'));
+    }
+
+    public function testDeleteExternalMediaDoesNotAttemptFilesystemDeletion(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'name' => 'external media',
+                    'private' => false,
+                    'path' => 'https://localhost:8000/image.jpg',
+                ],
+            ],
+            $this->context
+        );
+
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame('https://localhost:8000/image.jpg', $media->getPath());
+
+        $this->context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
+        $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
+
+        $deletedMedia = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        static::assertNull($deletedMedia);
+    }
+
+    public function testDeleteExternalMediaWithExternalThumbnails(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $thumbnailSizeId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'name' => 'external media with thumbnails',
+                    'private' => false,
+                    'path' => 'https://localhost:8000/image.jpg',
+                    'thumbnails' => [
+                        [
+                            'width' => 800,
+                            'height' => 600,
+                            'path' => 'https://localhost:8000/thumb-800.jpg',
+                            'mediaThumbnailSize' => [
+                                'id' => $thumbnailSizeId,
+                                'width' => 800,
+                                'height' => 600,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $this->context
+        );
+
+        $criteria = new Criteria([$mediaId]);
+        $criteria->addAssociation('thumbnails');
+        $media = $this->mediaRepository->search($criteria, $this->context)->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame('https://localhost:8000/image.jpg', $media->getPath());
+        static::assertInstanceOf(MediaThumbnailCollection::class, $media->getThumbnails());
+        static::assertCount(1, $media->getThumbnails());
+
+        $thumbnail = $media->getThumbnails()->first();
+        static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
+        static::assertSame('https://localhost:8000/thumb-800.jpg', $thumbnail->getPath());
+
+        $this->context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
+        $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
+
+        $deletedMedia = $this->mediaRepository->search($criteria, $this->context)->get($mediaId);
+        static::assertNull($deletedMedia);
     }
 
     /**

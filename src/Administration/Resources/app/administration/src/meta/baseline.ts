@@ -153,7 +153,6 @@ const missingTests = [
     'src/core/feature.ts',
     'src/core/helper/device.helper.js',
     'src/core/helper/middleware.helper.js',
-    'src/core/helper/refresh-token.helper.js',
     'src/core/helper/store-loader.helper.js',
     'src/core/helper/upload-task.helper.js',
     'src/core/service/api/acl.api.service.js',

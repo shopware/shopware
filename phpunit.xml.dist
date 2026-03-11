@@ -139,6 +139,13 @@
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDecomposedRouteResponse.php</file>
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentSkeletonRouteResponse.php</file>
             <directory suffix="LoaderConfig.php">src/Core/Framework/ContentSystem/Hydration/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Content/Breadcrumb/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Content/Category/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Content/Product/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Checkout/Payment/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Checkout/Shipping/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/System/Currency/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/System/Language/ContentSystem/DataLoader/</directory>
         </exclude>
     </source>
     <php>

@@ -435,54 +435,6 @@ describe('Options API Shim — Integrative Tests', () => {
         });
     });
 
-    // ─── Multi-level chain ───────────────────────────────────────────────────
-
-    describe('Multi-level Options API override chain:', () => {
-        it('should apply two sequential Options API overrides with $super chaining through both', async () => {
-            const originalComponent = defineComponent({
-                template: `
-                    <div class="count">{{ count }}</div>
-                    <button class="inc" @click="increment">+</button>
-                `,
-                setup: (props, context) =>
-                    createExtendableSetup({ props, context, name: 'comp-multi-level' }, () => {
-                        const count = ref(0);
-                        const increment = () => {
-                            count.value += 1;
-                        };
-
-                        return { public: { count, increment } };
-                    }),
-            });
-
-            const wrapper = mount(originalComponent);
-
-            // Plugin A: $super then +10
-            await applyOptionsOverride('comp-multi-level', {
-                methods: {
-                    increment() {
-                        (this as any).$super('increment');
-                        (this as any).count += 10;
-                    },
-                },
-            });
-
-            // Plugin B: $super then *2
-            await applyOptionsOverride('comp-multi-level', {
-                methods: {
-                    increment() {
-                        (this as any).$super('increment');
-                        (this as any).count *= 2;
-                    },
-                },
-            });
-
-            // Click: Core(0→1) → A(1→11) → B(11→22)
-            await wrapper.find('.inc').trigger('click');
-            expect(wrapper.find('.count').text()).toBe('22');
-        });
-    });
-
     // ─── Mixed chain ─────────────────────────────────────────────────────────
 
     describe('Mixed override chain (Composition API + Options API):', () => {

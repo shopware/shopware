@@ -29,6 +29,26 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     private RouteCollection $routes;
 
+    /**
+     * @var array<string, mixed>
+     */
+    private array $schemaRoutes = [];
+
+    /**
+     * @var array<string, true>
+     */
+    private array $matchedSchemaEntries = [];
+
+    /**
+     * @var array<string, true>
+     */
+    private array $experimentalChecked = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $missingRoutes = [];
+
     protected function setUp(): void
     {
         // Boot kernel, as some test definitions might still be registered in the old kernel
@@ -121,8 +141,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             DefinitionService::API
         );
 
-        $schemaRoutes = $schema['paths'];
-        $missingRoutes = [];
+        $this->schemaRoutes = $schema['paths'];
 
         foreach ($this->routes as $route) {
             $path = $route->getPath();
@@ -130,40 +149,96 @@ class ApiRoutesHaveASchemaTest extends TestCase
             if (!$this->isAdminApi($path)) {
                 continue;
             }
-            if (\array_key_exists($subPath, $schemaRoutes)) {
-                $this->checkExperimentalState($route, $schemaRoutes[$subPath]);
-                unset($schemaRoutes[$subPath]);
 
-                continue;
-            }
-            if ($this->isRepositoryCrudRoute($route)) {
-                $listPath = str_replace('{path}', '', $subPath);
-                $crudPath = str_replace('{path}', '{id}', $subPath);
-                unset($schemaRoutes[$listPath]);
-                unset($schemaRoutes[$crudPath]);
+            if (!\array_key_exists($subPath, $this->schemaRoutes)) {
+                $this->handleRouteNotInSchema($route, $subPath);
 
                 continue;
             }
 
-            // Don't enforce schema for non-core routes (test can run on custom installations)
-            if (!$this->isCoreRoute($route)) {
-                continue;
-            }
+            $this->matchRouteMethodsToSchema($route, $subPath);
 
-            $missingRoutes[] = $subPath;
+            if ($this->isSchemaPathFullyCovered($subPath)) {
+                unset($this->schemaRoutes[$subPath]);
+            }
         }
-        sort($missingRoutes);
 
-        static::assertSame([], array_keys($schemaRoutes), 'The schema contains routes that do not exist');
+        usort($this->missingRoutes, static function (string $a, string $b): int {
+            [$methodA, $pathA] = explode(' ', $a, 2);
+            [$methodB, $pathB] = explode(' ', $b, 2);
+
+            return $pathA === $pathB ? $methodA <=> $methodB : $pathA <=> $pathB;
+        });
+
+        static::assertSame([], array_keys($this->schemaRoutes), 'The schema contains routes that do not exist');
 
         // Add missing routes under:
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths
         $this->assertSnapshot('routes_without_schema', [
             [
                 'type' => self::TYPE_JSON,
-                'actual' => $missingRoutes,
+                'actual' => $this->missingRoutes,
             ],
         ]);
+    }
+
+    private function handleRouteNotInSchema(Route $route, string $subPath): void
+    {
+        if ($this->isRepositoryCrudRoute($route)) {
+            unset($this->schemaRoutes[str_replace('{path}', '', $subPath)]);
+            unset($this->schemaRoutes[str_replace('{path}', '{id}', $subPath)]);
+
+            return;
+        }
+
+        // Don't enforce schema for non-core routes (test can run on custom installations)
+        if (!$this->isCoreRoute($route)) {
+            return;
+        }
+
+        foreach ($route->getMethods() ?: ['*'] as $method) {
+            $this->missingRoutes[] = strtoupper($method) . ' ' . $subPath;
+        }
+    }
+
+    private function matchRouteMethodsToSchema(Route $route, string $subPath): void
+    {
+        $schemaMethods = array_keys($this->schemaRoutes[$subPath]);
+        $routeMethods = array_map('strtolower', $route->getMethods()) ?: $schemaMethods;
+        static::assertContainsOnlyString($routeMethods);
+
+        foreach ($routeMethods as $method) {
+            if (isset($this->matchedSchemaEntries[$subPath . '#' . $method])) {
+                continue;
+            }
+
+            if (\in_array($method, $schemaMethods, true)) {
+                $this->markSchemaMethodAsMatched($route, $subPath, $method);
+            } elseif ($this->isCoreRoute($route)) {
+                $this->missingRoutes[] = strtoupper($method) . ' ' . $subPath;
+            }
+        }
+    }
+
+    private function markSchemaMethodAsMatched(Route $route, string $subPath, string $method): void
+    {
+        if (!isset($this->experimentalChecked[$subPath])) {
+            $this->checkExperimentalState($route, $this->schemaRoutes[$subPath]);
+            $this->experimentalChecked[$subPath] = true;
+        }
+
+        $this->matchedSchemaEntries[$subPath . '#' . $method] = true;
+    }
+
+    private function isSchemaPathFullyCovered(string $subPath): bool
+    {
+        foreach (array_keys($this->schemaRoutes[$subPath]) as $method) {
+            if (!isset($this->matchedSchemaEntries[$subPath . '#' . $method])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function isStoreApi(string $path): bool

@@ -574,6 +574,56 @@ describe('Options API Shim — Integrative Tests', () => {
             await wrapper.find('.inc').trigger('click');
             expect(wrapper.find('.count').text()).toBe('150');
         });
+
+        it('should chain $super correctly when the same method (increment) is overridden by both Composition API and Options API', async () => {
+            const originalComponent = defineComponent({
+                template: `
+                    <div class="count">{{ count }}</div>
+                    <button class="inc" @click="increment">+</button>
+                `,
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'comp-same-method-chain' }, () => {
+                        const count = ref(0);
+                        const increment = () => {
+                            count.value += 1;
+                        };
+
+                        return { public: { count, increment } };
+                    }),
+            });
+
+            const wrapper = mount(originalComponent);
+            expect(wrapper.find('.count').text()).toBe('0');
+
+            // 1. Composition API override: replaces increment to add 10 instead of 1
+            overrideComponentSetup()('comp-same-method-chain', (previousState) => {
+                return {
+                    increment: () => {
+                        (previousState as any).count.value += 10;
+                    },
+                };
+            });
+
+            await flushPromises();
+
+            // Verify Composition API override is active
+            await wrapper.find('.inc').trigger('click');
+            expect(wrapper.find('.count').text()).toBe('10');
+
+            // 2. Options API override: calls $super (Composition override, +10) and additionally adds 100
+            await applyOptionsOverride('comp-same-method-chain', {
+                methods: {
+                    increment() {
+                        (this as any).$super('increment'); // calls Composition API override (+10)
+                        (this as any).count += 100; // additionally adds 100
+                    },
+                },
+            });
+
+            // Click: $super calls Composition override (+10), Options override adds 100 → +110 per click
+            await wrapper.find('.inc').trigger('click');
+            expect(wrapper.find('.count').text()).toBe('120'); // 10 (from first click) + 110
+        });
     });
 
     // ─── Props access ────────────────────────────────────────────────────────

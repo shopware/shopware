@@ -53,10 +53,10 @@ class ProductSuggestDataLoader extends AbstractContentDataLoader
 
         $criteria = $this->buildCriteria($element, $config);
 
-        $clonedRequest = $request->duplicate();
-        $clonedRequest->request->set('search', $searchTerm);
+        $searchRequest = new Request();
+        $searchRequest->request->set('search', $searchTerm);
 
-        $response = $this->suggestRoute->load($clonedRequest, $context, $criteria);
+        $response = $this->suggestRoute->load($searchRequest, $context, $criteria);
 
         return ContentDataLoaderResult::cachedExternally($response->getListingResult());
     }

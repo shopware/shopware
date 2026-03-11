@@ -100,6 +100,38 @@ class ProductSearchDataLoaderTest extends TestCase
         static::assertNotSame($request, $capturedRequest);
     }
 
+    #[TestDox('does not leak original request query parameters into the route request')]
+    public function testLoadDoesNotLeakOriginalRequestQueryParams(): void
+    {
+        $config = new ProductSearchLoaderConfig();
+        $requirement = new DataRequirement('search', 'product_search', $config);
+        $element = ContentElementBuilder::create('search')
+            ->withProperty('searchTerm', 'shoes')
+            ->build();
+        $context = Generator::generateSalesChannelContext();
+        $request = new Request(['limit' => '24', 'p' => '3', 'order' => 'price-asc']);
+
+        $listingResult = static::createStub(ProductListingResult::class);
+        $response = static::createStub(ProductSearchRouteResponse::class);
+        $response->method('getListingResult')->willReturn($listingResult);
+
+        /** @var Request|null $capturedRequest */
+        $capturedRequest = null;
+        $this->searchRoute
+            ->method('load')
+            ->willReturnCallback(static function (Request $req) use (&$capturedRequest, $response): ProductSearchRouteResponse {
+                $capturedRequest = $req;
+
+                return $response;
+            });
+
+        $this->loader->load($element, $requirement, $context, $request);
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertSame('shoes', $capturedRequest->request->get('search'));
+        static::assertSame([], $capturedRequest->query->all());
+    }
+
     #[TestDox('reads search term from custom property name when configured')]
     public function testLoadUsesCustomSearchTermPropertyFromConfig(): void
     {

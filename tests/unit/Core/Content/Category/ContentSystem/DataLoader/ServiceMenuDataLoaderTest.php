@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuDataLoader;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuLoaderConfig;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
@@ -161,6 +162,28 @@ class ServiceMenuDataLoaderTest extends TestCase
         $result = $this->dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertFalse($result->hasData());
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('returns notFound result when navigation loader throws CategoryNotFoundException')]
+    public function testLoadReturnsNotFoundWhenCategoryNotFoundExceptionIsThrown(): void
+    {
+        $serviceCategoryId = Uuid::randomHex();
+
+        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
+        $config = new ServiceMenuLoaderConfig();
+        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setServiceCategoryId($serviceCategoryId);
+
+        $this->navigationLoader
+            ->method('load')
+            ->willThrowException(new CategoryNotFoundException($serviceCategoryId));
+
+        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+
+        static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }

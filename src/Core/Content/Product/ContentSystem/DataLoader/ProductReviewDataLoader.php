@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
@@ -57,7 +59,11 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
 
         $criteria = $this->buildCriteria($element, $config);
 
-        $response = $this->productReviewRoute->load($productId, $request, $context, $criteria);
+        try {
+            $response = $this->productReviewRoute->load($productId, $request, $context, $criteria);
+        } catch (ProductException|ReviewNotActiveExeption) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         return ContentDataLoaderResult::cachedExternally($response->getResult());
     }

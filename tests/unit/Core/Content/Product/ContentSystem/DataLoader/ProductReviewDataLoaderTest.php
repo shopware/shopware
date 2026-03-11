@@ -9,6 +9,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewLoaderConfig;
+use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
@@ -250,5 +252,51 @@ class ProductReviewDataLoaderTest extends TestCase
         yield 'missing property triggers guard' => [
             ContentElementBuilder::create('product-reviews')->build(),
         ];
+    }
+
+    #[TestDox('returns notFound result when review route throws ProductException for review not active')]
+    public function testLoadReturnsNotFoundWhenProductExceptionReviewNotActiveIsThrown(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $config = new ProductReviewLoaderConfig();
+        $requirement = new DataRequirement('reviews', 'product_review', $config);
+        $element = ContentElementBuilder::create('product-reviews')
+            ->withProperty('productId', $productId)
+            ->build();
+        $context = Generator::generateSalesChannelContext();
+
+        $this->productReviewRoute
+            ->method('load')
+            ->willThrowException(new ProductException(403, 'PRODUCT__REVIEW_NOT_ACTIVE', 'Reviews not activated'));
+
+        $result = $this->loader->load($element, $requirement, $context, new Request());
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('returns notFound result when review route throws legacy ReviewNotActiveExeption')]
+    public function testLoadReturnsNotFoundWhenLegacyReviewNotActiveExeptionIsThrown(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $config = new ProductReviewLoaderConfig();
+        $requirement = new DataRequirement('reviews', 'product_review', $config);
+        $element = ContentElementBuilder::create('product-reviews')
+            ->withProperty('productId', $productId)
+            ->build();
+        $context = Generator::generateSalesChannelContext();
+
+        $this->productReviewRoute
+            ->method('load')
+            ->willThrowException(new ReviewNotActiveExeption());
+
+        $result = $this->loader->load($element, $requirement, $context, new Request());
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 }

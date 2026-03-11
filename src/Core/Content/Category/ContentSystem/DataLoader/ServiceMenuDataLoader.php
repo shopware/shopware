@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\ContentSystem\DataLoader;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
@@ -55,7 +56,11 @@ class ServiceMenuDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::cachedExternally(new CategoryCollection());
         }
 
-        $tree = $this->navigationLoader->load($rootId, $context, $rootId, 1);
+        try {
+            $tree = $this->navigationLoader->load($rootId, $context, $rootId, 1);
+        } catch (CategoryNotFoundException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         $categories = new CategoryCollection(array_map(
             static fn (TreeItem $treeItem) => $treeItem->getCategory(),

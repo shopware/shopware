@@ -20,7 +20,10 @@ export default function clearAmplitudeCookies(): void {
 
     const basePath = Shopware.Context?.api?.basePath;
 
-    [`AMP_${getAmplitudeBrowserApiKeyPrefix()}`, `AMP_MKTG_${getAmplitudeBrowserApiKeyPrefix()}`].forEach((cookieName) => {
+    [
+        `AMP_${getAmplitudeBrowserApiKeyPrefix()}`,
+        `AMP_MKTG_${getAmplitudeBrowserApiKeyPrefix()}`,
+    ].forEach((cookieName) => {
         if (typeof basePath === 'string') {
             storage.removeItem(cookieName, { path: basePath });
         }

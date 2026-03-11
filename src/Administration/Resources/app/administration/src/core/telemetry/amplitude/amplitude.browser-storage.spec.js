@@ -1,7 +1,7 @@
 import { CookieStorage } from 'cookie-storage';
 import clearAmplitudeCookies from './amplitude.browser-storage';
 
-describe('src/app/init-post/amplitude.browser-storage.ts', () => {
+describe('src/core/telemetry/amplitude/amplitude.browser-storage.ts', () => {
     let storage;
 
     beforeEach(() => {

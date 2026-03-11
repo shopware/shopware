@@ -1,6 +1,6 @@
 import { addDefaultShopwarePropertiesPlugin, getDefaultLanguageName } from './amplitude.shopware-properties';
 
-describe('src/app/init-post/amplitude.shopware-properties.ts', () => {
+describe('src/core/telemetry/amplitude/amplitude.shopware-properties.ts', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         Shopware.Store.get('context').app.config.version = '6.7.0.0';

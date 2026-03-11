@@ -5,7 +5,7 @@ import {
     registerTelemetryLogoutListener,
 } from './amplitude.browser-client';
 
-describe('src/app/init-post/amplitude.browser-client.ts', () => {
+describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         Shopware.Store.get('context').app.config.version = '6.7.0.0';

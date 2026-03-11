@@ -1,6 +1,6 @@
 import createAnonymousGatewayClient from './amplitude.gateway-client';
 
-describe('src/app/init-post/amplitude.gateway-client.ts', () => {
+describe('src/core/telemetry/amplitude/amplitude.gateway-client.ts', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         global.fetch = jest.fn(() => Promise.resolve({ ok: true }));

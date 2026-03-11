@@ -3,17 +3,20 @@
  */
 import createConsentEventHandler from 'src/core/consent/handlers';
 import useConsentStore from 'src/core/consent/consent.store';
-import type * as AmplitudeClient from '@amplitude/analytics-browser';
-import { computed, watch } from 'vue';
-import clearAmplitudeCookies from './amplitude.browser-storage';
 import {
     createPrivacyAmplitudeClient,
     initTelemetryAmplitude,
     registerTelemetryLogoutListener,
-} from './amplitude.browser-client';
-import createAnonymousGatewayClient from './amplitude.gateway-client';
-import { addDefaultShopwarePropertiesPlugin, getDefaultLanguageName } from './amplitude.shopware-properties';
-import createTelemetryEventHandler from './amplitude.telemetry-handlers';
+} from 'src/core/telemetry/amplitude/amplitude.browser-client';
+import clearAmplitudeCookies from 'src/core/telemetry/amplitude/amplitude.browser-storage';
+import createAnonymousGatewayClient from 'src/core/telemetry/amplitude/amplitude.gateway-client';
+import {
+    addDefaultShopwarePropertiesPlugin,
+    getDefaultLanguageName,
+} from 'src/core/telemetry/amplitude/amplitude.shopware-properties';
+import createTelemetryEventHandler from 'src/core/telemetry/amplitude/amplitude.telemetry-handlers';
+import type * as AmplitudeClient from '@amplitude/analytics-browser';
+import { computed, watch } from 'vue';
 
 type AmplitudeModule = typeof AmplitudeClient;
 

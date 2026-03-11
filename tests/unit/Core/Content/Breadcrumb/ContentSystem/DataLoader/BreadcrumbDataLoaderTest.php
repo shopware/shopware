@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Breadcrumb\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Breadcrumb\SalesChannel\AbstractBreadcrumbRoute;
 use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRouteResponse;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -246,15 +248,11 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when entityId element property is not a string')]
-    public function testLoadReturnsNotFoundWhenEntityIdPropertyIsNotString(): void
+    #[DataProvider('guardsInvalidEntityIdProvider')]
+    #[TestDox('returns notFound result when entityId is invalid: $_dataName')]
+    public function testLoadReturnsNotFoundWhenEntityIdPropertyIsInvalid(ContentElement $element): void
     {
         $config = new BreadcrumbLoaderConfig();
-
-        $element = ContentElementBuilder::create('breadcrumb')
-            ->withProperty('entityId', 42)
-            ->build();
-
         $context = Generator::generateSalesChannelContext();
 
         $this->breadcrumbRoute->expects($this->never())->method('load');
@@ -271,25 +269,16 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when entityId element property is missing')]
-    public function testLoadReturnsNotFoundWhenEntityIdPropertyIsMissing(): void
+    /**
+     * @return iterable<string, array{ContentElement}>
+     */
+    public static function guardsInvalidEntityIdProvider(): iterable
     {
-        $config = new BreadcrumbLoaderConfig();
-
-        $element = ContentElementBuilder::create('breadcrumb')->build();
-
-        $context = Generator::generateSalesChannelContext();
-
-        $this->breadcrumbRoute->expects($this->never())->method('load');
-
-        $result = $this->loader->load(
-            $element,
-            new DataRequirement('breadcrumb', 'breadcrumb', $config),
-            $context,
-            new Request()
-        );
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
+        yield 'non-string value triggers guard' => [
+            ContentElementBuilder::create('breadcrumb')->withProperty('entityId', 42)->build(),
+        ];
+        yield 'missing property triggers guard' => [
+            ContentElementBuilder::create('breadcrumb')->build(),
+        ];
     }
 }

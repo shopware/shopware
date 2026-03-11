@@ -3,15 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewLoaderConfig;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -55,7 +56,6 @@ class ProductReviewDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
-        /** @var EntitySearchResult<ProductReviewCollection> $reviewResult */
         $reviewResult = static::createStub(EntitySearchResult::class);
         $response = static::createStub(ProductReviewRouteResponse::class);
         $response->method('getResult')->willReturn($reviewResult);
@@ -85,7 +85,6 @@ class ProductReviewDataLoaderTest extends TestCase
             ->build();
         $context = Generator::generateSalesChannelContext();
 
-        /** @var EntitySearchResult<ProductReviewCollection> $reviewResult */
         $reviewResult = static::createStub(EntitySearchResult::class);
         $response = static::createStub(ProductReviewRouteResponse::class);
         $response->method('getResult')->willReturn($reviewResult);
@@ -117,7 +116,6 @@ class ProductReviewDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $capturedProductId = null;
-        /** @var EntitySearchResult<ProductReviewCollection> $reviewResult */
         $reviewResult = static::createStub(EntitySearchResult::class);
         $response = static::createStub(ProductReviewRouteResponse::class);
         $response->method('getResult')->willReturn($reviewResult);
@@ -149,7 +147,6 @@ class ProductReviewDataLoaderTest extends TestCase
 
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
-        /** @var EntitySearchResult<ProductReviewCollection> $reviewResult */
         $reviewResult = static::createStub(EntitySearchResult::class);
         $response = static::createStub(ProductReviewRouteResponse::class);
         $response->method('getResult')->willReturn($reviewResult);
@@ -184,7 +181,6 @@ class ProductReviewDataLoaderTest extends TestCase
 
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
-        /** @var EntitySearchResult<ProductReviewCollection> $reviewResult */
         $reviewResult = static::createStub(EntitySearchResult::class);
         $response = static::createStub(ProductReviewRouteResponse::class);
         $response->method('getResult')->willReturn($reviewResult);
@@ -222,15 +218,11 @@ class ProductReviewDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when productId element property is not a string')]
-    public function testLoadReturnsNotFoundWhenProductIdPropertyIsNotString(): void
+    #[DataProvider('guardsInvalidProductIdProvider')]
+    #[TestDox('returns notFound result when productId is invalid: $_dataName')]
+    public function testLoadReturnsNotFoundWhenProductIdPropertyIsInvalid(ContentElement $element): void
     {
         $config = new ProductReviewLoaderConfig();
-
-        $element = ContentElementBuilder::create('product-reviews')
-            ->withProperty('productId', 42)
-            ->build();
-
         $context = Generator::generateSalesChannelContext();
 
         $this->productReviewRoute->expects($this->never())->method('load');
@@ -247,25 +239,16 @@ class ProductReviewDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when productId element property is missing')]
-    public function testLoadReturnsNotFoundWhenProductIdPropertyIsMissing(): void
+    /**
+     * @return iterable<string, array{ContentElement}>
+     */
+    public static function guardsInvalidProductIdProvider(): iterable
     {
-        $config = new ProductReviewLoaderConfig();
-
-        $element = ContentElementBuilder::create('product-reviews')->build();
-
-        $context = Generator::generateSalesChannelContext();
-
-        $this->productReviewRoute->expects($this->never())->method('load');
-
-        $result = $this->loader->load(
-            $element,
-            new DataRequirement('reviews', 'product_review', $config),
-            $context,
-            new Request()
-        );
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
+        yield 'non-string value triggers guard' => [
+            ContentElementBuilder::create('product-reviews')->withProperty('productId', 42)->build(),
+        ];
+        yield 'missing property triggers guard' => [
+            ContentElementBuilder::create('product-reviews')->build(),
+        ];
     }
 }

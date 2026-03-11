@@ -87,7 +87,7 @@ class ServiceMenuLoaderConfigSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $original
      */
-    #[DataProvider('roundTripProvider')]
+    #[DataProvider('roundTripsProvider')]
     #[TestDox('round-trips $_dataName without data loss')]
     public function testDecodeAndEncodeAreInverse(array $original): void
     {
@@ -100,7 +100,7 @@ class ServiceMenuLoaderConfigSerializerTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function roundTripProvider(): iterable
+    public static function roundTripsProvider(): iterable
     {
         yield 'empty config' => [[]];
         yield 'rootId only' => [['rootId' => 'service-navigation']];

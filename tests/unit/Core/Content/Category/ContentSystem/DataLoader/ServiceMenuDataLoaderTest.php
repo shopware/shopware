@@ -29,15 +29,12 @@ class ServiceMenuDataLoaderTest extends TestCase
 {
     private NavigationLoaderInterface&MockObject $navigationLoader;
 
-    private NavigationAliasResolver $aliasResolver;
-
     private ServiceMenuDataLoader $dataLoader;
 
     protected function setUp(): void
     {
         $this->navigationLoader = $this->createMock(NavigationLoaderInterface::class);
-        $this->aliasResolver = new NavigationAliasResolver();
-        $this->dataLoader = new ServiceMenuDataLoader($this->navigationLoader, $this->aliasResolver);
+        $this->dataLoader = new ServiceMenuDataLoader($this->navigationLoader, new NavigationAliasResolver());
     }
 
     #[TestDox('returns service_menu source type identifier')]
@@ -82,26 +79,6 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame($categoryB, $result->data->last());
     }
 
-    #[TestDox('returns empty CategoryCollection when service category is not configured')]
-    public function testLoadReturnsEmptyCollectionWhenServiceCategoryNotConfigured(): void
-    {
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new ServiceMenuLoaderConfig();
-        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
-        $context = Generator::generateSalesChannelContext();
-        // serviceCategoryId is null by default
-
-        $this->navigationLoader->expects($this->never())->method('load');
-
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertTrue($result->hasData());
-        static::assertInstanceOf(CategoryCollection::class, $result->data);
-        static::assertCount(0, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
     #[TestDox('uses explicit rootId from config instead of service-navigation alias')]
     public function testLoadUsesExplicitRootIdFromConfig(): void
     {
@@ -129,8 +106,8 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertCount(1, $result->data);
     }
 
-    #[TestDox('returns cachedExternally result with empty cache tags')]
-    public function testLoadReturnsCachedExternallyResult(): void
+    #[TestDox('returns empty cached category collection when tree has no items')]
+    public function testLoadReturnsEmptyCachedCollectionWhenTreeHasNoItems(): void
     {
         $serviceCategoryId = Uuid::randomHex();
         $tree = new Tree(null, []);
@@ -145,6 +122,28 @@ class ServiceMenuDataLoaderTest extends TestCase
 
         $result = $this->dataLoader->load($element, $requirement, $context, new Request());
 
+        static::assertTrue($result->hasData());
+        static::assertInstanceOf(CategoryCollection::class, $result->data);
+        static::assertCount(0, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('returns empty CategoryCollection when service category is not configured')]
+    public function testLoadReturnsEmptyCollectionWhenServiceCategoryNotConfigured(): void
+    {
+        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
+        $config = new ServiceMenuLoaderConfig();
+        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
+        $context = Generator::generateSalesChannelContext();
+
+        $this->navigationLoader->expects($this->never())->method('load');
+
+        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+
+        static::assertTrue($result->hasData());
+        static::assertInstanceOf(CategoryCollection::class, $result->data);
+        static::assertCount(0, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }
@@ -164,26 +163,5 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertFalse($result->hasData());
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('returns empty collection when tree has no items')]
-    public function testLoadReturnsEmptyCollectionWhenTreeHasNoItems(): void
-    {
-        $serviceCategoryId = Uuid::randomHex();
-        $tree = new Tree(null, []);
-
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new ServiceMenuLoaderConfig();
-        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
-        $context = Generator::generateSalesChannelContext();
-        $context->getSalesChannel()->setServiceCategoryId($serviceCategoryId);
-
-        $this->navigationLoader->method('load')->willReturn($tree);
-
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertTrue($result->hasData());
-        static::assertInstanceOf(CategoryCollection::class, $result->data);
-        static::assertCount(0, $result->data);
     }
 }

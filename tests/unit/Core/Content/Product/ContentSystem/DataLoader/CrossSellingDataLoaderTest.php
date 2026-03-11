@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCross
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRouteResponse;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -216,15 +218,11 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when productId element property is not a string')]
-    public function testLoadReturnsNotFoundWhenProductIdPropertyIsNotString(): void
+    #[DataProvider('guardsInvalidProductIdProvider')]
+    #[TestDox('returns notFound result when productId is invalid: $_dataName')]
+    public function testLoadReturnsNotFoundWhenProductIdPropertyIsInvalid(ContentElement $element): void
     {
         $config = new CrossSellingLoaderConfig();
-
-        $element = ContentElementBuilder::create('cross-selling')
-            ->withProperty('productId', 42)
-            ->build();
-
         $context = Generator::generateSalesChannelContext();
 
         $this->crossSellingRoute->expects($this->never())->method('load');
@@ -241,25 +239,16 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when productId element property is missing')]
-    public function testLoadReturnsNotFoundWhenProductIdPropertyIsMissing(): void
+    /**
+     * @return iterable<string, array{ContentElement}>
+     */
+    public static function guardsInvalidProductIdProvider(): iterable
     {
-        $config = new CrossSellingLoaderConfig();
-
-        $element = ContentElementBuilder::create('cross-selling')->build();
-
-        $context = Generator::generateSalesChannelContext();
-
-        $this->crossSellingRoute->expects($this->never())->method('load');
-
-        $result = $this->loader->load(
-            $element,
-            new DataRequirement('cross-selling', 'cross_selling', $config),
-            $context,
-            new Request()
-        );
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
+        yield 'non-string value triggers guard' => [
+            ContentElementBuilder::create('cross-selling')->withProperty('productId', 42)->build(),
+        ];
+        yield 'missing property triggers guard' => [
+            ContentElementBuilder::create('cross-selling')->build(),
+        ];
     }
 }

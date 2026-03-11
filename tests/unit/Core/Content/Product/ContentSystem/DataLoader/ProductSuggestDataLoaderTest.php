@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRouteResponse;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Test\Generator;
@@ -51,7 +53,7 @@ class ProductSuggestDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
-        $listingResult = $this->createStub(ProductListingResult::class);
+        $listingResult = static::createStub(ProductListingResult::class);
         $response = static::createStub(ProductSuggestRouteResponse::class);
         $response->method('getListingResult')->willReturn($listingResult);
 
@@ -77,7 +79,7 @@ class ProductSuggestDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
-        $listingResult = $this->createStub(ProductListingResult::class);
+        $listingResult = static::createStub(ProductListingResult::class);
         $response = static::createStub(ProductSuggestRouteResponse::class);
         $response->method('getListingResult')->willReturn($listingResult);
 
@@ -108,7 +110,7 @@ class ProductSuggestDataLoaderTest extends TestCase
             ->build();
         $context = Generator::generateSalesChannelContext();
 
-        $listingResult = $this->createStub(ProductListingResult::class);
+        $listingResult = static::createStub(ProductListingResult::class);
         $response = static::createStub(ProductSuggestRouteResponse::class);
         $response->method('getListingResult')->willReturn($listingResult);
 
@@ -138,7 +140,7 @@ class ProductSuggestDataLoaderTest extends TestCase
             ->build();
         $context = Generator::generateSalesChannelContext();
 
-        $listingResult = $this->createStub(ProductListingResult::class);
+        $listingResult = static::createStub(ProductListingResult::class);
         $response = static::createStub(ProductSuggestRouteResponse::class);
         $response->method('getListingResult')->willReturn($listingResult);
 
@@ -170,7 +172,7 @@ class ProductSuggestDataLoaderTest extends TestCase
             ->build();
         $context = Generator::generateSalesChannelContext();
 
-        $listingResult = $this->createStub(ProductListingResult::class);
+        $listingResult = static::createStub(ProductListingResult::class);
         $response = static::createStub(ProductSuggestRouteResponse::class);
         $response->method('getListingResult')->willReturn($listingResult);
 
@@ -209,29 +211,6 @@ class ProductSuggestDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when search term element property is not a string')]
-    public function testLoadReturnsNotFoundWhenSearchTermPropertyIsNotString(): void
-    {
-        $config = new ProductSuggestLoaderConfig();
-        $element = ContentElementBuilder::create('suggest')
-            ->withProperty('searchTerm', 42)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $this->suggestRoute->expects($this->never())->method('load');
-
-        $result = $this->loader->load(
-            $element,
-            new DataRequirement('suggest', 'product_suggest', $config),
-            $context,
-            new Request()
-        );
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
     #[TestDox('returns notFound result when search term element property is an empty string')]
     public function testLoadReturnsNotFoundWhenSearchTermPropertyIsEmptyString(): void
     {
@@ -254,11 +233,11 @@ class ProductSuggestDataLoaderTest extends TestCase
         static::assertTrue($result->isCacheAware());
     }
 
-    #[TestDox('returns notFound result when search term element property is missing')]
-    public function testLoadReturnsNotFoundWhenSearchTermPropertyIsMissing(): void
+    #[DataProvider('guardsInvalidSearchTermProvider')]
+    #[TestDox('returns notFound result when searchTerm is invalid: $_dataName')]
+    public function testLoadReturnsNotFoundWhenSearchTermPropertyIsInvalid(ContentElement $element): void
     {
         $config = new ProductSuggestLoaderConfig();
-        $element = ContentElementBuilder::create('suggest')->build();
         $context = Generator::generateSalesChannelContext();
 
         $this->suggestRoute->expects($this->never())->method('load');
@@ -272,5 +251,19 @@ class ProductSuggestDataLoaderTest extends TestCase
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    /**
+     * @return iterable<string, array{ContentElement}>
+     */
+    public static function guardsInvalidSearchTermProvider(): iterable
+    {
+        yield 'non-string value triggers guard' => [
+            ContentElementBuilder::create('suggest')->withProperty('searchTerm', 42)->build(),
+        ];
+        yield 'missing property triggers guard' => [
+            ContentElementBuilder::create('suggest')->build(),
+        ];
     }
 }

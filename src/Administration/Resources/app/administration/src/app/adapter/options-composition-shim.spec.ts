@@ -437,13 +437,17 @@ describe('src/app/adapter/options-composition-shim', () => {
                     createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
                         const count = ref(1);
 
+                        function increment() {
+                            count.value++;
+                        }
+
                         return {
-                            public: { count },
+                            public: { count, increment },
                         };
                     }),
             });
 
-            mount(originalComponent);
+            const wrapper = mount(originalComponent);
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 watch: {
@@ -457,16 +461,12 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             await flushPromises();
 
-            // Trigger a change on count via another override
-            _overridesMap.originalComponent.push((previousState: any) => {
-                previousState.count.value = 42;
-                return {};
-            });
+            wrapper.vm.increment();
 
             await flushPromises();
             await nextTick();
 
-            expect(watchCallback).toHaveBeenCalled();
+            expect(watchCallback).toHaveBeenCalledWith(2, 1);
         });
 
         it('should convert object watchers with immediate option', async () => {
@@ -514,13 +514,17 @@ describe('src/app/adapter/options-composition-shim', () => {
                     createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
                         const count = ref(1);
 
+                        function increment() {
+                            count.value++;
+                        }
+
                         return {
-                            public: { count },
+                            public: { count, increment },
                         };
                     }),
             });
 
-            mount(originalComponent);
+            const wrapper = mount(originalComponent);
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
                 methods: {
@@ -537,16 +541,12 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             await flushPromises();
 
-            // Trigger a change
-            _overridesMap.originalComponent.push((previousState: any) => {
-                previousState.count.value = 99;
-                return {};
-            });
+            wrapper.vm.increment();
 
             await flushPromises();
             await nextTick();
 
-            expect(methodCallback).toHaveBeenCalled();
+            expect(methodCallback).toHaveBeenCalledWith(2, 1);
         });
     });
 

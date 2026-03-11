@@ -27,8 +27,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('after-sales')]
 class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
 {
-    use DocumentRendererTrait;
-
     public const TYPE = 'zugferd_cancellation_invoice';
 
     /**

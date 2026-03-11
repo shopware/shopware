@@ -108,34 +108,34 @@ class ProductReviewLoaderConfigSerializerTest extends TestCase
         $this->serializer->decode(['associations' => 'customer']);
     }
 
-    #[TestDox('throws exception when first association item is an empty string')]
-    public function testDecodeWithEmptyStringFirstAssociationItemThrowsException(): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('invalidAssociationItemProvider')]
+    #[TestDox('throws exception when association item is invalid: $_dataName')]
+    public function testDecodeWithInvalidAssociationItemThrowsException(array $data, string $field, string $actualType): void
     {
         $this->expectExceptionObject(
-            ProductException::invalidFieldValueType('associations.0', 'non-empty string', 'string')
+            ProductException::invalidFieldValueType($field, 'non-empty string', $actualType)
         );
 
-        $this->serializer->decode(['associations' => ['']]);
+        $this->serializer->decode($data);
     }
 
-    #[TestDox('throws exception when second association item is an empty string')]
-    public function testDecodeWithEmptyStringSecondAssociationItemThrowsException(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, string, string}>
+     */
+    public static function invalidAssociationItemProvider(): iterable
     {
-        $this->expectExceptionObject(
-            ProductException::invalidFieldValueType('associations.1', 'non-empty string', 'string')
-        );
-
-        $this->serializer->decode(['associations' => ['customer', '']]);
-    }
-
-    #[TestDox('throws exception when first association item is a non-string type')]
-    public function testDecodeWithNonStringFirstAssociationItemThrowsException(): void
-    {
-        $this->expectExceptionObject(
-            ProductException::invalidFieldValueType('associations.0', 'non-empty string', 'integer')
-        );
-
-        $this->serializer->decode(['associations' => [42]]);
+        yield 'empty string triggers empty guard' => [
+            ['associations' => ['']], 'associations.0', 'string',
+        ];
+        yield 'non-zero index correctly reported in field path' => [
+            ['associations' => ['customer', '']], 'associations.1', 'string',
+        ];
+        yield 'non-string type triggers type guard' => [
+            ['associations' => [42]], 'associations.0', 'integer',
+        ];
     }
 
     #[TestDox('encodes ProductReviewLoaderConfig with defaults into empty array')]

@@ -25,7 +25,6 @@ const missingTests = [
     'src/app/component/base/sw-container/index.js',
     'src/app/component/base/sw-description-list/index.js',
     'src/app/component/base/sw-help-text/index.js',
-    'src/app/component/base/sw-highlight-text/index.js',
     'src/app/component/base/sw-inheritance-switch/index.js',
     'src/app/component/base/sw-price-preview/index.js',
     'src/app/component/base/sw-radio-panel/index.js',

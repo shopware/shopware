@@ -439,6 +439,7 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
+            // Sequential to ensure config is persisted and avoid race condition
             return this.saveThemeConfig(clean).then(() => {
                 return this.saveSalesChannels();
             }).then(() => {
@@ -494,14 +495,22 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
-        async saveSalesChannels() {
-            for (const salesChannelId of this.newAssignedSalesChannels) {
-                await this.themeService.assignTheme(this.themeId, salesChannelId);
+        saveSalesChannels() {
+            const promises = [];
+
+            if (this.newAssignedSalesChannels.length > 0) {
+                this.newAssignedSalesChannels.forEach((salesChannelId) => {
+                    promises.push(this.themeService.assignTheme(this.themeId, salesChannelId));
+                });
             }
 
-            for (const salesChannel of this.removedSalesChannels) {
-                await this.themeService.assignTheme(this.defaultTheme.id, salesChannel.id);
+            if (this.removedSalesChannels.length > 0) {
+                this.removedSalesChannels.forEach((salesChannel) => {
+                    promises.push(this.themeService.assignTheme(this.defaultTheme.id, salesChannel.id));
+                });
             }
+
+            return Promise.all(promises);
         },
 
         findChangedSalesChannels() {

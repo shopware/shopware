@@ -484,9 +484,37 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
 
+        $this->requirementsValidatorMock->expects($this->once())
+            ->method('validateRequirements')
+            ->with($pluginEntityMock, $context, PluginLifecycleService::PLUGIN_LIFECYCLE_METHOD_ACTIVATE);
+
         $this->pluginMock->expects($this->once())->method('activate');
 
         $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
+
+        $returnedEvents = $this->eventDispatcher->getEvents();
+
+        static::assertInstanceOf(PluginPreActivateEvent::class, $returnedEvents[0]);
+        static::assertInstanceOf(PluginPostActivateEvent::class, $returnedEvents[1]);
+        static::assertTrue($pluginEntityMock->getActive());
+    }
+
+    public function testActivatePluginWithoutValidatingRequirements(): void
+    {
+        $pluginEntityMock = $this->getPluginEntityMock();
+        $pluginEntityMock->setInstalledAt(new \DateTime());
+        $pluginEntityMock->setActive(false);
+
+        $context = Context::createDefaultContext();
+
+        $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
+
+        $this->requirementsValidatorMock->expects($this->never())
+            ->method('validateRequirements');
+
+        $this->pluginMock->expects($this->once())->method('activate');
+
+        $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context, validateRequirements: false);
 
         $returnedEvents = $this->eventDispatcher->getEvents();
 

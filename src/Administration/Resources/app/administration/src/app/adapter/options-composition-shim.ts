@@ -102,7 +102,10 @@ interface MergedConfig extends ComponentConfig {
  */
 export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
     const extended = overrideConfig as ExtendedComponentConfig;
-    const hasOptionKeys = OPTION_KEYS.some((key) => !!extended[key]);
+    const hasOptionKeys = OPTION_KEYS.some((key) => {
+        const val = extended[key];
+        return Array.isArray(val) ? val.length > 0 : !!val;
+    });
     const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!extended[hook]);
 
     return hasOptionKeys || hasLifecycleHooks;

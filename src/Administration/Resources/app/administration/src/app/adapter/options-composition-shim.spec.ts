@@ -1144,6 +1144,23 @@ describe('src/app/adapter/options-composition-shim', () => {
             consoleError.mockRestore();
             consoleWarn.mockRestore();
         });
+
+        it('should log warning for extends usage as it is unsupported', () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            const baseComponent = { methods: { base() {} } };
+            convertOptionsApiOverrideToCompositionApi('originalComponent', {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+                extends: baseComponent as any,
+                methods: { foo() {} },
+            });
+
+            expect(consoleWarn).toHaveBeenCalledWith(
+                expect.stringContaining('"extends" is not supported'),
+            );
+
+            consoleWarn.mockRestore();
+        });
     });
 
     describe('Deprecation warning:', () => {

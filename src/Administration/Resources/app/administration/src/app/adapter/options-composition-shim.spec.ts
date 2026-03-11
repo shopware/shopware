@@ -118,6 +118,17 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(result).toBe(false);
         });
 
+        it('should return false for a normal template/setup component', () => {
+            const result = shouldActivateShim({
+                template: '<div>{{ count }}</div>',
+                setup() {
+                    return { count: ref(0) };
+                },
+            });
+
+            expect(result).toBe(false);
+        });
+
         it('should return false for an empty mixins array', () => {
             const result = shouldActivateShim({
                 mixins: [],

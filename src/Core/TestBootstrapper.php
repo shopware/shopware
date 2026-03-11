@@ -44,6 +44,8 @@ class TestBootstrapper
      */
     private array $activePlugins = [];
 
+    private bool $skipDatabaseSetup = false;
+
     public function bootstrap(): TestBootstrapper
     {
         $_SERVER['PROJECT_ROOT'] = $_ENV['PROJECT_ROOT'] = $this->getProjectDir();
@@ -64,6 +66,10 @@ class TestBootstrapper
         $_SERVER['DATABASE_URL'] = $_ENV['DATABASE_URL'] = $this->getDatabaseUrl();
 
         KernelLifecycleManager::prepare($classLoader);
+
+        if (!$this->skipDatabaseSetup) {
+            return $this;
+        }
 
         if ($this->isForceInstall() || !$this->dbExists()) {
             $this->install();
@@ -300,6 +306,13 @@ class TestBootstrapper
         return $this->forceInstall = (bool) ($_SERVER['FORCE_INSTALL'] ?? false);
     }
 
+    public function setSkipDatabaseSetup(bool $skipDatabaseSetup = true): TestBootstrapper
+    {
+        $this->skipDatabaseSetup = $skipDatabaseSetup;
+
+        return $this;
+    }
+
     public function getPluginPath(string $pluginName): ?string
     {
         $allPluginDirectories = \glob($this->getProjectDir() . '/custom/*plugins/*', \GLOB_ONLYDIR) ?: [];
@@ -457,4 +470,5 @@ class TestBootstrapper
 
         KernelLifecycleManager::bootKernel();
     }
+
 }

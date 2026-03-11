@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core;
 
@@ -47,6 +45,15 @@ class TestBootstrapperTest extends TestCase
         $testBootstrapper->setDatabaseUrl('test');
 
         static::assertSame('test', $testBootstrapper->getDatabaseUrl());
+    }
+
+    public function testSetSkipDatabaseSetupReturnsSelf(): void
+    {
+        $bootstrapper = new TestBootstrapper();
+
+        static::assertSame($bootstrapper, $bootstrapper->setSkipDatabaseSetup());
+        static::assertSame($bootstrapper, $bootstrapper->setSkipDatabaseSetup(true));
+        static::assertSame($bootstrapper, $bootstrapper->setSkipDatabaseSetup(false));
     }
 
     public function testAddCallingPlugin(): void

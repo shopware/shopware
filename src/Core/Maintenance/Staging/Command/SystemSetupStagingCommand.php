@@ -62,7 +62,7 @@ class SystemSetupStagingCommand extends Command
         );
         $this->eventDispatcher->dispatch($event);
 
-        $this->systemConfigService->set(SetupStagingEvent::CONFIG_FLAG, true);
+        $this->systemConfigService->set(SetupStagingEvent::CONFIG_FLAG, true, null, false);
 
         return $event->canceled ? self::FAILURE : self::SUCCESS;
     }

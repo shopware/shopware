@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('fundamentals@after-sales')]
+#[Package('framework')]
 class EntityType extends AbstractEventDataType
 {
     final public const TYPE = 'entity';
@@ -48,6 +48,9 @@ class EntityType extends AbstractEventDataType
         return $this->entityName;
     }
 
+    /**
+     * @return array{nullable: bool, type: string, entityClass: class-string<EntityDefinition>, entityName: string}
+     */
     public function toArray(): array
     {
         return [

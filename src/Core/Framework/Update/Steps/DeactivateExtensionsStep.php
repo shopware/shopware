@@ -42,7 +42,7 @@ class DeactivateExtensionsStep
 
         $deactivatedPlugins = (array) $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];
         $deactivatedPlugins[] = $extension->getId();
-        $this->systemConfigService->set(self::UPDATE_DEACTIVATED_PLUGINS, $deactivatedPlugins);
+        $this->systemConfigService->set(self::UPDATE_DEACTIVATED_PLUGINS, $deactivatedPlugins, null, true);
 
         if ($extensionCount === 1) {
             return new ValidResult($offset, $offset);

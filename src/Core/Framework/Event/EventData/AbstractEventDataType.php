@@ -10,7 +10,7 @@ abstract class AbstractEventDataType implements EventDataType
     private bool $nullable = false;
 
     /**
-     * @return array<string, mixed>
+     * @return array{nullable: bool}
      */
     public function toArray(): array
     {

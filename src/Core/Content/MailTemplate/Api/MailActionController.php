@@ -157,7 +157,7 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/available-variables',
         name: 'api.action.mail_template.available_variables',
-        methods: [Request::METHOD_POST]
+        methods: [Request::METHOD_GET]
     )]
     public function availableVariables(RequestDataBag $post, Context $context): JsonResponse
     {

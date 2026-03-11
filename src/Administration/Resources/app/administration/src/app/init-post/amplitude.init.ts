@@ -12,6 +12,7 @@ type AnonymousAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 type PrivacyAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 
 let stopTelemetryConsentWatch: (() => void) | null = null;
+let pendingTelemetryActivationTimeout: number | null = null;
 
 /**
  * @private
@@ -43,6 +44,15 @@ export default async function (): Promise<void> {
     initPrivacyAmplitude(privacyAmplitude, analyticsGatewayUrl);
 
     const pushConsentEventToAmplitude = createConsentEventHandler(anonymousAmplitude);
+
+    const clearPendingTelemetryActivation = (): void => {
+        if (pendingTelemetryActivationTimeout === null) {
+            return;
+        }
+
+        window.clearTimeout(pendingTelemetryActivationTimeout);
+        pendingTelemetryActivationTimeout = null;
+    };
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener
     Shopware.Utils.EventBus.on('consent', pushConsentEventToAmplitude);
@@ -111,6 +121,8 @@ export default async function (): Promise<void> {
     };
 
     const syncTelemetryTracking = async (consentAccepted: boolean): Promise<void> => {
+        clearPendingTelemetryActivation();
+
         if (consentAccepted) {
             await enableTelemetryTracking();
 
@@ -121,9 +133,22 @@ export default async function (): Promise<void> {
     };
 
     await syncTelemetryTracking(isTelemetryConsentAccepted.value);
+    clearPendingTelemetryActivation();
     stopTelemetryConsentWatch?.();
     stopTelemetryConsentWatch = watch(isTelemetryConsentAccepted, (consentAccepted) => {
-        void syncTelemetryTracking(consentAccepted);
+        clearPendingTelemetryActivation();
+
+        if (!consentAccepted) {
+            void syncTelemetryTracking(false);
+
+            return;
+        }
+
+        // delay runtime activation so the consent interaction itself is only tracked anonymously
+        pendingTelemetryActivationTimeout = window.setTimeout(() => {
+            pendingTelemetryActivationTimeout = null;
+            void syncTelemetryTracking(true);
+        }, 0);
     });
 }
 

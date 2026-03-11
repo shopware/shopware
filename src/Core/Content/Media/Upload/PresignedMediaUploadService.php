@@ -64,42 +64,7 @@ readonly class PresignedMediaUploadService
     ): PresignedUploadPrepareResult {
         $this->fileNameValidator->validateFileName($payload->fileName);
 
-        if ($payload->mediaId !== null) {
-            $media = $this->findMedia($payload->mediaId, $context);
-
-            if ($media === null) {
-                throw MediaException::mediaNotFound($payload->mediaId);
-            }
-
-            $this->validateFileExtension($payload->extension, $media->isPrivate(), $payload->mediaId);
-
-            $mediaId = $payload->mediaId;
-            $uploadedAt = new \DateTimeImmutable();
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId, $uploadedAt): void {
-                $this->mediaRepository->update([
-                    ['id' => $mediaId, 'uploadedAt' => \DateTime::createFromImmutable($uploadedAt)],
-                ], $context);
-            });
-        } else {
-            $this->validateFileExtension($payload->extension, $payload->private);
-
-            $mediaId = Uuid::randomHex();
-            $uploadedAt = new \DateTimeImmutable();
-
-            $data = [
-                'id' => $mediaId,
-                'private' => $payload->private,
-                'uploadedAt' => \DateTime::createFromImmutable($uploadedAt),
-            ];
-
-            if ($payload->mediaFolderId) {
-                $data['mediaFolderId'] = $payload->mediaFolderId;
-            }
-
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
-                $this->mediaRepository->create([$data], $context);
-            });
-        }
+        ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt] = $this->resolveMediaForPrepare($payload, $context);
 
         $isReplace = $payload->mediaId !== null;
 
@@ -109,19 +74,10 @@ readonly class PresignedMediaUploadService
         }
 
         try {
-            $location = new MediaLocationStruct(
-                $mediaId,
-                $payload->extension,
-                $payload->fileName,
-                $uploadedAt,
-            );
-
-            $result = $this->presignedUrlGenerator->generate($location, $payload->mimeType);
+            $result = $this->generatePresignedUrl($mediaId, $payload, $uploadedAt);
         } catch (\Throwable $e) {
             if (!$isReplace) {
-                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId): void {
-                    $this->mediaRepository->delete([['id' => $mediaId]], $context);
-                });
+                $this->deleteMediaEntity($mediaId, $context);
             }
 
             throw $e;
@@ -141,87 +97,26 @@ readonly class PresignedMediaUploadService
         PresignedUploadFinalizePayload $payload,
         Context $context,
     ): void {
-        $criteria = new Criteria([$mediaId]);
-        $criteria->addAssociation('thumbnails');
-
-        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->first();
-
-        if ($media === null) {
-            throw MediaException::mediaNotFound($mediaId);
-        }
-
+        $media = $this->findMediaWithThumbnails($mediaId, $context);
         $isReplace = $media->hasFile();
 
         try {
-            $this->validateFileExtension($payload->extension, $media->isPrivate(), $mediaId);
-            $this->validateExpectedPath($mediaId, $payload, $media);
+            $this->validateFinalizeRequest($mediaId, $payload, $media, $isReplace, $context);
 
-            if (!$isReplace) {
-                $this->ensureFileNameIsUnique($mediaId, $payload->fileName, $payload->extension, $media->isPrivate(), $context);
-            }
-
-            $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($payload->path);
-
-            if ($s3Metadata === null) {
-                $this->logger->error('Could not verify presigned upload for media "{mediaId}": file not found on storage at path "{path}"', [
-                    'mediaId' => $mediaId,
-                    'path' => $payload->path,
-                ]);
-
-                throw MediaException::presignedUploadFinalizeFailed($mediaId);
-            }
+            $s3Metadata = $this->verifyFileOnStorage($mediaId, $payload->path);
 
             if ($isReplace) {
-                $oldPath = $media->getPath();
-
-                if ($oldPath !== '' && $oldPath !== $payload->path) {
-                    $this->mediaFileCleanup->removeOldMediaData($media, $context);
-                } else {
-                    $this->mediaFileCleanup->deleteThumbnails($media, $context);
-                }
+                $this->cleanupOldMediaData($media, $payload->path, $context);
             }
 
-            $fileSize = $s3Metadata->size;
-            $fileHash = $s3Metadata->etag;
             $mimeType = $s3Metadata->contentType ?? $payload->mimeType;
 
-            $mediaType = $this->detectMediaType($mimeType, $payload->extension);
-            $metaData = $this->buildMetadata($fileHash, $mimeType, $payload);
-
-            $uploadedAt = $media->getUploadedAt() ?? new \DateTime();
-
-            $data = [
-                'id' => $mediaId,
-                'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
-                'mimeType' => $mimeType,
-                'fileExtension' => $payload->extension,
-                'fileSize' => $fileSize,
-                'fileName' => $payload->fileName,
-                'mediaTypeRaw' => serialize($mediaType),
-                'metaData' => $metaData,
-                'uploadedAt' => $uploadedAt,
-            ];
-
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
-                $this->mediaRepository->update([$data], $context);
-            });
-
-            $this->eventDispatcher->dispatch(new UpdateMediaPathEvent([$mediaId]));
-
-            $mediaPathChanged = new MediaPathChangedEvent($context);
-            $mediaPathChanged->mediaWithMimeType(mediaId: $mediaId, path: $payload->path, mimeType: $mimeType);
-            $this->eventDispatcher->dispatch($mediaPathChanged);
-
-            $this->eventDispatcher->dispatch(new MediaUploadedEvent($mediaId, $context));
-
-            $this->mediaFileCleanup->dispatchThumbnailGeneration($mediaId, $context);
+            $this->persistMediaData($mediaId, $payload, $s3Metadata, $mimeType, $media, $context);
+            $this->dispatchFinalizeEvents($mediaId, $payload->path, $mimeType, $context);
         } catch (\Throwable $e) {
             if (!$isReplace) {
                 $this->presignedUrlGenerator->deleteFromStorage($payload->path);
-
-                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId): void {
-                    $this->mediaRepository->delete([['id' => $mediaId]], $context);
-                });
+                $this->deleteMediaEntity($mediaId, $context);
             }
 
             throw $e;
@@ -236,6 +131,162 @@ readonly class PresignedMediaUploadService
     public function isEnabled(): bool
     {
         return $this->presignedUrlGenerator->isEnabled();
+    }
+
+    /**
+     * @return array{mediaId: string, uploadedAt: \DateTimeImmutable}
+     */
+    private function resolveMediaForPrepare(PresignedUploadPreparePayload $payload, Context $context): array
+    {
+        if ($payload->mediaId !== null) {
+            $media = $this->findMedia($payload->mediaId, $context);
+
+            if ($media === null) {
+                throw MediaException::mediaNotFound($payload->mediaId);
+            }
+
+            $this->validateFileExtension($payload->extension, $media->isPrivate(), $payload->mediaId);
+
+            $uploadedAt = new \DateTimeImmutable();
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($payload, $uploadedAt): void {
+                $this->mediaRepository->update([
+                    ['id' => $payload->mediaId, 'uploadedAt' => \DateTime::createFromImmutable($uploadedAt)],
+                ], $context);
+            });
+
+            return ['mediaId' => $payload->mediaId, 'uploadedAt' => $uploadedAt];
+        }
+
+        $this->validateFileExtension($payload->extension, $payload->private);
+
+        $mediaId = Uuid::randomHex();
+        $uploadedAt = new \DateTimeImmutable();
+
+        $data = [
+            'id' => $mediaId,
+            'private' => $payload->private,
+            'uploadedAt' => \DateTime::createFromImmutable($uploadedAt),
+        ];
+
+        if ($payload->mediaFolderId) {
+            $data['mediaFolderId'] = $payload->mediaFolderId;
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
+            $this->mediaRepository->create([$data], $context);
+        });
+
+        return ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt];
+    }
+
+    private function generatePresignedUrl(string $mediaId, PresignedUploadPreparePayload $payload, \DateTimeImmutable $uploadedAt): PresignedUrlResult
+    {
+        $location = new MediaLocationStruct(
+            $mediaId,
+            $payload->extension,
+            $payload->fileName,
+            $uploadedAt,
+        );
+
+        return $this->presignedUrlGenerator->generate($location, $payload->mimeType);
+    }
+
+    private function findMediaWithThumbnails(string $mediaId, Context $context): MediaEntity
+    {
+        $criteria = new Criteria([$mediaId]);
+        $criteria->addAssociation('thumbnails');
+
+        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->first();
+
+        if ($media === null) {
+            throw MediaException::mediaNotFound($mediaId);
+        }
+
+        return $media;
+    }
+
+    private function validateFinalizeRequest(string $mediaId, PresignedUploadFinalizePayload $payload, MediaEntity $media, bool $isReplace, Context $context): void
+    {
+        $this->validateFileExtension($payload->extension, $media->isPrivate(), $mediaId);
+        $this->validateExpectedPath($mediaId, $payload, $media);
+
+        if (!$isReplace) {
+            $this->ensureFileNameIsUnique($mediaId, $payload->fileName, $payload->extension, $media->isPrivate(), $context);
+        }
+    }
+
+    private function verifyFileOnStorage(string $mediaId, string $path): FileMetadataResult
+    {
+        $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($path);
+
+        if ($s3Metadata === null) {
+            $this->logger->error('Could not verify presigned upload for media "{mediaId}": file not found on storage at path "{path}"', [
+                'mediaId' => $mediaId,
+                'path' => $path,
+            ]);
+
+            throw MediaException::presignedUploadFinalizeFailed($mediaId);
+        }
+
+        return $s3Metadata;
+    }
+
+    private function cleanupOldMediaData(MediaEntity $media, string $newPath, Context $context): void
+    {
+        $oldPath = $media->getPath();
+
+        if ($oldPath !== '' && $oldPath !== $newPath) {
+            $this->mediaFileCleanup->removeOldMediaData($media, $context);
+        } else {
+            $this->mediaFileCleanup->deleteThumbnails($media, $context);
+        }
+    }
+
+    private function persistMediaData(
+        string $mediaId,
+        PresignedUploadFinalizePayload $payload,
+        FileMetadataResult $s3Metadata,
+        string $mimeType,
+        MediaEntity $media,
+        Context $context,
+    ): void {
+        $mediaType = $this->detectMediaType($mimeType, $payload->extension);
+
+        $data = [
+            'id' => $mediaId,
+            'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+            'mimeType' => $mimeType,
+            'fileExtension' => $payload->extension,
+            'fileSize' => $s3Metadata->size,
+            'fileName' => $payload->fileName,
+            'mediaTypeRaw' => serialize($mediaType),
+            'metaData' => $this->buildMetadata($s3Metadata->etag, $mimeType, $payload),
+            'uploadedAt' => $media->getUploadedAt() ?? new \DateTime(),
+        ];
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
+            $this->mediaRepository->update([$data], $context);
+        });
+    }
+
+    private function dispatchFinalizeEvents(string $mediaId, string $path, string $mimeType, Context $context): void
+    {
+        $this->eventDispatcher->dispatch(new UpdateMediaPathEvent([$mediaId]));
+
+        $mediaPathChanged = new MediaPathChangedEvent($context);
+        $mediaPathChanged->mediaWithMimeType(mediaId: $mediaId, path: $path, mimeType: $mimeType);
+        $this->eventDispatcher->dispatch($mediaPathChanged);
+
+        $this->eventDispatcher->dispatch(new MediaUploadedEvent($mediaId, $context));
+
+        $this->mediaFileCleanup->dispatchThumbnailGeneration($mediaId, $context);
+    }
+
+    private function deleteMediaEntity(string $mediaId, Context $context): void
+    {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId): void {
+            $this->mediaRepository->delete([['id' => $mediaId]], $context);
+        });
     }
 
     private function findMedia(string $mediaId, Context $context): ?MediaEntity

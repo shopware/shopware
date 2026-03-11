@@ -374,6 +374,15 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad request. The file extension is not supported or the file name is invalid."
+                    },
+                    "404": {
+                        "description": "The media entity with the given `mediaId` was not found."
+                    },
+                    "422": {
+                        "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`) must not be blank."
                     }
                 }
             }
@@ -452,6 +461,15 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad request. The file extension is not supported, the storage path does not match, the file name is already taken, or the file could not be found on the remote storage."
+                    },
+                    "404": {
+                        "description": "The media entity with the given `mediaId` was not found."
+                    },
+                    "422": {
+                        "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`, `path`) must not be blank."
                     }
                 }
             }

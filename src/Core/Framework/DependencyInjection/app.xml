@@ -65,7 +65,6 @@
             <tag name="shopware.app_manifest.validator"/>
         </service>
 
-        <!-- Requirements Validation Services -->
         <service id="Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator">
         </service>
 

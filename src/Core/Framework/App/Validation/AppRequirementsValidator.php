@@ -56,17 +56,14 @@ class AppRequirementsValidator
 
     private function logUnknownRequirements(Manifest $manifest): void
     {
-        $supportedRequirements = [];
-        foreach ($this->validators as $validator) {
-            $validatorClass = $validator::class;
-            if (!method_exists($validatorClass, 'name')) {
-                continue;
-            }
+        $supportedRequirements = array_map(
+            static fn (Requirement $requirement) => $requirement::name(),
+            iterator_to_array($this->validators)
+        );
 
-            $supportedRequirements[] = $validatorClass::name();
-        }
+        $invalidRequirements = array_unique(array_diff($manifest->getRequirements(), $supportedRequirements));
 
-        foreach (array_unique(array_diff($manifest->getRequirements(), $supportedRequirements)) as $requirementName) {
+        foreach ($invalidRequirements as $requirementName) {
             $this->logger->warning(
                 'App manifest declares unsupported requirement "{requirementName}" for app "{appName}". The requirement will be ignored until a matching validator tagged with "app.requirements_validator" is registered.',
                 [

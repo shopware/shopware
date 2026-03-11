@@ -2408,15 +2408,22 @@ describe('src/app/adapter/options-composition-shim', () => {
                 data() {
                     return { count: 50 };
                 },
+                created() {
+                    throw new Error('Simulated error in created hook');
+                },
             });
 
             _overridesMap.originalComponent.push(failingOverride);
 
             await flushPromises();
 
+            expect(consoleError).toHaveBeenCalledWith(
+                '[Options API Shim] Error in lifecycle hook "created":',
+                expect.any(Error),
+            );
             expect(wrapper.find('.count').text()).toBe('50');
 
-            // Second override should still apply
+            // Second override should still apply despite the first one throwing in created
             const successOverride = convertWithSilencedWarning('originalComponent', {
                 data() {
                     return { count: 100 };

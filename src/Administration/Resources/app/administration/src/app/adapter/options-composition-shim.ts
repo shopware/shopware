@@ -654,14 +654,28 @@ function setupLifecycleHooks(hooks: Record<string, LifecycleHookFn[]>, thisProxy
 
             handlers.forEach((handler) => {
                 if (compositionHook === null) {
-                    handler.call(thisProxy);
+                    try {
+                        handler.call(thisProxy);
+                    } catch (e) {
+                        console.error(`[Options API Shim] Error in lifecycle hook "${hookName}":`, e);
+                    }
                     return;
                 }
 
                 if (instance) {
-                    compositionHook(() => handler.call(thisProxy));
+                    compositionHook(() => {
+                        try {
+                            handler.call(thisProxy);
+                        } catch (e) {
+                            console.error(`[Options API Shim] Error in lifecycle hook "${hookName}":`, e);
+                        }
+                    });
                 } else if (ALREADY_PASSED_WHEN_MOUNTED.has(hookName)) {
-                    handler.call(thisProxy);
+                    try {
+                        handler.call(thisProxy);
+                    } catch (e) {
+                        console.error(`[Options API Shim] Error in lifecycle hook "${hookName}":`, e);
+                    }
                 } else {
                     console.warn(
                         `[Options API Shim] Lifecycle hook "${hookName}" could not be registered because ` +

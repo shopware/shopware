@@ -3,6 +3,7 @@
  */
 import './mixin/sw-settings-list.mixin';
 import './acl';
+import './page/sw-settings-index/sw-settings-index-example-override';
 
 const { Module } = Shopware;
 

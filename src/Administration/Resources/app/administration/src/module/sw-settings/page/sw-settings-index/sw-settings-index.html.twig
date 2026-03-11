@@ -1,18 +1,18 @@
-{% block sw_settings %}
+<sw-block name="sw_settings" :data="$dataScope">
 <sw-page
     class="sw-settings-index"
     :show-smart-bar="false"
 >
-    {% block sw_settings_content %}
     <template #content>
+        <sw-block name="sw_settings_content" :data="$dataScope">
         <sw-card-view class="sw-settings-index__card-view">
-            {% block sw_settings_content_card_view %}
+            <sw-block name="sw_settings_content_card_view" :data="$dataScope">
             <div class="sw-settings__card--hero">
                 <sw-extension-component-section
                     position-identifier="sw-settings-index"
                 />
 
-                {% block sw_settings_content_card_view_header %}
+                <sw-block name="sw_settings_content_card_view_header" :data="$dataScope">
                 <div class="sw-settings__content-header">
                     <h1 class="sw-settings__content-header-title">
                         {{ $tc('sw-settings.index.title') }}
@@ -25,7 +25,7 @@
                         size="small"
                     />
                 </div>
-                {% endblock %}
+                </sw-block>
 
                 {# @deprecated tag:v6.8.0 - will be removed without replacement #}
                 <mt-banner
@@ -38,7 +38,7 @@
                     <p v-html="$t('sw-settings.index.textSettingRenameBanner')"></p>
                 </mt-banner>
 
-                {% block sw_settings_content_card_content_grid %}
+                <sw-block name="sw_settings_content_card_content_grid" :data="$dataScope">
                 <div
                     class="sw-settings__content-grid"
                     position-identifier="sw-settings-index-content"
@@ -95,11 +95,11 @@
                         centered
                     />
                 </div>
-                {% endblock %}
+                </sw-block>
             </div>
-            {% endblock %}
+            </sw-block>
         </sw-card-view>
+        </sw-block>
     </template>
-    {% endblock %}
 </sw-page>
-{% endblock %}
+</sw-block>

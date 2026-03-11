@@ -1074,6 +1074,98 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
         });
     });
 
+    // ─── Component instance stability (focus preservation) ───────────────────
+    //
+    // ShimContent (the internal Vue component that renders the shim template)
+    // must be reused across reactive updates, not destroyed and recreated.
+    // Remounting replaces the DOM node, which would strip focus from any active
+    // input element inside the shimmed content on every keystroke.
+
+    describe('component instance stability', () => {
+        it('preserves the DOM element identity of shimmed content across reactive data updates', async () => {
+            // Vue reuses a component instance when its VNode type is the same object
+            // reference between renders. If the type changes, Vue unmounts the old
+            // instance and mounts a new one, which replaces the DOM node and strips
+            // focus from any active input inside the shimmed content.
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_stable_dom_node %}
+                        <div class="override-content">{{ label }}</div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({
+                blockName: 'shim_stable_dom_node',
+                extraData: { label: 'initial' },
+            });
+
+            const domNodeBefore = wrapper.find('.override-content').element;
+
+            await wrapper.setData({ label: 'a' });
+            await wrapper.setData({ label: 'ab' });
+            await wrapper.setData({ label: 'abc' });
+
+            // A new element reference here would mean ShimContent was remounted
+            // (focus lost); the same reference means it was updated in-place (focus kept).
+            expect(wrapper.find('.override-content').element).toBe(domNodeBefore);
+        });
+
+        it('reflects the latest reactive data in the shimmed content after multiple updates', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_stable_data_updates %}
+                        <div class="override-content">{{ label }}</div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({
+                blockName: 'shim_stable_data_updates',
+                extraData: { label: 'initial' },
+            });
+
+            await wrapper.setData({ label: 'a' });
+            await wrapper.setData({ label: 'ab' });
+            await wrapper.setData({ label: 'abc' });
+
+            expect(wrapper.find('.override-content').text()).toBe('abc');
+        });
+
+        it('renders {% parent %} content correctly after many reactive updates and a host sw-block remount', async () => {
+            // Regression guard for the providedParents accumulation bug. The old
+            // push() implementation added one entry per computed re-run without a
+            // matching pop, growing the array unboundedly. After a host remount a
+            // fresh sw-block-parent instance would pop from that array; this test
+            // verifies the resulting DOM is still structurally correct.
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_parent_after_reactive_remount %}
+                        {% parent %}
+                        <div class="override-content"></div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({
+                blockName: 'shim_parent_after_reactive_remount',
+                defaultContent: '<div class="default-content">{{ label }}</div>',
+                extraData: { label: 'initial' },
+            });
+
+            await wrapper.setData({ label: 'a' });
+            await wrapper.setData({ label: 'ab' });
+            await wrapper.setData({ label: 'abc' });
+
+            await wrapper.setData({ renderHost: false });
+            await wrapper.setData({ renderHost: true });
+
+            expect(wrapper.findAll('.default-content')).toHaveLength(1);
+            expect(wrapper.findAll('.override-content')).toHaveLength(1);
+            expect(wrapper.find('.default-content + .override-content').exists()).toBeTruthy();
+        });
+    });
+
     // ─── Nested {% block %} inside Twig override templates ───────────────────
 
     describe('nested {% block %} inside Twig override templates', () => {

@@ -95,7 +95,7 @@ class HookableEventFactoryTest extends TestCase
         $entityWrittenContainerEvent = static::createStub(EntityWrittenContainerEvent::class);
         $entityWrittenContainerEvent
             ->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($entityWrittenEvent) {
+            ->willReturnCallback(static function (string $entityName) use ($entityWrittenEvent) {
                 return match ($entityName) {
                     'product' => $entityWrittenEvent,
                     'product_translation' => null,

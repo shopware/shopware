@@ -77,7 +77,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
         $variants = $this->parseVariantString($row['variants']);
 
-        $entityWrittenEvent = $entityWrittenEvents->filter(fn ($event) => $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
+        $entityWrittenEvent = $entityWrittenEvents->filter(static fn ($event) => $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
 
         if (!$entityWrittenEvent instanceof EntityWrittenEvent) {
             return;

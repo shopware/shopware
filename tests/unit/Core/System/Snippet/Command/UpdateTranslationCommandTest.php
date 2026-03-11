@@ -55,7 +55,7 @@ class UpdateTranslationCommandTest extends TestCase
 
         $this->translationLoader->expects($this->exactly(2))
             ->method('load')
-            ->willReturnCallback(function (string $locale): void {
+            ->willReturnCallback(static function (string $locale): void {
                 $expectedLocales = ['pl-PL', 'es-ES'];
 
                 static::assertTrue(\in_array($locale, $expectedLocales, true));

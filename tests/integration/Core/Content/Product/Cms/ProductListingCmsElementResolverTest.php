@@ -195,7 +195,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $listing = $data->getListing();
         static::assertInstanceOf(ProductListingResult::class, $listing);
 
-        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getId());
+        $actualSortings = $listing->getAvailableSortings()->map(static fn (ProductSortingEntity $actualSorting) => $actualSorting->getId());
 
         $availableSortings = array_keys($availableSortings);
 
@@ -240,7 +240,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $listing = $data->getListing();
         static::assertInstanceOf(ProductListingResult::class, $listing);
 
-        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getId());
+        $actualSortings = $listing->getAvailableSortings()->map(static fn (ProductSortingEntity $actualSorting) => $actualSorting->getId());
 
         $actualSortings = array_values($actualSortings);
 
@@ -523,7 +523,7 @@ class ProductListingCmsElementResolverTest extends TestCase
     {
         $sortings = $this->connection->fetchAllKeyValue('SELECT url_key, id FROM product_sorting;');
 
-        $sortings = array_map(fn ($value) => Uuid::fromBytesToHex($value), $sortings);
+        $sortings = array_map(static fn ($value) => Uuid::fromBytesToHex($value), $sortings);
 
         return $sortings;
     }

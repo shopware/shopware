@@ -30,7 +30,7 @@ trait EnsureThumbnailSizesTrait
 
         $sizes = [];
         foreach ($thumbnailSizes as $thumbnailSize) {
-            $result = array_filter($allSizes, function ($var) use ($thumbnailSize) {
+            $result = array_filter($allSizes, static function ($var) use ($thumbnailSize) {
                 return (int) $var['width'] === $thumbnailSize['width'] && (int) $var['height'] === $thumbnailSize['height'];
             });
 

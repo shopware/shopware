@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
@@ -138,7 +139,7 @@ class CategoryDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('When boolean value is `true`, the category is listed for selection.'),
 
             /** @deprecated tag:v6.8.0 - Will be removed without replacement */
-            (new BoolField('cms_page_id_switched', 'cmsPageIdSwitched'))->addFlags(new Runtime(), new ApiAware()),
+            (new BoolField('cms_page_id_switched', 'cmsPageIdSwitched'))->addFlags(new Runtime(), new ApiAware(), new Deprecated('v6.7.9.0', 'v6.8.0.0')),
             (new IntField('visible_child_count', 'visibleChildCount'))->addFlags(new Runtime(), new ApiAware()),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),

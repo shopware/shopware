@@ -4,6 +4,12 @@
 
 <details>
 
+## Default CMS page ID now persisted for categories
+
+Now the default CMS page ID is automatically written to the database when a category is saved without a `cmsPageId`. A migration also backfills all existing categories that have no CMS page assigned.
+
+The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` will be removed without replacement.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.

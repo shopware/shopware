@@ -178,7 +178,7 @@ async function createWrapper({
 }
 
 describe('Twig → Native Block Runtime Adapter (shim)', () => {
-    let consoleSpy;
+    let consoleSpy: jest.SpyInstance;
 
     beforeAll(() => {
         Shopware.Store.register('blockOverride', blockOverrideStore);
@@ -1539,4 +1539,102 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.root-b .default-b').exists()).toBeFalsy();
         });
     });
+
+    // ─── Multiple simultaneous instances of the same block name ─────────────
+    //
+    // When two <sw-block name="foo"> elements are mounted at the same time (e.g.
+    // in a list where the same block name appears per-row), each instance must
+    // render its own shim override exactly once. Before the M-8 fix, shim slots
+    // were registered in the shared global blockContext by each instance, causing
+    // every instance to see and double-render all siblings' shim slots.
+
+    describe('multiple simultaneous instances of the same block name', () => {
+        it('renders the shim override exactly once in each instance when two sw-blocks with the same name are mounted simultaneously', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_multi_instance_isolation %}
+                        <div class="override-content"></div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await mount(
+                {
+                    template: `
+                        <div>
+                            <div class="instance-a">
+                                <sw-block name="shim_multi_instance_isolation" :data="$dataScope()">
+                                    <div class="default-content"></div>
+                                </sw-block>
+                            </div>
+                            <div class="instance-b">
+                                <sw-block name="shim_multi_instance_isolation" :data="$dataScope()">
+                                    <div class="default-content"></div>
+                                </sw-block>
+                            </div>
+                        </div>
+                    `,
+                    components: {
+                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            // Each instance should show the override exactly once — not duplicated
+            expect(wrapper.findAll('.instance-a .override-content')).toHaveLength(1);
+            expect(wrapper.findAll('.instance-b .override-content')).toHaveLength(1);
+            // The default content should be replaced in both instances
+            expect(wrapper.find('.instance-a .default-content').exists()).toBeFalsy();
+            expect(wrapper.find('.instance-b .default-content').exists()).toBeFalsy();
+        });
+
+        it('stacks {% parent %} correctly in each instance when two sw-blocks with the same name are mounted simultaneously', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_multi_instance_parent_isolation %}
+                        {% parent %}
+                        <div class="override-content"></div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await mount(
+                {
+                    template: `
+                        <div>
+                            <div class="instance-a">
+                                <sw-block name="shim_multi_instance_parent_isolation" :data="$dataScope()">
+                                    <div class="default-content"></div>
+                                </sw-block>
+                            </div>
+                            <div class="instance-b">
+                                <sw-block name="shim_multi_instance_parent_isolation" :data="$dataScope()">
+                                    <div class="default-content"></div>
+                                </sw-block>
+                            </div>
+                        </div>
+                    `,
+                    components: {
+                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            // Each instance: default → override, each exactly once
+            expect(wrapper.findAll('.instance-a .default-content')).toHaveLength(1);
+            expect(wrapper.findAll('.instance-a .override-content')).toHaveLength(1);
+            expect(wrapper.find('.instance-a .default-content + .override-content').exists()).toBeTruthy();
+
+            expect(wrapper.findAll('.instance-b .default-content')).toHaveLength(1);
+            expect(wrapper.findAll('.instance-b .override-content')).toHaveLength(1);
+            expect(wrapper.find('.instance-b .default-content + .override-content').exists()).toBeTruthy();
+        });
+    });
+
 });

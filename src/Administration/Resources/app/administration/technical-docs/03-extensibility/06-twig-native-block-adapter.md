@@ -301,11 +301,66 @@ Lifecycle-driven cleanup: when the host component unmounts (e.g., navigating awa
 
 ## Known Limitations
 
-| Limitation | Notes |
-|---|---|
-| `{% if %}` / `{% for %}` inside block content are unsupported | These Twig control flow tags were never valid in Shopware's admin block system. They produce empty strings in `reconstructInnerTemplate`. Must be documented in the migration guide. |
-| Vue component references inside Twig overrides (e.g. `<sw-card>`) | Resolved by Vue's runtime compiler using the global component registry — works as expected. |
-| Async overrides indexed after first `sw-block` mount | In Shopware's boot sequence, `initComponent()` awaits all override configs before Vue mounts. In practice this cannot be hit. |
+### ⚠ `{% if %}` / `{% for %}` inside block content are silently dropped
+
+Twig control-flow tags inside a `{% block %}` body are **not** supported. `reconstructInnerTemplate`
+collapses any token it does not recognise — anything that is not a raw HTML fragment, a
+`{% parent %}` call, or a nested `{% block %}` — to an empty string. There is **no error or
+warning**; the content simply does not render.
+
+**Before (broken after component migration):**
+
+```js
+Shopware.Component.override('sw-product-detail', {
+    template: `
+{% block sw_product_detail_content %}
+    {% if product.active %}
+        <div class="active-badge">Active</div>
+    {% endif %}
+{% endblock %}
+`,
+});
+```
+
+The `{% if %}` tag is silently dropped; the block renders as empty.
+
+**Migrate to Vue directives instead:**
+
+```js
+Shopware.Component.override('sw-product-detail', {
+    template: `
+<sw-block extends="sw_product_detail_content">
+    <div v-if="product.active" class="active-badge">Active</div>
+</sw-block>
+`,
+});
+```
+
+Vue `v-if`, `v-for`, and `{{ }}` interpolation work fully inside native `<sw-block>` overrides
+because the runtime template compiler handles them — this limitation only affects the legacy
+Twig shim path.
+
+---
+
+### Vue component references inside Twig overrides (e.g. `<sw-card>`)
+
+Resolved by Vue's runtime compiler using the global component registry — works as expected.
+
+---
+
+### Async overrides and boot-order invariant
+
+For plugin overrides registered via an **async function config** (lazy-loaded), the block index
+is populated inside `configResolveMethod` when it is awaited by `initComponent()`. Shopware's
+boot sequence awaits all registered component configs before Vue mounts any component tree, so
+async overrides are always indexed before the first `<sw-block name="...">` executes.
+
+**Failure mode if this invariant is violated:** The async override's Twig blocks are never
+indexed, `hasBlockEntries()` returns `false`, no shim slots are created, and the default block
+content renders unchanged. There is no error or warning — the override is silently skipped.
+
+This boot-order dependency is enforced by convention, not by the code. If the application boot
+sequence is ever restructured, this must be re-validated.
 
 ---
 

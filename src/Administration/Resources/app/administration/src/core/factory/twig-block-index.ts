@@ -15,7 +15,7 @@
  */
 
 import Twig from 'twig';
-import reconstructInnerTemplate from './reconstruct-twig-template';
+import reconstructInnerTemplate, { type TwigToken } from './reconstruct-twig-template';
 
 /**
  * @private
@@ -23,6 +23,23 @@ import reconstructInnerTemplate from './reconstruct-twig-template';
 export interface BlockEntry {
     componentName: string;
     innerTemplate: string;
+}
+
+/**
+ * A TwigJS token that represents a `{% block name %}` definition.
+ * This shape mirrors TwigJS internals and should be re-validated whenever
+ * the `twig` package is upgraded.
+ * @private
+ */
+type BlockToken = TwigToken & {
+    token: {
+        blockName: string;
+        output: TwigToken[];
+    };
+};
+
+function isBlockToken(token: TwigToken): token is BlockToken {
+    return token.type === 'logic' && typeof token.token?.blockName === 'string';
 }
 
 const blockIndex = new Map<string, BlockEntry[]>();
@@ -46,18 +63,16 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
         return;
     }
 
-    parsed.tokens
-        .filter((token) => token.type === 'logic' && !!token.token?.blockName)
-        .forEach((token) => {
-            const blockName = token.token!.blockName as string;
-            const output = (token.token!.output ?? []) as Parameters<typeof reconstructInnerTemplate>[0];
+    parsed.tokens.filter(isBlockToken).forEach((token) => {
+        const blockName = token.token.blockName;
+        const output = token.token.output ?? [];
 
-            const innerTemplate = reconstructInnerTemplate(output);
+        const innerTemplate = reconstructInnerTemplate(output);
 
-            const existing = blockIndex.get(blockName) ?? [];
-            existing.push({ componentName, innerTemplate });
-            blockIndex.set(blockName, existing);
-        });
+        const existing = blockIndex.get(blockName) ?? [];
+        existing.push({ componentName, innerTemplate });
+        blockIndex.set(blockName, existing);
+    });
 }
 
 /**

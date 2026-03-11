@@ -35,12 +35,14 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     }
 
     const def = {
-        name: `__twig-shim__${blockName}`,
+        // Prefix with "TwigShimBlock_" so the component is clearly identifiable
+        // in Vue DevTools as a compatibility shim rather than a production component.
+        name: `TwigShimBlock_${blockName}`,
         template: entry.innerTemplate,
         components: { 'sw-block-parent': swBlockParent },
     };
 
-    const dataScopeRef = shallowRef<object | null>(null);
+    const dataScopeRef = shallowRef<Record<string | symbol, unknown> | null>(null);
 
     // A stable object reference is required so Vue's VDOM diff recognises the
     // same component type across slot calls and reuses the instance. Creating a
@@ -52,7 +54,7 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     };
 
     return (dataScope) => {
-        dataScopeRef.value = dataScope as object | null;
+        dataScopeRef.value = dataScope as Record<string | symbol, unknown> | null;
         return [h(shimComponent)];
     };
 }
@@ -70,16 +72,21 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
  * target would trigger Vue's `ownKeys` warning on that validation call even
  * though our trap returns `[]`. A plain `{}` target keeps that check silent.
  */
-function buildSetupContext(dataScope: object | null): Record<string, unknown> {
+function buildSetupContext(dataScope: Record<string | symbol, unknown> | null): Record<string, unknown> {
     if (!dataScope) return {};
 
-    const source = dataScope as Record<string | symbol, unknown>;
+    const source = dataScope;
 
     return new Proxy({} as Record<string, unknown>, {
         get(_t, key: string | symbol): unknown {
             return isInternalKey(key) ? undefined : source[key];
         },
         has(_t, key: string | symbol): boolean {
+            // Symbol keys are intentionally passed through: Vue uses private symbols
+            // (e.g. __v_isRef, __v_isVue) on component proxies, and exposing them
+            // here ensures that Vue's internal identity checks work correctly on
+            // the host proxy without leaking them as template-visible bindings
+            // (isInternalKey only guards against string-prefixed private names).
             return !isInternalKey(key) && key in source;
         },
         getOwnPropertyDescriptor(_t, key: string | symbol): PropertyDescriptor | undefined {

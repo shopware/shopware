@@ -13,7 +13,15 @@
  * valid inside component templates.
  */
 
-type TwigToken = {
+/**
+ * Mirrors the TwigJS internal token structure. This shape is not part of a
+ * public TwigJS API contract and must be re-validated whenever the `twig`
+ * package is upgraded. TwigJS ships no stable TypeScript types; this
+ * definition is derived from observed runtime token output.
+ *
+ * @private
+ */
+export type TwigToken = {
     type: 'raw' | 'logic';
     /** Value of a raw text token — the verbatim HTML/Vue template fragment. */
     value?: string;

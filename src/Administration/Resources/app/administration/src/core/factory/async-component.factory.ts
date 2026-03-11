@@ -617,14 +617,23 @@ function override(
      * and the only case exercised in tests). This ensures the block index is
      * populated before any `sw-block` with a matching name mounts, without
      * needing to await the full async config resolution pipeline.
+     *
+     * INVARIANT (C-1): For async function configs the block index is populated
+     * inside `configResolveMethod` when it is awaited. Shopware's boot sequence
+     * calls `initComponent()` for all registered components before Vue mounts any
+     * component, so async overrides are always indexed before the first
+     * `<sw-block name="...">` setup() runs. If this boot order is ever changed,
+     * async Twig overrides will silently produce no output (default content renders
+     * unchanged). See `technical-docs/03-extensibility/06-twig-native-block-adapter.md`
+     * for a detailed explanation.
      */
-    let alreadyIndexed = false;
-    if (componentConfiguration !== null && typeof componentConfiguration !== 'function') {
-        const { template: tpl } = componentConfiguration;
-        if (typeof tpl === 'string') {
-            indexTwigBlocksFromTemplate(componentName, tpl);
-            alreadyIndexed = true;
-        }
+    const isSyncWithTemplate =
+        componentConfiguration !== null &&
+        typeof componentConfiguration !== 'function' &&
+        typeof (componentConfiguration as ComponentConfig).template === 'string';
+
+    if (isSyncWithTemplate) {
+        indexTwigBlocksFromTemplate(componentName, (componentConfiguration as ComponentConfig).template as string);
     }
 
     const configResolveMethod = async (): Promise<ComponentConfig> => {
@@ -651,24 +660,16 @@ function override(
         config.name = componentName;
 
         if (config.template) {
-            /**
-             * Index any Twig block overrides for the native block shim adapter.
-             * Skipped when already indexed synchronously above (direct-object path).
-             * Runs here for async function configs (lazy-loaded plugin overrides).
-             */
-            if (!alreadyIndexed) {
+            // Async-only path: direct-object configs were already indexed synchronously
+            // above so the block index is ready before any <sw-block> setup() runs.
+            if (!isSyncWithTemplate) {
                 indexTwigBlocksFromTemplate(componentName, config.template as string);
             }
 
-            /**
-             * Register a template override for the existing component template.
-             */
             TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
 
-            /**
-             * Delete the template string from the component config.
-             * The complete rendered template including all overrides will be added later.
-             */
+            // The merged template (default + all overrides) is compiled later by
+            // TemplateFactory, so the raw string on the config object is no longer needed.
             delete config.template;
         }
 

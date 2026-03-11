@@ -386,4 +386,106 @@ describe('sw-block', () => {
         expect(wrapper.find('.component-root > .extension-content-2').text()).toBe('This is a method with parameter: param');
         expect(wrapper.find('.component-root > .extension-content-3').text()).toBe('This is a computed');
     });
+
+    // ─── DEV-mode guard: props.name change after mount ────────────────────────
+    //
+    // sw-block registers a watch (guarded by process.env.NODE_ENV !== 'production')
+    // that warns if the `name` prop changes after mount, because the shim slots and
+    // block context bindings are computed once in setup() and cannot be rebound.
+    // Jest runs with NODE_ENV='test', so the watch is active in these tests.
+
+    describe('DEV-mode guard for dynamic "name" prop (T-3)', () => {
+        let consoleSpy;
+
+        beforeEach(() => {
+            consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        });
+
+        afterEach(() => {
+            consoleSpy.mockRestore();
+        });
+
+        it('emits a console.warn when the "name" prop changes after the initial mount', async () => {
+            const wrapper = await mount(
+                {
+                    template: `
+                        <sw-block :name="blockName" :data="$dataScope()">
+                            <div class="content"></div>
+                        </sw-block>
+                    `,
+                    components: {
+                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                    },
+                    data() {
+                        return { blockName: 'original-block-name' };
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            await wrapper.setData({ blockName: 'changed-block-name' });
+
+            expect(consoleSpy).toHaveBeenCalledWith(
+                expect.stringContaining('"name" prop changed'),
+            );
+            expect(consoleSpy).toHaveBeenCalledWith(
+                expect.stringContaining('original-block-name'),
+            );
+            expect(consoleSpy).toHaveBeenCalledWith(
+                expect.stringContaining('changed-block-name'),
+            );
+        });
+
+        it('does not emit a console.warn on initial mount — the watch fires only on subsequent changes', async () => {
+            await mount(
+                {
+                    template: `
+                        <sw-block :name="blockName" :data="$dataScope()">
+                            <div class="content"></div>
+                        </sw-block>
+                    `,
+                    components: {
+                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                    },
+                    data() {
+                        return { blockName: 'initial-block-name' };
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            expect(consoleSpy).not.toHaveBeenCalled();
+        });
+
+        it('includes the [sw-block] prefix in the warning so developers can identify the source', async () => {
+            const wrapper = await mount(
+                {
+                    template: `
+                        <sw-block :name="blockName" :data="$dataScope()">
+                            <div class="content"></div>
+                        </sw-block>
+                    `,
+                    components: {
+                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                    },
+                    data() {
+                        return { blockName: 'block-before' };
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            await wrapper.setData({ blockName: 'block-after' });
+
+            expect(consoleSpy).toHaveBeenCalledWith(
+                expect.stringContaining('[sw-block]'),
+            );
+        });
+    });
 });

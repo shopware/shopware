@@ -8,7 +8,7 @@
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
 
-The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` will be removed without replacement.
+The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
 
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 

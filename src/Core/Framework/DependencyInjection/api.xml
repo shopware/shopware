@@ -126,7 +126,9 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder">
+            <argument type="tagged_iterator" tag="shopware.api.enum_provider" />
+        </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
 

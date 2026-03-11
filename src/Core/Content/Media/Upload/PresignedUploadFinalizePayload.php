@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Upload;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @internal
@@ -11,10 +12,14 @@ use Shopware\Core\Framework\Log\Package;
 class PresignedUploadFinalizePayload
 {
     public function __construct(
-        public readonly ?string $fileName = null,
-        public readonly ?string $extension = null,
-        public readonly ?string $mimeType = null,
-        public readonly ?string $path = null,
+        #[Assert\NotBlank]
+        public readonly string $fileName = '',
+        #[Assert\NotBlank]
+        public readonly string $extension = '',
+        #[Assert\NotBlank]
+        public readonly string $mimeType = '',
+        #[Assert\NotBlank]
+        public readonly string $path = '',
         public readonly ?int $width = null,
         public readonly ?int $height = null,
     ) {

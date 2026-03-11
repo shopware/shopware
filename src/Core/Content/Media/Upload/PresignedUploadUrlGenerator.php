@@ -150,6 +150,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
                 size: (int) ($result->getContentLength()),
                 lastModified: $result->getLastModified() ?? new \DateTimeImmutable(),
                 etag: $etag,
+                contentType: $result->getContentType(),
             );
         } catch (\Throwable $e) {
             $this->logger->warning($e->getMessage(), [

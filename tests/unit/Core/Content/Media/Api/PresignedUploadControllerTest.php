@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\Api\PresignedUploadController;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedUploadFinalizePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadPreparePayload;
+use Shopware\Core\Content\Media\Upload\PresignedUploadPrepareResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -43,13 +44,13 @@ class PresignedUploadControllerTest extends TestCase
         $this->service->expects($this->once())
             ->method('prepare')
             ->with($payload, $context)
-            ->willReturn([
-                'mediaId' => 'media-id-123',
-                'url' => 'https://s3.example.com/presigned-url',
-                'path' => 'media/ab/cd/test-file.jpg',
-                'expiresAt' => '2026-02-10T12:00:00+00:00',
-                'isDuplicate' => false,
-            ]);
+            ->willReturn(new PresignedUploadPrepareResult(
+                mediaId: 'media-id-123',
+                url: 'https://s3.example.com/presigned-url',
+                path: 'media/ab/cd/test-file.jpg',
+                expiresAt: '2026-02-10T12:00:00+00:00',
+                isDuplicate: false,
+            ));
 
         $response = $this->controller->prepare($payload, $context);
 
@@ -75,13 +76,13 @@ class PresignedUploadControllerTest extends TestCase
         $this->service->expects($this->once())
             ->method('prepare')
             ->with($payload, $context)
-            ->willReturn([
-                'mediaId' => 'media-id-456',
-                'url' => 'https://s3.example.com/presigned-url-2',
-                'path' => 'media/ab/cd/duplicate-file.png',
-                'expiresAt' => '2026-02-10T12:00:00+00:00',
-                'isDuplicate' => true,
-            ]);
+            ->willReturn(new PresignedUploadPrepareResult(
+                mediaId: 'media-id-456',
+                url: 'https://s3.example.com/presigned-url-2',
+                path: 'media/ab/cd/duplicate-file.png',
+                expiresAt: '2026-02-10T12:00:00+00:00',
+                isDuplicate: true,
+            ));
 
         $response = $this->controller->prepare($payload, $context);
 

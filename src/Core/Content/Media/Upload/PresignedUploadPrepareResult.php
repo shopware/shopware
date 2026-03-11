@@ -8,13 +8,14 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-readonly class FileMetadataResult
+readonly class PresignedUploadPrepareResult
 {
     public function __construct(
-        public int $size,
-        public \DateTimeImmutable $lastModified,
-        public ?string $etag = null,
-        public ?string $contentType = null,
+        public string $mediaId,
+        public string $url,
+        public string $path,
+        public string $expiresAt,
+        public bool $isDuplicate,
     ) {
     }
 }

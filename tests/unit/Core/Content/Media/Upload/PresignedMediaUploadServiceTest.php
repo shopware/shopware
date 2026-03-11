@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Media\Upload\FileMetadataResult;
 use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
@@ -51,7 +52,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
 
-        $typeDetector = $this->createMock(\Shopware\Core\Content\Media\TypeDetector\TypeDetector::class);
+        $typeDetector = $this->createMock(TypeDetector::class);
         $this->mediaFileCleanup = $this->createMock(MediaFileCleanupService::class);
 
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
@@ -113,11 +114,11 @@ class PresignedMediaUploadServiceTest extends TestCase
 
         $result = $this->service->prepare($payload, $context);
 
-        static::assertArrayHasKey('mediaId', $result);
-        static::assertSame('https://s3.example.com/presigned-url', $result['url']);
-        static::assertSame('media/ab/cd/test-file.jpg', $result['path']);
-        static::assertSame($expiresAt->format(\DateTimeInterface::ATOM), $result['expiresAt']);
-        static::assertFalse($result['isDuplicate']);
+        static::assertNotEmpty($result->mediaId);
+        static::assertSame('https://s3.example.com/presigned-url', $result->url);
+        static::assertSame('media/ab/cd/test-file.jpg', $result->path);
+        static::assertSame($expiresAt->format(\DateTimeInterface::ATOM), $result->expiresAt);
+        static::assertFalse($result->isDuplicate);
     }
 
     public function testPrepareWithMediaFolderId(): void
@@ -175,36 +176,6 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->service->prepare($payload, $context);
     }
 
-    public function testPrepareThrowsOnMissingFileName(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The parameter "fileName" is invalid.');
-
-        $this->service->prepare(new PresignedUploadPreparePayload(extension: 'jpg', mimeType: 'image/jpeg'), $context);
-    }
-
-    public function testPrepareThrowsOnMissingExtension(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The parameter "extension" is invalid.');
-
-        $this->service->prepare(new PresignedUploadPreparePayload(fileName: 'test', mimeType: 'image/jpeg'), $context);
-    }
-
-    public function testPrepareThrowsOnMissingMimeType(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The parameter "mimeType" is invalid.');
-
-        $this->service->prepare(new PresignedUploadPreparePayload(fileName: 'test', extension: 'jpg'), $context);
-    }
-
     public function testFinalizeVerifiesAndUpdatesMedia(): void
     {
         $context = Context::createDefaultContext();
@@ -237,6 +208,7 @@ class PresignedMediaUploadServiceTest extends TestCase
                 size: 12345,
                 lastModified: new \DateTimeImmutable(),
                 etag: 'd41d8cd98f00b204e9800998ecf8427e',
+                contentType: 'image/jpeg',
             ));
 
         $this->mediaRepository->expects($this->once())
@@ -318,26 +290,6 @@ class PresignedMediaUploadServiceTest extends TestCase
         );
 
         $this->service->finalize($mediaId, $payload, $context);
-    }
-
-    public function testFinalizeThrowsOnMissingFileName(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The parameter "fileName" is invalid.');
-
-        $this->service->finalize('media-id', new PresignedUploadFinalizePayload(extension: 'jpg', mimeType: 'image/jpeg', path: 'some/path'), $context);
-    }
-
-    public function testFinalizeThrowsOnMissingPath(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The parameter "path" is invalid.');
-
-        $this->service->finalize('media-id', new PresignedUploadFinalizePayload(fileName: 'test', extension: 'jpg', mimeType: 'image/jpeg'), $context);
     }
 
     public function testFinalizeThrowsOnPathMismatch(): void
@@ -449,6 +401,7 @@ class PresignedMediaUploadServiceTest extends TestCase
                 size: 50_000_000,
                 lastModified: new \DateTimeImmutable(),
                 etag: 'abc123def456',
+                contentType: 'video/mp4',
             ));
 
         $this->mediaRepository->expects($this->once())
@@ -525,6 +478,7 @@ class PresignedMediaUploadServiceTest extends TestCase
                 size: 5000,
                 lastModified: new \DateTimeImmutable(),
                 etag: 'replace-hash-123',
+                contentType: 'image/jpeg',
             ));
 
         $this->mediaFileCleanup->expects($this->once())
@@ -593,6 +547,7 @@ class PresignedMediaUploadServiceTest extends TestCase
                 size: 3000,
                 lastModified: new \DateTimeImmutable(),
                 etag: 'same-path-hash',
+                contentType: 'image/jpeg',
             ));
 
         $this->mediaFileCleanup->expects($this->never())

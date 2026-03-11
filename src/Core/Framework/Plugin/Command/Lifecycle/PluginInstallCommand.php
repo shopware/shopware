@@ -73,7 +73,8 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
                 if ($input->getOption('refresh')) {
                     $io->note('Can not refresh and activate in same request.');
                 } else {
-                    $this->pluginLifecycleService->activatePlugin($plugin, $context);
+                    // do not validate requirements here, as the plugin was already installed and would have thrown an exception if the requirements were not met.
+                    $this->pluginLifecycleService->activatePlugin($plugin, $context, validateRequirements: false);
                     $activationSuffix = ' and activated';
                 }
             }

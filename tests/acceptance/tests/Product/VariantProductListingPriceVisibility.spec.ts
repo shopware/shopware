@@ -49,12 +49,6 @@ test(
             price: prices,
         });
 
-        await AdminApiContext.post('_action/indexing/product.indexer?_response=detail', {
-            data: {
-                offset: 0,
-            },
-        });
-
         await TestDataService.clearCaches();
 
         const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);

@@ -12,8 +12,6 @@ test(
 
     await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});
     const product = await TestDataService.createBasicProduct();
-    const category = await TestDataService.createCategory();
-    await TestDataService.assignProductCategory(product.id, category.id);
 
     await TestDataService.clearCaches();
 

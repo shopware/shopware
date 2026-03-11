@@ -57,5 +57,9 @@ return [
 
         // SystemRestoreDatabaseCommand was marked @internal
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
+
+        // Optional parameters added for operation-type-based OpenAPI schema generation — classes will become @internal in v6.8.0
+        preg_quote('ADDED: Parameter postSchemaRef was added to Method getPathActions() of class Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder', '/'),
+        preg_quote('ADDED: Parameter postRequiredFields was added to Method getPathActions() of class Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder', '/'),
     ],
 ];

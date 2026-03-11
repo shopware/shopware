@@ -28,7 +28,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
         $importExportMessageCount = \count(
-            \array_filter($messageBus->getDispatchedMessages(), function ($message): bool {
+            \array_filter($messageBus->getDispatchedMessages(), static function ($message): bool {
                 return $message['message'] instanceof ImportExportMessage;
             })
         );
@@ -57,7 +57,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $importExportHandler->__invoke($importExportMessage);
 
-        $messages = \array_filter($messageBus->getDispatchedMessages(), function ($message): bool {
+        $messages = \array_filter($messageBus->getDispatchedMessages(), static function ($message): bool {
             return $message['message'] instanceof ImportExportMessage;
         });
 
@@ -84,7 +84,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $importExportMessageCount
             = \count(
-                \array_filter($messageBus->getDispatchedMessages(), function ($message): bool {
+                \array_filter($messageBus->getDispatchedMessages(), static function ($message): bool {
                     return $message['message'] instanceof ImportExportMessage;
                 })
             );
@@ -113,7 +113,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
         $this->listener
             ->addListener(
                 ImportExportExceptionImportExportHandlerEvent::class,
-                function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
+                static function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
                     static::assertInstanceOf(InvalidUuidException::class, $event->getException());
                     static::assertSame(
                         0,
@@ -126,7 +126,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $importExportHandler->__invoke($importExportMessage);
 
-        $messages = \array_filter($messageBus->getDispatchedMessages(), function ($message): bool {
+        $messages = \array_filter($messageBus->getDispatchedMessages(), static function ($message): bool {
             return $message['message'] instanceof ImportExportMessage;
         });
 

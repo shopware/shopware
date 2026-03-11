@@ -1459,7 +1459,7 @@ class ProductRepositoryTest extends TestCase
         $productMedia = $product->getMedia();
         static::assertNotNull($productMedia);
 
-        $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
+        $ids = $productMedia->map(static fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$a, $b, $c];
         static::assertSame($order, array_values($ids));
@@ -1474,7 +1474,7 @@ class ProductRepositoryTest extends TestCase
         $productMedia = $product->getMedia();
         static::assertNotNull($productMedia);
 
-        $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
+        $ids = $productMedia->map(static fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$d, $c, $b];
         static::assertSame($order, array_values($ids));

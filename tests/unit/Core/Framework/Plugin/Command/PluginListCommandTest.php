@@ -113,7 +113,7 @@ class PluginListCommandTest extends TestCase
     {
         $filterValue = 'shopware-is-love';
 
-        $criteria = static::callback(function (Criteria $criteria) use ($filterValue): bool {
+        $criteria = static::callback(static function (Criteria $criteria) use ($filterValue): bool {
             $filters = $criteria->getFilters();
             // must be MultiFilter
             if (!(\count($filters) === 1 && $filters[0] instanceof MultiFilter)) {

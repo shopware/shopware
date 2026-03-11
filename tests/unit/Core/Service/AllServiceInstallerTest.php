@@ -158,7 +158,7 @@ class AllServiceInstallerTest extends TestCase
         $envelope = new Envelope(new \stdClass());
         $messageBus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function ($message) {
+            ->with(static::callback(static function ($message) {
                 return $message instanceof InstallServicesMessage;
             }))
             ->willReturn($envelope);
@@ -218,7 +218,7 @@ class AllServiceInstallerTest extends TestCase
         $matcher = $this->exactly(2);
         $serviceLifeCycle->expects($matcher)
             ->method('install')
-            ->willReturnCallback(function () use ($matcher): bool {
+            ->willReturnCallback(static function () use ($matcher): bool {
                 return match ($matcher->numberOfInvocations()) {
                     1 => true,
                     2 => false,
@@ -257,7 +257,7 @@ class AllServiceInstallerTest extends TestCase
         $matcher = $this->exactly(3);
         $serviceLifeCycle->expects($matcher)
             ->method('install')
-            ->willReturnCallback(function () use ($matcher): bool {
+            ->willReturnCallback(static function () use ($matcher): bool {
                 return match ($matcher->numberOfInvocations()) {
                     1 => true,
                     2 => false,

@@ -132,7 +132,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
         $eventDispatcher->addListener(
             CustomerDeletedEvent::class,
-            function (CustomerDeletedEvent $event) use (&$customerDeletedEventCount, $customer, $serializedCustomer): void {
+            static function (CustomerDeletedEvent $event) use (&$customerDeletedEventCount, $customer, $serializedCustomer): void {
                 ++$customerDeletedEventCount;
                 static::assertSame($customer, $event->getCustomer());
                 $values = $event->getValues();
@@ -173,7 +173,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $caughtEvents = 0;
         $eventDispatcher->addListener(
             CustomerDeletedEvent::class,
-            function () use (&$caughtEvents): void {
+            static function () use (&$caughtEvents): void {
                 ++$caughtEvents;
             }
         );
@@ -247,7 +247,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $dispatchedCount = 0;
         $eventDispatcher->addListener(
             CustomerDeletedEvent::class,
-            function () use (&$dispatchedCount): void {
+            static function () use (&$dispatchedCount): void {
                 ++$dispatchedCount;
             }
         );
@@ -336,7 +336,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $dispatchedCount = 0;
         $eventDispatcher->addListener(
             CustomerDeletedEvent::class,
-            function () use (&$dispatchedCount): void {
+            static function () use (&$dispatchedCount): void {
                 ++$dispatchedCount;
             }
         );

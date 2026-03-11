@@ -121,11 +121,7 @@ export default {
         escapeRegExp(string) {
             if (Context.app.adminEsEnable) {
                 // remove simple query string syntax
-                return RegExp.escape(
-                    string
-                    .replace(/[+-.*~"|()]/g, '')
-                    .replace(/ AND | and | OR | or |  +/g, ' '),
-                );
+                return RegExp.escape(string.replace(/[+-.*~"|()]/g, '').replace(/ AND | and | OR | or |  +/g, ' '));
             }
 
             return RegExp.escape(string);

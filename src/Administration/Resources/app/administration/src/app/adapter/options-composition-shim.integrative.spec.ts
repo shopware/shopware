@@ -21,7 +21,7 @@ import TemplateFactory from 'src/core/factory/template.factory';
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { convertOptionsApiOverrideToCompositionApi } from 'src/app/adapter/options-composition-shim';
 import { mount } from '@vue/test-utils';
-import { ref, computed, reactive, defineComponent, nextTick } from 'vue';
+import { ref, computed, reactive, defineComponent, nextTick, watch } from 'vue';
 
 /**
  * Helper: simulates the shim path that createExtendableSetup executes at mount time.
@@ -382,6 +382,60 @@ describe('Options API Shim — Integrative Tests', () => {
             await wrapper.find('.inc').trigger('click');
             await nextTick();
             expect(wrapper.find('.log').text()).toBe('count: 1');
+        });
+
+        it('should not interfere when base component already has a watcher and override adds another watcher', async () => {
+            const originalComponent = defineComponent({
+                template: `
+                    <div class="count">{{ count }}</div>
+                    <div class="base-log">{{ baseLog }}</div>
+                    <div class="override-log">{{ overrideLog }}</div>
+                    <button class="inc" @click="increment">+</button>
+                `,
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'comp-watch-coexist' }, () => {
+                        const count = ref(0);
+                        const baseLog = ref('base-init');
+                        const overrideLog = ref('override-init');
+                        const increment = () => {
+                            count.value += 1;
+                        };
+
+                        // Base component's own watcher
+                        watch(count, (newVal) => {
+                            baseLog.value = `base: ${newVal}`;
+                        });
+
+                        return { public: { count, baseLog, overrideLog, increment } };
+                    }),
+            });
+
+            const wrapper = mount(originalComponent);
+            expect(wrapper.find('.base-log').text()).toBe('base-init');
+            expect(wrapper.find('.override-log').text()).toBe('override-init');
+
+            // Override adds its own watcher for the same `count` ref
+            await applyOptionsOverride('comp-watch-coexist', {
+                watch: {
+                    count(newVal: any) {
+                        (this as any).overrideLog = `override: ${newVal}`;
+                    },
+                },
+            });
+
+            // Click → both watchers must fire independently
+            await wrapper.find('.inc').trigger('click');
+            await nextTick();
+            expect(wrapper.find('.count').text()).toBe('1');
+            expect(wrapper.find('.base-log').text()).toBe('base: 1');
+            expect(wrapper.find('.override-log').text()).toBe('override: 1');
+
+            // Second click → both watchers fire again
+            await wrapper.find('.inc').trigger('click');
+            await nextTick();
+            expect(wrapper.find('.count').text()).toBe('2');
+            expect(wrapper.find('.base-log').text()).toBe('base: 2');
+            expect(wrapper.find('.override-log').text()).toBe('override: 2');
         });
     });
 

@@ -13,6 +13,11 @@ The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now requi
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
 
 The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
+## Locale-aware sorting for for product property group options
+
+To ensure the product property group options is sorted more precisely based on locale code:
+- `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
+- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now required new parameter `localCode`.
 
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 

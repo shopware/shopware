@@ -49,7 +49,7 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
 
         if (!$this->secureUrlValidator->isValidTarget($appUrl)) {
             return $this->fail($manifest, \sprintf(
-                'APP_URL "%s" is not a valid public URL. It must use HTTPS, must not be an IP address, and must not use a reserved domain.',
+                'APP_URL "%s" is not a valid public URL. It must use HTTPS, must not be an IP address, must not use a reserved domain, and its host must resolve via DNS to a public IP address.',
                 $appUrl
             ));
         }

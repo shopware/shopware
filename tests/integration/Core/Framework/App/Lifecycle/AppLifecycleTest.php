@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -41,8 +40,6 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
-use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -1703,51 +1700,6 @@ class AppLifecycleTest extends TestCase
 
         // We need to start a new transaction, so we have something to stop after the test
         $this->startTransactionBefore();
-    }
-
-    public function testInstallThrowsWhenRequirementsNotMet(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withRequirements/manifest.xml');
-        // Queue a failing response for the health-check call used by RequiresPublicAccess
-        $this->appendNewResponse(new Response(500));
-
-        $expected = AppException::requirementsNotMet(
-            new UnmetRequirement(
-                'withRequirements',
-                PublicAccess::name(),
-                \sprintf(
-                    'Health check at "%s/api/_info/health-check" returned HTTP 500. Ensure the Shopware instance is running and publicly reachable.',
-                    rtrim((string) EnvironmentHelper::getVariable('APP_URL'), '/')
-                )
-            )
-        );
-        $this->expectExceptionObject($expected);
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-    }
-
-    public function testUpdateThrowsWhenRequirementsNotMet(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withRequirements/manifest.xml');
-        // Queue a failing response for the health-check call used by RequiresPublicAccess
-        $this->appendNewResponse(new Response(500));
-
-        $expected = AppException::requirementsNotMet(
-            new UnmetRequirement(
-                'withRequirements',
-                PublicAccess::name(),
-                \sprintf(
-                    'Health check at "%s/api/_info/health-check" returned HTTP 500. Ensure the Shopware instance is running and publicly reachable.',
-                    rtrim((string) EnvironmentHelper::getVariable('APP_URL'), '/')
-                )
-            )
-        );
-        $this->expectExceptionObject($expected);
-        $this->appLifecycle->update(
-            $manifest,
-            new AppUpdateParameters(),
-            ['id' => Uuid::randomHex(), 'roleId' => Uuid::randomHex()],
-            $this->context
-        );
     }
 
     private function assertShippingMethodsExists(string $appId): void

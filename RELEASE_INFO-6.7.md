@@ -132,7 +132,7 @@ As some mail clients send `HEAD` requests to links which are contained in emails
 
 Apps can now declare requirements in their manifest using a new `<requirements>` element. Built-in requirements are validated during app installation and updates in production environments and fail with `FRAMEWORK__APP_REQUIREMENTS_NOT_MET` if a condition is not met, including an actionable resolution message.
 
-The first built-in requirement is `<public-access/>`, which verifies that the configured `APP_URL` uses HTTPS, does not point to an IP or reserved/local development host, and that `/api/_info/health-check` responds with HTTP 200 from the public internet. This prevents silent failures for apps that rely on webhook callbacks or other external communication.
+The first built-in requirement is `<public-access/>`, which verifies that the configured `APP_URL` uses HTTPS, does not point to an IP or reserved/local development host, and that `/api/_info/health-check` responds with HTTP 200 when requested from the Shopware server. This helps detect misconfigurations that could otherwise cause silent failures for apps that rely on webhook callbacks or other external communication.
 
 ```xml
 <requirements>

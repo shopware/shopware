@@ -66,7 +66,7 @@ class PublicAccessTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame(
-            'APP_URL "https://localhost" is not a valid public URL. It must use HTTPS, must not be an IP address, and must not use a reserved domain.',
+            'APP_URL "https://localhost" is not a valid public URL. It must use HTTPS, must not be an IP address, must not use a reserved domain, and its host must resolve via DNS to a public IP address.',
             $result->actionableResolution
         );
     }

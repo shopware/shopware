@@ -281,9 +281,9 @@ class AppServiceTest extends TestCase
 
         $fails = $appService->doRefreshApps(new AppInstallParameters(), $this->context);
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(9, $manifests); // 2 are not parsable
-        static::assertCount(6, $apps);
-        static::assertCount(3, $fails);
+        static::assertCount(9, $manifests); // 2 are not parsable (withRequirements still passes as requirements are not asserted in test env)
+        static::assertCount(7, $apps);
+        static::assertCount(2, $fails);
     }
 
     private function assertDefaultActionButtons(): void

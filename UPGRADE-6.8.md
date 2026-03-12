@@ -657,8 +657,6 @@ The following patterns have no direct equivalent in `overrideComponentSetup()` a
 
 | Pattern | Alternative |
 |---|---|
-| `mixins` in override | Extract shared logic into a composable function and call it inside the override |
-| `inject` | Call Vue's `inject()` directly inside the override function |
 | `provide` | Not supported in overrides; move `provide` into the component itself |
 | `components` / `directives` | Register globally via `Shopware.Component.register()` / `Shopware.Directive.register()` |
 | `render()` function | Not supported in overrides |

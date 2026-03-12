@@ -42,7 +42,7 @@ class ScalarValueType extends AbstractEventDataType
     }
 
     /**
-     * @return array{type: self::TYPE_*}
+     * @return array{nullable: bool, type: self::TYPE_*}
      */
     public function toArray(): array
     {

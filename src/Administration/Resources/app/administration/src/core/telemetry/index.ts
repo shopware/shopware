@@ -117,7 +117,7 @@ export class Telemetry {
             this.observedNodes.push(el);
         }
 
-        const eventName = el.getAttribute('data-analytics-event') ?? 'click';
+        const eventName = el.getAttribute('data-product-analytics-event') ?? 'click';
 
         el.addEventListener(eventName, (event) => {
             const target = event.currentTarget ?? event.target;

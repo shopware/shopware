@@ -146,7 +146,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         return \array_values(
             \array_filter(
                 $customEntities,
-                fn (Entity $customEntity) => $customEntity->getName() === $ceName
+                static fn (Entity $customEntity) => $customEntity->getName() === $ceName
             )
         )[0];
     }

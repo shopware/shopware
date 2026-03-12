@@ -203,7 +203,7 @@ class JoinGroupBuilder
         }
         $duplicates = array_count_values($paths);
 
-        $duplicates = array_filter($duplicates, fn (int $count) => $count > 1);
+        $duplicates = array_filter($duplicates, static fn (int $count) => $count > 1);
 
         return array_keys($duplicates);
     }

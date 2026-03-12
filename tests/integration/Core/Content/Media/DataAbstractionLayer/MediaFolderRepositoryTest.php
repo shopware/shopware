@@ -62,7 +62,7 @@ class MediaFolderRepositoryTest extends TestCase
 
         $folderRepository = $this->folderRepository;
         $media = null;
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$media, $folderId, $folderRepository): void {
+        $this->context->scope(Context::USER_SCOPE, static function (Context $context) use (&$media, $folderId, $folderRepository): void {
             $media = $folderRepository->search(new Criteria([$folderId]), $context);
         });
 

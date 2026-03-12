@@ -62,7 +62,7 @@ export default function createTelemetryEventHandler(
             }
 
             target.getAttributeNames().forEach((attributeName) => {
-                if (attributeName.startsWith('data-analytics-') && attributeName !== 'data-analytics-event') {
+                if (attributeName.startsWith('data-analytics-')) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     const propertyName = string.snakeCase(attributeName.replace('data-analytics-', 'sw_element_'));
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

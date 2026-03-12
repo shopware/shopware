@@ -49,7 +49,7 @@ class SyncFkResolver
 
         $exceptions = [];
 
-        \array_walk_recursive($payload, function (&$value) use (&$exceptions): void {
+        \array_walk_recursive($payload, static function (&$value) use (&$exceptions): void {
             if (!$value instanceof FkReference) {
                 return;
             }

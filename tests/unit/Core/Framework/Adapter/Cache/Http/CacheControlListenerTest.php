@@ -162,7 +162,7 @@ class CacheControlListenerTest extends TestCase
     public function testAdministrationHeadersNotModified(Request $request, Response $response, string $expectedCacheControl, ?string $expectedCacheIdHeader = null): void
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->method('dispatch')->willReturnCallback(function ($event) {
+        $eventDispatcher->method('dispatch')->willReturnCallback(static function ($event) {
             if ($event instanceof BeforeCacheControlEvent) {
                 $administrationListener = new AdministrationCacheControlListener();
                 $administrationListener->__invoke($event);

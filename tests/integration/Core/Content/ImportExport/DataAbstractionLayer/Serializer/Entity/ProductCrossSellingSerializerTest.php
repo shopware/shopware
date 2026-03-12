@@ -67,8 +67,8 @@ class ProductCrossSellingSerializerTest extends TestCase
 
         $assignedProducts = $crossSelling->getAssignedProducts();
         static::assertNotNull($assignedProducts);
-        $assignedProducts->sort(fn (ProductCrossSellingAssignedProductsEntity $a, ProductCrossSellingAssignedProductsEntity $b) => $a->getPosition() <=> $b->getPosition());
-        $productsIds = $assignedProducts->map(fn (ProductCrossSellingAssignedProductsEntity $assignedProductsEntity) => $assignedProductsEntity->getProductId());
+        $assignedProducts->sort(static fn (ProductCrossSellingAssignedProductsEntity $a, ProductCrossSellingAssignedProductsEntity $b) => $a->getPosition() <=> $b->getPosition());
+        $productsIds = $assignedProducts->map(static fn (ProductCrossSellingAssignedProductsEntity $assignedProductsEntity) => $assignedProductsEntity->getProductId());
 
         static::assertSame($crossSelling->getId(), $serialized['id']);
         static::assertSame($crossSelling->getProductId(), $serialized['productId']);

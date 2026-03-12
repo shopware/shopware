@@ -52,7 +52,7 @@ jobs:
         run: bin/console sync:composer:version --dry-run
 
       - name: Code Style
-        run: composer run ecs
+        run: composer run cs
 
       - name: Lint Snippets
         run: bin/console translation:validate

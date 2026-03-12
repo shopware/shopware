@@ -73,7 +73,7 @@ class BlockTest extends TestCase
         static::assertNotNull($actualOuterBlocks);
 
         $actualBlocks = $actualOuterBlocks->getBlocks();
-        $actualBlockArray = array_map(fn ($block) => $block->toArray('en-GB'), $actualBlocks);
+        $actualBlockArray = array_map(static fn ($block) => $block->toArray('en-GB'), $actualBlocks);
 
         $expectedBlocks = $this->getExpectedEntityArrayBlocks();
 

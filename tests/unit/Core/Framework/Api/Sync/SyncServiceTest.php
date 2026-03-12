@@ -150,7 +150,7 @@ class SyncServiceTest extends TestCase
         $writer
             ->expects($this->once())
             ->method('sync')
-            ->willReturnCallback(function ($operations) {
+            ->willReturnCallback(static function ($operations) {
                 static::assertCount(1, $operations);
                 static::assertInstanceOf(SyncOperation::class, $operations[0]);
 
@@ -158,7 +158,7 @@ class SyncServiceTest extends TestCase
 
                 static::assertCount(4, $operation->getPayload());
 
-                $map = \array_map(function (array $payload) {
+                $map = \array_map(static function (array $payload) {
                     return $payload['productId'] . '-' . $payload['categoryId'];
                 }, $operation->getPayload());
 

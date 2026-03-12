@@ -56,7 +56,7 @@ class UpsertAddressRouteTest extends TestCase
         $addressRepository
             ->expects($this->once())
             ->method('upsert')
-            ->willReturnCallback(function (array $data) {
+            ->willReturnCallback(static function (array $data) {
                 static::assertSame(['mapped' => 1], $data[0]['customFields']);
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
@@ -104,7 +104,7 @@ class UpsertAddressRouteTest extends TestCase
         $addressRepository = $this->createMock(EntityRepository::class);
         $addressRepository
             ->method('upsert')
-            ->with(static::callback(function (array $data) use ($salutationId) {
+            ->with(static::callback(static function (array $data) use ($salutationId) {
                 static::assertCount(1, $data);
                 static::assertIsArray($data[0]);
                 static::assertSame($data[0]['salutationId'], $salutationId);

@@ -1,7 +1,13 @@
 import type { Locator } from '@playwright/test';
 import type { expect } from '@fixtures/AcceptanceTest';
 
-export type DocumentTypes = 'invoice' | 'credit_note' | 'delivery_note' | 'cancellation_invoice' | 'embedded_zugferd_e_invoice';
+export type DocumentTypes =
+    'invoice' |
+    'credit_note' |
+    'delivery_note' |
+    'cancellation_invoice' |
+    'zugferd_embedded_invoice' |
+    'zugferd_embedded_cancellation_invoice';
 
 export interface DocumentOptions {
     orderId: string;
@@ -22,16 +28,19 @@ const invoiceMasks: MaskRegion[] = [
     { x: 830, y: 230, width: 145, height: 75 },
 ];
 
+const cancellationInvoiceMasks: MaskRegion[] = [
+    { x: 144, y: 18, width: 45, height: 20 },
+    { x: 245, y: 18, width: 45, height: 20 },
+    { x: 428, y: 321, width: 45, height: 20 },
+    { x: 542, y: 321, width: 45, height: 20 },
+    { x: 820, y: 210, width: 145, height: 100 },
+];
+
 const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
     invoice: invoiceMasks,
-    embedded_zugferd_e_invoice: invoiceMasks,
-    cancellation_invoice: [
-        { x: 144, y: 18, width: 45, height: 20 },
-        { x: 245, y: 18, width: 45, height: 20 },
-        { x: 428, y: 321, width: 45, height: 20 },
-        { x: 542, y: 321, width: 45, height: 20 },
-        { x: 820, y: 210, width: 145, height: 100 },
-    ],
+    zugferd_embedded_invoice: invoiceMasks,
+    cancellation_invoice: cancellationInvoiceMasks,
+    zugferd_embedded_cancellation_invoice: cancellationInvoiceMasks,
     delivery_note: [
         { x: 145, y: 18, width: 45, height: 20 },
         { x: 238, y: 18, width: 45, height: 20 },

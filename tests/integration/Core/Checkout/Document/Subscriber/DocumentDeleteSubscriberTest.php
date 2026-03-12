@@ -21,7 +21,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -37,8 +39,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('after-sales')]
 class DocumentDeleteSubscriberTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminApiTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use DocumentTrait;
+    use KernelTestBehaviour;
 
     private Context $context;
 
@@ -260,16 +264,7 @@ class DocumentDeleteSubscriberTest extends TestCase
         static::assertStringNotContainsString(\sprintf(' (%s).', $creditNoteDocumentId), $errorDetail);
     }
 
-    /*
-     * deleting documents that have dependent documents (credit notes depend on an invoice),
-     * will not throwing an error when the depending document is part of the request
-     * and the requested ids are in the correct order
-     * e.g. first the credit note, then the invoice
-     *
-     * currently the wrong order of ids will throw an exception
-     * this should be adjusted in future
-     */
-    public function testDeleteDocumentsInBulkShouldNotThrowExceptionWhenDependentDocumentIsInRequestListAndOrderOfIdsHasCorrectOrder(): void
+    public function testDeleteDocumentsInBulkShouldNotThrowExceptionWhenDependentDocumentIsInRequestList(): void
     {
         $orderId = $this->persistCart($this->generateDemoCart(1));
         $invoiceGenerationResult = $this->createDocument(

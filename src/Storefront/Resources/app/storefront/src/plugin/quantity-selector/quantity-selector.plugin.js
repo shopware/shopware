@@ -210,8 +210,8 @@ export default class QuantitySelectorPlugin extends Plugin {
                     this._applyQuantityLimits(data);
                 }
             })
-            .catch(() => {
-                // Silent failure – keep rendered values
+            .catch((error) => {
+                console.warn('Unable to fetch live quantity limits, keeping rendered values.', error);
             });
     }
 

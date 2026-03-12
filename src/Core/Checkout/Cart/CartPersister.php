@@ -63,7 +63,7 @@ class CartPersister extends AbstractCartPersister
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
         $cart->setErrorHash($cart->getErrors()->getUniqueHash());
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -122,7 +122,7 @@ class CartPersister extends AbstractCartPersister
             return;
         }
 
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 

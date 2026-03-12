@@ -120,7 +120,7 @@ class RedisCartPersisterTest extends TestCase
 
         $loaded = $this->persister->load($token, $this->createMock(SalesChannelContext::class));
 
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
 
         static::assertEquals($cart, $loaded);
     }
@@ -140,7 +140,7 @@ class RedisCartPersisterTest extends TestCase
 
         $loaded = $this->persister->load($token, $this->createMock(SalesChannelContext::class));
 
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
 
         static::assertEquals($cart, $loaded);
     }

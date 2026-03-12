@@ -82,7 +82,7 @@ class CartPersisterTest extends TestCase
         $cart = $persister->load('existing', Generator::generateSalesChannelContext());
 
         $expected = new Cart('existing');
-        $expected->setIsPersisted(true);
+        $expected->setPersisted(true);
 
         static::assertEquals($expected, $cart);
     }

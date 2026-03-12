@@ -87,7 +87,7 @@ class CartPersisterTest extends TestCase
     {
         $cart = new Cart('token');
         $cart->add(new LineItem('line-item', 'test'));
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
 
         $statement = $this->createMock(Statement::class);
         $statement->expects($this->once())

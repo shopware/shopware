@@ -84,7 +84,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         $cart->setToken($token);
         $cart->setRuleIds($content['rule_ids']);
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -115,7 +115,7 @@ class RedisCartPersister extends AbstractCartPersister
             return;
         }
 
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
@@ -136,10 +136,10 @@ class RedisCartPersister extends AbstractCartPersister
         $copyContext->setRuleIds($cart->getRuleIds());
 
         $cart->setToken($newToken);
-        $cart->setIsPersisted(false);
+        $cart->setPersisted(false);
         $this->save($cart, $copyContext);
         $cart->setToken($oldToken);
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
 
         $this->delete($oldToken, $context);
     }

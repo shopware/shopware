@@ -117,7 +117,7 @@ class RedisCartPersisterTest extends TestCase
         $loadedCart = $persister->load($token, $context);
 
         $cart->setData(null);
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
 
         static::assertEquals($cart, $loadedCart);
     }
@@ -204,7 +204,7 @@ class RedisCartPersisterTest extends TestCase
 
         $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, $cartSerializationCleaner, $compressor, 90))->load($token, $context);
 
-        $cart->setIsPersisted(true);
+        $cart->setPersisted(true);
 
         static::assertEquals($cart, $loadedCart);
     }

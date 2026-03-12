@@ -87,7 +87,7 @@ class ReflectionHelperTest extends TestCase
 /**
  * @internal
  */
-final class FakeClassForHelper
+class FakeClassForHelper
 {
     protected string $protectedProperty = 'this is it';
 
@@ -113,7 +113,7 @@ final class FakeClassForHelper
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     protected function myPrivateMethod(): array
     {

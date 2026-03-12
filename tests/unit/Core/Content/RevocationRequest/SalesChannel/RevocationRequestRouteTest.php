@@ -112,12 +112,14 @@ class RevocationRequestRouteTest extends TestCase
 
         $slotId = Uuid::randomHex();
 
+        $config = $this->createSlotConfig($slotId, $successMessage);
+
         $formData = $this->createValidFormData($slotId);
         $dataBag = new RequestDataBag($formData);
 
         $cmsSlot = new CmsSlotEntity();
         $cmsSlot->setId($slotId);
-        $cmsSlot->setTranslated(['config' => []]);
+        $cmsSlot->setTranslated(['config' => $config[$slotId]]);
 
         $revocationRequestRoute = $this->createRevocationRequestRoute([$cmsSlot]);
 

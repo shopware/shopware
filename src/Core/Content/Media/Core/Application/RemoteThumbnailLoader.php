@@ -76,7 +76,7 @@ class RemoteThumbnailLoader implements ResetInterface
             $path = $mediaEntity->get('path');
             $updatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
 
-            if (!($updatedAt instanceof \DateTimeInterface)) {
+            if (!$updatedAt instanceof \DateTimeInterface) {
                 $updatedAt = null;
             }
 

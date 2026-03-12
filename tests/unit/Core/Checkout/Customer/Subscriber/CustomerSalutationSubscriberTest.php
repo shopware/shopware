@@ -78,7 +78,7 @@ class CustomerSalutationSubscriberTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('executeStatement')
-            ->willReturnCallback(function ($sql, $params) use ($customerId): int {
+            ->willReturnCallback(static function ($sql, $params) use ($customerId): int {
                 static::assertSame($params, [
                     'id' => Uuid::fromHexToBytes($customerId),
                     'notSpecified' => 'not_specified',

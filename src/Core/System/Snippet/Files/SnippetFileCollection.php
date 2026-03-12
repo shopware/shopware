@@ -69,7 +69,7 @@ class SnippetFileCollection extends Collection
      */
     public function getFilesArray(bool $isBase = true): array
     {
-        return array_filter($this->toArray(), fn ($file) => $file['isBase'] === $isBase);
+        return array_filter($this->toArray(), static fn ($file) => $file['isBase'] === $isBase);
     }
 
     /**

@@ -164,7 +164,7 @@ class InfoControllerTest extends TestCase
 
     public function testConfigExtension(): void
     {
-        $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, function (AdminInfoConfigEvent $event): void {
+        $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, static function (AdminInfoConfigEvent $event): void {
             $event->addConfig('foo', 'bar');
         });
 

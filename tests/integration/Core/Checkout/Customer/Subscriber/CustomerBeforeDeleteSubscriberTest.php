@@ -43,7 +43,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
         $caughtEvents = [];
 
-        $listenerClosure = function (Event $event) use (&$caughtEvents): void {
+        $listenerClosure = static function (Event $event) use (&$caughtEvents): void {
             $caughtEvents[] = $event;
         };
 

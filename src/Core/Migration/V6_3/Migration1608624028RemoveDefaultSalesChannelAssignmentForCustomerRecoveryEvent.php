@@ -31,7 +31,7 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
             return;
         }
 
-        $customerRecoveryEvents = array_map(fn ($event) => $event['id'], $customerRecoveryEvents);
+        $customerRecoveryEvents = array_map(static fn ($event) => $event['id'], $customerRecoveryEvents);
 
         try {
             $connection->executeStatement(

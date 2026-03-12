@@ -24,7 +24,7 @@ class WebhookManagerSubscriber implements EventSubscriberInterface
 
     public function filterDuplicates(PreWebhooksDispatchEvent $event): void
     {
-        [$webhooks, $serviceSystemUpdates] = $this->partitionArray($event->webhooks, function (Webhook $webhook) {
+        [$webhooks, $serviceSystemUpdates] = $this->partitionArray($event->webhooks, static function (Webhook $webhook) {
             return $webhook->eventName === UpdatePostFinishEvent::EVENT_NAME && $webhook->appSourceType === ServiceSourceResolver::name() ? 1 : 0;
         });
 
@@ -50,7 +50,7 @@ class WebhookManagerSubscriber implements EventSubscriberInterface
     {
         return array_reduce(
             $array,
-            function ($carry, $item) use ($callback) {
+            static function ($carry, $item) use ($callback) {
                 $partition = $callback($item);
 
                 if (!isset($carry[$partition])) {

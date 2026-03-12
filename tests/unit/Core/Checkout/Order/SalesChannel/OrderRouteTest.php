@@ -71,7 +71,7 @@ class OrderRouteTest extends TestCase
         $eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function (object $event): object {
+            ->willReturnCallback(static function (object $event): object {
                 static::assertInstanceOf(OrderCriteriaEvent::class, $event);
 
                 return $event;
@@ -148,7 +148,7 @@ class OrderRouteTest extends TestCase
         $eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function (object $event): object {
+            ->willReturnCallback(static function (object $event): object {
                 static::assertInstanceOf(OrderCriteriaEvent::class, $event);
 
                 return $event;

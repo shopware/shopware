@@ -140,7 +140,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should reset pending address selections when creating a new version', async () => {
         wrapper = await createWrapper();
 
-        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+        Shopware.State.commit('swOrderDetail/setOrderAddressIds', {
             orderAddressId: 'old-order-address-id',
             customerAddressId: 'customer-address-id',
             type: 'billing',
@@ -148,7 +148,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         await wrapper.vm.createNewVersionId();
 
-        expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
+        expect(Shopware.State.get('swOrderDetail').orderAddressIds).toEqual([]);
     });
 
     it('should clean up unsaved version when component gets destroyed', async () => {
@@ -164,7 +164,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should reset pending address selections when component gets destroyed', async () => {
         wrapper = await createWrapper();
 
-        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+        Shopware.State.commit('swOrderDetail/setOrderAddressIds', {
             orderAddressId: 'old-order-address-id',
             customerAddressId: 'customer-address-id',
             type: 'billing',
@@ -172,7 +172,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         await wrapper.vm.beforeDestroyComponent();
 
-        expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
+        expect(Shopware.State.get('swOrderDetail').orderAddressIds).toEqual([]);
     });
 
     it('should remove version context immediately when cancelling', async () => {

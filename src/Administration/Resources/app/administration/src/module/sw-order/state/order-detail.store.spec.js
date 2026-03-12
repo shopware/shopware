@@ -55,13 +55,13 @@ describe('src/module/sw-order/state/order-detail.store', () => {
     });
 
     it('should clear order address ids when setOrderAddressIds gets null', () => {
-        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+        Shopware.State.commit('swOrderDetail/setOrderAddressIds', {
             orderAddressId: '0190d92db32071d689120d3dcf352197',
             customerAddressId: '0190d9275a6a72ae8b536849a4a02d85',
             type: 'billing',
         });
 
-        Shopware.Store.get('swOrderDetail').setOrderAddressIds(null);
+        Shopware.State.commit('swOrderDetail/setOrderAddressIds', null);
 
         expect(state.orderAddressIds).toEqual([]);
     });

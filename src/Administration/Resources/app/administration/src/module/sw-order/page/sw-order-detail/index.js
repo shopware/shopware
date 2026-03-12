@@ -231,7 +231,7 @@ export default {
         },
 
         async beforeDestroyComponent() {
-            Store.get('swOrderDetail').setOrderAddressIds(null);
+            State.commit('swOrderDetail/setOrderAddressIds', null);
 
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;
@@ -479,8 +479,8 @@ export default {
 
         createNewVersionId() {
             // Reset the current version context
-            Store.get('swOrderDetail').versionContext = Shopware.Context.api;
-            Store.get('swOrderDetail').setOrderAddressIds(null);
+            State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+            State.commit('swOrderDetail/setOrderAddressIds', null);
             this.hasNewVersionId = false;
 
             return this.orderRepository

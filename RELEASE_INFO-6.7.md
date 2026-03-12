@@ -1,3 +1,11 @@
+# 6.7.8.2
+
+## Critical Fixes
+
+### Webhook for order state change
+
+Fixed an undefined array key warning within the webhook handling, which could lead to a server error, if strict error displaying is set up.
+
 # 6.7.8.1
 
 ## Critical Fixes

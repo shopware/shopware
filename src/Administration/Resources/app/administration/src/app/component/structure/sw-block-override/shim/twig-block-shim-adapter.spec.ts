@@ -294,7 +294,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.override-content').exists()).toBeTruthy();
         });
 
-        it('renders a Twig override that contains only {% parent %} as equivalent to the default block content', async () => {
+        it('renders a Twig override with only {% parent %} as equivalent to the default block content', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `{% block shim_parent_only %}{% parent %}{% endblock %}`,
             });
@@ -399,7 +399,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -416,7 +417,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -518,7 +519,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -535,7 +537,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -550,7 +552,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.root-y .default-y + .plugin-a-y + .plugin-b-y').exists()).toBeTruthy();
         });
 
-        it('stacks plugin-A on both blocks and plugin-B only on block-X, leaving block-Y untouched by plugin-B', async () => {
+        it('stacks plugin-A on both blocks, plugin-B only on block-X, leaving block-Y untouched by plugin-B', async () => {
             // Plugin A overrides both blocks.
             Shopware.Component.override('sw-plugin-a', {
                 template: `
@@ -575,7 +577,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -592,7 +595,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -619,7 +622,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 template: `{% block shim_combo_two_calls_block_y %}<div class="override-y"></div>{% endblock %}`,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -636,7 +640,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -667,7 +671,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -689,7 +694,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -971,7 +976,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            mount(
                 {
                     template: `
                         <div>
@@ -980,7 +986,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -1342,7 +1348,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div class="component-root">
@@ -1350,7 +1357,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -1418,7 +1425,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
     // ─── Edge cases ──────────────────────────────────────────────────────────
 
     describe('edge cases', () => {
-        it('silently ignores a malformed Twig template registered via Shopware.Component.override without crashing', async () => {
+        it('silently ignores a malformed Twig template in Shopware.Component.override without crashing', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `{% block shim_edge_malformed %} <div {{ unclosed-attr `,
             });
@@ -1433,7 +1440,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.default-content').exists()).toBeTruthy();
         });
 
-        it('does nothing and renders default content when the override targets a block name that is never mounted as an sw-block', async () => {
+        it('renders default content when an override targets a block name never mounted as an sw-block', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `{% block shim_edge_no_mount_target %}<div class="override-content"></div>{% endblock %}`,
             });
@@ -1460,7 +1467,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.component-root').exists()).toBeTruthy();
         });
 
-        it('handles multiple Shopware.Component.override calls for the same component name, each targeting a different block', async () => {
+        it('handles multiple override calls for the same component name, each targeting a different block', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `{% block shim_edge_multi_call_a %}<div class="override-a"></div>{% endblock %}`,
             });
@@ -1469,7 +1476,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 template: `{% block shim_edge_multi_call_b %}<div class="override-b"></div>{% endblock %}`,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -1486,7 +1494,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -1500,7 +1508,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.root-b .default-b').exists()).toBeFalsy();
         });
 
-        it('handles a Twig template that contains multiple top-level {% block %} definitions in a single override call', async () => {
+        it('handles multiple top-level {% block %} definitions in a single override call', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_edge_multi_top_a %}<div class="override-a"></div>{% endblock %}
@@ -1508,7 +1516,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -1525,7 +1534,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -1549,7 +1558,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
     // every instance to see and double-render all siblings' shim slots.
 
     describe('multiple simultaneous instances of the same block name', () => {
-        it('renders the shim override exactly once in each instance when two sw-blocks with the same name are mounted simultaneously', async () => {
+        it('renders the shim override once per instance when two same-name sw-blocks mount simultaneously', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_multi_instance_isolation %}
@@ -1558,7 +1567,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -1575,7 +1585,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -1591,7 +1601,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.instance-b .default-content').exists()).toBeFalsy();
         });
 
-        it('stacks {% parent %} correctly in each instance when two sw-blocks with the same name are mounted simultaneously', async () => {
+        it('stacks {% parent %} correctly per instance when two same-name sw-blocks mount simultaneously', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_multi_instance_parent_isolation %}
@@ -1601,7 +1611,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mount(
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
                 {
                     template: `
                         <div>
@@ -1618,7 +1629,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                         </div>
                     `,
                     components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                        'sw-block': swBlock,
                     },
                 },
                 {
@@ -1636,5 +1647,4 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.instance-b .default-content + .override-content').exists()).toBeTruthy();
         });
     });
-
 });

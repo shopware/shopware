@@ -630,10 +630,10 @@ function override(
     const isSyncWithTemplate =
         componentConfiguration !== null &&
         typeof componentConfiguration !== 'function' &&
-        typeof (componentConfiguration as ComponentConfig).template === 'string';
+        typeof componentConfiguration.template === 'string';
 
     if (isSyncWithTemplate) {
-        indexTwigBlocksFromTemplate(componentName, (componentConfiguration as ComponentConfig).template as string);
+        indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string);
     }
 
     const configResolveMethod = async (): Promise<ComponentConfig> => {

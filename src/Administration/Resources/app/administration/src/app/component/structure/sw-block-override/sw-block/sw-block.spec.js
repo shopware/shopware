@@ -427,15 +427,9 @@ describe('sw-block', () => {
 
             await wrapper.setData({ blockName: 'changed-block-name' });
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('"name" prop changed'),
-            );
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('original-block-name'),
-            );
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('changed-block-name'),
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('"name" prop changed'));
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('original-block-name'));
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('changed-block-name'));
         });
 
         it('does not emit a console.warn on initial mount — the watch fires only on subsequent changes', async () => {
@@ -483,9 +477,7 @@ describe('sw-block', () => {
 
             await wrapper.setData({ blockName: 'block-after' });
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('[sw-block]'),
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[sw-block]'));
         });
     });
 });

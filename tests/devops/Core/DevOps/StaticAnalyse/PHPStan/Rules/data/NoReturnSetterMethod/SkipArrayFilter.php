@@ -9,7 +9,7 @@ final class SkipArrayFilter
 {
     public function setItems(array $items): void
     {
-        array_map(function ($item) {
+        array_map(static function ($item) {
             return $item;
         }, array_filter($items));
     }

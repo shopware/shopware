@@ -30,7 +30,7 @@ class CopyBatchInputFactory
         $files = (new Finder())->files()->in($directory);
 
         return array_values(array_map(
-            fn (SplFileInfo $file) => new CopyBatchInput(
+            static fn (SplFileInfo $file) => new CopyBatchInput(
                 $file->getRealPath(),
                 [Path::join($target, $parentName, $file->getRelativePathname())],
                 $visibility

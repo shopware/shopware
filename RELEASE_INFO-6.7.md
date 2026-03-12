@@ -9,14 +9,38 @@ It can be found in the state machine state history modal (state change modal) on
 
 ### [Experimental] Use OpenSearch for Admin API searches
 
-When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists.
 This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
 Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
 To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
 
 ### Online revocation request form
-Customers can now conveniently submit revocation requests through an online form. 
+Customers can now conveniently submit revocation requests through an online form.
 Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
+### External media thumbnail support
+
+External media entities can now have external thumbnail URLs attached to them, which is useful for CDNs that provide pre-generated thumbnails alongside the main media file.
+
+Two new API endpoints have been added:
+- `POST /api/_action/media/{id}/external-thumbnails` - Add thumbnails to existing external media
+- `DELETE /api/_action/media/{id}/external-thumbnails` - Remove all external thumbnails from media
+
+Both endpoints require the target media entity to be external (i.e. its path must be an HTTP/HTTPS URL). Attempting to call them on regular file-based media returns an error.
+
+When creating external media via `POST /api/_action/media/external-link`, you can now provide an optional `thumbnails` array directly in the request body:
+
+```json
+{
+  "url": "https://cdn.example.com/image.jpg",
+  "thumbnails": [
+    { "url": "https://cdn.example.com/image-200x200.jpg", "width": 200, "height": 200 },
+    { "url": "https://cdn.example.com/image-400x400.jpg", "width": 400, "height": 400 }
+  ]
+}
+```
+
+The same `thumbnails` payload shape is accepted by `POST /api/_action/media/{id}/external-thumbnails`.
 
 ## API
 

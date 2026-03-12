@@ -4,6 +4,21 @@
 
 import { mount } from '@vue/test-utils';
 
+const mockSave = jest.fn(() => Promise.resolve());
+const mockGet = jest.fn(() =>
+    Promise.resolve({
+        id: '1a2b3c4d',
+        analyticsId: '1a2b3c',
+        analytics: {
+            id: '1a2b3c',
+            trackingId: 'tracking-id',
+        },
+        productExports: {
+            first: () => ({}),
+        },
+    }),
+);
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-detail', { sync: true }), {
         global: {
@@ -31,21 +46,10 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => ({
                         create: () => ({}),
-                        get: () =>
-                            Promise.resolve({
-                                id: '1a2b3c4d',
-                                analyticsId: '1a2b3c',
-                                analytics: {
-                                    id: '1a2b3c',
-                                    trackingId: 'tracking-id',
-                                },
-                                productExports: {
-                                    first: () => ({}),
-                                },
-                            }),
+                        get: mockGet,
                         search: () => Promise.resolve([]),
                         delete: () => Promise.resolve(),
-                        save: () => Promise.resolve(),
+                        save: mockSave,
                     }),
                 },
                 exportTemplateService: {
@@ -67,6 +71,8 @@ async function createWrapper() {
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
+        mockSave.mockClear();
+        mockGet.mockClear();
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -146,5 +152,63 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
                 }),
             }),
         );
+    });
+
+    it('should save without reloading entity data when saveOnLanguageChange is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.saveOnLanguageChange();
+        await flushPromises();
+
+        expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should save and reload entity data when onSave is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGet).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle errors in saveOnLanguageChange without reloading entity data', async () => {
+        mockSave.mockRejectedValueOnce(new Error('Save failed'));
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.saveOnLanguageChange();
+        await flushPromises();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors in onSave without reloading entity data', async () => {
+        mockSave.mockRejectedValueOnce(new Error('Save failed'));
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(mockGet).not.toHaveBeenCalled();
     });
 });

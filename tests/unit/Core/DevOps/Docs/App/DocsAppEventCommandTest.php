@@ -141,7 +141,7 @@ class DocsAppEventCommandTest extends TestCase
             ->method('render')
             ->with(
                 'hookable-events-list.md.twig',
-                static::callback(function ($context) {
+                static::callback(static function ($context) {
                     return \is_array($context['eventDocs']);
                 })
             )

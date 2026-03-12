@@ -193,7 +193,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects($this->once())
             ->method('install')
-            ->willReturnCallback(function (Manifest $manifest): void {
+            ->willReturnCallback(static function (Manifest $manifest): void {
                 static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
@@ -212,7 +212,7 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::callback(function ($event) {
+                static::callback(static function ($event) {
                     return $event instanceof ServiceInstalledEvent && $event->service === 'MyCoolService';
                 }),
             );
@@ -243,7 +243,7 @@ class ServiceLifecycleTest extends TestCase
         $app->assign(['name' => 'MyCoolService', 'version' => '1.0.0', 'aclRoleId' => Uuid::randomHex()]);
         /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([
-            function (Criteria $criteria) use ($app) {
+            static function (Criteria $criteria) use ($app) {
                 static::assertCount(2, $criteria->getFilters());
 
                 $filters = $criteria->getFilters();
@@ -258,7 +258,7 @@ class ServiceLifecycleTest extends TestCase
 
                 return [$app];
             },
-            function (Criteria $criteria) use ($app) { // second load during update
+            static function (Criteria $criteria) use ($app) { // second load during update
                 $app->setSelfManaged(true);
 
                 return [$app];
@@ -290,7 +290,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function (Manifest $manifest): void {
+            ->willReturnCallback(static function (Manifest $manifest): void {
                 static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
@@ -309,7 +309,7 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::callback(function ($event) {
+                static::callback(static function ($event) {
                     return $event instanceof ServiceUpdatedEvent && $event->service === 'MyCoolService';
                 }),
             );
@@ -365,7 +365,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects($this->once())
             ->method('install')
-            ->willReturnCallback(function (Manifest $manifest, AppInstallParameters $options): void {
+            ->willReturnCallback(static function (Manifest $manifest, AppInstallParameters $options): void {
                 static::assertFalse($options->activate);
                 static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
@@ -385,7 +385,7 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::callback(function ($event) {
+                static::callback(static function ($event) {
                     return $event instanceof ServiceInstalledEvent && $event->service === 'MyCoolService';
                 }),
             );
@@ -577,7 +577,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function (Manifest $manifest): void {
+            ->willReturnCallback(static function (Manifest $manifest): void {
                 static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
@@ -598,7 +598,7 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::callback(function ($event) {
+                static::callback(static function ($event) {
                     return $event instanceof ServiceUpdatedEvent && $event->service === 'MyCoolService';
                 }),
             );

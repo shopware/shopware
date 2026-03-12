@@ -60,7 +60,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $usageDataAllowListServiceMock->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListServiceMock->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return $definition->getFields();
             });
 

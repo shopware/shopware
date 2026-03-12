@@ -49,19 +49,7 @@ export default {
             }
         },
 
-        setEditing(state, value) {
-            state.editing = value;
-        },
-
-        setSavedSuccessful(state, value) {
-            state.savedSuccessful = value;
-        },
-
-        setVersionContext(state, versionContext) {
-            state.versionContext = versionContext;
-        },
-
-        setOrderAddressIds(state, value) {
+        setOrderAddressIds(value?: OrderAddressId | null) {
             if (!value) {
                 state.orderAddressIds = [];
                 return;

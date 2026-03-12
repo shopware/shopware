@@ -231,6 +231,8 @@ export default {
         },
 
         async beforeDestroyComponent() {
+            Store.get('swOrderDetail').setOrderAddressIds(null);
+
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;
                 State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
@@ -336,20 +338,14 @@ export default {
             });
 
             if (mappings.length === 0) {
-                State.commit('swOrderDetail/setOrderAddressIds', false);
-
                 return;
             }
 
-            await this.updateOrderAddresses(mappings)
-                .then(() => {
-                    State.commit('swOrderDetail/setOrderAddressIds', false);
-                })
-                .catch((error) => {
-                    this.createNotificationError({
-                        message: error,
-                    });
+            await this.updateOrderAddresses(mappings).catch((error) => {
+                this.createNotificationError({
+                    message: error,
                 });
+            });
         },
 
         onCancelEditing() {
@@ -364,7 +360,6 @@ export default {
                 .deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext)
                 .then(() => {
                     this.hasOrderDeepEdit = false;
-                    State.commit('swOrderDetail/setOrderAddressIds', false);
                 })
                 .catch((error) => {
                     this.onError('error', error);
@@ -484,7 +479,8 @@ export default {
 
         createNewVersionId() {
             // Reset the current version context
-            State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+            Store.get('swOrderDetail').versionContext = Shopware.Context.api;
+            Store.get('swOrderDetail').setOrderAddressIds(null);
             this.hasNewVersionId = false;
 
             return this.orderRepository

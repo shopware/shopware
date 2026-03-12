@@ -48,20 +48,20 @@ class PropertyGroupCollection extends EntityCollection
     /**
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - required parameter $localeCode will be added
      */
-    public function sortByConfig(/* string $localeCode */): void
+    public function sortByConfig(/* string $localeCode = 'en_GB' */): void
     {
-        $localeCode = \func_num_args() === 1 ? func_get_arg(0) : '';
+        $localeCode = \func_num_args() === 1 ? func_get_arg(0) : 'en_GB';
 
         $collator = $this->createCollator($localeCode);
 
         foreach ($this->elements as $group) {
-            $options = $group->get('options');
-            if (!$options instanceof PropertyGroupOptionCollection) {
+            $options = $group->getOptions();
+            if ($options === null) {
                 continue;
             }
 
             $elements = $options->getElements();
-            $sortingByPosition = $group->get('sortingType') !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
+            $sortingByPosition = $group->getSortingType() !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
             $posititionCol = [];
             $nameCol = [];
 
@@ -89,9 +89,10 @@ class PropertyGroupCollection extends EntityCollection
             array_multisort(...$sortArgs);
 
             $sortedOptions = new PropertyGroupOptionCollection();
+            // Bypass expected class validation for performance optimization
             $sortedOptions->fillOptions($elements);
 
-            $group->assign(['options' => $sortedOptions]);
+            $group->setOptions($sortedOptions);
         }
     }
 
@@ -109,10 +110,14 @@ class PropertyGroupCollection extends EntityCollection
     {
         $locale = $localeCode !== '' ? \Locale::canonicalize($localeCode) : '';
         if ($locale === null || $locale === '') {
-            $locale = \Locale::getDefault() ?: 'en_US';
+            $locale = \Locale::getDefault() ?: 'en_GB';
         }
 
         $collator = new \Collator($locale);
+        if (intl_is_failure(intl_get_error_code())) {
+            $collator = new \Collator('en_GB');
+        }
+        
         $collator->setAttribute(\Collator::NUMERIC_COLLATION, \Collator::ON);
         $collator->setAttribute(\Collator::ALTERNATE_HANDLING, \Collator::SHIFTED);
 

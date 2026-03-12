@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOption;
 
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Content\Property\PropertyPartialNormalizer;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -85,7 +86,7 @@ class PropertyGroupOptionCollection extends EntityCollection
     public function fillOptions(array $options): void
     {
         foreach ($options as $option) {
-            $normalized = $this->normalizeOption($option);
+            $normalized = PropertyPartialNormalizer::normalizeOption($option);
             $this->elements[$normalized->getUniqueIdentifier()] = $normalized;
         }
     }
@@ -98,52 +99,5 @@ class PropertyGroupOptionCollection extends EntityCollection
     protected function getExpectedClass(): string
     {
         return PropertyGroupOptionEntity::class;
-    }
-
-    private function normalizeOption(PropertyGroupOptionEntity|PartialEntity $option): PropertyGroupOptionEntity
-    {
-        if ($option instanceof PropertyGroupOptionEntity) {
-            return $option;
-        }
-
-        $normalized = new PropertyGroupOptionEntity();
-        $normalized->setId((string) $option->get('id'));
-
-        $groupId = $option->get('groupId');
-        if (\is_string($groupId) && $groupId !== '') {
-            $normalized->setGroupId($groupId);
-        }
-
-        $name = $option->get('name');
-        if (\is_string($name)) {
-            $normalized->setName($name);
-        }
-
-        $position = $option->get('position');
-        if ($position !== null) {
-            $normalized->setPosition((int) $position);
-        }
-
-        $translated = $option->get('translated');
-        if (\is_array($translated)) {
-            $normalized->setTranslated($translated);
-        }
-
-        $group = $option->get('group');
-        if ($group instanceof PropertyGroupEntity) {
-            $normalized->setGroup($group);
-
-            return $normalized;
-        }
-
-        if ($groupId === null && $group instanceof PartialEntity) {
-            $groupId = $group->get('id');
-        }
-
-        if (\is_string($groupId) && $groupId !== '') {
-            $normalized->setGroupId($groupId);
-        }
-
-        return $normalized;
     }
 }

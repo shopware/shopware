@@ -113,7 +113,7 @@ class PropertySortTest extends TestCase
     }
 
     /**
-     * [1a, 2aa, 3-x$e, 3d, 3e, 20aa, 44f, 55g, h6, i7, j2]
+     * [1a, 2aa, 3d, 3e, 3-x$e, 20aa, 44f, 55g, h6, i7, j2]
      */
     public function testAlphaNumericSortingMixed(): void
     {
@@ -359,7 +359,7 @@ class PropertySortTest extends TestCase
             ]);
             $propertyOptions[] = $propertyOption;
         }
-        $this->notShuffledName = ['1a', '2aa', '3-x$e', '3d', '3e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
+        $this->notShuffledName = ['1a', '2aa', '3d', '3e', '3-x$e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
         $this->notShuffledPosition = array_column(json_decode(json_encode($propertyOptions, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR), 'position');
         shuffle($propertyOptions);
 

@@ -389,12 +389,11 @@ export default {
                 return;
             }
 
-            await this.updateOrderAddresses(mappings)
-                .catch((error) => {
-                    this.createNotificationError({
-                        message: error,
-                    });
+            await this.updateOrderAddresses(mappings).catch((error) => {
+                this.createNotificationError({
+                    message: error,
                 });
+            });
         },
 
         onCancelEditing() {

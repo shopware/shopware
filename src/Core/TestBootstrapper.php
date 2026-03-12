@@ -69,6 +69,7 @@ class TestBootstrapper
 
         if ($this->skipDatabaseSetup) {
             KernelLifecycleManager::bootKernel(false);
+
             return $this;
         }
 

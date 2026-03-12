@@ -63,16 +63,19 @@ class Migration1773225412AddZugferdEmbeddedCancellationInvoiceTest extends TestC
             'SELECT name, language_id
                  FROM document_type_translation
                  WHERE document_type_id = :documentTypeId
-                 ORDER BY language_id',
+                 ORDER BY created_at',
             ['documentTypeId' => Uuid::fromHexToBytes($documentType['id'])]
         );
 
+        $translations = array_column($documentTypeTranslations, 'name');
+        sort($translations);
+
         static::assertSame(
             [
-                'ZUGFeRD Stornorechnung (embedded)',
                 'ZUGFeRD Cancellation Invoice (embedded)',
+                'ZUGFeRD Stornorechnung (embedded)',
             ],
-            array_column($documentTypeTranslations, 'name')
+            $translations,
         );
     }
 }

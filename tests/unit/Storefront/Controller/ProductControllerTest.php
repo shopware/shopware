@@ -10,10 +10,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
 use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\AbstractProductQuantityLimitsRoute;
+use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsResult;
+use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -319,5 +322,52 @@ class ProductControllerTest extends TestCase
         );
 
         static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
+    }
+
+    public function testQuantityLimitsReturns(): void
+    {
+        $productId = Uuid::randomHex();
+        $routeResponse = new ProductQuantityLimitsRouteResponse(new ProductQuantityLimitsResult(
+            productId: $productId,
+            minPurchase: 1,
+            maxPurchase: 10,
+            purchaseSteps: 1
+        ));
+
+        $this->productQuantityLimitsRouteMock
+            ->method('load')
+            ->willReturn($routeResponse);
+
+        $response = $this->controller->quantityLimits(
+            $productId,
+            new Request(),
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(
+            json_encode([
+                'productId' => $productId,
+                'minPurchase' => 1,
+                'purchaseSteps' => 1,
+                'maxPurchase' => 10,
+            ]),
+            $response->getContent()
+        );
+    }
+
+    public function testQuantityLimits404WhenProductNotFound(): void
+    {
+        $this->productQuantityLimitsRouteMock
+            ->method('load')
+            ->willThrowException(ProductException::productNotFound(Uuid::randomHex()));
+
+        $response = $this->controller->quantityLimits(
+            Uuid::randomHex(),
+            new Request(),
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 }

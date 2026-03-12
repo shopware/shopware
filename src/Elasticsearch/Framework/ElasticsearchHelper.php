@@ -164,6 +164,8 @@ class ElasticsearchHelper
             return;
         }
 
+        $hasTermQuery = $criteria->getTerm() !== null && $criteria->getTerm() !== '';
+
         $bool = new BoolQuery();
 
         foreach ($queries as $query) {
@@ -178,7 +180,19 @@ class ElasticsearchHelper
                 $parsed->addParameter('fuzziness', '2');
             }
 
+            // in mysql implementation (@See: \Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder::build), the term query is split into separate score queries and added to the main query with the OR operator.
+            // in Elasticsearch implementation, the term query can be added directly into the main query (@See: \Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm, so the term query and score queries can co-exist (without extract term as mysql implementation) but if there is already a term query, we need to group it with other queries to the main query with the OR operator.
+            if ($hasTermQuery) {
+                $search->addQuery($parsed, BoolQuery::SHOULD);
+
+                continue;
+            }
+
             $bool->add($parsed, BoolQuery::SHOULD);
+        }
+
+        if ($hasTermQuery) {
+            return;
         }
 
         $bool->addParameter('minimum_should_match', '1');

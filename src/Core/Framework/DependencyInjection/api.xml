@@ -126,7 +126,9 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder">
+            <argument type="tagged_iterator" tag="shopware.api.enum_provider" />
+        </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
 
@@ -179,6 +181,7 @@
             <argument type="service" id="filesystem"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

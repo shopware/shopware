@@ -26,6 +26,7 @@ class LineItem extends Struct
     final public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
     final public const DISCOUNT_LINE_ITEM = 'discount';
     final public const CONTAINER_LINE_ITEM = 'container';
+    final public const QUANTITY_LINE_ITEM = 'quantity';
 
     final public const IDENTIFIER_MAX_LENGTH = 100;
 

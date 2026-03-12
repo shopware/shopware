@@ -35,7 +35,7 @@ class ShopIdProviderTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($matcher = $this->exactly(6))
             ->method('get')
-            ->willReturnCallback(function (...$parameters) use ($matcher, $shopIdV1Config) {
+            ->willReturnCallback(static function (...$parameters) use ($matcher, $shopIdV1Config) {
                 if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3 || $matcher->numberOfInvocations() === 5) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
 
@@ -52,7 +52,7 @@ class ShopIdProviderTest extends TestCase
             });
         $systemConfigService->expects($this->exactly(2))
             ->method('set')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(function (array $config): bool {
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(static function (array $config): bool {
                 static::assertSame(2, $config['version'] ?? null);
                 static::assertSame([], $config['fingerprints'] ?? null);
 
@@ -93,7 +93,7 @@ class ShopIdProviderTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($matcher = $this->exactly(6))
             ->method('get')
-            ->willReturnCallback(function (...$parameters) use ($matcher, $shopIdV1Config) {
+            ->willReturnCallback(static function (...$parameters) use ($matcher, $shopIdV1Config) {
                 if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3 || $matcher->numberOfInvocations() === 5) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
 
@@ -110,7 +110,7 @@ class ShopIdProviderTest extends TestCase
             });
         $systemConfigService->expects($this->exactly(2))
             ->method('set')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(function (array $config) use ($shopIdV2Config): bool {
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(static function (array $config) use ($shopIdV2Config): bool {
                 static::assertSame($shopIdV2Config, $config);
 
                 return true;
@@ -228,7 +228,7 @@ class ShopIdProviderTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($matcher = $this->exactly(2))
             ->method('delete')
-            ->willReturnCallback(function (...$parameters) use ($matcher): void {
+            ->willReturnCallback(static function (...$parameters) use ($matcher): void {
                 if ($matcher->numberOfInvocations() === 1) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, $parameters[0]);
                 }

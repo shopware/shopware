@@ -195,7 +195,7 @@ class ClientTest extends TestCase
     public function testNetworkExceptionReturnsEmptyListOfServices(): void
     {
         $client = new MockHttpClient([
-            function (): void {
+            static function (): void {
                 throw new TransportException('Network error');
             },
         ]);

@@ -46,7 +46,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $emailRecipientIds = array_map(fn ($id) => ['id' => $id], $emailRecipient->getIds());
+        $emailRecipientIds = array_map(static fn ($id) => ['id' => $id], $emailRecipient->getIds());
 
         $this->newsletterRecipientRepository->delete($emailRecipientIds, $context);
     }

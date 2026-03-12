@@ -35,7 +35,9 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     private ThemeLifecycleService&MockObject $themeLifecycleServiceMock;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
+    /**
+     * @var EntityRepository<ThemeCollection>&MockObject
+     */
     private EntityRepository&MockObject $themeRepositoryMock;
 
     private Connection&MockObject $connectionMock;

@@ -4,7 +4,6 @@
 import createConsentEventHandler from 'src/core/consent/handlers';
 import useConsentStore from 'src/core/consent/consent.store';
 import type * as AmplitudeClient from '@amplitude/analytics-browser';
-import { Types as AmplitudeTypes } from '@amplitude/analytics-browser';
 import { computed, watch } from 'vue';
 import createTelemetryEventHandler from './amplitude.telemetry-handlers';
 
@@ -13,7 +12,7 @@ type AnonymousAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 type PrivacyAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 
 const AMPLITUDE_MAX_RETRIES = 2;
-const AMPLITUDE_LOG_LEVEL = AmplitudeTypes.LogLevel.None;
+const AMPLITUDE_LOG_LEVEL_NONE = 0;
 
 let stopTelemetryConsentWatch: (() => void) | null = null;
 let pendingTelemetryActivationTimeout: number | null = null;
@@ -199,7 +198,7 @@ function createAmplitudeInitOptions(serverUrl: string) {
         serverZone: 'EU' as const,
         appVersion: Shopware.Store.get('context').app.config.version as string,
         flushMaxRetries: AMPLITUDE_MAX_RETRIES,
-        logLevel: AMPLITUDE_LOG_LEVEL,
+        logLevel: AMPLITUDE_LOG_LEVEL_NONE,
         trackingOptions: {
             ipAddress: false,
             language: false,

@@ -7,6 +7,8 @@ type AmplitudeModule = typeof AmplitudeClient;
 type PrivacyAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 
 const AMPLITUDE_BROWSER_API_KEY = 'placeholder-apikey';
+const AMPLITUDE_MAX_RETRIES = 2;
+const AMPLITUDE_LOG_LEVEL_NONE = 0;
 
 /**
  * @private
@@ -60,6 +62,8 @@ function createAmplitudeInitOptions(serverUrl: string) {
         autocapture: false,
         serverZone: 'EU' as const,
         appVersion: Shopware.Store.get('context').app.config.version as string,
+        flushMaxRetries: AMPLITUDE_MAX_RETRIES,
+        logLevel: AMPLITUDE_LOG_LEVEL_NONE,
         trackingOptions: {
             ipAddress: false,
             language: false,

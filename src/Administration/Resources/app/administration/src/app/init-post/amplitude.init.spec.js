@@ -119,6 +119,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     autocapture: false,
                     serverZone: 'EU',
                     appVersion: Shopware.Store.get('context').app.config.version,
+                    flushMaxRetries: 2,
+                    logLevel: 0,
                     trackingOptions: {
                         ipAddress: false,
                         language: false,

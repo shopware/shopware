@@ -24,7 +24,9 @@ class FlowEventPersisterTest extends TestCase
 {
     private FlowEventPersister $flowEventPersister;
 
-    /** @var EntityRepository<AppFlowEventCollection>&MockObject */
+    /**
+     * @var EntityRepository<AppFlowEventCollection>&MockObject
+     */
     private EntityRepository&MockObject $flowEventsRepositoryMock;
 
     private Connection&MockObject $connectionMock;

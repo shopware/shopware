@@ -38,7 +38,9 @@ class RegisterConfirmRouteTest extends TestCase
 
     protected EventDispatcherInterface&MockObject $eventDispatcher;
 
-    /** @var EntityRepository<CustomerCollection>&MockObject */
+    /**
+     * @var EntityRepository<CustomerCollection>&MockObject
+     */
     protected EntityRepository&MockObject $customerRepository;
 
     protected DataValidator&MockObject $validator;

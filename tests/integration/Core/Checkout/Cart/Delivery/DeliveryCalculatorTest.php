@@ -198,7 +198,7 @@ class DeliveryCalculatorTest extends TestCase
         $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery->expects($this->atLeastOnce())->method('getShippingCosts')->willReturn($costs);
         $newCosts = null;
-        $delivery->expects($this->once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+        $delivery->expects($this->once())->method('setShippingCosts')->willReturnCallback(static function ($costsParameter) use (&$newCosts): void {
             $newCosts = $costsParameter;
         });
 

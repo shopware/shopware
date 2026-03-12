@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -217,22 +218,31 @@ class CategoryIndexer extends EntityIndexer
      */
     private function fetchChildren(array $categoryIds, string $versionId): array
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select('DISTINCT LOWER(HEX(category.id))');
-        $query->from('category');
+        $sql = <<<'SQL'
+WITH RECURSIVE category_tree AS (
+    SELECT id, 0 AS depth
+    FROM category
+    WHERE id IN (:categoryIds)
+      AND version_id = :version
 
-        $wheres = [];
-        foreach ($categoryIds as $id) {
-            $key = 'path' . $id;
-            $wheres[] = 'category.path LIKE :' . $key;
-            $query->setParameter($key, '%|' . $id . '|%');
-        }
+    UNION ALL
 
-        $query->andWhere('(' . implode(' OR ', $wheres) . ')');
-        $query->andWhere('category.version_id = :version');
-        $query->setParameter('version', Uuid::fromHexToBytes($versionId));
+    SELECT c.id, ct.depth + 1
+    FROM category c
+    INNER JOIN category_tree ct ON c.parent_id = ct.id
+    WHERE c.version_id = :version
+)
+SELECT DISTINCT LOWER(HEX(id))
+FROM category_tree
+WHERE depth > 0
+SQL;
 
-        return $query->executeQuery()->fetchFirstColumn();
+        return $this->connection->fetchFirstColumn($sql, [
+            'version' => Uuid::fromHexToBytes($versionId),
+            'categoryIds' => Uuid::fromHexToBytesList($categoryIds),
+        ], [
+            'categoryIds' => ArrayParameterType::BINARY,
+        ]);
     }
 
     /**

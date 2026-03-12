@@ -401,7 +401,7 @@ class OrderRouteTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
+        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
             static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
@@ -410,7 +410,7 @@ class OrderRouteTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
-        $newPaymentMethod = $this->getValidPaymentMethods()->filter(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
+        $newPaymentMethod = $this->getValidPaymentMethods()->filter(static fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
         $newPaymentMethodId = $newPaymentMethod?->getId() ?? '';
 
         $this->browser

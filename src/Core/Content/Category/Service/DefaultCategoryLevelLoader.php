@@ -95,7 +95,7 @@ class DefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInterface
             ->aggregate($criteria, $context)
             ->get('category-ids');
 
-        if (!($termsResult instanceof TermsResult)) {
+        if (!$termsResult instanceof TermsResult) {
             return;
         }
 

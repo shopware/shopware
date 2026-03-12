@@ -46,7 +46,7 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $taxRules = array_map(
-            fn (array $tax) => new TaxRule(
+            static fn (array $tax) => new TaxRule(
                 (float) $tax['taxRate'],
                 (float) $tax['percentage']
             ),
@@ -54,7 +54,7 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
         );
 
         $calculatedTaxes = array_map(
-            fn (array $tax) => new CalculatedTax(
+            static fn (array $tax) => new CalculatedTax(
                 (float) $tax['tax'],
                 (float) $tax['taxRate'],
                 (float) $tax['price'],

@@ -699,7 +699,7 @@ PHP_EOL,
 
         $this->themeFilesystemResolver->expects($this->exactly(\count($filesystems)))
             ->method('getFilesystemForStorefrontConfig')
-            ->willReturnCallback(fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
+            ->willReturnCallback(static fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
 
         $configurationFactory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),

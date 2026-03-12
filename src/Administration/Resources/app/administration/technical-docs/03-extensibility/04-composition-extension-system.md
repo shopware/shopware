@@ -17,16 +17,16 @@ The Composition API Extension System is the next-generation mechanism for extend
 flowchart TD
     pluginOptions["Plugin: Shopware.Component.override()"]
     pluginComposition["Plugin: Shopware.Component.overrideComponentSetup()"]
-    overrideRegistry["Component Override Registry\n(Shopware.Component.getOverrideRegistry())"]
-    overridesMap["_overridesMap\n(reactive map: componentName → override fns)"]
+    overrideRegistry["Component Override Registry (Shopware.Component.getOverrideRegistry())"]
+    overridesMap["_overridesMap (reactive map: componentName → override fns)"]
     shimCheck{"shouldActivateShim?"}
     shimConvert["convertOptionsApiOverrideToCompositionApi()"]
     compositionFn["Composition API override function"]
     createExtendable["createExtendableSetup()"]
     originalSetup["originalSetup()"]
-    reactiveState["reactiveWrappedState\n(merged public + private)"]
+    reactiveState["reactiveWrappedState (merged public + private)"]
     applyOverrides["applyOverrides() — watch(_overridesMap)"]
-    templateOutput["Component template bindings\n(toRefs result)"]
+    templateOutput["Component template bindings (toRefs result)"]
 
     pluginOptions --> overrideRegistry
     pluginComposition --> overridesMap

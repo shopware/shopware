@@ -26,6 +26,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -91,6 +92,7 @@ class ProductPageLoaderTest extends TestCase
 
         $reviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
         $reviewRouteMock
+            ->expects(Feature::isActive('JSON_LD_DATA') ? $this->once() : $this->never())
             ->method('load')
             ->willReturn(new ProductReviewRouteResponse($entityResult));
 
@@ -104,14 +106,18 @@ class ProductPageLoaderTest extends TestCase
 
         $page = $productPageLoader->load($request, $salesChannelContext);
 
-        $reviewData = $page->getReviewData();
-        static::assertNotNull($reviewData);
-        static::assertSame(1, $reviewData->getTotal());
-        static::assertSame($productId, $reviewData->getProductId());
+        if (Feature::isActive('JSON_LD_DATA')) {
+            $reviewData = $page->getReviewData();
+            static::assertNotNull($reviewData);
+            static::assertSame(1, $reviewData->getTotal());
+            static::assertSame($productId, $reviewData->getProductId());
 
-        $loadedReview = $reviewData->first();
-        static::assertNotNull($loadedReview);
-        static::assertSame('Great product', $loadedReview->getTitle());
+            $loadedReview = $reviewData->first();
+            static::assertNotNull($loadedReview);
+            static::assertSame('Great product', $loadedReview->getTitle());
+        } else {
+            static::assertNull($page->getReviewData());
+        }
     }
 
     public function testItSetsEmptyReviewDataWhenNoReviewsExist(): void
@@ -133,6 +139,7 @@ class ProductPageLoaderTest extends TestCase
 
         $reviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
         $reviewRouteMock
+            ->expects(Feature::isActive('JSON_LD_DATA') ? $this->once() : $this->never())
             ->method('load')
             ->willReturn(new ProductReviewRouteResponse($entityResult));
 
@@ -146,10 +153,14 @@ class ProductPageLoaderTest extends TestCase
 
         $page = $productPageLoader->load($request, $salesChannelContext);
 
-        $reviewData = $page->getReviewData();
-        static::assertNotNull($reviewData);
-        static::assertSame(0, $reviewData->getTotal());
-        static::assertSame(0, $reviewData->getMatrix()->getTotalReviewCount());
+        if (Feature::isActive('JSON_LD_DATA')) {
+            $reviewData = $page->getReviewData();
+            static::assertNotNull($reviewData);
+            static::assertSame(0, $reviewData->getTotal());
+            static::assertSame(0, $reviewData->getMatrix()->getTotalReviewCount());
+        } else {
+            static::assertNull($page->getReviewData());
+        }
     }
 
     /**
@@ -195,7 +206,10 @@ class ProductPageLoaderTest extends TestCase
                 Context::createDefaultContext()
             );
             $reviewRoute = $this->createMock(AbstractProductReviewRoute::class);
-            $reviewRoute->method('load')->willReturn(new ProductReviewRouteResponse($entityResult));
+            $reviewRoute
+                ->expects(Feature::isActive('JSON_LD_DATA') ? $this->once() : $this->never())
+                ->method('load')
+                ->willReturn(new ProductReviewRouteResponse($entityResult));
         }
 
         return new ProductPageLoader(

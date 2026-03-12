@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -105,7 +106,10 @@ class ProductPageLoader
 
         $this->loadOptions($page);
         $this->loadMetaData($page);
-        $this->loadReviewData($page, $context);
+
+        if (Feature::isActive('JSON_LD_DATA')) {
+            $this->loadReviewData($page, $context);
+        }
 
         $this->eventDispatcher->dispatch(
             new ProductPageLoadedEvent($page, $context, $request)

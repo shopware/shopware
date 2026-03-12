@@ -16,6 +16,7 @@ import {
     computed,
     watch,
     isRef,
+    unref,
     inject as vueInject,
     getCurrentInstance,
     onBeforeMount,
@@ -431,7 +432,7 @@ function createThisProxy(
 
                 // Check local state first (data, computed, methods from override)
                 if (prop in localState) {
-                    return unwrapRef(localState[prop]);
+                    return unref(localState[prop]);
                 }
 
                 // Check injected values (from Options API inject config)
@@ -446,7 +447,7 @@ function createThisProxy(
 
                 // Check previousState (from Composition API)
                 if (prop in previousState) {
-                    return unwrapRef(previousState[prop]);
+                    return unref(previousState[prop]);
                 }
 
                 console.warn(
@@ -491,13 +492,6 @@ function createThisProxy(
             },
         },
     );
-}
-
-/**
- * Helper to unwrap refs for property access
- */
-function unwrapRef(value: unknown): unknown {
-    return isRef(value) ? value.value : value;
 }
 
 /**

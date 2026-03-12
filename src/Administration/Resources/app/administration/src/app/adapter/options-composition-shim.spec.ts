@@ -438,7 +438,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                         const count = ref(1);
 
                         function increment() {
-                            count.value++;
+                            count.value += 1;
                         }
 
                         return {
@@ -515,7 +515,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                         const count = ref(1);
 
                         function increment() {
-                            count.value++;
+                            count.value += 1;
                         }
 
                         return {
@@ -1176,9 +1176,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 methods: { foo() {} },
             });
 
-            expect(consoleWarn).toHaveBeenCalledWith(
-                expect.stringContaining('"extends" is not supported'),
-            );
+            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('"extends" is not supported'));
 
             consoleWarn.mockRestore();
         });

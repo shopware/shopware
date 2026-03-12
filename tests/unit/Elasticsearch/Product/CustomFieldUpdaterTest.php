@@ -566,7 +566,11 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
+<<<<<<< HEAD
             ->with(static::callback(static function (array $fields) {
+=======
+            ->with(static::callback(function (array $fields) {
+>>>>>>> 6.7.8.1
                 return isset($fields['appField']) && $fields['appField']['type'] === 'keyword';
             }));
 
@@ -901,7 +905,11 @@ class CustomFieldUpdaterTest extends TestCase
         // Different ID in propertyChange
         $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
+<<<<<<< HEAD
             ->willReturnCallback(static function (string $entityName) use ($event) {
+=======
+            ->willReturnCallback(function (string $entityName) use ($event) {
+>>>>>>> 6.7.8.1
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -960,7 +968,11 @@ class CustomFieldUpdaterTest extends TestCase
 
         $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
+<<<<<<< HEAD
             ->willReturnCallback(static function (string $entityName) use ($event) {
+=======
+            ->willReturnCallback(function (string $entityName) use ($event) {
+>>>>>>> 6.7.8.1
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -1009,7 +1021,11 @@ class CustomFieldUpdaterTest extends TestCase
 
         $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
+<<<<<<< HEAD
             ->willReturnCallback(static function (string $entityName) use ($event) {
+=======
+            ->willReturnCallback(function (string $entityName) use ($event) {
+>>>>>>> 6.7.8.1
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -1070,7 +1086,11 @@ class CustomFieldUpdaterTest extends TestCase
 
         $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
+<<<<<<< HEAD
             ->willReturnCallback(static function (string $entityName) use ($event) {
+=======
+            ->willReturnCallback(function (string $entityName) use ($event) {
+>>>>>>> 6.7.8.1
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }

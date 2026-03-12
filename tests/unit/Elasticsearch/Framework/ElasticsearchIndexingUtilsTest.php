@@ -229,10 +229,17 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->with(
+<<<<<<< HEAD
                 static::callback(static function (string $sql): bool {
                     return str_contains($sql, 'custom_field.name IN (:fields)');
                 }),
                 static::callback(static function (array $params): bool {
+=======
+                static::callback(function (string $sql): bool {
+                    return str_contains($sql, 'custom_field.name IN (:fields)');
+                }),
+                static::callback(function (array $params): bool {
+>>>>>>> 6.7.8.1
                     return \in_array('valid_field', $params['fields'], true)
                         && \count($params['fields']) === 1;
                 }),
@@ -322,10 +329,17 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->with(
+<<<<<<< HEAD
                 static::callback(static function (string $sql): bool {
                     return str_contains($sql, 'custom_field.name IN (:fields)');
                 }),
                 static::callback(static function (array $params): bool {
+=======
+                static::callback(function (string $sql): bool {
+                    return str_contains($sql, 'custom_field.name IN (:fields)');
+                }),
+                static::callback(function (array $params): bool {
+>>>>>>> 6.7.8.1
                     return \in_array('nested_field_a', $params['fields'], true)
                         && \in_array('nested_field_b', $params['fields'], true);
                 }),
@@ -378,7 +392,11 @@ class ElasticsearchIndexingUtilsTest extends TestCase
             ->method('fetchAllKeyValue')
             ->with(
                 static::anything(),
+<<<<<<< HEAD
                 static::callback(static function (array $params): bool {
+=======
+                static::callback(function (array $params): bool {
+>>>>>>> 6.7.8.1
                     $fields = $params['fields'];
 
                     return \count($fields) === 3

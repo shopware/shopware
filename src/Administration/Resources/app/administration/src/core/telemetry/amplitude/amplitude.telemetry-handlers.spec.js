@@ -31,7 +31,7 @@ describe('src/core/telemetry/amplitude/amplitude.telemetry-handlers.ts', () => {
         );
 
         expect(amplitude.setUserId).toHaveBeenCalledWith('shop-id-1:user-id-1');
-        expect(amplitude.track).toHaveBeenCalledWith('Login');
+        expect(amplitude.track).toHaveBeenCalledWith('login');
 
         amplitude.track.mockClear();
         amplitude.getUserId.mockReturnValue('shop-id-1:user-id-1');
@@ -50,7 +50,7 @@ describe('src/core/telemetry/amplitude/amplitude.telemetry-handlers.ts', () => {
     it('tracks logout and flushes/resets immediately', () => {
         pushTelemetryEventToAmplitude(new TelemetryEvent('reset', {}));
 
-        expect(amplitude.track).toHaveBeenCalledWith('Logout');
+        expect(amplitude.track).toHaveBeenCalledWith('logout');
         expect(amplitude.flush).toHaveBeenCalledTimes(1);
         expect(amplitude.reset).toHaveBeenCalledTimes(1);
     });
@@ -70,12 +70,24 @@ describe('src/core/telemetry/amplitude/amplitude.telemetry-handlers.ts', () => {
             }),
         );
 
-        expect(amplitude.track).toHaveBeenCalledWith('Page Viewed', {
+        expect(amplitude.track).toHaveBeenCalledWith('page_viewed', {
             sw_route_from_name: 'Symbol(from-route)',
             sw_route_from_href: '/from',
             sw_route_to_name: null,
             sw_route_to_href: '/to',
             sw_route_to_query: 'limit=10',
+        });
+    });
+
+    it('passes through programmatic telemetry event names unchanged', () => {
+        pushTelemetryEventToAmplitude(
+            new TelemetryEvent('programmatic', {
+                eventName: 'page_viewed',
+            }),
+        );
+
+        expect(amplitude.track).toHaveBeenCalledWith('page_viewed', {
+            eventName: 'page_viewed',
         });
     });
 });

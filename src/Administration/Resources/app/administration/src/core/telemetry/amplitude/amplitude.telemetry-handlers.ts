@@ -17,7 +17,7 @@ export default function createTelemetryEventHandler(
 ): (telemetryEvent: TelemetryEvent<EventTypes>) => void {
     const telemetryEventHandlers: TelemetryEventHandlers = {
         page_change: (event) => {
-            amplitude.track('Page Viewed', {
+            amplitude.track('page_viewed', {
                 sw_route_from_name: normalizeRouteName(event.eventData.from.name),
                 sw_route_from_href: event.eventData.from.path,
                 sw_route_to_name: normalizeRouteName(event.eventData.to.name),
@@ -34,11 +34,11 @@ export default function createTelemetryEventHandler(
             // add more user properties via amplitude.identify(); ?
 
             if (newUserId && previousUserId !== newUserId) {
-                amplitude.track('Login');
+                amplitude.track('login');
             }
         },
         reset: () => {
-            amplitude.track('Logout');
+            amplitude.track('logout');
             amplitude.flush();
             amplitude.reset();
         },
@@ -47,15 +47,10 @@ export default function createTelemetryEventHandler(
 
             const eventProperties: Record<string, TrackableType> = {};
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
-            const capitalizedTagName = string.capitalizeString(target.tagName);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
-            const capitalizedEventName = string.capitalizeString(originalEvent.type);
+            let eventName = string.snakeCase(`${target.tagName} ${originalEvent.type}`);
 
-            let eventName = `${capitalizedTagName} ${capitalizedEventName}`;
-
-            if (capitalizedTagName === 'A') {
-                eventName = 'Link Visited';
+            if (target.tagName === 'A') {
+                eventName = 'link_visited';
 
                 eventProperties.sw_link_href = target.getAttribute('href') ?? '';
                 eventProperties.sw_link_type = target.getAttribute('target') === '_blank' ? 'external' : 'internal';

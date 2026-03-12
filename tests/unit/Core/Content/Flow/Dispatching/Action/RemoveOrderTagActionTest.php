@@ -63,7 +63,7 @@ class RemoveOrderTagActionTest extends TestCase
 
         $this->repository->expects($this->once())
             ->method('delete')
-            ->with(array_map(fn ($id) => [
+            ->with(array_map(static fn ($id) => [
                 'orderId' => $orderId,
                 'tagId' => $id['id'],
             ], $expected));

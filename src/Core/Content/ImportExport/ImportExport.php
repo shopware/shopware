@@ -514,7 +514,7 @@ class ImportExport
                 if ($exceptions) {
                     $originalRecord['_error'] = json_encode(
                         \array_map(
-                            fn ($exception) => \mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8'),
+                            static fn ($exception) => \mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8'),
                             $exceptions
                         )
                     );
@@ -689,7 +689,7 @@ class ImportExport
 
         $allowedMappings = array_filter(
             $config->getMapping()->getElements(),
-            function ($mapping) use ($definition, $source) {
+            static function ($mapping) use ($definition, $source) {
                 $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor(
                     $definition,
                     $mapping->getKey()

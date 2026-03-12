@@ -195,7 +195,7 @@ class InvoiceRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(InvoiceOrdersEvent::class, function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(InvoiceOrdersEvent::class, static function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -239,7 +239,7 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with default language' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container) use ($documentDate): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container) use ($documentDate): void {
                 $operation->assign([
                     'config' => [
                         'displayHeader' => true,
@@ -248,7 +248,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
+            static function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
                 static::assertNotNull($order->getCurrency());
 
                 static::assertStringContainsString(
@@ -279,7 +279,7 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with different language' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container) use ($documentDate): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container) use ($documentDate): void {
                 $container->get('order.repository')->upsert([[
                     'id' => $operation->getOrderId(),
                     'languageId' => self::$deLanguageId,
@@ -311,7 +311,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
+            static function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
                 static::assertNotNull($order->getCurrency());
 
                 static::assertStringContainsString(
@@ -343,14 +343,14 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with syntax error' => [
             [7, 19, 22],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
-                self::$callback = function (DocumentTemplateRendererParameterEvent $event): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+                self::$callback = static function (DocumentTemplateRendererParameterEvent $event): void {
                     throw new \RuntimeException('Errors happened while rendering');
                 };
 
                 $container->get('event_dispatcher')->addListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
             },
-            function (string $orderId, array $errors): void {
+            static function (string $orderId, array $errors): void {
                 static::assertNotNull(self::$callback);
                 static::assertNotEmpty($errors);
                 static::assertArrayHasKey($orderId, $errors);
@@ -366,14 +366,14 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with different taxes' => [
             [7, 19, 22],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $operation->assign([
                     'config' => [
                         'displayLineItems' => true,
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 foreach ([7, 19, 22] as $possibleTax) {
                     static::assertStringContainsString(
                         \sprintf('plus %d%% VAT', $possibleTax),
@@ -385,7 +385,7 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with shipping address and displayDivergentDeliveryAddress is true' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
                 $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($orderId);
@@ -421,7 +421,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            static function (RenderedDocument $rendered, OrderEntity $order): void {
                 static::assertNotNull($orderDeliveries = $order->getDeliveries());
                 $shippingAddress = $orderDeliveries->getShippingAddress()->first();
                 static::assertNotNull($shippingAddress);
@@ -442,7 +442,7 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with displayDivergentDeliveryAddress is false' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
@@ -465,7 +465,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            static function (RenderedDocument $rendered, OrderEntity $order): void {
                 $rendered = $rendered->getContent();
                 static::assertNotNull($orderDeliveries = $order->getDeliveries());
                 $shippingAddress = $orderDeliveries->getShippingAddress()->first();
@@ -483,7 +483,7 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render customer VAT-ID with displayCustomerVatId is checked' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
@@ -516,7 +516,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            static function (RenderedDocument $rendered, OrderEntity $order): void {
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
@@ -534,7 +534,7 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render customer VAT-ID with displayCustomerVatId unchecked' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
@@ -568,7 +568,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            static function (RenderedDocument $rendered, OrderEntity $order): void {
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
@@ -584,7 +584,7 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with customer VAT-ID is null' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
@@ -618,7 +618,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            static function (RenderedDocument $rendered, OrderEntity $order): void {
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
@@ -634,7 +634,7 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with credit item' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $context = Context::createDefaultContext();
                 $orderId = $operation->getOrderId();
 
@@ -668,7 +668,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 $rendered = $rendered->getContent();
                 static::assertStringContainsString('credit-item-1', $rendered);
             },

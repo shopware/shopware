@@ -70,7 +70,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
 
         static::assertCount(0, $errorCollectionFiltered);
@@ -87,7 +87,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
         $error = $errorCollectionFiltered->first();
@@ -120,7 +120,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
         $error = $errorCollectionFiltered->first();
@@ -146,7 +146,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
         static::assertCount(2, $errorCollectionFiltered);
 
@@ -186,7 +186,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
 
         static::assertCount(1, $errorCollectionFiltered);
@@ -216,7 +216,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
 
         static::assertCount(0, $errorCollectionFiltered);
@@ -241,11 +241,11 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             $ids = $idsFilter->getValue();
 
             $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => !\in_array($entity->getId(), $ids, true)
+                static fn (ShippingMethodEntity $entity) => !\in_array($entity->getId(), $ids, true)
             );
         } else {
             $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
+                static fn (ShippingMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
             );
         }
 
@@ -266,7 +266,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             $collection = new ShippingMethodCollection();
         } else {
             $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
+                static fn (ShippingMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
             );
         }
 

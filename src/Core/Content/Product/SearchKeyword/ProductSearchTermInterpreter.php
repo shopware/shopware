@@ -219,7 +219,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $scoring[$match] = $score / 10;
         }
 
-        uasort($scoring, fn ($a, $b) => $b <=> $a);
+        uasort($scoring, static fn ($a, $b) => $b <=> $a);
 
         return $scoring;
     }

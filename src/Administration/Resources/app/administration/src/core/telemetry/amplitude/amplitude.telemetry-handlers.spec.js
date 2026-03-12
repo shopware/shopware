@@ -1,7 +1,7 @@
+import { TelemetryEvent } from 'src/core/telemetry/types';
 import createTelemetryEventHandler from './amplitude.telemetry-handlers';
-import { TelemetryEvent } from '../../core/telemetry/types';
 
-describe('src/app/init-post/amplitude.telemetry-handlers.ts', () => {
+describe('src/core/telemetry/amplitude/amplitude.telemetry-handlers.ts', () => {
     let amplitude;
     let pushTelemetryEventToAmplitude;
 

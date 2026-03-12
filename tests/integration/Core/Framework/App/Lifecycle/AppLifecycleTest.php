@@ -130,7 +130,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $eventWasReceived = false;
         $appId = null;
-        $onAppInstalled = function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
+        $onAppInstalled = static function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
             $eventWasReceived = true;
             $appId = $event->getApp()->getId();
             static::assertSame($manifest, $event->getManifest());
@@ -519,7 +519,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $eventWasReceived = false;
-        $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
+        $onAppUpdated = static function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
             static::assertSame($id, $event->getApp()->getId());
             static::assertSame($manifest, $event->getManifest());
@@ -696,7 +696,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $eventWasReceived = false;
-        $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
+        $onAppUpdated = static function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
             static::assertSame($id, $event->getApp()->getId());
             static::assertSame($manifest, $event->getManifest());
@@ -1050,7 +1050,7 @@ class AppLifecycleTest extends TestCase
         ];
 
         $eventWasReceived = false;
-        $onAppDeleted = function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
+        $onAppDeleted = static function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
             $eventWasReceived = true;
             static::assertSame($appId, $event->getAppId());
         };
@@ -1118,7 +1118,7 @@ class AppLifecycleTest extends TestCase
         ];
 
         $countEventDispatched = 0;
-        $onAppDeleted = function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
+        $onAppDeleted = static function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
             ++$countEventDispatched;
             static::assertSame($appId, $event->getAppId());
         };
@@ -1320,7 +1320,7 @@ class AppLifecycleTest extends TestCase
     public function testRefreshFlowExtension(): void
     {
         $app = null;
-        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
+        $this->eventDispatcher->addListener(AppInstalledEvent::class, static function (AppInstalledEvent $event) use (&$app): void {
             $app = $event->getApp();
         });
 
@@ -1348,7 +1348,7 @@ class AppLifecycleTest extends TestCase
     public function testRefreshFlowExtensionWithAnotherAction(): void
     {
         $app = null;
-        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
+        $this->eventDispatcher->addListener(AppInstalledEvent::class, static function (AppInstalledEvent $event) use (&$app): void {
             $app = $event->getApp();
         });
 
@@ -1376,7 +1376,7 @@ class AppLifecycleTest extends TestCase
     public function testRefreshFlowActionUsedInFlowBuilder(): void
     {
         $app = null;
-        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
+        $this->eventDispatcher->addListener(AppInstalledEvent::class, static function (AppInstalledEvent $event) use (&$app): void {
             $app = $event->getApp();
         });
 
@@ -1797,7 +1797,7 @@ class AppLifecycleTest extends TestCase
         $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(2, $actionButtons);
 
-        $actionNames = $actionButtons->map(fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
+        $actionNames = $actionButtons->map(static fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
 
         static::assertContains('viewOrder', $actionNames);
         static::assertContains('doStuffWithProducts', $actionNames);
@@ -1885,7 +1885,7 @@ class AppLifecycleTest extends TestCase
         $relations = $customFieldSet->getRelations();
         static::assertNotNull($relations);
 
-        $relatedEntities = array_map(fn (CustomFieldSetRelationEntity $relation) => $relation->getEntityName(), $relations->getElements());
+        $relatedEntities = array_map(static fn (CustomFieldSetRelationEntity $relation) => $relation->getEntityName(), $relations->getElements());
         static::assertContains('product', $relatedEntities);
         static::assertContains('customer', $relatedEntities);
 

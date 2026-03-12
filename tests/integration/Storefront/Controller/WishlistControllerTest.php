@@ -103,7 +103,7 @@ class WishlistControllerTest extends TestCase
 
         $productId = $this->createProduct($this->getSalesChannelId());
 
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, function (StorefrontRenderEvent $event) use ($productId): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use ($productId): void {
             static::assertInstanceOf(EntitySearchResult::class, $result = $event->getParameters()['searchResult']);
             static::assertCount(1, $result);
             static::assertInstanceOf(Entity::class, $result->first());

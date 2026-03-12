@@ -170,7 +170,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         static::assertIsArray($sliderItems);
 
         $expectedSliderIds = ['media0', 'media1', 'media2', 'media3', 'media4'];
-        $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
+        $imageSliderIds = array_map(static fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
 
         static::assertSame($expectedSliderIds, $imageSliderIds);
     }
@@ -240,7 +240,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         // Cover image appears at first position
         $expectedSliderIds = ['media2', 'media0', 'media1', 'media3', 'media4'];
-        $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
+        $imageSliderIds = array_map(static fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
 
         static::assertSame($expectedSliderIds, $imageSliderIds);
     }
@@ -315,7 +315,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         // Cover image appears at first position
         $expectedSliderIds = ['media0', 'media1', 'media2', 'media3', 'media4'];
-        $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
+        $imageSliderIds = array_map(static fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
 
         static::assertSame($expectedSliderIds, $imageSliderIds);
     }

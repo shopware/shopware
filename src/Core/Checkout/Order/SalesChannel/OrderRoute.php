@@ -80,8 +80,12 @@ class OrderRoute extends AbstractOrderRoute
             $criteria->addAssociation('deliveries');
         }
 
-        $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
-            || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;
+        $deepLinkFilter = \current(array_filter(
+            $criteria->getFilters(),
+            static fn (Filter $filter) => $filter instanceof EqualsFilter && ($filter->getField() === 'order.deepLinkCode' || $filter->getField() === 'deepLinkCode')
+        )) ?: null;
+
+        \assert($deepLinkFilter === null || $deepLinkFilter instanceof EqualsFilter);
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
@@ -104,7 +108,7 @@ class OrderRoute extends AbstractOrderRoute
         }
 
         // Handle guest authentication if deeplink is set
-        if (!$context->getCustomer() && $deepLinkFilter instanceof EqualsFilter) {
+        if ($deepLinkFilter !== null && !$context->getCustomer()) {
             try {
                 $cacheKey = strtolower((string) $deepLinkFilter->getValue()) . '-' . $request->getClientIp();
 

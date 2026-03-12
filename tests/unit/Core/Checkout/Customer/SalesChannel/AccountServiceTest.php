@@ -151,6 +151,34 @@ class AccountServiceTest extends TestCase
         $accountService->loginByCredentials('foo@bar.de', 'invalidPassword', $salesChannelContext);
     }
 
+    public function testGetCustomerByLoginThrowsBadCredentialsWhenEmailNotFound(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
+                0,
+                new CustomerCollection(),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext()
+            ));
+
+        $accountService = new AccountService(
+            $customerRepository,
+            new EventDispatcher(),
+            $this->createMock(LegacyPasswordVerifier::class),
+            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            $this->createMock(CartRestorer::class),
+        );
+
+        $this->expectException(BadCredentialsException::class);
+        $accountService->getCustomerByLogin('unknown@example.com', 'any-password', $salesChannelContext);
+    }
+
     public function testGetCustomerByIdThrowsPasswordPoliciesChangedException(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();

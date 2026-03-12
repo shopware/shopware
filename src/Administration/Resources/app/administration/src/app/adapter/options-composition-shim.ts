@@ -520,6 +520,11 @@ function convertComputed(computedDefs: Record<string, ComputedDefinition>, thisP
                     });
                 } else if (getter) {
                     converted[name] = computed(getter);
+                } else {
+                    console.error(
+                        `[Options-Composition-Shim] Computed property "${name}" has a setter but no getter. ` +
+                            'A computed property must have at least a getter. The property will be skipped.',
+                    );
                 }
             }
         },

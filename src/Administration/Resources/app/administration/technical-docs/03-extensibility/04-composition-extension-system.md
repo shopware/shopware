@@ -209,7 +209,6 @@ The override function returns a plain object. Each key in the result is merged b
 | Writable `computed` ref (has `.effect`) | Wrapped in a new `computed({ get, set })` and assigned to `reactiveWrappedState`. |
 | `reactive` object | Merged via `Object.assign` into the existing reactive value. The new object must contain **all keys** of the original (recursive check). |
 | `function` | Replaces the existing function directly. |
-| Anything else | `console.error` — value is ignored. |
 
 Returning a key that matches a component **prop** name logs `console.error` and is ignored.
 

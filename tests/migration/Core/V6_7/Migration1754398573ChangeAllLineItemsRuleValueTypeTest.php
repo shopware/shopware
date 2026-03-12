@@ -113,7 +113,7 @@ class Migration1754398573ChangeAllLineItemsRuleValueTypeTest extends TestCase
     private function getConditionValues(): array
     {
         return array_map(
-            fn (string $json) => json_decode($json, true),
+            static fn (string $json) => json_decode($json, true),
             static::getContainer()->get(Connection::class)->fetchAllKeyValue(
                 'SELECT `id`, `value` FROM `rule_condition` WHERE `rule_id` = :ruleId',
                 ['ruleId' => $this->ids->getBytes('rule')]

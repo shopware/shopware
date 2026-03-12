@@ -130,7 +130,7 @@ class MediaLocationBuilderTest extends TestCase
 
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener(ThumbnailLocationEvent::class, function (ThumbnailLocationEvent $event) use ($ids): void {
+        $dispatcher->addListener(ThumbnailLocationEvent::class, static function (ThumbnailLocationEvent $event) use ($ids): void {
             static::assertArrayHasKey($ids->get('thumbnail'), $event->locations);
 
             foreach ($event as &$location) {
@@ -177,7 +177,7 @@ class MediaLocationBuilderTest extends TestCase
         $queue->execute();
 
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(MediaLocationEvent::class, function (MediaLocationEvent $event) use ($ids): void {
+        $dispatcher->addListener(MediaLocationEvent::class, static function (MediaLocationEvent $event) use ($ids): void {
             static::assertArrayHasKey($ids->get('media'), $event->locations);
 
             foreach ($event as &$location) {

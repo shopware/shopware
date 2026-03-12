@@ -51,7 +51,7 @@ class AdminElasticsearchEntitySearcherTest extends TestCase
 
         $searcher->expects($this->never())->method('searchIds');
 
-        Feature::fake([], function () use ($decorated, $registry, $helper, $searcher, $definition, $criteria, $context, $expected): void {
+        Feature::fake([], static function () use ($decorated, $registry, $helper, $searcher, $definition, $criteria, $context, $expected): void {
             $entitySearcher = new AdminElasticsearchEntitySearcher(
                 $decorated,
                 $registry,
@@ -91,7 +91,7 @@ class AdminElasticsearchEntitySearcherTest extends TestCase
 
         $decorated->expects($this->never())->method('search');
 
-        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($decorated, $registry, $helper, $searcher, $definition, $criteria, $context, $expected): void {
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], static function () use ($decorated, $registry, $helper, $searcher, $definition, $criteria, $context, $expected): void {
             $entitySearcher = new AdminElasticsearchEntitySearcher(
                 $decorated,
                 $registry,

@@ -214,7 +214,7 @@ class CartLineItemControllerTest extends TestCase
         $matcher = $this->exactly(2);
         $this->lineItemRegistryMock->expects($matcher)->method('create')
             ->willReturnCallback(
-                function (array $lineItemDataPar, SalesChannelContext $contextPar) use (
+                static function (array $lineItemDataPar, SalesChannelContext $contextPar) use (
                     $matcher,
                     $expectedLineItemData,
                     $expectedLineItemData2
@@ -708,7 +708,7 @@ class CartLineItemControllerTest extends TestCase
         $this->cartService->expects($this->once())
             ->method('update')
             ->with($cart, $lineItems, $context)
-            ->willReturnCallback(function ($cart, $lineItems, $context) use ($id1, $id2) {
+            ->willReturnCallback(static function ($cart, $lineItems, $context) use ($id1, $id2) {
                 $expectedLineitem = new LineItem($id1, LineItem::PRODUCT_LINE_ITEM_TYPE);
                 $expectedLineitem2 = new LineItem($id2, LineItem::PRODUCT_LINE_ITEM_TYPE);
                 $expectedLineitems = [$expectedLineitem, $expectedLineitem2];

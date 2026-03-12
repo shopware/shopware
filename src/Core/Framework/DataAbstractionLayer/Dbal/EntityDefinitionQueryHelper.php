@@ -372,7 +372,7 @@ class EntityDefinitionQueryHelper
         } elseif ($definition->isVersionAware()) {
             $versionIdField = array_filter(
                 $definition->getPrimaryKeys()->getElements(),
-                fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
+                static fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
             );
 
             if (!$versionIdField) {
@@ -479,11 +479,11 @@ class EntityDefinitionQueryHelper
         }
 
         $fields = $translationDefinition->getFields()->filter(
-            fn (Field $field) => $field instanceof StorageAware
+            static fn (Field $field) => $field instanceof StorageAware
                 && $definition->getFields()->get($field->getPropertyName()) instanceof TranslatedField,
         );
         if ($partial !== []) {
-            $fields = $fields->filter(fn (Field $field) => isset($partial[$field->getPropertyName()]));
+            $fields = $fields->filter(static fn (Field $field) => isset($partial[$field->getPropertyName()]));
         }
 
         $translationChain = self::buildTranslationChain(

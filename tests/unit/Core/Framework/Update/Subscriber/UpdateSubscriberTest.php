@@ -37,7 +37,7 @@ class UpdateSubscriberTest extends TestCase
         $notificationServiceMock
             ->expects($this->once())
             ->method('createNotification')
-            ->willReturnCallback(function ($data): void {
+            ->willReturnCallback(static function ($data): void {
                 static::assertSame('something to inform' . \PHP_EOL, $data['message']);
             });
 

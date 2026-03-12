@@ -268,7 +268,7 @@ class SnippetFinder implements SnippetFinderInterface
         );
 
         $decodedSnippets = \array_map(
-            fn ($data) => \json_decode((string) $data['value'], true, 512, \JSON_THROW_ON_ERROR),
+            static fn ($data) => \json_decode((string) $data['value'], true, 512, \JSON_THROW_ON_ERROR),
             $result
         );
 

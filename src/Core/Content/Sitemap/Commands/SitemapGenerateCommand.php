@@ -77,7 +77,7 @@ class SitemapGenerateCommand extends Command
         $salesChannels = $this->salesChannelRepository->search($criteria, $context);
 
         foreach ($salesChannels as $salesChannel) {
-            $languageIds = $salesChannel->getDomains()?->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId()) ?? [];
+            $languageIds = $salesChannel->getDomains()?->map(static fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId()) ?? [];
 
             $languageIds = array_unique($languageIds);
 

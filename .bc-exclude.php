@@ -57,5 +57,8 @@ return [
 
         // SystemRestoreDatabaseCommand was marked @internal
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
+
+        // Unused protected method from final class can be removed safely
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Store\InAppPurchase\Services\DecodedPurchaseStruct#throwException() was removed', '/'),
     ],
 ];

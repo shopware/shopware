@@ -62,6 +62,9 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
             ['technicalNames' => ArrayParameterType::STRING]
         );
 
+        $translations = \array_column($translations, 'name');
+        \sort($translations);
+
         static::assertSame(
             [
                 'ZUGFeRD Rechnung (embedded)',
@@ -69,7 +72,7 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
                 'ZUGFeRD Invoice (embedded)',
                 'ZUGFeRD Invoice',
             ],
-            array_column($translations, 'name')
+            $translations
         );
     }
 }

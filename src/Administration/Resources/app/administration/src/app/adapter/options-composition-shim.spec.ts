@@ -298,7 +298,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             expect(() => {
                 result.doSomething();
-            }).toThrow('$super: method "nonExistentMethod" not found in previous state');
+            }).toThrow('$super: "nonExistentMethod" not found in previous state. It must be a method (function) or a ref.');
         });
     });
 

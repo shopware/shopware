@@ -414,7 +414,9 @@ function createThisProxy(
                             return (previousState[methodName] as Ref).value;
                         }
 
-                        throw new Error(`$super: method "${methodName}" not found in previous state`);
+                        throw new Error(
+                            `$super: "${methodName}" not found in previous state. It must be a method (function) or a ref.`,
+                        );
                     };
                 }
 

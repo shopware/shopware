@@ -632,3 +632,7 @@ shopware:
         allowed_types:
           - physical
           - digital
+
+    webhook:
+        #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
+        failure_strategy: disable_on_threshold

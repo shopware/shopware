@@ -80,6 +80,7 @@
         <service id="Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
+            <argument>%shopware.webhook.failure_strategy%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>

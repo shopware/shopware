@@ -57,7 +57,7 @@
         "label-checkbox": "Persönliche Daten teilen"
       },
       "opt-out-info": {
-        "snippet": "Du kannst deine Einstellungen jederzeit anpassen: Shop-Daten unter {settings} und Persönliche Daten unter {profile}.",
+        "snippet": "Du kannst deine Einstellungen jederzeit anpassen: Shopdaten unter {settings} und Persönliche Daten unter {profile}.",
         "settings": "Einstellungen – Datenschutz",
         "profile": "Dein Profil – Datenschutzeinstellungen"
       },

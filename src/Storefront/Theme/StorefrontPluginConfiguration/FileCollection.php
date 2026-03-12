@@ -31,7 +31,7 @@ class FileCollection extends Collection
      */
     public function getFilepaths(): array
     {
-        return $this->map(fn (File $element) => $element->getFilepath());
+        return $this->map(static fn (File $element) => $element->getFilepath());
     }
 
     /**
@@ -39,7 +39,7 @@ class FileCollection extends Collection
      */
     public function getPublicPaths(string $prefix): array
     {
-        return array_values(array_filter($this->map(function (File $element) use ($prefix) {
+        return array_values(array_filter($this->map(static function (File $element) use ($prefix) {
             if ($element->assetName === null) {
                 return null;
             }

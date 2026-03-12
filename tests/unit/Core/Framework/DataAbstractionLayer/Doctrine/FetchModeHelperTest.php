@@ -42,7 +42,7 @@ class FetchModeHelperTest extends TestCase
                 ['id' => 'some-set-1', 'entity_name' => 'customer'],
                 ['id' => 'some-set-2', 'entity_name' => 'product'],
             ],
-            fn (array $row) => $row['entity_name']
+            static fn (array $row) => $row['entity_name']
         );
 
         static::assertSame(

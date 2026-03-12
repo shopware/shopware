@@ -33,10 +33,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SendPasswordRecoveryMailRoute::class)]
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
-    /** @var EntityRepository<CustomerCollection>&MockObject */
+    /**
+     * @var EntityRepository<CustomerCollection>&MockObject
+     */
     protected EntityRepository&MockObject $customerRepository;
 
-    /** @var EntityRepository<CustomerRecoveryCollection>&MockObject */
+    /**
+     * @var EntityRepository<CustomerRecoveryCollection>&MockObject
+     */
     protected EntityRepository&MockObject $customerRecoveryRepository;
 
     protected EventDispatcherInterface&MockObject $eventDispatcher;

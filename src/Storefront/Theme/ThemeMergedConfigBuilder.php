@@ -51,7 +51,7 @@ class ThemeMergedConfigBuilder
         $this->themes = $this->themeRepository->search($criteria, $context)->getEntities();
 
         $theme = $this->themes->get($themeId);
-        if (!($theme instanceof ThemeEntity)) {
+        if (!$theme instanceof ThemeEntity) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 

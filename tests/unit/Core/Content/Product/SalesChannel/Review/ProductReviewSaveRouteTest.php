@@ -29,7 +29,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ProductReviewSaveRoute::class)]
 class ProductReviewSaveRouteTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<ProductReviewCollection> */
+    /**
+     * @var MockObject&EntityRepository<ProductReviewCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&DataValidator $validator;

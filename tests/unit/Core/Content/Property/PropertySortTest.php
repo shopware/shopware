@@ -9,6 +9,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -208,6 +209,13 @@ class PropertySortTest extends TestCase
         $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(23, $propertyOptionsArray);
+    }
+
+    public function testDeprecatedMethodSortByConfigThrowsException(): void
+    {
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
+        static::expectException(FeatureException::class);
+        $propertyGroups->sortByConfig(null);
     }
 
     private function getPropertyGroupAlphaNumericOnlyNumbers(): PropertyGroupCollection

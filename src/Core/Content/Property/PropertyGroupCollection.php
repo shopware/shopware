@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -46,13 +47,16 @@ class PropertyGroupCollection extends EntityCollection
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - required parameter $localeCode will be added
+     * @deprecated tag:v6.8.0 - The method will require a locale code parameter in v6.8.0.0.
      */
     public function sortByConfig(/* string $localeCode = 'en_GB' */): void
     {
         $localeCode = \func_num_args() === 1 ? func_get_arg(0) : 'en_GB';
+        if ($localeCode === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'sortByConfig(string $localeCode)'));
+        }
 
-        $collator = $this->createCollator($localeCode);
+        $collator = $this->createCollator($localeCode ?? 'en_GB');
 
         foreach ($this->elements as $group) {
             $options = $group->getOptions();

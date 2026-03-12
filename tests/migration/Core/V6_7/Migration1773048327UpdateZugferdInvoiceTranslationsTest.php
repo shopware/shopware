@@ -57,7 +57,7 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
                  WHERE document_type_id IN (
                      SELECT id FROM document_type WHERE technical_name IN (:technicalNames)
                  )
-                 ORDER BY language_id',
+                 ORDER BY created_at',
             ['technicalNames' => $technicalNames],
             ['technicalNames' => ArrayParameterType::STRING]
         );
@@ -67,12 +67,12 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
 
         static::assertSame(
             [
-                'ZUGFeRD Rechnung (embedded)',
-                'ZUGFeRD Rechnung',
-                'ZUGFeRD Invoice (embedded)',
                 'ZUGFeRD Invoice',
+                'ZUGFeRD Invoice (embedded)',
+                'ZUGFeRD Rechnung',
+                'ZUGFeRD Rechnung (embedded)',
             ],
-            $translations
+            $translations,
         );
     }
 }

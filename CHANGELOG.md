@@ -1,6 +1,11 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.15
+*  [GHSA-c4p7-rwrg-pf6p - Double signature verification in app-reregistration flow](https://github.com/shopware/shopware/security/advisories/GHSA-c4p7-rwrg-pf6p)
+*  [GHSA-gqc5-xv7m-gcjq - Limit account enumeration via Store API](https://github.com/shopware/shopware/security/advisories/GHSA-gqc5-xv7m-gcjq)
+*  [GHSA-7vvp-j573-5584 - Proper check for the deepLinkCode filter type](https://github.com/shopware/shopware/security/advisories/GHSA-7vvp-j573-5584)
+
 ## 6.6.10.14
 *  [#13348 - Online cancelation request (Elektronische Widerrufsfunktion)](https://github.com/shopware/shopware/issues/13348)
 *  [#15308 - fix: allow searching while suggest is still loading](https://github.com/shopware/shopware/pull/15308)

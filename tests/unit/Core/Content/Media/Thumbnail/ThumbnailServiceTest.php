@@ -106,7 +106,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -153,7 +153,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -257,7 +257,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -304,7 +304,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];

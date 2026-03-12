@@ -167,7 +167,7 @@ class MediaUploadV2ControllerTest extends TestCase
         $this->mediaUploadService
             ->expects($this->once())
             ->method('addExternalThumbnailsToMedia')
-            ->with($mediaId, static::callback(fn ($arg) => $arg instanceof ExternalThumbnailCollection && $arg->count() === 2), $context);
+            ->with($mediaId, static::callback(static fn ($arg) => $arg instanceof ExternalThumbnailCollection && $arg->count() === 2), $context);
 
         $response = $this->controller->addExternalThumbnails($mediaId, $params, $context);
 

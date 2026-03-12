@@ -58,6 +58,9 @@ return [
         // SystemRestoreDatabaseCommand was marked @internal
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
 
+        // Unused protected method from final class can be removed safely
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Store\InAppPurchase\Services\DecodedPurchaseStruct#throwException() was removed', '/'),
+
         // False positive, added parameters have default values or are optional
         preg_quote('ADDED: Parameter documentType was added to Method withGeneralOrderData() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument', '/'),
         preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),

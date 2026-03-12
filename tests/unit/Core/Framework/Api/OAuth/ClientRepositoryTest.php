@@ -38,7 +38,7 @@ class ClientRepositoryTest extends TestCase
     #[DataProvider('validateClientDataProvider')]
     public function testValidateClient(string $grantType, string $clientIdentifier, string $clientSecret, bool $expectedResult): void
     {
-        $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier, $clientSecret) {
+        $this->connection->method('fetchAssociative')->willReturnCallback(static function () use ($clientIdentifier, $clientSecret) {
             if ($clientIdentifier === 'SWUAADMIN' && $clientSecret === 'shopware') {
                 return [
                     'id' => '123',
@@ -64,7 +64,7 @@ class ClientRepositoryTest extends TestCase
         $this->connection
             ->method('fetchAssociative')
             ->willReturnCallback(
-                function () {
+                static function () {
                     return [
                         'id' => '123',
                         'active' => true,
@@ -92,7 +92,7 @@ class ClientRepositoryTest extends TestCase
      */
     public function testGetClientEntity(string $clientIdentifier, ?ClientEntityInterface $expectedResult): void
     {
-        $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier) {
+        $this->connection->method('fetchAssociative')->willReturnCallback(static function () use ($clientIdentifier) {
             if ($clientIdentifier === 'SWUAUSERCORRECT') {
                 return [
                     'user_id' => Uuid::randomBytes(),

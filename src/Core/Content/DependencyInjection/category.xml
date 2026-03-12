@@ -143,6 +143,16 @@
             <tag name="content_system.config_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuDataLoader">
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategorySpecificationSource">
             <argument type="service" id="category_content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition"/>

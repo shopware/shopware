@@ -19,6 +19,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @codeCoverageIgnore Simple DTO with no logic
+ */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
 class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
@@ -55,7 +58,7 @@ class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
 
         $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
-        if (!($product instanceof SalesChannelProductEntity)) {
+        if (!$product instanceof SalesChannelProductEntity) {
             throw ProductException::productNotFound($productId);
         }
 

@@ -3,16 +3,19 @@
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderError;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
+use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -50,6 +53,30 @@ class MailTemplateServiceTest extends TestCase
         $loadedMailTemplate = $mailTemplateService->loadTemplate($mailTemplate->getId(), Context::createDefaultContext());
 
         static::assertSame($mailTemplate, $loadedMailTemplate);
+    }
+
+    public function testLoadUnknownTemplate(): void
+    {
+        $mailTemplate = new MailTemplateEntity();
+        $mailTemplate->setId(Uuid::randomHex());
+        $mailTemplate->setContentHtml('html');
+
+        $mailService = $this->createMock(AbstractMailService::class);
+        $mailDataProvider = $this->createMock(MailDataProvider::class);
+        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
+        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
+        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
+
+        $mailTemplateService = new MailTemplateService(
+            $mailService,
+            $mailDataProvider,
+            $mailTemplateRepository,
+            $stringTemplateRenderer
+        );
+
+        static::expectExceptionObject(MailTemplateException::templateNotFound());
+
+        $mailTemplateService->loadTemplate($mailTemplate->getId(), Context::createDefaultContext());
     }
 
     public function testPreview(): void
@@ -171,5 +198,115 @@ class MailTemplateServiceTest extends TestCase
         );
 
         $mailTemplateService->send($data, Context::createDefaultContext(), []);
+    }
+
+    /**
+     * @param array<array{fieldName: string, hasChildren: bool}> $expected
+     */
+    #[DataProvider('fieldPathProvider')]
+    public function testAvailableVariables(string $fieldPath, array $expected): void
+    {
+        $mailService = $this->createMock(AbstractMailService::class);
+
+        $mailDataProvider = $this->createMock(MailDataProvider::class);
+        $mailDataProvider->method('getTemplateData')->willReturn([
+            'foo' => 'value',
+            'bar' => [
+                'foobar' => 'value',
+                'baz' => [
+                    'key' => 'value',
+                ],
+            ],
+        ]);
+
+        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
+        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
+        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
+
+        $mailTemplateService = new MailTemplateService(
+            $mailService,
+            $mailDataProvider,
+            $mailTemplateRepository,
+            $stringTemplateRenderer
+        );
+
+        $result = $mailTemplateService->availableVariables(ReviewFormEvent::class, $fieldPath, Context::createDefaultContext());
+
+        static::assertSame($expected, $result);
+    }
+
+    public function testAvailableVariablesWithEmptyTemplateData(): void
+    {
+        $mailService = $this->createMock(AbstractMailService::class);
+
+        $mailDataProvider = $this->createMock(MailDataProvider::class);
+        $mailDataProvider->method('getTemplateData')->willReturn([]);
+
+        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
+        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
+        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
+
+        $mailTemplateService = new MailTemplateService(
+            $mailService,
+            $mailDataProvider,
+            $mailTemplateRepository,
+            $stringTemplateRenderer
+        );
+
+        $result = $mailTemplateService->availableVariables(ReviewFormEvent::class, 'foobar.foo.bar', Context::createDefaultContext());
+
+        static::assertSame([], $result);
+    }
+
+    public static function fieldPathProvider(): \Generator
+    {
+        yield 'empty field path' => [
+            'fieldPath' => '',
+            'expected' => [
+                [
+                    'fieldName' => 'foo',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'bar',
+                    'hasChildren' => true,
+                ],
+            ],
+        ];
+
+        yield 'valid field path' => [
+            'fieldPath' => 'bar',
+            'expected' => [
+                [
+                    'fieldName' => 'foobar',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'baz',
+                    'hasChildren' => true,
+                ],
+            ],
+        ];
+
+        yield 'valid field path on element without children' => [
+            'fieldPath' => 'foo',
+            'expected' => [],
+        ];
+
+
+        yield 'nested field path' => [
+            'fieldPath' => 'bar.baz',
+            'expected' => [
+                [
+                    'fieldName' => 'key',
+                    'hasChildren' => false,
+                ],
+            ],
+        ];
+
+        yield 'unknown field path' => [
+            'fieldPath' => 'unknown',
+            'expected' => [],
+        ];
     }
 }

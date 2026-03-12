@@ -141,6 +141,10 @@ class MailTemplateService
             $templateData = $templateData[$fieldPathPart];
         }
 
+        if (!\is_array($templateData)) {
+            return [];
+        }
+
         return \array_map(
             fn ($fieldName) => ['fieldName' => $fieldName, 'hasChildren' => \is_array($templateData[$fieldName]) && $templateData[$fieldName] !== []],
             \array_keys($templateData)

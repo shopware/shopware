@@ -51,10 +51,14 @@ class ThemeServiceTest extends TestCase
 
     private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
+    /**
+     * @var EntityRepository<ThemeCollection>&MockObject
+     */
     private EntityRepository&MockObject $themeRepositoryMock;
 
-    /** @var EntityRepository<EntityCollection<Entity>>&MockObject */
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>&MockObject
+     */
     private EntityRepository&MockObject $themeSalesChannelRepositoryMock;
 
     private ThemeCompiler&MockObject $themeCompilerMock;

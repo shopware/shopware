@@ -91,7 +91,7 @@ class DateRangeRuleTest extends TestCase
             ]),
             '/0',
         ));
-        static::expectExceptionObject($exception);
+        $this->expectExceptionObject($exception);
 
         $this->conditionRepository->create([
             [
@@ -121,7 +121,7 @@ class DateRangeRuleTest extends TestCase
                 ]),
                 '/0',
             ));
-            static::expectExceptionObject($exception);
+            $this->expectExceptionObject($exception);
 
             $this->conditionRepository->create([
                 [
@@ -156,7 +156,7 @@ class DateRangeRuleTest extends TestCase
                 ]),
                 '/0',
             ));
-            static::expectExceptionObject($exception);
+            $this->expectExceptionObject($exception);
 
             $this->conditionRepository->create([
                 [

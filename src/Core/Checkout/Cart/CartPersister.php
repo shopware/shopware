@@ -63,7 +63,7 @@ class CartPersister extends AbstractCartPersister
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
         $cart->setErrorHash($cart->getErrors()->getUniqueHash());
-        $cart->setIsNew(false);
+        $cart->setIsPersisted(true);
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -91,7 +91,7 @@ class CartPersister extends AbstractCartPersister
             return;
         }
 
-        if ($cart->isNew()) {
+        if (!$cart->isPersisted()) {
             $sql = <<<'SQL'
                 INSERT INTO `cart` (`token`, `payload`, `rule_ids`, `compressed`, `created_at`)
                 VALUES (:token, :payload, :rule_ids, :compressed, :now)
@@ -118,11 +118,11 @@ class CartPersister extends AbstractCartPersister
         $query = new RetryableQuery($this->connection, $this->connection->prepare($sql));
         $result = $query->execute($data);
 
-        if (!$cart->isNew() && (int) $result === 0) {
+        if ($cart->isPersisted() && (int) $result === 0) {
             return;
         }
 
-        $cart->setIsNew(false);
+        $cart->setIsPersisted(true);
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 

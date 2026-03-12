@@ -105,7 +105,7 @@ Note that this only affects the update case, in the case of newly inserted or de
 
 ### Existing cart recalculations no longer recreate deleted carts
 
-When an existing cart is recalculated, Shopware now uses the cart's persisted/new state to avoid recreating carts that were already deleted.
+When an existing cart is recalculated, Shopware now uses the cart's persisted state to avoid recreating carts that were already deleted.
 This prevents race conditions where a concurrent request, such as placing an order, deletes the cart and a stale recalculation writes it back afterwards.
 
 ### Deprecation of unused `TemplateGroup` class

@@ -34,7 +34,7 @@ class Cart extends Struct
 
     protected bool $modified = false;
 
-    protected bool $isNew = true;
+    protected bool $isPersisted = false;
 
     protected ?string $customerComment = null;
 
@@ -236,14 +236,14 @@ class Cart extends Struct
         $this->modified = false;
     }
 
-    public function isNew(): bool
+    public function isPersisted(): bool
     {
-        return $this->isNew;
+        return $this->isPersisted;
     }
 
-    public function setIsNew(bool $isNew): void
+    public function setIsPersisted(bool $isPersisted): void
     {
-        $this->isNew = $isNew;
+        $this->isPersisted = $isPersisted;
     }
 
     public function getCustomerComment(): ?string

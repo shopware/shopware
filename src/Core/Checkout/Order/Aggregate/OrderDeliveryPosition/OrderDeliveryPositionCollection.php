@@ -17,12 +17,12 @@ class OrderDeliveryPositionCollection extends EntityCollection
      */
     public function getOrderDeliveryIds(): array
     {
-        return $this->fmap(fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderDeliveryId());
+        return $this->fmap(static fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderDeliveryId());
     }
 
     public function filterByOrderDeliveryId(string $id): self
     {
-        return $this->filter(fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderDeliveryId() === $id);
+        return $this->filter(static fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderDeliveryId() === $id);
     }
 
     /**
@@ -30,18 +30,18 @@ class OrderDeliveryPositionCollection extends EntityCollection
      */
     public function getOrderLineItemIds(): array
     {
-        return $this->fmap(fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderLineItemId());
+        return $this->fmap(static fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderLineItemId());
     }
 
     public function filterByOrderLineItemId(string $id): self
     {
-        return $this->filter(fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderLineItemId() === $id);
+        return $this->filter(static fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderLineItemId() === $id);
     }
 
     public function getOrderLineItems(): OrderLineItemCollection
     {
         return new OrderLineItemCollection(
-            $this->fmap(fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderLineItem())
+            $this->fmap(static fn (OrderDeliveryPositionEntity $orderDeliveryPosition) => $orderDeliveryPosition->getOrderLineItem())
         );
     }
 

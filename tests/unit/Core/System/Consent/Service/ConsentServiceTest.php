@@ -214,7 +214,7 @@ class ConsentServiceTest extends TestCase
             ->expects($this->once())
             ->method('updateConsentState')
             ->with(
-                static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
+                static::callback(static fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::ACCEPTED,
                 'user-123'
@@ -314,7 +314,7 @@ class ConsentServiceTest extends TestCase
             ->expects($this->once())
             ->method('updateConsentState')
             ->with(
-                static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
+                static::callback(static fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::REVOKED,
                 'user-456'
@@ -384,7 +384,7 @@ class ConsentServiceTest extends TestCase
             ->expects($this->once())
             ->method('updateConsentState')
             ->with(
-                static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
+                static::callback(static fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::ACCEPTED,
                 'user-123'
@@ -425,7 +425,7 @@ class ConsentServiceTest extends TestCase
             ->expects($this->once())
             ->method('updateConsentState')
             ->with(
-                static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
+                static::callback(static fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::REVOKED,
                 'user-456'

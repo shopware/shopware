@@ -114,7 +114,7 @@ class ProductStreamProcessorTest extends TestCase
 
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function (ProductSliderStreamCriteriaEvent $event): ProductSliderStreamCriteriaEvent {
+            ->willReturnCallback(static function (ProductSliderStreamCriteriaEvent $event): ProductSliderStreamCriteriaEvent {
                 $event->criteria->addAssociation('manufacturer');
 
                 return $event;

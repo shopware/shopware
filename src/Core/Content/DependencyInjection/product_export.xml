@@ -104,6 +104,29 @@
             <tag name="shopware.product_export.validator"/>
         </service>
 
+        <service id="Shopware\Core\Content\ProductExport\Validator\JsonlValidator">
+            <tag name="shopware.product_export.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry">
+            <argument type="tagged_iterator" tag="shopware.product_export.provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Provider\ProductExportTemplateFileLoader"/>
+
+        <service id="Shopware\Core\Content\ProductExport\Provider\OpenAiProductExportProvider">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Provider\ProductExportTemplateFileLoader"/>
+            <tag name="shopware.product_export.provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportProvisioner">
+            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="product_stream.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry"/>
+        </service>
+
         <service id="Shopware\Core\Content\ProductExport\DataAbstractionLayer\ProductExportExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
         </service>
@@ -112,6 +135,16 @@
             <argument type="service" id="product_export.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
             <argument type="service" id="shopware.filesystem.private"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Subscriber\AgenticAiSalesChannelSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportProvisioner"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Subscriber\ProductExportProviderContextSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

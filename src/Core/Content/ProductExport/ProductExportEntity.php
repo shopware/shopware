@@ -19,6 +19,7 @@ class ProductExportEntity extends Entity
 
     final public const FILE_FORMAT_CSV = 'csv';
     final public const FILE_FORMAT_XML = 'xml';
+    final public const FILE_FORMAT_JSONL = 'jsonl';
 
     protected string $productStreamId;
 

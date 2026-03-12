@@ -109,6 +109,10 @@ class ExportController
                 $contentType = 'text/csv';
 
                 break;
+            case ProductExportEntity::FILE_FORMAT_JSONL:
+                $contentType = 'application/x-ndjson';
+
+                break;
             case ProductExportEntity::FILE_FORMAT_XML:
                 $contentType = 'text/xml';
 

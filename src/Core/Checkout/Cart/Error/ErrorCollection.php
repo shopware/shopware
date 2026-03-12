@@ -68,7 +68,7 @@ class ErrorCollection extends Collection
 
     public function getPersistent(): self
     {
-        return $this->filter(fn (Error $error) => $error->isPersistent());
+        return $this->filter(static fn (Error $error) => $error->isPersistent());
     }
 
     /**

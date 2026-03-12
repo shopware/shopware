@@ -100,7 +100,7 @@ class ThumbnailService
         if ($delete !== []) {
             $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
 
-            $delete = \array_values(\array_map(fn (string $id) => ['id' => $id], $delete));
+            $delete = \array_values(\array_map(static fn (string $id) => ['id' => $id], $delete));
 
             $this->thumbnailRepository->delete($delete, $context);
         }

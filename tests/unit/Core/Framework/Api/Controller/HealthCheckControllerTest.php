@@ -170,7 +170,7 @@ class HealthCheckControllerTest extends TestCase
 
         $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
         $tokenValidator->method('validateAuthorization')->willReturnCallback(
-            function (Request $request) use ($validBearer): void {
+            static function (Request $request) use ($validBearer): void {
                 // simplified mock of original implementation in src/Core/Framework/Api/OAuth/SymfonyBearerTokenValidator.php
                 if ($request->headers->has(HealthCheckController::HEADER_AUTHORIZATION) === false) {
                     throw OAuthServerException::accessDenied('Missing "Authorization" header');

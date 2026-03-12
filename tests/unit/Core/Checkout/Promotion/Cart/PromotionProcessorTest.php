@@ -52,7 +52,7 @@ class PromotionProcessorTest extends TestCase
         $promotionCalculatorMock->expects($this->once())
             ->method('calculate')
             ->with(
-                static::callback(function (LineItemCollection $data) {
+                static::callback(static function (LineItemCollection $data) {
                     static::assertTrue($data->has('B'));
                     static::assertTrue($data->get('B')->isShippingCostAware());
 

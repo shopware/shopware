@@ -19,6 +19,8 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
         liveQuantityUrlAttribute: 'data-live-quantity-url',
+        stockAdjustedTemplateSelector: '.js-quantity-stock-adjusted-template',
+        stockAdjustedAlertClass: 'quantity-stock-adjusted-alert',
     };
 
     init() {
@@ -218,6 +220,7 @@ export default class QuantitySelectorPlugin extends Plugin {
     /**
      * Apply fetched quantity limits to the input element.
      * Clamps the current value to the new constraints and dispatches a change event if needed.
+     * Shows a warning alert if the value was adjusted due to reduced stock.
      *
      * @param {{ minPurchase: number, purchaseSteps: number, maxPurchase: number }} limits
      * @private
@@ -242,6 +245,31 @@ export default class QuantitySelectorPlugin extends Plugin {
         if (steppedValue !== currentValue) {
             this._input.value = steppedValue;
             this._triggerChange();
+            this._showStockAdjustedAlert();
         }
+    }
+
+    /**
+     * Show a warning alert below the quantity selector when the value was adjusted to available stock.
+     * Removes any previously shown alert first.
+     *
+     * @private
+     */
+    _showStockAdjustedAlert() {
+        const template = this.el.closest('form')?.querySelector(this.options.stockAdjustedTemplateSelector);
+
+        if (!template) {
+            return;
+        }
+
+        const existingAlert = template.parentElement.querySelector(`.${this.options.stockAdjustedAlertClass}`);
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alert = template.content.firstElementChild.cloneNode(true);
+        alert.classList.add(this.options.stockAdjustedAlertClass);
+
+        template.insertAdjacentElement('afterend', alert);
     }
 }

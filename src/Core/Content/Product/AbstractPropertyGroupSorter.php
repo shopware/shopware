@@ -15,7 +15,7 @@ abstract class AbstractPropertyGroupSorter
     abstract public function getDecorated(): AbstractPropertyGroupSorter;
 
     /**
-     * @deprecated tag:v6.8.0 - Will become removed in v6.8.0. Use sortUsingLocaleCode() instead.
+     * @deprecated tag:v6.8.0 - Will be removed in v6.8.0. Use sortUsingLocaleCode() instead.
      *
      * @param EntityCollection<PropertyGroupOptionEntity|PartialEntity> $options
      */
@@ -31,7 +31,7 @@ abstract class AbstractPropertyGroupSorter
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             \sprintf(
-                'Method "sortUsingLocaleCode()" will be abstract in v6.8.0.0. Override it in %s, as the "sort()" method will be removed.',
+                'Method "sortUsingLocaleCode()" will become abstract in v6.8.0.0. Override it in %s, as the "sort()" method will be removed.',
                 static::class
             )
         );

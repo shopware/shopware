@@ -105,7 +105,7 @@ class AppRegistrationServiceTest extends TestCase
         static::assertSame($integration->getAccessKey(), $postBody['apiKey']);
 
         static::assertSame($_SERVER['APP_URL'], $postBody['shopUrl']);
-        static::assertSame($this->shopIdProvider->getShopId(), $postBody['shopId']);
+        static::assertSame($this->shopIdProvider->getShopId()->id, $postBody['shopId']);
 
         $json = \json_encode($postBody, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
@@ -197,7 +197,7 @@ class AppRegistrationServiceTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $appSecret = 'dont_tell';
-        $shopId = Uuid::randomHex();
+        $shopId = ShopId::v2(Uuid::randomHex());
         $appResponseBody = $this->buildAppResponse($manifest, $appSecret, $shopId);
 
         $this->appendNewResponse(new Response(200, [], $appResponseBody));
@@ -223,7 +223,7 @@ class AppRegistrationServiceTest extends TestCase
         $shopIdMock = $this->createMock(ShopIdProvider::class);
         $shopIdMock->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2($shopId), new FingerprintComparisonResult([], [], 75)));
+            ->willThrowException(new ShopIdChangeSuggestedException($shopId, new FingerprintComparisonResult([], [], 75)));
 
         $registrator = new AppRegistrationService(
             $handshakeFactory,
@@ -334,7 +334,7 @@ class AppRegistrationServiceTest extends TestCase
         $permissionPersister->updatePrivileges($permissions, $id, true, $context);
     }
 
-    private function buildAppResponse(Manifest $manifest, string $appSecret, ?string $shopId = null): string
+    private function buildAppResponse(Manifest $manifest, string $appSecret, ?ShopId $shopId = null): string
     {
         if (!$shopId) {
             $shopId = $this->shopIdProvider->getShopId();
@@ -347,7 +347,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $proof = \hash_hmac(
             'sha256',
-            $shopId . $this->shopUrl . $manifest->getMetadata()->getName(),
+            $shopId->id . $this->shopUrl . $manifest->getMetadata()->getName(),
             $secret
         );
 

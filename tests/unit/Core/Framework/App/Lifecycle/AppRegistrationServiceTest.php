@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -66,12 +67,15 @@ class AppRegistrationServiceTest extends TestCase
             )
         );
 
+        $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
+        $shopIdProviderMock->method('getShopId')->willReturn(ShopId::v2('shop-id'));
+
         $this->appRegistrationService = new AppRegistrationService(
             $this->handshakeFactoryMock,
             new Client(['handler' => $this->mockHandler]),
             $this->appRepositoryMock,
             'https://shopware.swag',
-            $this->createMock(ShopIdProvider::class),
+            $shopIdProviderMock,
             '6.5.2.0'
         );
     }

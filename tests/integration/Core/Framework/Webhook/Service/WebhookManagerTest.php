@@ -182,7 +182,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -481,7 +481,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -534,7 +534,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -684,7 +684,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -755,7 +755,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -805,7 +805,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -861,7 +861,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],

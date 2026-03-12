@@ -36,10 +36,10 @@ class ShopIdProvider implements ResetInterface
     /**
      * @throws ShopIdChangeSuggestedException
      */
-    public function getShopId(): string
+    public function getShopId(): ShopId
     {
         if ($this->shopId) {
-            return $this->shopId->id;
+            return $this->shopId;
         }
 
         $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
@@ -55,7 +55,7 @@ class ShopIdProvider implements ResetInterface
             $this->regenerateAndSetShopId($this->shopId->id);
         }
 
-        return $this->shopId->id;
+        return $this->shopId;
     }
 
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
@@ -95,8 +95,10 @@ class ShopIdProvider implements ResetInterface
             $oldShopId = null;
         }
 
-        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) $shopId, null, false);
+        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $shopId->toArray(), null, false);
         $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
+
+        $this->shopId = $shopId;
     }
 
     private function hasAppsRegisteredAtAppServers(): bool

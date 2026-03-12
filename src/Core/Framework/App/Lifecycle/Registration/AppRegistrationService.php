@@ -198,7 +198,7 @@ class AppRegistrationService
             'secretKey' => $secretAccessKey,
             'timestamp' => (string) (new \DateTime())->getTimestamp(),
             'shopUrl' => $this->shopUrl,
-            'shopId' => $shopId,
+            'shopId' => $shopId->id,
         ];
     }
 

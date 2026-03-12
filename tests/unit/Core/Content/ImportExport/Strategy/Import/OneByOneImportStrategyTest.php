@@ -58,7 +58,7 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects($this->once())->method('create')->willReturnCallback(
-            function () use ($writeResult) {
+            static function () use ($writeResult) {
                 static $counter = 0;
                 if ($counter++ === 0) {
                     throw new \Exception('Error');

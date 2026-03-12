@@ -44,7 +44,7 @@ class SalesChannelDomainUtilTest extends TestCase
 
         $util = $this->getUtil();
 
-        $result = $util->runAsSalesChannelRequest(function () {
+        $result = $util->runAsSalesChannelRequest(static function () {
             return new Result(
                 'test',
                 Status::OK,
@@ -64,7 +64,7 @@ class SalesChannelDomainUtilTest extends TestCase
     {
         $util = $this->getUtil();
 
-        $result = $util->runAsSalesChannelRequest(function () {
+        $result = $util->runAsSalesChannelRequest(static function () {
             return new Result(
                 'test',
                 Status::OK,
@@ -83,7 +83,7 @@ class SalesChannelDomainUtilTest extends TestCase
 
         $util = $this->getUtil();
 
-        $result = $util->runWhileTrustingAllHosts(function () {
+        $result = $util->runWhileTrustingAllHosts(static function () {
             // check that trusted hosts are empty during the callback
             static::assertSame([], Request::getTrustedHosts());
 

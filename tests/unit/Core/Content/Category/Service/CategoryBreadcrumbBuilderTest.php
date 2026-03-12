@@ -157,7 +157,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         $categoryRepositoryMock->expects($this->once())
             ->method('search')
-            ->willReturnCallback(function (Criteria $criteria): void {
+            ->willReturnCallback(static function (Criteria $criteria): void {
                 $levelSorting = array_values(array_filter(
                     $criteria->getSorting(),
                     static fn (FieldSorting $sorting) => $sorting->getField() === 'level'

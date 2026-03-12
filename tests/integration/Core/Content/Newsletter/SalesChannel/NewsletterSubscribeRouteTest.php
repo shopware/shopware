@@ -520,7 +520,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with first name' => [
             'Y http:/shopware.test',
             'Tran',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 
@@ -533,7 +533,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with last name' => [
             'Y',
             'Tran https:/shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 
@@ -546,7 +546,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with domain name *://' => [
             'Y http://shopware.test',
             'Tran https://shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(2, $response['errors']);
 
@@ -560,7 +560,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with domain name *:/' => [
             'Y http:/shopware.test',
             'Tran https:/shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(2, $response['errors']);
 

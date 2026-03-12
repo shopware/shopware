@@ -44,7 +44,7 @@ class BusinessEventCollector
 
         $result = $event->getCollection();
 
-        $result->sort(fn (BusinessEventDefinition $a, BusinessEventDefinition $b) => $a->getName() <=> $b->getName());
+        $result->sort(static fn (BusinessEventDefinition $a, BusinessEventDefinition $b) => $a->getName() <=> $b->getName());
 
         return $result;
     }

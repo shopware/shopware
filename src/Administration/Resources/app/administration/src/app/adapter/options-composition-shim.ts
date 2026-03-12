@@ -447,12 +447,10 @@ function createThisProxy(
                     return unwrapRef(previousState[prop]);
                 }
 
-                if (!prop.startsWith('_')) {
-                    console.warn(
-                        `[Options API Shim] Property "${prop}" not found in component state. ` +
-                            `This may indicate accessing private/unexposed state.`,
-                    );
-                }
+                console.warn(
+                    `[Options API Shim] Property "${prop}" not found in component state. ` +
+                        `This may indicate accessing private/unexposed state.`,
+                );
 
                 return undefined;
             },

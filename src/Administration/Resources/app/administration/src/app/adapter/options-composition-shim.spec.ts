@@ -653,7 +653,32 @@ describe('src/app/adapter/options-composition-shim', () => {
             consoleWarn.mockRestore();
         });
 
-        it('should not warn about Vue internal properties starting with $ or _', () => {
+        it('should not warn about Vue instance properties starting with $', () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            const previousState = {};
+
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
+                methods: {
+                    accessVueProperty() {
+                        return this.$route;
+                    },
+                },
+            });
+
+            const result = overrideFn(previousState, {}) as Record<string, any>;
+            result.accessVueProperty();
+
+            // Filter out the deprecation warning to check only property warnings
+            const propertyWarnings = consoleWarn.mock.calls.filter(
+                (call) => typeof call[0] === 'string' && call[0].includes('not found in component state'),
+            );
+            expect(propertyWarnings).toHaveLength(0);
+
+            consoleWarn.mockRestore();
+        });
+
+        it('should warn about unknown properties starting with _', () => {
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             const previousState = {};
@@ -661,12 +686,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     accessInternal() {
-                        const a = this._internal;
-                        const b = this.$route;
-                        return [
-                            a,
-                            b,
-                        ];
+                        return this._internal;
                     },
                 },
             });
@@ -678,7 +698,8 @@ describe('src/app/adapter/options-composition-shim', () => {
             const propertyWarnings = consoleWarn.mock.calls.filter(
                 (call) => typeof call[0] === 'string' && call[0].includes('not found in component state'),
             );
-            expect(propertyWarnings).toHaveLength(0);
+            expect(propertyWarnings).toHaveLength(1);
+            expect(propertyWarnings[0][0]).toContain('"_internal"');
 
             consoleWarn.mockRestore();
         });

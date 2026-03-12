@@ -266,7 +266,7 @@ The `this` proxy makes Options API code work transparently inside Composition AP
 4. **Injected values** — resolved via `inject`
 5. **Props** — current prop values
 6. **`previousState`** — the component's Composition API state (refs auto-unwrapped)
-7. If not found and the key does not start with `_`, a `console.warn` is logged.
+7. If not found, a `console.warn` is logged.
 
 Property **writes** resolve in this order:
 

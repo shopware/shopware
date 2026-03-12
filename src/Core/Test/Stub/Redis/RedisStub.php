@@ -50,6 +50,8 @@ class RedisStub extends \Redis
     public function set(string $key, mixed $value, mixed $options = null): \Redis|string|bool
     {
         $expire = 0;
+        $mustExist = false;
+        $mustNotExist = false;
 
         if (\is_array($options)) {
             if (isset($options['ex'])) {
@@ -59,8 +61,32 @@ class RedisStub extends \Redis
             if (isset($options['EX'])) {
                 $expire = time() + $options['EX'];
             }
+
+            foreach ($options as $option) {
+                if (!\is_string($option)) {
+                    continue;
+                }
+
+                $option = strtolower($option);
+
+                if ($option === 'xx') {
+                    $mustExist = true;
+                }
+
+                if ($option === 'nx') {
+                    $mustNotExist = true;
+                }
+            }
         } elseif (\is_int($options)) {
             $expire = time() + $options;
+        }
+
+        if ($mustExist && !\array_key_exists($key, $this->data)) {
+            return false;
+        }
+
+        if ($mustNotExist && \array_key_exists($key, $this->data)) {
+            return false;
         }
 
         $this->data[$key] = ['value' => $value, 'expire' => $expire];

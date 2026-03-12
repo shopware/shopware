@@ -103,6 +103,11 @@ But it still dispatched the `CategoryIndexingMessage`, even though all relevant 
 This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
 Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
 
+### Existing cart recalculations no longer recreate deleted carts
+
+When an existing cart is recalculated, Shopware now uses the cart's persisted state to avoid recreating carts that were already deleted.
+This prevents race conditions where a concurrent request, such as placing an order, deletes the cart and a stale recalculation writes it back afterwards.
+
 ### Deprecation of unused `TemplateGroup` class
 
 The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.

@@ -208,7 +208,7 @@ function resolveInject(injectConfig: ComponentConfig['inject']): ComponentState 
                 } else if (spec && typeof spec === 'object') {
                     // { localKey: { from: 'provideKey', default: fallback } }
                     const from = spec.from ?? localKey;
-                    const hasDefault = Object.prototype.hasOwnProperty.call(spec, 'default');
+                    const hasDefault = Object.hasOwn(spec, 'default');
                     resolved[localKey] = hasDefault ? vueInject(from, spec.default) : vueInject(from);
                 } else {
                     resolved[localKey] = vueInject(localKey);
@@ -239,7 +239,7 @@ function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): Com
 
     if (Array.isArray(incoming)) {
         incoming.forEach((key: string) => {
-            if (!Object.prototype.hasOwnProperty.call(normalized, key)) {
+            if (!Object.hasOwn(normalized, key)) {
                 normalized[key] = key;
             }
         });
@@ -250,7 +250,7 @@ function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): Com
                 key,
                 val,
             ]) => {
-                if (!Object.prototype.hasOwnProperty.call(normalized, key)) {
+                if (!Object.hasOwn(normalized, key)) {
                     normalized[key] = val;
                 }
             },
@@ -433,12 +433,12 @@ function createThisProxy(
                 }
 
                 // Check injected values (from Options API inject config)
-                if (Object.prototype.hasOwnProperty.call(injectedValues, prop)) {
+                if (Object.hasOwn(injectedValues, prop)) {
                     return injectedValues[prop];
                 }
 
                 // Check props
-                if (Object.prototype.hasOwnProperty.call(props, prop)) {
+                if (Object.hasOwn(props, prop)) {
                     return props[prop];
                 }
 
@@ -477,7 +477,7 @@ function createThisProxy(
                     return false;
                 }
 
-                if (Object.prototype.hasOwnProperty.call(props, prop)) {
+                if (Object.hasOwn(props, prop)) {
                     console.error(
                         `[Options API Shim] Cannot set property "${prop}" - it is a component prop and is read-only.`,
                     );

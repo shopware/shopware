@@ -68,7 +68,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('prepare')
-            ->with($this->stringContains('INSERT INTO `cart`'))
+            ->with(static::stringContains('INSERT INTO `cart`'))
             ->willReturn($statement);
 
         $eventDispatcher = new CollectingEventDispatcher();
@@ -97,7 +97,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('prepare')
-            ->with($this->stringContains('UPDATE `cart`'))
+            ->with(static::stringContains('UPDATE `cart`'))
             ->willReturn($statement);
 
         $eventDispatcher = new CollectingEventDispatcher();

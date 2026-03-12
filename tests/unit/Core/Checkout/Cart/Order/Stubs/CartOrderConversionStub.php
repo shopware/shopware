@@ -241,7 +241,7 @@ final class CartOrderConversionStub
             'source' => null,
             'hash' => null,
             'states' => [],
-            'isPersisted' => false,
+            'persisted' => false,
         ];
     }
 

@@ -209,7 +209,7 @@ class HttpCacheIntegrationTest extends TestCase
         $route = '/storefront/script/custom-cache-config';
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, function (ResponseEvent $event) use ($route): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, static function (ResponseEvent $event) use ($route): void {
             if ($event->getRequest()->getPathInfo() !== $route) {
                 return;
             }

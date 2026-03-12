@@ -56,7 +56,7 @@ class RulePayloadUpdaterTest extends TestCase
 
         $statement->expects($matcher)
             ->method('bindValue')
-            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
                 $expected = $params[$matcher->numberOfInvocations() - 1];
                 self::assertSame($expected[0], $key);
                 self::assertSame($expected[1], $value);

@@ -15,6 +15,7 @@ type AnalyticsEvents = {
         to: RouteLocation;
     };
     programmatic: {
+        eventName: string;
         [key: string]: TrackableType;
     };
     identify: {

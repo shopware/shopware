@@ -226,7 +226,7 @@ class EntityForeignKeyResolver
             $alias .= '.mapping';
         }
 
-        $primaryKeys = $association->getReferenceDefinition()->getPrimaryKeys()->filter(function (Field $field) {
+        $primaryKeys = $association->getReferenceDefinition()->getPrimaryKeys()->filter(static function (Field $field) {
             if ($field instanceof ReferenceVersionField || $field instanceof VersionField) {
                 return false;
             }

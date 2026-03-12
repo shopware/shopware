@@ -9,14 +9,38 @@ It can be found in the state machine state history modal (state change modal) on
 
 ### [Experimental] Use OpenSearch for Admin API searches
 
-When the data in your store grows larger the administration might become slower, especially when searching for entities in lists. 
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists.
 This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
 Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
 To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
 
 ### Online revocation request form
-Customers can now conveniently submit revocation requests through an online form. 
+Customers can now conveniently submit revocation requests through an online form.
 Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
+### External media thumbnail support
+
+External media entities can now have external thumbnail URLs attached to them, which is useful for CDNs that provide pre-generated thumbnails alongside the main media file.
+
+Two new API endpoints have been added:
+- `POST /api/_action/media/{id}/external-thumbnails` - Add thumbnails to existing external media
+- `DELETE /api/_action/media/{id}/external-thumbnails` - Remove all external thumbnails from media
+
+Both endpoints require the target media entity to be external (i.e. its path must be an HTTP/HTTPS URL). Attempting to call them on regular file-based media returns an error.
+
+When creating external media via `POST /api/_action/media/external-link`, you can now provide an optional `thumbnails` array directly in the request body:
+
+```json
+{
+  "url": "https://cdn.example.com/image.jpg",
+  "thumbnails": [
+    { "url": "https://cdn.example.com/image-200x200.jpg", "width": 200, "height": 200 },
+    { "url": "https://cdn.example.com/image-400x400.jpg", "width": 400, "height": 400 }
+  ]
+}
+```
+
+The same `thumbnails` payload shape is accepted by `POST /api/_action/media/{id}/external-thumbnails`.
 
 ## API
 
@@ -42,15 +66,53 @@ The Store API newsletter routes now return `200 OK` with a response body instead
 | `/store-api/newsletter/confirm` | `{"success": true}`                                            |
 | `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
 
+### OpenAPI enums via DAL `Choice` flag
+
+DAL fields can now declare a finite set of allowed values using the `Choice` flag.
+This information is used to enrich the generated OpenAPI schema with `enum` values for better API documentation and client generation.
+
+By default, `Choice` is non-strict and does not affect write validation.
+If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
+
 ## Core
+
+### Reduced HTTP cache invalidation on system config changes
+
+`SystemConfigService::set()`, `setMultiple()`, and `delete()` now accept an optional `$silent` parameter. When `silent=true`, the internal config cache is still cleared immediately, but the broad HTTP cache tag `system.config-{salesChannelId}` is not invalidated.
+
+This prevents "invalidation storms" where writing internal config values (e.g. timestamps, license keys, store secrets) would wipe big amount of HTTP-cached pages.
+
+Internal Shopware call sites that write non-storefront config values now pass `silent=true`. The `ConfigSet` CLI command accepts `--silent`, and the Admin API `POST /_action/system-config` and `POST /_action/system-config/batch` accept a `?silent` query parameter.
+
+In v6.8.0.0, `silent` parameter in SystemConfigService methods will default to `true`. Clients should pass value explicitly to prepare for changes.
+
+### Scheduled cleanup of expired customer recovery records
+
+A new scheduled task `customer.cleanup_customer_recovery` has been added that automatically removes expired customer recovery records from the database on a daily basis.
+
+Customer recovery records (password reset tokens) expire after 2 hours. Previously these records were never removed, causing the `customer_recovery` table to grow indefinitely. The new task deletes all records older than 48 hours.
 
 ### Inheritance added to product main categories
 
 Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
 
+### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
+
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed. 
+But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
+This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
+Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
+
 ### Deprecation of unused `TemplateGroup` class
 
 The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
+
+### New criteria events for product slider CMS element
+
+Two new events are dispatched when the product slider CMS element resolves its product criteria, allowing subscribers to modify the criteria:
+
+- `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
+- `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
 
 ## Administration
 
@@ -271,6 +333,14 @@ This is done by changing the DOM within the `aria-live` region after a short del
 ### Fixed custom headers for app flow action webhooks in async mode
 
 Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
+
+### New webhook event: `app.system_heartbeat`
+
+A new hookable event `app.system_heartbeat` was added to indicate that a Shopware instance is up and running.
+This gives app developers a lightweight, platform-native heartbeat signal they can use for operational monitoring or connectivity checks without relying on custom polling.
+
+The heartbeat is emitted by a recurrent scheduled task on a weekly basis, so apps should treat it as a periodic liveness signal, not as a strict scheduling mechanism or real-time telemetry signal.
+No additional ACL privileges are required for this event.
 
 ## Hosting & Configuration
 

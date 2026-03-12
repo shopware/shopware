@@ -174,7 +174,7 @@ class ProductSerializerTest extends TestCase
         );
         $mediaService->expects($this->any())
             ->method('fetchFile')
-            ->willReturnCallback(function (Request $request) use ($expectedMediaFile): MediaFile {
+            ->willReturnCallback(static function (Request $request) use ($expectedMediaFile): MediaFile {
                 if ($request->query->get('url') === 'http://172.16.11.80/shopware-logo.png') {
                     return $expectedMediaFile;
                 }

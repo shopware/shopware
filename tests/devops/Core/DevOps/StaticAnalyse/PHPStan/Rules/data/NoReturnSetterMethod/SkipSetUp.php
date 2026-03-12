@@ -7,12 +7,12 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoR
  */
 final class SkipSetUp
 {
-    protected function setUp()
+    private function setUp()
     {
         return 100;
     }
 
-    protected function setUpMyObject()
+    private function setUpMyObject()
     {
         return 100;
     }

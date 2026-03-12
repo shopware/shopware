@@ -1,13 +1,13 @@
 /**
  * @sw-package framework
  */
-import type { ConsentEventName, TrackableType } from './events';
+import type { ConsentEventName, ConsentEvents, TrackableType } from './events';
 
 type TrackClient = {
     track: (eventName: string, eventProperties?: Record<string, TrackableType>) => void;
 };
 
-const ANONYMOUS_ALLOWED_PROPERTIES: Record<ConsentEventName, ReadonlyArray<string>> = {
+const ANONYMOUS_ALLOWED_PROPERTIES: { [Property in keyof ConsentEvents]: ReadonlyArray<keyof ConsentEvents[Property]> } = {
     consent_modal_viewed: ['option'],
     consent_decision_made: [
         'option',

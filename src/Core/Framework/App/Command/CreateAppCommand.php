@@ -106,7 +106,7 @@ class CreateAppCommand extends Command
     private function gatherDetails(array $propertyDefinitions, ShopwareStyle $io, InputInterface $input): array
     {
         return array_map(
-            function (array $property) use ($io, $input) {
+            static function (array $property) use ($io, $input) {
                 if ($input->getArgument($property['name']) !== null) {
                     return $input->getArgument($property['name']);
                 }
@@ -165,7 +165,7 @@ class CreateAppCommand extends Command
                     '/^[A-Za-z]\w{3,}$/',
                     'The app name is too short (min 4 characters), contains invalid characters'
                 ),
-                'normaliser' => fn (string $name): string => u($name)->replace('_', ' ')->camel()->title()->toString(),
+                'normaliser' => static fn (string $name): string => u($name)->replace('_', ' ')->camel()->title()->toString(),
             ],
             [
                 'name' => 'label',
@@ -221,7 +221,7 @@ class CreateAppCommand extends Command
         ];
 
         return array_combine(
-            array_map(fn (array $property) => $property['name'], $properties),
+            array_map(static fn (array $property) => $property['name'], $properties),
             $properties
         );
     }
@@ -237,7 +237,7 @@ class CreateAppCommand extends Command
         return array_combine(
             array_keys($details),
             array_map(
-                fn (string $propertyName, string $value) => isset($propertyDefinitions[$propertyName]['normaliser'])
+                static fn (string $propertyName, string $value) => isset($propertyDefinitions[$propertyName]['normaliser'])
                     ? $propertyDefinitions[$propertyName]['normaliser']($value)
                     : $value,
                 array_keys($details),
@@ -341,7 +341,7 @@ class CreateAppCommand extends Command
     private function replaceTemplateValues(string $manifestTemplate, array $details): string
     {
         return str_replace(
-            array_map(fn ($param) => \sprintf('{{%s}}', $param), array_keys($details)),
+            array_map(static fn ($param) => \sprintf('{{%s}}', $param), array_keys($details)),
             array_values($details),
             $manifestTemplate
         );

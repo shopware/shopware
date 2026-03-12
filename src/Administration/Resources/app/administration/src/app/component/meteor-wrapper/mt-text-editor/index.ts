@@ -84,5 +84,15 @@ export default Shopware.Component.wrapComponentConfig({
         onUpdateModelValue(value: string) {
             this.$emit('update:modelValue', value);
         },
+
+        validate(): Promise<boolean> {
+            const original = this.$refs.mtTextEditorOriginal as { validate?: () => Promise<boolean> } | undefined;
+
+            if (!original?.validate) {
+                return Promise.resolve(true);
+            }
+
+            return original.validate();
+        },
     },
 });

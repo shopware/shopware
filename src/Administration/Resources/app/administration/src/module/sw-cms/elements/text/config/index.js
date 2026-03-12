@@ -76,6 +76,16 @@ export default {
             this.initElementConfig('text');
         },
 
+        async handleUpdateContent() {
+            const editor = this.$refs.swCmsTextEditor;
+
+            if (!editor?.validate) {
+                return true;
+            }
+
+            return editor.validate();
+        },
+
         onBlur(content) {
             this.emitChanges(content);
         },

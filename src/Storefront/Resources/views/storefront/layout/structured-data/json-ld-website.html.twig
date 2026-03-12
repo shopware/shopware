@@ -1,0 +1,34 @@
+{% block layout_structured_data_website %}
+    {#
+        WebSite schema enables the Google Sitelinks Searchbox, showing an inline search field
+        in search results. The urlTemplate must contain the exact query parameter name the
+        storefront search route expects.
+    #}
+    {% set websiteData = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'url': app.request.schemeAndHttpHost ~ '/',
+        'potentialAction': {
+            '@type': 'SearchAction',
+            'target': {
+                '@type': 'EntryPoint',
+                'urlTemplate': url('frontend.search.page') ~ '?search={search_term_string}'
+            },
+            'query-input': 'required name=search_term_string'
+        }
+    } %}
+
+    {#
+        JSON_HEX_TAG and JSON_HEX_AMP are intentional security flags for embedding JSON in an HTML <script> block.
+        They encode < as \u003C, > as \u003E, and & as \u0026, which prevents a value like "</script>" from
+        closing the script tag and injecting arbitrary HTML (XSS). |escape('js') is not suitable here because
+        it escapes double quotes, which would break the JSON structure entirely.
+    #}
+    {% set jsonFlags = constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') %}
+
+    {% block layout_structured_data_website_script %}
+        <script type="application/ld+json">
+        {{ websiteData|json_encode(jsonFlags)|raw }}
+        </script>
+    {% endblock %}
+{% endblock %}

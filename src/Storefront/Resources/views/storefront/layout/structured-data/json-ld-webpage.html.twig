@@ -1,0 +1,57 @@
+{% block layout_structured_data_webpage %}
+    {% set metaInformation = page.metaInformation %}
+    {% set basicConfig = config('core.basicInformation') %}
+    {% set maxLength = config('seo.descriptionMaxLength') %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 255, '…') %}
+    {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
+    {% set webPageType = jsonLdWebPageType is defined ? jsonLdWebPageType : 'WebPage' %}
+    {% set pageUrl = (page.metaInformation.canonical is defined and page.metaInformation.canonical) ? page.metaInformation.canonical : app.request.uri %}
+
+    {% set webPageData = {
+        '@context': 'https://schema.org',
+        '@type': webPageType,
+        'name': metaTitle,
+        'description': metaDescription,
+        'url': pageUrl,
+        'inLanguage': context.languageInfo.localeCode,
+        'isFamilyFriendly': basicConfig.familyFriendly ? true : false,
+        'copyrightHolder': {
+            '@type': 'Organization',
+            'name': basicConfig.shopName
+        }
+    } %}
+
+    {% if metaInformation.copyrightYear %}
+        {% set webPageData = webPageData|merge({'copyrightYear': metaInformation.copyrightYear|striptags}) %}
+    {% endif %}
+
+    {# Shop logo as the representative image for all pages #}
+    {% set logoUrl = theme_config('sw-logo-desktop') %}
+    {% if logoUrl %}
+        {% set webPageData = webPageData|merge({'image': logoUrl}) %}
+    {% endif %}
+
+    {#
+        primaryImageOfPage: the canonical primary image for this page.
+        On product pages this is the cover image. On all other pages the shop logo serves as fallback.
+    #}
+    {% if page.product is defined and page.product and page.product.cover and page.product.cover.media and page.product.cover.media.url %}
+        {% set webPageData = webPageData|merge({'primaryImageOfPage': page.product.cover.media.url}) %}
+    {% elseif logoUrl %}
+        {% set webPageData = webPageData|merge({'primaryImageOfPage': logoUrl}) %}
+    {% endif %}
+
+    {#
+        JSON_HEX_TAG and JSON_HEX_AMP are intentional security flags for embedding JSON in an HTML <script> block.
+        They encode < as \u003C, > as \u003E, and & as \u0026, which prevents a value like "</script>" from
+        closing the script tag and injecting arbitrary HTML (XSS). |escape('js') is not suitable here because
+        it escapes double quotes, which would break the JSON structure entirely.
+    #}
+    {% set jsonFlags = constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') %}
+
+    {% block layout_structured_data_webpage_script %}
+        <script type="application/ld+json">
+        {{ webPageData|json_encode(jsonFlags)|raw }}
+        </script>
+    {% endblock %}
+{% endblock %}

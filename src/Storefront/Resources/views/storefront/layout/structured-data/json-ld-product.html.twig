@@ -1,0 +1,272 @@
+{% block page_product_detail_json_ld %}
+    {# Determine availability following the same logic as delivery-information.html.twig #}
+    {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
+    {% set isDigitalProduct = page.product.type === digitalType %}
+
+    {% if not page.product.active %}
+        {% set availability = 'https://schema.org/LimitedAvailability' %}
+    {% elseif page.product.releaseDate and page.product.releaseDate|date('U') > 'now'|date('U') %}
+        {% set availability = 'https://schema.org/PreOrder' %}
+    {% elseif (page.product.stock >= page.product.minPurchase or (isDigitalProduct and not page.product.isCloseout)) and page.product.deliveryTime %}
+        {% set availability = 'https://schema.org/InStock' %}
+    {% elseif page.product.isCloseout and page.product.stock < page.product.minPurchase %}
+        {% set availability = 'https://schema.org/OutOfStock' %}
+    {% elseif page.product.stock < page.product.minPurchase and page.product.deliveryTime and page.product.restockTime %}
+        {% set availability = 'https://schema.org/LimitedAvailability' %}
+    {% else %}
+        {% set availability = 'https://schema.org/InStock' %}
+    {% endif %}
+
+    {# Separate media into images and videos; both need distinct schema types #}
+    {% set imageUrls = [] %}
+    {% set videoItems = [] %}
+    {% if page.product.media %}
+        {% for productMedia in page.product.media %}
+            {% if productMedia.media and productMedia.media.url %}
+                {% if productMedia.media.mediaType and productMedia.media.mediaType.name == 'VIDEO' %}
+                    {#
+                        thumbnailUrl is required by Google for VideoObject. Use the media's own
+                        thumbnail if available, otherwise fall back to the product cover image.
+                        Skip the video entirely if no thumbnail can be resolved.
+                    #}
+                    {% set thumbnailUrl = null %}
+                    {% if productMedia.media.thumbnails is not empty %}
+                        {% set thumbnailUrl = productMedia.media.thumbnails.first.url %}
+                    {% elseif page.product.cover and page.product.cover.media and page.product.cover.media.url %}
+                        {% set thumbnailUrl = page.product.cover.media.url %}
+                    {% endif %}
+
+                    {% if thumbnailUrl %}
+                        {% set videoItem = {
+                            '@type': 'VideoObject',
+                            'name': productMedia.media.translated.title ?? productMedia.media.fileName,
+                            'contentUrl': productMedia.media.url,
+                            'thumbnailUrl': thumbnailUrl,
+                            'uploadDate': productMedia.media.createdAt|format_date(pattern='Y-MM-dd')
+                        } %}
+                        {% if productMedia.media.translated.alt %}
+                            {% set videoItem = videoItem|merge({'description': productMedia.media.translated.alt}) %}
+                        {% endif %}
+                        {% set videoItems = videoItems|merge([videoItem]) %}
+                    {% endif %}
+                {% else %}
+                    {% set imageUrls = imageUrls|merge([productMedia.media.url]) %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if imageUrls|length == 0 and page.product.cover and page.product.cover.media and page.product.cover.media.url %}
+        {% set imageUrls = [page.product.cover.media.url] %}
+    {% endif %}
+
+    {# Build offers data #}
+    {% set productUrl = seoUrl('frontend.detail.page', { productId: page.product.id }) %}
+    {% set sellerData = {
+        '@type': 'Organization',
+        'name': config('core.basicInformation.shopName')
+    } %}
+
+    {% if page.product.calculatedPrices|length > 1 %}
+        {% set lowestPrice = false %}
+        {% set highestPrice = false %}
+        {% for price in page.product.calculatedPrices %}
+            {% if lowestPrice is same as(false) or price.unitPrice < lowestPrice %}
+                {% set lowestPrice = price.unitPrice %}
+            {% endif %}
+            {% if highestPrice is same as(false) or price.unitPrice > highestPrice %}
+                {% set highestPrice = price.unitPrice %}
+            {% endif %}
+        {% endfor %}
+
+        {% set offersData = {
+            '@type': 'AggregateOffer',
+            'url': productUrl,
+            'priceCurrency': context.currency.isoCode,
+            'lowPrice': lowestPrice,
+            'highPrice': highestPrice,
+            'offerCount': page.product.calculatedPrices|length,
+            'availability': availability,
+            'itemCondition': 'https://schema.org/NewCondition',
+            'seller': sellerData
+        } %}
+    {% else %}
+        {% set calculatedPrice = page.product.calculatedPrice %}
+        {% if page.product.calculatedPrices|length == 1 %}
+            {% set calculatedPrice = page.product.calculatedPrices.first %}
+        {% endif %}
+
+        {% set offersData = {
+            '@type': 'Offer',
+            'url': productUrl,
+            'priceCurrency': context.currency.isoCode,
+            'price': calculatedPrice.unitPrice,
+            'availability': availability,
+            'itemCondition': 'https://schema.org/NewCondition',
+            'seller': sellerData
+        } %}
+
+        {% if page.product.deliveryTime %}
+            {% set offersData = offersData|merge({
+                'shippingDetails': {
+                    '@type': 'OfferShippingDetails',
+                    'deliveryTime': {
+                        '@type': 'ShippingDeliveryTime',
+                        'handlingTime': {
+                            '@type': 'QuantitativeValue',
+                            'minValue': page.product.deliveryTime.min,
+                            'maxValue': page.product.deliveryTime.max,
+                            'unitCode': 'DAY'
+                        }
+                    }
+                }
+            }) %}
+        {% endif %}
+    {% endif %}
+
+    {# Build main product data structure #}
+    {% set productData = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        'name': page.product.translated.name,
+        'sku': page.product.productNumber,
+        'productID': page.product.id,
+        'url': productUrl,
+        'offers': offersData
+    } %}
+
+    {% if page.product.translated.description %}
+        {% set productData = productData|merge({'description': page.product.translated.description|striptags}) %}
+    {% endif %}
+
+    {% if imageUrls|length > 0 %}
+        {% set productData = productData|merge({'image': imageUrls}) %}
+    {% endif %}
+
+    {% if videoItems|length > 0 %}
+        {% set productData = productData|merge({'video': videoItems}) %}
+    {% endif %}
+
+    {% if page.product.manufacturer %}
+        {% set productData = productData|merge({
+            'brand': {
+                '@type': 'Brand',
+                'name': page.product.manufacturer.translated.name
+            }
+        }) %}
+    {% endif %}
+
+    {% if page.product.ean %}
+        {% set productData = productData|merge({'gtin13': page.product.ean}) %}
+    {% endif %}
+
+    {% if page.product.manufacturerNumber %}
+        {% set productData = productData|merge({'mpn': page.product.manufacturerNumber}) %}
+    {% endif %}
+
+    {% if page.product.releaseDate %}
+        {% set productData = productData|merge({'releaseDate': page.product.releaseDate|format_date(pattern='Y-MM-dd')}) %}
+    {% endif %}
+
+    {# Dimensions as QuantitativeValue with unitText #}
+    {% if page.product.measurements.type('weight') %}
+        {% set weightValue = page.product.measurements.type('weight').value %}
+        {% set weightUnit = page.product.measurements.type('weight').unit %}
+    {% else %}
+        {% set weightValue = page.product.weight %}
+        {% set weightUnit = 'kg' %}
+    {% endif %}
+    {% if weightValue and weightValue > 0 %}
+        {% set productData = productData|merge({'weight': {'@type': 'QuantitativeValue', 'value': weightValue, 'unitText': weightUnit}}) %}
+    {% endif %}
+
+    {% if page.product.measurements.type('height') %}
+        {% set heightValue = page.product.measurements.type('height').value %}
+        {% set heightUnit = page.product.measurements.type('height').unit %}
+    {% else %}
+        {% set heightValue = page.product.height %}
+        {% set heightUnit = 'mm' %}
+    {% endif %}
+    {% if heightValue and heightValue > 0 %}
+        {% set productData = productData|merge({'height': {'@type': 'QuantitativeValue', 'value': heightValue, 'unitText': heightUnit}}) %}
+    {% endif %}
+
+    {% if page.product.measurements.type('width') %}
+        {% set widthValue = page.product.measurements.type('width').value %}
+        {% set widthUnit = page.product.measurements.type('width').unit %}
+    {% else %}
+        {% set widthValue = page.product.width %}
+        {% set widthUnit = 'mm' %}
+    {% endif %}
+    {% if widthValue and widthValue > 0 %}
+        {% set productData = productData|merge({'width': {'@type': 'QuantitativeValue', 'value': widthValue, 'unitText': widthUnit}}) %}
+    {% endif %}
+
+    {% if page.product.measurements.type('length') %}
+        {% set lengthValue = page.product.measurements.type('length').value %}
+        {% set lengthUnit = page.product.measurements.type('length').unit %}
+    {% else %}
+        {% set lengthValue = page.product.length %}
+        {% set lengthUnit = 'mm' %}
+    {% endif %}
+    {% if lengthValue and lengthValue > 0 %}
+        {% set productData = productData|merge({'depth': {'@type': 'QuantitativeValue', 'value': lengthValue, 'unitText': lengthUnit}}) %}
+    {% endif %}
+
+    {% if page.reviewData %}
+        {% set reviewData = page.reviewData %}
+        {% set reviewCount = reviewData.matrix.totalReviewCount %}
+
+        {% if page.product.ratingAverage and page.product.ratingAverage > 0 and reviewCount > 0 %}
+            {% set productData = productData|merge({
+                'aggregateRating': {
+                    '@type': 'AggregateRating',
+                    'ratingValue': page.product.ratingAverage,
+                    'ratingCount': reviewCount,
+                    'bestRating': 5
+                }
+            }) %}
+        {% endif %}
+
+        {% set reviewItems = [] %}
+        {% for review in reviewData %}
+            {% set reviewItem = {
+                '@type': 'Review',
+                'author': {'@type': 'Person', 'name': review.externalUser},
+                'datePublished': review.createdAt|format_date(pattern='Y-MM-dd'),
+                'reviewRating': {
+                    '@type': 'Rating',
+                    'ratingValue': review.points,
+                    'bestRating': 5
+                }
+            } %}
+            {% if review.title %}
+                {% set reviewItem = reviewItem|merge({'name': review.title}) %}
+            {% endif %}
+            {% if review.content %}
+                {% set reviewItem = reviewItem|merge({'reviewBody': review.content|striptags}) %}
+            {% endif %}
+            {% if review.language and review.language.translationCode %}
+                {% set reviewItem = reviewItem|merge({'inLanguage': review.language.translationCode.code}) %}
+            {% endif %}
+            {% set reviewItems = reviewItems|merge([reviewItem]) %}
+        {% endfor %}
+
+        {% if reviewItems|length > 0 %}
+            {% set productData = productData|merge({'review': reviewItems}) %}
+        {% endif %}
+    {% endif %}
+
+    {#
+        JSON_HEX_TAG and JSON_HEX_AMP are intentional security flags for embedding JSON in an HTML <script> block.
+        They encode < as \u003C, > as \u003E, and & as \u0026, which prevents a value like "</script>" from
+        closing the script tag and injecting arbitrary HTML (XSS). |escape('js') is not suitable here because
+        it escapes double quotes, which would break the JSON structure entirely.
+    #}
+    {% set jsonFlags = constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') %}
+
+    {% block page_product_detail_json_ld_script %}
+        <script type="application/ld+json">
+        {{ productData|json_encode(jsonFlags)|raw }}
+        </script>
+    {% endblock %}
+{% endblock %}

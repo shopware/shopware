@@ -1,0 +1,42 @@
+{% block layout_structured_data_breadcrumb %}
+    {% if category is defined and category %}
+        {% set breadcrumbItems = sw_breadcrumb_full(category, context) %}
+    {% elseif categoryId is defined and categoryId %}
+        {% set breadcrumbItems = sw_breadcrumb_full_by_id(categoryId, context) %}
+    {% endif %}
+
+    {% if breadcrumbItems is defined and breadcrumbItems|length > 0 %}
+        {% set itemListElement = [] %}
+        {% for breadcrumbCategory in breadcrumbItems %}
+            {% set listItem = {
+                '@type': 'ListItem',
+                'position': loop.index,
+                'name': breadcrumbCategory.translated.name
+            } %}
+            {% if breadcrumbCategory.seoUrl %}
+                {% set listItem = listItem|merge({'item': breadcrumbCategory.seoUrl}) %}
+            {% endif %}
+            {% set itemListElement = itemListElement|merge([listItem]) %}
+        {% endfor %}
+
+        {% set breadcrumbData = {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            'itemListElement': itemListElement
+        } %}
+
+        {#
+            JSON_HEX_TAG and JSON_HEX_AMP are intentional security flags for embedding JSON in an HTML <script> block.
+            They encode < as \u003C, > as \u003E, and & as \u0026, which prevents a value like "</script>" from
+            closing the script tag and injecting arbitrary HTML (XSS). |escape('js') is not suitable here because
+            it escapes double quotes, which would break the JSON structure entirely.
+        #}
+        {% set jsonFlags = constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') %}
+
+        {% block layout_structured_data_breadcrumb_script %}
+            <script type="application/ld+json">
+            {{ breadcrumbData|json_encode(jsonFlags)|raw }}
+            </script>
+        {% endblock %}
+    {% endif %}
+{% endblock %}

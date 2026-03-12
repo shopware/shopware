@@ -1,0 +1,35 @@
+{% block layout_structured_data_organization %}
+    {% set basicConfig = config('core.basicInformation') %}
+
+    {% set orgData = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        'name': basicConfig.shopName,
+        'url': app.request.schemeAndHttpHost ~ '/'
+    } %}
+
+    {# Google requires logo to be an ImageObject with a url property #}
+    {% set logoUrl = theme_config('sw-logo-desktop') %}
+    {% if logoUrl %}
+        {% set orgData = orgData|merge({
+            'logo': {
+                '@type': 'ImageObject',
+                'url': logoUrl
+            }
+        }) %}
+    {% endif %}
+
+    {#
+        JSON_HEX_TAG and JSON_HEX_AMP are intentional security flags for embedding JSON in an HTML <script> block.
+        They encode < as \u003C, > as \u003E, and & as \u0026, which prevents a value like "</script>" from
+        closing the script tag and injecting arbitrary HTML (XSS). |escape('js') is not suitable here because
+        it escapes double quotes, which would break the JSON structure entirely.
+    #}
+    {% set jsonFlags = constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') %}
+
+    {% block layout_structured_data_organization_script %}
+        <script type="application/ld+json">
+        {{ orgData|json_encode(jsonFlags)|raw }}
+        </script>
+    {% endblock %}
+{% endblock %}

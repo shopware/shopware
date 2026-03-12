@@ -20,11 +20,16 @@ use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -58,11 +63,105 @@ class ProductPageLoaderTest extends TestCase
         static::assertSame($reviews, json_decode($slot, true, 512, \JSON_THROW_ON_ERROR));
     }
 
+    public function testItLoadsReviewDataForJsonLd(): void
+    {
+        $productId = Uuid::randomHex();
+        $request = new Request([], [], ['productId' => $productId]);
+        $salesChannelContext = $this->getSalesChannelContext();
+
+        $review = new ProductReviewEntity();
+        $review->setId(Uuid::randomHex());
+        $review->setTitle('Great product');
+        $review->setContent('Really changed my life');
+        $review->setPoints(5);
+        $review->setStatus(true);
+
+        $reviewCollection = new ProductReviewCollection([$review]);
+
+        $entityResult = new EntitySearchResult(
+            ProductReviewDefinition::ENTITY_NAME,
+            1,
+            $reviewCollection,
+            new AggregationResultCollection([
+                new TermsResult('ratingMatrix', []),
+            ]),
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $reviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
+        $reviewRouteMock
+            ->method('load')
+            ->willReturn(new ProductReviewRouteResponse($entityResult));
+
+        $productPageLoader = $this->getProductPageLoaderWithProduct(
+            $productId,
+            $this->getCmsSlotConfig(),
+            $request,
+            $salesChannelContext,
+            $reviewRouteMock
+        );
+
+        $page = $productPageLoader->load($request, $salesChannelContext);
+
+        $reviewData = $page->getReviewData();
+        static::assertNotNull($reviewData);
+        static::assertSame(1, $reviewData->getTotal());
+        static::assertSame($productId, $reviewData->getProductId());
+
+        $loadedReview = $reviewData->first();
+        static::assertNotNull($loadedReview);
+        static::assertSame('Great product', $loadedReview->getTitle());
+    }
+
+    public function testItSetsEmptyReviewDataWhenNoReviewsExist(): void
+    {
+        $productId = Uuid::randomHex();
+        $request = new Request([], [], ['productId' => $productId]);
+        $salesChannelContext = $this->getSalesChannelContext();
+
+        $entityResult = new EntitySearchResult(
+            ProductReviewDefinition::ENTITY_NAME,
+            0,
+            new ProductReviewCollection([]),
+            new AggregationResultCollection([
+                new TermsResult('ratingMatrix', []),
+            ]),
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $reviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
+        $reviewRouteMock
+            ->method('load')
+            ->willReturn(new ProductReviewRouteResponse($entityResult));
+
+        $productPageLoader = $this->getProductPageLoaderWithProduct(
+            $productId,
+            $this->getCmsSlotConfig(),
+            $request,
+            $salesChannelContext,
+            $reviewRouteMock
+        );
+
+        $page = $productPageLoader->load($request, $salesChannelContext);
+
+        $reviewData = $page->getReviewData();
+        static::assertNotNull($reviewData);
+        static::assertSame(0, $reviewData->getTotal());
+        static::assertSame(0, $reviewData->getMatrix()->getTotalReviewCount());
+    }
+
     /**
      * @param array<string, array<string, array<string, array<string, array<string, string>>>>> $reviews
      */
-    private function getProductPageLoaderWithProduct(string $productId, array $reviews, Request $request, SalesChannelContext $salesChannelContext): ProductPageLoader
-    {
+    private function getProductPageLoaderWithProduct(
+        string $productId,
+        array $reviews,
+        Request $request,
+        SalesChannelContext $salesChannelContext,
+        ?AbstractProductReviewRoute $reviewRoute = null,
+    ): ProductPageLoader {
         $product = $this->getProductWithReviews($productId, $reviews);
 
         // set cms page which later will be set by the subscriber
@@ -86,10 +185,24 @@ class ProductPageLoaderTest extends TestCase
             ->with($productId, $request, $salesChannelContext, $criteria)
             ->willReturn(new ProductDetailRouteResponse($product, null));
 
+        if ($reviewRoute === null) {
+            $entityResult = new EntitySearchResult(
+                ProductReviewDefinition::ENTITY_NAME,
+                0,
+                new ProductReviewCollection([]),
+                new AggregationResultCollection([new TermsResult('ratingMatrix', [])]),
+                new Criteria(),
+                Context::createDefaultContext()
+            );
+            $reviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+            $reviewRoute->method('load')->willReturn(new ProductReviewRouteResponse($entityResult));
+        }
+
         return new ProductPageLoader(
             $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcherInterface::class),
-            $productDetailRouteMock
+            $productDetailRouteMock,
+            $reviewRoute,
         );
     }
 

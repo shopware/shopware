@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
@@ -22,6 +23,8 @@ class ProductPage extends Page
     protected PropertyGroupCollection $configuratorSettings;
 
     protected PropertyGroupOptionCollection $selectedOptions;
+
+    protected ?ProductReviewResult $reviewData = null;
 
     public function getProduct(): SalesChannelProductEntity
     {
@@ -71,6 +74,16 @@ class ProductPage extends Page
     public function setSelectedOptions(PropertyGroupOptionCollection $selectedOptions): void
     {
         $this->selectedOptions = $selectedOptions;
+    }
+
+    public function getReviewData(): ?ProductReviewResult
+    {
+        return $this->reviewData;
+    }
+
+    public function setReviewData(ProductReviewResult $reviewData): void
+    {
+        $this->reviewData = $reviewData;
     }
 
     public function getEntityName(): string

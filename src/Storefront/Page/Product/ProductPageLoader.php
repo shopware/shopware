@@ -6,10 +6,17 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
+use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -25,12 +32,23 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductPageLoader
 {
     /**
+     * Maximum number of individual Review items to include in the JSON-LD output.
+     *
+     * Reviews are sorted by date descending (most recent first) so the sample is
+     * chronologically neutral. Do NOT change the sort to points/rating — cherry-picking
+     * high-rated reviews while the ratingCount reflects a lower average violates
+     * review markup spam policy.
+     */
+    private const MAX_REVIEWS_IN_JSON_LD = 10;
+
+    /**
      * @internal
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractProductDetailRoute $productDetailRoute
+        private readonly AbstractProductDetailRoute $productDetailRoute,
+        private readonly AbstractProductReviewRoute $productReviewRoute,
     ) {
     }
 
@@ -87,6 +105,7 @@ class ProductPageLoader
 
         $this->loadOptions($page);
         $this->loadMetaData($page);
+        $this->loadReviewData($page, $context);
 
         $this->eventDispatcher->dispatch(
             new ProductPageLoadedEvent($page, $context, $request)
@@ -150,5 +169,49 @@ class ProductPageLoader
         $metaTitleParts[] = $page->getProduct()->getProductNumber();
 
         $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
+    }
+
+    /**
+     * Loads a representative sample of approved reviews and the total approved review
+     * count for use in the JSON-LD Product schema (AggregateRating + Review items).
+     * The ratingMatrix aggregation counts all approved reviews across every page in a
+     * single query, so ratingCount is always the honest total regardless of MAX_REVIEWS_IN_JSON_LD.
+     */
+    private function loadReviewData(ProductPage $page, SalesChannelContext $context): void
+    {
+        $product = $page->getProduct();
+        $productId = $product->getParentId() ?? $product->getId();
+
+        $criteria = new Criteria();
+        $criteria->setLimit(self::MAX_REVIEWS_IN_JSON_LD);
+        $criteria->setOffset(0);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        // Most recent first — neutral, unbiased sample (see MAX_REVIEWS_IN_JSON_LD comment).
+        // Ratings are not allowed to be sorted by points/rating.
+        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+        $criteria->addAssociation('language.translationCode');
+        $criteria->addFilter(new EqualsFilter('status', true));
+
+        $criteria->addAggregation(
+            new FilterAggregation(
+                'json-ld-status-filter',
+                new TermsAggregation('ratingMatrix', 'points'),
+                [new EqualsFilter('status', true)]
+            )
+        );
+
+        $entityResult = $this->productReviewRoute
+            ->load($productId, new Request(), $context, $criteria)
+            ->getResult();
+
+        $aggregation = $entityResult->getAggregations()->get('ratingMatrix');
+        $matrix = new RatingMatrix($aggregation instanceof TermsResult ? $aggregation->getBuckets() : []);
+
+        $reviewResult = ProductReviewResult::createFrom($entityResult);
+        $reviewResult->setMatrix($matrix);
+        $reviewResult->setProductId($productId);
+        $reviewResult->setTotalReviewsInCurrentLanguage($entityResult->getTotal());
+
+        $page->setReviewData($reviewResult);
     }
 }

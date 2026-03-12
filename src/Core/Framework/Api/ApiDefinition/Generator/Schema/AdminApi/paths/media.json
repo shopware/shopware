@@ -353,6 +353,7 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": ["mediaId", "url", "path", "expiresAt", "isDuplicate"],
                                     "properties": {
                                         "mediaId": {
                                             "type": "string",
@@ -382,13 +383,22 @@
                         }
                     },
                     "400": {
-                        "description": "Bad request. The file extension is not supported or the file name is invalid."
+                        "description": "Bad request. The file extension is not supported or the file name is invalid.",
+                        "$ref": "#/components/responses/400"
                     },
                     "404": {
-                        "description": "The media entity with the given `mediaId` was not found."
+                        "description": "The media entity with the given `mediaId` was not found.",
+                        "$ref": "#/components/responses/404"
                     },
                     "422": {
-                        "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`) must not be blank."
+                        "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`) must not be blank.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -456,6 +466,7 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": ["mediaId"],
                                     "properties": {
                                         "mediaId": {
                                             "type": "string",
@@ -468,13 +479,22 @@
                         }
                     },
                     "400": {
-                        "description": "Bad request. The file extension is not supported, the storage path does not match, the file name is already taken, or the file could not be found on the remote storage."
+                        "description": "Bad request. The file extension is not supported, the storage path does not match, the file name is already taken, or the file could not be found on the remote storage.",
+                        "$ref": "#/components/responses/400"
                     },
                     "404": {
-                        "description": "The media entity with the given `mediaId` was not found."
+                        "description": "The media entity with the given `mediaId` was not found.",
+                        "$ref": "#/components/responses/404"
                     },
                     "422": {
-                        "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`, `path`) must not be blank."
+                        "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`, `path`) must not be blank.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     }
                 }
             }

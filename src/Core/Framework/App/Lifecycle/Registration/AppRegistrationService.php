@@ -34,39 +34,50 @@ class AppRegistrationService
         private readonly EntityRepository $appRepository,
         private readonly string $shopUrl,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly string $shopwareVersion
+        private readonly string $shopwareVersion,
     ) {
     }
 
-    public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void
+    public function registerApp(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): void
     {
         if (!$manifest->getSetup()) {
             return;
         }
 
+        $app = $this->fetchApp($id, $context);
+
         try {
-            $appName = $manifest->getMetadata()->getName();
-            $appResponse = $this->registerWithApp($manifest, $context);
+            $appResponse = $this->registerWithApp($manifest, $app, $context);
 
             $secret = $appResponse['secret'];
             $confirmationUrl = $appResponse['confirmation_url'];
 
-            $this->saveAppSecret($id, $context, $secret);
+            if ($secret === $app->getAppSecret()) {
+                throw AppException::registrationFailed(
+                    $app->getName(),
+                    'The new app secret returned from the App must be different from the current one.'
+                );
+            }
 
-            $this->confirmRegistration($id, $context, $secret, $secretAccessKey, $confirmationUrl);
+            // Sign confirmation with dual signatures for re-registration
+            // shopware-shop-signature (new secret) + shopware-shop-signature-previous (current secret)
+            $this->confirmRegistration($app, $context, $secret, $app->getAppSecret(), $secretAccessKey, $confirmationUrl);
+
+            // After successful confirmation, save the new secret
+            $this->saveAppSecret($app->getId(), $context, $secret);
         } catch (RequestException $e) {
             if ($e->hasResponse() && $e->getResponse() !== null) {
                 $response = $e->getResponse();
                 $data = json_decode($response->getBody()->getContents(), true);
 
                 if (isset($data['error']) && \is_string($data['error'])) {
-                    throw AppException::registrationFailed($appName, $data['error']);
+                    throw AppException::registrationFailed($app->getName(), $data['error']);
                 }
             }
 
-            throw AppException::registrationFailed($appName, $e->getMessage(), $e);
+            throw AppException::registrationFailed($app->getName(), $e->getMessage(), $e);
         } catch (GuzzleException $e) {
-            throw AppException::registrationFailed($appName, $e->getMessage(), $e);
+            throw AppException::registrationFailed($app->getName(), $e->getMessage(), $e);
         }
     }
 
@@ -75,9 +86,9 @@ class AppRegistrationService
      *
      * @return array<string, string>
      */
-    private function registerWithApp(Manifest $manifest, Context $context): array
+    private function registerWithApp(Manifest $manifest, AppEntity $app, Context $context): array
     {
-        $handshake = $this->handshakeFactory->create($manifest);
+        $handshake = $this->handshakeFactory->create($manifest, $app);
 
         $request = $handshake->assembleRequest();
         $response = $this->httpClient->send($request, [AuthMiddleware::APP_REQUEST_CONTEXT => $context]);
@@ -85,7 +96,7 @@ class AppRegistrationService
         return $this->parseResponse($manifest->getMetadata()->getName(), $handshake, $response);
     }
 
-    private function saveAppSecret(string $id, Context $context, string $secret): void
+    private function saveAppSecret(string $id, Context $context, #[\SensitiveParameter] string $secret): void
     {
         $update = ['id' => $id, 'appSecret' => $secret];
 
@@ -95,21 +106,35 @@ class AppRegistrationService
     }
 
     private function confirmRegistration(
-        string $id,
+        AppEntity $app,
         Context $context,
+        #[\SensitiveParameter]
         string $secret,
+        #[\SensitiveParameter]
+        ?string $currentSecret,
+        #[\SensitiveParameter]
         string $secretAccessKey,
         string $confirmationUrl
     ): void {
-        $payload = $this->getConfirmationPayload($id, $secretAccessKey, $context);
+        $payload = $this->getConfirmationPayload($app, $secretAccessKey);
 
         $signature = $this->signPayload($payload, $secret);
 
+        $headers = [
+            'shopware-shop-signature' => $signature,
+            'sw-version' => $this->shopwareVersion,
+        ];
+
+        // For re-registration, also send signature with current/old secret
+        // shopware-shop-signature (new) + shopware-shop-signature-previous (current).
+        // This is to ensure that only the party who initiated the re-registration can confirm it.
+        if ($currentSecret !== null) {
+            $previousSignature = $this->signPayload($payload, $currentSecret);
+            $headers['shopware-shop-signature-previous'] = $previousSignature;
+        }
+
         $this->httpClient->post($confirmationUrl, [
-            'headers' => [
-                'shopware-shop-signature' => $signature,
-                'sw-version' => $this->shopwareVersion,
-            ],
+            'headers' => $headers,
             AuthMiddleware::APP_REQUEST_CONTEXT => $context,
             'json' => $payload,
         ]);
@@ -149,10 +174,8 @@ class AppRegistrationService
     /**
      * @return array<string, string>
      */
-    private function getConfirmationPayload(string $id, string $secretAccessKey, Context $context): array
+    private function getConfirmationPayload(AppEntity $app, #[\SensitiveParameter] string $secretAccessKey): array
     {
-        $app = $this->getApp($id, $context);
-
         try {
             $shopId = $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException) {
@@ -179,18 +202,20 @@ class AppRegistrationService
     /**
      * @param array<string, string> $body
      */
-    private function signPayload(array $body, string $secret): string
+    private function signPayload(array $body, #[\SensitiveParameter] string $secret): string
     {
         return hash_hmac('sha256', (string) json_encode($body, \JSON_THROW_ON_ERROR), $secret);
     }
 
-    private function getApp(string $id, Context $context): AppEntity
+    private function fetchApp(string $id, Context $context): AppEntity
     {
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('integration');
 
-        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
-        \assert($app !== null);
+        $app = $this->appRepository->search($criteria, $context)->get($id);
+        if (!$app instanceof AppEntity) {
+            throw AppException::notFoundByField($id, 'id');
+        }
 
         return $app;
     }

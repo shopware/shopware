@@ -212,8 +212,8 @@
         {% set productData = productData|merge({depth: {'@type': 'QuantitativeValue', value: lengthValue, unitText: lengthUnit} }) %}
     {% endif %}
 
-    {% if page.reviewData %}
-        {% set reviewData = page.reviewData %}
+    {% if page.structuredDataReviews %}
+        {% set reviewData = page.structuredDataReviews %}
         {% set reviewCount = reviewData.matrix.totalReviewCount %}
 
         {% if page.product.ratingAverage and page.product.ratingAverage > 0 and reviewCount > 0 %}

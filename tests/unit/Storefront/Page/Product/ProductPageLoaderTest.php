@@ -20,21 +20,21 @@ use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
-use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
-use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -64,7 +64,7 @@ class ProductPageLoaderTest extends TestCase
         static::assertSame($reviews, json_decode($slot, true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    public function testItLoadsReviewDataForJsonLd(): void
+    public function testItLoadsStructuredDataReviewsForJsonLd(): void
     {
         $productId = Uuid::randomHex();
         $request = new Request([], [], ['productId' => $productId]);
@@ -90,24 +90,24 @@ class ProductPageLoaderTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $reviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
-        $reviewRouteMock
+        $reviewRepositoryMock = $this->createMock(EntityRepository::class);
+        $reviewRepositoryMock
             ->expects(Feature::isActive('JSON_LD_DATA') ? $this->once() : $this->never())
-            ->method('load')
-            ->willReturn(new ProductReviewRouteResponse($entityResult));
+            ->method('search')
+            ->willReturn($entityResult);
 
         $productPageLoader = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
             $request,
             $salesChannelContext,
-            $reviewRouteMock
+            $reviewRepositoryMock
         );
 
         $page = $productPageLoader->load($request, $salesChannelContext);
 
         if (Feature::isActive('JSON_LD_DATA')) {
-            $reviewData = $page->getReviewData();
+            $reviewData = $page->getStructuredDataReviews();
             static::assertNotNull($reviewData);
             static::assertSame(1, $reviewData->getTotal());
             static::assertSame($productId, $reviewData->getProductId());
@@ -116,11 +116,39 @@ class ProductPageLoaderTest extends TestCase
             static::assertNotNull($loadedReview);
             static::assertSame('Great product', $loadedReview->getTitle());
         } else {
-            static::assertNull($page->getReviewData());
+            static::assertNull($page->getStructuredDataReviews());
         }
     }
 
-    public function testItSetsEmptyReviewDataWhenNoReviewsExist(): void
+    public function testItSkipsStructuredDataReviewsWhenReviewsAreDisabled(): void
+    {
+        Feature::skipTestIfInActive('JSON_LD_DATA', $this);
+
+        $productId = Uuid::randomHex();
+        $request = new Request([], [], ['productId' => $productId]);
+        $salesChannelContext = $this->getSalesChannelContext();
+
+        $reviewRepositoryMock = $this->createMock(EntityRepository::class);
+        $reviewRepositoryMock->expects($this->never())->method('search');
+
+        $systemConfigMock = $this->createMock(SystemConfigService::class);
+        $systemConfigMock->method('getBool')->with('core.listing.showReview')->willReturn(false);
+
+        $productPageLoader = $this->getProductPageLoaderWithProduct(
+            $productId,
+            $this->getCmsSlotConfig(),
+            $request,
+            $salesChannelContext,
+            $reviewRepositoryMock,
+            $systemConfigMock,
+        );
+
+        $page = $productPageLoader->load($request, $salesChannelContext);
+
+        static::assertNull($page->getStructuredDataReviews());
+    }
+
+    public function testItSetsEmptyStructuredDataReviewsWhenNoReviewsExist(): void
     {
         $productId = Uuid::randomHex();
         $request = new Request([], [], ['productId' => $productId]);
@@ -137,41 +165,43 @@ class ProductPageLoaderTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $reviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
-        $reviewRouteMock
+        $reviewRepositoryMock = $this->createMock(EntityRepository::class);
+        $reviewRepositoryMock
             ->expects(Feature::isActive('JSON_LD_DATA') ? $this->once() : $this->never())
-            ->method('load')
-            ->willReturn(new ProductReviewRouteResponse($entityResult));
+            ->method('search')
+            ->willReturn($entityResult);
 
         $productPageLoader = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
             $request,
             $salesChannelContext,
-            $reviewRouteMock
+            $reviewRepositoryMock
         );
 
         $page = $productPageLoader->load($request, $salesChannelContext);
 
         if (Feature::isActive('JSON_LD_DATA')) {
-            $reviewData = $page->getReviewData();
+            $reviewData = $page->getStructuredDataReviews();
             static::assertNotNull($reviewData);
             static::assertSame(0, $reviewData->getTotal());
             static::assertSame(0, $reviewData->getMatrix()->getTotalReviewCount());
         } else {
-            static::assertNull($page->getReviewData());
+            static::assertNull($page->getStructuredDataReviews());
         }
     }
 
     /**
      * @param array<string, array<string, array<string, array<string, array<string, string>>>>> $reviews
+     * @param EntityRepository<ProductReviewCollection>|null $reviewRepository
      */
     private function getProductPageLoaderWithProduct(
         string $productId,
         array $reviews,
         Request $request,
         SalesChannelContext $salesChannelContext,
-        ?AbstractProductReviewRoute $reviewRoute = null,
+        ?EntityRepository $reviewRepository = null,
+        ?SystemConfigService $systemConfigService = null,
     ): ProductPageLoader {
         $product = $this->getProductWithReviews($productId, $reviews);
 
@@ -196,7 +226,7 @@ class ProductPageLoaderTest extends TestCase
             ->with($productId, $request, $salesChannelContext, $criteria)
             ->willReturn(new ProductDetailRouteResponse($product, null));
 
-        if ($reviewRoute === null) {
+        if ($reviewRepository === null) {
             $entityResult = new EntitySearchResult(
                 ProductReviewDefinition::ENTITY_NAME,
                 0,
@@ -205,18 +235,25 @@ class ProductPageLoaderTest extends TestCase
                 new Criteria(),
                 Context::createDefaultContext()
             );
-            $reviewRoute = $this->createMock(AbstractProductReviewRoute::class);
-            $reviewRoute
+            $reviewRepository = $this->createMock(EntityRepository::class);
+            $reviewRepository
                 ->expects(Feature::isActive('JSON_LD_DATA') ? $this->once() : $this->never())
-                ->method('load')
-                ->willReturn(new ProductReviewRouteResponse($entityResult));
+                ->method('search')
+                ->willReturn($entityResult);
+        }
+
+        if ($systemConfigService === null) {
+            $systemConfigService = $this->createMock(SystemConfigService::class);
+            // Default: reviews are enabled so the repository is actually called.
+            $systemConfigService->method('getBool')->with('core.listing.showReview')->willReturn(true);
         }
 
         return new ProductPageLoader(
             $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcherInterface::class),
             $productDetailRouteMock,
-            $reviewRoute,
+            $reviewRepository,
+            $systemConfigService,
         );
     }
 

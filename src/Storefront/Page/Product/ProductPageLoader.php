@@ -4,24 +4,27 @@ namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,12 +47,15 @@ class ProductPageLoader
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductReviewCollection> $productReviewRepository
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractProductDetailRoute $productDetailRoute,
-        private readonly AbstractProductReviewRoute $productReviewRoute,
+        private readonly EntityRepository $productReviewRepository,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -108,7 +114,7 @@ class ProductPageLoader
         $this->loadMetaData($page);
 
         if (Feature::isActive('JSON_LD_DATA')) {
-            $this->loadReviewData($page, $context);
+            $this->loadStructuredDataReviews($page, $context);
         }
 
         $this->eventDispatcher->dispatch(
@@ -176,13 +182,19 @@ class ProductPageLoader
     }
 
     /**
-     * Loads a representative sample of approved reviews and the total approved review
-     * count for use in the JSON-LD Product schema (AggregateRating + Review items).
-     * The ratingMatrix aggregation counts all approved reviews across every page in a
-     * single query, so ratingCount is always the honest total regardless of MAX_REVIEWS_IN_JSON_LD.
+     * Loads a small sample of approved reviews and the total approved review count directly
+     * from the repository for use in the JSON-LD Product schema (AggregateRating + Review items).
+     *
+     * The result is stored on ProductPage::$structuredDataReviews. It intentionally contains
+     * at most MAX_REVIEWS_IN_JSON_LD items and must NOT be used to render a review list.
      */
-    private function loadReviewData(ProductPage $page, SalesChannelContext $context): void
+    private function loadStructuredDataReviews(ProductPage $page, SalesChannelContext $context): void
     {
+        // Don't add reviews to the structured data if reviews are disabled.
+        if (!$this->systemConfigService->getBool('core.listing.showReview', $context->getSalesChannelId())) {
+            return;
+        }
+
         $product = $page->getProduct();
         $productId = $product->getParentId() ?? $product->getId();
 
@@ -194,7 +206,15 @@ class ProductPageLoader
         // Ratings are not allowed to be sorted by points/rating.
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->addAssociation('language.translationCode');
-        $criteria->addFilter(new EqualsFilter('status', true));
+
+        // Only approved reviews; also scope to this product (or its parent for variants).
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+            new EqualsFilter('status', true),
+            new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('product.id', $productId),
+                new EqualsFilter('product.parentId', $productId),
+            ]),
+        ]));
 
         $criteria->addAggregation(
             new FilterAggregation(
@@ -204,9 +224,7 @@ class ProductPageLoader
             )
         );
 
-        $entityResult = $this->productReviewRoute
-            ->load($productId, new Request(), $context, $criteria)
-            ->getResult();
+        $entityResult = $this->productReviewRepository->search($criteria, $context->getContext());
 
         $aggregation = $entityResult->getAggregations()->get('ratingMatrix');
         $matrix = new RatingMatrix($aggregation instanceof TermsResult ? $aggregation->getBuckets() : []);
@@ -216,6 +234,6 @@ class ProductPageLoader
         $reviewResult->setProductId($productId);
         $reviewResult->setTotalReviewsInCurrentLanguage($entityResult->getTotal());
 
-        $page->setReviewData($reviewResult);
+        $page->setStructuredDataReviews($reviewResult);
     }
 }

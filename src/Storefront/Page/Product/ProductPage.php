@@ -24,7 +24,12 @@ class ProductPage extends Page
 
     protected PropertyGroupOptionCollection $selectedOptions;
 
-    protected ?ProductReviewResult $reviewData = null;
+    /**
+     * A small sample of approved reviews used exclusively for JSON-LD structured data output.
+     * This contains at most ProductPageLoader::MAX_REVIEWS_IN_JSON_LD items — it must NOT be
+     * used to display reviews in templates.
+     */
+    protected ?ProductReviewResult $structuredDataReviews = null;
 
     public function getProduct(): SalesChannelProductEntity
     {
@@ -76,14 +81,14 @@ class ProductPage extends Page
         $this->selectedOptions = $selectedOptions;
     }
 
-    public function getReviewData(): ?ProductReviewResult
+    public function getStructuredDataReviews(): ?ProductReviewResult
     {
-        return $this->reviewData;
+        return $this->structuredDataReviews;
     }
 
-    public function setReviewData(ProductReviewResult $reviewData): void
+    public function setStructuredDataReviews(ProductReviewResult $structuredDataReviews): void
     {
-        $this->reviewData = $reviewData;
+        $this->structuredDataReviews = $structuredDataReviews;
     }
 
     public function getEntityName(): string

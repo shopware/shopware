@@ -246,7 +246,7 @@ class AdminSearchRegistryTest extends TestCase
         $query = $this->createMock(IterableQuery::class);
         $firstRun = true;
 
-        $query->expects($this->exactly(2))->method('fetch')->willReturnCallback(function () use (&$firstRun) {
+        $query->expects($this->exactly(2))->method('fetch')->willReturnCallback(static function () use (&$firstRun) {
             if ($firstRun) {
                 $firstRun = false;
 
@@ -300,7 +300,7 @@ class AdminSearchRegistryTest extends TestCase
         $calledAdvancedEvent = false;
         $eventDispatcher->addListener(
             ProgressAdvancedEvent::class,
-            function (ProgressAdvancedEvent $event) use (&$calledAdvancedEvent): void {
+            static function (ProgressAdvancedEvent $event) use (&$calledAdvancedEvent): void {
                 $calledAdvancedEvent = true;
 
                 static::assertSame(2, $event->getStep());
@@ -310,7 +310,7 @@ class AdminSearchRegistryTest extends TestCase
         $calledFinishEvent = false;
         $eventDispatcher->addListener(
             ProgressFinishedEvent::class,
-            function (ProgressFinishedEvent $event) use (&$calledFinishEvent): void {
+            static function (ProgressFinishedEvent $event) use (&$calledFinishEvent): void {
                 $calledFinishEvent = true;
 
                 static::assertSame('promotion-listing', $event->getMessage());

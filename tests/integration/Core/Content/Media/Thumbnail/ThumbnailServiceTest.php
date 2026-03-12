@@ -117,7 +117,7 @@ class ThumbnailServiceTest extends TestCase
             static::assertInstanceOf(MediaThumbnailSizeCollection::class, $sizes);
 
             $filtered = $sizes->filter(
-                fn (MediaThumbnailSizeEntity $size) => $size->getId() === $thumbnail->getMediaThumbnailSizeId()
+                static fn (MediaThumbnailSizeEntity $size) => $size->getId() === $thumbnail->getMediaThumbnailSizeId()
             );
 
             static::assertCount(1, $filtered);
@@ -432,7 +432,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertCount(2, $thumbnails);
 
         // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
-        $filteredThumbnails = $thumbnails->filter(fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+        $filteredThumbnails = $thumbnails->filter(static fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
             || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80));
 
         static::assertCount(2, $filteredThumbnails);
@@ -583,7 +583,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertCount(2, $thumbnails);
 
         // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
-        $filteredThumbnails = $thumbnails->filter(fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+        $filteredThumbnails = $thumbnails->filter(static fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
             || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80));
 
         static::assertCount(2, $filteredThumbnails);

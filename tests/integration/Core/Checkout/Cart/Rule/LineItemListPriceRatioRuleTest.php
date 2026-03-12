@@ -94,6 +94,14 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'expected' => false,
         ];
 
+        yield 'match / operator equals / missing list price is treated as zero ratio' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.0,
+            'price' => 100,
+            'listPrice' => null,
+            'expected' => true,
+        ];
+
         yield 'no match / operator equals / without price' => [
             'operator' => Rule::OPERATOR_EQ,
             'ruleRatio' => 0.75,
@@ -126,6 +134,14 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'price' => 100,
             'listPrice' => 200,
             'expected' => true,
+        ];
+
+        yield 'no match / operator not equals / missing list price is treated as zero ratio' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.0,
+            'price' => 100,
+            'listPrice' => null,
+            'expected' => false,
         ];
 
         // OPERATOR_GT
@@ -432,6 +448,16 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'expected' => false,
             'lineItem1WithoutPrice' => true,
             'lineItem2WithoutPrice' => true,
+        ];
+
+        yield 'match / operator equals / item with missing list price is treated as zero ratio' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.0,
+            'priceItem1' => 100,
+            'listPriceItem1' => null,
+            'priceItem2' => 100,
+            'listPriceItem2' => 200,
+            'expected' => true,
         ];
         yield 'match / operator equals / item 1 with negative ratio' => [
             'operator' => Rule::OPERATOR_EQ,

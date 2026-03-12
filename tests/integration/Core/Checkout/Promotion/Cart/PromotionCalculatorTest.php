@@ -12,6 +12,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRatioRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -26,6 +30,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\OrRule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -271,6 +277,110 @@ class PromotionCalculatorTest extends TestCase
         static::assertSame('Discount PHPUnit has been added', $toCalculate->getErrors()->first()->getMessage());
         static::assertSame(10.0, $toCalculate->getPrice()->getTotalPrice());
         static::assertCount(2, $toCalculate->getLineItems());
+    }
+
+    public function testCalculateAppliesListPriceEmptyFilterToMatchingProductOnly(): void
+    {
+        $promotionId = $this->getPromotionId(type: PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discountItem = $this->getDiscountItem($promotionId, PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discountItem->setPriceDefinition(new PercentagePriceDefinition(
+            -10.0,
+            new OrRule([new LineItemListPriceRule(Rule::OPERATOR_EMPTY)])
+        ));
+        $discountItem->setPayloadValue('filter', ['considerAdvancedRules' => true, 'applierKey' => 'ALL']);
+
+        $withoutListPrice = new LineItem('without-list-price', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $withoutListPrice->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $withoutListPrice->setStackable(true);
+
+        $withListPrice = new LineItem('with-list-price', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $withListPrice->setPrice(new CalculatedPrice(
+            80.0,
+            80.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(80.0, 100.0),
+        ));
+        $withListPrice->setStackable(true);
+
+        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate->add($withoutListPrice);
+        $toCalculate->add($withListPrice);
+        $toCalculate->setPrice(new CartPrice(180.0, 180.0, 180.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            new Cart(Uuid::randomHex()),
+            $toCalculate,
+            $this->salesChannelContext,
+            new CartBehavior()
+        );
+
+        $promotionLineItem = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+        static::assertNotNull($promotionLineItem);
+        static::assertNotNull($promotionLineItem->getPrice());
+        static::assertSame(-10.0, $promotionLineItem->getPrice()->getTotalPrice());
+        static::assertSame([
+            [
+                'id' => 'without-list-price',
+                'quantity' => 1,
+                'discount' => 10.0,
+            ],
+        ], $promotionLineItem->getPayloadValue('composition'));
+    }
+
+    public function testCalculateTreatsMissingListPriceRatioAsZero(): void
+    {
+        $promotionId = $this->getPromotionId(type: PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discountItem = $this->getDiscountItem($promotionId, PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discountItem->setPriceDefinition(new PercentagePriceDefinition(
+            -10.0,
+            new OrRule([new LineItemListPriceRatioRule(Rule::OPERATOR_EQ, 0.0)])
+        ));
+        $discountItem->setPayloadValue('filter', ['considerAdvancedRules' => true, 'applierKey' => 'ALL']);
+
+        $withoutListPrice = new LineItem('without-list-price', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $withoutListPrice->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $withoutListPrice->setStackable(true);
+
+        $withListPrice = new LineItem('with-list-price', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $withListPrice->setPrice(new CalculatedPrice(
+            80.0,
+            80.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(80.0, 100.0),
+        ));
+        $withListPrice->setStackable(true);
+
+        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate->add($withoutListPrice);
+        $toCalculate->add($withListPrice);
+        $toCalculate->setPrice(new CartPrice(180.0, 180.0, 180.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            new Cart(Uuid::randomHex()),
+            $toCalculate,
+            $this->salesChannelContext,
+            new CartBehavior()
+        );
+
+        $promotionLineItem = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+        static::assertNotNull($promotionLineItem);
+        static::assertNotNull($promotionLineItem->getPrice());
+        static::assertSame(-10.0, $promotionLineItem->getPrice()->getTotalPrice());
+        static::assertSame([
+            [
+                'id' => 'without-list-price',
+                'quantity' => 1,
+                'discount' => 10.0,
+            ],
+        ], $promotionLineItem->getPayloadValue('composition'));
     }
 
     public function testTest(): void

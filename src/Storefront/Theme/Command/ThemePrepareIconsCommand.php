@@ -95,7 +95,7 @@ class ThemePrepareIconsCommand extends Command
 
             try {
                 $svg = $svgReader->parseString($svg);
-                if (!($svg instanceof SVG)) {
+                if (!$svg instanceof SVG) {
                     $this->io->warning('Could not read ' . $file . '.You have to handle this file by hand.');
 
                     continue;
@@ -107,7 +107,7 @@ class ThemePrepareIconsCommand extends Command
             }
 
             $defs = $svg->getDocument()->getChild(0);
-            if (!($defs instanceof SVGDefs)) {
+            if (!$defs instanceof SVGDefs) {
                 $defs = new SVGDefs();
                 foreach ($this->getChildren($svg->getDocument()) as $documentChild) {
                     $svg->getDocument()->removeChild($documentChild);

@@ -186,7 +186,7 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.91.2",
+        "friendsofphp/php-cs-fixer": "3.94.2",
         "jdorn/sql-formatter": "^1.2.17",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
@@ -253,8 +253,10 @@
         "build:js:component-library": "Builds the component library",
         "build:js:storefront": "Builds the Storefront's JavaScript",
         "check:license": "Check thrid-party dependency licenses",
-        "ecs": "Checks all files regarding the PHP-CS-Fixer",
-        "ecs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible",
+        "ecs": "Checks all files regarding the PHP-CS-Fixer. Deprecated! Use 'cs' instead",
+        "cs": "Checks all files regarding the PHP-CS-Fixer",
+        "ecs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible. Deprecated! Use 'cs-fix' instead",
+        "cs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible",
         "eslint": "Codestyle checks all (Administration/Storefront) JS/TS files",
         "eslint:admin": "Codestyle checks Administration JS/TS files",
         "eslint:admin:fix": "Codestyle checks Administration JS/TS files and fixes them if possible",
@@ -270,7 +272,7 @@
         "init:db": " ",
         "init:js": " ",
         "init:testdb": "Initializes the test database",
-        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'ecs' and 'translation:lint'",
+        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
@@ -360,8 +362,16 @@
             "@php bin/console assets:install"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": "php-cs-fixer fix --dry-run --diff",
-        "ecs-fix": "php-cs-fixer fix -v",
+        "ecs": [
+            "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
+            "php-cs-fixer fix --dry-run --diff"
+        ],
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": [
+            "echo \"\\e[31mDeprecated! Use 'cs-fix' instead\n\\e[0m\"",
+            "php-cs-fixer fix -v"
+        ],
+        "cs-fix": "php-cs-fixer fix -v",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront"

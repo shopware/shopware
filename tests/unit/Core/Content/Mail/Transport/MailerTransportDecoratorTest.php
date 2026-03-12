@@ -33,7 +33,9 @@ class MailerTransportDecoratorTest extends TestCase
 
     private Filesystem $filesystem;
 
-    /** @var MockObject&EntityRepository<DocumentCollection> */
+    /**
+     * @var MockObject&EntityRepository<DocumentCollection>
+     */
     private MockObject&EntityRepository $documentRepository;
 
     private MailerTransportDecorator $decorator;

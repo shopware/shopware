@@ -172,7 +172,7 @@ PHP lint:
     before_script:
         - !reference [ .scripts, init, composer_full ]
     script:
-        - composer run ecs
+        - composer run cs
         - composer run lint:changelog
         - ./bin/console translation:validate
         - ./bin/console sync:composer:version --dry-run

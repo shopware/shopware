@@ -37,7 +37,9 @@ use Shopware\Core\Test\Generator;
 #[Package('checkout')]
 class AddressValidatorTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<EntityCollection<Entity>> */
+    /**
+     * @var MockObject&EntityRepository<EntityCollection<Entity>>
+     */
     private MockObject&EntityRepository $repository;
 
     private AddressValidator $validator;

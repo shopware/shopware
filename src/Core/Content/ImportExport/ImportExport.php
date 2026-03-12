@@ -630,7 +630,7 @@ class ImportExport
     private function ensurePrimaryKeys(array $data): array
     {
         foreach ($this->repository->getDefinition()->getPrimaryKeys() as $primaryKey) {
-            if (!($primaryKey instanceof IdField)) {
+            if (!$primaryKey instanceof IdField) {
                 continue;
             }
 

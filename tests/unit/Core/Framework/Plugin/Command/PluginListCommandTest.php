@@ -22,7 +22,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(PluginListCommand::class)]
 class PluginListCommandTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<PluginCollection> */
+    /**
+     * @var MockObject&EntityRepository<PluginCollection>
+     */
     private MockObject&EntityRepository $pluginRepoMock;
 
     private MockObject&ComposerPluginLoader $composerPluginLoaderMock;

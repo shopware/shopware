@@ -42,7 +42,9 @@ class OrderServiceTest extends TestCase
 {
     private MockObject&CartService $cartService;
 
-    /** @var MockObject&EntityRepository<PaymentMethodCollection> */
+    /**
+     * @var MockObject&EntityRepository<PaymentMethodCollection>
+     */
     private MockObject&EntityRepository $paymentMethodRepository;
 
     private MockObject&StateMachineRegistry $stateMachineRegistry;

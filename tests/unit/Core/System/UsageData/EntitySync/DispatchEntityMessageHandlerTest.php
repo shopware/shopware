@@ -370,7 +370,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
                 // filter out all VersionFields
                 $fields = array_filter($fields, static function (Field $field) {
-                    return !($field instanceof VersionField);
+                    return !$field instanceof VersionField;
                 });
 
                 return new FieldCollection($fields);
@@ -714,7 +714,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
                 // filter out all VersionFields
                 $fields = array_filter($fields, static function (Field $field) {
-                    return !($field instanceof VersionField);
+                    return !$field instanceof VersionField;
                 });
 
                 return new FieldCollection($fields);

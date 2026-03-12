@@ -26,7 +26,7 @@ abstract class AbstractStoreRequestOptionsProvider
     protected function ensureAdminApiSource(Context $context): AdminApiSource
     {
         $contextSource = $context->getSource();
-        if (!($contextSource instanceof AdminApiSource)) {
+        if (!$contextSource instanceof AdminApiSource) {
             throw new InvalidContextSourceException(AdminApiSource::class, $contextSource::class);
         }
 

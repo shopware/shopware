@@ -105,7 +105,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $criteria->setTitle('product-detail-route');
 
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
-            if (!($product instanceof SalesChannelProductEntity)) {
+            if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
             }
 

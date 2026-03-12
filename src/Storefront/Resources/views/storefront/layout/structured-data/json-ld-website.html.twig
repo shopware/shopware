@@ -7,12 +7,12 @@
     {% set websiteData = {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        'url': app.request.schemeAndHttpHost ~ '/',
-        'potentialAction': {
+        url: app.request.schemeAndHttpHost ~ '/',
+        potentialAction: {
             '@type': 'SearchAction',
-            'target': {
+            target: {
                 '@type': 'EntryPoint',
-                'urlTemplate': url('frontend.search.page') ~ '?search={search_term_string}'
+                urlTemplate: url('frontend.search.page') ~ '?search={search_term_string}'
             },
             'query-input': 'required name=search_term_string'
         }
@@ -28,6 +28,7 @@
 
     {% block layout_structured_data_website_script %}
         <script type="application/ld+json">
+        {# ludtwig-ignore twig-json-encode-escape-js #}
         {{ websiteData|json_encode(jsonFlags)|raw }}
         </script>
     {% endblock %}

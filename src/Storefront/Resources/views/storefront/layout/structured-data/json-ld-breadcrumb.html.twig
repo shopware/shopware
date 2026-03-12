@@ -10,11 +10,11 @@
         {% for breadcrumbCategory in breadcrumbItems %}
             {% set listItem = {
                 '@type': 'ListItem',
-                'position': loop.index,
-                'name': breadcrumbCategory.translated.name
+                position: loop.index,
+                name: breadcrumbCategory.translated.name
             } %}
             {% if breadcrumbCategory.seoUrl %}
-                {% set listItem = listItem|merge({'item': breadcrumbCategory.seoUrl}) %}
+                {% set listItem = listItem|merge({item: breadcrumbCategory.seoUrl}) %}
             {% endif %}
             {% set itemListElement = itemListElement|merge([listItem]) %}
         {% endfor %}
@@ -22,7 +22,7 @@
         {% set breadcrumbData = {
             '@context': 'https://schema.org',
             '@type': 'BreadcrumbList',
-            'itemListElement': itemListElement
+            itemListElement: itemListElement
         } %}
 
         {#
@@ -35,6 +35,7 @@
 
         {% block layout_structured_data_breadcrumb_script %}
             <script type="application/ld+json">
+            {# ludtwig-ignore twig-json-encode-escape-js #}
             {{ breadcrumbData|json_encode(jsonFlags)|raw }}
             </script>
         {% endblock %}

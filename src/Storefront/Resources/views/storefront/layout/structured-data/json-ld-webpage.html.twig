@@ -10,35 +10,36 @@
     {% set webPageData = {
         '@context': 'https://schema.org',
         '@type': webPageType,
-        'name': metaTitle,
-        'description': metaDescription,
-        'url': pageUrl,
-        'inLanguage': context.languageInfo.localeCode,
-        'isFamilyFriendly': basicConfig.familyFriendly ? true : false,
-        'copyrightHolder': {
+        name: metaTitle,
+        description: metaDescription,
+        url: pageUrl,
+        inLanguage: context.languageInfo.localeCode,
+        isFamilyFriendly: basicConfig.familyFriendly ? true : false,
+        copyrightHolder: {
             '@type': 'Organization',
-            'name': basicConfig.shopName
+            name: basicConfig.shopName
         }
     } %}
 
     {% if metaInformation.copyrightYear %}
-        {% set webPageData = webPageData|merge({'copyrightYear': metaInformation.copyrightYear|striptags}) %}
+        {% set webPageData = webPageData|merge({copyrightYear: metaInformation.copyrightYear|striptags}) %}
     {% endif %}
 
-    {# Shop logo as the representative image for all pages #}
+    {# Shop logo as the representative image for all pages (carried over from the old itemprop="image" meta tag) #}
     {% set logoUrl = theme_config('sw-logo-desktop') %}
     {% if logoUrl %}
-        {% set webPageData = webPageData|merge({'image': logoUrl}) %}
+        {% set webPageData = webPageData|merge({image: logoUrl}) %}
     {% endif %}
 
     {#
         primaryImageOfPage: the canonical primary image for this page.
-        On product pages this is the cover image. On all other pages the shop logo serves as fallback.
+        On product pages this is the cover image (carried over from itemprop="image primaryImageOfPage"
+        on the first gallery image). On all other pages the shop logo serves as fallback.
     #}
     {% if page.product is defined and page.product and page.product.cover and page.product.cover.media and page.product.cover.media.url %}
-        {% set webPageData = webPageData|merge({'primaryImageOfPage': page.product.cover.media.url}) %}
+        {% set webPageData = webPageData|merge({primaryImageOfPage: page.product.cover.media.url}) %}
     {% elseif logoUrl %}
-        {% set webPageData = webPageData|merge({'primaryImageOfPage': logoUrl}) %}
+        {% set webPageData = webPageData|merge({primaryImageOfPage: logoUrl}) %}
     {% endif %}
 
     {#
@@ -51,6 +52,7 @@
 
     {% block layout_structured_data_webpage_script %}
         <script type="application/ld+json">
+        {# ludtwig-ignore twig-json-encode-escape-js #}
         {{ webPageData|json_encode(jsonFlags)|raw }}
         </script>
     {% endblock %}

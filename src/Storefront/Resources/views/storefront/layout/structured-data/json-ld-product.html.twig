@@ -39,13 +39,13 @@
                     {% if thumbnailUrl %}
                         {% set videoItem = {
                             '@type': 'VideoObject',
-                            'name': productMedia.media.translated.title ?? productMedia.media.fileName,
-                            'contentUrl': productMedia.media.url,
-                            'thumbnailUrl': thumbnailUrl,
-                            'uploadDate': productMedia.media.createdAt|format_date(pattern='Y-MM-dd')
+                            name: productMedia.media.translated.title ?? productMedia.media.fileName,
+                            contentUrl: productMedia.media.url,
+                            thumbnailUrl: thumbnailUrl,
+                            uploadDate: productMedia.media.createdAt|format_date(pattern='Y-MM-dd')
                         } %}
                         {% if productMedia.media.translated.alt %}
-                            {% set videoItem = videoItem|merge({'description': productMedia.media.translated.alt}) %}
+                            {% set videoItem = videoItem|merge({description: productMedia.media.translated.alt}) %}
                         {% endif %}
                         {% set videoItems = videoItems|merge([videoItem]) %}
                     {% endif %}
@@ -63,7 +63,7 @@
     {% set productUrl = seoUrl('frontend.detail.page', { productId: page.product.id }) %}
     {% set sellerData = {
         '@type': 'Organization',
-        'name': config('core.basicInformation.shopName')
+        name: config('core.basicInformation.shopName')
     } %}
 
     {% if page.product.calculatedPrices|length > 1 %}
@@ -80,14 +80,14 @@
 
         {% set offersData = {
             '@type': 'AggregateOffer',
-            'url': productUrl,
-            'priceCurrency': context.currency.isoCode,
-            'lowPrice': lowestPrice,
-            'highPrice': highestPrice,
-            'offerCount': page.product.calculatedPrices|length,
-            'availability': availability,
-            'itemCondition': 'https://schema.org/NewCondition',
-            'seller': sellerData
+            url: productUrl,
+            priceCurrency: context.currency.isoCode,
+            lowPrice: lowestPrice,
+            highPrice: highestPrice,
+            offerCount: page.product.calculatedPrices|length,
+            availability: availability,
+            itemCondition: 'https://schema.org/NewCondition',
+            seller: sellerData
         } %}
     {% else %}
         {% set calculatedPrice = page.product.calculatedPrice %}
@@ -97,25 +97,25 @@
 
         {% set offersData = {
             '@type': 'Offer',
-            'url': productUrl,
-            'priceCurrency': context.currency.isoCode,
-            'price': calculatedPrice.unitPrice,
-            'availability': availability,
-            'itemCondition': 'https://schema.org/NewCondition',
-            'seller': sellerData
+            url: productUrl,
+            priceCurrency: context.currency.isoCode,
+            price: calculatedPrice.unitPrice,
+            availability: availability,
+            itemCondition: 'https://schema.org/NewCondition',
+            seller: sellerData
         } %}
 
         {% if page.product.deliveryTime %}
             {% set offersData = offersData|merge({
-                'shippingDetails': {
+                shippingDetails: {
                     '@type': 'OfferShippingDetails',
-                    'deliveryTime': {
+                    deliveryTime: {
                         '@type': 'ShippingDeliveryTime',
-                        'handlingTime': {
+                        handlingTime: {
                             '@type': 'QuantitativeValue',
-                            'minValue': page.product.deliveryTime.min,
-                            'maxValue': page.product.deliveryTime.max,
-                            'unitCode': 'DAY'
+                            minValue: page.product.deliveryTime.min,
+                            maxValue: page.product.deliveryTime.max,
+                            unitCode: 'DAY'
                         }
                     }
                 }
@@ -127,44 +127,44 @@
     {% set productData = {
         '@context': 'https://schema.org',
         '@type': 'Product',
-        'name': page.product.translated.name,
-        'sku': page.product.productNumber,
-        'productID': page.product.id,
-        'url': productUrl,
-        'offers': offersData
+        name: page.product.translated.name,
+        sku: page.product.productNumber,
+        productID: page.product.id,
+        url: productUrl,
+        offers: offersData
     } %}
 
     {% if page.product.translated.description %}
-        {% set productData = productData|merge({'description': page.product.translated.description|striptags}) %}
+        {% set productData = productData|merge({description: page.product.translated.description|striptags}) %}
     {% endif %}
 
     {% if imageUrls|length > 0 %}
-        {% set productData = productData|merge({'image': imageUrls}) %}
+        {% set productData = productData|merge({image: imageUrls}) %}
     {% endif %}
 
     {% if videoItems|length > 0 %}
-        {% set productData = productData|merge({'video': videoItems}) %}
+        {% set productData = productData|merge({video: videoItems}) %}
     {% endif %}
 
     {% if page.product.manufacturer %}
         {% set productData = productData|merge({
-            'brand': {
+            brand: {
                 '@type': 'Brand',
-                'name': page.product.manufacturer.translated.name
+                name: page.product.manufacturer.translated.name
             }
         }) %}
     {% endif %}
 
     {% if page.product.ean %}
-        {% set productData = productData|merge({'gtin13': page.product.ean}) %}
+        {% set productData = productData|merge({gtin13: page.product.ean}) %}
     {% endif %}
 
     {% if page.product.manufacturerNumber %}
-        {% set productData = productData|merge({'mpn': page.product.manufacturerNumber}) %}
+        {% set productData = productData|merge({mpn: page.product.manufacturerNumber}) %}
     {% endif %}
 
     {% if page.product.releaseDate %}
-        {% set productData = productData|merge({'releaseDate': page.product.releaseDate|format_date(pattern='Y-MM-dd')}) %}
+        {% set productData = productData|merge({releaseDate: page.product.releaseDate|format_date(pattern='Y-MM-dd')}) %}
     {% endif %}
 
     {# Dimensions as QuantitativeValue with unitText #}
@@ -176,7 +176,7 @@
         {% set weightUnit = 'kg' %}
     {% endif %}
     {% if weightValue and weightValue > 0 %}
-        {% set productData = productData|merge({'weight': {'@type': 'QuantitativeValue', 'value': weightValue, 'unitText': weightUnit}}) %}
+        {% set productData = productData|merge({weight: {'@type': 'QuantitativeValue', value: weightValue, unitText: weightUnit} }) %}
     {% endif %}
 
     {% if page.product.measurements.type('height') %}
@@ -187,7 +187,7 @@
         {% set heightUnit = 'mm' %}
     {% endif %}
     {% if heightValue and heightValue > 0 %}
-        {% set productData = productData|merge({'height': {'@type': 'QuantitativeValue', 'value': heightValue, 'unitText': heightUnit}}) %}
+        {% set productData = productData|merge({height: {'@type': 'QuantitativeValue', value: heightValue, unitText: heightUnit} }) %}
     {% endif %}
 
     {% if page.product.measurements.type('width') %}
@@ -198,7 +198,7 @@
         {% set widthUnit = 'mm' %}
     {% endif %}
     {% if widthValue and widthValue > 0 %}
-        {% set productData = productData|merge({'width': {'@type': 'QuantitativeValue', 'value': widthValue, 'unitText': widthUnit}}) %}
+        {% set productData = productData|merge({width: {'@type': 'QuantitativeValue', value: widthValue, unitText: widthUnit} }) %}
     {% endif %}
 
     {% if page.product.measurements.type('length') %}
@@ -209,7 +209,7 @@
         {% set lengthUnit = 'mm' %}
     {% endif %}
     {% if lengthValue and lengthValue > 0 %}
-        {% set productData = productData|merge({'depth': {'@type': 'QuantitativeValue', 'value': lengthValue, 'unitText': lengthUnit}}) %}
+        {% set productData = productData|merge({depth: {'@type': 'QuantitativeValue', value: lengthValue, unitText: lengthUnit} }) %}
     {% endif %}
 
     {% if page.reviewData %}
@@ -218,11 +218,11 @@
 
         {% if page.product.ratingAverage and page.product.ratingAverage > 0 and reviewCount > 0 %}
             {% set productData = productData|merge({
-                'aggregateRating': {
+                aggregateRating: {
                     '@type': 'AggregateRating',
-                    'ratingValue': page.product.ratingAverage,
-                    'ratingCount': reviewCount,
-                    'bestRating': 5
+                    ratingValue: page.product.ratingAverage,
+                    ratingCount: reviewCount,
+                    bestRating: 5
                 }
             }) %}
         {% endif %}
@@ -231,28 +231,28 @@
         {% for review in reviewData %}
             {% set reviewItem = {
                 '@type': 'Review',
-                'author': {'@type': 'Person', 'name': review.externalUser},
-                'datePublished': review.createdAt|format_date(pattern='Y-MM-dd'),
-                'reviewRating': {
+                author: {'@type': 'Person', name: review.externalUser},
+                datePublished: review.createdAt|format_date(pattern='Y-MM-dd'),
+                reviewRating: {
                     '@type': 'Rating',
-                    'ratingValue': review.points,
-                    'bestRating': 5
+                    ratingValue: review.points,
+                    bestRating: 5
                 }
             } %}
             {% if review.title %}
-                {% set reviewItem = reviewItem|merge({'name': review.title}) %}
+                {% set reviewItem = reviewItem|merge({name: review.title}) %}
             {% endif %}
             {% if review.content %}
-                {% set reviewItem = reviewItem|merge({'reviewBody': review.content|striptags}) %}
+                {% set reviewItem = reviewItem|merge({reviewBody: review.content|striptags}) %}
             {% endif %}
             {% if review.language and review.language.translationCode %}
-                {% set reviewItem = reviewItem|merge({'inLanguage': review.language.translationCode.code}) %}
+                {% set reviewItem = reviewItem|merge({inLanguage: review.language.translationCode.code}) %}
             {% endif %}
             {% set reviewItems = reviewItems|merge([reviewItem]) %}
         {% endfor %}
 
         {% if reviewItems|length > 0 %}
-            {% set productData = productData|merge({'review': reviewItems}) %}
+            {% set productData = productData|merge({review: reviewItems}) %}
         {% endif %}
     {% endif %}
 
@@ -266,6 +266,7 @@
 
     {% block page_product_detail_json_ld_script %}
         <script type="application/ld+json">
+        {# ludtwig-ignore twig-json-encode-escape-js #}
         {{ productData|json_encode(jsonFlags)|raw }}
         </script>
     {% endblock %}

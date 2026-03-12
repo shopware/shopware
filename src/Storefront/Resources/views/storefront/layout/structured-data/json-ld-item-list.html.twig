@@ -11,15 +11,15 @@
         {% for product in searchResult %}
             {% set itemListElements = itemListElements|merge([{
                 '@type': 'ListItem',
-                'position': loop.index,
-                'url': seoUrl('frontend.detail.page', { productId: product.id })
+                position: loop.index,
+                url: seoUrl('frontend.detail.page', { productId: product.id })
             }]) %}
         {% endfor %}
 
         {% set itemListData = {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
-            'itemListElement': itemListElements
+            itemListElement: itemListElements
         } %}
 
         {#
@@ -32,6 +32,7 @@
 
         {% block layout_structured_data_item_list_script %}
             <script type="application/ld+json">
+            {# ludtwig-ignore twig-json-encode-escape-js #}
             {{ itemListData|json_encode(jsonFlags)|raw }}
             </script>
         {% endblock %}

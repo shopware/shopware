@@ -4,17 +4,17 @@
     {% set orgData = {
         '@context': 'https://schema.org',
         '@type': 'Organization',
-        'name': basicConfig.shopName,
-        'url': app.request.schemeAndHttpHost ~ '/'
+        name: basicConfig.shopName,
+        url: app.request.schemeAndHttpHost ~ '/'
     } %}
 
     {# Google requires logo to be an ImageObject with a url property #}
     {% set logoUrl = theme_config('sw-logo-desktop') %}
     {% if logoUrl %}
         {% set orgData = orgData|merge({
-            'logo': {
+            logo: {
                 '@type': 'ImageObject',
-                'url': logoUrl
+                url: logoUrl
             }
         }) %}
     {% endif %}
@@ -29,6 +29,7 @@
 
     {% block layout_structured_data_organization_script %}
         <script type="application/ld+json">
+        {# ludtwig-ignore twig-json-encode-escape-js #}
         {{ orgData|json_encode(jsonFlags)|raw }}
         </script>
     {% endblock %}

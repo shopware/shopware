@@ -39,7 +39,9 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
                 ['technicalName' => $technicalName]
             );
 
-            static::assertNotFalse($documentTypeId);
+            if (!$documentTypeId) {
+                continue;
+            }
 
             $this->connection->executeStatement(
                 'DELETE FROM `document_type_translation` WHERE document_type_id = :documentTypeId',

@@ -260,12 +260,12 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function baseInvoiceNotFound(string $documentType, string $orderId): self
+    public static function referencedInvoiceNotFound(string $documentType, string $orderId): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
             self::DOCUMENT_BASE_INVOICE_NOT_FOUND,
-            'Could not generate document of type "{{ documentType }}" for order "{{ orderId }}" because no base invoice could be found.',
+            'Could not generate document of type "{{ documentType }}" for order "{{ orderId }}" because the referenced invoice could not be found.',
             [
                 'documentType' => $documentType,
                 'orderId' => $orderId,

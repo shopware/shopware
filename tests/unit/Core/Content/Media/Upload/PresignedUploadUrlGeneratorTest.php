@@ -12,6 +12,9 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @internal
@@ -368,5 +371,33 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         );
 
         static::assertNull($generator->getFileMetadata('media/ab/cd/test.jpg'));
+    }
+
+    public function testCreateWithCustomHttpClient(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->once())
+            ->method('request')
+            ->willReturnCallback(function (string $method, string $url, array $options = []): ResponseInterface {
+                static::assertSame('HEAD', $method);
+                static::assertNotSame('', $url);
+
+                return new MockResponse('', ['http_code' => 200]);
+            });
+
+        $generator = PresignedUploadUrlGenerator::create(
+            $this->mediaPathStrategy,
+            [
+                'type' => 'amazon-s3',
+                'config' => [
+                    'bucket' => 'test-bucket',
+                    'region' => 'eu-west-1',
+                ],
+            ],
+            new NullLogger(),
+            httpClient: $httpClient,
+        );
+
+        $generator->verifyUpload('media/test.jpg');
     }
 }

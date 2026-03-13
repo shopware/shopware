@@ -129,6 +129,18 @@ Two new events are dispatched when the product slider CMS element resolves its p
 - `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
 - `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
 
+### Allow custom HTTP client injection for S3 client creation
+
+The S3 client creation flow (`S3ClientFactory`, `AwsS3v3Factory`, `PresignedUploadUrlGenerator`)
+now accepts an optional `HttpClientInterface` parameter. When provided, this HTTP client is
+forwarded to the underlying AsyncAws `S3Client` instead of letting it create its own default.
+
+Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the new
+`shopware.filesystem.s3.client` service ID. This service is not registered by default, so
+`null` is injected and AsyncAws uses its own internal HTTP client. Integrators can register
+the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
+custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
+
 ## Administration
 
 ## Storefront

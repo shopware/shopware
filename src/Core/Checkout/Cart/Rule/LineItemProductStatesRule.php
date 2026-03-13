@@ -82,7 +82,7 @@ class LineItemProductStatesRule extends Rule
     {
         $states = [];
 
-        Feature::callSilentIfInactive('v6.8.0.0', function () use (&$states, $lineItem): void {
+        Feature::callSilentIfInactive('v6.8.0.0', static function () use (&$states, $lineItem): void {
             $states = $lineItem->getStates();
         });
 

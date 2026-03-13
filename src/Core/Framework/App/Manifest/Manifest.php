@@ -219,7 +219,7 @@ class Manifest
             $urls = \array_merge($urls, $this->tax->getUrls());
         }
 
-        $urls = \array_map(fn (string $url) => (string) \parse_url($url, \PHP_URL_HOST), $urls);
+        $urls = \array_map(static fn (string $url) => (string) \parse_url($url, \PHP_URL_HOST), $urls);
 
         return \array_values(\array_unique(\array_merge($hosts, $urls)));
     }

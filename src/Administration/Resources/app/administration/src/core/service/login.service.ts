@@ -28,6 +28,12 @@ interface TokenResponse {
     /* eslint-enable camelcase */
 }
 
+interface RetryBackoffOptions {
+    maxRetries?: number;
+    initialDelay?: number;
+    factor?: number;
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
     loginByUsername: (user: string, pass: string) => Promise<AuthObject>;
@@ -49,6 +55,8 @@ export interface LoginService {
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
     getLoginTemplateConfig: () => Promise<LoginConfig>;
+    subscribeToTokenRefresh: (successCallback: (token: string) => void, errorCallback: (error: Error) => void) => void;
+    isRefreshing: () => Promise<boolean>;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -64,6 +72,17 @@ export default function createLoginService(
     const onLoginListener: (() => void)[] = [];
     const cookieStorage = cookieStorageFactory();
     let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    /**
+     * Tracks an in-flight token refresh request so that concurrent calls
+     * to the refresh logic can share the same promise and avoid duplicate
+     * network requests.
+     */
+    let refreshPromise: Promise<string> | null = null;
+
+    // Subscriber pattern for token refresh events
+    const refreshSubscribers: Array<(token: string) => void> = [];
+    const refreshErrorSubscribers: Array<(error: Error) => void> = [];
 
     return {
         loginByUsername,
@@ -85,6 +104,8 @@ export default function createLoginService(
         getStorage,
         setRememberMe,
         getLoginTemplateConfig,
+        subscribeToTokenRefresh,
+        isRefreshing,
     };
 
     /**
@@ -140,40 +161,205 @@ export default function createLoginService(
     }
 
     /**
-     * Sends an AJAX request to the authentication end point and retries to refresh the token.
+     * Refreshes the access token with retry/backoff and cross-tab synchronization.
+     *
+     * Uses the Web Locks API to coordinate token refresh across browser tabs.
+     * Only one tab at a time will perform the actual HTTP request; other tabs
+     * wait for the lock and then re-check whether the token was already refreshed.
      */
     function refreshToken(): Promise<AuthObject['access']> {
-        const token = getRefreshToken();
+        // Avoid parallel refresh requests within the same tab by reusing the in-flight promise.
+        if (refreshPromise) {
+            return refreshPromise;
+        }
 
-        if (!token || !token.length) {
+        const refreshTokenValue = getRefreshToken();
+        if (!refreshTokenValue || !refreshTokenValue.length) {
             return Promise.reject(new Error('No refresh token found.'));
         }
 
-        return httpClient
-            .post<TokenResponse>(
-                '/oauth/token',
-                {
-                    grant_type: 'refresh_token',
-                    client_id: 'administration',
-                    scope: 'write',
-                    refresh_token: token,
-                },
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    baseURL: context.apiPath!,
-                },
-            )
+        // Capture the current access token before requesting the lock,
+        // so we can detect whether another tab refreshed it while we were waiting.
+        const accessTokenBeforeLock = getToken();
+
+        refreshPromise = synchronizedTokenRefresh(async () => {
+            // Another tab may already have refreshed the token while we were waiting for the lock.
+            const currentAccessToken = getToken();
+            if (currentAccessToken && currentAccessToken !== accessTokenBeforeLock) {
+                notifyRefreshSubscribers(currentAccessToken);
+                return currentAccessToken;
+            }
+
+            return retryRefreshWithBackoff(refreshTokenValue);
+        })
+            .catch((error) => {
+                throw error instanceof Error ? error : new Error(String(error));
+            })
+            .finally(() => {
+                refreshPromise = null;
+            });
+
+        return refreshPromise;
+    }
+
+    /**
+     * Executes refresh logic under a cross-tab lock when the Web Locks API is available.
+     */
+    async function synchronizedTokenRefresh<T>(fn: () => Promise<T>): Promise<T> {
+        if (typeof navigator === 'undefined' || typeof navigator.locks?.request !== 'function') {
+            return fn();
+        }
+
+        const result = await (navigator.locks.request('sw-admin-token-refresh', fn) as Promise<T>);
+
+        return result;
+    }
+
+    /**
+     * Performs the token refresh HTTP request with exponential backoff retry logic.
+     *
+     * On success: updates authentication and notifies subscribers.
+     * On failure after all retries: triggers an inactivity logout and notifies error subscribers.
+     *
+     * @private
+     */
+    function retryRefreshWithBackoff(token: string): Promise<string> {
+        return retryPromiseWithBackoff(
+            () => {
+                return httpClient.post<TokenResponse>(
+                    '/oauth/token',
+                    {
+                        grant_type: 'refresh_token',
+                        client_id: 'administration',
+                        scope: 'write',
+                        refresh_token: token,
+                    },
+                    {
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        baseURL: context.apiPath!,
+                    },
+                );
+            },
+            {
+                maxRetries: 2,
+                initialDelay: 500,
+                factor: 2,
+            },
+        )
             .then((response) => {
                 const expiry = response.data.expires_in;
+                const newToken = response.data.access_token;
 
                 setBearerAuthentication({
-                    access: response.data.access_token,
+                    access: newToken,
                     expiry: expiry,
                     refresh: response.data.refresh_token,
                 });
 
-                return response.data.access_token;
+                notifyRefreshSubscribers(newToken);
+
+                return newToken;
+            })
+            .catch((error) => {
+                logout(true);
+
+                // Notify all error subscribers
+                const errorObj = error instanceof Error ? error : new Error(String(error));
+                refreshErrorSubscribers.forEach((callback) => {
+                    callback(errorObj);
+                });
+                refreshSubscribers.length = 0;
+                refreshErrorSubscribers.length = 0;
+
+                return Promise.reject(errorObj);
             });
+    }
+
+    /**
+     * Retries a promise-returning function with exponential backoff.
+     *
+     * @param fn - Function that returns the promise to execute
+     * @param options - Retry and backoff configuration
+     */
+    function retryPromiseWithBackoff<T>(fn: () => Promise<T>, options: RetryBackoffOptions = {}): Promise<T> {
+        const { maxRetries = 3, initialDelay = 1000, factor = 2 } = options;
+
+        return new Promise<T>((resolve, reject) => {
+            let attempt = 0;
+
+            const execute = (): void => {
+                Promise.resolve()
+                    .then(fn)
+                    .then(resolve)
+                    .catch((error) => {
+                        if (attempt >= maxRetries) {
+                            const errorObj = error instanceof Error ? error : new Error(String(error));
+                            reject(errorObj);
+                            return;
+                        }
+
+                        const delay = initialDelay * factor ** attempt;
+                        attempt += 1;
+
+                        setTimeout(execute, delay);
+                    });
+            };
+
+            execute();
+        });
+    }
+
+    /**
+     * Notifies all refresh subscribers with the latest token and clears all refresh subscriber queues.
+     *
+     * @param token - The refreshed access token
+     */
+    function notifyRefreshSubscribers(token: string): void {
+        refreshSubscribers.forEach((callback) => {
+            callback(token);
+        });
+        refreshSubscribers.length = 0;
+        refreshErrorSubscribers.length = 0;
+    }
+
+    /**
+     * Subscribe to token refresh events. Callbacks will be called when token refresh succeeds or fails.
+     *
+     * @param successCallback - Called with the new token when refresh succeeds
+     * @param errorCallback - Called with the error when refresh fails
+     */
+    function subscribeToTokenRefresh(successCallback: (token: string) => void, errorCallback: (error: Error) => void): void {
+        refreshSubscribers.push(successCallback);
+        refreshErrorSubscribers.push(errorCallback);
+    }
+
+    /**
+     * Returns whether a token refresh is currently in progress.
+     *
+     * Checks both this tab's in-flight refresh promise and, where supported,
+     * the shared Web Lock used for cross-tab refresh synchronization.
+     */
+    async function isRefreshing(): Promise<boolean> {
+        if (refreshPromise !== null) {
+            return true;
+        }
+
+        if (typeof navigator === 'undefined' || typeof navigator.locks?.query !== 'function') {
+            return false;
+        }
+
+        try {
+            const lockState = await navigator.locks.query();
+            const heldLocks = lockState.held ?? [];
+            const pendingLocks = lockState.pending ?? [];
+
+            return (
+                heldLocks.some((lock) => lock.name === 'sw-admin-token-refresh') ||
+                pendingLocks.some((lock) => lock.name === 'sw-admin-token-refresh')
+            );
+        } catch {
+            return false;
+        }
     }
 
     function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {

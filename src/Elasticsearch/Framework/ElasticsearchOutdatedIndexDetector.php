@@ -48,7 +48,7 @@ class ElasticsearchOutdatedIndexDetector
     {
         $allIndices = $this->getAllIndices();
 
-        return array_map(fn (array $index) => $index['settings']['index']['provided_name'], $allIndices);
+        return array_map(static fn (array $index) => $index['settings']['index']['provided_name'], $allIndices);
     }
 
     /**

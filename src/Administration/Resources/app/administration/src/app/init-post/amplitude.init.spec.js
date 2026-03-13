@@ -623,5 +623,53 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
             jest.useRealTimers();
         });
+
+        it('deletes user data when consent is revoked before deferred runtime activation finishes', async () => {
+            const { init, createInstance } = await import('@amplitude/analytics-browser');
+            const consentStore = useConsentStore();
+
+            jest.useFakeTimers();
+            consentStore.consents.product_analytics.status = 'revoked';
+
+            await initAmplitude();
+
+            init.mockClear();
+            createInstance.mockClear();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'accepted',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'revoked',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            expect(init).not.toHaveBeenCalled();
+            expect(createInstance).toHaveBeenCalledTimes(1);
+            expect(mockDeleteUserAmplitudeClient.track).toHaveBeenCalledWith('delete_user', {
+                shop_id: testShopId,
+                user_id: testUserId,
+                amplitude_user_id: `${testShopId}:${testUserId}`,
+            });
+            expect(mockDeleteUserAmplitudeClient.flush).toHaveBeenCalled();
+
+            jest.useRealTimers();
+        });
     });
 });

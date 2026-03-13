@@ -386,7 +386,8 @@
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Duplicate document number. A consecutive number has automatically been drawn from the respective number range."
-      }
+      },
+      "confirmDeleteText": "This document is part of an order and may be relevant for tax purposes. Deleting it may affect the traceability of your accounting records. Please ensure that deletion is legally permitted. This action cannot be undone."
     },
     "generalTab": {
       "info": {

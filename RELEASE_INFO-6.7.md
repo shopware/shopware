@@ -76,6 +76,11 @@ If you want to enforce values on write, set `strict: true` when creating the fla
 
 ## Core
 
+### Product stream deletion is blocked while product exports exist
+
+Deleting a product stream that's been used in a product export raises a dedicated delete restriction.
+This rule is additionally enforced on database level by changing the foreign key delete action from `CASCADE` to `RESTRICT`.
+
 ### Reduced HTTP cache invalidation on system config changes
 
 `SystemConfigService::set()`, `setMultiple()`, and `delete()` now accept an optional `$silent` parameter. When `silent=true`, the internal config cache is still cleared immediately, but the broad HTTP cache tag `system.config-{salesChannelId}` is not invalidated.
@@ -102,6 +107,11 @@ The CategoryIndexer did already check for changed payload and only triggered the
 But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
 This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
 Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
+
+### Existing cart recalculations no longer recreate deleted carts
+
+When an existing cart is recalculated, Shopware now uses the cart's persisted state to avoid recreating carts that were already deleted.
+This prevents race conditions where a concurrent request, such as placing an order, deletes the cart and a stale recalculation writes it back afterwards.
 
 ### Deprecation of unused `TemplateGroup` class
 

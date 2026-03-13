@@ -25,7 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(MediaRoute::class)]
 class MediaRouteTest extends TestCase
 {
-    /** @var EntityRepository<MediaCollection>&MockObject */
+    /**
+     * @var EntityRepository<MediaCollection>&MockObject
+     */
     private EntityRepository&MockObject $mediaRepository;
 
     private CacheTagCollector&MockObject $cacheTagCollector;

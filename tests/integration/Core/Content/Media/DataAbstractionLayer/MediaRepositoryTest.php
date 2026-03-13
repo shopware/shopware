@@ -211,14 +211,14 @@ class MediaRepositoryTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
-        $media = $this->context->scope(Context::USER_SCOPE, fn (Context $context) => $mediaRepository->search(new Criteria([$mediaId]), $context));
+        $media = $this->context->scope(Context::USER_SCOPE, static fn (Context $context) => $mediaRepository->search(new Criteria([$mediaId]), $context));
 
         static::assertInstanceOf(EntitySearchResult::class, $media);
         static::assertCount(0, $media);
 
         $documentRepository = $this->documentRepository;
         $document = null;
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$document, $documentId, $documentRepository): void {
+        $this->context->scope(Context::USER_SCOPE, static function (Context $context) use (&$document, $documentId, $documentRepository): void {
             $criteria = new Criteria([$documentId]);
             $criteria->addAssociation('documentMediaFile');
             $document = $documentRepository->search($criteria, $context);

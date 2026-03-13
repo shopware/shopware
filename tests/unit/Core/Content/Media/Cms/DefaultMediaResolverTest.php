@@ -71,7 +71,7 @@ class DefaultMediaResolverTest extends TestCase
             ->willReturn('image/jpeg');
 
         $this->filesystem->method('mimeType')
-            ->willReturnCallback(function ($filePath) {
+            ->willReturnCallback(static function ($filePath) {
                 return $filePath === 'bundles/storefront/assets/default/cms/shopware' ? 'image/jpeg' : null;
             });
 

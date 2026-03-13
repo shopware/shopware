@@ -175,7 +175,7 @@ class FloatComparatorTest extends TestCase
         $equalsData = self::equalsDataProvider();
 
         return \array_map(
-            fn ($testData) => [$testData[0], $testData[1], !$testData[2]],
+            static fn ($testData) => [$testData[0], $testData[1], !$testData[2]],
             $equalsData
         );
     }

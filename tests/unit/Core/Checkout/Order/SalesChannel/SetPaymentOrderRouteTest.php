@@ -313,7 +313,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $orderRepository
             ->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function ($payload) use ($orderLater): EntityWrittenContainerEvent {
+            ->willReturnCallback(static function ($payload) use ($orderLater): EntityWrittenContainerEvent {
                 static::assertCount(1, $payload);
                 static::assertCount(1, $payload[0]['transactions']);
 

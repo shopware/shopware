@@ -112,11 +112,14 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         static::assertSame('media_01', $manufacturerLogoStruct->getMediaId());
     }
 
-    public function testCollectWithMappedMediaInEntityContext(): void
+    public function testCollectWithMappedManufacturerWithoutMediaInEntityContext(): void
     {
         $product = new SalesChannelProductEntity();
         $product->setId('product_01');
         $product->setManufacturerId('manufacturer_01');
+        $manufacturer = new ProductManufacturerEntity();
+        $manufacturer->setId('manufacturer_01');
+        $product->setManufacturer($manufacturer);
 
         $resolverContext = new EntityResolverContext(
             $this->createMock(SalesChannelContext::class),
@@ -137,7 +140,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         static::assertNotNull($collection);
         static::assertArrayHasKey(ProductManufacturerDefinition::class, $collection->all());
 
-        $criteria = $collection->all()[ProductManufacturerDefinition::class]['product_manufacturer_id'];
+        $criteria = $collection->all()[ProductManufacturerDefinition::class]['mapped_product_manufacturer_id'];
         static::assertSame(['manufacturer_01'], $criteria->getIds());
         static::assertArrayHasKey('media', $criteria->getAssociations());
     }

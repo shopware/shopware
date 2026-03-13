@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,19 +34,16 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
 
         if ($mediaConfig !== null && $mediaConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
             $media = $this->resolveEntityValue($resolverContext->getEntity(), $mediaConfig->getStringValue());
+            $resolverEntity = $resolverContext->getEntity();
 
-            if (!$media instanceof MediaEntity) {
-                $resolverEntity = $resolverContext->getEntity();
-
-                if ($resolverEntity instanceof SalesChannelProductEntity) {
-                    $manufacturerId = $resolverEntity->getManufacturerId();
-
-                    if ($manufacturerId) {
-                        $criteria = new Criteria([$manufacturerId]);
-                        $criteria->addAssociation('media');
-                        $criteriaCollection->add('product_manufacturer_' . $slot->getUniqueIdentifier(), ProductManufacturerDefinition::class, $criteria);
-                    }
-                }
+            if (!$media instanceof MediaEntity
+                && $resolverEntity instanceof SalesChannelProductEntity
+                && ($manufacturerId = $resolverEntity->getManufacturerId()) !== null
+                && (!$resolverEntity->getManufacturer() instanceof ProductManufacturerEntity || $resolverEntity->getManufacturer()->getMedia() === null)
+            ) {
+                $criteria = new Criteria([$manufacturerId]);
+                $criteria->addAssociation('media');
+                $criteriaCollection->add('mapped_product_manufacturer_' . $slot->getUniqueIdentifier(), ProductManufacturerDefinition::class, $criteria);
             }
         }
 
@@ -85,9 +83,9 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             }
         }
 
-        $mappedProduct = $this->getMappedProduct($slot, $result);
-        if ($mappedProduct !== null) {
-            $manufacturerStruct->setManufacturer($mappedProduct->getManufacturer());
+        $mappedManufacturer = $this->getMappedManufacturer($slot, $result);
+        if ($mappedManufacturer !== null) {
+            $manufacturerStruct->setManufacturer($mappedManufacturer);
         }
 
         if ($manufacturerStruct->getManufacturer() === null && $resolverContext instanceof EntityResolverContext && $resolverContext->getDefinition() instanceof SalesChannelProductDefinition) {
@@ -128,26 +126,23 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             return null;
         }
 
-        $mappedProduct = $this->getMappedProduct($slot, $result);
-        if ($mappedProduct !== null) {
-            $media = $this->resolveEntityValue($mappedProduct, $config->getStringValue());
-            if ($media instanceof MediaEntity) {
-                return $media;
-            }
+        $mappedManufacturer = $this->getMappedManufacturer($slot, $result);
+        if ($mappedManufacturer !== null) {
+            return $mappedManufacturer->getMedia();
         }
 
         return $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
     }
 
-    private function getMappedProduct(CmsSlotEntity $slot, ElementDataCollection $result): ?SalesChannelProductEntity
+    private function getMappedManufacturer(CmsSlotEntity $slot, ElementDataCollection $result): ?ProductManufacturerEntity
     {
-        $mappedProduct = $result->get('mapped_product_' . $slot->getUniqueIdentifier());
-        if (!$mappedProduct instanceof EntitySearchResult) {
+        $mappedManufacturer = $result->get('mapped_product_manufacturer_' . $slot->getUniqueIdentifier());
+        if (!$mappedManufacturer instanceof EntitySearchResult) {
             return null;
         }
 
-        $product = $mappedProduct->first();
+        $manufacturer = $mappedManufacturer->first();
 
-        return $product instanceof SalesChannelProductEntity ? $product : null;
+        return $manufacturer instanceof ProductManufacturerEntity ? $manufacturer : null;
     }
 }

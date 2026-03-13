@@ -84,7 +84,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         static::assertNull($resolver->collect($slot, $context));
     }
 
-    public function testCollectCreatesMappedProductCriteriaForMappedMedia(): void
+    public function testCollectionWithMediaIsEmptyAndManufacturerIsNotLoaded(): void
     {
         $config = new FieldConfigCollection([
             new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.manufacturer.media'),
@@ -110,7 +110,42 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
 
         static::assertInstanceOf(CriteriaCollection::class, $collection);
         static::assertArrayHasKey(ProductManufacturerDefinition::class, $collection->all());
-        $criteria = $collection->all()[ProductManufacturerDefinition::class]['product_manufacturer_slot-1'];
+        $criteria = $collection->all()[ProductManufacturerDefinition::class]['mapped_product_manufacturer_slot-1'];
+        static::assertSame(['manufacturer-1'], $criteria->getIds());
+        static::assertArrayHasKey('media', $criteria->getAssociations());
+    }
+
+    public function testCollectionWithMediaIsEmptyAndManufacturerIsLoadedAndHasNoMedia(): void
+    {
+        $config = new FieldConfigCollection([
+            new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.manufacturer.media'),
+        ]);
+        
+        $slot = new CmsSlotEntity();
+        $slot->setId('slot-1');
+        $slot->setFieldConfig($config);
+
+        $manufacturer = new ProductManufacturerEntity();
+        $manufacturer->setId('manufacturer-1');
+
+        $product = new SalesChannelProductEntity();
+        $product->setId('product-1');
+        $product->setManufacturerId('manufacturer-1');
+        $product->setManufacturer($manufacturer);
+
+        $context = new EntityResolverContext(
+            Generator::generateSalesChannelContext(),
+            new Request(),
+            new SalesChannelProductDefinition(),
+            $product
+        );
+
+        $resolver = new ManufacturerLogoCmsElementResolver();
+        $collection = $resolver->collect($slot, $context);
+
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
+        static::assertArrayHasKey(ProductManufacturerDefinition::class, $collection->all());
+        $criteria = $collection->all()[ProductManufacturerDefinition::class]['mapped_product_manufacturer_slot-1'];
         static::assertSame(['manufacturer-1'], $criteria->getIds());
         static::assertArrayHasKey('media', $criteria->getAssociations());
     }
@@ -134,6 +169,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
 
         $product = new SalesChannelProductEntity();
         $product->setId('product-1');
+        $product->setManufacturerId('manufacturer-1');
         $product->setManufacturer($manufacturer);
 
         $context = new EntityResolverContext(
@@ -233,15 +269,11 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $manufacturer->setId('manufacturer-1');
         $manufacturer->setMedia($mappedMedia);
 
-        $mappedProduct = new SalesChannelProductEntity();
-        $mappedProduct->setId('product-1');
-        $mappedProduct->setManufacturer($manufacturer);
-
         $mappedResult = $this->createMock(EntitySearchResult::class);
-        $mappedResult->method('first')->willReturn($mappedProduct);
+        $mappedResult->method('first')->willReturn($manufacturer);
 
         $data = new ElementDataCollection();
-        $data->add('mapped_product_slot-1', $mappedResult);
+        $data->add('mapped_product_manufacturer_slot-1', $mappedResult);
 
         $resolver = new ManufacturerLogoCmsElementResolver();
         $resolver->enrich($slot, $context, $data);
@@ -286,7 +318,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $invalidMappedResult->method('first')->willReturn(new MediaEntity());
 
         $data = new ElementDataCollection();
-        $data->add('mapped_product_slot-1', $invalidMappedResult);
+        $data->add('mapped_product_manufacturer_slot-1', $invalidMappedResult);
 
         $resolver = new ManufacturerLogoCmsElementResolver();
         $resolver->enrich($slot, $context, $data);

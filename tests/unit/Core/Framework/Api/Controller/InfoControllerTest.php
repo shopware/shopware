@@ -63,6 +63,9 @@ class InfoControllerTest extends TestCase
         $this->statsService = $this->createMock(StatsService::class);
         $this->migrationInfo = $this->createMock(MigrationInfo::class);
         $this->eventDispatcher = new EventDispatcher();
+
+        $shopId = ShopId::v2('shop-id');
+        $this->shopIdProvider->expects($this->any())->method('getShopId')->willReturn($shopId);
     }
 
     public function testConfig(): void
@@ -70,8 +73,6 @@ class InfoControllerTest extends TestCase
         $this->setEnvVars([
             'APP_URL' => 'https://app.url',
         ]);
-
-        $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
         $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);

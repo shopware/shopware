@@ -1,3 +1,15 @@
+# 6.7.8.1
+
+## Digital product download access regression fix requires product indexer refresh for immediate effect
+
+This release queues `product.indexer` as part of the digital product download-access regression fix.
+
+If you want to apply the fix synchronously right after update, run:
+
+```bash
+bin/console dal:refresh:index --only=product.indexer
+```
+
 # 6.7.6.0
 
 ## Deprecation of video blocks

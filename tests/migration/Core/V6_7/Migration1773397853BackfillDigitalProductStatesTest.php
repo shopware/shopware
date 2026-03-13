@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1773397853BackfillDigitalProductStates;
@@ -27,6 +28,7 @@ class Migration1773397853BackfillDigitalProductStatesTest extends TestCase
 
         $this->connection = KernelLifecycleManager::getConnection();
         $this->ids = new IdsCollection();
+        $this->connection->delete('system_config', ['configuration_key' => IndexerQueuer::INDEXER_KEY]);
     }
 
     protected function tearDown(): void
@@ -36,6 +38,7 @@ class Migration1773397853BackfillDigitalProductStatesTest extends TestCase
         $this->connection->delete('product', ['id' => $this->ids->getBytes('digital-null'), 'version_id' => $versionId]);
         $this->connection->delete('product', ['id' => $this->ids->getBytes('digital-non-null'), 'version_id' => $versionId]);
         $this->connection->delete('product', ['id' => $this->ids->getBytes('physical-null'), 'version_id' => $versionId]);
+        $this->connection->delete('system_config', ['configuration_key' => IndexerQueuer::INDEXER_KEY]);
 
         parent::tearDown();
     }
@@ -48,7 +51,7 @@ class Migration1773397853BackfillDigitalProductStatesTest extends TestCase
         );
     }
 
-    public function testMigrationBackfillsOnlyDigitalProductsWithNullStates(): void
+    public function testMigrationQueuesProductIndexerWithoutImmediateBackfill(): void
     {
         $this->createProduct($this->ids->getBytes('digital-null'), 'digital', null);
         $this->createProduct($this->ids->getBytes('digital-non-null'), 'digital', ['is-physical']);
@@ -62,9 +65,14 @@ class Migration1773397853BackfillDigitalProductStatesTest extends TestCase
         $secondStates = $this->fetchStates($this->ids->get('digital-non-null'));
         $thirdStates = $this->fetchStates($this->ids->get('physical-null'));
 
-        static::assertSame(['is-download'], json_decode((string) $firstStates, true, 512, \JSON_THROW_ON_ERROR));
+        static::assertNull($firstStates);
         static::assertSame(['is-physical'], json_decode((string) $secondStates, true, 512, \JSON_THROW_ON_ERROR));
         static::assertNull($thirdStates);
+
+        static::assertSame(
+            ['product.indexer' => []],
+            (new IndexerQueuer($this->connection))->getIndexers()
+        );
     }
 
     /**

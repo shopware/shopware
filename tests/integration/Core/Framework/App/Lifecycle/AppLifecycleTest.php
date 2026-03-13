@@ -33,8 +33,8 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
@@ -500,14 +500,14 @@ class AppLifecycleTest extends TestCase
             ],
         ]], $context);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['update'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -677,14 +677,14 @@ class AppLifecycleTest extends TestCase
             ],
         ]], $context);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['update'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -780,14 +780,14 @@ class AppLifecycleTest extends TestCase
             ],
         ]], $context);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['update'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,

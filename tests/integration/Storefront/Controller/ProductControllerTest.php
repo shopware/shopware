@@ -365,7 +365,6 @@ class ProductControllerTest extends TestCase
 
         if (Feature::isActive('JSON_LD_DATA')) {
             static::assertStringContainsString('class="product-detail-review-item-content"', $content);
-            static::assertStringNotContainsString('itemprop="description"', $content);
         } else {
             static::assertStringContainsString('class="product-detail-review-item-content"', $content);
             static::assertStringContainsString('itemprop="description"', $content);

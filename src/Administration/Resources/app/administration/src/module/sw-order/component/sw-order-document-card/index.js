@@ -117,9 +117,10 @@ export default {
                 return `sw-order-document-settings-${subComponentName}-modal`;
             }
 
-            const zugferdSubComponentName = ZUGFERD_COMPONENT_MAPPING[
-                this.currentDocumentType.technicalName
-            ]?.replace(/_/g, '-');
+            const zugferdSubComponentName = ZUGFERD_COMPONENT_MAPPING[this.currentDocumentType.technicalName]?.replace(
+                /_/g,
+                '-',
+            );
 
             if (this.$.appContext.components[`sw-order-document-settings-${zugferdSubComponentName}-modal`]) {
                 return `sw-order-document-settings-${zugferdSubComponentName}-modal`;

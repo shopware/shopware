@@ -189,7 +189,9 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
                     ],
                 ]);
 
-                $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
+                if ($operation->getOrderVersionId() === Defaults::LIVE_VERSION) {
+                    $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
+                }
 
                 if ($operation->isStatic()) {
                     $result->addSuccess(
@@ -431,7 +433,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
 
         $binaryIds = $this->connection->fetchFirstColumn($sql, [
             'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
-            'creditTechnicalName' => [self::TYPE, ZugferdCreditNoteRenderer::TYPE, ZugferdEmbeddedCreditNoteRenderer::TYPE],
+            'creditTechnicalName' => [CreditNoteRenderer::TYPE, self::TYPE, ZugferdEmbeddedCreditNoteRenderer::TYPE],
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
         ], [
             'creditTechnicalName' => ArrayParameterType::STRING,

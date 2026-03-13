@@ -11,12 +11,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
-use function array_merge;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1773317656AddZugferdCreditNote extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -64,8 +63,8 @@ class Migration1773317656AddZugferdCreditNote extends MigrationStep
         $connection->insert('document_type', ['id' => $typeId, 'technical_name' => $technicalName, 'created_at' => $createdAt]);
 
         $translation = new Translations(
-            array_merge(['document_type_id' => $typeId], $translations['de']),
-            array_merge(['document_type_id' => $typeId], $translations['en'])
+            \array_merge(['document_type_id' => $typeId], $translations['de']),
+            \array_merge(['document_type_id' => $typeId], $translations['en'])
         );
 
         $this->importTranslation('document_type_translation', $translation, $connection);

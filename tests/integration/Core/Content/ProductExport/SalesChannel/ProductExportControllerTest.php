@@ -362,6 +362,11 @@ class ProductExportControllerTest extends TestCase
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts($salesChannelId), 'id'), 0, 2));
 
+        // prevent foreign key constraint errors
+        $connection->executeStatement('
+            DELETE FROM `product_export` WHERE `product_stream_id` = UNHEX(\'137B079935714281BA80B40F83F8D7EB\');
+        ');
+
         $connection->executeStatement("
             REPLACE INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES

@@ -703,8 +703,7 @@ class EntityReader implements EntityReaderInterface
                 new $collectionClass(),
                 $referenceClass->getFields()->getBasicFields(),
                 false,
-                $fieldsForPartialLoading,
-                $isPartialLoading,
+                $partial
             );
         } else {
             $data = new $collectionClass();

@@ -9,14 +9,14 @@ export default class MediaGallery extends ShopwareComponent {
         this.thumbnailButtons = this.el.querySelectorAll('[data-gallery-thumbnail-button]');
         this.previewsElements = this.el.querySelectorAll('.sw-media-gallery__preview');
 
-        this._initThumbnailSwitching();
-        this._initPreviewZoom();
+        this.initThumbnailSwitching();
+        this.initPreviewZoom();
 
-        this._initModalZoom();
-        this._initThumbnailNavScroller();
+        this.initModalZoom();
+        this.initThumbnailNavScroller();
     }
 
-    _initModalZoom() {
+    initModalZoom() {
         const modalImgs = document.querySelectorAll('.sw-media-gallery__fullscreen-image-media');
         modalImgs.forEach((img) => {
                 img.addEventListener('click', () => {
@@ -25,7 +25,7 @@ export default class MediaGallery extends ShopwareComponent {
         });
     }
 
-    _initThumbnailSwitching() {
+    initThumbnailSwitching() {
         this.thumbnailButtons.forEach((button) => {
             button.addEventListener('mouseover', () => {
                 const targetId = button.dataset.target;
@@ -41,7 +41,7 @@ export default class MediaGallery extends ShopwareComponent {
         });
     }
 
-    _initPreviewZoom() {
+    initPreviewZoom() {
         const scale = this.constructor.options.zoomScale;
         const previewsContainer = this.el.querySelector('.sw-media-gallery__previews');
         const previews = this.el.querySelectorAll('.sw-media-gallery__preview');
@@ -88,7 +88,7 @@ export default class MediaGallery extends ShopwareComponent {
         });
     }
 
-    _initThumbnailNavScroller() {
+    initThumbnailNavScroller() {
         // Vertical nav scroller
         // When scrollbar is visible, show the scroll controls
         const verticalNav = this.el.querySelector('.sw-media-gallery__thumbnail-nav');
@@ -101,5 +101,9 @@ export default class MediaGallery extends ShopwareComponent {
             const isScrollbarVisible = verticalNavInner.scrollHeight > verticalNavInner.clientHeight;
             verticalNavScrollControl.style.display = isScrollbarVisible ? 'block' : 'none';
         });
+    }
+
+    destroy() {
+        // TODO: Implement destroy method
     }
 }

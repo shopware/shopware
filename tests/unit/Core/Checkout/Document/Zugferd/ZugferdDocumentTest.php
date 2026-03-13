@@ -72,8 +72,8 @@ class ZugferdDocumentTest extends TestCase
             ->withProductLineItem($lineItem, '');
     }
 
-    #[TestWith([true])]
-    #[TestWith([false])]
+    #[TestWith([true], 'should not throw when negative price is allowed')]
+    #[TestWith([false], 'should throw when negative price is disallowed')]
     public function testWithNegativePrice(bool $allowNegative): void
     {
         if ($allowNegative) {

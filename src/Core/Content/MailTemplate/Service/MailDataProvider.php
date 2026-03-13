@@ -8,9 +8,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -89,6 +87,7 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -145,10 +144,15 @@ class MailDataProvider
 
         $templateData[MailAware::TIMEZONE] = 'UTC';
 
-        $salesChannelFields = $this->definitionRegistry->getByClassOrEntityName(SalesChannelDefinition::class)->getFields();
-
-        $templateData['salesChannel'] = $this->generateFieldData(SalesChannelDefinition::class, $salesChannelFields, null, $referenceData, $faker);
-        $templateData['salesChannelId'] = $templateData['salesChannel']['id'];
+        $templateData['salesChannel'] = $this->generateEntityData(
+            SalesChannelDefinition::class,
+            (new Criteria())
+                ->addAssociation('mailHeaderFooter')
+                ->addAssociation('domains'),
+            $referenceData,
+            $faker
+        );
+        $templateData['salesChannelId'] = $templateData['salesChannel']->get('id');
 
         foreach ($eventData as $name => $type) {
             if (\array_key_exists($name, $templateData)) {
@@ -172,13 +176,15 @@ class MailDataProvider
 
         if ($dataType::class === EntityCollectionType::class || $dataType::class === EntityType::class) {
             $definition = $this->definitionRegistry->getByClassOrEntityName($dataType->getDefinitionClass());
-            $fields = $definition->getFields();
 
             $dataProvider = $this->dataProviders[$definition->getEntityName()] ?? null;
 
-            $referenceData[$definition::class] = $this->generateFieldData($definition::class, $fields, $dataProvider?->getCriteria('mail template test id', $context), $referenceData, $faker);
-
-            return $referenceData[$definition::class];
+            return $this->generateEntityData(
+                $definition,
+                $dataProvider?->getCriteria('mail template test id', $context),
+                $referenceData,
+                $faker
+            );
         }
 
         if ($dataType::class === ForeignKeyType::class) {
@@ -212,236 +218,213 @@ class MailDataProvider
     }
 
     /**
-     * @param CompiledFieldCollection|list<Field> $fields
-     * @param array<string,mixed> $referenceData
-     *
-     * @return array<string,mixed>
+     * @param array<string,Entity> $referenceData
      */
-    private function generateFieldData(string $parent, CompiledFieldCollection|array $fields, ?Criteria $criteria, array &$referenceData, Generator $faker): array
+    private function generateEntityData(EntityDefinition|string $definition, ?Criteria $criteria, array &$referenceData, Generator $faker): Entity
     {
-        $fieldData = [];
-        $unresolvedTranslatedFields = [];
-
-        if (!\array_key_exists($parent, $referenceData)) {
-            $referenceData[$parent] = [];
+        if (\is_string($definition)) {
+            $definition = $this->definitionRegistry->getByClassOrEntityName($definition);
         }
+
+        if (\array_key_exists($definition::class, $referenceData)) {
+            return $referenceData[$definition::class];
+        }
+
+        $fields = $definition->getFields();
+
+        $entity = new ($definition->getEntityClass());
+
+        $referenceData[$definition::class] = $entity;
+
+        $translatedFields = [];
 
         foreach ($fields as $field) {
-            if (\array_key_exists($field->getPropertyName(), $fieldData) || $field->getFlag(ApiAware::class) === null) {
-                continue;
-            }
-
-            if ($field::class === TranslationsAssociationField::class) {
-                $definition = $this->definitionRegistry->getByClassOrEntityName($field->getReferenceClass());
-
-                if (!\array_key_exists($definition::class, $referenceData)) {
-                    $translationFields = $definition->getFields();
-                    $referenceData[$definition::class] = $this->generateFieldData($definition::class, $translationFields, $criteria, $referenceData, $faker);
-                }
-
-                $fieldData[EntityDefinition::TRANSLATED_FIELD] = $referenceData[$definition::class];
-            }
-
-            if ($field instanceof AssociationField && !$field->getAutoload() && ($criteria === null || !$criteria->hasAssociation($field->getPropertyName()))) {
-                continue;
-            }
-
             $propertyName = $field->getPropertyName();
 
-            switch ($field::class) {
-                case AutoIncrementField::class:
-                    $fieldData[$propertyName] = $faker->numberBetween();
-                    break;
-                case BlobField::class:
-                    $fieldData[$propertyName] = $propertyName;
-                    break;
-                case BoolField::class:
-                case LockedField::class:
-                    $fieldData[$propertyName] = false;
-                    break;
-                case BreadcrumbField::class:
-                case EnumField::class:
-                case ListField::class:
-                    $fieldData[$propertyName] = [];
-                    break;
-                case CalculatedPriceField::class:
-                case CartPriceField::class:
-                case CashRoundingConfigField::class:
-                case ConfigJsonField::class:
-                case CustomFields::class:
-                case JsonField::class:
-                case ObjectField::class:
-                case PriceDefinitionField::class:
-                case PriceField::class:
-                case TaxFreeConfigField::class:
-                case TreeBreadcrumbField::class:
-                case VariantListingConfigField::class:
-                case VersionDataPayloadField::class:
-                    $fieldData[$propertyName] = $this->generateFieldData($field::class, $field->getPropertyMapping(), null, $referenceData, $faker);
-                    break;
-                case ChildCountField::class:
-                case IntField::class:
-                case TreeLevelField::class:
-                    $fieldData[$propertyName] = $faker->randomNumber();
-                    break;
-                case ChildrenAssociationField::class:
-                case ManyToOneAssociationField::class:
-                case OneToOneAssociationField::class:
-                case ParentAssociationField::class:
-                    $definition = $this->definitionRegistry->getByClassOrEntityName($field->getReferenceClass());
-
-                    if (!\array_key_exists($definition::class, $referenceData)) {
-                        $referenceFields = $definition->getFields();
-
-                        $referenceData[$definition::class] = $this->generateFieldData($definition::class, $referenceFields, $criteria?->getAssociation($propertyName), $referenceData, $faker);
-                    }
-
-                    $fieldData[$propertyName] = $referenceData[$definition::class];
-                    break;
-                case CreatedAtField::class:
-                case DateTimeField::class:
-                case UpdatedAtField::class:
-                    $fieldData[$propertyName] = $this->randomDateTime($faker)->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-                    break;
-                case CreatedByField::class:
-                case FkField::class:
-                case ParentFkField::class:
-                case ReferenceVersionField::class:
-                case StateMachineStateField::class:
-                case UpdatedByField::class:
-                case VersionField::class:
-                    $definition = $this->definitionRegistry->getByClassOrEntityName($field->getReferenceClass());
-
-                    if (!\array_key_exists($definition::class, $referenceData)) {
-                        $referenceFields = $definition->getFields();
-
-                        $referenceData[$definition::class] = $this->generateFieldData($definition::class, $referenceFields, $criteria?->getAssociation($propertyName), $referenceData, $faker);
-                    }
-
-                    $fieldData[$propertyName] =
-                        $referenceData[$definition::class][$field->getReferenceField()]
-                        ?? $referenceData[$definition::class . '.' . $field->getReferenceField()]
-                        ?? null;
-                    break;
-                case CronIntervalField::class:
-                    $fieldData[$propertyName] = '8 * * * *';
-                    break;
-                case DateField::class:
-                    $fieldData[$propertyName] = $this->randomDateTime($faker)->format(Defaults::STORAGE_DATE_FORMAT);
-                    break;
-                case DateIntervalField::class:
-                    $fieldData[$propertyName] = (string) (new DateInterval('PT30M'));
-                    break;
-                case EmailField::class:
-                    $fieldData[$propertyName] = $faker->email();
-                    break;
-                case FloatField::class:
-                    $fieldData[$propertyName] = $faker->randomFloat();
-                    break;
-                case IdField::class:
-                    if (!\array_key_exists($parent . '.id', $referenceData)) {
-                        $referenceData[$parent . '.id'] = Uuid::fromStringToHex($faker->uuid());
-                    }
-
-                    $fieldData[$propertyName] = $referenceData[$parent . '.id'];
-                    break;
-                case LongTextField::class:
-                case TreePathField::class:
-                    $fieldData[$propertyName] = '"' . $faker->text() . '"';
-                    break;
-                case ManyToManyAssociationField::class:
-                    $definition = $field->getToManyReferenceDefinition();
-                    $referenceFields = $definition->getFields();
-
-                    if (!\array_key_exists($definition::class, $referenceData)) {
-                        $referenceData[$definition::class] = $this->generateFieldData($definition::class, $referenceFields, $criteria?->getAssociation($propertyName), $referenceData, $faker);
-                    }
-
-                    $fieldData[$propertyName] = [$referenceData[$definition::class . '.id'] => $referenceData[$definition::class]];
-                    break;
-                case ManyToManyIdField::class:
-                    if (!$fields instanceof CompiledFieldCollection) {
-                        break;
-                    }
-
-                    $associationField = $fields->get($field->getAssociationName());
-                    \assert($associationField instanceof ManyToManyAssociationField);
-
-                    $definition = $this->definitionRegistry->getByClassOrEntityName($associationField->getReferenceClass());
-                    $referenceFields = $definition->getFields();
-
-                    if (!\array_key_exists($definition::class, $referenceData)) {
-                        $referenceData[$definition::class] = $this->generateFieldData($definition::class, $referenceFields, $criteria?->getAssociation($propertyName), $referenceData, $faker);
-                    }
-
-                    $fkField =
-                        $definition
-                            ->getFields()
-                            ->filter(fn (Field $field) => $field instanceof FkField && $field->getStorageName() === $associationField->getMappingReferenceColumn())
-                            ->first();
-                    \assert($fkField instanceof FkField);
-
-                    $fkFieldReferenceDefinition = $this->definitionRegistry->getByClassOrEntityName($fkField->getReferenceClass());
-                    $fkFieldReferenceFields = $fkFieldReferenceDefinition->getFields();
-
-                    if (!\array_key_exists($fkFieldReferenceDefinition::class, $referenceData)) {
-                        $referenceData[$fkFieldReferenceDefinition::class] = $this->generateFieldData($fkFieldReferenceDefinition::class, $fkFieldReferenceFields, $criteria?->getAssociation($propertyName), $referenceData, $faker);
-                    }
-
-                    $fieldData[$propertyName] = [$referenceData[$fkFieldReferenceDefinition::class][$fkField->getReferenceField()]];
-                    break;
-                case MeasurementUnitsField::class:
-                    if (!\array_key_exists(MeasurementUnits::class, $referenceData)) {
-                        $referenceData[MeasurementUnits::class] = MeasurementUnits::createDefaultUnits()->jsonSerialize();
-                    }
-                    $fieldData[$propertyName] = $referenceData[MeasurementUnits::class];
-                    break;
-                case NumberRangeField::class:
-                    $fieldData[$propertyName] = '"' . $faker->randomNumber() . '"';
-                    break;
-                case OneToManyAssociationField::class:
-                    $definition = $this->definitionRegistry->getByClassOrEntityName($field->getReferenceClass());
-
-                    if (!\array_key_exists($definition::class, $referenceData)) {
-                        $referenceFields = $this->definitionRegistry->getByClassOrEntityName($definition::class)->getFields();
-
-                        $referenceData[$definition::class] = $this->generateFieldData($definition::class, $referenceFields, $criteria?->getAssociation($propertyName), $referenceData, $faker);
-                    }
-
-                    $fieldData[$propertyName] = [$referenceData[$definition::class . '.id'] => $referenceData[$definition::class]];
-                    break;
-                case PasswordField::class:
-                    $fieldData[$propertyName] = '"' . $faker->password() . '"';
-                    break;
-                case RemoteAddressField::class:
-                    $fieldData[$propertyName] = '"' . IpUtils::anonymize($faker->ipv4()) . '"';
-                    break;
-                case StringField::class:
-                    $fieldData[$propertyName] = '"' . $faker->text(20) . '"';
-                    break;
-                case TimeZoneField::class:
-                    $fieldData[$propertyName] = '"' . $faker->timezone() . '"';
-                    break;
-                case TranslatedField::class:
-                    $unresolvedTranslatedFields[] = $field;
-                    break;
-                case TranslationsAssociationField::class:
-                    if (!\array_key_exists(LanguageEntity::class . '.id', $referenceData)) {
-                        $referenceData[LanguageEntity::class . '.id'] = Uuid::fromStringToHex($faker->uuid());
-                    }
-
-                    $fieldData[$propertyName] = [$referenceData[LanguageEntity::class . '.id'] => $referenceData[$field->getReferenceClass()]];
-                    break;
-                default:
-                    throw MailTemplateException::unknownFieldDataType($field::class);
+            if ($field::class === TranslationsAssociationField::class) {
+                $entity->assign([
+                    EntityDefinition::TRANSLATED_FIELD => $this->generateEntityData(
+                        $field->getReferenceClass(),
+                        $criteria?->getAssociation($propertyName),
+                        $referenceData,
+                        $faker,
+                    )->jsonSerialize(),
+                ]);
             }
+
+            if (
+                $field->getFlag(ApiAware::class) === null
+                || (
+                    $field instanceof AssociationField
+                    && !$field->getAutoload()
+                    && ($criteria === null || !$criteria->hasAssociation($propertyName))
+                )
+                || ($field::class === JsonField::class && $propertyName === EntityDefinition::TRANSLATED_FIELD)
+            ) {
+                continue;
+            }
+
+            if ($field instanceof TranslatedField) {
+                $translatedFields[] = $field;
+                continue;
+            }
+
+            if ($field::class === ManyToManyIdField::class) {
+                $associationField = $fields->get($field->getAssociationName());
+                \assert($associationField instanceof ManyToManyAssociationField);
+
+                $definition = $this->definitionRegistry->getByClassOrEntityName($associationField->getReferenceClass());
+
+                $fkField =
+                    $definition
+                        ->getFields()
+                        ->filter(
+                            fn (Field $field) => $field instanceof FkField && $field->getStorageName() === $associationField->getMappingReferenceColumn()
+                        )
+                        ->first();
+                \assert($fkField instanceof FkField);
+
+                $referencedEntity = $this->generateEntityData(
+                    $fkField->getReferenceClass(),
+                    $criteria?->getAssociation($propertyName),
+                    $referenceData,
+                    $faker
+                );
+
+                $entity->assign([$propertyName => [$referencedEntity->get($fkField->getReferenceField())]]);
+                continue;
+            }
+
+            $entity->assign([$propertyName => $this->generateFieldData($field, $criteria, $referenceData, $faker)]);
         }
 
-        foreach ($unresolvedTranslatedFields as $field) {
-            $fieldData[$field->getPropertyName()] = $fieldData[EntityDefinition::TRANSLATED_FIELD][$field->getPropertyName()];
+        foreach ($translatedFields as $field) {
+            $entity->assign([$field->getPropertyName() => $entity->get(EntityDefinition::TRANSLATED_FIELD)[$field->getPropertyName()]]);
         }
 
-        return $fieldData;
+        return $entity;
+    }
+
+    /**
+     * @param array<string,Entity> $referenceData
+     */
+    private function generateFieldData(Field $field, ?Criteria $criteria, array &$referenceData, Generator $faker): mixed
+    {
+        $propertyName = $field->getPropertyName();
+
+        switch ($field::class) {
+            case AutoIncrementField::class:
+                return $faker->numberBetween();
+            case BlobField::class:
+                return $propertyName;
+            case BoolField::class:
+            case LockedField::class:
+                return false;
+            case BreadcrumbField::class:
+            case EnumField::class:
+            case ListField::class:
+                return [];
+            case CalculatedPriceField::class:
+            case CartPriceField::class:
+            case CashRoundingConfigField::class:
+            case ConfigJsonField::class:
+            case CustomFields::class:
+            case JsonField::class:
+            case ObjectField::class:
+            case PriceDefinitionField::class:
+            case PriceField::class:
+            case TaxFreeConfigField::class:
+            case TreeBreadcrumbField::class:
+            case VariantListingConfigField::class:
+            case VersionDataPayloadField::class:
+                $jsonFields = $field->getPropertyMapping();
+
+                $result = [];
+
+                foreach ($jsonFields as $jsonField) {
+                    $result[$jsonField->getPropertyName()] = $this->generateFieldData($jsonField, null, $referenceData, $faker);
+                }
+
+                return $result;
+            case ChildCountField::class:
+            case IntField::class:
+            case TreeLevelField::class:
+                return $faker->randomNumber();
+            case ChildrenAssociationField::class:
+            case ManyToOneAssociationField::class:
+            case OneToOneAssociationField::class:
+            case ParentAssociationField::class:
+                return $this->generateEntityData($field->getReferenceClass(), $criteria?->getAssociation($propertyName), $referenceData, $faker);
+            case CreatedAtField::class:
+            case DateField::class:
+            case DateTimeField::class:
+            case UpdatedAtField::class:
+                return $this->randomDateTime($faker);
+            case CreatedByField::class:
+            case FkField::class:
+            case ParentFkField::class:
+            case ReferenceVersionField::class:
+            case StateMachineStateField::class:
+            case UpdatedByField::class:
+            case VersionField::class:
+                return $this->generateEntityData($field->getReferenceClass(), $criteria?->getAssociation($propertyName), $referenceData, $faker)->get($field->getReferenceField());
+            case CronIntervalField::class:
+                return '8 * * * *';
+            case DateIntervalField::class:
+                return (string) (new DateInterval('PT30M'));
+            case EmailField::class:
+                return $faker->email();
+            case FloatField::class:
+                return $faker->randomFloat();
+            case IdField::class:
+                return Uuid::fromStringToHex($faker->uuid());
+            case LongTextField::class:
+            case TreePathField::class:
+                return '"' . $faker->text() . '"';
+            case ManyToManyAssociationField::class:
+                $entity = $this->generateEntityData($field->getToManyReferenceDefinition(), $criteria?->getAssociation($propertyName), $referenceData, $faker);
+
+                $collection = new ($this->getCollectionClass($entity))();
+                \assert($collection instanceof EntityCollection);
+                $collection->add($entity);
+
+                return $collection;
+            case ManyToManyIdField::class:
+                break;
+            case MeasurementUnitsField::class:
+                return MeasurementUnits::createDefaultUnits();
+            case NumberRangeField::class:
+                return '"' . $faker->randomNumber() . '"';
+            case OneToManyAssociationField::class:
+                $entity = $this->generateEntityData($field->getReferenceClass(), $criteria?->getAssociation($propertyName), $referenceData, $faker);
+
+                $collection = new ($this->getCollectionClass($entity))();
+                \assert($collection instanceof EntityCollection);
+                $collection->add($entity);
+
+                return $collection;
+            case PasswordField::class:
+                return '"' . $faker->password() . '"';
+            case RemoteAddressField::class:
+                return '"' . IpUtils::anonymize($faker->ipv4()) . '"';
+            case StringField::class:
+                return '"' . $faker->text(20) . '"';
+            case TimeZoneField::class:
+                return '"' . $faker->timezone() . '"';
+            case TranslationsAssociationField::class:
+                $entity = $this->generateEntityData($field->getReferenceClass(), $criteria?->getAssociation($propertyName), $referenceData, $faker);
+                $language = $this->generateEntityData(LanguageDefinition::class, null, $referenceData, $faker);
+
+                $entity->setUniqueIdentifier($language->getUniqueIdentifier());
+
+                $collection = new ($this->getCollectionClass($entity))();
+                \assert($collection instanceof EntityCollection);
+                $collection->add($entity);
+
+                return $collection;
+        }
+
+        throw MailTemplateException::unknownFieldDataType($field::class);
     }
 
     private function createFaker(Context $context, ?int $seed = null): Generator
@@ -472,5 +455,13 @@ class MailDataProvider
                 $faker->numberBetween(0, 59),
                 $faker->numberBetween(0, 999),
             );
+    }
+
+    /**
+     * @return class-string
+     */
+    private function getCollectionClass(Entity $class): string
+    {
+        return $this->definitionRegistry->getByEntityClass($class)->getCollectionClass();
     }
 }

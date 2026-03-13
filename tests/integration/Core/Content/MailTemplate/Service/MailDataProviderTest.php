@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
@@ -41,13 +42,18 @@ class MailDataProviderTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testEventTemplateDataSnapshot(string $flowEventClass, string $fileName): void
     {
-        $templateData = \json_encode($this->mailDataProvider->getTemplateData($flowEventClass, Context::createDefaultContext(), 42), \JSON_PRETTY_PRINT);
-        \assert(\is_string($templateData));
+        $templateData = \json_decode(
+            \json_encode(
+                $this->mailDataProvider->getTemplateData($flowEventClass, Context::createDefaultContext(), 42),
+                \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION
+            ),
+            true
+        );
 
         $this->assertSnapshot($fileName, [
             [
                 'type' => self::TYPE_JSON,
-                'actual' => $this->mailDataProvider->getTemplateData($flowEventClass, Context::createDefaultContext(), 42),
+                'actual' => $templateData,
             ],
         ]);
     }

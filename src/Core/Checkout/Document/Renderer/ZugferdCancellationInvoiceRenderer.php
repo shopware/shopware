@@ -74,7 +74,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
                 $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
                 if ($invoice === []) {
-                    throw DocumentException::baseInvoiceNotFound(self::TYPE, $orderId);
+                    throw DocumentException::referencedInvoiceNotFound(self::TYPE, $orderId);
                 }
 
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
@@ -118,14 +118,14 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
                 $referenceDocument = $referenceInvoices[$orderId] ?? null;
 
                 if ($referenceDocument === null) {
-                    throw DocumentException::baseInvoiceNotFound(self::TYPE, $orderId);
+                    throw DocumentException::referencedInvoiceNotFound(self::TYPE, $orderId);
                 }
 
-                $prices = $this->handlePrices($order);
+                $adjustedOrder = $this->handlePrices($order);
 
                 $this->createDocument(
                     $result,
-                    $prices,
+                    $adjustedOrder,
                     $operation,
                     $referenceDocument,
                     $context

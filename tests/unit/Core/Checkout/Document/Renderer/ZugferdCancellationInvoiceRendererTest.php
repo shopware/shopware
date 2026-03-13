@@ -205,7 +205,7 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
 
         static::assertSame(
             $error->getMessage(),
-            DocumentException::baseInvoiceNotFound(
+            DocumentException::referencedInvoiceNotFound(
                 ZugferdCancellationInvoiceRenderer::TYPE,
                 self::ORDER_ID,
             )->getMessage()

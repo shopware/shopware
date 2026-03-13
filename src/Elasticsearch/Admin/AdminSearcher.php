@@ -106,7 +106,7 @@ class AdminSearcher
         if ($criteria->getTerm()) {
             $term = $this->extractTerm($criteria->getTerm());
 
-            $query = $indexer->globalCriteria($term, $this->buildSearch($term));
+            $query = $indexer->moduleCriteria($term, $this->buildSearch($term));
             $query->getQueries()->addParameter('minimum_should_match', 1);
         }
 

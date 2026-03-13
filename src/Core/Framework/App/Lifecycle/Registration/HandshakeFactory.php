@@ -42,7 +42,7 @@ readonly class HandshakeFactory
         $privateSecret = $setup->getSecret();
 
         try {
-            $shopId = $this->shopIdProvider->getShopId();
+            $shopId = $this->shopIdProvider->getShopId()->id;
         } catch (ShopIdChangeSuggestedException $e) {
             throw AppException::registrationFailed(
                 $appName,

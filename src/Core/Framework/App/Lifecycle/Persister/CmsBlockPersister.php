@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Cms\AbstractBlockTemplateLoader;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,10 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
-class CmsBlockPersister
+class CmsBlockPersister implements PersisterInterface
 {
     /**
      * @param EntityRepository<AppCmsBlockCollection> $cmsBlockRepository
@@ -26,22 +27,22 @@ class CmsBlockPersister
     ) {
     }
 
-    public function updateCmsBlocks(
-        CmsExtensions $cmsExtensions,
-        string $appId,
-        string $defaultLocale,
-        Context $context
-    ): void {
-        $existingCmsBlocks = $this->getExistingCmsBlocks($appId, $context);
+    public function persist(AppLifecycleContext $context): void
+    {
+        if (!$context->appFilesystem->has('Resources/cms.xml')) {
+            return;
+        }
+
+        $cmsExtensions = CmsExtensions::createFromXmlFile($context->appFilesystem->path('Resources/cms.xml'));
+
+        $existingCmsBlocks = $this->getExistingCmsBlocks($context->app->getId(), $context->context);
 
         $cmsBlocks = $cmsExtensions->getBlocks() !== null ? $cmsExtensions->getBlocks()->getBlocks() : [];
         $upserts = [];
         foreach ($cmsBlocks as $cmsBlock) {
-            $payload = $cmsBlock->toEntityArray($appId, $defaultLocale);
+            $payload = $cmsBlock->toEntityArray($context->app->getId(), $context->defaultLocale);
 
-            $template = $this->blockTemplateLoader->getTemplateForBlock($cmsExtensions, $cmsBlock->getName());
-
-            $payload['template'] = $template;
+            $payload['template'] = $this->blockTemplateLoader->getTemplateForBlock($cmsExtensions, $cmsBlock->getName());
             $payload['styles'] = $this->blockTemplateLoader->getStylesForBlock($cmsExtensions, $cmsBlock->getName());
 
             $existing = $existingCmsBlocks->filterByProperty('name', $cmsBlock->getName())->first();
@@ -54,10 +55,10 @@ class CmsBlockPersister
         }
 
         if ($upserts !== []) {
-            $this->cmsBlockRepository->upsert($upserts, $context);
+            $this->cmsBlockRepository->upsert($upserts, $context->context);
         }
 
-        $this->deleteOldCmsBlocks($existingCmsBlocks, $context);
+        $this->deleteOldCmsBlocks($existingCmsBlocks, $context->context);
     }
 
     private function deleteOldCmsBlocks(AppCmsBlockCollection $toBeRemoved, Context $context): void

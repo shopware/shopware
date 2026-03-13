@@ -88,7 +88,16 @@ const documentTypeFixture = [
     },
 ];
 
-async function createWrapper(routeName = 'sw.order.detail.details') {
+const buttonDeleteClassEntityListing = '.sw-entity-listing__context-menu-edit-delete';
+const buttonDeleteClassDocumentCard = '.sw-order-document-card__context-button-delete';
+
+let documentSearchMock;
+let documentDeleteMock;
+
+async function createWrapper(routeName = 'sw.order.detail.details', additionalProps = {}) {
+    documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
+    documentDeleteMock = jest.fn().mockResolvedValue([]);
+
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
@@ -179,12 +188,12 @@ async function createWrapper(routeName = 'sw.order.detail.details') {
                 },
                 repositoryFactory: {
                     create: (entity) => ({
-                        search: () => {
-                            if (entity === 'document_type' || entity === 'document') {
+                        search: (...args) => {
+                            if (entity === 'document_type') {
                                 return Promise.resolve(getCollection('document_type', documentTypeFixture));
                             }
 
-                            return Promise.resolve([]);
+                            return documentSearchMock(...args);
                         },
                         get: () => {
                             if (entity === 'document') {
@@ -195,6 +204,7 @@ async function createWrapper(routeName = 'sw.order.detail.details') {
                         },
                         save: () => Promise.resolve({}),
                         searchIds: () => Promise.resolve([]),
+                        delete: (...args) => documentDeleteMock(...args),
                     }),
                 },
                 searchRankingService: {
@@ -231,6 +241,7 @@ async function createWrapper(routeName = 'sw.order.detail.details') {
         props: {
             order: orderFixture,
             isLoading: false,
+            ...additionalProps,
         },
     });
     await flushPromises();
@@ -553,6 +564,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should change sent status when click on "Mark as unsent" context menu', async () => {
         global.activeAclRoles = [];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -807,5 +819,141 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
 
         expect(fileTypes.text()).toBe('PDF, HTML');
+    });
+
+    it('should render the delete-button when attachView is false', async () => {
+        global.activeAclRoles = ['document.deleter'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
+        expect(deleteButton.exists()).toBe(true);
+        expect(deleteButton.attributes('disabled')).toBe('false');
+    });
+
+    it('should disable the delete-button when attachView is true', async () => {
+        global.activeAclRoles = ['document.deleter'];
+        wrapper = await createWrapper('sw.order.detail.documents', { attachView: true });
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        const deleteButton = wrapper.find(buttonDeleteClassEntityListing);
+        expect(deleteButton.exists()).toBe(true);
+        expect(deleteButton.attributes('disabled')).toBe('true');
+    });
+
+    it('should have a disabled delete-button with missing permissions', async () => {
+        global.activeAclRoles = ['document.viewer'];
+        wrapper = await createWrapper('sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
+        expect(deleteButton.exists()).toBe(true);
+        expect(deleteButton.attributes('disabled')).toBe('true');
+    });
+
+    it('should open the delete confirmation modal when delete button was clicked', async () => {
+        global.activeAclRoles = ['document.deleter'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+
+        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+        expect(wrapper.find('.mt-banner--attention').exists()).toBe(true);
+
+        const message = wrapper.find('.mt-banner__message');
+        expect(message.exists()).toBe(true);
+        expect(message.text()).toBe('sw-order.documentCard.confirmDeleteText');
+
+        expect(wrapper.find('.mt-button--secondary').exists()).toBe(true);
+        expect(wrapper.find('.mt-button--critical').exists()).toBe(true);
+    });
+
+    it('should remove the document from the list when delete was successful', async () => {
+        global.activeAclRoles = ['document.deleter'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        documentSearchMock.mockResolvedValue(getCollection('document', []));
+
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
+
+        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+
+        await flushPromises();
+
+        await wrapper.find('.mt-button--critical').trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(0);
+    });
+
+    it('should not remove the document from the list when delete return an exception', async () => {
+        global.activeAclRoles = ['document.viewer'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        documentDeleteMock.mockRejectedValue({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            status: '422',
+                            code: 'ERROR_CODE',
+                            detail: 'Detailed error message',
+                            title: 'Error Title',
+                        },
+                    ],
+                },
+            },
+        });
+
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
+
+        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+
+        await flushPromises();
+
+        await wrapper.find('.mt-button--critical').trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
     });
 });

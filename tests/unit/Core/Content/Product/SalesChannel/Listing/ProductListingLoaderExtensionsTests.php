@@ -87,7 +87,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
         $result = (new ExtensionDispatcher($dispatcher))->publish(
             name: ResolveListingExtension::NAME,
             extension: $extension,
-            function: function () {
+            function: static function () {
                 return new EntitySearchResult(
                     'product',
                     1,

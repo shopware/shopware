@@ -620,6 +620,10 @@ The following deprecations apply to `sw-mail-template-index`:
 * `term` data property will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
 
+### Fixed `sw-entity-multi-id-select` crash when used in plugin system config with sales channel inheritance
+
+When `sw-entity-multi-id-select` was used via the `<component>` tag in a plugin's `config.xml`, switching to a non-default sales channel caused a TypeError because the inheritance system passed `null` as the value instead of an array. The component now handles `null` gracefully, aligning with the convention that components used via `<component>` in system config must accept `null` as their value.
+
 ## Storefront
 
 ### Cookie consent now language-aware

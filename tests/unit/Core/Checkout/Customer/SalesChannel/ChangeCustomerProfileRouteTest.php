@@ -35,7 +35,13 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $customerRepository
             ->method('update')
             ->with([
-                ['id' => 'customer1', 'company' => '', 'customFields' => ['test1' => '1'], 'salutationId' => '1'],
+                [
+                    'id' => 'customer1',
+                    'company' => '',
+                    'customFields' => ['test1' => '1'],
+                    'salutationId' => '1',
+                    'vatIds' => null,
+                ],
             ]);
 
         $storeApiCustomFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);

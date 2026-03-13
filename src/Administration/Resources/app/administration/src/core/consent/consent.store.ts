@@ -1,13 +1,17 @@
 /**
- * @private
  * @sw-package framework:fundamentals
+ */
+import { dispatchConsentEvent } from './events';
+
+/**
+ * @private
  */
 export type ConsentDTO = {
     readonly name: string;
     readonly identifier: string;
     readonly scopeName: 'system' | 'admin_user';
     readonly actor: string | null;
-    readonly status: 'accepted' | 'revoked' | 'unset';
+    readonly status: 'unset' | 'declined' | 'accepted' | 'revoked';
     readonly updated_at: string | null;
 };
 
@@ -42,6 +46,12 @@ export default Shopware.Store.register('consent', {
             const { data: updatedConsent } = await Shopware.Service('consentApiService').accept(name);
 
             this.consents[name] = updatedConsent;
+
+            dispatchConsentEvent('consent_status_change', {
+                consentName: name,
+                status: 'accepted',
+                newValue: updatedConsent,
+            });
         },
 
         async revoke(name: string): Promise<void> {
@@ -56,6 +66,12 @@ export default Shopware.Store.register('consent', {
             const { data: updatedConsent } = await Shopware.Service('consentApiService').revoke(name);
 
             this.consents[name] = updatedConsent;
+
+            dispatchConsentEvent('consent_status_change', {
+                consentName: name,
+                status: 'revoked',
+                newValue: updatedConsent,
+            });
         },
 
         isAccepted(name: string): boolean {

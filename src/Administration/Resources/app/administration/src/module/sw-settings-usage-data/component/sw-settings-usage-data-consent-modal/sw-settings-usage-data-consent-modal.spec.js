@@ -8,6 +8,7 @@ import {
     MtModalRoot,
 } from '@shopware-ag/meteor-component-library';
 import useConsentStore from 'src/core/consent/consent.store';
+import { ConsentEvent } from 'src/core/consent/events';
 import swSettingsUsageDataConsentModal from './index';
 
 function createConsentModal(storeDataConsent, userDataConsent) {
@@ -35,6 +36,12 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             'system.system_config',
             'user.update_profile',
         ];
+        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
+        jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
     describe('save preferences', () => {
@@ -88,6 +95,9 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
     describe('store data consent', () => {
         it('shows store data consent if user has permissions and consent was not given before', async () => {
+            const eventHandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', eventHandler);
+
             const wrapper = await createConsentModal(false, false);
             const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal-sub-card h4');
 
@@ -95,9 +105,23 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(subCardHeadings.map((heading) => heading.text())).toContain(
                 'sw-settings-usage-data.consent-modal.store-data.title',
             );
+
+            expect(eventHandler).toHaveBeenCalledWith(
+                new ConsentEvent('consent_modal_viewed', {
+                    consents_shown: [
+                        'backend_data',
+                        'product_analytics',
+                    ],
+                }),
+            );
+
+            Shopware.Utils.EventBus.off('consent', eventHandler);
         });
 
         it('hides store data consent if it was given before', async () => {
+            const eventHandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', eventHandler);
+
             const wrapper = await createConsentModal(true, false);
             const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal-sub-card h4');
 
@@ -105,10 +129,20 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(subCardHeadings.map((heading) => heading.text())).not.toContain(
                 'sw-settings-usage-data.consent-modal.store-data.title',
             );
+
+            expect(eventHandler).toHaveBeenCalledWith(
+                new ConsentEvent('consent_modal_viewed', {
+                    consents_shown: ['product_analytics'],
+                }),
+            );
+
+            Shopware.Utils.EventBus.off('consent', eventHandler);
         });
 
         it('hides store data consent if user can not write the system config', async () => {
             global.activeAclRoles = [];
+            const eventHandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', eventHandler);
 
             const wrapper = await createConsentModal(false, false);
             const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal-sub-card h4');
@@ -117,6 +151,14 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(subCardHeadings.map((heading) => heading.text())).not.toContain(
                 'sw-settings-usage-data.consent-modal.store-data.title',
             );
+
+            expect(eventHandler).toHaveBeenCalledWith(
+                new ConsentEvent('consent_modal_viewed', {
+                    consents_shown: ['product_analytics'],
+                }),
+            );
+
+            Shopware.Utils.EventBus.off('consent', eventHandler);
         });
     });
 
@@ -128,13 +170,33 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
             const wrapper = await createConsentModal(false, false);
 
+            const eventhandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', eventhandler);
+
             const shareAllButton = wrapper.findAll('.mt-modal__footer button')[1];
 
             await shareAllButton.trigger('click');
+            await flushPromises();
 
             expect(acceptSpy).toHaveBeenCalledTimes(2);
             expect(acceptSpy.mock.calls[0][0]).toBe('backend_data');
             expect(acceptSpy.mock.calls[1][0]).toBe('product_analytics');
+
+            expect(eventhandler).toHaveBeenCalledWith(
+                new ConsentEvent('consent_modal_decision', {
+                    backend_data: {
+                        status: 'accepted',
+                        changed: true,
+                    },
+                    product_analytics: {
+                        status: 'accepted',
+                        changed: true,
+                    },
+                    time_spent_on_modal: 0,
+                }),
+            );
+
+            Shopware.Utils.EventBus.off('consent', eventhandler);
         });
 
         it('revokes both consents when "Share Nothing" is clicked', async () => {
@@ -144,13 +206,33 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
             const wrapper = await createConsentModal(false, false);
 
+            const eventhandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', eventhandler);
+
             const shareNothingButton = wrapper.findAll('.mt-modal__footer button')[0];
 
             await shareNothingButton.trigger('click');
+            await flushPromises();
 
             expect(revokeSpy).toHaveBeenCalledTimes(2);
             expect(revokeSpy.mock.calls[0][0]).toBe('backend_data');
             expect(revokeSpy.mock.calls[1][0]).toBe('product_analytics');
+
+            expect(eventhandler).toHaveBeenCalledWith(
+                new ConsentEvent('consent_modal_decision', {
+                    backend_data: {
+                        status: 'revoked',
+                        changed: false,
+                    },
+                    product_analytics: {
+                        status: 'revoked',
+                        changed: false,
+                    },
+                    time_spent_on_modal: 0,
+                }),
+            );
+
+            Shopware.Utils.EventBus.off('consent', eventhandler);
         });
 
         it('saves preferences as selected', async () => {
@@ -162,14 +244,30 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
             const wrapper = await createConsentModal(true, false);
 
+            const eventhandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', eventhandler);
+
             const savePreferencesButton = wrapper.find('.mt-modal__footer button');
 
             await savePreferencesButton.trigger('click');
+            await flushPromises();
 
             expect(acceptSpy).toHaveBeenCalled();
             expect(revokeSpy).toHaveBeenCalled();
             expect(acceptSpy.mock.calls[0][0]).toBe('backend_data');
             expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
+
+            expect(eventhandler).toHaveBeenCalledWith(
+                new ConsentEvent('consent_modal_decision', {
+                    product_analytics: {
+                        status: 'revoked',
+                        changed: false,
+                    },
+                    time_spent_on_modal: 0,
+                }),
+            );
+
+            Shopware.Utils.EventBus.off('consent', eventhandler);
         });
 
         it('does not update backend data consent if permissions are missing', async () => {

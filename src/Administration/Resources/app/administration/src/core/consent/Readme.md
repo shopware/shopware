@@ -40,6 +40,26 @@ consentStore.accept('your_consent');
 consentStore.revoke('your_consent');
 ```
 
+## Consent Events
+
+Changes to the consent .
+
+We dispatch events on consent changes, via the Admin's global event bus. To listen to these events, you can use the `on` method of the event bus.
+
+```ts
+import type { ConsentEvent } from 'src/core/consent/events';
+
+const eventHandler = (event: ConsentEvent) => { /* handle event */ };
+
+// subscribe to consent events
+Shopware.Utils.EventBus.on('consent', eventHandler);
+
+// unsubscribe from events
+Shopware.Utils.EventBus.off('consent', eventHandler);
+```
+
+### Event types
+
 ## Further steps
 
 In the future we want to make this system available to all Shopware Extensions via the Meteor Admin-SDK.

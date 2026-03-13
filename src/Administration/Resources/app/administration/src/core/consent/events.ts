@@ -1,41 +1,47 @@
 /**
  * @sw-package framework
  */
+import type { ConsentDTO } from './consent.store';
 
 type TrackableType = string | string[] | number | boolean | null;
 
-type ConsentOption = 'backend_data' | 'user_tracking';
+type ModalConsents = 'backend_data' | 'product_analytics';
+type ConsentAction = 'accepted' | 'revoked';
+
 type ConsentEvents = {
     consent_modal_viewed: {
-        option: ConsentOption[];
+        consents_shown: ModalConsents[];
     };
-    consent_decision_made: {
-        option: ConsentOption;
-        decision: 'accepted' | 'revoked';
+    consent_modal_decision: {
+        backend_data?: {
+            status: ConsentAction;
+            changed: boolean;
+        };
+        product_analytics: {
+            status: ConsentAction;
+            changed: boolean;
+        };
         time_spent_on_modal: number;
     };
-    consent_option_changed: {
-        option: ConsentOption;
-        state: 'enabled' | 'disabled';
+    consent_status_change: {
+        consentName: string;
+        status: ConsentAction;
+        newValue: ConsentDTO;
     };
     consent_legal_link_clicked: {
         link_target: 'privacy_policy' | 'data_use_details';
         source: 'modal' | 'setting' | 'user';
     };
-    consent_revoked: {
-        accepted_options: ConsentOption[];
-        declined_options: ConsentOption[];
-    };
 };
 
 type ConsentEventName = keyof ConsentEvents;
 
-class ConsentEvent {
+class ConsentEvent<N extends ConsentEventName> {
     public readonly timestamp: Date;
 
     constructor(
-        public readonly eventName: ConsentEventName,
-        public readonly eventProperties: Record<string, TrackableType>,
+        public readonly eventName: N,
+        public readonly eventProperties: ConsentEvents[N],
     ) {
         this.timestamp = new Date();
     }

@@ -149,7 +149,7 @@ class PromotionCollector implements CartDataCollectorInterface
                     continue;
                 }
 
-                if ($cartExtension->isPromotionBlocked($tuple->getPromotion()->getId())) {
+                if (!Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS') && $cartExtension->isPromotionBlocked($tuple->getPromotion()->getId())) {
                     continue;
                 }
 

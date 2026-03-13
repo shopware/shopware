@@ -120,7 +120,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $config = new FieldConfigCollection([
             new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.manufacturer.media'),
         ]);
-        
+
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);

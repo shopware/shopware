@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
+use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
@@ -112,6 +113,7 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
+        private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
     ) {
     }
@@ -253,7 +255,9 @@ class AppLifecycle extends AbstractAppLifecycle
 
         // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
         // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
-        if (!$app->getAppSecret() && $manifest->getSetup()) {
+        // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
+        // in that case we still need to run the registration to rotate that secret
+        if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
             try {
                 $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
             } catch (AppRegistrationException $e) {
@@ -462,9 +466,10 @@ class AppLifecycle extends AbstractAppLifecycle
     private function enrichInstallMetadata(Manifest $manifest, array $metadata, string $roleId): array
     {
         $secret = AccessKeyHelper::generateSecretAccessKey();
+        $appName = $manifest->getMetadata()->getName();
 
         $metadata['integration'] = [
-            'label' => $manifest->getMetadata()->getName(),
+            'label' => $appName,
             'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
             'secretAccessKey' => $secret,
             'admin' => false,
@@ -472,11 +477,17 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $metadata['aclRole'] = [
             'id' => $roleId,
-            'name' => $manifest->getMetadata()->getName(),
+            'name' => $appName,
         ];
         $metadata['accessToken'] = $secret;
         // Always install as inactive, activation will be handled by `AppStateService` in `install()` method.
         $metadata['active'] = false;
+        // when the app was installed before and we have the old secret stored, we set it here
+        // so the registration is signed correctly with the old secret
+        $oldSecret = $this->deletedAppsGateway->getDeletedAppSecret($appName);
+        if ($oldSecret !== null) {
+            $metadata['appSecret'] = $oldSecret;
+        }
 
         return $metadata;
     }
@@ -695,7 +706,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $actions = $flowActions->getActions()?->getActions() ?? [];
         }
 
-        $webhooks = array_map(function ($action) use ($appId) {
+        $webhooks = array_map(static function ($action) use ($appId) {
             $name = $action->getMeta()->getName();
 
             return [
@@ -714,7 +725,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
 
-        return array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
+        return array_merge($webhooks, array_map(static function (Webhook $webhook) use ($defaultLocale, $appId) {
             /** @var array{name: string, event: string, url: string} $payload */
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;

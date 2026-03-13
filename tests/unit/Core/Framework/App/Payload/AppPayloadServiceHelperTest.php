@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\Payload\SourcedPayloadInterface;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\Context;
@@ -40,6 +41,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testBuildSource(): void
     {
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures([
             'TestApp' => ['purchase-1', 'purchase-2'],
             'AnotherApp' => ['purchase-3'],
@@ -48,7 +50,7 @@ class AppPayloadServiceHelperTest extends TestCase
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $this->createMock(DefinitionInstanceRegistry::class),
@@ -103,13 +105,14 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testCreateRequestOptionsWithNoParams(): void
     {
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $context = Context::createDefaultContext();
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $entityEncoder = $this->createMock(JsonEntityEncoder::class);
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,
@@ -144,13 +147,14 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testCreateRequestOptionsWithAdditionalParams(): void
     {
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $context = Context::createDefaultContext();
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $entityEncoder = $this->createMock(JsonEntityEncoder::class);
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,

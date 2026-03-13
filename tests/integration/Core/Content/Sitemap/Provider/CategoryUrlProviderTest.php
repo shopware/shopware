@@ -76,7 +76,7 @@ class CategoryUrlProviderTest extends TestCase
     public function testExcludeCategoryLinkAndFolder(): void
     {
         $urlResult = $this->getCategoryUrlProvider()->getUrls($this->salesChannelContext, 10);
-        $ids = array_map(fn ($url) => $url->getIdentifier(), $urlResult->getUrls());
+        $ids = array_map(static fn ($url) => $url->getIdentifier(), $urlResult->getUrls());
 
         // link
         static::assertNotContains('0191233394c57345a56e1b4df4db81c3', $ids);

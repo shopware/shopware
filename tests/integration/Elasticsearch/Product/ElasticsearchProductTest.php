@@ -479,7 +479,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
             static::assertCount(\count($expectedProducts), $products->getIds());
-            static::assertSame(\array_map(fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
+            static::assertSame(\array_map(static fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -2185,7 +2185,7 @@ class ElasticsearchProductTest extends TestCase
                 $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
 
                 static::assertCount(is_countable($case['ids']) ? \count($case['ids']) : 0, $result->getIds(), \sprintf('Case `%s` failed', $message));
-                static::assertSame(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
+                static::assertSame(array_map(static fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
             $this->tearDown();

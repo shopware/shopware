@@ -5,7 +5,6 @@
 
 import fs from 'fs';
 import path from 'path';
-// @ts-expect-error - There are no types for this package
 import cliProgress from 'cli-progress';
 import colors from 'picocolors';
 

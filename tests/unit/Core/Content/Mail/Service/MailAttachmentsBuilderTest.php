@@ -31,7 +31,9 @@ class MailAttachmentsBuilderTest extends TestCase
 {
     private MockObject&MediaService $mediaService;
 
-    /** @var MockObject&EntityRepository<MediaCollection> */
+    /**
+     * @var MockObject&EntityRepository<MediaCollection>
+     */
     private MockObject&EntityRepository $mediaRepository;
 
     private MockObject&DocumentGenerator $documentGenerator;
@@ -222,5 +224,38 @@ class MailAttachmentsBuilderTest extends TestCase
             ],
             $attachments
         );
+    }
+
+    public function testBuildTemplateDocumentAttachmentsForXmlDocument(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $xmlDocId = Uuid::randomHex();
+        $extension = new MailSendSubscriberConfig(false, [$xmlDocId]);
+
+        $document = new RenderedDocument();
+        $document->setContent('<?xml version="1.0"?>');
+        $document->setName('invoice.xml');
+        $document->setContentType('application/xml');
+
+        $this->documentGenerator
+            ->expects($this->once())
+            ->method('readDocument')
+            ->with($xmlDocId, $context, '', null)
+            ->willReturn($document);
+
+        $this->mediaRepository
+            ->expects($this->never())
+            ->method('search');
+
+        $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], null);
+
+        static::assertCount(1, $attachments);
+        $attachment = $attachments[0];
+        static::assertArrayHasKey('id', $attachment);
+        static::assertSame($xmlDocId, $attachment['id']);
+        static::assertSame('<?xml version="1.0"?>', $attachment['content']);
+        static::assertSame('invoice.xml', $attachment['fileName']);
+        static::assertSame('application/xml', $attachment['mimeType']);
     }
 }

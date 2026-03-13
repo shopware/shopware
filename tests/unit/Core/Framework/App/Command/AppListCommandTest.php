@@ -21,7 +21,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(AppListCommand::class)]
 class AppListCommandTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<AppCollection> */
+    /**
+     * @var MockObject&EntityRepository<AppCollection>
+     */
     private MockObject&EntityRepository $appRepoMock;
 
     private AppListCommand $command;
@@ -78,7 +80,7 @@ class AppListCommandTest extends TestCase
     {
         $filterValue = 'test-app';
 
-        $criteria = static::callback(function (Criteria $criteria) use ($filterValue): bool {
+        $criteria = static::callback(static function (Criteria $criteria) use ($filterValue): bool {
             $filters = $criteria->getFilters();
             if (!(\count($filters) === 1 && $filters[0] instanceof MultiFilter)) {
                 return false;

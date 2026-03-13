@@ -86,7 +86,7 @@ class SystemCheckCommand extends Command
      */
     private function getAllowedContexts(): array
     {
-        return array_map(fn (SystemCheckExecutionContext $context) => $context->value, SystemCheckExecutionContext::longRunning());
+        return array_map(static fn (SystemCheckExecutionContext $context) => $context->value, SystemCheckExecutionContext::longRunning());
     }
 
     /**
@@ -100,7 +100,7 @@ class SystemCheckCommand extends Command
 
         $isJsonOutput = $format === 'json';
         $rows = array_map(
-            fn (Result $result) => [
+            static fn (Result $result) => [
                 'name' => $result->name,
                 'healthy' => $result->healthy,
                 'status' => $result->status->name,

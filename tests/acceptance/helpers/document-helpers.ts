@@ -35,10 +35,9 @@ const baseCancellationInvoiceMasks: MaskRegion[] = [
 ];
 
 const baseCreditNoteMasks: MaskRegion[] = [
-    { x: 238, y: 18, width: 45, height: 20 },
-    { x: 434, y: 321, width: 45, height: 20 },
-    { x: 539, y: 321, width: 130, height: 20 },
-    { x: 830, y: 210, width: 145, height: 100 },
+    { x: 419, y: 321, width: 70, height: 20 },
+    { x: 558, y: 321, width: 125, height: 20 },
+    { x: 830, y: 228, width: 145, height: 75 },
 ];
 
 const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
@@ -61,7 +60,7 @@ const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
     ],
     credit_note: [
         ...baseCreditNoteMasks,
-        { x: 145, y: 18, width: 45, height: 20 },
+        { x: 130, y: 18, width: 70, height: 20 },
     ],
     zugferd_embedded_credit_note: [
         ...baseCreditNoteMasks,

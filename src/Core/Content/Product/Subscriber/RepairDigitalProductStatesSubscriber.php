@@ -16,13 +16,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0.0 - reason:remove-subscriber - temporary one-time repair for 6.7.8.0 digital product states regression
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - temporary one-time digital product states regression
  */
 #[Package('inventory')]
 final readonly class RepairDigitalProductStatesSubscriber implements EventSubscriberInterface
 {
     /**
-     * @deprecated tag:v6.8.0.0 - reason:remove-subscriber - temporary one-time repair marker
+     * @deprecated tag:v6.8.0 - reason:remove-subscriber - temporary one-time repair marker
      */
     public const REPAIRED_DIGITAL_PRODUCT_STATES = 'core.repaired_digital_product_states';
 
@@ -33,7 +33,7 @@ final readonly class RepairDigitalProductStatesSubscriber implements EventSubscr
      */
     public function __construct(
         private Connection $connection,
-        private StatesUpdater $statesUpdater,
+        private ?StatesUpdater $statesUpdater,
         private AbstractKeyValueStorage $storage,
         private LoggerInterface $logger,
     ) {
@@ -50,11 +50,17 @@ final readonly class RepairDigitalProductStatesSubscriber implements EventSubscr
     }
 
     /**
-     * @deprecated tag:v6.8.0.0 - reason:remove-subscriber - temporary one-time repair for 6.7.8.0 digital product states regression
+     * @deprecated tag:v6.8.0 - reason:remove-subscriber - temporary one-time repair for 6.7.8.0 digital product states regression
      */
     public function repair(UpdatePostFinishEvent $event): void
     {
         if ($this->storage->has(self::REPAIRED_DIGITAL_PRODUCT_STATES)) {
+            return;
+        }
+
+        if ($this->statesUpdater === null) {
+            $this->storage->set(self::REPAIRED_DIGITAL_PRODUCT_STATES, '1');
+
             return;
         }
 
@@ -75,7 +81,7 @@ final readonly class RepairDigitalProductStatesSubscriber implements EventSubscr
                     SQL,
                     [
                         'type' => ProductDefinition::TYPE_DIGITAL,
-                        'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)
+                        'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                     ]
                 );
 
@@ -105,7 +111,7 @@ final readonly class RepairDigitalProductStatesSubscriber implements EventSubscr
             $this->storage->set(self::REPAIRED_DIGITAL_PRODUCT_STATES, '1');
 
             if ($repaired > 0) {
-                $event->appendPostUpdateMessage(sprintf(
+                $event->appendPostUpdateMessage(\sprintf(
                     'Repaired product states for %d digital product(s) with missing legacy states.',
                     $repaired
                 ));

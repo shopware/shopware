@@ -99,8 +99,8 @@ class RepairDigitalProductStatesSubscriberTest extends TestCase
         $logger->expects($this->once())
             ->method('error')
             ->with(
-                $this->stringContains('same product chunk was fetched repeatedly'),
-                $this->arrayHasKey('productIds')
+                static::stringContains('same product chunk was fetched repeatedly'),
+                static::arrayHasKey('productIds')
             );
 
         $subscriber = new RepairDigitalProductStatesSubscriber(

@@ -182,7 +182,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -481,7 +481,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -534,7 +534,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -684,7 +684,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -755,7 +755,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -805,7 +805,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -861,7 +861,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -873,7 +873,7 @@ class WebhookManagerTest extends TestCase
 
         $this->bus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
+            ->with(static::callback(static function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
                 static::assertArrayHasKey('eventId', $actualPayload['source']);
                 unset($actualPayload['source']['eventId']);
@@ -925,7 +925,7 @@ class WebhookManagerTest extends TestCase
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
         $this->bus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
+            ->with(static::callback(static function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
                 static::assertArrayHasKey('eventId', $actualPayload['source']);
                 unset($actualPayload['source']['eventId']);

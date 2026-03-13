@@ -310,7 +310,7 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(5, $directives); // We expect 5 directives: 1 Crawl-delay + 4 path directives
 
         // Check that Crawl-delay (non-path directive) is present
-        $crawlDelayDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::CRAWL_DELAY);
+        $crawlDelayDirectives = array_filter($directives, static fn ($d) => $d->type === RobotsDirectiveType::CRAWL_DELAY);
         static::assertCount(1, $crawlDelayDirectives);
 
         // Check that both domain's path directives are present with correct paths
@@ -438,7 +438,7 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(2, $globalBlocks);
 
         // Sort by user agent for consistent testing
-        usort($globalBlocks, fn ($a, $b) => strcmp($a->userAgent, $b->userAgent));
+        usort($globalBlocks, static fn ($a, $b) => strcmp($a->userAgent, $b->userAgent));
 
         $bingbotBlock = $globalBlocks[0];
         $googlebotBlock = $globalBlocks[1];
@@ -588,7 +588,7 @@ class RobotsPageLoaderTest extends TestCase
     private function assertUserAgentBlocksHaveCorrectDirectiveTypes(array $globalBlocks): void
     {
         // Sort by directive count for consistent testing (both should have 2 directives)
-        usort($globalBlocks, fn ($a, $b) => \count($a->directives) <=> \count($b->directives));
+        usort($globalBlocks, static fn ($a, $b) => \count($a->directives) <=> \count($b->directives));
 
         $firstBlock = $globalBlocks[0];
         $secondBlock = $globalBlocks[1];
@@ -622,12 +622,12 @@ class RobotsPageLoaderTest extends TestCase
     {
         $allDirectiveTypes = [];
         foreach ($blocks as $block) {
-            $types = array_map(fn ($d) => $d->type, $block->directives);
+            $types = array_map(static fn ($d) => $d->type, $block->directives);
             $allDirectiveTypes = array_merge($allDirectiveTypes, $types);
         }
 
         // Sort by enum value for consistent ordering
-        usort($allDirectiveTypes, fn ($a, $b) => $a->value <=> $b->value);
+        usort($allDirectiveTypes, static fn ($a, $b) => $a->value <=> $b->value);
 
         return $allDirectiveTypes;
     }
@@ -640,8 +640,8 @@ class RobotsPageLoaderTest extends TestCase
      */
     private function assertDirectivePaths(array $directives, RobotsDirectiveType $type, array $expectedPaths): void
     {
-        $filteredDirectives = array_filter($directives, fn ($d) => $d->type === $type);
-        $actualPaths = array_map(fn ($d) => $d->value, array_values($filteredDirectives));
+        $filteredDirectives = array_filter($directives, static fn ($d) => $d->type === $type);
+        $actualPaths = array_map(static fn ($d) => $d->value, array_values($filteredDirectives));
         sort($actualPaths);
         sort($expectedPaths);
 

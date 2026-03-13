@@ -240,7 +240,7 @@ class ModuleLoaderTest extends TestCase
     {
         $modules = $this->moduleLoader->loadModules($this->context);
 
-        usort($modules, fn ($a, $b) => $a['name'] <=> $b['name']);
+        usort($modules, static fn ($a, $b) => $a['name'] <=> $b['name']);
 
         return $modules;
     }

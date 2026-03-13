@@ -154,7 +154,7 @@ class ThemeLifecycleService
 
         $this->removeOldMedia($technicalName, $context);
         $this->runtimeConfigService->deleteByTechnicalName($technicalName);
-        $this->themeRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), $context);
+        $this->themeRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), $context);
     }
 
     private function getThemeByTechnicalName(string $technicalName, Context $context): ?ThemeEntity
@@ -603,12 +603,12 @@ class ThemeLifecycleService
         );
 
         $technicalNames = $parentThemeConfigs->map(
-            fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName()
+            static fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName()
         );
 
         $parentThemes = array_filter(
             $allThemes,
-            fn (array $theme) => \in_array($theme['technicalName'], $technicalNames, true)
+            static fn (array $theme) => \in_array($theme['technicalName'], $technicalNames, true)
         );
 
         $updateParents = [];

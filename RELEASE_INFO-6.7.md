@@ -131,6 +131,10 @@ Two new events are dispatched when the product slider CMS element resolves its p
 
 ## Administration
 
+### CMS data mapping source for media custom fields
+
+Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
+
 ## Storefront
 
 ### Block renaming

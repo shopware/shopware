@@ -84,7 +84,7 @@ class ScriptExecutor
 
         $twig->addGlobal('services', $services);
 
-        $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $script, $hook): void {
+        $this->traces->trace($hook, $script, static function (Debug $debug) use ($twig, $script, $hook): void {
             $twig->addGlobal('debug', $debug);
 
             if ($hook instanceof DeprecatedHook) {

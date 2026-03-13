@@ -16,12 +16,12 @@ class CustomerGroupTranslationCollection extends EntityCollection
      */
     public function getCustomerGroupIds(): array
     {
-        return $this->fmap(fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getCustomerGroupId());
+        return $this->fmap(static fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getCustomerGroupId());
     }
 
     public function filterByCustomerGroupId(string $id): self
     {
-        return $this->filter(fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getCustomerGroupId() === $id);
+        return $this->filter(static fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getCustomerGroupId() === $id);
     }
 
     /**
@@ -29,12 +29,12 @@ class CustomerGroupTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getLanguageId());
+        return $this->fmap(static fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

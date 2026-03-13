@@ -71,7 +71,7 @@ class SnippetServiceTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $listener = function (StorefrontSnippetsExtension $event): void {
+        $listener = static function (StorefrontSnippetsExtension $event): void {
             $event->snippets['foo.baz'] = 'foo_baz_override0';
             $event->snippets['foo.bas'] = 'foo_bas_override1';
         };
@@ -115,7 +115,7 @@ class SnippetServiceTest extends TestCase
         );
         $snippetSetId = $this->getSnippetSetIdForLocale($locale);
         static::assertNotNull($snippetSetId);
-        $listener = function (StorefrontSnippetsExtension $event): void {
+        $listener = static function (StorefrontSnippetsExtension $event): void {
             $event->result['foo.bar'] = 'foo_bar_override';
         };
 

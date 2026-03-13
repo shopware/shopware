@@ -20,6 +20,13 @@ export default Component.wrapComponentConfig({
         Mixin.getByName('cms-element'),
     ],
 
+    data(): { mappedDemoMedia: Entity<'media'> | null; mappedDemoMediaFetchId: number } {
+        return {
+            mappedDemoMedia: null,
+            mappedDemoMediaFetchId: 0,
+        };
+    },
+
     computed: {
         mediaRepository(): RepositoryType<'media'> {
             return this.repositoryFactory.create('media');
@@ -69,6 +76,10 @@ export default Component.wrapComponentConfig({
                     return demoMedia.url;
                 }
 
+                if (this.mappedDemoMedia?.url) {
+                    return this.mappedDemoMedia.url;
+                }
+
                 return null;
             }
 
@@ -86,14 +97,32 @@ export default Component.wrapComponentConfig({
         },
 
         coverUrl(): string | null {
+            const elementConfig = this.element.config.media as { source: string };
             const elementData = (this.element.data as unknown as { media?: Entity<'media'> }).media;
-            const cover = elementData?.extensions?.videoCoverMedia as Entity<'media'> | undefined;
+            const media = elementConfig.source === 'mapped' ? this.mappedDemoMedia : elementData;
+            const cover = media?.extensions?.videoCoverMedia as Entity<'media'> | undefined;
 
             return cover?.url ?? null;
         },
 
         assetFilter(): (value: string) => string {
             return Filter.getByName('asset');
+        },
+
+        mediaConfigValue(): string | undefined {
+            return (this.element.config.media as { value?: string } | undefined)?.value;
+        },
+    },
+
+    watch: {
+        'cmsPageState.currentDemoEntity': {
+            handler() {
+                void this.updateMappedDemoMedia();
+            },
+        },
+
+        mediaConfigValue() {
+            void this.updateMappedDemoMedia();
         },
     },
 
@@ -106,10 +135,10 @@ export default Component.wrapComponentConfig({
             this.initElementConfig();
             this.initElementData('video');
             this.loadVideoCoverMedia();
+            void this.updateMappedDemoMedia();
         },
 
-        loadVideoCoverMedia() {
-            const media = (this.element?.data as unknown as { media?: Entity<'media'> }).media;
+        loadVideoCoverMedia(media = (this.element?.data as unknown as { media?: Entity<'media'> }).media) {
             if (!media || typeof media !== 'object') {
                 return;
             }
@@ -134,6 +163,46 @@ export default Component.wrapComponentConfig({
                     videoCoverMedia: cover,
                 };
             });
+        },
+
+        async updateMappedDemoMedia() {
+            const fetchId = this.mappedDemoMediaFetchId + 1;
+            this.mappedDemoMediaFetchId = fetchId;
+            this.mappedDemoMedia = null;
+
+            const elementConfig = this.element.config.media as { source: string; value?: string };
+
+            if (elementConfig.source !== 'mapped' || !elementConfig.value) {
+                return;
+            }
+
+            const demoMedia = this.getDemoValue(elementConfig.value);
+
+            if (demoMedia && typeof demoMedia === 'object' && 'url' in demoMedia) {
+                this.mappedDemoMedia = demoMedia as Entity<'media'>;
+                this.loadVideoCoverMedia(this.mappedDemoMedia);
+
+                return;
+            }
+
+            if (typeof demoMedia !== 'string') {
+                return;
+            }
+
+            try {
+                const media = (await this.mediaRepository.get(demoMedia, Shopware.Context.api)) as Entity<'media'> | null;
+
+                if (fetchId !== this.mappedDemoMediaFetchId || !media) {
+                    return;
+                }
+
+                this.mappedDemoMedia = media;
+                this.loadVideoCoverMedia(media);
+            } catch {
+                if (fetchId === this.mappedDemoMediaFetchId) {
+                    this.mappedDemoMedia = null;
+                }
+            }
         },
     },
 });

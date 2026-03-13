@@ -14,6 +14,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
@@ -95,6 +96,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
 
         $product = new SalesChannelProductEntity();
         $product->setId('product-1');
+        $product->setManufacturerId('manufacturer-1');
 
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
@@ -107,11 +109,10 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $collection = $resolver->collect($slot, $context);
 
         static::assertInstanceOf(CriteriaCollection::class, $collection);
-        static::assertArrayHasKey(SalesChannelProductDefinition::class, $collection->all());
-
-        $criteria = $collection->all()[SalesChannelProductDefinition::class]['mapped_product_slot-1'];
-        static::assertSame(['product-1'], $criteria->getIds());
-        static::assertArrayHasKey('manufacturer', $criteria->getAssociations());
+        static::assertArrayHasKey(ProductManufacturerDefinition::class, $collection->all());
+        $criteria = $collection->all()[ProductManufacturerDefinition::class]['product_manufacturer_slot-1'];
+        static::assertSame(['manufacturer-1'], $criteria->getIds());
+        static::assertArrayHasKey('media', $criteria->getAssociations());
     }
 
     public function testCollectSkipsMappedProductCriteriaWhenMappedMediaAlreadyLoaded(): void

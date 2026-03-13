@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('discovery')]
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
@@ -48,7 +49,8 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 
         if ($sliderItemsConfig->isMapped() && $resolverContext instanceof EntityResolverContext && $sliderItemsConfig->getStringValue() === 'product.media') {
             $resolved = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getStringValue());
-            if ($resolved instanceof ProductMediaCollection && $this->isProductMediaFullyResolved($resolved)) {
+
+            if ($this->isProductMediaResolved($resolved)) {
                 return null;
             }
 
@@ -188,8 +190,12 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         $imageSlider->addSliderItem($imageSliderItem);
     }
 
-    private function isProductMediaFullyResolved(ProductMediaCollection $productMedia): bool
+    private function isProductMediaResolved(?Struct $productMedia): bool
     {
+        if (!$productMedia instanceof ProductMediaCollection) {
+            return false;
+        }
+
         foreach ($productMedia as $productMediaEntity) {
             if ($productMediaEntity->getMedia() === null) {
                 return false;

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,10 +33,19 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
 
         if ($mediaConfig !== null && $mediaConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
             $media = $this->resolveEntityValue($resolverContext->getEntity(), $mediaConfig->getStringValue());
+
             if (!$media instanceof MediaEntity) {
-                $criteria = new Criteria([$resolverContext->getEntity()->getUniqueIdentifier()]);
-                $criteria->addAssociation('manufacturer.media');
-                $criteriaCollection->add('mapped_product_' . $slot->getUniqueIdentifier(), SalesChannelProductDefinition::class, $criteria);
+                $resolverEntity = $resolverContext->getEntity();
+
+                if ($resolverEntity instanceof SalesChannelProductEntity) {
+                    $manufacturerId = $resolverEntity->getManufacturerId();
+
+                    if ($manufacturerId) {
+                        $criteria = new Criteria([$manufacturerId]);
+                        $criteria->addAssociation('media');
+                        $criteriaCollection->add('product_manufacturer_' . $slot->getUniqueIdentifier(), ProductManufacturerDefinition::class, $criteria);
+                    }
+                }
             }
         }
 

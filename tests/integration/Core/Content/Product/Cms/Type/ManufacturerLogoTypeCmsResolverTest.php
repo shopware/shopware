@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
@@ -115,6 +116,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
     {
         $product = new SalesChannelProductEntity();
         $product->setId('product_01');
+        $product->setManufacturerId('manufacturer_01');
 
         $resolverContext = new EntityResolverContext(
             $this->createMock(SalesChannelContext::class),
@@ -133,10 +135,10 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
 
         $collection = $this->manufacturerLogoCmsElementResolver->collect($slot, $resolverContext);
         static::assertNotNull($collection);
-        static::assertArrayHasKey(SalesChannelProductDefinition::class, $collection->all());
+        static::assertArrayHasKey(ProductManufacturerDefinition::class, $collection->all());
 
-        $criteria = $collection->all()[SalesChannelProductDefinition::class]['mapped_product_id'];
-        static::assertSame(['product_01'], $criteria->getIds());
-        static::assertArrayHasKey('manufacturer', $criteria->getAssociations());
+        $criteria = $collection->all()[ProductManufacturerDefinition::class]['product_manufacturer_id'];
+        static::assertSame(['manufacturer_01'], $criteria->getIds());
+        static::assertArrayHasKey('media', $criteria->getAssociations());
     }
 }

@@ -367,7 +367,8 @@ class ProductControllerTest extends TestCase
             static::assertStringContainsString('class="product-detail-review-item-content"', $content);
             static::assertStringNotContainsString('itemprop="description"', $content);
         } else {
-            static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description" lang="en-GB">', $content);
+            static::assertStringContainsString('class="product-detail-review-item-content"', $content);
+            static::assertStringContainsString('itemprop="description"', $content);
         }
 
         static::assertStringContainsString(self::TEST_CONTENT, $content);

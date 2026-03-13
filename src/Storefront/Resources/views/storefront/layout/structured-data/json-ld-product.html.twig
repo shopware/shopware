@@ -169,6 +169,24 @@
         {% set productData = productData|merge({releaseDate: page.product.releaseDate|format_date(pattern='Y-MM-dd')}) %}
     {% endif %}
 
+    {#
+        isVariantOf links this specific variant back to its parent product group.
+        productGroupID uses the parent's Shopware ID as the stable group identifier.
+        Only set when viewing a variant (parentId is present); simple products are skipped.
+    #}
+    {% if page.product.parentId %}
+        {% set parentUrl = seoUrl('frontend.detail.page', { productId: page.product.parentId }) %}
+        {% set productData = productData|merge({
+            isVariantOf: {
+                '@type': 'ProductGroup',
+                '@id': parentUrl ~ '#product',
+                name: page.product.translated.name,
+                url: parentUrl,
+                productGroupID: page.product.parentId
+            }
+        }) %}
+    {% endif %}
+
     {# Dimensions as QuantitativeValue with unitText #}
     {% if page.product.measurements.type('weight') %}
         {% set weightValue = page.product.measurements.type('weight').value %}

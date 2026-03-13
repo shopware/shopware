@@ -361,8 +361,8 @@ describe('sw-order-document-settings-credit-note-modal', () => {
             expect(numberRangeServiceMock.reserve).toHaveBeenCalledTimes(1);
             expect(numberRangeServiceMock.reserve).toHaveBeenCalledWith('document_credit_note', 'Headless', false);
 
-            expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toEqual(1337);
-            expect(wrapper.vm.documentConfig.documentNumber).toEqual(1337);
+            expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toBe(1337);
+            expect(wrapper.vm.documentConfig.documentNumber).toBe(1337);
             expect(wrapper.emitted()['document-create']).toBeTruthy();
         },
     );

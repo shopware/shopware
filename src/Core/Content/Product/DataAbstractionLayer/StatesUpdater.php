@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductStatesBeforeChangeEvent;
 use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -86,7 +87,7 @@ class StatesUpdater
 
         $query = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE `product` SET `states` = :states WHERE `id` = :id AND `version_id` = :version')
+            $this->connection->prepare('UPDATE `product` SET `states` = :states, `type` = :type WHERE `id` = :id AND `version_id` = :version')
         );
 
         $event = new ProductStatesBeforeChangeEvent($updates, $context);
@@ -95,6 +96,7 @@ class StatesUpdater
         foreach ($event->getUpdatedStates() as $updatedStates) {
             $query->execute([
                 'states' => json_encode($updatedStates->getNewStates(), \JSON_THROW_ON_ERROR),
+                'type' => \in_array(State::IS_DOWNLOAD, $updatedStates->getNewStates(), true) ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL,
                 'id' => Uuid::fromHexToBytes($updatedStates->getId()),
                 'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ]);

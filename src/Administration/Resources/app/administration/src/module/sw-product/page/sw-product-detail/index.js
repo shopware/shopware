@@ -516,6 +516,11 @@ export default {
 
             // when create
             if (!this.productId) {
+                // Immediately reset store to prevent
+                // stale data from a previous variant/child product from rendering
+                // before initState() creates a new product entity
+                Shopware.Store.get('swProductDetail').$reset();
+
                 // set language to system language
                 if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                     Shopware.Store.get('context').resetLanguageToDefault();

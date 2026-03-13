@@ -42,6 +42,11 @@ When creating external media via `POST /api/_action/media/external-link`, you ca
 
 The same `thumbnails` payload shape is accepted by `POST /api/_action/media/{id}/external-thumbnails`.
 
+### Support of long-running MySQL connections
+
+It is now possible to use libraries like [`doctrine-mysql-come-back`](https://github.com/facile-it/doctrine-mysql-come-back), which wrap the default DBAL connection.
+More information on how to set up, can be found here: https://developer.shopware.com/docs/guides/hosting/infrastructure/database.html#setup-for-long-running-environments
+
 ## API
 
 ### Deprecation of newsletter route methods
@@ -103,7 +108,7 @@ Product main categories are now inherited from parent product if not explicitly 
 
 ### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
 
-The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed. 
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed.
 But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
 This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
 Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.

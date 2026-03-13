@@ -11,13 +11,13 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderError;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResultCollection;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
-use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Mime\Email;
 
 /**
@@ -68,8 +68,8 @@ class MailTemplateService
 
         foreach ($templateContent as $key => $value) {
             try {
-                $renderedResult->set($key, new MailTemplateRenderSuccess($this->templateRenderer->render($value, $templateData, $context)));
-            } catch (AdapterException $e) {
+                $renderedResult->set($key, new MailTemplateRenderSuccess($this->templateRenderer->render($value, $templateData, $context, false)));
+            } catch (\Throwable $e) {
                 $renderedResult->set($key, new MailTemplateRenderError($e->getMessage()));
             }
         }
@@ -126,7 +126,7 @@ class MailTemplateService
 
         if ($fieldPath === '') {
             return \array_map(
-                fn ($fieldName) => ['fieldName' => $fieldName, 'hasChildren' => \is_array($templateData[$fieldName]) && $templateData[$fieldName] !== []],
+                fn ($fieldName) => ['fieldName' => $fieldName, 'hasChildren' => \is_object($templateData[$fieldName]) || (\is_array($templateData[$fieldName]) && $templateData[$fieldName] !== [])],
                 \array_keys($templateData)
             );
         }
@@ -134,11 +134,19 @@ class MailTemplateService
         $fieldPathParts = \explode('.', $fieldPath);
 
         foreach ($fieldPathParts as $fieldPathPart) {
-            if (!\array_key_exists($fieldPathPart, $templateData)) {
+            if ($templateData instanceof Struct) {
+                $templateData = $templateData->jsonSerialize();
+            }
+
+            if (!\is_array($templateData) || !\array_key_exists($fieldPathPart, $templateData)) {
                 return [];
             }
 
             $templateData = $templateData[$fieldPathPart];
+        }
+
+        if ($templateData instanceof Struct) {
+            $templateData = $templateData->jsonSerialize();
         }
 
         if (!\is_array($templateData)) {
@@ -146,7 +154,7 @@ class MailTemplateService
         }
 
         return \array_map(
-            fn ($fieldName) => ['fieldName' => $fieldName, 'hasChildren' => \is_array($templateData[$fieldName]) && $templateData[$fieldName] !== []],
+            fn ($fieldName) => ['fieldName' => $fieldName, 'hasChildren' => \is_object($templateData[$fieldName]) || (\is_array($templateData[$fieldName]) && $templateData[$fieldName] !== [])],
             \array_keys($templateData)
         );
     }

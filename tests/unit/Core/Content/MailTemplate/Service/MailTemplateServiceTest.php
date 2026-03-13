@@ -15,6 +15,7 @@ use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderError;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -216,7 +217,9 @@ class MailTemplateServiceTest extends TestCase
                 'baz' => [
                     'key' => 'value',
                 ],
+                'struct' => MeasurementUnits::createDefaultUnits(),
             ],
+            'topLevelStruct' => MeasurementUnits::createDefaultUnits(),
         ]);
 
         /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
@@ -233,6 +236,96 @@ class MailTemplateServiceTest extends TestCase
         $result = $mailTemplateService->availableVariables(ReviewFormEvent::class, $fieldPath, Context::createDefaultContext());
 
         static::assertSame($expected, $result);
+    }
+
+    public static function fieldPathProvider(): \Generator
+    {
+        yield 'empty field path' => [
+            'fieldPath' => '',
+            'expected' => [
+                [
+                    'fieldName' => 'foo',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'bar',
+                    'hasChildren' => true,
+                ],[
+                    'fieldName' => 'topLevelStruct',
+                    'hasChildren' => true,
+                ],
+            ],
+        ];
+
+        yield 'valid field path' => [
+            'fieldPath' => 'bar',
+            'expected' => [
+                [
+                    'fieldName' => 'foobar',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'baz',
+                    'hasChildren' => true,
+                ],
+                [
+                    'fieldName' => 'struct',
+                    'hasChildren' => true,
+                ],
+            ],
+        ];
+
+        yield 'valid field path on element without children' => [
+            'fieldPath' => 'foo',
+            'expected' => [],
+        ];
+
+        yield 'nested field path' => [
+            'fieldPath' => 'bar.baz',
+            'expected' => [
+                [
+                    'fieldName' => 'key',
+                    'hasChildren' => false,
+                ],
+            ],
+        ];
+
+        yield 'unknown field path' => [
+            'fieldPath' => 'unknown',
+            'expected' => [],
+        ];
+
+        yield 'field path to struct' => [
+            'fieldPath' => 'bar.struct',
+            'expected' => [
+                [
+                    'fieldName' => 'extensions',
+                    'hasChildren' => false,
+                ],
+                 [
+                    'fieldName' => 'system',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'units',
+                    'hasChildren' => true,
+                ],
+            ],
+        ];
+
+        yield 'access struct property' => [
+            'fieldPath' => 'bar.struct.units',
+            'expected' => [
+                [
+                    'fieldName' => 'length',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'weight',
+                    'hasChildren' => false,
+                ],
+            ]
+        ];
     }
 
     public function testAvailableVariablesWithEmptyTemplateData(): void
@@ -256,57 +349,5 @@ class MailTemplateServiceTest extends TestCase
         $result = $mailTemplateService->availableVariables(ReviewFormEvent::class, 'foobar.foo.bar', Context::createDefaultContext());
 
         static::assertSame([], $result);
-    }
-
-    public static function fieldPathProvider(): \Generator
-    {
-        yield 'empty field path' => [
-            'fieldPath' => '',
-            'expected' => [
-                [
-                    'fieldName' => 'foo',
-                    'hasChildren' => false,
-                ],
-                [
-                    'fieldName' => 'bar',
-                    'hasChildren' => true,
-                ],
-            ],
-        ];
-
-        yield 'valid field path' => [
-            'fieldPath' => 'bar',
-            'expected' => [
-                [
-                    'fieldName' => 'foobar',
-                    'hasChildren' => false,
-                ],
-                [
-                    'fieldName' => 'baz',
-                    'hasChildren' => true,
-                ],
-            ],
-        ];
-
-        yield 'valid field path on element without children' => [
-            'fieldPath' => 'foo',
-            'expected' => [],
-        ];
-
-
-        yield 'nested field path' => [
-            'fieldPath' => 'bar.baz',
-            'expected' => [
-                [
-                    'fieldName' => 'key',
-                    'hasChildren' => false,
-                ],
-            ],
-        ];
-
-        yield 'unknown field path' => [
-            'fieldPath' => 'unknown',
-            'expected' => [],
-        ];
     }
 }

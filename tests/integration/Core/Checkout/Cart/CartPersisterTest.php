@@ -81,7 +81,10 @@ class CartPersisterTest extends TestCase
         $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
         $cart = $persister->load('existing', Generator::generateSalesChannelContext());
 
-        static::assertEquals(new Cart('existing'), $cart);
+        $expected = new Cart('existing');
+        $expected->setPersisted(true);
+
+        static::assertEquals($expected, $cart);
     }
 
     public function testEmptyCartShouldNotBeSaved(): void
@@ -154,6 +157,28 @@ class CartPersisterTest extends TestCase
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertNotEmpty($token);
+    }
+
+    public function testSavingExistingCartDoesNotRecreateDeletedCart(): void
+    {
+        $cart = new Cart('existing');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $context = $this->getSalesChannelContext($cart->getToken());
+
+        $persister->save($cart, $context);
+        $persister->delete($cart->getToken(), $context);
+        $persister->save($cart, $context);
+
+        $token = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertFalse($token);
     }
 
     /**

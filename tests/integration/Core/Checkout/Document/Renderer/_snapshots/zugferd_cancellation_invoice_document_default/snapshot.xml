@@ -132,7 +132,7 @@
       <ram:InvoiceReferencedDocument>
         <ram:IssuerAssignedID>1001</ram:IssuerAssignedID>
         <ram:FormattedIssueDateTime>
-          <qdt:DateTimeString format="102">20260312</qdt:DateTimeString>
+          <qdt:DateTimeString format="102">[date]</qdt:DateTimeString>
         </ram:FormattedIssueDateTime>
       </ram:InvoiceReferencedDocument>
     </ram:ApplicableHeaderTradeSettlement>

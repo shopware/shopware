@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Category\Subscriber;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -27,7 +27,6 @@ class CategorySubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
-        private readonly Connection $connection,
     ) {
     }
 
@@ -35,7 +34,7 @@ class CategorySubscriber implements EventSubscriberInterface
     {
         return [
             'sales_channel.category.loaded' => 'salesChannelCategoryLoaded',
-            'category.written' => 'onCategoryWritten',
+            EntityWriteEvent::class => 'beforeWriteCategory',
         ];
     }
 
@@ -67,48 +66,33 @@ class CategorySubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onCategoryWritten(EntityWrittenEvent $event): void
+    public function beforeWriteCategory(EntityWriteEvent $event): void
     {
         $defaultCmsPageId = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
         if ($defaultCmsPageId === '') {
             return;
         }
 
-        $ids = [];
-        foreach ($event->getWriteResults() as $result) {
-            $payload = $result->getPayload();
+        $defaultCmsPageIdBytes = Uuid::fromHexToBytes($defaultCmsPageId);
 
-            if (!empty($payload['cmsPageId'])) {
+        foreach ($event->getCommandsForEntity(CategoryDefinition::ENTITY_NAME) as $command) {
+            if ($command instanceof DeleteCommand) {
                 continue;
             }
 
-            $needsDefault = match ($result->getOperation()) {
-                EntityWriteResult::OPERATION_INSERT => true,
-                EntityWriteResult::OPERATION_UPDATE => \array_key_exists('cmsPageId', $payload),
-                default => false,
-            };
+            if ($command instanceof InsertCommand) {
+                if (!$command->hasField('cms_page_id') || $command->getPayload()['cms_page_id'] === null) {
+                    $command->addPayload('cms_page_id', $defaultCmsPageIdBytes);
+                }
 
-            if (!$needsDefault) {
                 continue;
             }
 
-            $primaryKey = $result->getPrimaryKey();
-            $ids[] = \is_array($primaryKey) ? $primaryKey['id'] : $primaryKey;
+            if ($command instanceof UpdateCommand) {
+                if ($command->hasField('cms_page_id') && $command->getPayload()['cms_page_id'] === null) {
+                    $command->addPayload('cms_page_id', $defaultCmsPageIdBytes);
+                }
+            }
         }
-
-        if ($ids === []) {
-            return;
-        }
-
-        $this->connection->executeStatement(
-            'UPDATE `category` SET `cms_page_id` = :cmsPageId WHERE `id` IN (:ids) AND `cms_page_id` IS NULL',
-            [
-                'cmsPageId' => Uuid::fromHexToBytes($defaultCmsPageId),
-                'ids' => Uuid::fromHexToBytesList($ids),
-            ],
-            [
-                'ids' => ArrayParameterType::BINARY,
-            ]
-        );
     }
 }

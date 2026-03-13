@@ -732,7 +732,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
         // Resolve all override configs in parallel, then separate by type
-        const resolvedEntries = await Promise.all(overrides!.map(async (overrideEntry) => overrideEntry.config()));
+        const resolvedEntries = await Promise.all(overrides!.map((overrideEntry) => overrideEntry.config()));
 
         const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
             (resolvedConfig) => () => Promise.resolve(resolvedConfig),

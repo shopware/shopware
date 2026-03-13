@@ -19,43 +19,54 @@ use Shopware\Core\Migration\V6_7\Migration1773322284ChangeDocumentReferencedDocu
 #[CoversClass(Migration1773322284ChangeDocumentReferencedDocumentIdConstraint::class)]
 class Migration1773322284ChangeDocumentReferencedDocumentIdConstraintTest extends TestCase
 {
+    private const FOREIGN_KEY_NAME = 'fk.document.referenced_document_id';
+
     private Connection $connection;
 
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
 
-        if (TableHelper::foreignKeyExists(
+        $foreignKey = TableHelper::getForeignKeyOfTable(
             $this->connection,
             DocumentDefinition::ENTITY_NAME,
-            'fk.document.referenced_document_id'
-        )) {
-            $this->connection->executeStatement('
-                ALTER TABLE `document`
-                DROP FOREIGN KEY `fk.document.referenced_document_id`;
-            ');
-        }
+            self::FOREIGN_KEY_NAME
+        );
 
-        $this->connection->executeStatement('
-            ALTER TABLE `document`
-            ADD CONSTRAINT `fk.document.referenced_document_id`
-            FOREIGN  KEY (`referenced_document_id`)
-            REFERENCES `document` (`id`)
-            ON DELETE SET NULL ON UPDATE CASCADE;
-        ');
+        if ($foreignKey->onDeleteAction !== ReferentialAction::RESTRICT->value) {
+            $this->connection->executeStatement(\sprintf('
+                ALTER TABLE `document`
+                DROP FOREIGN KEY `%s`;
+            ', self::FOREIGN_KEY_NAME));
+
+            $this->connection->executeStatement(\sprintf('
+                ALTER TABLE `document`
+                ADD CONSTRAINT `%s`
+                FOREIGN KEY (`referenced_document_id`)
+                REFERENCES `document` (`id`)
+                ON DELETE RESTRICT ON UPDATE CASCADE;
+            ', self::FOREIGN_KEY_NAME));
+        }
     }
 
     public function testMigration(): void
     {
+        $foreignKeyBefore = TableHelper::getForeignKeyOfTable(
+            $this->connection,
+            DocumentDefinition::ENTITY_NAME,
+            self::FOREIGN_KEY_NAME
+        );
+        static::assertSame(ReferentialAction::RESTRICT->value, $foreignKeyBefore->onDeleteAction);
+
         $migration = new Migration1773322284ChangeDocumentReferencedDocumentIdConstraint();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $foreignKey = TableHelper::getForeignKeyOfTable(
+        $foreignKeyAfter = TableHelper::getForeignKeyOfTable(
             $this->connection,
             DocumentDefinition::ENTITY_NAME,
-            'fk.document.referenced_document_id'
+            self::FOREIGN_KEY_NAME
         );
-        static::assertSame(ReferentialAction::SET_NULL->value, $foreignKey->onDeleteAction);
+        static::assertSame(ReferentialAction::SET_NULL->value, $foreignKeyAfter->onDeleteAction);
     }
 }

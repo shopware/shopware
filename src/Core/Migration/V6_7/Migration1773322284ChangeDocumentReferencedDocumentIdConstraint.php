@@ -29,7 +29,7 @@ class Migration1773322284ChangeDocumentReferencedDocumentIdConstraint extends Mi
         $connection->executeStatement('
             ALTER TABLE `document`
             ADD CONSTRAINT `fk.document.referenced_document_id`
-            FOREIGN  KEY (`referenced_document_id`)
+            FOREIGN KEY (`referenced_document_id`)
             REFERENCES `document` (`id`)
             ON DELETE SET NULL ON UPDATE CASCADE;
         ');

@@ -77,8 +77,8 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        onLegalLinkClick(linkTarget: 'privacy_policy' | 'data_use_details') {
-            dispatchConsentEvent('consent_legal_link_clicked', { link_target: linkTarget, source: 'setting' });
+        onLegalLinkClick() {
+            dispatchConsentEvent('consent_legal_link_clicked', { link_target: 'privacy_policy', source: 'setting' });
         },
     },
 });

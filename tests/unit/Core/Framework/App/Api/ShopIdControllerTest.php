@@ -155,7 +155,7 @@ class ShopIdControllerTest extends TestCase
 
         $this->shopIdProvider->expects($this->once())
             ->method('getShopId')
-            ->willReturn($shopId->id);
+            ->willReturn($shopId);
 
         $response = $this->controller->checkShopId($this->context);
 

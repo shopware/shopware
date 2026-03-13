@@ -256,8 +256,8 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         expect(zugferdOptions).toStrictEqual([
             DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
             DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
             DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
+            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
             DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
             DOCUMENT_TYPES.ZUGFERD_INVOICE,
         ]);

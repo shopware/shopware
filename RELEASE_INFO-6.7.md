@@ -118,6 +118,12 @@ Two new events are dispatched when the product slider CMS element resolves its p
 
 ## Storefront
 
+### Live quantity limits for closeout products on the PDP
+
+The buy-widget quantity selector now fetches live `minPurchase`, `purchaseSteps`, and `maxPurchase` values for closeout products via a new Store API endpoint (`GET /store-api/product/{productId}/quantity-limits`) on first user interaction (focus or click). This ensures the selector reflects actual stock even when the PDP HTML is served from HTTP cache.
+
+The fetch is triggered by the `QuantitySelectorPlugin` when a `data-live-quantity-url` attribute is present on the quantity selector element. If you override `buy_widget_buy_container` or related blocks in `buy-widget-form.html.twig`, preserve the `data-live-quantity-url` attribute and the `js-quantity-stock-adjusted-template` `<template>` element to use this functionality.
+
 ### Block renaming
 
 * Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.

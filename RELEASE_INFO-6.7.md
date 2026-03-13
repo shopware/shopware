@@ -165,6 +165,11 @@ But it still dispatched the `CategoryIndexingMessage`, even though all relevant 
 This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
 Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
 
+### Existing cart recalculations no longer recreate deleted carts
+
+When an existing cart is recalculated, Shopware now uses the cart's persisted state to avoid recreating carts that were already deleted.
+This prevents race conditions where a concurrent request, such as placing an order, deletes the cart and a stale recalculation writes it back afterwards.
+
 ### Deprecation of unused `TemplateGroup` class
 
 The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
@@ -193,6 +198,23 @@ As some mail clients send `HEAD` requests to links which are contained in emails
 ## Hosting & Configuration
 
 ## Critical Fixes
+
+# 6.7.8.1
+
+## Critical Fixes
+
+### Double signature verification in app-reregistration flow
+Introduces a secure, asynchronous app secret rotation feature to the app system, including both API and CLI interfaces.
+Added a new API endpoint and command for rotating app secrets, implemented the underlying rotation logic, and adjusted the app registration process to support secret updates and dual signature confirmation.
+This increases security by enforcing a two-step verification process during app re-registration, ensuring that only authorized parties can update app secrets.
+
+### LoginRoute and AccountService don't throw CustomerNotFoundException
+The `LoginRoute` and `AccountService` have been updated to no longer throw a `CustomerNotFoundException` when a login attempt is made with an email address that does not exist in the system.
+Instead, they will now throw a generic `BadCredentialsException` without revealing whether the email address is registered or not.
+This change enhances security by preventing potential attackers from enumerating valid email addresses through error messages.
+
+### Improve OrderRoute deepLinkCode filter type validation
+Improve the logic in `\Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load` to ensure the `deepLinkCode` filter is an instance of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter`.
 
 # 6.7.8.0
 

@@ -25,11 +25,9 @@ export default {
 
     props: {
         value: {
-            type: Array,
+            type: [Array, null],
             required: false,
-            default() {
-                return [];
-            },
+            default: null,
         },
 
         repository: {
@@ -62,6 +60,7 @@ export default {
 
     data() {
         return {
+            normalizedValue: [],
             collection: null,
         };
     },
@@ -73,7 +72,7 @@ export default {
                 return;
             }
 
-            if (this.collection.getIds() === this.value) {
+            if (this.collection.getIds() === this.normalizedValue) {
                 return;
             }
 
@@ -87,26 +86,30 @@ export default {
 
     methods: {
         createdComponent() {
+            if (Array.isArray(this.value)) {
+                this.normalizedValue = this.value;
+            }
+
             const collection = new EntityCollection(this.repository.route, this.repository.entityName, this.context);
 
             if (this.collection === null) {
                 this.collection = collection;
             }
 
-            if (this.value.length <= 0) {
+            if (this.normalizedValue.length <= 0) {
                 this.collection = collection;
                 return Promise.resolve(this.collection);
             }
 
             const criteria = Criteria.fromCriteria(this.criteria);
-            criteria.setIds(this.value);
+            criteria.setIds(this.normalizedValue);
             criteria.setTerm('');
             criteria.queries = [];
 
             return this.repository.search(criteria, { ...this.context, inheritance: true }).then((entities) => {
                 this.collection = entities;
 
-                if (!this.collection.length && this.value.length) {
+                if (!this.collection.length && this.normalizedValue.length) {
                     this.updateIds(this.collection);
                 }
 

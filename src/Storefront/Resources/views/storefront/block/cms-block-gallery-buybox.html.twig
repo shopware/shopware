@@ -4,28 +4,14 @@
         {% set config = element.fieldConfig.elements %}
 
         <div class="col-lg-7 product-detail-media" data-cms-element-id="{{ element.id }}">
-
-            {% if feature('STOREFRONT_COMPONENTS') %}
-                {% set mediaItems = element.data.sliderItems|map(item => item.media) %}
-                {% set isProduct = config.sliderItems.value == 'product.media' and config.sliderItems.source == 'mapped' %}
-                <twig:Sw:Media:Gallery
-                    :mediaItems="mediaItems" 
-                    :thumbnailNavigationPosition="config.galleryPosition.value" 
-                    :showNavigationArrows="config.navigationArrows.value" 
-                    :showMagnifier="config.zoom.value"
-                    :showFullScreenGallery="config.fullScreen.value"
-                    :useSchemaMarkup="isProduct"
-                />
-            {% else %} 
-                {% block block_gallery_buybox_column_left_inner %}
-                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing
-                        with {
-                        isProduct: config.sliderItems.value == 'product.media' and config.sliderItems.source == 'mapped',
-                        startIndexThumbnails: 1,
-                        startIndexSlider: 1
-                    } %}
-                {% endblock %}
-            {% endif %}
+            {% block block_gallery_buybox_column_left_inner %}
+                {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing
+                    with {
+                    isProduct: config.sliderItems.value == 'product.media' and config.sliderItems.source == 'mapped',
+                    startIndexThumbnails: 1,
+                    startIndexSlider: 1
+                } %}
+            {% endblock %}
         </div>
     {% endblock %}
 

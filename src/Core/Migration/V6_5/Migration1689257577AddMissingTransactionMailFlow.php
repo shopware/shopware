@@ -148,7 +148,7 @@ class Migration1689257577AddMissingTransactionMailFlow extends MigrationStep
      */
     private function getMailTemplates(Connection $connection): array
     {
-        $getTemplateId = function (string $flowName) use ($connection): string|bool {
+        $getTemplateId = static function (string $flowName) use ($connection): string|bool {
             $templateTypeId = $connection->fetchOne('SELECT id FROM mail_template_type WHERE technical_name = :name', ['name' => $flowName]);
 
             return $connection->fetchOne('SELECT id FROM mail_template WHERE mail_template_type_id = :id', ['id' => $templateTypeId]);

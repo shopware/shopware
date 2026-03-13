@@ -67,13 +67,13 @@ class ContainerCartProcessor implements CartProcessorInterface
         if ($item->getChildren()->count() > 0) {
             // we need to calculate the children in a specific order.
             // we can only calculate "referring" price (discount, surcharges) after calculating items with fix prices (products, etc)
-            $this->calculateCollection($item->getChildren(), $context, fn (LineItem $item) => $item->getChildren()->count() > 0);
+            $this->calculateCollection($item->getChildren(), $context, static fn (LineItem $item) => $item->getChildren()->count() > 0);
 
-            $this->calculateCollection($item->getChildren(), $context, fn (LineItem $item) => $item->getPriceDefinition() instanceof QuantityPriceDefinition);
+            $this->calculateCollection($item->getChildren(), $context, static fn (LineItem $item) => $item->getPriceDefinition() instanceof QuantityPriceDefinition);
 
-            $this->calculateCollection($item->getChildren(), $context, fn (LineItem $item) => $item->getPriceDefinition() instanceof CurrencyPriceDefinition);
+            $this->calculateCollection($item->getChildren(), $context, static fn (LineItem $item) => $item->getPriceDefinition() instanceof CurrencyPriceDefinition);
 
-            $this->calculateCollection($item->getChildren(), $context, fn (LineItem $item) => $item->getPriceDefinition() instanceof PercentagePriceDefinition);
+            $this->calculateCollection($item->getChildren(), $context, static fn (LineItem $item) => $item->getPriceDefinition() instanceof PercentagePriceDefinition);
 
             if (!$this->validate($item)) {
                 $scope->remove($item->getId());

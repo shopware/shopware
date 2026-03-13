@@ -29,7 +29,7 @@ class ExtensionCompatibilitiesResolvedSubscriber implements EventSubscriberInter
     public function markAppsWithServiceAsCompatible(ExtensionCompatibilitiesResolvedEvent $event): void
     {
         $services = $this->serviceRegistryClient->getAll();
-        $serviceNames = array_map(fn (ServiceEntry $entry) => $entry->name, $services);
+        $serviceNames = array_map(static fn (ServiceEntry $entry) => $entry->name, $services);
 
         $compatibilities = [];
         foreach ($event->compatibilities as $compatibility) {

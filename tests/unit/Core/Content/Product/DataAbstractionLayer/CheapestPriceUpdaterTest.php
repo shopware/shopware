@@ -69,7 +69,7 @@ class CheapestPriceUpdaterTest extends TestCase
 
         $dispatcher->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (ProductIndexerEvent $event) use ($context, $variantId) {
+            ->with(static::callback(static function (ProductIndexerEvent $event) use ($context, $variantId) {
                 return $event->getIds() === [$variantId] && $event->getContext() === $context;
             }));
 

@@ -95,7 +95,7 @@ class PhpSyntaxExtension extends AbstractExtension
                 /**
                  * @param int<1, max> $depth
                  */
-                function (mixed $var, int $options = 0, $depth = 512) {
+                static function (mixed $var, int $options = 0, $depth = 512) {
                     try {
                         FieldVisibility::$isInTwigRenderingContext = true;
 

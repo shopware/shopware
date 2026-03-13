@@ -77,7 +77,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
         $availableCategories = \array_filter(
             $categories,
-            fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
+            static fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
         );
 
         /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */

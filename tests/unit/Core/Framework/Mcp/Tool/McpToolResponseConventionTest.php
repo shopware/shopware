@@ -19,18 +19,22 @@ class McpToolResponseConventionTest extends TestCase
 {
     public function testAllMcpToolsUseResponseTrait(): void
     {
-        $toolDir = \dirname(__DIR__, 6) . '/src/Core/Framework/Mcp/Tool';
+        $srcDir = \dirname(__DIR__, 6) . '/src';
 
         $finder = (new Finder())
             ->files()
-            ->in($toolDir)
+            ->in($srcDir)
+            ->path('/Mcp\/Tool\//')
             ->name('*Tool.php')
-            ->notName('McpToolResponse.php');
+            ->notName('McpToolResponse.php')
+            ->notName('McpTool.php');
 
         $violations = [];
 
         foreach ($finder as $file) {
-            $className = 'Shopware\\Core\\Framework\\Mcp\\Tool\\' . $file->getBasename('.php');
+            // Derive namespace from path: src/Foo/Bar/Mcp/Tool/MyTool.php -> Shopware\Foo\Bar\Mcp\Tool\MyTool
+            $relative = str_replace('/', '\\', $file->getRelativePathname());
+            $className = 'Shopware\\' . substr($relative, 0, -4);
 
             if (!class_exists($className)) {
                 continue;

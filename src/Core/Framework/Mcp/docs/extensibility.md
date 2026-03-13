@@ -193,14 +193,15 @@ public function __invoke(string $entity): string
 }
 ```
 
-## App tools
+## App capabilities
 
-Apps declare MCP tools in a `Resources/mcp.xml` file:
+Apps declare MCP capabilities (tools, prompts, and resources) in a `Resources/mcp.xml` file. All three types follow the same lifecycle: declared in XML → persisted to DB on install/update → loaded at MCP server build time → invoked via HMAC-signed webhook.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <mcp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:noNamespaceSchemaLocation="...">
+
     <mcp-tools>
         <mcp-tool name="sync-orders" url="https://app.example.com/mcp/sync-orders">
             <label>Sync Orders</label>
@@ -211,19 +212,46 @@ Apps declare MCP tools in a `Resources/mcp.xml` file:
             </input-schema>
         </mcp-tool>
     </mcp-tools>
+
+    <mcp-prompts>
+        <mcp-prompt name="order-context" url="https://app.example.com/mcp/prompts/order-context">
+            <label>Order context</label>
+            <description>Provides background context for working with orders in this app</description>
+        </mcp-prompt>
+    </mcp-prompts>
+
+    <mcp-resources>
+        <mcp-resource name="erp-status" url="https://app.example.com/mcp/resources/erp-status">
+            <label>ERP status</label>
+            <description>Current ERP connection status and last sync timestamp</description>
+        </mcp-resource>
+    </mcp-resources>
+
 </mcp>
 ```
 
-The tool name is automatically prefixed with the app name (e.g., `my-erp-sync-orders`).
+All names are automatically prefixed with the app name (e.g., `my-erp-sync-orders`, `my-erp-order-context`, `my-erp-erp-status`).
 
-### How app tools work
+### How app capabilities work
 
-1. `Mcp::createFromXmlFile()` parses the XML during app install/update
-2. `McpToolPersister` syncs tool definitions to the `app_mcp_tool` database table
-3. `AppMcpToolLoader` loads active app tools at MCP server build time
-4. Tool invocations are proxied via HMAC-signed HTTP POST to the app's webhook URL by `AppMcpToolExecutor`
+| Step | Tools | Prompts | Resources |
+|---|---|---|---|
+| **Parse** | `Mcp::createFromXmlFile()` | same | same |
+| **Persist** | `McpToolPersister` → `app_mcp_tool` | `McpPromptPersister` → `app_mcp_prompt` | `McpResourcePersister` → `app_mcp_resource` |
+| **Load** | `AppMcpToolLoader` | `AppMcpPromptLoader` | `AppMcpResourceLoader` |
+| **Execute** | `AppMcpToolExecutor` (HMAC-signed POST) | same executor | same executor |
 
-The timeout for app tool calls is configurable via `shopware.mcp.app_tool_timeout` (default: 10 seconds).
+The timeout for all app webhook calls is configurable via `shopware.mcp.app_tool_timeout` (default: 10 seconds).
+
+### App webhook protocol
+
+When an AI client invokes a tool, requests a prompt, or reads a resource, Shopware sends a signed HTTP POST to the URL declared in `mcp.xml`. The request body contains the invocation arguments as JSON. The app server must respond with the result in the format the MCP SDK expects for that capability type.
+
+Requests are signed using the app secret (HMAC-SHA256). Apps should verify the signature on every incoming request.
+
+### Locale resolution
+
+Translations for app capability labels and descriptions are resolved against the **system's default locale** at load time (not hardcoded to `en-GB`). The loaders query `Defaults::LANGUAGE_SYSTEM` to find the active locale code. If the locale cannot be determined, they fall back to `en-GB`.
 
 ## Keeping responses compact with McpEntityIncludes
 

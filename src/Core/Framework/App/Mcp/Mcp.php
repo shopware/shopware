@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\App\Mcp;
 
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Mcp\Xml\McpPrompts;
+use Shopware\Core\Framework\App\Mcp\Xml\McpResources;
 use Shopware\Core\Framework\App\Mcp\Xml\McpTools;
 use Shopware\Core\Framework\Log\Package;
 
@@ -15,6 +17,8 @@ class Mcp
     private function __construct(
         private string $path,
         private readonly ?McpTools $tools,
+        private readonly ?McpPrompts $prompts,
+        private readonly ?McpResources $resources,
     ) {
     }
 
@@ -30,7 +34,13 @@ class Mcp
         $toolsElement = $doc->getElementsByTagName('mcp-tools')->item(0);
         $tools = $toolsElement instanceof \DOMElement ? McpTools::fromXml($toolsElement) : null;
 
-        return new self(\dirname($xmlFile), $tools);
+        $promptsElement = $doc->getElementsByTagName('mcp-prompts')->item(0);
+        $prompts = $promptsElement instanceof \DOMElement ? McpPrompts::fromXml($promptsElement) : null;
+
+        $resourcesElement = $doc->getElementsByTagName('mcp-resources')->item(0);
+        $resources = $resourcesElement instanceof \DOMElement ? McpResources::fromXml($resourcesElement) : null;
+
+        return new self(\dirname($xmlFile), $tools, $prompts, $resources);
     }
 
     public function getPath(): string
@@ -46,5 +56,15 @@ class Mcp
     public function getTools(): ?McpTools
     {
         return $this->tools;
+    }
+
+    public function getPrompts(): ?McpPrompts
+    {
+        return $this->prompts;
+    }
+
+    public function getResources(): ?McpResources
+    {
+        return $this->resources;
     }
 }

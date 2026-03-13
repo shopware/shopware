@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-entity-search', description: 'Primary data retrieval tool. Search Shopware entities using the Admin API criteria format. Use the top-level term, limit, and page parameters for simple queries, or pass full criteria JSON for filters, sorting, aggregations, associations, and includes/excludes. Returns {success, data: [...], _meta: {total, page, limit}}. Use shopware-entity-schema first if you need field names.')]
+#[McpTool(name: 'shopware-entity-search', description: 'Search Shopware entities and return matching records. Use shopware-entity-aggregate for counts, averages, and other aggregations. Accepts full Admin API criteria JSON for filters, sorting, associations, and includes. Returns {success, data: [...], _meta: {total, page, limit}}. Use shopware-entity-schema first if you need field names.')]
 #[Package('framework')]
 class EntitySearchTool
 {

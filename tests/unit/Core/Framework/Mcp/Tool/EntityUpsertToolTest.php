@@ -60,10 +60,61 @@ class EntityUpsertToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
-        $result = $this->decode(($tool)('product', '{"name": "Test"}'));
+        // Payload with an id triggers an update operation, which requires :update privilege
+        $result = $this->decode(($tool)('product', '{"id": "' . Defaults::CURRENCY . '", "name": "Test"}'));
 
         static::assertFalse($result['success']);
         static::assertStringContainsString('product:update', $result['error']);
+    }
+
+    public function testAllowsCreateOnlyWithoutUpdatePermission(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['product:read', 'product:create']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events->method('getEvents')->willReturn(new NestedEventCollection([]));
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('upsert')->willReturn($events);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturn($repository);
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        // Payload without id — only create privilege needed
+        $result = $this->decode(($tool)('product', '{"name": "Test"}', false));
+
+        static::assertTrue($result['success']);
+    }
+
+    public function testAllowsUpdateOnlyWithoutCreatePermission(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['product:read', 'product:update']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events->method('getEvents')->willReturn(new NestedEventCollection([]));
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('upsert')->willReturn($events);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturn($repository);
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        // Payload with id — only update privilege needed
+        $result = $this->decode(($tool)('product', '{"id": "' . Defaults::CURRENCY . '", "name": "Test"}', false));
+
+        static::assertTrue($result['success']);
     }
 
     public function testReturnsErrorForNonArrayPayload(): void

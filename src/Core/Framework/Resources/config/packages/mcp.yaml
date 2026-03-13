@@ -13,5 +13,6 @@ mcp:
     discovery:
         scan_dirs:
             - src/Core/Framework/Mcp
+            - src/Storefront/Mcp
             - custom/plugins
             - custom/static-plugins

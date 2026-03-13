@@ -15,5 +15,5 @@ The `McpToolCompilerPass` in Core discovers tools tagged `shopware.mcp.tool` fro
 ## Registration
 
 Services are defined in `src/Storefront/DependencyInjection/mcp.xml` with tags:
-- `shopware.mcp.tool` (discovered by `McpToolCompilerPass`)
+- `mcp.tool` (collected via `tagged_iterator('mcp.tool')` in Core's `mcp.php` — same tag as Core tools)
 - `shopware.feature` with flag `MCP_SERVER` (gated behind feature flag)

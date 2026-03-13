@@ -24,7 +24,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class McpToolPersisterTest extends TestCase
 {
-    /** @var EntityRepository<AppMcpToolCollection>&MockObject */
+    /**
+     * @var EntityRepository<AppMcpToolCollection>&MockObject
+     */
     private EntityRepository&MockObject $mcpToolRepository;
 
     private McpToolPersister $persister;

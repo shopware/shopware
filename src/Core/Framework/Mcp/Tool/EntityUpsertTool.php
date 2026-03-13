@@ -31,10 +31,6 @@ class EntityUpsertTool
     {
         $context = $this->contextProvider->getContext();
 
-        if ($error = $this->requirePrivilege($context, $entity . ':create', $entity . ':update')) {
-            return $error;
-        }
-
         $data = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\is_array($data)) {
@@ -43,6 +39,28 @@ class EntityUpsertTool
 
         if (!\array_is_list($data)) {
             $data = [$data];
+        }
+
+        $needsCreate = false;
+        $needsUpdate = false;
+        foreach ($data as $item) {
+            if (isset($item['id'])) {
+                $needsUpdate = true;
+            } else {
+                $needsCreate = true;
+            }
+        }
+
+        $privileges = [];
+        if ($needsCreate || !$needsUpdate) {
+            $privileges[] = $entity . ':create';
+        }
+        if ($needsUpdate) {
+            $privileges[] = $entity . ':update';
+        }
+
+        if ($error = $this->requirePrivilege($context, ...$privileges)) {
+            return $error;
         }
 
         $repository = $this->registry->getRepository($entity);

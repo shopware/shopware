@@ -16,7 +16,7 @@ Get the field and association schema of any Shopware entity. Use this first to d
 ```
 
 ### shopware-entity-search
-Primary data retrieval tool. Search entities using the Admin API criteria format. Supports top-level convenience parameters for simple queries, or full criteria JSON for advanced use.
+Retrieve matching entity records. Returns entities with pagination metadata. Does **not** return aggregation results — use `shopware-entity-aggregate` for counts, averages, and other metrics.
 
 **Response optimization:** When no `includes` are specified, responses are automatically optimized to return only scalar fields and explicitly requested associations. This strips auto-loaded noise (thumbnails, extensions, translated duplicates) and keeps responses compact. Pass your own `includes` in the criteria to override this behavior.
 
@@ -27,7 +27,7 @@ Primary data retrieval tool. Search entities using the Admin API criteria format
 - `page` (int, default: 1) -- Page number for pagination
 - `term` (string, optional) -- Full-text search term
 
-**Criteria format:** Supports `filter`, `sort`, `limit`, `page`, `associations`, `aggregations`, `includes`, `fields`, `ids`, `term`, `query`, `post-filter`, `grouping`, `total-count-mode`. Top-level `limit`, `page`, and `term` parameters override values in criteria JSON.
+**Criteria format:** Supports `filter`, `sort`, `limit`, `page`, `associations`, `includes`, `fields`, `ids`, `term`, `query`, `post-filter`, `grouping`, `total-count-mode`. Top-level `limit`, `page`, and `term` parameters override values in criteria JSON.
 
 **Examples:**
 ```json
@@ -40,6 +40,42 @@ Primary data retrieval tool. Search entities using the Admin API criteria format
 
 ```json
 {"entity": "order", "criteria": "{\"sort\": [{\"field\": \"createdAt\", \"order\": \"DESC\"}], \"limit\": 5, \"associations\": {\"lineItems\": {}}}"}
+```
+
+### shopware-entity-aggregate
+Run aggregations over any entity without fetching records. Always returns zero entity rows (internally uses `limit: 0`), so the response is bounded in size regardless of dataset cardinality.
+
+**Why a separate tool instead of aggregations inside `shopware-entity-search`:**
+Aggregation results — especially bucket aggregations like `terms` or `date-histogram` — can produce thousands of entries and easily exceed the 100 KB response limit. Mixing entity rows and aggregations in one response compounds this problem: the tool would have to truncate either the records or the aggregation buckets to stay within budget. A dedicated tool with a clear contract (`data.aggregations`, no entity rows) removes the ambiguity and guarantees a compact, predictable response.
+
+**Parameters:**
+- `entity` (string, required) -- Entity name
+- `aggregations` (string, required) -- JSON array of aggregation definitions (same format as Admin API criteria `aggregations` field)
+- `filters` (string, optional, default `[]`) -- JSON array of filter definitions to narrow the data set
+
+**Supported aggregation types:** `avg`, `sum`, `min`, `max`, `count`, `terms`, `date-histogram`, `range`, `filter`, `entity`
+
+**Response:** `{"success": true, "data": {"aggregations": { "<name>": { ... } }}}`
+
+**Examples:**
+```json
+{"entity": "order", "aggregations": "[{\"type\": \"avg\", \"name\": \"avgOrderValue\", \"field\": \"amountTotal\"}]"}
+```
+
+```json
+{
+  "entity": "newsletter_recipient",
+  "aggregations": "[{\"type\": \"count\", \"name\": \"total\", \"field\": \"id\"}]",
+  "filters": "[{\"type\": \"equals\", \"field\": \"status\", \"value\": \"optIn\"}]"
+}
+```
+
+```json
+{
+  "entity": "order",
+  "aggregations": "[{\"type\": \"date-histogram\", \"name\": \"ordersByMonth\", \"field\": \"orderDateTime\", \"interval\": \"month\"}]",
+  "filters": "[{\"type\": \"range\", \"field\": \"orderDateTime\", \"parameters\": {\"gte\": \"2025-01-01\"}}]"
+}
 ```
 
 ### shopware-entity-read
@@ -80,9 +116,11 @@ All write tools default to `dryRun=true`. Always preview changes before committi
 ### shopware-entity-upsert
 Create or update entity data. Use `shopware-entity-schema` to understand required fields first.
 
+**ACL:** Permissions are checked per item, not upfront as a union. Items without an `id` require `<entity>:create`; items with an `id` require `<entity>:update`. Mixed payloads (some with ID, some without) require both. This means an integration with only `:create` or only `:update` can use the tool without being blocked by the other permission.
+
 **Parameters:**
 - `entity` (string, required) -- Entity name
-- `payload` (string, required) -- JSON data (single object or array)
+- `payload` (string, required) -- JSON data (single object or array). Include `id` to update an existing record; omit `id` to create.
 - `dryRun` (bool, default: `true`) -- Preview without persisting
 
 ### shopware-entity-delete

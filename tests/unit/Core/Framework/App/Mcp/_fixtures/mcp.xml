@@ -19,4 +19,29 @@
             <label>Stock Check</label>
         </mcp-tool>
     </mcp-tools>
+    <mcp-prompts>
+        <mcp-prompt>
+            <name>order-context</name>
+            <url>https://app.example.com/mcp/prompt/order-context</url>
+            <label>Order Context</label>
+            <label lang="de-DE">Bestellungskontext</label>
+            <description>Context for order management</description>
+            <description lang="de-DE">Kontext für die Bestellungsverwaltung</description>
+        </mcp-prompt>
+        <mcp-prompt>
+            <name>product-context</name>
+            <url>https://app.example.com/mcp/prompt/product-context</url>
+            <label>Product Context</label>
+        </mcp-prompt>
+    </mcp-prompts>
+    <mcp-resources>
+        <mcp-resource name="order-stats" uri="app-example://order-stats" url="https://app.example.com/mcp/resource/order-stats" mime-type="application/json">
+            <label>Order Stats</label>
+            <label lang="de-DE">Bestellungsstatistiken</label>
+            <description>Live order statistics</description>
+        </mcp-resource>
+        <mcp-resource name="product-list" uri="app-example://product-list" url="https://app.example.com/mcp/resource/product-list" mime-type="application/json">
+            <label>Product List</label>
+        </mcp-resource>
+    </mcp-resources>
 </mcp>

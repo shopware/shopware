@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Mcp\Mcp;
+use Shopware\Core\Framework\App\Mcp\Xml\McpPrompts;
+use Shopware\Core\Framework\App\Mcp\Xml\McpResources;
 use Shopware\Core\Framework\App\Mcp\Xml\McpTools;
 use Shopware\Core\Framework\Log\Package;
 
@@ -25,12 +27,36 @@ class McpTest extends TestCase
         static::assertCount(2, $mcp->getTools()->getTools());
     }
 
+    public function testCreateFromXmlFileWithPrompts(): void
+    {
+        $mcp = Mcp::createFromXmlFile(__DIR__ . '/_fixtures/mcp.xml');
+
+        static::assertInstanceOf(McpPrompts::class, $mcp->getPrompts());
+        static::assertCount(2, $mcp->getPrompts()->getPrompts());
+    }
+
+    public function testCreateFromXmlFileWithResources(): void
+    {
+        $mcp = Mcp::createFromXmlFile(__DIR__ . '/_fixtures/mcp.xml');
+
+        static::assertInstanceOf(McpResources::class, $mcp->getResources());
+        static::assertCount(2, $mcp->getResources()->getResources());
+    }
+
     public function testCreateFromXmlFileWithoutTools(): void
     {
         $mcp = Mcp::createFromXmlFile(__DIR__ . '/_fixtures/mcp_empty.xml');
 
         static::assertSame(__DIR__ . '/_fixtures', $mcp->getPath());
         static::assertNull($mcp->getTools());
+    }
+
+    public function testCreateFromXmlFileWithoutPromptsOrResources(): void
+    {
+        $mcp = Mcp::createFromXmlFile(__DIR__ . '/_fixtures/mcp_empty.xml');
+
+        static::assertNull($mcp->getPrompts());
+        static::assertNull($mcp->getResources());
     }
 
     public function testSetPath(): void

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
+use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
@@ -53,6 +54,7 @@ class McpServiceConfigTest extends TestCase
             McpServerController::class,
             EntitySchemaTool::class,
             EntitySearchTool::class,
+            EntityAggregateTool::class,
             EntityReadTool::class,
             EntityUpsertTool::class,
             EntityDeleteTool::class,
@@ -93,6 +95,7 @@ class McpServiceConfigTest extends TestCase
         $toolServices = [
             EntitySchemaTool::class,
             EntitySearchTool::class,
+            EntityAggregateTool::class,
             EntityReadTool::class,
             EntityUpsertTool::class,
             EntityDeleteTool::class,

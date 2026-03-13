@@ -7,6 +7,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('framework')]
 #[CoversClass(EntitySearchTool::class)]
+#[CoversClass(EntityAggregateTool::class)]
 class CustomerInsightsScenarioTest extends McpScenarioTestCase
 {
     public function testUS25OneStarReviews(): void
@@ -89,7 +91,7 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
 
-        $sixMonthsAgo = (new \DateTimeImmutable())->modify('-6 months')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $sixMonthsAgo = (new \DateTimeImmutable())->modify('-7 months')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $recentDate = (new \DateTimeImmutable())->modify('-1 month')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $inactiveCustomer = (new CustomerBuilder($ids, 'inactive'))
@@ -104,7 +106,9 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
             ->add('lastOrderDate', $recentDate)
             ->build();
 
-        static::getContainer()->get('customer.repository')->create([$inactiveCustomer, $activeCustomer], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $systemContext) use ($inactiveCustomer, $activeCustomer): void {
+            static::getContainer()->get('customer.repository')->create([$inactiveCustomer, $activeCustomer], $systemContext);
+        });
 
         $cutoff = (new \DateTimeImmutable())->modify('-6 months')->format(\DATE_ATOM);
 
@@ -160,20 +164,17 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
             static::getContainer()->get('order.repository')->upsert([$order], $context);
         }
 
-        $output = ($this->entitySearchTool)(
+        $output = ($this->entityAggregateTool)(
             entity: 'order',
-            criteria: json_encode([
-                'filter' => [
-                    ['type' => 'range', 'field' => 'orderDateTime', 'parameters' => [
-                        'gte' => '2025-03-01T00:00:00+00:00',
-                        'lte' => '2025-03-31T23:59:59+00:00',
-                    ]],
-                ],
-                'aggregations' => [
-                    ['type' => 'avg', 'name' => 'avgOrderValue', 'field' => 'amountTotal'],
-                ],
+            aggregations: json_encode([
+                ['type' => 'avg', 'name' => 'avgOrderValue', 'field' => 'amountTotal'],
             ], \JSON_THROW_ON_ERROR),
-            limit: 1,
+            filters: json_encode([
+                ['type' => 'range', 'field' => 'orderDateTime', 'parameters' => [
+                    'gte' => '2025-03-01T00:00:00+00:00',
+                    'lte' => '2025-03-31T23:59:59+00:00',
+                ]],
+            ], \JSON_THROW_ON_ERROR),
         );
 
         $data = $this->decodeToolOutput($output);

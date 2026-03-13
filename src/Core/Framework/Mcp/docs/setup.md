@@ -95,11 +95,23 @@ shopware:
 
 ## Verifying the setup
 
-Use the debug command to list registered capabilities:
+**Quick check during development** — list all registered capabilities:
 
 ```bash
 bin/console debug:mcp
 ```
+
+This reads from the live server and covers both the DI layer and the SDK attribute-scanner layer. If a tool is missing here, it will also be missing in Cursor / Claude Desktop.
+
+**Automated check in CI** — `McpCapabilityDiscoveryTest` boots the full Symfony kernel, authenticates, and calls the actual `/api/_mcp` HTTP endpoint using JSON-RPC:
+
+```
+tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php
+```
+
+It calls `tools/list`, `prompts/list`, and `resources/list` and asserts every expected capability name is present — the same thing the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) does interactively. This catches problems that pure unit tests miss, such as a bundle directory being absent from `mcp.yaml`'s `scan_dirs`.
+
+When adding a new capability, add its name to the corresponding `expected*()` list in that test.
 
 ## ACL and permissions
 

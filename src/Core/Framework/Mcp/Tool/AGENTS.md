@@ -40,6 +40,22 @@ Rules:
 - The trait includes a response size guard (100 KB) that truncates oversized responses
 - A `McpToolResponseConventionTest` enforces that all `#[McpTool]` classes use the trait
 
+## Search vs. aggregate: why they are separate tools
+
+`EntitySearchTool` and `EntityAggregateTool` look similar but serve different purposes and have different output sizes:
+
+| | `shopware-entity-search` | `shopware-entity-aggregate` |
+|---|---|---|
+| Returns | Entity records | Aggregation results only |
+| Entity rows | Up to `limit` (default 25) | Always 0 (`limit: 0` internally) |
+| Aggregations in response | Never | Always |
+| Response risk | Large on wide entities | Bounded — no row data |
+| Typical use | "Show me the last 10 orders" | "How many opt-in newsletter recipients?" |
+
+**Why not combine them?** The 100 KB response guard exists because MCP transports serialise the full response before the AI client receives it. Entity rows already fill most of this budget for typical searches. Bucket aggregations — like `terms` on product names or `date-histogram` by day — can produce hundreds or thousands of result entries on their own. Mixing both in one response means the tool would need to truncate either the records or the buckets to stay within the limit, which silently corrupts the result. Separate tools remove the ambiguity: `entity-search` is always bounded by `limit`, `entity-aggregate` is always bounded by the aggregation definitions.
+
+**Rule:** Never add aggregation output to `EntitySearchTool`. If you need both records and metrics for the same entity, make two sequential tool calls.
+
 ## Smart default includes (McpEntityIncludes trait)
 
 Entity tools (`EntitySearchTool`, `EntityReadTool`, `StorefrontSearchTool`) auto-apply `includes` when the caller hasn't specified them. This dramatically reduces response size by only serializing the fields AI clients actually need.
@@ -67,7 +83,8 @@ All three entity read tools use `JsonEntityEncoder` for serialization (not the S
 
 ## Read tools
 - `EntitySchemaTool` (`shopware-entity-schema`) -- entity field/association introspection
-- `EntitySearchTool` (`shopware-entity-search`) -- criteria-based search with flattened term/limit/page params
+- `EntitySearchTool` (`shopware-entity-search`) -- criteria-based search; returns records only, **never aggregations** (see below)
+- `EntityAggregateTool` (`shopware-entity-aggregate`) -- aggregation-only queries (`limit: 0` internally, no entity rows in response)
 - `EntityReadTool` (`shopware-entity-read`) -- single entity read by ID
 - `SystemConfigReadTool` (`shopware-system-config-read`) -- read shop configuration
 - `StorefrontSearchTool` (`shopware-storefront-search`) -- search products with sales channel context
@@ -99,3 +116,24 @@ Storefront tools use the Store API / SalesChannelContext layer for customer-faci
 3. Add `use McpToolResponse;` and return via `$this->success()` / `$this->error()`
 4. Register in `src/Core/Framework/DependencyInjection/mcp.php` with `mcp.tool` and `shopware.feature` (flag: `MCP_SERVER`) tags
 5. Add unit test in `tests/unit/Core/Framework/Mcp/Tool/`
+6. Add the tool name to `expectedTools()` in `McpCapabilityDiscoveryTest` (see below)
+
+## Validating that a tool is actually reachable
+
+There are two separate layers between writing a tool class and it appearing in a client like Cursor:
+
+| Layer | What can go wrong | Caught by |
+|---|---|---|
+| DI registration | Missing tag, wrong tag name | `McpServiceConfigTest`, `McpFeatureFlagTest` |
+| SDK attribute scanner | `mcp.yaml` `scan_dirs` missing the bundle | `McpCapabilityDiscoveryTest` |
+
+**The unit tests only check the DI layer.** If a tool is correctly tagged but its directory is not in `mcp.yaml`'s `scan_dirs`, the MCP SDK never finds the `#[McpTool]` attribute and the tool is silently absent from `tools/list`. This is what happened with `shopware-theme-config`.
+
+`McpCapabilityDiscoveryTest` (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) covers both layers:
+- It boots the full Symfony kernel
+- Calls the live `/api/_mcp` endpoint using JSON-RPC (`initialize` → `tools/list` / `prompts/list` / `resources/list`)
+- Asserts every expected capability name is present
+
+This is the same thing the MCP Inspector does interactively. Add the tool name to `expectedTools()` in that test when adding a new tool.
+
+Quick manual check: `bin/console debug:mcp` lists all currently registered capabilities.

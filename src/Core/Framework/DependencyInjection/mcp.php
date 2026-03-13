@@ -7,15 +7,24 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
+use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppMcpPromptTranslation\AppMcpPromptTranslationDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppMcpResourceTranslation\AppMcpResourceTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationDefinition;
+use Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
+use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
+use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
+use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
@@ -31,6 +40,7 @@ use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
+use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
@@ -76,6 +86,10 @@ return static function (ContainerConfigurator $container): void {
         ->tag('kernel.event_subscriber')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
+    $services->set(McpExceptionListener::class)
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
     $services->set(McpServerController::class)
         ->public()
         ->args([
@@ -112,6 +126,15 @@ return static function (ContainerConfigurator $container): void {
             service('api.request_criteria_builder'),
             service(McpContextProvider::class),
             service(JsonEntityEncoder::class),
+        ])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(EntityAggregateTool::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+            service('api.request_criteria_builder'),
+            service(McpContextProvider::class),
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
@@ -334,13 +357,47 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.loader')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
+    $services->set(AppMcpPromptLoader::class)
+        ->args([
+            service('Doctrine\DBAL\Connection'),
+            service(AppMcpToolExecutor::class),
+        ])
+        ->tag('mcp.loader')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(AppMcpResourceLoader::class)
+        ->args([
+            service('Doctrine\DBAL\Connection'),
+            service(AppMcpToolExecutor::class),
+        ])
+        ->tag('mcp.loader')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
     $services->set(McpToolPersister::class)
         ->args([service('app_mcp_tool.repository')]);
+
+    $services->set(McpPromptPersister::class)
+        ->args([service('app_mcp_prompt.repository')]);
+
+    $services->set(McpResourcePersister::class)
+        ->args([service('app_mcp_resource.repository')]);
 
     // DAL definitions
     $services->set(AppMcpToolDefinition::class)
         ->tag('shopware.entity.definition');
 
     $services->set(AppMcpToolTranslationDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppMcpPromptDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppMcpPromptTranslationDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppMcpResourceDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppMcpResourceTranslationDefinition::class)
         ->tag('shopware.entity.definition');
 };

@@ -9,6 +9,7 @@ use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Schema\Tool;
 use Mcp\Server\RequestContext;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -102,8 +103,22 @@ class AppMcpToolLoader implements LoaderInterface
                 )
             WHERE a.app_secret IS NOT NULL
             ORDER BY a.name, t.name',
-            ['locale' => 'en-GB', 'fallback' => 'en-GB'],
+            ['locale' => $locale = $this->resolveSystemLocale(), 'fallback' => $locale],
         );
+    }
+
+    private function resolveSystemLocale(): string
+    {
+        try {
+            $code = $this->connection->fetchOne(
+                'SELECT lo.code FROM `language` l INNER JOIN locale lo ON l.locale_id = lo.id WHERE l.id = UNHEX(:id) LIMIT 1',
+                ['id' => Defaults::LANGUAGE_SYSTEM],
+            );
+
+            return \is_string($code) && $code !== '' ? $code : 'en-GB';
+        } catch (\Throwable) {
+            return 'en-GB';
+        }
     }
 
     /**

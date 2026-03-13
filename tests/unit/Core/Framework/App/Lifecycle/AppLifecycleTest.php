@@ -19,6 +19,8 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
+use Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -392,6 +394,8 @@ class AppLifecycleTest extends TestCase
             $appSourceResolver,
             $this->createMock(ConfigReader::class),
             $this->createMock(McpToolPersister::class),
+            $this->createMock(McpPromptPersister::class),
+            $this->createMock(McpResourcePersister::class),
             $deletedAppsGateway,
         );
     }

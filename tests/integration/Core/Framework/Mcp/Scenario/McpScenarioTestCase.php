@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
+use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
@@ -48,6 +49,8 @@ abstract class McpScenarioTestCase extends TestCase
     use KernelTestBehaviour;
 
     protected EntitySearchTool $entitySearchTool;
+
+    protected EntityAggregateTool $entityAggregateTool;
 
     protected EntitySchemaTool $entitySchemaTool;
 
@@ -98,6 +101,7 @@ abstract class McpScenarioTestCase extends TestCase
         $encoder = $container->get(JsonEntityEncoder::class);
 
         $this->entitySearchTool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $this->entityAggregateTool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
         $this->entitySchemaTool = new EntitySchemaTool($registry);
         $this->entityReadTool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
 

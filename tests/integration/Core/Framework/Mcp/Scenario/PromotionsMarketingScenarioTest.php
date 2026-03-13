@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp\Scenario;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 #[Package('framework')]
 #[CoversClass(EntitySearchTool::class)]
+#[CoversClass(EntityAggregateTool::class)]
 class PromotionsMarketingScenarioTest extends McpScenarioTestCase
 {
     public function testUS20ActivePromotions(): void
@@ -79,14 +81,11 @@ class PromotionsMarketingScenarioTest extends McpScenarioTestCase
             ], $context);
         }
 
-        $output = ($this->entitySearchTool)(
+        $output = ($this->entityAggregateTool)(
             entity: 'newsletter_recipient',
-            criteria: json_encode([
-                'aggregations' => [
-                    ['type' => 'count', 'name' => 'total', 'field' => 'id'],
-                ],
+            aggregations: json_encode([
+                ['type' => 'count', 'name' => 'total', 'field' => 'id'],
             ], \JSON_THROW_ON_ERROR),
-            limit: 1,
         );
 
         $data = $this->decodeToolOutput($output);

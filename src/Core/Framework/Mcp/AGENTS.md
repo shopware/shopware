@@ -63,7 +63,7 @@ The `McpToolCompilerPass` enforces unique names and throws on conflicts.
 - `Prompt/` -- System prompts for AI context
 - `Resource/` -- Static MCP resources
 - `Command/` -- CLI commands (`debug:mcp`)
-- `Loader/` -- Extension loaders for app tools (`AppMcpToolLoader`, `AppMcpToolExecutor`)
+- `Loader/` -- Extension loaders for app capabilities (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`, `AppMcpToolExecutor`)
 - `docs/` -- Documentation: tool reference, examples, security, setup, extensibility, user stories
 
 ## Conventions
@@ -73,10 +73,27 @@ The `McpToolCompilerPass` enforces unique names and throws on conflicts.
 - Write tools default to `dryRun=true` for safety
 - Service IDs use FQCN; tags include both `mcp.tool` (for SDK discovery) and `shopware.feature` (for flag gating)
 
+## Validating capabilities are loaded
+
+Getting a capability to appear in a client (Cursor, Claude Desktop) requires two independent layers to work:
+
+1. **DI layer** -- service must be registered and tagged `mcp.tool` / `mcp.prompt` / `mcp.resource`
+2. **SDK discovery layer** -- the tool class directory must be listed in `mcp.yaml` `scan_dirs` so the MCP SDK's attribute scanner can find the `#[McpTool]` attribute
+
+Failure in either layer causes the capability to be silently absent. These are three ways to check:
+
+| Method | What it covers | When to use |
+|---|---|---|
+| `bin/console debug:mcp` | Both layers (reads from live server) | Quick manual check during development |
+| `McpCapabilityDiscoveryTest` | Both layers (HTTP → `tools/list`) | CI — catches regressions automatically |
+| `McpServiceConfigTest` / `McpFeatureFlagTest` | DI layer only | Fast unit-level guard for tag/registration issues |
+
+**`McpCapabilityDiscoveryTest`** (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) boots the full kernel, authenticates, and calls the live MCP HTTP endpoint. It is the authoritative check that mirrors what the MCP Inspector does interactively. Add new capability names to its `expectedTools()` / `expectedPrompts()` / `expectedResources()` lists when adding new capabilities.
+
 ## Extensibility
-- **Plugins**: Tag services with `shopware.mcp.tool` -- the `McpToolCompilerPass` maps them to `mcp.tool`
-- **Apps**: Declare tools in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()`, persisted by `McpToolPersister`, loaded at runtime by `AppMcpToolLoader`
-- **Non-Core bundles**: MCP tools that depend on bundle-specific services live in that bundle (e.g., `src/Storefront/Mcp/Tool/` for Storefront-dependent tools). They use the same `shopware.mcp.tool` tag and are discovered by `McpToolCompilerPass`.
+- **Plugins**: Tag services with `shopware.mcp.tool` -- the `McpToolCompilerPass` maps them to `mcp.tool` so they appear in the registry
+- **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()`, persisted by the respective Persister (`McpToolPersister`, `McpPromptPersister`, `McpResourcePersister`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`)
+- **Non-Core bundles**: MCP tools that depend on bundle-specific services live in that bundle (e.g., `src/Storefront/Mcp/Tool/` for Storefront-dependent tools). Tag them with **`mcp.tool`** directly — `McpToolCompilerPass` only remaps the `shopware.mcp.tool` tag used by plugins, not the internal `mcp.tool` tag. Using the wrong tag means the tool silently disappears from the registry.
 
 ## Security
 - **Tool allowlist**: Configure `shopware.mcp.allowed_tools` to restrict exposed tools (empty = all allowed)

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_7;
+namespace Shopware\Tests\Migration\Core\V6_8;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;

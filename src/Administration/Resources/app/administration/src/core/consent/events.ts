@@ -30,14 +30,18 @@ type ConsentEvents = {
 
 type ConsentEventName = keyof ConsentEvents;
 
+let lastConsentEventTimestamp = 0;
+
 class ConsentEvent {
     public readonly timestamp: Date;
 
     constructor(
         public readonly eventName: ConsentEventName,
         public readonly eventProperties: Record<string, TrackableType>,
+        timestamp = new Date(Math.max(Date.now(), lastConsentEventTimestamp + 1)),
     ) {
-        this.timestamp = new Date();
+        this.timestamp = timestamp;
+        lastConsentEventTimestamp = this.timestamp.getTime();
     }
 }
 

@@ -17,6 +17,22 @@ describe('src/core/consent/events.ts', () => {
         expect(consentEvent.timestamp).toBeInstanceOf(Date);
     });
 
+    it('creates consent events with strictly increasing timestamps', () => {
+        const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValueOnce(1234).mockReturnValueOnce(1234);
+
+        const firstEvent = new ConsentEvent('consent_modal_viewed', {
+            option: ['user_tracking'],
+        });
+        const secondEvent = new ConsentEvent('consent_option_changed', {
+            option: 'user_tracking',
+            state: 'enabled',
+        });
+
+        expect(secondEvent.timestamp.getTime()).toBe(firstEvent.timestamp.getTime() + 1);
+
+        dateNowSpy.mockRestore();
+    });
+
     it('dispatches consent event when PRODUCT_ANALYTICS feature is active', () => {
         global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');

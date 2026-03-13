@@ -29,40 +29,25 @@
                 <sw-settings-usage-data-store-data-consent-card
                     v-if="showStoreDataConsent"
                     v-model:consent="storeDataConsent"
+                    @legal-link-clicked="trackLegalLinkClick('data_use_details')"
                 />
                 <sw-settings-usage-data-user-data-consent-card
                     v-model:consent="userDataConsent"
+                    @legal-link-clicked="trackLegalLinkClick('privacy_policy')"
                 />
 
-                <div class="sw-setting-usage-data-consent-modal__legal">
-                    <p>{{ $tc('sw-settings-usage-data.consent-modal.opt-out-info') }}</p>
-
-                    <i18n-t
-                        tag="p"
-                        keypath="sw-settings-usage-data.consent-modal.external-links.label"
-                    >
-                        <template #data-use-details>
-                            <mt-link
-                                :to="$t('sw-settings-usage-data.consent-modal.external-links.data-use-details.link')"
-                                type="external"
-                                target="_blank"
-                                @click="trackLegalLinkClick('data_use_details')"
-                            >
-                                {{ $t('sw-settings-usage-data.consent-modal.external-links.data-use-details.label') }}
-                            </mt-link>
-                        </template>
-                        <template #privacy-policy>
-                            <mt-link
-                                :to="$t('sw-settings-usage-data.consent-modal.external-links.privacy-policy.link')"
-                                type="external"
-                                target="_blank"
-                                @click="trackLegalLinkClick('privacy_policy')"
-                            >
-                                {{ $t('sw-settings-usage-data.consent-modal.external-links.privacy-policy.label') }}
-                            </mt-link>
-                        </template>
-                    </i18n-t>
-                </div>
+                <i18n-t
+                    tag="p"
+                    keypath="sw-settings-usage-data.consent-modal.opt-out-info.snippet"
+                    class="sw-setting-usage-data-consent-modal__legal"
+                >
+                    <template #settings>
+                        <i>{{ $t('sw-settings-usage-data.consent-modal.opt-out-info.settings') }}</i>
+                    </template>
+                    <template #profile>
+                        <i>{{ $t('sw-settings-usage-data.consent-modal.opt-out-info.profile') }}</i>
+                    </template>
+                </i18n-t>
             </div>
         </template>
 

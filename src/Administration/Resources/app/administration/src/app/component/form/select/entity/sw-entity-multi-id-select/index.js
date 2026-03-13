@@ -25,7 +25,10 @@ export default {
 
     props: {
         value: {
-            type: [Array, null],
+            type: [
+                Array,
+                null,
+            ],
             required: false,
             default: null,
         },

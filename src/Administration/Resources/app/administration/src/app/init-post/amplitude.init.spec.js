@@ -119,6 +119,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     autocapture: false,
                     serverZone: 'EU',
                     appVersion: Shopware.Store.get('context').app.config.version,
+                    flushMaxRetries: 2,
+                    logLevel: 0,
                     trackingOptions: {
                         ipAddress: false,
                         language: false,
@@ -162,7 +164,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     },
                 }),
                 {
-                    eventName: 'Page Viewed',
+                    eventName: 'page_viewed',
                     properties: {
                         sw_route_from_name: 'sw.dashboard.index',
                         sw_route_from_href: '/sw/dashboard/index',
@@ -189,7 +191,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     }),
                 }),
                 {
-                    eventName: 'Button Click',
+                    eventName: 'button_click',
                     properties: {
                         sw_element_id: 'administration.sw-product.save',
                         sw_element_product_name: 'nice product',
@@ -212,7 +214,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     originalEvent: new Event('click'),
                 }),
                 {
-                    eventName: 'Link Visited',
+                    eventName: 'link_visited',
                     properties: {
                         sw_link_href: 'https://example.com',
                         sw_link_type: 'external',
@@ -549,7 +551,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             jest.clearAllMocks();
         });
 
-        it('should track Login event when a identify telemetry event with a different userId arrives', async () => {
+        it('should track login event when a identify telemetry event with a different userId arrives', async () => {
             const amplitude = await import('@amplitude/analytics-browser');
 
             let amplitudeUserId = null;
@@ -567,7 +569,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     userId: newUserId,
                 }),
             );
-            expect(amplitude.track).toHaveBeenCalledWith('Login');
+            expect(amplitude.track).toHaveBeenCalledWith('login');
 
             newUserId = 'newUserId-2';
             Shopware.Utils.EventBus.emit(
@@ -576,7 +578,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     userId: newUserId,
                 }),
             );
-            expect(amplitude.track).toHaveBeenCalledWith('Login');
+            expect(amplitude.track).toHaveBeenCalledWith('login');
 
             const sameUserId = newUserId;
             Shopware.Utils.EventBus.emit(
@@ -589,7 +591,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             expect(amplitude.track).toHaveBeenCalledTimes(2);
         });
 
-        it('should track Logout event when a reset telemetry event arrives', async () => {
+        it('should track logout event when a reset telemetry event arrives', async () => {
             const amplitude = await import('@amplitude/analytics-browser');
 
             await initAmplitude();
@@ -598,7 +600,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
             Shopware.Utils.EventBus.emit('telemetry', resetEvent);
 
-            expect(amplitude.track).toHaveBeenCalledWith('Logout');
+            expect(amplitude.track).toHaveBeenCalledWith('logout');
         });
 
         it('should flush telemetry amplitude on logout listener execution', async () => {

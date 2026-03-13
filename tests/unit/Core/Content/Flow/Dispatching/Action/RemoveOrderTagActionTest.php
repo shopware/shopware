@@ -24,7 +24,9 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(RemoveOrderTagAction::class)]
 class RemoveOrderTagActionTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<EntityCollection<Entity>> */
+    /**
+     * @var MockObject&EntityRepository<EntityCollection<Entity>>
+     */
     private MockObject&EntityRepository $repository;
 
     private RemoveOrderTagAction $action;

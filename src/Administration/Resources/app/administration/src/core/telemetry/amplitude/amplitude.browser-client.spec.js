@@ -52,6 +52,8 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
                 appVersion: '6.7.0.0',
                 autocapture: false,
                 serverZone: 'EU',
+                flushMaxRetries: 2,
+                logLevel: 0,
                 fetchRemoteConfig: false,
                 trackingOptions: {
                     ipAddress: false,

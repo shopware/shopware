@@ -197,7 +197,7 @@ class DocumentGeneratorTest extends TestCase
             ->with(
                 ['orderId' => $operation],
                 $context,
-                static::callback(fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
+                static::callback(static fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
             )
             ->willReturn($result);
 
@@ -246,7 +246,7 @@ class DocumentGeneratorTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchOne')
-            ->willReturnCallback(function (string $sql, array $params) use ($invoiceType): string {
+            ->willReturnCallback(static function (string $sql, array $params) use ($invoiceType): string {
                 static::assertContains($invoiceType, $params['technicalNames'] ?? []);
 
                 return Uuid::randomHex();
@@ -291,7 +291,7 @@ class DocumentGeneratorTest extends TestCase
             ->with(
                 ['orderId' => $operation],
                 $context,
-                static::callback(fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
+                static::callback(static fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
             )
             ->willReturn($result);
 
@@ -386,7 +386,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: HtmlRenderer::FILE_CONTENT_TYPE,
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getFileExtension(), HtmlRenderer::FILE_EXTENSION);
@@ -403,7 +403,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: PdfRenderer::FILE_CONTENT_TYPE,
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getFileExtension(), PdfRenderer::FILE_EXTENSION);
@@ -420,7 +420,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: 'application/xml',
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(DocumentException::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getErrorCode(), DocumentException::DOCUMENT_INVALID_RENDERER_TYPE);
@@ -454,7 +454,7 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result) use ($mediaId, $mediaA11yId): void {
+            static function (DocumentGenerationResult|DocumentException $result) use ($mediaId, $mediaA11yId): void {
                 static::assertInstanceOf(DocumentGenerationResult::class, $result);
 
                 static::assertNotNull($struct = $result->getSuccess()->first());
@@ -480,7 +480,7 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result) use ($mediaId): void {
+            static function (DocumentGenerationResult|DocumentException $result) use ($mediaId): void {
                 static::assertInstanceOf(DocumentGenerationResult::class, $result);
 
                 static::assertNotNull($struct = $result->getSuccess()->first());
@@ -504,7 +504,7 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result): void {
+            static function (DocumentGenerationResult|DocumentException $result): void {
                 static::assertInstanceOf(DocumentException::class, $result);
             },
         ];

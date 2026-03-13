@@ -50,7 +50,7 @@ const swOrderDetailStore = Shopware.Store.register({
             this.loading[name] = data;
         },
 
-        setOrderAddressIds(value: OrderAddressId) {
+        setOrderAddressIds(value?: OrderAddressId | null) {
             if (!value) {
                 this.orderAddressIds = [];
                 return;

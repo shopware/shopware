@@ -27,6 +27,40 @@ class MailActionControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $this->mailService = $this->createMock(AbstractMailService::class);
+    }
+
+    public function testSendSuccess(): void
+    {
+        $data = new RequestDataBag([
+            'id' => 'random',
+            'mailTemplateData' => [
+                'order' => [
+                    'id' => Uuid::randomHex(),
+                ],
+            ],
+            'documentIds' => ['1'],
+        ]);
+
+        $this->mailService->expects($this->once())
+            ->method('send')
+            ->with(
+                static::callback(static function (array $data) {
+                    static::assertArrayHasKey('attachmentsConfig', $data);
+                    static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
+
+                    return true;
+                }),
+                static::anything(),
+                static::anything()
+            );
+
+        $mailActionController = new MailActionController(
+            $this->mailService,
+            $this->stringTemplateRenderer
+        );
+
+        $mailActionController->send($data, Context::createDefaultContext());
     }
 
     public function testBuild(): void

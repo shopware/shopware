@@ -22,7 +22,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -192,7 +192,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -505,7 +505,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -558,7 +558,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -715,7 +715,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -744,14 +744,14 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['read'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
+        $permissionLifecycle->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
 
         $this->appendNewResponse(new Response(200));
 
@@ -786,7 +786,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -836,7 +836,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -892,7 +892,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -904,7 +904,7 @@ class WebhookManagerTest extends TestCase
 
         $this->bus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
+            ->with(static::callback(static function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
                 static::assertArrayHasKey('eventId', $actualPayload['source']);
                 unset($actualPayload['source']['eventId']);
@@ -956,7 +956,7 @@ class WebhookManagerTest extends TestCase
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
         $this->bus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
+            ->with(static::callback(static function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
                 static::assertArrayHasKey('eventId', $actualPayload['source']);
                 unset($actualPayload['source']['eventId']);
@@ -1043,12 +1043,12 @@ class WebhookManagerTest extends TestCase
         }
 
         if ($permissions !== null && $appId !== null) {
-            $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+            $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
             $permissions = Permissions::fromArray([
                 'permissions' => $permissions,
             ]);
 
-            $permissionPersister->updatePrivileges($permissions, $appId, true, $context);
+            $permissionLifecycle->updatePrivileges($permissions, $appId, true, $context);
         }
     }
 

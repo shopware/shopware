@@ -57,7 +57,7 @@ final class CleanupCorruptedMediaHandler extends ScheduledTaskHandler
 
             $lastId = array_last($ids);
 
-            $ids = array_map(fn ($id) => ['id' => $id], $ids);
+            $ids = array_map(static fn ($id) => ['id' => $id], $ids);
             $this->mediaRepository->delete($ids, $context);
         }
     }

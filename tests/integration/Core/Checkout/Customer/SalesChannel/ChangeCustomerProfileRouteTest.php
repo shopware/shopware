@@ -184,6 +184,9 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertSame($changeData['lastName'], $customer->getLastName());
     }
 
+    /**
+     * @param list<string> $vatIds
+     */
     #[TestWith([[]])]
     #[TestWith([['']])]
     public function testChangeProfileDataClearVatIds(array $vatIds): void

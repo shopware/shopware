@@ -321,11 +321,15 @@ When a plugin overrides a Composition API component using old-style Options API 
 
 **Unsupported options (logged as warnings and ignored):**
 
-| Option | Level |
-|---|---|
-| `components`, `directives`, `provide`, `template`, `extends`, `inheritAttrs`, `emits` | `console.warn` |
-| `render()` | `console.error` — component will not work correctly |
-| Dot-notation `watch` paths | `console.warn` — watcher is skipped |
+| Option | Level | Reason |
+|---|---|---|
+| `components`, `directives` | `console.warn` | Component/directive registration belongs to the component definition itself, not to overrides. Register them in the component config instead. |
+| `provide` | `console.warn` | The provide/inject contract is established at component setup time. Overriding it after the fact could silently break descendant injections in unpredictable ways. |
+| `template` | `console.warn` | Composition API components already have a compiled template; replacing it via an override would bypass Vue's template compiler pipeline and conflict with the existing render function. |
+| `extends` | `console.warn` | `extends` creates implicit inheritance chains that are difficult to merge reliably with Composition API state. Use `mixins` or explicit override methods instead. |
+| `inheritAttrs`, `emits` | `console.warn` | These are component-level declarations that affect how Vue compiles and validates the component. They cannot be changed at override time without re-compiling the component. |
+| `render()` | `console.error` — component will not work correctly | A custom render function completely replaces the compiled template. The shim cannot reconcile a custom render function with the existing Composition API template, so the component will break. |
+| Dot-notation `watch` paths (e.g. `'a.b.c'`) | `console.warn` — watcher is skipped | Resolving nested reactive paths requires deep traversal of the Composition API state graph, which adds significant complexity for a pattern that is rarely used in plugins or core code. |
 
 **Lifecycle hooks applied late** (overrides registered after `setup()` has already returned):
 - `beforeCreate`, `created`, `beforeMount`, `mounted` — called immediately

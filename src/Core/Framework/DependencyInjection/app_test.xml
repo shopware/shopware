@@ -8,7 +8,7 @@
         <service id="app-life-cycle-dev" public="true" class="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
             <argument type="tagged_iterator" tag="shopware.app_lifecycle.persister"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>

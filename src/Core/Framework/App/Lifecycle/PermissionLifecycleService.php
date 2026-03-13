@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\Lifecycle\Persister;
+namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class PermissionPersister
+class PermissionLifecycleService
 {
     public function __construct(
         private readonly Connection $connection,

@@ -32,6 +32,7 @@ final readonly class LoginConfig
         public string $jwksPath,
         public string $scope,
         public string $registerUrl,
+        public ?string $endSessionPath = null,
     ) {
     }
 }

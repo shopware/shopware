@@ -49,6 +49,7 @@ export interface LoginService {
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
     getLoginTemplateConfig: () => Promise<LoginConfig>;
+    ssoLogout: () => Promise<string | null>;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -85,6 +86,7 @@ export default function createLoginService(
         getStorage,
         setRememberMe,
         getLoginTemplateConfig,
+        ssoLogout,
     };
 
     /**
@@ -534,5 +536,25 @@ export default function createLoginService(
                 baseURL: context.apiPath!,
             })
             .then((response) => response.data);
+    }
+
+    async function ssoLogout(): Promise<string | null> {
+        try {
+            const response = await httpClient.post<{ url: string | null }>(
+                '/_action/sso/logout',
+                {},
+                {
+                    baseURL: context.apiPath!,
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+
+            return response.data?.url ?? null;
+        } catch {
+            return null;
+        }
     }
 }

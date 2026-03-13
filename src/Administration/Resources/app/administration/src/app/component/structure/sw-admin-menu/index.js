@@ -395,12 +395,20 @@ The admin menu only supports up to three levels of nesting.`,
             this.isUserActionsActive = false;
         },
 
-        onLogoutUser() {
+        async onLogoutUser() {
+            const ssoRedirectUrl = await this.loginService.ssoLogout();
+
             this.loginService.logout();
             this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.Store.get('session').removeCurrentUser();
             Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
+
+            if (ssoRedirectUrl) {
+                window.location.href = ssoRedirectUrl;
+                return;
+            }
+
             this.$router.push({
                 name: 'sw.login.index',
             });

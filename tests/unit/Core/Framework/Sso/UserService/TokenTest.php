@@ -28,10 +28,34 @@ class TokenTest extends TestCase
 
         static::assertSame($token->token, $tokenValue);
         static::assertSame($token->refreshToken, $refreshTokenValue);
+        static::assertNull($token->idToken);
 
         $result = \json_decode(\json_encode($token, \JSON_THROW_ON_ERROR), true);
         static::assertSame($tokenValue, $result['token']);
         static::assertSame($refreshTokenValue, $result['refreshToken']);
+        static::assertArrayHasKey('idToken', $result);
+        static::assertNull($result['idToken']);
+    }
+
+    public function testJsonSerializableWithIdToken(): void
+    {
+        $tokenValue = Uuid::randomHex();
+        $refreshTokenValue = Uuid::randomHex();
+        $idTokenValue = 'eyJhbGciOiJSUzI1NiJ9.test-id-token';
+        $token = Token::fromArray([
+            'token' => $tokenValue,
+            'refreshToken' => $refreshTokenValue,
+            'idToken' => $idTokenValue,
+        ]);
+
+        static::assertSame($token->token, $tokenValue);
+        static::assertSame($token->refreshToken, $refreshTokenValue);
+        static::assertSame($idTokenValue, $token->idToken);
+
+        $result = \json_decode(\json_encode($token, \JSON_THROW_ON_ERROR), true);
+        static::assertSame($tokenValue, $result['token']);
+        static::assertSame($refreshTokenValue, $result['refreshToken']);
+        static::assertSame($idTokenValue, $result['idToken']);
     }
 
     public function testFromArray(): void
@@ -42,6 +66,39 @@ class TokenTest extends TestCase
 
         static::assertSame($token->token, $tokenValue);
         static::assertSame($token->refreshToken, $refreshTokenValue);
+        static::assertNull($token->idToken);
+    }
+
+    public function testFromArrayWithIdToken(): void
+    {
+        $tokenValue = Uuid::randomHex();
+        $refreshTokenValue = Uuid::randomHex();
+        $idTokenValue = 'eyJhbGciOiJSUzI1NiJ9.test-id-token';
+        $token = Token::fromArray(['token' => $tokenValue, 'refreshToken' => $refreshTokenValue, 'idToken' => $idTokenValue]);
+
+        static::assertSame($token->token, $tokenValue);
+        static::assertSame($token->refreshToken, $refreshTokenValue);
+        static::assertSame($idTokenValue, $token->idToken);
+    }
+
+    public function testBackwardCompatibilityFromJson(): void
+    {
+        $json = '{"token":"access_123","refreshToken":"refresh_456"}';
+        $token = Token::fromJson($json);
+
+        static::assertSame('access_123', $token->token);
+        static::assertSame('refresh_456', $token->refreshToken);
+        static::assertNull($token->idToken);
+    }
+
+    public function testFromJsonWithIdToken(): void
+    {
+        $json = '{"token":"access_123","refreshToken":"refresh_456","idToken":"id_token_789"}';
+        $token = Token::fromJson($json);
+
+        static::assertSame('access_123', $token->token);
+        static::assertSame('refresh_456', $token->refreshToken);
+        static::assertSame('id_token_789', $token->idToken);
     }
 
     /**

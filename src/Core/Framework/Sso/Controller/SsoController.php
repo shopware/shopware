@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Sso\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Sso\SsoUser\SsoUserService;
 use Shopware\Core\Framework\Sso\StateValidator;
+use Shopware\Core\Framework\Sso\UserService\UserService;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -23,6 +25,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @internal
@@ -40,6 +43,7 @@ class SsoController extends AbstractController
         private readonly SsoUserService $ssoUserService,
         private readonly SsoUserInvitationMailService $ssoUserInvitationMailService,
         private readonly SsoService $ssoService,
+        private readonly UserService $userService,
     ) {
     }
 
@@ -129,5 +133,38 @@ class SsoController extends AbstractController
         $this->ssoUserInvitationMailService->sendInvitationMailToUser($email, $localeId, $context);
 
         return new JsonResponse();
+    }
+
+    #[Route(
+        path: '/api/_action/sso/logout',
+        name: 'api.action.sso.logout',
+        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']],
+        methods: [Request::METHOD_POST]
+    )]
+    public function ssoLogout(Context $context): JsonResponse
+    {
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource || $source->getUserId() === null) {
+            return new JsonResponse(['url' => null]);
+        }
+
+        $userId = $source->getUserId();
+        $oAuthUser = $this->userService->searchOAuthUserByUserId($userId);
+
+        $idToken = $oAuthUser?->token?->idToken;
+        if (!$idToken) {
+            return new JsonResponse(['url' => null]);
+        }
+
+        $postLogoutRedirectUri = $this->generateUrl('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $endSessionUrl = $this->loginConfigService->createEndSessionUrl($idToken, $postLogoutRedirectUri);
+
+        if ($endSessionUrl === null) {
+            return new JsonResponse(['url' => null]);
+        }
+
+        $this->userService->removeExternalToken($userId);
+
+        return new JsonResponse(['url' => $endSessionUrl]);
     }
 }

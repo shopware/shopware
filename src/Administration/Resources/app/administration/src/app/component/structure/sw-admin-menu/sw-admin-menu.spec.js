@@ -59,6 +59,7 @@ async function createWrapper(options = {}) {
                 menuService,
                 loginService: {
                     notifyOnLoginListener: () => {},
+                    ssoLogout: () => Promise.resolve(null),
                 },
                 userService: {
                     getUser: () => Promise.resolve({ data: { password: '' } }),

@@ -384,6 +384,57 @@ class LoginConfigServiceTest extends TestCase
         ];
     }
 
+    public function testCreateEndSessionUrlReturnsNullWhenNotConfigured(): void
+    {
+        $rawConfig = [
+            'use_default' => false,
+            'client_id' => 'clientId',
+            'client_secret' => 'clientSecret',
+            'redirect_uri' => 'http://redirect.url',
+            'base_url' => 'http://base.url',
+            'authorize_path' => '/authorize',
+            'token_path' => '/token',
+            'jwks_path' => '/jwks.json',
+            'scope' => 'scope',
+            'register_url' => 'http://register.url',
+        ];
+
+        $configService = $this->createLoginConfigService($rawConfig);
+
+        $result = $configService->createEndSessionUrl('id-token-hint', 'http://post-logout.url');
+
+        static::assertNull($result);
+    }
+
+    public function testCreateEndSessionUrlReturnsUrlWhenConfigured(): void
+    {
+        $rawConfig = [
+            'use_default' => false,
+            'client_id' => 'clientId',
+            'client_secret' => 'clientSecret',
+            'redirect_uri' => 'http://redirect.url',
+            'base_url' => 'http://base.url',
+            'authorize_path' => '/authorize',
+            'token_path' => '/token',
+            'jwks_path' => '/jwks.json',
+            'scope' => 'scope',
+            'register_url' => 'http://register.url',
+            'end_session_path' => '/oauth2/sessions/logout',
+        ];
+
+        $configService = $this->createLoginConfigService($rawConfig);
+
+        $result = $configService->createEndSessionUrl('my-id-token', 'http://post-logout.url/admin');
+
+        static::assertNotNull($result);
+        static::assertStringStartsWith('http://base.url/oauth2/sessions/logout?', $result);
+
+        $query = $this->getQueryParamsAsArray($result);
+        static::assertSame('my-id-token', $query['id_token_hint']);
+        static::assertSame('clientId', $query['client_id']);
+        static::assertSame('http://post-logout.url/admin', $query['post_logout_redirect_uri']);
+    }
+
     /**
      * @param array<string, string|bool> $rawConfig
      */

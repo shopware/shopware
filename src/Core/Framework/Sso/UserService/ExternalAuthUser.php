@@ -113,6 +113,9 @@ final readonly class ExternalAuthUser implements UserEntityInterface
                         new NotBlank(null, 'is required'),
                         new Type('string', 'Needs to be a string'),
                     ],
+                    'idToken' => new Optional([
+                        new Type('string', 'Needs to be a string'),
+                    ]),
                 ]),
             ]),
             'expiry' => [

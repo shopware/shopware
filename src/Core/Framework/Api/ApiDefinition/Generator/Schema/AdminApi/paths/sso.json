@@ -101,6 +101,36 @@
                     }
                 }
             }
+        },
+        "\/_action\/sso\/logout": {
+            "post": {
+                "tags": [
+                    "Experimental",
+                    "SSO RP-Initiated Logout"
+                ],
+                "summary": "Experimental: SSO RP-Initiated Logout",
+                "description": "Experimental: Returns the OP end_session URL for OIDC RP-Initiated Logout, or null if SSO logout is not configured for the current user.",
+                "operationId": "ssoLogout",
+                "responses": {
+                    "200": {
+                        "description": "Experimental: Returns the end_session redirect URL or null",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "url": {
+                                            "description": "The OP end_session URL to redirect the user to, or null if SSO logout is not available.",
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

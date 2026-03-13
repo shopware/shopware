@@ -57,6 +57,7 @@ final readonly class UserService
                 'token' => [
                     'token' => $tokenResult->accessToken,
                     'refreshToken' => $tokenResult->refreshToken,
+                    'idToken' => $tokenResult->idToken,
                 ],
                 'expiry' => $tokenResult->getExpiryDateTime(),
                 'email' => $user->getEmail(),
@@ -140,6 +141,7 @@ final readonly class UserService
             'token' => [
                 'token' => $tokenResult->accessToken,
                 'refreshToken' => $tokenResult->refreshToken,
+                'idToken' => $tokenResult->idToken,
             ],
             'expiry' => $tokenResult->getExpiryDateTime(),
             'email' => $externalAuthUser->email,

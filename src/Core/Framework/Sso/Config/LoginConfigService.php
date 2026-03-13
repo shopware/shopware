@@ -9,6 +9,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
@@ -31,7 +32,8 @@ final readonly class LoginConfigService
      *     token_path: non-empty-string,
      *     jwks_path: non-empty-string,
      *     scope: non-empty-string,
-     *     register_url: non-empty-string
+     *     register_url: non-empty-string,
+     *     end_session_path?: string
      * } $rawConfig
      */
     public function __construct(
@@ -59,6 +61,7 @@ final readonly class LoginConfigService
             $this->rawConfig['jwks_path'],
             $this->rawConfig['scope'],
             $this->rawConfig['register_url'],
+            $this->rawConfig['end_session_path'] ?? null,
         );
     }
 
@@ -89,6 +92,23 @@ final readonly class LoginConfigService
             \urlencode($loginConfig->redirectUri ?? ''),
             \urlencode($loginConfig->scope),
             \urlencode($state)
+        );
+    }
+
+    public function createEndSessionUrl(string $idTokenHint, string $postLogoutRedirectUri): ?string
+    {
+        $loginConfig = $this->getConfig();
+        if (!$loginConfig?->endSessionPath) {
+            return null;
+        }
+
+        return \sprintf(
+            '%s%s?id_token_hint=%s&client_id=%s&post_logout_redirect_uri=%s',
+            $loginConfig->baseUrl,
+            $loginConfig->endSessionPath,
+            \urlencode($idTokenHint),
+            \urlencode($loginConfig->clientId),
+            \urlencode($postLogoutRedirectUri)
         );
     }
 
@@ -173,6 +193,10 @@ final readonly class LoginConfigService
                     new Type('string', $invalidStringMessage),
                     new Url(message: $invalidUrlMessage, requireTld: true),
                 ],
+                'end_session_path' => new Optional([
+                    new Type('string', $invalidStringMessage),
+                    new Regex('/^[\/].+$/', $invalidPath),
+                ]),
             ],
             allowExtraFields: true,
             allowMissingFields: false,

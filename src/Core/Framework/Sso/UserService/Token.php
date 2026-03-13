@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoException;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validation;
 
@@ -17,7 +18,8 @@ final readonly class Token implements \JsonSerializable
 {
     private function __construct(
         public string $token,
-        public string $refreshToken
+        public string $refreshToken,
+        public ?string $idToken = null,
     ) {
     }
 
@@ -37,7 +39,8 @@ final readonly class Token implements \JsonSerializable
 
         return new self(
             $data['token'],
-            $data['refreshToken']
+            $data['refreshToken'],
+            $data['idToken'] ?? null,
         );
     }
 
@@ -46,6 +49,7 @@ final readonly class Token implements \JsonSerializable
         return [
             'token' => $this->token,
             'refreshToken' => $this->refreshToken,
+            'idToken' => $this->idToken,
         ];
     }
 
@@ -78,6 +82,9 @@ final readonly class Token implements \JsonSerializable
                 new NotBlank(null, 'is required'),
                 new Type('string', 'Needs to be a string'),
             ],
+            'idToken' => new Optional([
+                new Type('string', 'Needs to be a string'),
+            ]),
         ]);
     }
 }

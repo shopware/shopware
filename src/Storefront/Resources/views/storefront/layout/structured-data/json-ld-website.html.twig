@@ -11,10 +11,7 @@
         url: app.request.schemeAndHttpHost ~ '/',
         potentialAction: {
             '@type': 'SearchAction',
-            target: {
-                '@type': 'EntryPoint',
-                urlTemplate: url('frontend.search.page') ~ '?search={search_term_string}'
-            },
+            target: url('frontend.search.page') ~ '?search={search_term_string}',
             'query-input': 'required name=search_term_string'
         }
     } %}

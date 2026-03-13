@@ -2,7 +2,9 @@
 
 ## Digital product download access regression fix requires product indexer refresh for immediate effect
 
-This release queues `product.indexer` as part of the digital product download-access regression fix.
+We fixed a bug in the indexer for the `product.states` field, which lead to issues where rules (and flows depending on those rules) with the `line item with product state` condition did not work as expected. This especially affected the flows to deliver digital download products after purchase.
+
+To fix issues in the indexed data, the `product.indexer` is queued asyncronously as part of the update.
 
 If you want to apply the fix synchronously right after update, run:
 

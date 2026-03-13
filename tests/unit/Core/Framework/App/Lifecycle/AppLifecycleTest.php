@@ -341,6 +341,7 @@ class AppLifecycleTest extends TestCase
             $appRepository,
             $languageRepository,
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
+            static::createStub(DeletedAppsGateway::class),
             $validator
         );
 
@@ -371,6 +372,7 @@ class AppLifecycleTest extends TestCase
             $appRepository,
             $languageRepository,
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
+            static::createStub(DeletedAppsGateway::class),
             $validator
         );
 
@@ -477,7 +479,7 @@ class AppLifecycleTest extends TestCase
             $appSourceResolver,
             $this->createMock(ConfigReader::class),
             $deletedAppsGateway,
-            $requirementsValidator ?? $this->createMock(AppRequirementsValidator::class)
+            $requirementsValidator ?? static::createStub(AppRequirementsValidator::class)
         );
     }
 

@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\BoolField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\FloatField;
@@ -30,10 +30,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
-class RuleConditionPersister
+class RuleConditionPersister implements PersisterInterface
 {
     private const CONDITION_SCRIPT_DIR = '/rule-conditions/';
 
@@ -48,25 +48,25 @@ class RuleConditionPersister
     ) {
     }
 
-    public function updateConditions(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
+    public function persist(AppLifecycleContext $context): void
     {
-        $app = $this->getAppWithExistingConditions($appId, $context);
+        $app = $this->getAppWithExistingConditions($context->app->getId(), $context->context);
         $existingRuleConditions = $app->getScriptConditions();
         \assert($existingRuleConditions !== null);
 
-        $ruleConditions = $manifest->getRuleConditions();
+        $ruleConditions = $context->manifest->getRuleConditions();
         $ruleConditions = $ruleConditions !== null ? $ruleConditions->getRuleConditions() : [];
 
         $upserts = [];
 
         foreach ($ruleConditions as $ruleCondition) {
-            $payload = $ruleCondition->toArray($defaultLocale);
-            $payload['identifier'] = \sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
+            $payload = $ruleCondition->toArray($context->defaultLocale);
+            $payload['identifier'] = \sprintf('app\\%s_%s', $context->manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
             $payload['script'] = $this->scriptReader->getScriptContent(
                 $app,
                 self::CONDITION_SCRIPT_DIR . $ruleCondition->getScript(),
             );
-            $payload['appId'] = $appId;
+            $payload['appId'] = $context->app->getId();
             $payload['active'] = $app->isActive();
             $payload['constraints'] = $this->hydrateConstraints($payload['constraints']);
 
@@ -81,12 +81,12 @@ class RuleConditionPersister
         }
 
         if ($upserts !== []) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($upserts): void {
-                $this->appScriptConditionRepository->upsert($upserts, $context);
+            $context->context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($upserts): void {
+                $this->appScriptConditionRepository->upsert($upserts, $innerContext);
             });
         }
 
-        $this->deleteConditionScripts($existingRuleConditions, $context);
+        $this->deleteConditionScripts($existingRuleConditions, $context->context);
     }
 
     public function activateConditionScripts(string $appId, Context $context): void

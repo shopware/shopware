@@ -117,6 +117,7 @@ export default {
         },
 
         ...mapPropertyErrors('salutation', [
+            'position',
             'displayName',
             'letterName',
             'salutationKey',

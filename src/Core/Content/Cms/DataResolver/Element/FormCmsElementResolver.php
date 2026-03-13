@@ -7,8 +7,8 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
-use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('discovery')]
@@ -17,7 +17,10 @@ class FormCmsElementResolver extends AbstractCmsElementResolver
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractSalutationRoute $salutationRoute)
+    public function __construct(
+        private readonly AbstractSalutationRoute $salutationRoute,
+        private readonly AbstractSalutationsSorter $salutationsSorter
+    )
     {
     }
 
@@ -36,8 +39,7 @@ class FormCmsElementResolver extends AbstractCmsElementResolver
         $context = $resolverContext->getSalesChannelContext();
 
         $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
-
-        $salutations->sort(static fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+        $salutations = $this->salutationsSorter->sort($salutations);
 
         $slot->setData($salutations);
     }

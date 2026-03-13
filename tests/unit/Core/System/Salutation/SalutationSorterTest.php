@@ -17,23 +17,27 @@ use Shopware\Core\System\Salutation\SalutationSorter;
 #[CoversClass(SalutationSorter::class)]
 class SalutationSorterTest extends TestCase
 {
-    public function testSort(): void
+    public function testSortByPosition(): void
     {
         $mrs = new SalutationEntity();
         $mrs->setId(Uuid::randomBytes());
         $mrs->setSalutationKey('mrs');
+        $mrs->setPosition(3);
 
         $mr = new SalutationEntity();
         $mr->setId(Uuid::randomBytes());
         $mr->setSalutationKey('mr');
+        $mr->setPosition(2);
 
         $notSpecified = new SalutationEntity();
         $notSpecified->setId(Uuid::randomBytes());
         $notSpecified->setSalutationKey('not_specified');
+        $notSpecified->setPosition(0);
 
         $test = new SalutationEntity();
-        $test->setId(Uuid::randomHex());
+        $test->setId(Uuid::randomBytes());
         $test->setSalutationKey('test');
+        $test->setPosition(1);
 
         $salutations = new SalutationCollection();
         $salutations->add($mr);
@@ -46,6 +50,38 @@ class SalutationSorterTest extends TestCase
         $sorter = new SalutationSorter();
         $salutations = $sorter->sort($salutations);
 
-        static::assertSame($salutations->first(), $notSpecified);
+        static::assertSame(
+            ['not_specified', 'test', 'mr', 'mrs'],
+            \array_values(\array_map(
+                static fn (SalutationEntity $salutation): string => $salutation->getSalutationKey(),
+                \iterator_to_array($salutations)
+            ))
+        );
+    }
+
+    public function testSortFallback(): void
+    {
+        $mr = new SalutationEntity();
+        $mr->setId(Uuid::randomBytes());
+        $mr->setSalutationKey('mr');
+
+        $mrs = new SalutationEntity();
+        $mrs->setId(Uuid::randomBytes());
+        $mrs->setSalutationKey('mrs');
+
+        $salutations = new SalutationCollection();
+        $salutations->add($mrs);
+        $salutations->add($mr);
+
+        $sorter = new SalutationSorter();
+        $salutations = $sorter->sort($salutations);
+
+        static::assertSame(
+            ['mr', 'mrs'],
+            \array_values(\array_map(
+                static fn (SalutationEntity $salutation): string => $salutation->getSalutationKey(),
+                \iterator_to_array($salutations)
+            ))
+        );
     }
 }

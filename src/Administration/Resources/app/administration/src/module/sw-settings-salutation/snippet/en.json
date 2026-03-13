@@ -14,10 +14,14 @@
     "list": {
       "columnSalutationKey": "Technical name",
       "columnDisplayName": "Salutation",
-      "columnLetterName": "Letter salutation"
+      "columnLetterName": "Letter salutation",
+      "columnPosition": "Position"
     },
     "detail": {
       "cardTitle": "Salutation",
+      "fieldPositionLabel": "Position",
+      "fieldPositionPlaceholder": "Select a position...",
+      "fieldPositionTooltip": "Controls the display order in dropdowns; smaller numbers are shown first.",
       "fieldDisplayNameLabel": "Salutation",
       "fieldDisplayNamePlaceholder": "Enter a salutation...",
       "fieldLetterNameLabel": "Letter salutation",

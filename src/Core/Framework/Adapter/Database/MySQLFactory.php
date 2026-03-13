@@ -11,8 +11,11 @@ use Doctrine\DBAL\Tools\DsnParser;
 use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Config\Util\XmlUtils;
 
 /**
+ * @phpstan-import-type Params from DriverManager
+ *
  * @internal
  */
 #[Package('framework')]
@@ -41,10 +44,8 @@ class MySQLFactory
             $url = 'mysql://root:shopware@127.0.0.1:3306/shopware';
         }
 
-        $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
-
         $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
-        $dsnParameters = $dsnParser->parse($url);
+        $dsnParameters = self::parseDsn($dsnParser, $url);
 
         $parameters = array_merge([
             'charset' => 'utf8mb4',
@@ -55,7 +56,7 @@ class MySQLFactory
         $parameters['driverOptions'] = [
             \PDO::ATTR_STRINGIFY_FETCHES => true,
             \PDO::ATTR_TIMEOUT => 5,
-        ] + ($dsnParameters['driverOptions'] ?? []);
+        ] + $dsnParameters['driverOptions'];
 
         $initCommands = [
             'SET @@session.time_zone = \'+00:00\'',
@@ -89,7 +90,8 @@ class MySQLFactory
             $parameters['driverOptions'][Mysql::ATTR_COMPRESS] = true;
         }
 
-        if ($replicaUrl) {
+        $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
+        if ($replicaUrl !== '') {
             if (!isset($parameters['wrapperClass'])) {
                 $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
             }
@@ -98,12 +100,12 @@ class MySQLFactory
             $parameters['primary'] = array_merge([
                 'charset' => $parameters['charset'],
             ], $dsnParameters);
-            $parameters['primary']['driverOptions'] = $parameters['driverOptions'] + ($dsnParameters['driverOptions'] ?? []);
+            $parameters['primary']['driverOptions'] = $parameters['driverOptions'] + $dsnParameters['driverOptions'];
 
             $parameters['replica'] = [];
 
             for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
-                $replicaParams = $dsnParser->parse($replicaUrl);
+                $replicaParams = self::parseDsn($dsnParser, $replicaUrl);
 
                 $parameters['replica'][$i] = array_merge([
                     'charset' => $parameters['charset'],
@@ -113,5 +115,36 @@ class MySQLFactory
         }
 
         return DriverManager::getConnection($parameters, $config);
+    }
+
+    /**
+     * @return Params&array{driverOptions: array<mixed>}
+     */
+    private static function parseDsn(DsnParser $dsnParser, string $url): array
+    {
+        $dsnParameters = $dsnParser->parse($url);
+
+        $dsnParameters['driverOptions'] = array_map(static function (mixed $value): mixed {
+            return self::castValue($value);
+        }, $dsnParameters['driverOptions'] ?? []);
+
+        return $dsnParameters;
+    }
+
+    private static function castValue(mixed $value): mixed
+    {
+        if (is_iterable($value)) {
+            foreach ($value as &$item) {
+                $item = self::castValue($item);
+            }
+
+            return $value;
+        }
+
+        if (!\is_string($value)) {
+            return $value;
+        }
+
+        return XmlUtils::phpize($value);
     }
 }

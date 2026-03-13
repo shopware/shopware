@@ -7,6 +7,7 @@
     {% set websiteData = {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
+        '@id': app.request.schemeAndHttpHost ~ '/#website',
         url: app.request.schemeAndHttpHost ~ '/',
         potentialAction: {
             '@type': 'SearchAction',

@@ -63,6 +63,7 @@
     {% set productUrl = seoUrl('frontend.detail.page', { productId: page.product.id }) %}
     {% set sellerData = {
         '@type': 'Organization',
+        '@id': app.request.schemeAndHttpHost ~ '/#organization',
         name: config('core.basicInformation.shopName')
     } %}
 
@@ -127,6 +128,7 @@
     {% set productData = {
         '@context': 'https://schema.org',
         '@type': 'Product',
+        '@id': productUrl ~ '#product',
         name: page.product.translated.name,
         sku: page.product.productNumber,
         productID: page.product.id,

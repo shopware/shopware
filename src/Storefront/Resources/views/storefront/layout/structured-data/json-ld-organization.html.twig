@@ -4,6 +4,7 @@
     {% set orgData = {
         '@context': 'https://schema.org',
         '@type': 'Organization',
+        '@id': app.request.schemeAndHttpHost ~ '/#organization',
         name: basicConfig.shopName,
         url: app.request.schemeAndHttpHost ~ '/'
     } %}

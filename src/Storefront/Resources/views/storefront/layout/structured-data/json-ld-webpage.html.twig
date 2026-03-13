@@ -10,13 +10,18 @@
     {% set webPageData = {
         '@context': 'https://schema.org',
         '@type': webPageType,
+        '@id': pageUrl ~ '#webpage',
         name: metaTitle,
         description: metaDescription,
         url: pageUrl,
+        isPartOf: {
+            '@id': app.request.schemeAndHttpHost ~ '/#website'
+        },
         inLanguage: context.languageInfo.localeCode,
         isFamilyFriendly: basicConfig.familyFriendly ? true : false,
         copyrightHolder: {
             '@type': 'Organization',
+            '@id': app.request.schemeAndHttpHost ~ '/#organization',
             name: basicConfig.shopName
         }
     } %}

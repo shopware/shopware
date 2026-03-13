@@ -9,6 +9,25 @@ let stepDownSpy;
 let triggerChangeSpy;
 let ariaLiveSpy;
 
+function createLivePlugin({ url = '/product/pid/quantity-limits', withAlertTemplate = false, inputValue = 5 } = {}) {
+    document.body.innerHTML = `
+        <form>
+            <div class="input-group" data-quantity-selector="true"
+                 ${url ? `data-live-quantity-url="${url}"` : ''}>
+                <button type="button" class="js-btn-minus">-</button>
+                <input type="number" class="js-quantity-selector" min="1" max="10" step="1" value="${inputValue}">
+                <button type="button" class="js-btn-plus">+</button>
+            </div>
+            ${withAlertTemplate ? `
+            <template class="js-quantity-stock-adjusted-template">
+                <div class="alert alert-warning">Stock adjusted</div>
+            </template>` : ''}
+        </form>
+    `;
+
+    return new QuantitySelectorPlugin(document.querySelector('[data-quantity-selector]'));
+}
+
 describe('QuantitySelectorPlugin tests', () => {
 
     let plugin;
@@ -90,6 +109,7 @@ describe('QuantitySelectorPlugin tests', () => {
     afterEach(() => {
         stepUpSpy.mockClear();
         stepDownSpy.mockClear();
+        jest.useRealTimers();
     });
 
     test('creates plugin instance', () => {
@@ -165,5 +185,99 @@ describe('QuantitySelectorPlugin tests', () => {
 
         expect(ariaLiveSpy).toHaveBeenCalledTimes(1);
         expect(window.localStorage.getItem('lastQuantityChange')).toBe('Test Product');
+    });
+
+    test('does not fetch on init without user interaction', () => {
+        global.fetch = jest.fn();
+        expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    test('fetches live limits on input focus', async () => {
+        jest.useRealTimers();
+        createLivePlugin();
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 10 }) }));
+
+        document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
+        await new Promise(process.nextTick);
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            '/product/pid/quantity-limits',
+            { headers: { 'X-Requested-With': 'XMLHttpRequest' } },
+        );
+    });
+
+    test('fetches live limits only once on multiple interactions', async () => {
+        jest.useRealTimers();
+        createLivePlugin();
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 10 }) }));
+
+        const input = document.querySelector('.js-quantity-selector');
+        input.dispatchEvent(new Event('focus'));
+        input.dispatchEvent(new Event('focus'));
+        document.querySelector('.js-btn-plus').click();
+        await new Promise(process.nextTick);
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('applies fetched limits to input attributes', async () => {
+        jest.useRealTimers();
+        createLivePlugin();
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 8 }) }));
+
+        document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
+        await new Promise(process.nextTick);
+
+        const input = document.querySelector('.js-quantity-selector');
+        expect(input.getAttribute('min')).toBe('2');
+        expect(input.getAttribute('max')).toBe('8');
+        expect(input.getAttribute('step')).toBe('2');
+    });
+
+    test('clamps value to new max and shows alert when value exceeds new max', async () => {
+        jest.useRealTimers();
+        createLivePlugin({ withAlertTemplate: true, inputValue: 9 });
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 3 }) }));
+
+        document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
+        await new Promise(process.nextTick);
+
+        expect(document.querySelector('.js-quantity-selector').value).toBe('3');
+        expect(document.querySelector('.quantity-stock-adjusted-alert')).not.toBeNull();
+    });
+
+    test('does not show alert when value is within new limits', async () => {
+        jest.useRealTimers();
+        createLivePlugin({ withAlertTemplate: true });
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 10 }) }));
+
+        document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
+        await new Promise(process.nextTick);
+
+        expect(document.querySelector('.quantity-stock-adjusted-alert')).toBeNull();
+    });
+
+    test('does not show alert when template is missing', async () => {
+        jest.useRealTimers();
+        createLivePlugin({ inputValue: 9 });
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 3 }) }));
+
+        document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
+        await new Promise(process.nextTick);
+
+        expect(document.querySelector('.quantity-stock-adjusted-alert')).toBeNull();
+    });
+
+    test('keeps rendered values and logs warning on fetch error', async () => {
+        jest.useRealTimers();
+        createLivePlugin();
+        console.warn = jest.fn();
+        global.fetch = jest.fn(() => Promise.reject(new Error('network error')));
+
+        document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
+        await new Promise(process.nextTick);
+
+        expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Unable to fetch'), expect.any(Error));
+        expect(document.querySelector('.js-quantity-selector').getAttribute('max')).toBe('10');
     });
 });

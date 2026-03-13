@@ -121,7 +121,7 @@ class PropertyGroupCollection extends EntityCollection
         if (intl_is_failure(intl_get_error_code())) {
             $collator = new \Collator('en_GB');
         }
-        
+
         $collator->setAttribute(\Collator::NUMERIC_COLLATION, \Collator::ON);
         $collator->setAttribute(\Collator::ALTERNATE_HANDLING, \Collator::SHIFTED);
 

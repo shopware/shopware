@@ -23,15 +23,18 @@ const fixture = [
 function getCollection() {
     return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), fixture, fixture.length, null);
 }
-async function createWrapper() {
+async function createWrapper(propsOverride = {}) {
     return mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
         props: {
             value: getCollection(),
             repository: {
+                route: '/test-entity',
+                entityName: 'testEntity',
                 search: () => {
                     return Promise.resolve(getCollection());
                 },
             },
+            ...propsOverride,
         },
         global: {
             provide: {
@@ -88,5 +91,39 @@ describe('components/sw-entity-multi-id-select', () => {
         });
 
         expect(wrapper.vm.updateIds).toHaveBeenCalled();
+    });
+
+    it('should properly initialize with null value', async () => {
+        const wrapper = await createWrapper({ value: null });
+        await flushPromises();
+
+        expect(wrapper.vm.normalizedValue).toEqual([]);
+        expect(wrapper.vm.collection).toHaveLength(0);
+    });
+
+    it('should properly handle value changes from array to null', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.collection).toHaveLength(fixture.length);
+
+        await wrapper.setProps({ value: null });
+        await flushPromises();
+
+        expect(wrapper.vm.normalizedValue).toHaveLength(0);
+        expect(wrapper.vm.collection).toHaveLength(0);
+    });
+
+    it('should properly handle value changes from null to array', async () => {
+        const wrapper = await createWrapper({ value: null });
+        await flushPromises();
+
+        expect(wrapper.vm.collection).toHaveLength(0);
+
+        await wrapper.setProps({ value: getCollection() });
+        await flushPromises();
+
+        expect(wrapper.vm.normalizedValue).toHaveLength(fixture.length);
+        expect(wrapper.vm.collection).toHaveLength(fixture.length);
     });
 });

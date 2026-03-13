@@ -60,7 +60,7 @@ export default {
 
     data() {
         return {
-            normalizedValue: [],
+            normalizedValue: null,
             collection: null,
         };
     },
@@ -85,10 +85,9 @@ export default {
     },
 
     methods: {
+        // note: this method also gets called when `value` updates
         createdComponent() {
-            if (Array.isArray(this.value)) {
-                this.normalizedValue = this.value;
-            }
+            this.normalizedValue = this.value ?? [];
 
             const collection = new EntityCollection(this.repository.route, this.repository.entityName, this.context);
 

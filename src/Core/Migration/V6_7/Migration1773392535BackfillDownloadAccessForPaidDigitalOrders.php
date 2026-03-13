@@ -47,7 +47,7 @@ class Migration1773392535BackfillDownloadAccessForPaidDigitalOrders extends Migr
             SQL,
             [
                 'productType' => ProductDefinition::TYPE_DIGITAL,
-                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT)
+                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
             ]
         );
     }

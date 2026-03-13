@@ -94,14 +94,13 @@ const defaultProps = {
     isLoading: false,
 };
 
-async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details') {
 const buttonDeleteClassEntityListing = '.sw-entity-listing__context-menu-edit-delete';
 const buttonDeleteClassDocumentCard = '.sw-order-document-card__context-button-delete';
 
 let documentSearchMock;
 let documentDeleteMock;
 
-async function createWrapper(routeName = 'sw.order.detail.details', additionalProps = {}) {
+async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details') {
     documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
     documentDeleteMock = jest.fn().mockResolvedValue([]);
 
@@ -247,11 +246,6 @@ async function createWrapper(routeName = 'sw.order.detail.details', additionalPr
                     },
                 },
             },
-        },
-        props: {
-            order: orderFixture,
-            isLoading: false,
-            ...additionalProps,
         },
     });
 
@@ -829,7 +823,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should disable the delete-button when attachView is true', async () => {
         global.activeAclRoles = ['document.deleter'];
-        wrapper = await createWrapper('sw.order.detail.documents', { attachView: true });
+        wrapper = await createWrapper(
+            {
+                ...defaultProps,
+                attachView: true,
+            },
+            'sw.order.detail.documents',
+        );
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -844,7 +844,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should have a disabled delete-button with missing permissions', async () => {
         global.activeAclRoles = ['document.viewer'];
-        wrapper = await createWrapper('sw.order.detail.documents');
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
             documents: getCollection('document', [

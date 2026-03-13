@@ -29,6 +29,54 @@ class McpCapabilityDiscoveryTest extends TestCase
     use AdminApiTestBehaviour;
     use KernelTestBehaviour;
 
+    public function testAllExpectedToolsAreDiscovered(): void
+    {
+        Feature::skipTestIfInActive('MCP_SERVER', $this);
+
+        $registered = $this->listCapabilities('tools/list', 'tools');
+
+        foreach (self::expectedTools() as $name) {
+            static::assertContains(
+                $name,
+                $registered,
+                \sprintf(
+                    'Tool "%s" is missing from tools/list. Check mcp.yaml scan_dirs and mcp.tool DI tag.',
+                    $name,
+                ),
+            );
+        }
+    }
+
+    public function testAllExpectedPromptsAreDiscovered(): void
+    {
+        Feature::skipTestIfInActive('MCP_SERVER', $this);
+
+        $registered = $this->listCapabilities('prompts/list', 'prompts');
+
+        foreach (self::expectedPrompts() as $name) {
+            static::assertContains(
+                $name,
+                $registered,
+                \sprintf('Prompt "%s" is missing from prompts/list.', $name),
+            );
+        }
+    }
+
+    public function testAllExpectedResourcesAreDiscovered(): void
+    {
+        Feature::skipTestIfInActive('MCP_SERVER', $this);
+
+        $registered = $this->listCapabilities('resources/list', 'resources');
+
+        foreach (self::expectedResources() as $name) {
+            static::assertContains(
+                $name,
+                $registered,
+                \sprintf('Resource "%s" is missing from resources/list.', $name),
+            );
+        }
+    }
+
     /**
      * All tool names that must be present in tools/list.
      *
@@ -91,54 +139,6 @@ class McpCapabilityDiscoveryTest extends TestCase
         ];
     }
 
-    public function testAllExpectedToolsAreDiscovered(): void
-    {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
-        $registered = $this->listCapabilities('tools/list', 'tools');
-
-        foreach (self::expectedTools() as $name) {
-            static::assertContains(
-                $name,
-                $registered,
-                \sprintf(
-                    'Tool "%s" is missing from tools/list. Check mcp.yaml scan_dirs and mcp.tool DI tag.',
-                    $name,
-                ),
-            );
-        }
-    }
-
-    public function testAllExpectedPromptsAreDiscovered(): void
-    {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
-        $registered = $this->listCapabilities('prompts/list', 'prompts');
-
-        foreach (self::expectedPrompts() as $name) {
-            static::assertContains(
-                $name,
-                $registered,
-                \sprintf('Prompt "%s" is missing from prompts/list.', $name),
-            );
-        }
-    }
-
-    public function testAllExpectedResourcesAreDiscovered(): void
-    {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
-        $registered = $this->listCapabilities('resources/list', 'resources');
-
-        foreach (self::expectedResources() as $name) {
-            static::assertContains(
-                $name,
-                $registered,
-                \sprintf('Resource "%s" is missing from resources/list.', $name),
-            );
-        }
-    }
-
     /**
      * @return list<string>
      */
@@ -198,12 +198,13 @@ class McpCapabilityDiscoveryTest extends TestCase
     }
 
     /**
-     * @param array<string, list<string>> $headers
+     * @param array<string, list<string|null>> $headers
      */
     private function extractSessionId(array $headers): ?string
     {
         $sessionHeader = $headers['mcp-session-id'] ?? $headers['Mcp-Session-Id'] ?? null;
+        $value = $sessionHeader[0] ?? null;
 
-        return $sessionHeader[0] ?? null;
+        return \is_string($value) ? $value : null;
     }
 }

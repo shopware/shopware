@@ -128,6 +128,9 @@
                 },
                 "mcp": {
                     "$ref": "#/definitions/mcp"
+                },
+                "webhook": {
+                    "$ref": "#/definitions/webhook"
                 }
             },
             "title": "Shopware"
@@ -290,6 +293,22 @@
                 }
             },
             "title": "Product Stream"
+        },
+        "webhook": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "failure_strategy": {
+                    "type": "string",
+                    "enum": [
+                        "disable_on_threshold",
+                        "ignore"
+                    ],
+                    "default": "disable_on_threshold",
+                    "description": "@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation"
+                }
+            },
+            "title": "Webhook"
         },
         "twig": {
             "type": "object",

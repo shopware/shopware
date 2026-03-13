@@ -73,7 +73,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $template = '@Framework/documents/credit_note.html.twig';
 
-        $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
+        $ids = \array_map(static fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
         if ($ids === []) {
             return $result;
@@ -135,7 +135,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $creditNoteItemIds = $this->getPreviouslyCreditedIdsForInvoice($referencedInvoiceId);
 
                 $creditItems = $liveCreditItems->filter(
-                    fn (OrderLineItemEntity $item) => !\in_array($item->getId(), $invoiceCreditIds, true)
+                    static fn (OrderLineItemEntity $item) => !\in_array($item->getId(), $invoiceCreditIds, true)
                         && !\in_array($item->getId(), $creditNoteItemIds, true)
                 );
 
@@ -350,7 +350,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
         ]);
 
-        return array_map(fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
+        return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
     }
 
     /**
@@ -381,6 +381,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
         ]);
 
-        return array_map(fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
+        return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
     }
 }

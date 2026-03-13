@@ -79,7 +79,7 @@ class DocumentFileRendererRegistryTest extends TestCase
                 content: 'pdf'
             ),
 
-            function (string $rendered): void {
+            static function (string $rendered): void {
                 static::assertSame($rendered, 'pdf');
             },
         ];
@@ -94,7 +94,7 @@ class DocumentFileRendererRegistryTest extends TestCase
                 content: 'html'
             ),
 
-            function (string $rendered): void {
+            static function (string $rendered): void {
                 static::assertSame($rendered, 'html');
             },
         ];

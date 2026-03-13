@@ -23,7 +23,9 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(AddOrderTagAction::class)]
 class AddOrderTagActionTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<OrderCollection> */
+    /**
+     * @var MockObject&EntityRepository<OrderCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private AddOrderTagAction $action;

@@ -67,7 +67,7 @@ class VideoCoverLoadedSubscriberTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->with(
-                static::callback(function (Criteria $criteria) use ($coverId) {
+                static::callback(static function (Criteria $criteria) use ($coverId) {
                     static::assertSame([$coverId], $criteria->getIds());
                     static::assertTrue($criteria->hasAssociation('thumbnails'));
 
@@ -154,7 +154,7 @@ class VideoCoverLoadedSubscriberTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->with(
-                static::callback(function (Criteria $criteria) use ($cover1Id, $cover2Id) {
+                static::callback(static function (Criteria $criteria) use ($cover1Id, $cover2Id) {
                     $ids = $criteria->getIds();
                     static::assertCount(2, $ids);
                     static::assertContains($cover1Id, $ids);

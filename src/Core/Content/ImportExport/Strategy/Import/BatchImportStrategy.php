@@ -64,7 +64,7 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
 
     public function commit(Config $config, Progress $progress, Context $context): ImportResult
     {
-        $records = array_map(fn (array $data) => $data['record'], $this->toImport);
+        $records = array_map(static fn (array $data) => $data['record'], $this->toImport);
 
         $createEntities = $config->get('createEntities') ?? true;
         $updateEntities = $config->get('updateEntities') ?? true;

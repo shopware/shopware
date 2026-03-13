@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -264,8 +265,11 @@ class DocumentDeleteSubscriberTest extends TestCase
         static::assertStringNotContainsString(\sprintf(' (%s).', $creditNoteDocumentId), $errorDetail);
     }
 
-    public function testDeleteDocumentsInBulkShouldNotThrowExceptionWhenDependentDocumentIsInRequestList(): void
-    {
+    #[TestWith(['dependingDocumentFirst' => true], 'first depending document (credit note), second parent document (invoice)')]
+    #[TestWith(['dependingDocumentFirst' => false], 'first parent document (invoice), second depending document (credit note)')]
+    public function testDeleteDocumentsInBulkShouldNotThrowExceptionWhenDependentDocumentIsInRequestList(
+        bool $dependingDocumentFirst
+    ): void {
         $orderId = $this->persistCart($this->generateDemoCart(1));
         $invoiceGenerationResult = $this->createDocument(
             InvoiceRenderer::TYPE,
@@ -303,19 +307,16 @@ class DocumentDeleteSubscriberTest extends TestCase
         static::assertTrue($this->hasMediaEntity($creditNoteMediaId));
         static::assertTrue($this->hasMediaEntity($creditNoteA11yMediaId));
 
+        $payload = $dependingDocumentFirst
+            ? [['id' => $creditNoteDocumentId], ['id' => $invoiceDocumentId]]
+            : [['id' => $invoiceDocumentId], ['id' => $creditNoteDocumentId]];
+
         $data = [
             [
                 'key' => 'test',
                 'action' => SyncController::ACTION_DELETE,
                 'entity' => static::getContainer()->get(DocumentDefinition::class)->getEntityName(),
-                'payload' => [
-                    [
-                        'id' => $creditNoteDocumentId,
-                    ],
-                    [
-                        'id' => $invoiceDocumentId,
-                    ],
-                ],
+                'payload' => $payload,
             ],
         ];
 

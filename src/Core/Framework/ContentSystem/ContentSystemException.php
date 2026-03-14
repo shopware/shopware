@@ -34,6 +34,12 @@ class ContentSystemException extends HttpException
     public const MISSING_EXTENDS_ANNOTATION = 'CONTENT_SYSTEM__MISSING_EXTENDS_ANNOTATION';
     public const UNSUPPORTED_TYPE_NODE = 'CONTENT_SYSTEM__UNSUPPORTED_TYPE_NODE';
     public const UNRESOLVABLE_TYPE_CLASS = 'CONTENT_SYSTEM__UNRESOLVABLE_TYPE_CLASS';
+    public const ELEMENT_TYPE_DUPLICATE = 'CONTENT_SYSTEM__ELEMENT_TYPE_DUPLICATE';
+    public const ELEMENT_TYPE_INVALID = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID';
+    public const ELEMENT_TYPE_LOAD_FAILED = 'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED';
+    public const ELEMENT_TYPE_MISSING_REQUIRED_FIELD = 'CONTENT_SYSTEM__ELEMENT_TYPE_MISSING_REQUIRED_FIELD';
+    public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
+    public const ELEMENT_TYPE_UNREGISTERED = 'CONTENT_SYSTEM__ELEMENT_TYPE_UNREGISTERED';
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
     {
@@ -260,6 +266,67 @@ class ContentSystemException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::ROUTES_ALREADY_LOADED,
             'Content system routes are already loaded.'
+        );
+    }
+
+    public static function elementTypeDuplicate(string $name, string $existingSource, string $newSource): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::ELEMENT_TYPE_DUPLICATE,
+            'Element type "{{ name }}" is already registered by "{{ existingSource }}", cannot register again from "{{ newSource }}"',
+            ['name' => $name, 'existingSource' => $existingSource, 'newSource' => $newSource]
+        );
+    }
+
+    public static function elementTypeInvalid(string $name, string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ELEMENT_TYPE_INVALID,
+            'Element type "{{ name }}" is invalid: {{ reason }}',
+            ['name' => $name, 'reason' => $reason]
+        );
+    }
+
+    public static function elementTypeLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ELEMENT_TYPE_LOAD_FAILED,
+            'Failed to load element type from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function elementTypeMissingRequiredField(string $field): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ELEMENT_TYPE_MISSING_REQUIRED_FIELD,
+            'Element type is missing required field "{{ field }}"',
+            ['field' => $field]
+        );
+    }
+
+    public static function elementTypeNotFound(string $name): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ELEMENT_TYPE_NOT_FOUND,
+            'Element type "{{ name }}" not found',
+            ['name' => $name]
+        );
+    }
+
+    public static function elementTypeUnregistered(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ELEMENT_TYPE_UNREGISTERED,
+            'Element type "{{ name }}" is not registered. Only registered types can be used in layouts.',
+            ['name' => $name]
         );
     }
 }

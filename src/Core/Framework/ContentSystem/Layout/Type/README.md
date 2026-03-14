@@ -1,0 +1,60 @@
+# Type
+
+Element type system. Declarative type definitions for content elements — what types exist, what properties they have, what slots they provide. Types are defined via YAML files and discovered from core, bundles, plugins, and apps.
+
+## Type Spec as Output Schema
+
+The type specification's `properties` describe what a **hydrated** element looks like in the API response — not what is stored in the database. This is the central design relationship between the type system and the element system.
+
+A type property with a FQCN type (e.g., `SalesChannelProductEntity`) is not stored in the database as a property value. It appears in the element's `properties` map only after hydration, when a data loader or context provider fills it.
+
+A type property with a primitive type (e.g., `string`, `boolean`) is stored in the database as a static property value set at design time.
+
+Both end up in the same `properties` map after hydration. The type spec does not distinguish between them because the API consumer (storefront, admin, headless client) sees a single unified property bag.
+
+### Key-Based Linkage
+
+The property key is the connecting identifier across all systems:
+
+- Type spec: `properties.product` — "this element has a property called `product`"
+- Element storage: `data_requirements.product` — "load `product` via this data loader"
+- Element storage: `accepts_context.product` — "receive `product` from a parent"
+- Hydrator: `$element->setProperty('product', $data)` — "store loaded data under key `product`"
+- API output: `properties.product` — serialized SalesChannelProductEntity
+
+The type spec declares WHAT properties exist and their types. The element instance declares HOW each non-primitive property gets its value (via `data_requirements` or `accepts_context`). These are different concerns with different structures, connected by the shared property key.
+
+**Alias and path variations:** The direct key match is the common case. Two exceptions:
+- Context consumers may use `propertyAlias` to store received data under a different key than the consumer key (e.g., `accepts_context.product` with `propertyAlias: "item"` stores data under `properties.item`).
+- Path-based consumers (e.g., `accepts_context: product.cover`) receive a resolved sub-property from the parent's `product` context, stored under the consumer key or its property alias.
+
+### Type-to-Loader Bridge
+
+`ContentSystemDataLoaderTypeMap` connects type spec FQCNs to data loader capabilities:
+
+- Forward: given a loader source (e.g., `"entity"`), what types can it produce?
+- Reverse: given a FQCN (e.g., `SalesChannelProductEntity`), which loaders can produce it?
+
+This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass` and available at runtime via `ContentSystemDataLoaderTypeResolver`. Currently consumed by the Schema API endpoint; designed to also serve future layout validation.
+
+## Architecture
+
+1. **Specification Value Objects** (Specification/) — Immutable VOs: ContentElementTypeSpecification (top-level), PropertySpecification + PropertyType (property with type info), SlotSpecification (slot with allowList/maxElements), CopilotSpecification (LLM metadata). DTOs in Specification/Dto/ carry Symfony validation attributes for input deserialization.
+
+2. **Loading** (Loader/) — YamlTypeLoader scans a directory for *.yaml files, deserializes via ElementTypeSpecificationSerializer, validates via Symfony Validator. DatabaseTypeLoader loads active app types from the app_content_element_type table (prod only; returns empty in dev where apps load from filesystem via the compiler pass).
+
+3. **Registry** (Registry/) — ContentElementTypeRegistry holds all types in-memory. Two-phase: compiled definitions injected by ElementTypeCompilerPass, plus runtime-loaded definitions from tagged content_system.type_loader services (lazy on first access). Implements ResetInterface to clear runtime types between requests.
+
+4. **Compiler Pass** — ElementTypeCompilerPass discovers YAML definitions from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem).
+
+5. **App Integration** — AppContentElementTypeDefinition (DAL entity), ElementTypePersister (syncs YAML to DB with collision detection), ElementTypeAppValidator (validates app YAML during manifest validation).
+
+## Subdirectories
+
+- **Definitions/** - Core YAML type definitions (49 files: headers, filters, products, content, media, grid)
+- **Loader/** - Type loading (YamlTypeLoader for filesystem, DatabaseTypeLoader for app types in prod)
+- **Registry/** - ContentElementTypeRegistry (two-phase: compile-time baked + runtime DB)
+- **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)
+- **Specification/** - Value objects (ContentElementTypeSpecification, PropertySpecification, SlotSpecification, CopilotSpecification)
+- **Specification/Dto/** - Validation DTOs with Symfony constraint attributes
+- **Validation/** - Custom validators (ValidPropertyConstraints for type/translatable/enum rules)

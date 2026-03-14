@@ -1,0 +1,84 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type\Validation;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ValidPropertyConstraintsValidator;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
+
+/**
+ * @internal
+ */
+#[CoversClass(ValidPropertyConstraintsValidator::class)]
+class ValidPropertyConstraintsValidatorTest extends TestCase
+{
+    #[DataProvider('acceptsValidSpecificationProvider')]
+    #[TestDox('accepts valid property specification without violations')]
+    public function testAcceptsValidPropertySpecification(PropertySpecificationDto $dto): void
+    {
+        static::assertCount(0, $this->validate($dto));
+    }
+
+    /**
+     * @return iterable<string, array{PropertySpecificationDto}>
+     */
+    public static function acceptsValidSpecificationProvider(): iterable
+    {
+        yield 'translatable on string type' => [
+            new PropertySpecificationDto('text', 'string', false, true, 'Text', 'Text content.', null, null, null),
+        ];
+
+        yield 'enum on primitive type' => [
+            new PropertySpecificationDto('layout', 'string', false, false, 'Layout', 'Layout variant.', ['a', 'b'], null, null),
+        ];
+
+        yield 'neither translatable nor enum set' => [
+            new PropertySpecificationDto('count', 'integer', false, false, 'Count', 'A count.', null, null, null),
+        ];
+    }
+
+    #[DataProvider('rejectsInvalidSpecificationProvider')]
+    #[TestDox('rejects invalid property specification with violation at $expectedPath')]
+    public function testRejectsInvalidPropertySpecification(PropertySpecificationDto $dto, string $expectedPath): void
+    {
+        $violations = $this->validate($dto);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
+    }
+
+    /**
+     * @return iterable<string, array{PropertySpecificationDto, string}>
+     */
+    public static function rejectsInvalidSpecificationProvider(): iterable
+    {
+        yield 'translatable on non-string type' => [
+            new PropertySpecificationDto('count', 'integer', false, true, 'Count', 'A count.', null, null, null),
+            'translatable',
+        ];
+
+        yield 'enum on FQCN type' => [
+            new PropertySpecificationDto('product', 'Shopware\Core\Content\Product\ProductEntity', false, false, 'Product', 'Product.', ['a'], null, null),
+            'enum',
+        ];
+
+        yield 'enum is not a list' => [
+            new PropertySpecificationDto('layout', 'string', false, false, 'Layout', 'Layout.', ['a' => 'b'], null, null), // @phpstan-ignore argument.type (intentionally invalid: associative array instead of list)
+            'enum',
+        ];
+    }
+
+    private function validate(PropertySpecificationDto $dto): ConstraintViolationListInterface
+    {
+        $validator = Validation::createValidatorBuilder()
+            ->enableAttributeMapping()
+            ->getValidator();
+
+        return $validator->validate($dto);
+    }
+}

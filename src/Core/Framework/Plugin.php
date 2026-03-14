@@ -35,6 +35,11 @@ abstract class Plugin extends Bundle
         return $this->active;
     }
 
+    public static function getContentTypeDirectory(): string
+    {
+        return 'Resources/content-system/types';
+    }
+
     public function install(InstallContext $installContext): void
     {
     }

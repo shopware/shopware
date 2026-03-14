@@ -232,6 +232,22 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver"/>
         </service>
 
+        <!-- Element Type System -->
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%kernel.environment%</argument>
+            <tag name="content_system.type_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry">
+            <argument type="collection"/><!-- Populated by ElementTypeCompilerPass -->
+            <argument type="tagged_iterator" tag="content_system.type_loader"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <!-- Content Route Loader (arg 0 set by ContentRouteCompilerPass) -->
         <service id="Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoader">
             <argument/>

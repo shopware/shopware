@@ -20,3 +20,4 @@ ContentLayoutEntity can contain multiple root elements. Each root is an independ
 - **Field/** - Custom DAL field types and serializers (infrastructure)
 - **Loader/** - ContentLayoutEntity loading from repository
 - **Scaffolding/** - Layout wrapping utilities (VirtualRootWrapper)
+- **Type/** - Element type system: declarative type definitions, YAML loading, registry, app integration

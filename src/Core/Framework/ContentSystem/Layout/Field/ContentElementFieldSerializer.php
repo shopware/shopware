@@ -52,6 +52,15 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         parent::__construct($validator, $definitionRegistry);
     }
 
+    /**
+     * Encodes a ContentElement for database storage.
+     *
+     * The serializer is format-agnostic — it serializes whatever properties are present on
+     * the element at call time. In the normal write path (Admin API saving a layout), the
+     * element has not been hydrated, so properties contain only static/config values.
+     * FQCN-typed values exist as instructions in data_requirements or accepts_context,
+     * and are materialized into properties only at hydration time.
+     */
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -83,6 +92,13 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => Json::encode($value);
     }
 
+    /**
+     * Decodes a ContentElement from database JSON.
+     *
+     * The returned element is in the "storage" lifecycle stage: properties contain only
+     * static/config values. FQCN-typed property values are not present — they exist as
+     * instructions in data_requirements and accepts_context, awaiting hydration.
+     */
     public function decode(Field $field, mixed $value): ?ContentElement
     {
         if (!$field instanceof ContentElementField) {

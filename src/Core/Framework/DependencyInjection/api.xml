@@ -183,6 +183,7 @@
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

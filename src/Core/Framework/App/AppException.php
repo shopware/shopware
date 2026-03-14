@@ -67,6 +67,7 @@ class AppException extends HttpException
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
+    final public const ELEMENT_TYPE_COLLISION = 'FRAMEWORK__APP_ELEMENT_TYPE_COLLISION';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -555,6 +556,16 @@ class AppException extends HttpException
             self::MANIFEST_NOT_FOUND,
             'No "manifest.xml" file in path "{{ path }}" found. (The file must be placed in the app root folder.)',
             ['path' => $path],
+        );
+    }
+
+    public static function elementTypeCollision(string $name, string $existingSource, string $newSource): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::ELEMENT_TYPE_COLLISION,
+            'Element type "{{ name }}" is already registered by "{{ existingSource }}", cannot register again from "{{ newSource }}"',
+            ['name' => $name, 'existingSource' => $existingSource, 'newSource' => $newSource]
         );
     }
 }

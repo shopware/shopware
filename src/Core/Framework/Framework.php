@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaf
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ElementTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
@@ -132,6 +133,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new ContentRouteCompilerPass());
         $container->addCompilerPass(new ContentSystemDataLoaderTypeCompilerPass());
+        $container->addCompilerPass(new ElementTypeCompilerPass());
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());
         $container->addCompilerPass(new RedisConnectionsCompilerPass());
 

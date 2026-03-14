@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -74,6 +76,7 @@ class InfoController extends AbstractController
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator,
+        private readonly ContentElementTypeRegistry $elementTypeRegistry,
     ) {
     }
 
@@ -263,6 +266,17 @@ class InfoController extends AbstractController
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
+    }
+
+    #[Route(path: '/api/_info/content-element-types.json', name: 'api.info.content-element-types', methods: ['GET'])]
+    public function getContentElementTypes(): JsonResponse
+    {
+        $types = array_map(
+            static fn (ContentElementTypeSpecification $def) => $def->toSchema(),
+            array_values($this->elementTypeRegistry->all())
+        );
+
+        return new JsonResponse(['types' => $types]);
     }
 
     /**

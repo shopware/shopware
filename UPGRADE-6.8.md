@@ -813,6 +813,31 @@ The indexing progress notifications in the Administration notification center ha
 - `WorkerNotificationListener` class and its exported constants `POLL_BACKGROUND_INTERVAL`, `POLL_FOREGROUND_INTERVAL` (`src/core/worker/worker-notification-listener.js`)
 - `enableQueueStatsWorker` property from `Shopware.Context.app.config.adminWorker`
 
+## Removal of `allowEmpty` prop from `sw-price-field`
+
+The `allowEmpty` prop has been removed from the `sw-price-field` component. The component now always behaves as if `allowEmpty` was set to `true`. Setting `allowEmpty` to `false` to force gross/net fields to fall back to `0` instead of `null` is no longer supported.
+
+If you previously passed `:allow-empty` to `sw-price-field`, remove the prop:
+
+**Before:**
+```html
+<sw-price-field
+    :allow-empty="true"
+    :tax-rate="taxRate"
+    :value="price"
+    :currency="currency"
+/>
+```
+
+**After:**
+```html
+<sw-price-field
+    :tax-rate="taxRate"
+    :value="price"
+    :currency="currency"
+/>
+```
+
 </details>
 
 ## Document settings changes

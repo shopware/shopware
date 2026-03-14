@@ -60,7 +60,6 @@
             :id-suffix="discount.id"
             :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelMaxDiscountValue')"
             :disabled="discount.type !== 'percentage' || !acl.can('promotion.editor')"
-            allow-empty
             @update:model-value="onMaxValueChanged"
         >
 

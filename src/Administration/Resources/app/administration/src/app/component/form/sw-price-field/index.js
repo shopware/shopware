@@ -126,6 +126,10 @@ export default {
             default: null,
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         * After that it behaves like `:allow-empty="true"`.
+         */
         allowEmpty: {
             type: Boolean,
             required: false,

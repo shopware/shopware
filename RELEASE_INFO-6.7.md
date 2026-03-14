@@ -637,6 +637,11 @@ The following deprecations apply to `sw-mail-template-index`:
 * `term` data property will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
 
+## Deprecated `allowEmpty` prop in `sw-price-field`
+
+The `allowEmpty` prop in the `sw-price-field` component has been deprecated and will be removed in v6.8. After removal, the component will always behave as if `allowEmpty` was set to `true`.
+
+
 ## Storefront
 
 ### Cookie consent now language-aware

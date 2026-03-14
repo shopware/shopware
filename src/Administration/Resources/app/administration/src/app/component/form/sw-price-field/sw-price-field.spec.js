@@ -57,7 +57,9 @@ const setup = async (propOverride) => {
         ...propOverride,
     };
 
-    return mount(await wrapTestComponent('sw-price-field', { sync: true }), {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const wrapper = mount(await wrapTestComponent('sw-price-field', { sync: true }), {
         global: {
             stubs: {
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
@@ -78,6 +80,14 @@ const setup = async (propOverride) => {
         },
         props,
     });
+
+    if (propOverride && Object.hasOwn(propOverride, 'allowEmpty')) {
+        expect(consoleWarnSpy).toHaveBeenCalledWith('[MtNumberField] The `allowEmpty` prop is deprecated and will be removed. There will be no replacement.');
+    }
+
+    consoleWarnSpy.mockRestore();
+
+    return wrapper;
 };
 
 describe('components/form/sw-price-field', () => {

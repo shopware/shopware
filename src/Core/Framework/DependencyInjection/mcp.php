@@ -46,6 +46,7 @@ use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
+use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderCancelTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
@@ -289,6 +290,16 @@ return static function (ContainerConfigurator $container): void {
         ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(ConsoleCommandTool::class)
+        ->args([
+            service('kernel'),
+            param('shopware.mcp.allowed_console_commands'),
+            service('logger'),
+        ])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     // Prompt
     $services->set(ShopwareContextPrompt::class)

@@ -1215,6 +1215,27 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                     ->defaultValue([])
                 ->end()
+                ->arrayNode('allowed_console_commands')
+                    ->info('Console commands allowed to be executed via the shopware-console-command MCP tool.')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([
+                        'about',
+                        'cache:clear',
+                        'cache:warmup',
+                        'plugin:list',
+                        'plugin:refresh',
+                        'plugin:install',
+                        'plugin:activate',
+                        'plugin:deactivate',
+                        'plugin:uninstall',
+                        'scheduled-task:list',
+                        'theme:compile',
+                        'debug:router',
+                        'debug:mcp',
+                        'messenger:stats',
+                        'assets:install',
+                    ])
+                ->end()
                 ->integerNode('app_tool_timeout')
                     ->info('Timeout in seconds for app webhook MCP tool calls.')
                     ->defaultValue(10)

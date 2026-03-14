@@ -2,6 +2,10 @@
 
 ## Features
 
+### Product Open Graph fields for SEO and social sharing
+
+Merchants can now set custom Open Graph title, description, and image per product in the product SEO tab in the administration. These values are used for the storefront product detail page meta tags (`og:title`, `og:description`, `og:image`), improving how product links appear when shared on social media and in search results. The fields are stored in the database, exposed via the Admin and Store API on the product entity, and default to the product meta title, meta description, and cover image when not set.
+
 ### New internal comment for state machine state history entries
 A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
 The internal comment is only visible in the administration and not shown to customers.

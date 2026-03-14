@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWi
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
@@ -14,7 +15,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadColle
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -142,6 +142,10 @@ class ProductEntity extends Entity implements \Stringable
     protected ?string $metaDescription = null;
 
     protected ?string $metaTitle = null;
+
+    protected ?string $ogTitle = null;
+
+    protected ?string $ogDescription = null;
 
     protected ?string $packUnit = null;
 
@@ -581,6 +585,26 @@ class ProductEntity extends Entity implements \Stringable
     public function setMetaTitle(?string $metaTitle): void
     {
         $this->metaTitle = $metaTitle;
+    }
+
+    public function getOgTitle(): ?string
+    {
+        return $this->ogTitle;
+    }
+
+    public function setOgTitle(?string $ogTitle): void
+    {
+        $this->ogTitle = $ogTitle;
+    }
+
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    public function setOgDescription(?string $ogDescription): void
+    {
+        $this->ogDescription = $ogDescription;
     }
 
     public function getPackUnit(): ?string

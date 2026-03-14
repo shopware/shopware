@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadColle
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -249,6 +250,10 @@ class ProductEntity extends Entity implements \Stringable
     protected ?ProductStreamCollection $streams = null;
 
     protected ?ProductDownloadCollection $downloads = null;
+
+    protected ?string $openGraphMediaId = null;
+
+    protected ?MediaEntity $openGraphMedia = null;
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed, please use type field instead.
@@ -1267,5 +1272,25 @@ class ProductEntity extends Entity implements \Stringable
     public function setType(string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getOpenGraphMediaId(): ?string
+    {
+        return $this->openGraphMediaId;
+    }
+
+    public function setOpenGraphMediaId(?string $openGraphMediaId): void
+    {
+        $this->openGraphMediaId = $openGraphMediaId;
+    }
+
+    public function getOpenGraphMedia(): ?MediaEntity
+    {
+        return $this->openGraphMedia;
+    }
+
+    public function setOpenGraphMedia(?MediaEntity $openGraphMedia): void
+    {
+        $this->openGraphMedia = $openGraphMedia;
     }
 }

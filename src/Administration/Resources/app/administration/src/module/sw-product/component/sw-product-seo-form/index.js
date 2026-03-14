@@ -7,6 +7,7 @@ import template from './sw-product-seo-form.html.twig';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const createId = Shopware.Utils.createId;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -37,6 +38,8 @@ export default {
             switchStateHasBeenSet: false,
             shouldKeepSelectValue: false,
             selectValue: null,
+            showOgMediaModal: false,
+            openGraphMediaItem: null,
         };
     },
 
@@ -104,10 +107,20 @@ export default {
             return Shopware.Store.get('swProductDetail').isLoading;
         },
 
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
+        openGraphMediaUploadTag() {
+            return `sw-product-seo-form-og-image-${createId().substring(0, 8)}`;
+        },
+
         ...mapPropertyErrors('product', [
             'keywords',
             'metaDescription',
             'metaTitle',
+            'ogTitle',
+            'ogDescription',
         ]),
     },
 
@@ -168,6 +181,18 @@ export default {
 
             this.selectValue = this.product.canonicalProductId;
         },
+
+        'product.openGraphMediaId': {
+            async handler(mediaId) {
+                if (!mediaId) {
+                    this.openGraphMediaItem = null;
+                    return;
+                }
+
+                this.openGraphMediaItem = await this.mediaRepository.get(mediaId);
+            },
+            immediate: true,
+        },
     },
 
     methods: {
@@ -197,6 +222,35 @@ export default {
                     this.$refs.canonicalProductSelect.resetActiveItem();
                 });
             });
+        },
+
+        onOpenOgMediaModal() {
+            this.showOgMediaModal = true;
+        },
+
+        onCloseOgMediaModal() {
+            this.showOgMediaModal = false;
+        },
+
+        onRemoveOgMedia(updateCurrentValue) {
+            this.openGraphMediaItem = null;
+            updateCurrentValue(null);
+        },
+
+        onOgMediaUploadFinish({ targetId }, updateCurrentValue) {
+            updateCurrentValue(targetId);
+        },
+
+        onOgMediaSelectionChange(selection, updateCurrentValue) {
+            if (selection.length !== 1) {
+                this.onRemoveOgMedia(updateCurrentValue);
+                return;
+            }
+
+            const [selected] = selection;
+            this.openGraphMediaItem = selected;
+            updateCurrentValue(selected.id);
+            this.showOgMediaModal = false;
         },
     },
 };

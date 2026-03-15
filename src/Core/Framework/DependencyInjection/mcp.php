@@ -48,6 +48,7 @@ use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
 use Shopware\Core\Framework\Mcp\Tool\EventIntrospectTool;
+use Shopware\Core\Framework\Mcp\Tool\InstanceInfoTool;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderCancelTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
@@ -305,6 +306,14 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(EventIntrospectTool::class)
         ->args([service('event_dispatcher')])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(InstanceInfoTool::class)
+        ->args([
+            service('kernel'),
+            service('Doctrine\DBAL\Connection'),
+        ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 

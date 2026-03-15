@@ -55,6 +55,7 @@ use Shopware\Core\Framework\Mcp\Tool\ProductCreateTool;
 use Shopware\Core\Framework\Mcp\Tool\RevenueReportTool;
 use Shopware\Core\Framework\Mcp\Tool\StateMachineTransitionTool;
 use Shopware\Core\Framework\Mcp\Tool\StorefrontSearchTool;
+use Shopware\Core\Framework\Mcp\Tool\SyncValidateTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -304,6 +305,15 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(EventIntrospectTool::class)
         ->args([service('event_dispatcher')])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(SyncValidateTool::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+            service(McpContextProvider::class),
+            service('Doctrine\DBAL\Connection'),
+        ])
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 

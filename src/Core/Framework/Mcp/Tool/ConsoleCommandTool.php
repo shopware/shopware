@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-console-command', description: 'Execute allowlisted Shopware console commands. Only commands in the allowlist can run (e.g. cache:clear, plugin:refresh, plugin:install, plugin:activate, plugin:list, theme:compile, about). Use "--format=json" in arguments where supported for structured output. Returns {success, data: {output, exitCode, durationMs}}.')]
+#[McpTool(name: 'shopware-console-command', description: 'Execute allowlisted Shopware console commands. Returns {success, data: {output, exitCode, durationMs}}. Allowed commands include: cache:clear, cache:warmup, plugin:list/install/activate/deactivate/uninstall/refresh, scheduled-task:list/run, theme:compile, assets:install, debug:router, debug:mcp, debug:container, debug:event-dispatcher, debug:autowiring, debug:dotenv, messenger:stats, messenger:failed:show, about. Pass arguments as a JSON object string, e.g. {"--tag": "mcp.tool"} for debug:container. Use "--format=json" where supported for structured output.')]
 #[Package('framework')]
 class ConsoleCommandTool
 {

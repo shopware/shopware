@@ -1229,10 +1229,16 @@ class Configuration implements ConfigurationInterface
                         'plugin:deactivate',
                         'plugin:uninstall',
                         'scheduled-task:list',
+                        'scheduled-task:run',
                         'theme:compile',
                         'debug:router',
                         'debug:mcp',
+                        'debug:container',
+                        'debug:event-dispatcher',
+                        'debug:autowiring',
+                        'debug:dotenv',
                         'messenger:stats',
+                        'messenger:failed:show',
                         'assets:install',
                     ])
                 ->end()

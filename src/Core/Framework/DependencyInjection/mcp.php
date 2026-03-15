@@ -39,6 +39,7 @@ use Shopware\Core\Framework\Mcp\Tool\BestsellerReportTool;
 use Shopware\Core\Framework\Mcp\Tool\CartCheckoutTool;
 use Shopware\Core\Framework\Mcp\Tool\CartManageTool;
 use Shopware\Core\Framework\Mcp\Tool\CheckoutMethodsTool;
+use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
 use Shopware\Core\Framework\Mcp\Tool\CustomerLookupTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
@@ -46,7 +47,7 @@ use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
-use Shopware\Core\Framework\Mcp\Tool\ConsoleCommandTool;
+use Shopware\Core\Framework\Mcp\Tool\EventIntrospectTool;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderCancelTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderSummaryTool;
@@ -300,6 +301,11 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.tool')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set(EventIntrospectTool::class)
+        ->args([service('event_dispatcher')])
+        ->tag('mcp.tool')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     // Prompt
     $services->set(ShopwareContextPrompt::class)

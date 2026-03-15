@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="Acme\AcmePlugin\Tax\AcmeTaxProvider">
+            <tag name="shopware.tax.provider" priority="200"/>
+        </service>
+
+        <service id="Acme\AcmePlugin\Subscriber\OrderFulfillmentSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Acme\AcmePlugin\Subscriber\AcmeLogTriggerSubscriber">
+            <argument type="service" id="monolog.logger"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="monolog.logger" channel="acme"/>
+        </service>
+
+        <service id="Acme\AcmePlugin\Mcp\AcmeStatusTool">
+            <argument type="service" id="Acme\AcmePlugin\Tax\AcmeTaxProvider"/>
+            <tag name="mcp.tool"/>
+        </service>
+
+        <service id="Acme\AcmePlugin\Command\DemoSeedCommand">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="tax.repository"/>
+            <tag name="console.command"/>
+        </service>
+
+    </services>
+
+</container>

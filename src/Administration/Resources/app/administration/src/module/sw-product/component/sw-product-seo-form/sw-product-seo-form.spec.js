@@ -67,7 +67,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                     'sw-loader': true,
                     'sw-media-modal-v2': true,
                     'sw-upload-listener': true,
-                    'sw-media-upload-v2': true
+                    'sw-media-upload-v2': true,
                 },
             },
         });

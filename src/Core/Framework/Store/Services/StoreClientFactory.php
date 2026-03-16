@@ -65,7 +65,7 @@ class StoreClientFactory
         return static function (callable $handler) use ($fn): callable {
             /** @var callable(RequestInterface, array<mixed>): Promise $handler */
             return static function (RequestInterface $request, array $options) use ($handler, $fn) {
-                return $handler($request, $options)->then(fn ($response) => $fn($response, $request));
+                return $handler($request, $options)->then(static fn ($response) => $fn($response, $request));
             };
         };
     }

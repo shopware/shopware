@@ -61,7 +61,7 @@ class CartLineItemControllerBench extends AbstractBenchCase
             ],
         ];
 
-        $this->context->getContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($product): void {
+        $this->context->getContext()->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($product): void {
             static::getContainer()->get('product.repository')->create([$product], $context);
         });
 
@@ -114,7 +114,7 @@ class CartLineItemControllerBench extends AbstractBenchCase
                 ],
             ],
         ];
-        $this->context->getContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($promotion): void {
+        $this->context->getContext()->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($promotion): void {
             static::getContainer()->get('promotion.repository')->create([$promotion], $context);
         });
 

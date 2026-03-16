@@ -18,12 +18,12 @@ class PropertyGroupOptionCollection extends EntityCollection
      */
     public function getPropertyGroupIds(): array
     {
-        return $this->fmap(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroupId());
+        return $this->fmap(static fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroupId());
     }
 
     public function filterByGroupId(string $id): self
     {
-        return $this->filter(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroupId() === $id);
+        return $this->filter(static fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroupId() === $id);
     }
 
     /**
@@ -31,18 +31,18 @@ class PropertyGroupOptionCollection extends EntityCollection
      */
     public function getMediaIds(): array
     {
-        return $this->fmap(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getMediaId());
+        return $this->fmap(static fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getMediaId());
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getMediaId() === $id);
+        return $this->filter(static fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getMediaId() === $id);
     }
 
     public function getGroups(): PropertyGroupCollection
     {
         return new PropertyGroupCollection(
-            $this->fmap(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroup())
+            $this->fmap(static fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroup())
         );
     }
 

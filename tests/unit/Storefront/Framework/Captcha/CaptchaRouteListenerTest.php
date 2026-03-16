@@ -39,7 +39,7 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -62,7 +62,7 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -104,7 +104,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -170,7 +170,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -227,7 +227,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -276,7 +276,7 @@ class CaptchaRouteListenerTest extends TestCase
         $request = new Request();
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );

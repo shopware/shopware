@@ -53,7 +53,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             throw ElasticsearchException::emptyQuery();
         }
 
-        $configs = array_map(function (array $item): SearchFieldConfig {
+        $configs = array_map(static function (array $item): SearchFieldConfig {
             return new SearchFieldConfig(
                 $item['field'],
                 $item['ranking'],

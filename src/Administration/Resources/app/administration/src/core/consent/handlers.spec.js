@@ -51,7 +51,7 @@ describe('src/core/consent/handlers.ts', () => {
             product_analytics_state: 'accepted',
             product_analytics_changed: true,
             time_spent_on_modal: 30000,
-        });
+        }, expect.any(Number));
     });
 
     it.each([
@@ -104,13 +104,13 @@ describe('src/core/consent/handlers.ts', () => {
             new ConsentEvent('consent_legal_link_clicked', {
                 link_target: 'privacy_policy',
                 source: 'modal',
-            }, expect.any(Number)),
+            }),
         );
 
         expect(anonymousAmplitude.track).toHaveBeenCalledWith('consent_legal_link_clicked', {
             link_target: 'privacy_policy',
             source: 'modal',
-        });
+        }, expect.any(Number));
     });
 
     it('ignores fake/invalid consent events', () => {
@@ -120,7 +120,7 @@ describe('src/core/consent/handlers.ts', () => {
         const pushConsentEventToAmplitude = createConsentEventHandler(anonymousAmplitude);
 
         pushConsentEventToAmplitude({
-            eventName: 'consent_decision_made',
+            eventName: 'haha I am a fake event',
             payload: {
                 option: 'user_tracking',
                 decision: 'accepted',

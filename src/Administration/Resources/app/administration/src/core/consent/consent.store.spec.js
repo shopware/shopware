@@ -81,7 +81,7 @@ describe('/core/consent/consent.store', () => {
                     consentName: 'test_consent',
                     status: 'accepted',
                     newValue: expectedUpdatedValue,
-                }),
+                }, new Date()),
             );
         });
 
@@ -154,7 +154,7 @@ describe('/core/consent/consent.store', () => {
                         consentName: 'test_consent',
                         status: 'revoked',
                         newValue: expectedUpdatedValue,
-                    }),
+                    }, new Date()),
                 );
             });
 

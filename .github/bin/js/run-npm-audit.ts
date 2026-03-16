@@ -285,7 +285,7 @@ export function runNpmAudit(options: NpmAuditOptions = {}): void {
 
     const advisories = buildRootAdvisories(audit);
 
-    if (remaining.length === 0 || advisories.length === 0) {
+    if (remaining.length === 0 && advisories.length === 0) {
         console.log(`No vulnerabilities (${totalIgnored} ignored).`);
         return;
     }

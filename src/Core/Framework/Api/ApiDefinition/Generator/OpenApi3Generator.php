@@ -159,15 +159,24 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $schemas = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
             $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
-            // Get the Read schema (base entity name) which contains all properties and relationships
+            // Prefer JsonApi schema for relationship extraction (has JSON:API relationships wrapper),
+            // fall back to Read schema for entities without JsonApi (e.g. store-api flat schemas)
+            $jsonApiSchema = $schemas[$schemaName . 'JsonApi'] ?? null;
             $readSchema = $schemas[$schemaName] ?? null;
-            if ($readSchema === null) {
+
+            $sourceSchema = $jsonApiSchema ?? $readSchema;
+            if ($sourceSchema === null) {
                 throw ApiException::invalidSchemaStructure($definition->getEntityName());
             }
-            $readSchemaData = json_decode($readSchema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+            $sourceSchemaData = json_decode($sourceSchema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
 
-            // Extract properties from allOf composition (new structure) or direct properties (legacy/store-api)
-            $schema = $this->extractPropertiesFromSchemaData($readSchemaData, $schemas);
+            // For JsonApi schema: extract from allOf[1].properties (matches trunk behavior)
+            // For Read/flat schema: extract from allOf composition or direct properties
+            if ($jsonApiSchema !== null && isset($sourceSchemaData['allOf'][1]['properties'])) {
+                $schema = $sourceSchemaData['allOf'][1]['properties'];
+            } else {
+                $schema = $this->extractPropertiesFromSchemaData($sourceSchemaData, $schemas);
+            }
 
             $relationships = [];
             if (\array_key_exists('relationships', $schema)) {

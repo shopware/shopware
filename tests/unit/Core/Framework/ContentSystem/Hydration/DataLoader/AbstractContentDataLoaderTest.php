@@ -157,12 +157,7 @@ class GenericStubLoader extends AbstractContentDataLoader
     }
 }
 
-/**
- * @internal
- *
- * @phpstan-ignore missingType.generics
- */
-class NoDocblockStubLoader extends AbstractContentDataLoader
+class NoDocblockStubLoader extends AbstractContentDataLoader // @phpstan-ignore missingType.generics, shopware.internalClass
 {
     public static function getRequirementType(): string
     {

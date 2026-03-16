@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+console.log('page loading screen script loaded');
+
 (() => {
     const pageLoadTime = Date.now();
 
@@ -25,15 +27,36 @@
     };
 
     const onError = (event) => {
+        console.log('onError', event);
         addErrorMessage(event.message);
     };
 
+    const rejectionReasonToString = (reason) => {
+        try {
+            if (reason instanceof Error) {
+                return reason.message || reason.name || 'Unknown error';
+            }
+
+            if (reason != null && typeof reason.message === 'string') {
+                return reason.message || 'Unknown error';
+            }
+
+            return String(reason ?? 'Unknown error');
+        } catch {
+            // Handles exotic objects like Object.create(null) that throw on String() conversion
+            return 'Unknown error';
+        }
+    }
+
     const onUnhandledRejection = (event) => {
-        addErrorMessage(event.reason);
+        const message = rejectionReasonToString(event.reason);
+        addErrorMessage(message);
     };
 
     window.addEventListener('error', onError);
     window.addEventListener('unhandledrejection', onUnhandledRejection);
+
+    console.log('page loading screen initialized');
 
     window.removePageLoadingIndicator = () => {
         // `DELAY` matches animation-delay that is used in `administration/index.html`

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Category\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
@@ -20,8 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -60,27 +57,27 @@ class CategorySubscriberTest extends TestCase
         static::assertSame($expectedEvents, CategorySubscriber::getSubscribedEvents());
     }
 
-    #[DataProvider('salesChannelCategoryLoadedEventDataProvider')]
     public function testSalesChannelCategoryLoadedEvent(
-        SystemConfigService $systemConfigService,
-        SalesChannelCategoryEntity $categoryEntity,
-        ?string $cmsPageIdBeforeEvent,
-        ?string $cmsPageIdAfterEvent,
-        string $salesChannelId
     ): void {
-        $categorySubscriber = new CategorySubscriber($systemConfigService, $this->createMock(CategoryUrlGenerator::class));
+        $systemConfigService = self::getSystemConfigServiceMock();
 
-        static::assertSame($cmsPageIdBeforeEvent, $categoryEntity->getCmsPageId());
+        $categoryUrlGenerator = $this->createMock(CategoryUrlGenerator::class);
+        $categoryUrlGenerator->method('generate')->willReturn('https://example.com');
+
+        $categorySubscriber = new CategorySubscriber($systemConfigService, $categoryUrlGenerator);
+
+        $category = new SalesChannelCategoryEntity();
+        $category->setId($this->ids->getBytes('category'));
 
         $event = new SalesChannelEntityLoadedEvent(
             new SalesChannelCategoryDefinition(),
-            [$categoryEntity],
-            $this->getSalesChannelContext($salesChannelId)
+            [$category],
+            Generator::generateSalesChannelContext()
         );
 
         $categorySubscriber->salesChannelCategoryLoaded($event);
 
-        static::assertSame($cmsPageIdAfterEvent, $categoryEntity->getCmsPageId());
+        static::assertSame('https://example.com', $category->getSeoUrl());
     }
 
     public function testInsertWithoutCmsPageIdAddsDefault(): void
@@ -282,75 +279,15 @@ class CategorySubscriberTest extends TestCase
         static::assertArrayNotHasKey('cms_page_id', $updateUnrelated->getPayload());
     }
 
-    /**
-     * @return iterable<string, array{SystemConfigService, SalesChannelCategoryEntity, string|null, string|null, string}>
-     */
-    public static function salesChannelCategoryLoadedEventDataProvider(): iterable
+    private static function getSystemConfigServiceMock(?string $cmsPageId = null): SystemConfigService
     {
-        yield 'It does not set cms page id if already set by the user' => [
-            self::getSystemConfigServiceMock(),
-            self::getCategory('foobar'),
-            'foobar',
-            'foobar',
-            'salesChannelId',
-        ];
-
-        yield 'It uses salesChannel specific default' => [
-            self::getSystemConfigServiceMock('salesChannelId', 'salesChannelSpecificDefault'),
-            self::getCategory(null),
-            null,
-            'salesChannelSpecificDefault',
-            'salesChannelId',
-        ];
-
-        $systemConfigWithOnlyGlobalDefault = self::getSystemConfigServiceMock('nonExistentSalesChannel', 'foobar');
-        $systemConfigWithOnlyGlobalDefault->set(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, 'globalDefaultCmsPage');
-
-        yield 'It uses global default when no sales channel specific default is set' => [
-            $systemConfigWithOnlyGlobalDefault,
-            self::getCategory(null),
-            null,
-            'globalDefaultCmsPage',
-            'testSalesChannelId',
-        ];
-    }
-
-    private static function getSystemConfigServiceMock(?string $salesChannelId = null, ?string $cmsPageId = null): SystemConfigService
-    {
-        if ($salesChannelId === null && $cmsPageId === null) {
+        if ($cmsPageId === null) {
             return new StaticSystemConfigService([]);
         }
 
-        if ($salesChannelId === null) {
-            return new StaticSystemConfigService([
-                CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $cmsPageId,
-            ]);
-        }
-
         return new StaticSystemConfigService([
-            $salesChannelId => [
-                CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $cmsPageId,
-            ],
+            CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $cmsPageId,
         ]);
-    }
-
-    private static function getCategory(?string $cmsPageId): SalesChannelCategoryEntity
-    {
-        $category = new SalesChannelCategoryEntity();
-
-        if ($cmsPageId) {
-            $category->setCmsPageId($cmsPageId);
-        }
-
-        return $category;
-    }
-
-    private function getSalesChannelContext(string $salesChanelId): SalesChannelContext
-    {
-        $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId($salesChanelId);
-
-        return Generator::generateSalesChannelContext(salesChannel: $salesChannelEntity);
     }
 
     private function createSubscriber(?string $defaultCmsPageId): CategorySubscriber

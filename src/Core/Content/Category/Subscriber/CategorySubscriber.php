@@ -44,25 +44,11 @@ class CategorySubscriber implements EventSubscriberInterface
     public function salesChannelCategoryLoaded(SalesChannelEntityLoadedEvent $event): void
     {
         $salesChannel = $event->getSalesChannelContext()->getSalesChannel();
-        $salesChannelId = $salesChannel->getId();
-
-        $systemDefaultLayout = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
-        $salesChannelDefaultLayout = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, $salesChannelId);
 
         foreach ($event->getEntities() as $category) {
             $category->assign([
                 'seoUrl' => $this->categoryUrlGenerator->generate($category, $salesChannel),
             ]);
-
-            if ($salesChannelDefaultLayout === '') {
-                continue;
-            }
-
-            if ($category->getCmsPageId() !== null && $category->getCmsPageId() !== $systemDefaultLayout) {
-                continue;
-            }
-
-            $category->setCmsPageId($salesChannelDefaultLayout);
         }
     }
 

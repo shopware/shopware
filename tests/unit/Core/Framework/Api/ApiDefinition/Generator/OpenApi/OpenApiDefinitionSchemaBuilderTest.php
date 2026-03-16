@@ -382,8 +382,8 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('required', $createSchema);
         static::assertContains('name', $createSchema['required']);
 
-        // 'type' is immutable but not required, should not be in required array
-        static::assertNotContains('type', $createSchema['required']);
+        // 'type' is immutable — ALL immutable fields are required at creation (can't set them later)
+        static::assertContains('type', $createSchema['required']);
 
         // 'label' is required and modifiable, should also be in required array
         static::assertContains('label', $createSchema['required']);
@@ -551,6 +551,161 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         // Serialize the full allOf[1] section and check it contains a 'relationships' entry
         $allOfSection = json_encode($jsonApiSchema['allOf'][1] ?? [], \JSON_THROW_ON_ERROR);
         static::assertStringContainsString('relationships', $allOfSection);
+    }
+
+    public function testReadSchemaHasAllPropertiesRequired(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
+            '/immutable-test',
+            false
+        );
+
+        $readSchema = json_decode($schema['ImmutableTest']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Read schema must have ALL properties as required — API always returns every field, even if null
+        static::assertArrayHasKey('required', $readSchema);
+
+        $required = $readSchema['required'];
+
+        // Read-only fields
+        static::assertContains('id', $required);
+        static::assertContains('createdAt', $required);
+        static::assertContains('updatedAt', $required);
+
+        // Modifiable fields
+        static::assertContains('description', $required);
+        static::assertContains('label', $required);
+
+        // Immutable fields
+        static::assertContains('name', $required);
+        static::assertContains('type', $required);
+    }
+
+    public function testReadSchemaWithoutImmutableFieldsHasAllPropertiesRequired(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(SimpleDefinition::class),
+            '/simple',
+            false
+        );
+
+        $readSchema = json_decode($schema['Simple']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Read schema must have ALL properties as required
+        static::assertArrayHasKey('required', $readSchema);
+
+        $required = $readSchema['required'];
+
+        // Read-only fields
+        static::assertContains('id', $required);
+        static::assertContains('readOnlyField', $required);
+        static::assertContains('runtimeField', $required);
+        static::assertContains('childCount', $required);
+
+        // Modifiable fields
+        static::assertContains('stringField', $required);
+        static::assertContains('intField', $required);
+        static::assertContains('floatField', $required);
+        static::assertContains('boolField', $required);
+        static::assertContains('requiredField', $required);
+    }
+
+    public function testAllImmutableFieldsRequiredInCreateSchema(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
+            '/immutable-test',
+            false
+        );
+
+        $createSchema = json_decode($schema['ImmutableTestCreate']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('required', $createSchema);
+
+        // ALL immutable fields must be required at creation — they can't be changed afterwards
+        static::assertContains('name', $createSchema['required']);
+        static::assertContains('type', $createSchema['required']);
+
+        // Modifiable required fields should also be in required
+        static::assertContains('label', $createSchema['required']);
+    }
+
+    public function testStoreApiSchemaIsFlat(): void
+    {
+        // Store API must produce the exact same flat schema as before the Update/Create/Read split
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
+            '/immutable-test',
+            true // forSalesChannel = true
+        );
+
+        // Store API should NOT have Update/Create schemas
+        static::assertArrayNotHasKey('ImmutableTestUpdate', $schema);
+        static::assertArrayNotHasKey('ImmutableTestCreate', $schema);
+
+        // Store API schema should be flat (no allOf composition)
+        $readSchema = json_decode($schema['ImmutableTest']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('properties', $readSchema);
+        static::assertArrayNotHasKey('allOf', $readSchema);
+
+        // Store API id field should NOT have readOnly flag (preserves original behavior)
+        $properties = $readSchema['properties'];
+        static::assertArrayHasKey('id', $properties);
+        static::assertArrayNotHasKey('readOnly', $properties['id']);
+
+        // Immutable fields should NOT have "Immutable" description in store-api (no categorization)
+        static::assertArrayHasKey('name', $properties);
+        $nameDescription = $properties['name']['description'] ?? '';
+        static::assertStringNotContainsString('Immutable', $nameDescription);
+    }
+
+    public function testStoreApiPreservesOriginalRequiredBehavior(): void
+    {
+        // Store API required should only include fields with the Required flag, not all fields
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
+            '/immutable-test',
+            true // forSalesChannel = true
+        );
+
+        $readSchema = json_decode($schema['ImmutableTest']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Only Required-flagged fields should be in required array
+        static::assertArrayHasKey('required', $readSchema);
+        static::assertContains('name', $readSchema['required']); // has Required flag
+        static::assertContains('label', $readSchema['required']); // has Required flag
+        static::assertContains('id', $readSchema['required']); // has Required flag on ImmutableFieldsDefinition
+
+        // 'type' is immutable but NOT Required-flagged, should NOT be in store-api required
+        static::assertNotContains('type', $readSchema['required']);
+
+        // createdAt/updatedAt should not be in required (filtered out by type check)
+        static::assertNotContains('createdAt', $readSchema['required']);
+    }
+
+    public function testJsonApiSchemaHasAllPropertiesRequired(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ImmutableFieldsDefinition::class),
+            '/immutable-test',
+            false
+        );
+
+        $jsonApiSchema = json_decode($schema['ImmutableTestJsonApi']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // JsonApi schema's allOf[1] should have all properties required
+        static::assertArrayHasKey('allOf', $jsonApiSchema);
+        static::assertArrayHasKey('required', $jsonApiSchema['allOf'][1]);
+
+        $required = $jsonApiSchema['allOf'][1]['required'];
+        static::assertContains('id', $required);
+        static::assertContains('name', $required);
+        static::assertContains('type', $required);
+        static::assertContains('description', $required);
+        static::assertContains('label', $required);
+        static::assertContains('createdAt', $required);
+        static::assertContains('updatedAt', $required);
     }
 
     /**

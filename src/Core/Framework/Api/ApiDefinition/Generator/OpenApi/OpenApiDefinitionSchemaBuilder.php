@@ -104,7 +104,13 @@ class OpenApiDefinitionSchemaBuilder
         $uuid = Uuid::fromStringToHex($schemaName);
         $exampleDetailPath = $path . '/' . $uuid;
 
-        $fieldData = $this->collectFieldData($definition, $forSalesChannel, $exampleDetailPath);
+        // For Store API or non-JSON_API type, use the original flat schema generation
+        // This preserves backward-compatible behavior where all fields are in a single flat schema
+        if ($forSalesChannel || $apiType !== DefinitionService::TYPE_JSON_API) {
+            return $this->generateFlatSchema($definition, $schemaName, $exampleDetailPath, $forSalesChannel, $onlyFlat, $apiType);
+        }
+
+        $fieldData = $this->collectFieldData($definition, $exampleDetailPath);
 
         // In some entities all fields are hidden, but not the id. This creates unwanted schemas.
         // readOnlyAttributes always contains at least the id property, so check if there's anything beyond it.
@@ -113,83 +119,54 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $schema = [];
+        $hasImmutableFields = !empty($fieldData['immutableAttributes']);
 
-        // For Store API (sales channel), only generate a flat Read schema without Update/Create
-        // Store API is read-only for entity resources, so Update/Create schemas are not needed
-        if ($forSalesChannel) {
-            return $this->buildStoreApiSchema(
+        // Generate Update schema (modifiable fields only, no required - used for PATCH partial updates)
+        $schema[$schemaName . 'Update'] = $this->buildUpdateSchema(
+            $schemaName,
+            $fieldData['updateAttributes'],
+            $definition->since()
+        );
+
+        // Generate Create schema only when entity has immutable fields (3-part schema)
+        // When no immutable fields, use 2-part schema (Update + Read)
+        if ($hasImmutableFields) {
+            $schema[$schemaName . 'Create'] = $this->buildCreateSchema(
                 $schemaName,
-                $fieldData['allAttributes'],
-                $fieldData['allRequiredAttributes'],
-                $fieldData['relationships'],
-                $definition->since(),
-                $onlyFlat,
-                $apiType
+                $fieldData['immutableAttributes'],
+                $fieldData['createRequiredAttributes'],
+                $definition->since()
             );
         }
 
-        // For TYPE_JSON_API (Admin API), generate Update/Create/Read schemas with allOf composition
-        // For TYPE_JSON, generate a flat schema (backward compatible)
-        if ($apiType === DefinitionService::TYPE_JSON_API) {
-            $hasImmutableFields = !empty($fieldData['immutableAttributes']);
+        // Generate Read schema - all fields including technical read-only (id, createdAt, updatedAt) and relationships
+        // References Create (when immutable fields exist) or Update (when no immutable fields)
+        $writableSchemaRef = $hasImmutableFields ? $schemaName . 'Create' : $schemaName . 'Update';
+        $schema[$schemaName] = $this->buildReadSchema(
+            $schemaName,
+            $fieldData['readOnlyAttributes'],
+            $fieldData['relationships'],
+            $definition->since(),
+            $writableSchemaRef,
+            $fieldData['readAllPropertyNames']
+        );
 
-            // Generate Update schema (modifiable fields only, no required - used for PATCH partial updates)
-            $schema[$schemaName . 'Update'] = $this->buildUpdateSchema(
-                $schemaName,
-                $fieldData['updateAttributes'],
-                $definition->since()
-            );
+        // Store metadata for path builder to determine POST request body schema
+        $this->lastPostSchemaRef = $hasImmutableFields
+            ? '#/components/schemas/' . $schemaName . 'Create'
+            : '#/components/schemas/' . $schemaName . 'Update';
+        $this->lastPostRequiredFields = $hasImmutableFields
+            ? []
+            : $fieldData['createRequiredAttributes'];
 
-            // Generate Create schema only when entity has immutable fields (3-part schema)
-            // When no immutable fields, use 2-part schema (Update + Read)
-            if ($hasImmutableFields) {
-                $schema[$schemaName . 'Create'] = $this->buildCreateSchema(
-                    $schemaName,
-                    $fieldData['immutableAttributes'],
-                    $fieldData['createRequiredAttributes'],
-                    $definition->since()
-                );
-            }
-
-            // Generate Read schema - all fields including technical read-only (id, createdAt, updatedAt) and relationships
-            // References Create (when immutable fields exist) or Update (when no immutable fields)
-            $writableSchemaRef = $hasImmutableFields ? $schemaName . 'Create' : $schemaName . 'Update';
-            $schema[$schemaName] = $this->buildReadSchema(
-                $schemaName,
-                $fieldData['readOnlyAttributes'],
-                $fieldData['relationships'],
-                $definition->since(),
-                $writableSchemaRef
-            );
-
-            // Store metadata for path builder to determine POST request body schema
-            $this->lastPostSchemaRef = $hasImmutableFields
-                ? '#/components/schemas/' . $schemaName . 'Create'
-                : '#/components/schemas/' . $schemaName . 'Update';
-            $this->lastPostRequiredFields = $hasImmutableFields
-                ? []
-                : $fieldData['createRequiredAttributes'];
-
-            // Generate JsonApi schema for JSON:API format
-            if (!$onlyFlat) {
-                $schema[$schemaName . 'JsonApi'] = $this->buildJsonApiSchema(
-                    $schemaName,
-                    $fieldData['allAttributes'],
-                    $fieldData['allRequiredAttributes'],
-                    $fieldData['relationships'],
-                    $definition->since()
-                );
-            }
-        } else {
-            // TYPE_JSON: Build flat schema (backward compatible structure)
-            return $this->buildStoreApiSchema(
+        // Generate JsonApi schema for JSON:API format
+        if (!$onlyFlat) {
+            $schema[$schemaName . 'JsonApi'] = $this->buildJsonApiSchema(
                 $schemaName,
                 $fieldData['allAttributes'],
-                $fieldData['allRequiredAttributes'],
+                $fieldData['readAllPropertyNames'],
                 $fieldData['relationships'],
-                $definition->since(),
-                $onlyFlat,
-                $apiType
+                $definition->since()
             );
         }
 
@@ -213,10 +190,11 @@ class OpenApiDefinitionSchemaBuilder
      *     readOnlyAttributes: Property[],
      *     allAttributes: Property[],
      *     allRequiredAttributes: string[],
+     *     readAllPropertyNames: string[],
      *     relationships: Property[]
      * }
      */
-    private function collectFieldData(EntityDefinition $definition, bool $forSalesChannel, string $exampleDetailPath): array
+    private function collectFieldData(EntityDefinition $definition, string $exampleDetailPath): array
     {
         $updateAttributes = [];
         $updateRequiredAttributes = [];
@@ -231,7 +209,7 @@ class OpenApiDefinitionSchemaBuilder
         $defaults = $definition->getDefaults();
 
         foreach ($definition->getFields() as $field) {
-            if (!$this->shouldFieldBeIncluded($field, $forSalesChannel)) {
+            if (!$this->shouldFieldBeIncluded($field, false)) {
                 continue;
             }
 
@@ -323,12 +301,13 @@ class OpenApiDefinitionSchemaBuilder
                 }
             } elseif ($isImmutable) {
                 // Immutable fields go only to immutableAttributes (Create schema extends Update with these)
+                // All immutable fields are required at creation time — they cannot be changed afterwards
                 $immutableAttr = clone $attr;
                 $immutableAttr->description = ($attr->description ? $attr->description . ' ' : '') . 'Editable only on creation. Immutable afterwards.';
                 $immutableAttributes[] = $immutableAttr;
                 $allAttributes[] = clone $attr;
+                $immutableRequiredAttributes[] = $field->getPropertyName();
                 if ($isRequired) {
-                    $immutableRequiredAttributes[] = $field->getPropertyName();
                     $allRequiredAttributes[] = $field->getPropertyName();
                 }
             } else {
@@ -392,6 +371,22 @@ class OpenApiDefinitionSchemaBuilder
             $allAttributes[] = $this->getRelationShipProperty($relationship);
         }
 
+        // Collect ALL property names for Read schema's required array
+        // The API always returns every field (even if null), so all properties are required in responses
+        $readAllPropertyNames = [];
+        foreach ($readOnlyAttributes as $attr) {
+            $readAllPropertyNames[] = $attr->property;
+        }
+        foreach ($updateAttributes as $attr) {
+            $readAllPropertyNames[] = $attr->property;
+        }
+        foreach ($immutableAttributes as $attr) {
+            $readAllPropertyNames[] = $attr->property;
+        }
+        foreach ($relationships as $rel) {
+            $readAllPropertyNames[] = $rel->property;
+        }
+
         return [
             'updateAttributes' => $updateAttributes,
             'updateRequiredAttributes' => array_values(array_unique($updateRequiredAttributes)),
@@ -401,6 +396,7 @@ class OpenApiDefinitionSchemaBuilder
             'readOnlyAttributes' => $readOnlyAttributes,
             'allAttributes' => $allAttributes,
             'allRequiredAttributes' => array_values(array_unique($allRequiredAttributes)),
+            'readAllPropertyNames' => array_values(array_unique($readAllPropertyNames)),
             'relationships' => $relationships,
         ];
     }
@@ -442,8 +438,9 @@ class OpenApiDefinitionSchemaBuilder
      * @param Property[] $readOnlyAttributes Read-only fields (id, createdAt, updatedAt, etc.)
      * @param Property[] $relationships Relationship properties (associations)
      * @param string $writableSchemaRef The schema name to reference for writable fields (e.g. 'ProductCreate' or 'ProductUpdate')
+     * @param string[] $requiredPropertyNames All property names — API always returns every field, so all are required
      */
-    private function buildReadSchema(string $schemaName, array $readOnlyAttributes, array $relationships, ?string $since, string $writableSchemaRef): Schema
+    private function buildReadSchema(string $schemaName, array $readOnlyAttributes, array $relationships, ?string $since, string $writableSchemaRef, array $requiredPropertyNames = []): Schema
     {
         $description = 'All fields of ' . $schemaName . ' entity including read-only technical fields.';
         if (!empty($since)) {
@@ -463,7 +460,7 @@ class OpenApiDefinitionSchemaBuilder
         }
         $readOnlySchema = new Schema($readOnlySchemaConfig);
 
-        return new Schema([
+        $schema = new Schema([
             'schema' => $schemaName,
             'description' => $description,
             'allOf' => [
@@ -471,19 +468,149 @@ class OpenApiDefinitionSchemaBuilder
                 new Schema(['ref' => '#/components/schemas/' . $writableSchemaRef]),
             ],
         ]);
+
+        // All properties are required in Read schemas — the API always returns every field, even if null
+        if ($requiredPropertyNames !== []) {
+            $schema->required = $requiredPropertyNames;
+        }
+
+        return $schema;
     }
 
     /**
-     * Builds a flat schema for Store API (sales channel) without Update/Create separation.
-     * Store API is read-only for entity resources, so we don't need write operation schemas.
+     * Generates a flat (non-composed) schema for Store API and TYPE_JSON.
+     * Preserves the original schema generation behavior without Update/Create/Read split.
+     * This ensures Store API output is not affected by the Admin API schema composition changes.
+     *
+     * @return array<string, Schema>
+     */
+    private function generateFlatSchema(
+        EntityDefinition $definition,
+        string $schemaName,
+        string $exampleDetailPath,
+        bool $forSalesChannel,
+        bool $onlyFlat,
+        string $apiType
+    ): array {
+        $attributes = [];
+        $requiredAttributes = [];
+        $relationships = [];
+        $extensions = [];
+
+        $defaults = $definition->getDefaults();
+
+        foreach ($definition->getFields() as $field) {
+            if (!$this->shouldFieldBeIncluded($field, $forSalesChannel)) {
+                continue;
+            }
+
+            if ($field->is(Extension::class)) {
+                $extensions[] = $field;
+
+                continue;
+            }
+
+            if (
+                $field->is(Required::class)
+                && !$field instanceof VersionField
+                && !$field instanceof ReferenceVersionField
+                && !$field instanceof CreatedAtField
+                && !$field instanceof UpdatedAtField
+                && !\array_key_exists($field->getPropertyName(), $defaults)
+            ) {
+                $requiredAttributes[] = $field->getPropertyName();
+            }
+
+            if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
+                $relationships[] = $this->createToOneLinkage($field, $exampleDetailPath);
+
+                continue;
+            }
+
+            if ($field instanceof AssociationField) {
+                $relationships[] = $this->createToManyLinkage($field, $exampleDetailPath);
+
+                continue;
+            }
+
+            if ($field instanceof TranslatedField && $definition->getTranslationDefinition()) {
+                $field = $definition->getTranslationDefinition()->getFields()->get($field->getPropertyName());
+            }
+
+            if ($field === null) {
+                continue;
+            }
+
+            if ($field instanceof JsonField) {
+                $attributes[] = $this->resolveJsonField($field);
+
+                continue;
+            }
+
+            $attr = $this->getPropertyByField($field);
+
+            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || $this->isWriteProtected($field)) {
+                $attr->readOnly = true;
+            }
+
+            if ($this->isDeprecated($field)) {
+                $attr->deprecated = true;
+            }
+
+            $attributes[] = $attr;
+        }
+
+        $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
+
+        if (!empty($extensionAttributes)) {
+            $attributes[] = new Property([
+                'property' => 'extensions',
+                'type' => 'object',
+                'properties' => $extensionAttributes,
+            ]);
+        }
+
+        if ($definition->getTranslationDefinition()) {
+            foreach ($definition->getTranslationDefinition()->getFields() as $field) {
+                $propertyName = $field->getPropertyName();
+                if (\in_array($propertyName, ['translations', 'id'], true)) {
+                    continue;
+                }
+
+                if (
+                    $field->is(Required::class)
+                    && !$field instanceof VersionField
+                    && !$field instanceof ReferenceVersionField
+                    && !$field instanceof CreatedAtField
+                    && !$field instanceof UpdatedAtField
+                    && !$field instanceof FkField
+                ) {
+                    $requiredAttributes[] = $propertyName;
+                }
+            }
+        }
+
+        $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
+        $requiredAttributes = array_values(array_unique($requiredAttributes));
+
+        // In some entities all fields are hidden, but not the id. This creates unwanted schemas.
+        if (\count($attributes) === 1 && $attributes[0]->property === 'id') {
+            return [];
+        }
+
+        return $this->buildFlatSchema($schemaName, $attributes, $requiredAttributes, $relationships, $definition->since(), $onlyFlat, $apiType);
+    }
+
+    /**
+     * Builds a flat schema structure without Update/Create separation.
      *
      * @param Property[] $attributes All attributes
      * @param string[] $requiredAttributes Required field names
      * @param Property[] $relationships Relationship properties
      *
-     * @return Schema[]
+     * @return array<string, Schema>
      */
-    private function buildStoreApiSchema(
+    private function buildFlatSchema(
         string $schemaName,
         array $attributes,
         array $requiredAttributes,
@@ -494,7 +621,19 @@ class OpenApiDefinitionSchemaBuilder
     ): array {
         $schema = [];
 
-        // Add relationship properties to attributes
+        // Generate JsonApi schema BEFORE adding relationships as inline properties
+        // JsonApi uses relationships as a separate sub-object, not inline
+        if (!$onlyFlat && $apiType === DefinitionService::TYPE_JSON_API) {
+            $schema[$schemaName . 'JsonApi'] = $this->buildJsonApiSchema(
+                $schemaName,
+                $attributes,
+                $requiredAttributes,
+                $relationships,
+                $since
+            );
+        }
+
+        // Add relationship properties to attributes for flat schema
         foreach ($relationships as $relationship) {
             $attributes[] = $this->getRelationShipProperty($relationship);
         }
@@ -518,17 +657,6 @@ class OpenApiDefinitionSchemaBuilder
 
         if ($requiredAttributes !== []) {
             $schema[$schemaName]->required = $requiredAttributes;
-        }
-
-        // Generate JsonApi schema for JSON:API format
-        if (!$onlyFlat && $apiType === DefinitionService::TYPE_JSON_API) {
-            $schema[$schemaName . 'JsonApi'] = $this->buildJsonApiSchema(
-                $schemaName,
-                $attributes,
-                $requiredAttributes,
-                $relationships,
-                $since
-            );
         }
 
         return $schema;

@@ -43,7 +43,7 @@
                 class="sw-thumbnail-nav__button {% if loop.first %}is--active{% endif %}" 
                 type="button"
                 data-gallery-thumbnail-button="true"
-                data-target="{{ mediaItem.id }}"
+                data-target="{{ loop.index }}"
             >
                 <twig:Sw:Media 
                     class="sw-thumbnail-nav__media"

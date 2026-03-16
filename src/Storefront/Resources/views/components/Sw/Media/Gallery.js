@@ -8,15 +8,30 @@ export default class MediaGallery extends ShopwareComponent {
     init() {
         this.thumbnailButtons = this.el.querySelectorAll('[data-gallery-thumbnail-button]');
         this.previewsElements = this.el.querySelectorAll('.sw-media-gallery__preview');
+        this.previewsContainer = this.el.querySelector('.sw-media-gallery__previews');
+        this.previewItems = this.el.querySelectorAll('.sw-media-gallery__preview-item');
+        this.counterBadge = this.el.querySelector('.sw-media-gallery__preview-item-badge');
+        this.lightboxElement = this.el.querySelector('.sw-media-gallery__lightbox');
 
-        this.initThumbnailSwitching();
+        this.initThumbnailNav();
         this.initPreviewZoom();
 
-        this.initModalZoom();
+        this.initLightbox()
+        // this.initLightboxZoom();
         this.initThumbnailNavScroller();
+        this.initThumbnailNavScrollSync();
+        this.initNavButtons();
     }
 
-    initModalZoom() {
+    initLightbox() {
+        this.lightboxElement.addEventListener('show.bs.modal', (event) => {
+            // Show the image in the lightbox with the matching id by scrolling to the item
+            
+            this.initLightboxZoom();
+        });
+    }
+
+    initLightboxZoom() {
         const modalImgs = document.querySelectorAll('.sw-media-gallery__fullscreen-image-media');
         modalImgs.forEach((img) => {
                 img.addEventListener('click', () => {
@@ -25,19 +40,43 @@ export default class MediaGallery extends ShopwareComponent {
         });
     }
 
-    initThumbnailSwitching() {
+    scrollToIndex(index) {
+        const clamped = Math.max(0, Math.min(index, this.previewItems.length - 1));
+        this.previewsContainer.scrollTo({
+            left: clamped * this.previewsContainer.clientWidth,
+            behavior: 'smooth',
+        });
+    }
+
+    getCurrentIndex() {
+        return Math.round(this.previewsContainer.scrollLeft / this.previewsContainer.clientWidth);
+    }
+
+    initThumbnailNav() {
         this.thumbnailButtons.forEach((button) => {
-            button.addEventListener('mouseover', () => {
-                const targetId = button.dataset.target;
-
-                this.thumbnailButtons.forEach((btn) => {
-                    btn.classList.toggle('is--active', btn.dataset.target === targetId);
-                });
-
-                this.previewsElements.forEach((preview) => {
-                    preview.hidden = preview.dataset.mediaId !== targetId;
-                });
+            button.addEventListener('click', () => {
+                const index = parseInt(button.dataset.target, 10) - 1;
+                this.scrollToIndex(index);
             });
+        });
+    }
+
+    // When container is scrolled/swiped manually, update the thumbnail nav active state
+    initThumbnailNavScrollSync() {
+        if (!this.previewsContainer) {
+            return;
+        }
+
+        this.previewsContainer.addEventListener('scroll', () => {
+            const index = Math.round(this.previewsContainer.scrollLeft / this.previewsContainer.clientWidth);
+
+            this.thumbnailButtons.forEach((btn, i) => {
+                btn.classList.toggle('is--active', i === index);
+            });
+
+            if (this.counterBadge) {
+                this.counterBadge.textContent = `${index + 1} / ${this.previewItems.length}`;
+            }
         });
     }
 
@@ -55,9 +94,21 @@ export default class MediaGallery extends ShopwareComponent {
             img.style.transformOrigin = '0px 0px 0px';
         });
 
-        const getVisiblePreview = () =>
-            Array.from(previews).find((preview) => !preview.hidden) ?? null;
+        const getVisiblePreview = () => {
+            const index = Math.round(previewsContainer.scrollLeft / previewsContainer.clientWidth);
+            return previews[index] ?? null;
+        };
 
+        // Always reset zoom when container is scrolled
+        previewsContainer.addEventListener('scroll', () => {
+            const img = getVisiblePreview();
+            if (img) {
+                img.style.transform = 'scale(1) translate(0px, 0px)';
+                img.style.cursor = 'default';
+            }
+        });
+
+        // TODO: Stop mouseenter zoom events when container is scrolled
         previewsContainer.addEventListener('mouseenter', () => {
             const img = getVisiblePreview();
             if (img) {
@@ -101,6 +152,18 @@ export default class MediaGallery extends ShopwareComponent {
             const isScrollbarVisible = verticalNavInner.scrollHeight > verticalNavInner.clientHeight;
             verticalNavScrollControl.style.display = isScrollbarVisible ? 'block' : 'none';
         });
+    }
+
+    initNavButtons() {
+        const backward = this.el.querySelector('.sw-media-gallery__nav-button.is--backward');
+        const forward = this.el.querySelector('.sw-media-gallery__nav-button.is--forward');
+
+        if (!backward || !forward) {
+            return;
+        }
+
+        backward.addEventListener('click', () => this.scrollToIndex(this.getCurrentIndex() - 1));
+        forward.addEventListener('click', () => this.scrollToIndex(this.getCurrentIndex() + 1));
     }
 
     destroy() {

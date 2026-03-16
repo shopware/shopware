@@ -3,7 +3,7 @@
 {# @internal #}
 
 {#
-    @prop displayMode - String 'original' | 'fixedHeight'
+    @prop displayMode - String 'auto' | 'fixedHeight'
     @prop mediaItems - Array of Shopware\Core\Content\Media
     @prop thumbnailSize - Number - The size of the thumbnail in pixels
     @prop thumbnailNavigationPosition - String 'left' | 'underneath'
@@ -15,7 +15,7 @@
 
 {% props
     mediaItems,
-    displayMode = 'original',
+    displayMode = 'auto',
     thumbnailSize = 70,
     thumbnailNavigationPosition = 'left',
     showNavigationArrows = false,
@@ -24,16 +24,22 @@
     showFullScreenGallery = true,
 %}
 
+{% set lightboxId = 'sw-media-gallery-lightbox-' ~ random() %}
+{% set singleMedia = mediaItems|length == 1 %}
+
 {% set mediaGalleryCVA = cva({
     base: 'sw-media-gallery',
     variants: {
         thumbnailNavigationPosition: {
             left: 'sw-media-gallery--thumbnail-nav-left',
-            underneath: 'sw-media-gallery--thumbnail-nav-underneath',
+            bottom: 'sw-media-gallery--thumbnail-nav-bottom',
         },
         displayMode: {
-            original: 'sw-media-gallery--display-mode-original',
+            auto: 'sw-media-gallery--display-mode-auto',
             fixedHeight: 'sw-media-gallery--display-mode-fixed-height',
+        },
+        singleMedia: {
+            true: 'sw-media-gallery--single-media',
         },
     },
 }) %}
@@ -44,39 +50,69 @@
 } %}
 
 {% set defaultAttributes = {
-    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode }),
+    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, singleMedia }),
     'data-component': 'Sw:Media:Gallery',
     'data-component-options': mediaGalleryOptions|json_encode,
 } %}
 
 <div {{ attributes.defaults(defaultAttributes) }}>
-    <twig:Sw:Media:ThumbnailNav
-        class="sw-media-gallery__thumbnail-nav"
-        :mediaItems="mediaItems" 
-        :thumbnailSize="thumbnailSize"
-        :isHorizontal="thumbnailNavigationPosition == 'underneath'"
-    />
+    {% if mediaItems|length > 1 %}
+        <twig:Sw:Media:ThumbnailNav
+            class="sw-media-gallery__thumbnail-nav"
+            :mediaItems="mediaItems" 
+            :thumbnailSize="thumbnailSize"
+            :isHorizontal="thumbnailNavigationPosition == 'bottom'"
+        />
+    {% endif %}
 
-    <div class="sw-media-gallery__previews">
-        {% for mediaItem in mediaItems %}
-            <twig:Sw:Media
-                :hidden="not loop.first"
-                :media="mediaItem"
-                :title="null"
-                class="sw-media-gallery__preview"
-                data-media-id="{{ mediaItem.id }}"
-                data-bs-toggle="modal"
-                data-bs-target="#sw-media-gallery-modal"
-                :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
-            />
-        {% endfor %}
+    <div class="sw-media-gallery-previews-wrapper position-relative">
+        <div class="sw-media-gallery__previews">
+            {% for mediaItem in mediaItems %}
+                <div class="sw-media-gallery__preview-item" id="sw-media-gallery-preview-{{ loop.index }}">
+                    <twig:Sw:Media 
+                        :media="mediaItem"
+                        :title="null"
+                        class="sw-media-gallery__preview"
+                        data-media-id="{{ loop.index }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#{{ lightboxId }}"
+                        :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
+                    />
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if showNavigationArrows and not singleMedia %}
+            <button
+                type="button"
+                class="sw-media-gallery__nav-button is--backward btn btn-light"
+                aria-label="Previous image"
+            >
+                <twig:Sw:Icon name="arrow-head-left" size="sm" />
+            </button>
+
+            <button
+                type="button"
+                class="sw-media-gallery__nav-button is--forward btn btn-light"
+                aria-label="Next image"
+            >
+                <twig:Sw:Icon name="arrow-head-right" size="sm" />
+            </button>
+        {% endif %}
+
+        {% if not singleMedia %}
+            <span class="sw-media-gallery__preview-item-badge badge">
+                1 / {{ mediaItems|length }}
+            </span>
+        {% endif %}
     </div>
-</div>
 
-{% if showFullScreenGallery %}
-    <twig:Sw:Media:GalleryLightbox
-        id="sw-media-gallery-modal"
-        :mediaItems="mediaItems"
-        :thumbnailSize="thumbnailSize"
-    />
-{% endif %}
+    {% if showFullScreenGallery %}
+        <twig:Sw:Media:GalleryLightbox
+            class="sw-media-gallery__lightbox"
+            id="{{ lightboxId }}"
+            :mediaItems="mediaItems"
+            :thumbnailSize="thumbnailSize"
+        />
+    {% endif %}
+</div>

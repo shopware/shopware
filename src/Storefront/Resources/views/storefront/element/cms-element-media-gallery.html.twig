@@ -10,8 +10,8 @@
         {% endfor %}
 
         {# Map admin values to Twig component props #}
-        {% set displayMode = config.displayMode.value == 'fixedHeight' ? 'fixedHeight' : 'original' %}
-        {% set thumbnailNavPosition = config.thumbnailPosition.value == 'bottom' ? 'underneath' : 'left' %}
+        {% set displayMode = config.displayMode.value %}
+        {% set thumbnailNavPosition = config.thumbnailPosition.value %}
         {% set showNavigationArrows = config.showNavigationArrows.value %}
         {% set showMagnifier = config.showMagnifier.value %}
         {% set showFullScreenGallery = config.showFullScreenGallery.value %}

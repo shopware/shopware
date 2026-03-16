@@ -32,7 +32,7 @@ class ContentSystemDataLoaderTypeResolver
         $sourceToTypes = [];
 
         foreach ($this->compiledSourceToTypes as $source => $entries) {
-            $sourceToTypes[$source] ??= [];
+            $sourceToTypes[$source] = [];
 
             foreach ($entries as $entry) {
                 if ($entry['className'] === Entity::class) {

@@ -9,12 +9,12 @@ use Symfony\Contracts\Cache\CacheInterface;
  * @internal
  */
 #[Package('framework')]
-class CachedContentSystemDataLoaderTypeSchemaGenerator
+class CachedContentSystemDataLoaderTypeSchemaGenerator extends AbstractContentSystemDataLoaderTypeSchemaGenerator
 {
     final public const CACHE_KEY = 'core_content_system_data_loader_type_schema';
 
     public function __construct(
-        private readonly ContentSystemDataLoaderTypeSchemaGenerator $innerService,
+        private readonly AbstractContentSystemDataLoaderTypeSchemaGenerator $innerService,
         private readonly CacheInterface $cache,
     ) {
     }

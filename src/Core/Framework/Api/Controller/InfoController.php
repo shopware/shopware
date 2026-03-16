@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature;
@@ -73,7 +73,7 @@ class InfoController extends AbstractController
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ContentSystemDataLoaderTypeSchemaGenerator $availableDataSchemaGenerator,
+        private readonly AbstractContentSystemDataLoaderTypeSchemaGenerator $availableDataSchemaGenerator,
     ) {
     }
 

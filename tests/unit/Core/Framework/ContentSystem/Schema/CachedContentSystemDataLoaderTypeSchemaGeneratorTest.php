@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Schema\CachedContentSystemDataLoaderTypeSchemaGenerator;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
@@ -18,13 +18,13 @@ class CachedContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
 {
     private CachedContentSystemDataLoaderTypeSchemaGenerator $cached;
 
-    private ContentSystemDataLoaderTypeSchemaGenerator&MockObject $inner;
+    private AbstractContentSystemDataLoaderTypeSchemaGenerator&MockObject $inner;
 
     private CacheInterface&MockObject $cache;
 
     protected function setUp(): void
     {
-        $this->inner = $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class);
+        $this->inner = $this->createMock(AbstractContentSystemDataLoaderTypeSchemaGenerator::class);
         $this->cache = $this->createMock(CacheInterface::class);
         $this->cached = new CachedContentSystemDataLoaderTypeSchemaGenerator($this->inner, $this->cache);
     }
@@ -34,7 +34,7 @@ class CachedContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
     {
         $expected = ['sources' => ['navigation' => ['types' => [['className' => 'Foo', 'genericParameters' => []]]]]];
 
-        $this->cache->expects(static::once())
+        $this->cache->expects($this->once())
             ->method('get')
             ->with(CachedContentSystemDataLoaderTypeSchemaGenerator::CACHE_KEY)
             ->willReturn($expected);
@@ -47,11 +47,11 @@ class CachedContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
     {
         $expected = ['sources' => ['entity' => ['types' => [['className' => 'Bar', 'genericParameters' => []]]]]];
 
-        $this->inner->expects(static::once())
+        $this->inner->expects($this->once())
             ->method('getSchema')
             ->willReturn($expected);
 
-        $this->cache->expects(static::once())
+        $this->cache->expects($this->once())
             ->method('get')
             ->willReturnCallback(fn (string $key, callable $callback) => $callback());
 

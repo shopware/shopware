@@ -9,9 +9,13 @@ describe('src/core/telemetry/amplitude/amplitude.gateway-client.ts', () => {
     it('sends anonymous consent events directly to the gateway', () => {
         const anonymousGatewayClient = createAnonymousGatewayClient('https://gateway.example');
 
-        anonymousGatewayClient.track('consent_modal_viewed', {
-            option: ['user_tracking'],
-        });
+        anonymousGatewayClient.track(
+            'consent_modal_viewed',
+            {
+                option: ['user_tracking'],
+            },
+            1735689600000,
+        );
 
         expect(global.fetch).toHaveBeenCalledWith(
             'https://gateway.example/event/anonymous',
@@ -29,6 +33,7 @@ describe('src/core/telemetry/amplitude/amplitude.gateway-client.ts', () => {
                             event_properties: {
                                 option: ['user_tracking'],
                             },
+                            time: 1735689600000,
                         },
                     ],
                 }),

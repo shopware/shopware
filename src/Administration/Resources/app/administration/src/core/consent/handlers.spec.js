@@ -15,9 +15,13 @@ describe('src/core/consent/handlers.ts', () => {
             }),
         );
 
-        expect(anonymousAmplitude.track).toHaveBeenCalledWith('consent_modal_viewed', {
-            option: ['user_tracking'],
-        });
+        expect(anonymousAmplitude.track).toHaveBeenCalledWith(
+            'consent_modal_viewed',
+            {
+                option: ['user_tracking'],
+            },
+            expect.any(Number),
+        );
     });
 
     it('sanitizes consent event payload before forwarding to anonymous amplitude', () => {
@@ -36,10 +40,14 @@ describe('src/core/consent/handlers.ts', () => {
             }),
         );
 
-        expect(anonymousAmplitude.track).toHaveBeenCalledWith('consent_decision_made', {
-            option: 'user_tracking',
-            decision: 'accepted',
-        });
+        expect(anonymousAmplitude.track).toHaveBeenCalledWith(
+            'consent_decision_made',
+            {
+                option: 'user_tracking',
+                decision: 'accepted',
+            },
+            expect.any(Number),
+        );
     });
 
     it('ignores fake/invalid consent events', () => {

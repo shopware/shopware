@@ -136,6 +136,7 @@ import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store'
 import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
+
 // eslint-disable-next-line max-len
 import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 import type SsoSettingsService from './core/service/api/sso-settings.service';
@@ -145,6 +146,7 @@ import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.con
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
 import type SnippetApiService from './core/service/api/snippet.api.service';
 import type ConsentApiService from './core/consent/consent.api.service';
+import type ValidationApiService from './core/service/api/validation.api.service';
 // trick to make it an "external module" to support global type extension
 
 // base methods for subContainer
@@ -301,6 +303,7 @@ declare global {
         shopIdChangeService: ShopIdChangeService;
         productTypeService: ProductTypeApiService;
         consentApiService: ConsentApiService;
+        validationApiService: ValidationApiService;
     }
 
     interface MixinContainer {

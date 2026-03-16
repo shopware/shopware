@@ -77,11 +77,11 @@ describe('/core/consent/consent.store', () => {
             expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
             expect(consentEventHandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_status_change', {
-                    consentName: 'test_consent',
-                    status: 'accepted',
-                    newValue: expectedUpdatedValue,
-                }, new Date()),
+                new ConsentEvent(
+                    'consent_status_change',
+                    expectedUpdatedValue,
+                    new Date(),
+                ),
             );
         });
 
@@ -150,11 +150,11 @@ describe('/core/consent/consent.store', () => {
                 expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
                 expect(consentEventHandler).toHaveBeenCalledWith(
-                    new ConsentEvent('consent_status_change', {
-                        consentName: 'test_consent',
-                        status: 'revoked',
-                        newValue: expectedUpdatedValue,
-                    }, new Date()),
+                    new ConsentEvent(
+                        'consent_status_change',
+                        expectedUpdatedValue,
+                        new Date(),
+                    ),
                 );
             });
 

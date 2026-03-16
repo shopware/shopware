@@ -6,7 +6,7 @@ import type { ConsentDTO } from './consent.store';
 type TrackableType = string | string[] | number | boolean | null;
 
 type ModalConsents = 'backend_data' | 'product_analytics';
-type ConsentAction = 'accepted' | 'revoked';
+type ConsentAction = ConsentDTO['status'];
 
 type ConsentEvents = {
     consent_modal_viewed: {
@@ -23,11 +23,7 @@ type ConsentEvents = {
         };
         time_spent_on_modal: number;
     };
-    consent_status_change: {
-        consentName: string;
-        status: ConsentAction;
-        newValue: ConsentDTO;
-    };
+    consent_status_change: ConsentDTO;
     consent_legal_link_clicked: {
         link_target: 'privacy_policy' | 'data_use_details';
         source: 'modal' | 'setting' | 'user';
@@ -59,5 +55,24 @@ function dispatchConsentEvent<N extends ConsentEventName>(eventName: N, eventPro
     Shopware.Utils.EventBus.emit('consent', new ConsentEvent(eventName, eventProperties));
 }
 
+function isConsentEvent(event: unknown): event is ConsentEvent<ConsentEventName> {
+    return event instanceof ConsentEvent;
+}
+
+function isConsentEventType<N extends ConsentEventName>(
+    event: ConsentEvent<ConsentEventName>,
+    name: N,
+): event is ConsentEvent<N> {
+    return event.eventName === name;
+}
+
 /** @private */
-export { ConsentEvent, dispatchConsentEvent, type ConsentEventName, type ConsentEvents, type TrackableType };
+export {
+    ConsentEvent,
+    dispatchConsentEvent,
+    isConsentEvent,
+    isConsentEventType,
+    type ConsentEventName,
+    type ConsentEvents,
+    type TrackableType,
+};

@@ -1,4 +1,4 @@
-import { ConsentEvent, dispatchConsentEvent } from './events';
+import { ConsentEvent, dispatchConsentEvent, isConsentEvent, isConsentEventType } from './events';
 
 describe('src/core/consent/events.ts', () => {
     beforeEach(() => {
@@ -68,5 +68,29 @@ describe('src/core/consent/events.ts', () => {
         });
 
         expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    describe('isConsentEvent', () => {
+        it('checks the prototype', () => {
+            expect(isConsentEvent(new ConsentEvent('consent_modal_viewed', { consents_shown: ['product_analytics'] }))).toBe(
+                true,
+            );
+
+            expect(
+                isConsentEvent({
+                    eventName: 'consent_modal_viewed',
+                    eventProperties: { consents_shown: ['product_analytics'] },
+                }),
+            ).toBe(false);
+        });
+
+        it('compares the eventName property', () => {
+            const event = new ConsentEvent('consent_modal_viewed', {
+                consents_shown: ['product_analytics'],
+            });
+
+            expect(isConsentEventType(event, 'consent_modal_viewed')).toBe(true);
+            expect(isConsentEventType(event, 'consent_modal_decision')).toBe(false);
+        });
     });
 });

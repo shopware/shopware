@@ -47,11 +47,7 @@ export default Shopware.Store.register('consent', {
 
             this.consents[name] = updatedConsent;
 
-            dispatchConsentEvent('consent_status_change', {
-                consentName: name,
-                status: 'accepted',
-                newValue: updatedConsent,
-            });
+            dispatchConsentEvent('consent_status_change', updatedConsent);
         },
 
         async revoke(name: string): Promise<void> {
@@ -59,7 +55,7 @@ export default Shopware.Store.register('consent', {
                 throw new Error(`Consent with name "${name}" not found in store.`);
             }
 
-            if (this.consents[name].status === 'revoked') {
+            if (this.consents[name].status === 'revoked' || this.consents[name].status === 'declined') {
                 return;
             }
 
@@ -67,11 +63,7 @@ export default Shopware.Store.register('consent', {
 
             this.consents[name] = updatedConsent;
 
-            dispatchConsentEvent('consent_status_change', {
-                consentName: name,
-                status: 'revoked',
-                newValue: updatedConsent,
-            });
+            dispatchConsentEvent('consent_status_change', updatedConsent);
         },
 
         isAccepted(name: string): boolean {

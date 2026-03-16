@@ -1,11 +1,21 @@
 import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
+import { DOCUMENT_TYPES, ZUGFERD_DOCUMENT_TYPES } from '../../order.types';
 
 /**
  * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;
+
+/**
+ * @private
+ */
+export const REQUIRES_INVOICE = [
+    DOCUMENT_TYPES.CREDIT_NOTE,
+    DOCUMENT_TYPES.CANCELLATION_INVOICE,
+    DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -40,6 +50,7 @@ export default {
             documentType: null,
             invoiceExists: false,
             isLoading: false,
+            showZugferd: false,
         };
     },
 
@@ -73,13 +84,23 @@ export default {
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
             criteria.addFilter(
                 Criteria.equalsAny('documentType.technicalName', [
-                    'invoice',
-                    'zugferd_invoice',
-                    'zugferd_embedded_invoice',
+                    DOCUMENT_TYPES.INVOICE,
+                    DOCUMENT_TYPES.ZUGFERD_INVOICE,
+                    DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
                 ]),
             );
 
             return criteria;
+        },
+
+        filteredDocumentTypes() {
+            return this.documentTypes
+                .filter((type) => {
+                    const isZugferd = ZUGFERD_DOCUMENT_TYPES.includes(type.technicalName);
+
+                    return this.showZugferd ? isZugferd : !isZugferd;
+                })
+                .sort();
         },
     },
 
@@ -96,14 +117,24 @@ export default {
 
                 this.documentTypeRepository.search(this.documentTypeCriteria).then((response) => {
                     this.documentTypeCollection = response;
+
                     this.documentTypes = response.map((documentType) => {
                         const option = {
                             value: documentType.id,
                             name: documentType.translated.name,
+                            technicalName: documentType.technicalName,
                             disabled: !this.documentTypeAvailable(documentType),
                         };
 
-                        if (documentType.technicalName === 'storno' || documentType.technicalName === 'credit_note') {
+                        if (REQUIRES_INVOICE.includes(documentType.technicalName) && !this.invoiceExists) {
+                            return this.addHelpTextToOption(option, documentType);
+                        }
+
+                        if (
+                            documentType.technicalName === DOCUMENT_TYPES.CREDIT_NOTE &&
+                            this.invoiceExists &&
+                            this.creditItems.length === 0
+                        ) {
                             return this.addHelpTextToOption(option, documentType);
                         }
 
@@ -111,7 +142,7 @@ export default {
                     });
 
                     if (this.documentTypes.length) {
-                        this.documentType = this.documentTypes.find((documentType) => !documentType.disabled).value;
+                        this.documentType = this.filteredDocumentTypes.find((documentType) => !documentType.disabled).value;
                         this.onRadioFieldChange();
                     }
 
@@ -121,12 +152,21 @@ export default {
         },
 
         documentTypeAvailable(documentType) {
-            return (
-                (documentType.technicalName !== 'storno' && documentType.technicalName !== 'credit_note') ||
-                ((documentType.technicalName === 'storno' ||
-                    (documentType.technicalName === 'credit_note' && this.creditItems.length !== 0)) &&
-                    this.invoiceExists)
-            );
+            const type = documentType.technicalName;
+
+            if (!REQUIRES_INVOICE.includes(type)) {
+                return true;
+            }
+
+            if (!this.invoiceExists) {
+                return false;
+            }
+
+            if (type === DOCUMENT_TYPES.CREDIT_NOTE) {
+                return this.creditItems.length !== 0;
+            }
+
+            return true;
         },
 
         addHelpTextToOption(option, documentType) {
@@ -136,7 +176,18 @@ export default {
         },
 
         onRadioFieldChange() {
+            if (!this.documentType) {
+                return;
+            }
+
             this.$emit('update:value', this.documentTypeCollection.get(this.documentType));
+        },
+
+        onChangeShowZugferd() {
+            this.showZugferd = !this.showZugferd;
+            this.documentType = this.filteredDocumentTypes.find((documentType) => !documentType.disabled)?.value || null;
+
+            this.onRadioFieldChange();
         },
     },
 };

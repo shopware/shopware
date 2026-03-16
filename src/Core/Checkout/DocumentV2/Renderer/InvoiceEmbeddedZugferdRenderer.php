@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\RenderState;
 
 /**
@@ -32,17 +33,18 @@ class InvoiceEmbeddedZugferdRenderer extends AbstractDocumentRenderer
         return [InvoicePdfRenderer::FORMAT, InvoiceZugferdXmlRenderer::FORMAT];
     }
 
-    public function renderToString(DocumentGenerationContext $documentContext, RenderState $renderState): string
+    public function renderToString(DocumentGenerationContext $generationContext, RenderState $renderState): RenderResult
     {
         // TODO: Implement renderToString() method.
-        $pdfContent = $renderState->getRenderedContent(InvoicePdfRenderer::FORMAT);
-        $zugferdXmlContent = $renderState->getRenderedContent(InvoiceZugferdXmlRenderer::FORMAT);
+        $pdfResult = $renderState->getRenderedContent(InvoicePdfRenderer::FORMAT);
+        $zugferdXmlResult = $renderState->getRenderedContent(InvoiceZugferdXmlRenderer::FORMAT);
 
-        return $pdfContent . $zugferdXmlContent;
+        return new RenderResult($pdfResult->documentContent . $zugferdXmlResult->documentContent);
     }
 
-    public function persistToFile(string $renderedContent): void
+    public function persistToFile(DocumentGenerationContext $generationContext, RenderResult $renderResult): string
     {
         // TODO: Implement persistToFile() method.
+        return 'uuid-of-media-entity';
     }
 }

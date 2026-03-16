@@ -11,22 +11,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 abstract class AbstractDocumentRenderer
 {
     /**
+     * All document types this renderer supports.
+     *
      * @see DocumentType
      *
-     * @return list<string>
+     * @return list<string> document types passed as strings
      */
     abstract public function getDocumentTypes(): array;
 
     /**
+     * The format this renderer produces.
+     *
      * @see DocumentFormat
      */
     abstract public function getFormat(): string;
 
     /**
-     * Formats (strings) this renderer depends on, within the same document type.
-     * e.g. ['html'] for pdf renderer that converts HTML → PDF.
+     * Formats, see @DocumentFormat, this renderer has a dependency on.
+     * e.g. ['html'] for PDF renderer that converts HTML → PDF.
      *
-     * @return list<string>
+     * @return list<string> formats passed as strings
      */
     public function getDependencies(): array
     {
@@ -42,10 +46,13 @@ abstract class AbstractDocumentRenderer
     }
 
     /**
-     * Render and return the document as string.
+     * Render for a single specific document type + format and return the document as a string.
      * (registered) Dependencies can be retrieved from the @see RenderState
      */
-    abstract public function renderToString(DocumentGenerationContext $documentContext, RenderState $renderState): string;
+    abstract public function renderToString(DocumentGenerationContext $generationContext, RenderState $renderState): RenderResult;
 
-    abstract public function persistToFile(string $renderedContent): void;
+    /**
+     * Persist the rendered document to a file, returning its shopware media id.
+     */
+    abstract public function persistToFile(DocumentGenerationContext $generationContext, RenderResult $renderResult): string;
 }

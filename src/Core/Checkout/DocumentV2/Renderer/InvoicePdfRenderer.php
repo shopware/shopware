@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\RenderState;
 
 /**
@@ -32,15 +33,16 @@ class InvoicePdfRenderer extends AbstractDocumentRenderer
         return [HtmlRenderer::FORMAT];
     }
 
-    public function renderToString(DocumentGenerationContext $documentContext, RenderState $renderState): string
+    public function renderToString(DocumentGenerationContext $generationContext, RenderState $renderState): RenderResult
     {
-        $htmlContent = $renderState->getRenderedContent(HtmlRenderer::FORMAT);
+        $htmlResult = $renderState->getRenderedContent(HtmlRenderer::FORMAT);
 
-        return $htmlContent . ' extend by pdf renderer';
+        return new RenderResult($htmlResult->documentContent . ' extend by pdf renderer');
     }
 
-    public function persistToFile(string $renderedContent): void
+    public function persistToFile(DocumentGenerationContext $generationContext, RenderResult $renderResult): string
     {
         // TODO: Implement persistToFile() method.
+        return 'uuid-of-media-entity';
     }
 }

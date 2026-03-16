@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\RenderState;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
@@ -39,28 +40,29 @@ class HtmlRenderer extends AbstractDocumentRenderer
         $criteria->addAssociation('lineItems');
     }
 
-    public function renderToString(DocumentGenerationContext $documentContext, RenderState $renderState): string
+    public function renderToString(DocumentGenerationContext $generationContext, RenderState $renderState): RenderResult
     {
         // TODO: Implement renderToString() method.
 
-        $template = match ($documentContext->documentType) {
+        $template = match ($generationContext->documentType) {
             DocumentType::Invoice->value => 'invoice twig template',
             DocumentType::CreditNote->value => 'credit note twig template',
-            default => throw new \InvalidArgumentException('Unsupported document type: ' . $documentContext->documentType),
+            default => throw new \InvalidArgumentException('Unsupported document type: ' . $generationContext->documentType),
         };
 
         // use some document config
-        $pageOrientation = $documentContext->documentConfig->extensions['pageOrientation'] ?? 'portrait';
+        $pageOrientation = $generationContext->documentConfig->extensions['pageOrientation'] ?? 'portrait';
         // also possible to have a specific struct under extensions
 
         // use some order data
-        $lineItem = $documentContext->order->getLineItems()?->first();
+        $lineItem = $generationContext->order->getLineItems()?->first();
 
-        return $template . $lineItem?->getLabel();
+        return new RenderResult($template . $lineItem?->getLabel());
     }
 
-    public function persistToFile(string $renderedContent): void
+    public function persistToFile(DocumentGenerationContext $generationContext, RenderResult $renderResult): string
     {
         // TODO: Implement persistToFile() method.
+        return 'uuid-of-media-entity';
     }
 }

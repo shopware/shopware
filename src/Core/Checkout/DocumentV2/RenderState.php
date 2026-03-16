@@ -13,18 +13,17 @@ class RenderState
      * Key: dependency name
      * Value: document content string
      *
-     * @var array<string, string>
+     * @var array<string, RenderResult>
      */
     protected array $renderedContent = [];
 
-    public function setRenderedContent(string $format, string $content): void
+    public function setRenderedContent(string $format, RenderResult $renderResult): void
     {
-        $this->renderedContent[$format] = $content;
+        $this->renderedContent[$format] = $renderResult;
     }
 
-    public function getRenderedContent(string $format): string
+    public function getRenderedContent(string $format): ?RenderResult
     {
-        // todo: error handling
-        return $this->renderedContent[$format];
+        return $this->renderedContent[$format] ?? null;
     }
 }

@@ -63,19 +63,19 @@ class DocumentGenerator
         foreach ($orderedRenderers as $renderer) {
             echo 'rendering ' . $renderer->getFormat() . \PHP_EOL;
 
-            $content = $renderer->renderToString($generationContext, $renderState);
-            $renderState->setRenderedContent($renderer->getFormat(), $content);
+            $renderResult = $renderer->renderToString($generationContext, $renderState);
+            $renderState->setRenderedContent($renderer->getFormat(), $renderResult);
 
-            echo 'content: ' . $content . \PHP_EOL;
+            echo 'content: ' . $renderResult->documentContent . \PHP_EOL;
         }
 
         // persist content to files for selected formats
         foreach ($formats as $format) {
             $renderer = $renderers[$format];
-            $content = $renderState->getRenderedContent($format);
+            $renderResult = $renderState->getRenderedContent($format);
 
-            echo 'PERSIST to file: ' . $format . ' content: ' . $content . \PHP_EOL;
-            $renderer->persistToFile($content);
+            echo 'PERSIST to file: ' . $format . ' content: ' . $renderResult->documentContent . \PHP_EOL;
+            $renderer->persistToFile($generationContext, $renderResult);
         }
     }
 

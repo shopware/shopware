@@ -20,7 +20,7 @@ class TestDocumentGeneration extends BaseScript
         $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $context = Context::createCLIContext();
 
-        $orderId = '019cd835e593734296a073dca76435e0';
+        $orderId = '019cf72e720372baa50645ed166486ad';
 
         $documentGenerator->generate($orderId, DocumentType::Invoice->value, [DocumentFormat::EmbeddedZugferd->value], $context);
         //$documentGenerator->generate(DocumentType::Invoice->value, [DocumentFormat::Pdf->value, DocumentFormat::Html->value]);

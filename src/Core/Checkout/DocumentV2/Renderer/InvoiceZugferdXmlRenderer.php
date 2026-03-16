@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\RenderState;
 
 /**
@@ -27,14 +28,15 @@ class InvoiceZugferdXmlRenderer extends AbstractDocumentRenderer
         return self::FORMAT;
     }
 
-    public function renderToString(DocumentGenerationContext $documentContext, RenderState $renderState): string
+    public function renderToString(DocumentGenerationContext $generationContext, RenderState $renderState): RenderResult
     {
         // TODO: Implement renderToString() method.
-        return '<zugferd xml>';
+        return new RenderResult('<zugferd xml>');
     }
 
-    public function persistToFile(string $renderedContent): void
+    public function persistToFile(DocumentGenerationContext $generationContext, RenderResult $renderResult): string
     {
         // TODO: Implement persistToFile() method.
+        return 'uuid-of-media-entity';
     }
 }

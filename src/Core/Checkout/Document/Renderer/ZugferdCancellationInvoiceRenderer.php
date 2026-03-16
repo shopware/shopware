@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
-use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
+use Shopware\Core\Checkout\Document\Event\ZugferdCancellationInvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -103,7 +103,11 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             }
         }
 
-        $this->eventDispatcher->dispatch(new StornoOrdersEvent($orders, $context, $operations));
+        $this->eventDispatcher->dispatch(new ZugferdCancellationInvoiceOrdersEvent(
+            $orders,
+            $context,
+            $operations
+        ));
 
         foreach ($orders as $order) {
             $orderId = $order->getId();

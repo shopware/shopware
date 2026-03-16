@@ -70,14 +70,27 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         });
     });
 
+    afterEach(() => {
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
+        global.activeAclRoles = [];
+    });
+
     it('upload button should be there when allowed runtime extension management', async () => {
+        global.activeAclRoles = ['system.plugin_upload'];
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(true);
     });
 
-    it('upload button should be not there when allowed runtime extension management', async () => {
+    it('upload button should be not there when disabling runtime extension management', async () => {
+        global.activeAclRoles = ['system.plugin_upload'];
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(false);
+    });
+
+    it('upload button should be not there when missing plugin_upload acl', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(false);

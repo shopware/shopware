@@ -2,9 +2,12 @@
 {% block base_doctype %}<!DOCTYPE html>{% endblock %}
 
 {% block base_html %}
+{# @deprecated tag:v6.8.0 - WebPage microdata on <html> replaced by JSON-LD. Will be removed. #}
 <html lang="{{ context.languageInfo.localeCode }}"
+      {% if not feature('JSON_LD_DATA') %}
       itemscope="itemscope"
-      itemtype="https://schema.org/WebPage">
+      itemtype="https://schema.org/WebPage"
+      {% endif %}>
 {% endblock %}
 
 {# Set variable to "true" to enable HMR (hot page reloading) mode #}

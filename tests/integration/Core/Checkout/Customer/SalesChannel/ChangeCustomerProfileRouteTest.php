@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -181,6 +182,51 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertSame($changeData['company'], $customer->getCompany());
         static::assertSame($changeData['firstName'], $customer->getFirstName());
         static::assertSame($changeData['lastName'], $customer->getLastName());
+    }
+
+    /**
+     * @param list<string> $vatIds
+     */
+    #[TestWith([[]])]
+    #[TestWith([['']])]
+    public function testChangeProfileDataClearVatIds(array $vatIds): void
+    {
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($response['success']);
+
+        $customer = $this->getCustomer();
+        static::assertSame(['DE123456789'], $customer->getVatIds());
+
+        $changeData['vatIds'] = $vatIds;
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($response['success']);
+
+        $customer = $this->getCustomer();
+        static::assertNull($customer->getVatIds());
     }
 
     public function testChangeProfileWithExistingNotSpecifiedSalutation(): void

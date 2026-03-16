@@ -108,15 +108,13 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company', 'accountType');
 
-        if ($vatIds) {
-            $vatIds = $data->get('vatIds');
+        $vatIds = $data->get('vatIds');
 
-            if ($vatIds instanceof DataBag) {
-                $vatIds = $vatIds->all();
-            }
-
-            $customerData['vatIds'] = $vatIds;
+        if ($vatIds instanceof DataBag) {
+            $vatIds = $vatIds->all();
         }
+
+        $customerData['vatIds'] = $vatIds;
 
         if ($birthday = $this->getBirthday($data)) {
             $customerData['birthday'] = $birthday;

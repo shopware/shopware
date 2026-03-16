@@ -5,7 +5,7 @@
         "version": "v1"
     },
     "paths": {
-        "\/validation\/email": {
+        "\/_action\/validation\/email": {
             "post": {
                 "tags": [
                     "Email support validation"

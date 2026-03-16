@@ -80,6 +80,18 @@ class CategorySubscriberTest extends TestCase
         static::assertSame('https://example.com', $category->getSeoUrl());
     }
 
+    public function testDoNothingIfNoCommands(): void
+    {
+        $subscriber = $this->createSubscriber('default-cms');
+        $event = EntityWriteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [],
+        );
+
+        $subscriber->beforeWriteCategory($event);
+        static::assertCount(0, $event->getCommandsForEntity(CategoryDefinition::ENTITY_NAME));
+    }
+
     public function testInsertWithoutCmsPageIdAddsDefault(): void
     {
         $defaultCmsPageId = $this->ids->get('default-cms');

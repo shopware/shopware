@@ -54,6 +54,11 @@ class CategorySubscriber implements EventSubscriberInterface
 
     public function beforeWriteCategory(EntityWriteEvent $event): void
     {
+        $commands = $event->getCommandsForEntity(CategoryDefinition::ENTITY_NAME);
+        if ($commands === []) {
+            return;
+        }
+
         $defaultCmsPageId = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
         if ($defaultCmsPageId === '') {
             return;
@@ -61,7 +66,7 @@ class CategorySubscriber implements EventSubscriberInterface
 
         $defaultCmsPageIdBytes = Uuid::fromHexToBytes($defaultCmsPageId);
 
-        foreach ($event->getCommandsForEntity(CategoryDefinition::ENTITY_NAME) as $command) {
+        foreach ($commands as $command) {
             if ($command instanceof DeleteCommand) {
                 continue;
             }

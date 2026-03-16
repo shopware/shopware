@@ -38,7 +38,7 @@ class ProductExportEventListenerTest extends TestCase
         $productExportRepository
             ->expects($this->once())
             ->method('update')
-            ->with(static::callback(function (array $payload) use ($id): bool {
+            ->with(static::callback(static function (array $payload) use ($id): bool {
                 $first = $payload[0] ?? [];
 
                 return ($first['id'] ?? null) === $id

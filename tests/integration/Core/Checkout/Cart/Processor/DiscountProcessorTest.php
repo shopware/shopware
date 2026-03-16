@@ -54,7 +54,7 @@ class DiscountProcessorTest extends TestCase
 
         $new = new Cart('after');
         $new->setLineItems(
-            (new LineItemCollection($items))->filter(fn (LineItem $item) => $item->getType() !== LineItem::DISCOUNT_LINE_ITEM)
+            (new LineItemCollection($items))->filter(static fn (LineItem $item) => $item->getType() !== LineItem::DISCOUNT_LINE_ITEM)
         );
 
         $processor->process(new CartDataCollection(), $cart, $new, $context, new CartBehavior());

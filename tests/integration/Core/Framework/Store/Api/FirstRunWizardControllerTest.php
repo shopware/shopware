@@ -50,7 +50,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             FirstRunWizardStartedEvent::class,
-            function (FirstRunWizardStartedEvent $event) use (&$dispatchedEvent): void {
+            static function (FirstRunWizardStartedEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
             }
         );
@@ -107,7 +107,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             FirstRunWizardFinishedEvent::class,
-            function (FirstRunWizardFinishedEvent $event) use (&$dispatchedEvent): void {
+            static function (FirstRunWizardFinishedEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
                 $event->stopPropagation();
             },

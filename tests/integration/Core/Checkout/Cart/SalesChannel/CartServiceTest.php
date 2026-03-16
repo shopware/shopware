@@ -460,7 +460,7 @@ class CartServiceTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
+        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertStringContainsString('Shipping costs: €0.00', $event->getContents()['text/html']);
         };

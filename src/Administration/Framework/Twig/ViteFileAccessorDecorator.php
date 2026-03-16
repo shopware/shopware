@@ -112,14 +112,14 @@ class ViteFileAccessorDecorator extends FileAccessor
 
             $technicalBundleName = $this->getTechnicalBundleName($bundle);
 
-            // Get all entrypoints for the administration
+            // Get all entry points for the administration
             foreach ($content['entryPoints'][$technicalBundleName] ?? [] as $key => $entrypoint) {
                 // The entry points also contain configuration, for example "legacy" and a boolean value
                 if (!\is_array($entrypoint)) {
                     continue;
                 }
 
-                // Prepend the asset path to the every entry point
+                // Prepend the asset path to every entry point
                 foreach ($entrypoint as $index => $entry) {
                     $content['entryPoints'][$technicalBundleName][$key][$index] = \sprintf('%s%s', $this->assetPath, $entry);
                 }

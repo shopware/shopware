@@ -100,7 +100,7 @@ class PluginServiceTest extends TestCase
 
         static::assertTrue($errors->count() > 0);
 
-        $composerJsonException = $errors->filter(fn (ShopwareHttpException $error) => $error instanceof PluginComposerJsonInvalidException);
+        $composerJsonException = $errors->filter(static fn (ShopwareHttpException $error) => $error instanceof PluginComposerJsonInvalidException);
 
         static::assertNotEmpty($composerJsonException);
 

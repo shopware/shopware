@@ -18,7 +18,9 @@ abstract class ImportStrategyTestCase extends TestCase
 {
     protected EventDispatcherInterface&MockObject $eventDispatcher;
 
-    /** @var EntityRepository<MediaCollection>&MockObject */
+    /**
+     * @var EntityRepository<MediaCollection>&MockObject
+     */
     protected EntityRepository&MockObject $repository;
 
     protected function setUp(): void

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -132,7 +133,7 @@ class PromotionItemBuilder
         $promotionItem->setLabel($promotion->getTranslation('name'));
         $promotionItem->setDescription($promotion->getTranslation('name'));
         $promotionItem->setGood(false);
-        $promotionItem->setRemovable(true);
+        $promotionItem->setRemovable($code !== '' || !Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS'));
         $promotionItem->setPriceDefinition($promotionDefinition);
 
         // always make sure we have a valid code entry.

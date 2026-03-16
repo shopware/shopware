@@ -223,7 +223,7 @@ describe('src/core/telemetry/index.js', () => {
             expect(eventBusSpy).toHaveBeenCalledTimes(1);
         });
 
-        it('overrides the event listened to if data-analytics-event is set', async () => {
+        it('overrides the event listened to if data-product-analytics-event is set', async () => {
             const telemetry = new Telemetry({
                 queries: [
                     () =>
@@ -236,7 +236,7 @@ describe('src/core/telemetry/index.js', () => {
 
             const element = document.createElement('div');
             element.setAttribute('id', 'tested-element');
-            element.setAttribute('data-analytics-event', 'test-event');
+            element.setAttribute('data-product-analytics-event', 'test-event');
             document.body.appendChild(element);
 
             await flushPromises();

@@ -12,6 +12,7 @@ use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 
 /**
  * @internal
@@ -184,5 +185,61 @@ class ViteFileAccessorDecoratorTest extends TestCase
                 'https:://shopware.com/bundles/test/administration/assets/app.js',
             ],
         ];
+    }
+
+    public function testGetBundleDataReturnsEntrypoints(): void
+    {
+        $bundle = new BundleFixture('Administration', __DIR__ . '/Fixtures/Administration');
+
+        $result = $this->decorator->getBundleData($bundle);
+
+        static::assertArrayHasKey('entryPoints', $result);
+    }
+
+    public function testGetDataReturnsEmptyArrayForPlainSymfonyBundle(): void
+    {
+        // plain Symfony bundle (not ShopwareBundle) always returns []
+        $kernel = new StubKernel([
+            new BundleFixture('Administration', __DIR__ . '/Fixtures/Administration'),
+            new PlainSymfonyBundle('PlainBundle', __DIR__ . '/Fixtures/Administration'),
+        ]);
+
+        $decorator = new ViteFileAccessorDecorator(
+            $this->configs,
+            $this->packageMock,
+            $kernel,
+            new Filesystem(),
+        );
+
+        static::assertSame([], $decorator->getData('PlainBundle', ViteFileAccessorDecorator::ENTRYPOINTS));
+    }
+
+    public function testGetDataReturnsEmptyArrayWhenViteFileIsMissing(): void
+    {
+        // ShopwareBundle with no vite file returns []
+        $kernel = new StubKernel([
+            new BundleFixture('NoViteBundle', __DIR__ . '/Fixtures'),
+        ]);
+
+        $decorator = new ViteFileAccessorDecorator(
+            $this->configs,
+            $this->packageMock,
+            $kernel,
+            new Filesystem(),
+        );
+
+        static::assertSame([], $decorator->getData('NoViteBundle', ViteFileAccessorDecorator::ENTRYPOINTS));
+    }
+}
+
+/**
+ * @internal
+ */
+class PlainSymfonyBundle extends SymfonyBundle
+{
+    public function __construct(string $name, string $path)
+    {
+        $this->name = $name;
+        $this->path = $path;
     }
 }

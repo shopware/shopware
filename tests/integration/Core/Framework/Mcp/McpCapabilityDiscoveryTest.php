@@ -106,6 +106,10 @@ class McpCapabilityDiscoveryTest extends TestCase
             'shopware-checkout-methods',
             'shopware-media-upload',
             'shopware-theme-config',
+            'shopware-console-command',
+            'shopware-event-introspect',
+            'shopware-sync-validate',
+            'shopware-instance-info',
         ];
     }
 

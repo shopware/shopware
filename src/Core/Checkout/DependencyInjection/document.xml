@@ -186,5 +186,12 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber">
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="media.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

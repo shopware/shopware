@@ -81,7 +81,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $postWriteEventDispatched = false;
 
-        $this->dispatcher->addListener(PostWriteValidationEvent::class, function (PostWriteValidationEvent $event) use (&$postWriteEventDispatched): void {
+        $this->dispatcher->addListener(PostWriteValidationEvent::class, static function (PostWriteValidationEvent $event) use (&$postWriteEventDispatched): void {
             $postWriteEventDispatched = true;
 
             static::assertCount(0, $event->getExceptions()->getExceptions());

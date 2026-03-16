@@ -194,7 +194,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
             ]);
         $indices->expects($this->once())
             ->method('putMapping')
-            ->with(static::callback(function (array $params) {
+            ->with(static::callback(static function (array $params) {
                 return $params['index'] === 'sw_product_index'
                     && isset($params['body']['properties']['customFields']['properties']['lang1'])
                     && isset($params['body']['properties']['customFields']['properties']['lang2'])
@@ -232,7 +232,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
             ]);
         $indices->expects($this->once())
             ->method('putMapping')
-            ->with(static::callback(function (array $params) {
+            ->with(static::callback(static function (array $params) {
                 return isset($params['body']['_source']['includes'])
                     && $params['body']['_source']['includes'] === ['id', 'name'];
             }));
@@ -302,7 +302,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
             ->willReturn(['test_index' => ['mappings' => []]]);
         $indices->expects($this->once())
             ->method('putMapping')
-            ->with(static::callback(function (array $params) {
+            ->with(static::callback(static function (array $params) {
                 return isset($params['body']['properties']['customFields']['properties']['custom_lang']);
             }));
 

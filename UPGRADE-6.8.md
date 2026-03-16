@@ -62,6 +62,11 @@ If the token has already been consumed, the user is redirected to the finish pag
 To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
 Since tokens are no longer deleted after use, a new scheduled task runs daily to remove all expired tokens and keep the system clean.
 
+## Automatic promotions are no longer removable
+
+Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
+The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
+
 ## Removal of `$options` parameter in custom validator's constraints
 
 The `$options` of all Shopware's custom validator constraint are removed, if you use one of them, please use named argument instead
@@ -845,6 +850,9 @@ The block `page_product_detail_product_buy_button_label` has been removed. Use `
 
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+
+## Revocation checkbox position update
+The revocation checkbox for digital products was relotaced to the bottom of the order confirmation page. The checkbox is now below the TOS checkbox
 
 ## Removal of hardcoded language flags
 

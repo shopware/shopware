@@ -48,7 +48,7 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $container
-            ->registerAttributeForAutoconfiguration(Entity::class, function (ChildDefinition $definition): void {
+            ->registerAttributeForAutoconfiguration(Entity::class, static function (ChildDefinition $definition): void {
                 $definition->addTag('shopware.entity');
             });
 

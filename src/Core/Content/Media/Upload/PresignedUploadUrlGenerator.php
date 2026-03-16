@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\S3ClientFactory;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
@@ -37,6 +38,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         AbstractMediaPathStrategy $mediaPathStrategy,
         array $filesystemConfig,
         LoggerInterface $logger,
+        ?HttpClientInterface $httpClient = null,
         int $expirationMinutes = 5,
         bool $enabled = true,
     ): self {
@@ -52,7 +54,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         }
 
         try {
-            $result = S3ClientFactory::create($s3Config);
+            $result = S3ClientFactory::create($s3Config, $httpClient);
         } catch (\Throwable $e) {
             throw MediaException::presignedUploadInvalidConfiguration($e->getMessage(), $e);
         }

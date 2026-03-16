@@ -305,6 +305,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy"/>
             <argument>%shopware.filesystem.public%</argument>
             <argument type="service" id="logger"/>
+            <argument type="service" id="shopware.filesystem.s3.client" on-invalid="null"/>
             <argument>%shopware.media.presigned_upload.expiration_minutes%</argument>
             <argument>%shopware.media.presigned_upload.enabled%</argument>
         </service>

@@ -86,7 +86,7 @@ class FilterTagIdsService
     private function addEmptyFilter(QueryBuilder $query): void
     {
         /** @var CompiledFieldCollection<ManyToManyAssociationField> $manyToManyFields */
-        $manyToManyFields = $this->tagDefinition->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField);
+        $manyToManyFields = $this->tagDefinition->getFields()->filter(static fn (Field $field) => $field instanceof ManyToManyAssociationField);
 
         foreach ($manyToManyFields as $manyToManyField) {
             $mappingTable = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingDefinition()->getEntityName());
@@ -122,7 +122,7 @@ class FilterTagIdsService
     private function addAssignmentFilter(QueryBuilder $query, array $assignments): void
     {
         /** @var CompiledFieldCollection<ManyToManyAssociationField> $manyToManyFields */
-        $manyToManyFields = $this->tagDefinition->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField && \in_array($field->getPropertyName(), $assignments, true));
+        $manyToManyFields = $this->tagDefinition->getFields()->filter(static fn (Field $field) => $field instanceof ManyToManyAssociationField && \in_array($field->getPropertyName(), $assignments, true));
 
         if (\count($manyToManyFields) === 0) {
             return;

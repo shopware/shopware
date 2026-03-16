@@ -4,28 +4,22 @@
     "paths": {
         "/revocation-request-form": {
             "post": {
-                "tags": ["Content"],
+                "tags": [
+                    "Content"
+                ],
                 "summary": "Submit a revocation request form message",
                 "description": "Used for submitting revocation request forms. Be aware that there can be more required fields, depending on the system settings.",
                 "operationId": "sendRevocationRequestMail",
-                "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    }
-                ],
+                "parameters": [],
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["email", "contractNumber"],
+                                "required": [
+                                    "email",
+                                    "contractNumber"
+                                ],
                                 "properties": {
                                     "firstName": {
                                         "description": "First name. This field may be required depending on the system settings.",

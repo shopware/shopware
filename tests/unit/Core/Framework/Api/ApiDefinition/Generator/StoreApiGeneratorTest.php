@@ -163,16 +163,39 @@ class StoreApiGeneratorTest extends TestCase
 
         // Schema should contain all defined parameters
         $parameterNames = array_column($operation['parameters'], 'name');
-        static::assertContains('sw-language-id', $parameterNames);
         static::assertContains('page', $parameterNames);
         static::assertContains('limit', $parameterNames);
+        // sw-language-id is injected as a $ref by the generator, not as an inline parameter
+        $parameterRefs = array_column($operation['parameters'], '$ref');
+        static::assertContains('#/components/parameters/swLanguageId', $parameterRefs);
         // but not left-overs of replaced parameter groups
         static::assertCount(3, $operation['parameters']);
+    }
 
-        foreach ($operation['parameters'] as $parameter) {
-            static::assertArrayHasKey('name', $parameter);
-            static::assertArrayHasKey('in', $parameter);
-            static::assertArrayHasKey('schema', $parameter);
+    public function testSwLanguageIdIsInjectedIntoEveryOperation(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+
+        static::assertArrayHasKey('swLanguageId', $schema['components']['parameters']);
+
+        foreach ($schema['paths'] as $path => $pathDefinition) {
+            foreach (['get', 'post', 'put', 'patch', 'delete'] as $method) {
+                if (!isset($pathDefinition[$method])) {
+                    continue;
+                }
+
+                $refs = array_column($pathDefinition[$method]['parameters'], '$ref');
+                static::assertContains(
+                    '#/components/parameters/swLanguageId',
+                    $refs,
+                    \sprintf('%s %s is missing the sw-language-id header', strtoupper($method), $path)
+                );
+            }
         }
     }
 

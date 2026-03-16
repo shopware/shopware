@@ -108,6 +108,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
         $this->resolveParameterGroups($finalSpecs);
+        $this->injectLanguageIdHeader($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
 
         return $finalSpecs;
@@ -190,6 +191,17 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     'default' => 'application/json',
                 ],
                 'description' => 'Accepted response content types',
+            ]),
+            new Parameter([
+                'parameter' => 'swLanguageId',
+                'name' => 'sw-language-id',
+                'in' => 'header',
+                'required' => false,
+                'schema' => [
+                    'type' => 'string',
+                    'pattern' => '^[0-9a-f]{32}$',
+                ],
+                'description' => 'Instructs Shopware to return the response in the given language.',
             ]),
         ];
 
@@ -327,6 +339,43 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 if ($hasGroup) {
                     $operation['parameters'] = $newParams;
                 }
+            }
+        }
+    }
+
+    /**
+     * Injects the sw-language-id header into every Store API operation.
+     * Skips operations that already declare it (as a named parameter or $ref) so that
+     * bundle-provided schemas with an explicit declaration are never duplicated.
+     *
+     * @param OpenApiSpec $specs
+     */
+    private function injectLanguageIdHeader(array &$specs): void
+    {
+        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
+            return;
+        }
+
+        foreach ($specs['paths'] as &$pathDefinition) {
+            foreach (self::OPERATION_KEYS as $key) {
+                if (!isset($pathDefinition[$key])) {
+                    continue;
+                }
+
+                if (!\is_array($pathDefinition[$key]['parameters'] ?? null)) {
+                    $pathDefinition[$key]['parameters'] = [];
+                }
+
+                foreach ($pathDefinition[$key]['parameters'] as $param) {
+                    if (
+                        (isset($param['name']) && $param['name'] === 'sw-language-id')
+                        || (isset($param['$ref']) && $param['$ref'] === '#/components/parameters/swLanguageId')
+                    ) {
+                        continue 2;
+                    }
+                }
+
+                $pathDefinition[$key]['parameters'][] = ['$ref' => '#/components/parameters/swLanguageId'];
             }
         }
     }

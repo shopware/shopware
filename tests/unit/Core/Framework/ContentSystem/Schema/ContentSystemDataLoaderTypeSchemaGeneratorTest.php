@@ -16,14 +16,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 #[CoversClass(ContentSystemDataLoaderTypeSchemaGenerator::class)]
 class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
 {
-    #[TestDox('getSchema returns structured JSON with sources and types')]
+    #[TestDox('returns structured JSON schema with sources and types')]
     public function testGetSchemaReturnsStructuredJson(): void
     {
         $map = new ContentSystemDataLoaderTypeMap([
             'navigation' => [new ContentSystemDataLoaderTypeDescriptor(Tree::class)],
         ]);
 
-        $resolver = $this->createMock(ContentSystemDataLoaderTypeResolver::class);
+        $resolver = static::createStub(ContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
 
         $generator = new ContentSystemDataLoaderTypeSchemaGenerator($resolver);
@@ -34,14 +34,14 @@ class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
         static::assertSame([['className' => Tree::class, 'genericParameters' => []]], $schema['sources']['navigation']['types']);
     }
 
-    #[TestDox('getSchema includes genericParameters')]
+    #[TestDox('includes genericParameters in schema')]
     public function testGetSchemaIncludesGenericParameters(): void
     {
         $map = new ContentSystemDataLoaderTypeMap([
             'product_review' => [new ContentSystemDataLoaderTypeDescriptor(EntitySearchResult::class, [ProductReviewCollection::class])],
         ]);
 
-        $resolver = $this->createMock(ContentSystemDataLoaderTypeResolver::class);
+        $resolver = static::createStub(ContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
 
         $generator = new ContentSystemDataLoaderTypeSchemaGenerator($resolver);

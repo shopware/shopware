@@ -40,32 +40,23 @@ class EntityCollectionLoaderTest extends TestCase
     public function testLoadReturnsCachedCollectionWithTagsViaSalesChannelRepository(): void
     {
         $productId = Uuid::randomHex();
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        $element = ContentElementBuilder::create('product-grid')
-            ->withProperty('productIds', [$productId])
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
         $entity = $this->createEntityWithId($productId);
-        $collection = new EntityCollection([$entity]);
-
-        $scRepo = new StaticSalesChannelRepository([$collection]);
-
-        $definition = static::createStub(EntityDefinition::class);
-        $definition->method('getEntityName')->willReturn('product');
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn('product-' . $productId);
 
-        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
+        $loader = $this->createLoaderWithSalesChannelRepo(
+            'product',
+            new EntityCollection([$entity]),
+            $cacheTagResolver,
+        );
 
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
-
-        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
-        $result = $loader->load($element, $requirement, $context, new Request());
+        $result = $loader->load(
+            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
+            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
         static::assertTrue($result->isCacheAware());
         static::assertSame(['product-' . $productId], $result->getCacheTags());
@@ -77,34 +68,23 @@ class EntityCollectionLoaderTest extends TestCase
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        $element = ContentElementBuilder::create('product-grid')
-            ->withProperty('productIds', [$id1, $id2])
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $entity1 = $this->createEntityWithId($id1);
-        $entity2 = $this->createEntityWithId($id2);
-        $collection = new EntityCollection([$entity1, $entity2]);
-
-        $scRepo = new StaticSalesChannelRepository([$collection]);
-
-        $definition = static::createStub(EntityDefinition::class);
-        $definition->method('getEntityName')->willReturn('product');
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')
             ->willReturnCallback(static fn (EntityDefinition $def, string $id) => 'product-' . $id);
 
-        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
+        $loader = $this->createLoaderWithSalesChannelRepo(
+            'product',
+            new EntityCollection([$this->createEntityWithId($id1), $this->createEntityWithId($id2)]),
+            $cacheTagResolver,
+        );
 
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
-
-        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
-        $result = $loader->load($element, $requirement, $context, new Request());
+        $result = $loader->load(
+            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$id1, $id2])->build(),
+            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
         static::assertTrue($result->isCacheAware());
         static::assertContains('product-' . $id1, $result->getCacheTags());
@@ -116,32 +96,22 @@ class EntityCollectionLoaderTest extends TestCase
     public function testLoadReturnsUncacheableWhenCacheTagResolverReturnsNull(): void
     {
         $productId = Uuid::randomHex();
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        $element = ContentElementBuilder::create('product-grid')
-            ->withProperty('productIds', [$productId])
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $entity = $this->createEntityWithId($productId);
-        $collection = new EntityCollection([$entity]);
-
-        $scRepo = new StaticSalesChannelRepository([$collection]);
-
-        $definition = static::createStub(EntityDefinition::class);
-        $definition->method('getEntityName')->willReturn('product');
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn(null);
 
-        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
+        $loader = $this->createLoaderWithSalesChannelRepo(
+            'product',
+            new EntityCollection([$this->createEntityWithId($productId)]),
+            $cacheTagResolver,
+        );
 
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
-
-        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
-        $result = $loader->load($element, $requirement, $context, new Request());
+        $result = $loader->load(
+            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
+            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
         static::assertFalse($result->isCacheAware());
         static::assertInstanceOf(EntityCollection::class, $result->data);
@@ -151,13 +121,6 @@ class EntityCollectionLoaderTest extends TestCase
     public function testLoadFallsBackToPlainRepositoryWhenSalesChannelRepoNotFound(): void
     {
         $categoryId = Uuid::randomHex();
-        $config = new EntityLoaderConfig('category', 'categoryIds', []);
-        $requirement = new DataRequirement('categories', 'entity_collection', $config);
-        $element = ContentElementBuilder::create('category-grid')
-            ->withProperty('categoryIds', [$categoryId])
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
         $entity = $this->createEntityWithId($categoryId);
         $collection = new EntityCollection([$entity]);
 
@@ -178,7 +141,12 @@ class EntityCollectionLoaderTest extends TestCase
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
-        $result = $loader->load($element, $requirement, $context, new Request());
+        $result = $loader->load(
+            ContentElementBuilder::create('category-grid')->withProperty('categoryIds', [$categoryId])->build(),
+            new DataRequirement('categories', 'entity_collection', new EntityLoaderConfig('category', 'categoryIds', [])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
         static::assertTrue($result->isCacheAware());
         static::assertSame(['category-route-' . $categoryId], $result->getCacheTags());
@@ -190,38 +158,22 @@ class EntityCollectionLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $upperCaseId = strtoupper($productId);
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        $element = ContentElementBuilder::create('product-grid')
-            ->withProperty('productIds', [$upperCaseId])
-            ->build();
-        $context = Generator::generateSalesChannelContext();
 
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
 
-        $scRepo = new StaticSalesChannelRepository([
-            static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
-                $capturedCriteria = $criteria;
+        $loader = $this->createLoaderWithCallableRepo('product', static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
+            $capturedCriteria = $criteria;
 
-                return new EntityCollection();
-            },
-        ]);
+            return new EntityCollection();
+        });
 
-        $definition = static::createStub(EntityDefinition::class);
-        $definition->method('getEntityName')->willReturn('product');
-
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn(null);
-
-        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
-
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
-
-        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
-        $loader->load($element, $requirement, $context, new Request());
+        $loader->load(
+            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$upperCaseId])->build(),
+            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
         static::assertSame([$productId], $capturedCriteria->getIds());
@@ -231,38 +183,22 @@ class EntityCollectionLoaderTest extends TestCase
     public function testLoadAddsAssociationsToCriteria(): void
     {
         $productId = Uuid::randomHex();
-        $config = new EntityLoaderConfig('product', 'productIds', ['manufacturer', 'cover']);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        $element = ContentElementBuilder::create('product-grid')
-            ->withProperty('productIds', [$productId])
-            ->build();
-        $context = Generator::generateSalesChannelContext();
 
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
 
-        $scRepo = new StaticSalesChannelRepository([
-            static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
-                $capturedCriteria = $criteria;
+        $loader = $this->createLoaderWithCallableRepo('product', static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
+            $capturedCriteria = $criteria;
 
-                return new EntityCollection();
-            },
-        ]);
+            return new EntityCollection();
+        });
 
-        $definition = static::createStub(EntityDefinition::class);
-        $definition->method('getEntityName')->willReturn('product');
-
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn(null);
-
-        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
-
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
-
-        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
-        $loader->load($element, $requirement, $context, new Request());
+        $loader->load(
+            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
+            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', ['manufacturer', 'cover'])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
         static::assertNotEmpty($capturedCriteria->getAssociations());
@@ -355,6 +291,44 @@ class EntityCollectionLoaderTest extends TestCase
             $defRegistry,
             static::createStub(EntityCacheTagResolver::class),
         );
+    }
+
+    private function createLoaderWithSalesChannelRepo(
+        string $entityName,
+        EntityCollection $collection,
+        EntityCacheTagResolver $cacheTagResolver,
+    ): EntityCollectionLoader {
+        $scRepo = new StaticSalesChannelRepository([$collection]);
+
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn($entityName);
+
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
+
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('getByEntityName')->willReturn($definition);
+
+        return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
+    }
+
+    private function createLoaderWithCallableRepo(string $entityName, callable $callback): EntityCollectionLoader
+    {
+        $scRepo = new StaticSalesChannelRepository([$callback]);
+
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn($entityName);
+
+        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
+        $cacheTagResolver->method('resolve')->willReturn(null);
+
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
+
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('getByEntityName')->willReturn($definition);
+
+        return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
     }
 
     private function createMinimalLoader(): EntityCollectionLoader

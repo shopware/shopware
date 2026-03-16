@@ -13,7 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
 #[CoversClass(ContentSystemDataLoaderTypeMap::class)]
 class ContentSystemDataLoaderTypeMapTest extends TestCase
 {
-    #[TestDox('getSourcesFor returns matching source identifiers')]
+    #[TestDox('returns matching source identifiers')]
     public function testGetSourcesForMatchingClass(): void
     {
         $map = new ContentSystemDataLoaderTypeMap([
@@ -25,7 +25,7 @@ class ContentSystemDataLoaderTypeMapTest extends TestCase
         static::assertSame(['navigation'], $map->getSourcesFor(Tree::class));
     }
 
-    #[TestDox('getSourcesFor returns empty for unknown class')]
+    #[TestDox('returns empty for unknown class')]
     public function testGetSourcesForUnknownClass(): void
     {
         $map = new ContentSystemDataLoaderTypeMap([

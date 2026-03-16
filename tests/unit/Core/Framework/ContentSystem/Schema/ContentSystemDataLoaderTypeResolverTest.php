@@ -17,10 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 #[CoversClass(ContentSystemDataLoaderTypeResolver::class)]
 class ContentSystemDataLoaderTypeResolverTest extends TestCase
 {
-    #[TestDox('resolve passes non-wildcard entries through as-is')]
+    #[TestDox('passes non-wildcard entries through as-is')]
     public function testNonWildcardPassthrough(): void
     {
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
 
         $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
             'navigation' => [['className' => Tree::class, 'genericParameters' => []]],
@@ -32,13 +32,13 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
     }
 
-    #[TestDox('resolve expands Entity wildcard using definitions')]
+    #[TestDox('expands Entity wildcard using definitions')]
     public function testEntityWildcardExpansion(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $definition->method('getEntityClass')->willReturn(ProductEntity::class);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getDefinitions')->willReturn([$definition]);
 
         $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
@@ -51,13 +51,13 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame(ProductEntity::class, $map->sourceToTypes['entity'][0]->className);
     }
 
-    #[TestDox('resolve expands EntityCollection wildcard using definitions')]
+    #[TestDox('expands EntityCollection wildcard using definitions')]
     public function testEntityCollectionWildcardExpansion(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $definition->method('getCollectionClass')->willReturn(ProductCollection::class);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getDefinitions')->willReturn([$definition]);
 
         $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
@@ -70,10 +70,10 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame(ProductCollection::class, $map->sourceToTypes['entity_collection'][0]->className);
     }
 
-    #[TestDox('resolve preserves genericParameters')]
+    #[TestDox('preserves genericParameters')]
     public function testGenericParametersPreserved(): void
     {
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
 
         $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
             'product_review' => [['className' => 'EntitySearchResult', 'genericParameters' => ['ProductReviewCollection']]],

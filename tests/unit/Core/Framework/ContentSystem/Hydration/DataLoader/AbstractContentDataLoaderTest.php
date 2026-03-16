@@ -27,7 +27,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -41,7 +40,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(AbstractContentDataLoader::class)]
 class AbstractContentDataLoaderTest extends TestCase
 {
-    #[TestDox('getProvidedData parses simple @extends annotation')]
+    #[TestDox('parses simple @extends annotation')]
     public function testSimpleExtendsAnnotation(): void
     {
         $descriptor = SimpleTestLoader::getProvidedData();
@@ -50,7 +49,7 @@ class AbstractContentDataLoaderTest extends TestCase
         static::assertSame([], $descriptor->genericParameters);
     }
 
-    #[TestDox('getProvidedData parses nested generic @extends annotation')]
+    #[TestDox('parses nested generic @extends annotation')]
     public function testNestedGenericExtendsAnnotation(): void
     {
         $descriptor = GenericTestLoader::getProvidedData();
@@ -59,10 +58,12 @@ class AbstractContentDataLoaderTest extends TestCase
         static::assertSame([ProductReviewCollection::class], $descriptor->genericParameters);
     }
 
-    #[TestDox('getProvidedData throws when @extends annotation is missing')]
+    #[TestDox('throws when @extends annotation is missing')]
     public function testThrowsWhenExtendsMissing(): void
     {
-        $this->expectException(ContentSystemException::class);
+        $this->expectExceptionObject(
+            ContentSystemException::missingExtendsAnnotation(MissingAnnotationTestLoader::class)
+        );
 
         MissingAnnotationTestLoader::getProvidedData();
     }
@@ -71,8 +72,8 @@ class AbstractContentDataLoaderTest extends TestCase
      * @param class-string<AbstractContentDataLoader> $loaderClass
      * @param list<class-string> $expectedGenericParams
      */
-    #[DataProvider('domainLoaderProvider')]
-    #[TestDox('getProvidedData parses @extends for $loaderClass')]
+    #[DataProvider('parsesExtendsAnnotationProvider')]
+    #[TestDox('parses @extends for $loaderClass')]
     public function testDomainLoaderAnnotation(string $loaderClass, string $expectedClassName, array $expectedGenericParams = []): void
     {
         $descriptor = $loaderClass::getProvidedData();
@@ -83,7 +84,7 @@ class AbstractContentDataLoaderTest extends TestCase
     /**
      * @return \Generator<string, array{class-string<AbstractContentDataLoader>, class-string, list<class-string>}>
      */
-    public static function domainLoaderProvider(): \Generator
+    public static function parsesExtendsAnnotationProvider(): \Generator
     {
         yield NavigationDataLoader::class => [NavigationDataLoader::class, Tree::class];
         yield ServiceMenuDataLoader::class => [ServiceMenuDataLoader::class, CategoryCollection::class];

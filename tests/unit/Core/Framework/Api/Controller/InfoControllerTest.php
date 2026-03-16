@@ -11,17 +11,15 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
@@ -31,6 +29,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Asset\UrlPackage;
@@ -43,7 +42,6 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('framework')]
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {
@@ -92,10 +90,6 @@ class InfoControllerTest extends TestCase
         $workerConfig = $data['adminWorker'];
         static::assertArrayHasKey('enableAdminWorker', $workerConfig);
         static::assertTrue($workerConfig['enableAdminWorker']);
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::assertArrayHasKey('enableQueueStatsWorker', $workerConfig);
-            static::assertTrue($workerConfig['enableQueueStatsWorker']);
-        }
         static::assertArrayHasKey('enableNotificationWorker', $workerConfig);
         static::assertTrue($workerConfig['enableNotificationWorker']);
         static::assertArrayHasKey('transports', $workerConfig);
@@ -213,21 +207,6 @@ class InfoControllerTest extends TestCase
         static::assertNull($data['settings']['firstMigrationDate']);
     }
 
-    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNullAgain(): void
-    {
-        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
-
-        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-
-        static::assertArrayHasKey('settings', $data);
-        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
-        static::assertNull($data['settings']['firstMigrationDate']);
-    }
-
     public function testConfigReturnsFirstMigrationDateFromMigrationInfo(): void
     {
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn('2020-01-01T00:00:00.123+00:00');
@@ -241,6 +220,19 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('settings', $data);
         static::assertArrayHasKey('firstMigrationDate', $data['settings']);
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testConfigIncludesQueueStatsWorkerWhenLegacyFlagInactive(): void
+    {
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('adminWorker', $data);
+        static::assertArrayHasKey('enableQueueStatsWorker', $data['adminWorker']);
+        static::assertTrue($data['adminWorker']['enableQueueStatsWorker']);
     }
 
     public function testContentSystemDataLoaderTypeSchema(): void

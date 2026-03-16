@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Definition;
 #[CoversClass(ContentSystemDataLoaderTypeCompilerPass::class)]
 class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
 {
-    #[TestDox('process collects loader types and sets resolver argument')]
+    #[TestDox('collects loader types and sets resolver argument')]
     public function testProcessCollectsLoaderTypes(): void
     {
         $container = new ContainerBuilder();
@@ -37,7 +37,7 @@ class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
         static::assertSame([], $argument['navigation'][0]['genericParameters']);
     }
 
-    #[TestDox('process returns early when resolver definition is missing')]
+    #[TestDox('returns early when resolver definition is missing')]
     public function testProcessReturnsEarlyWithoutResolver(): void
     {
         $container = new ContainerBuilder();

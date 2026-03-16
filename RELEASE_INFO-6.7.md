@@ -7,6 +7,68 @@ A new internal comment field was added to the state change modal which can be us
 The internal comment is only visible in the administration and not shown to customers.
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
+### Use JSON-LD format for Structured Data
+The Storefront now emits structured data as JSON-LD (`<script type="application/ld+json">` in the `<head>`) instead of scattered inline microdata attributes (`itemscope`, `itemtype`, `itemprop`). JSON-LD is the preferred format and keeps structured data cleanly separated from the HTML markup.
+
+In addition to replacing the existing microdata, several schema types that were missing entirely are now included: a `WebSite` schema with `SearchAction` (enabling the Google Sitelinks Searchbox), a top-level `Organization` schema with the shop logo, an `ItemList` schema on category and search result pages, and `VideoObject` entries for product video media.
+
+The migration is controlled by the new `JSON_LD_DATA` feature flag. When the flag is **off** (default), the existing microdata is rendered as before. When the flag is **on**, JSON-LD is injected and all microdata is removed. The old microdata is deprecated and will be removed with the next major release (v6.8.0).
+
+The following schema types are now emitted as JSON-LD:
+
+| Schema | Pages |
+|---|---|
+| `WebSite` + `SearchAction` | All pages (enables Google Sitelinks Searchbox) |
+| `Organization` with logo | All pages |
+| `WebPage` / `ProductPage` / `CollectionPage` / `SearchResultsPage` | All pages (type narrows per context) |
+| `BreadcrumbList` | All pages with a navigation breadcrumb |
+| `Product` | Product detail page |
+| `ItemList` | Category pages, search results |
+
+The `Product` schema on the product detail page is significantly more complete compared to the previous microdata:
+
+- All product images are listed (previously only cover image via `itemprop`)
+- `VideoObject` entries are emitted for any video media in the product's media collection
+- `AggregateRating` now includes the required `ratingCount` (total number of approved reviews), sourced via an efficient aggregation query in `ProductPageLoader`
+- Individual `Review` items (up to 10 most recent) are included alongside `AggregateRating`
+- `OfferShippingDetails` with `ShippingDeliveryTime` is included for single-price products
+- Dimensions (`weight`, `height`, `width`, `depth`) are typed as `QuantitativeValue` nodes
+- `itemCondition` and a typed `seller` (`Organization`) are set on every `Offer`
+- `gtin13` (EAN) and `mpn` (manufacturer number) are included when present
+
+#### Extending the schema templates
+
+Each schema lives in its own Twig template under `storefront/layout/structured-data/`. Every template exposes two blocks: an outer block that contains the full data-building logic, and an inner `_script` block that wraps just the `<script>` output. Plugins and themes can override either level using Shopware's standard template extension mechanism.
+
+To add or change properties, override the `_script` block, merge your changes into the data variable (`productData`, `orgData`, `webPageData`, etc.), and call `{{ parent() }}`.
+
+```twig
+{# MyPlugin/Resources/views/storefront/layout/structured-data/json-ld-organization.html.twig #}
+{% sw_extends '@Storefront/storefront/layout/structured-data/json-ld-organization.html.twig' %}
+
+{% block layout_structured_data_organization_script %}
+    {% set orgData = orgData|merge({
+        'contactPoint': {
+            '@type': 'ContactPoint',
+            'contactType': 'customer service',
+            'email': config('core.basicInformation.email')
+        }
+    }) %}
+    {{ parent() }}
+{% endblock %}
+```
+
+The available outer / script block pairs are:
+
+| Template | Outer block | Script block |
+|---|---|---|
+| `json-ld-webpage.html.twig` | `layout_structured_data_webpage` | `layout_structured_data_webpage_script` |
+| `json-ld-breadcrumb.html.twig` | `layout_structured_data_breadcrumb` | `layout_structured_data_breadcrumb_script` |
+| `json-ld-organization.html.twig` | `layout_structured_data_organization` | `layout_structured_data_organization_script` |
+| `json-ld-website.html.twig` | `layout_structured_data_website` | `layout_structured_data_website_script` |
+| `json-ld-item-list.html.twig` | `layout_structured_data_item_list` | `layout_structured_data_item_list_script` |
+| `json-ld-product.html.twig` | `page_product_detail_json_ld` | `page_product_detail_json_ld_script` |
+
 ### [Experimental] Use OpenSearch for Admin API searches
 
 When the data in your store grows larger the administration might become slower, especially when searching for entities in lists.

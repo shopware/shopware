@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
-use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
+use Shopware\Core\Checkout\Document\Event\ZugferdCreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -98,7 +98,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
 
                 if ($invoice === []) {
                     throw DocumentException::generationError(
-                        'Can not generate ZUGFeRD credit note document because no invoice document exists. OrderId: ' . $orderId
+                        'Cannot generate ZUGFeRD credit note document because no invoice document exists. OrderId: ' . $orderId
                     );
                 }
 
@@ -119,7 +119,11 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
             }
         }
 
-        $this->eventDispatcher->dispatch(new CreditNoteOrdersEvent($orders, $context, $operations));
+        $this->eventDispatcher->dispatch(new ZugferdCreditNoteOrdersEvent(
+            $orders,
+            $context,
+            $operations
+        ));
 
         foreach ($orders as $order) {
             $orderId = $order->getId();
@@ -141,7 +145,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
 
                 if ($referenceDocument === null) {
                     throw DocumentException::generationError(
-                        'Can not generate ZUGFeRD credit note document because no invoice document exists. OrderId: ' . $orderId
+                        'Cannot generate ZUGFeRD credit note document because no invoice document exists. OrderId: ' . $orderId
                     );
                 }
 
@@ -150,7 +154,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
 
                 if ($liveCreditItems->count() === 0) {
                     throw DocumentException::generationError(
-                        'Can not generate ZUGFeRD credit note document because no credit line items exists. OrderId: ' . $orderId
+                        'Cannot generate ZUGFeRD credit note document because no credit line items exists. OrderId: ' . $orderId
                     );
                 }
 
@@ -165,7 +169,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
 
                 if ($creditItems->count() === 0) {
                     throw DocumentException::generationError(
-                        'Can not generate ZUGFeRD credit note document because no unprocessed credit line items exists. OrderId: ' . $orderId
+                        'Cannot generate ZUGFeRD credit note document because no unprocessed credit line items exists. OrderId: ' . $orderId
                     );
                 }
 

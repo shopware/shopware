@@ -78,11 +78,6 @@ abstract class AbstractContentDataLoader
         }
 
         $typeNode = $extendsValues[0]->type;
-
-        if ($typeNode->genericTypes === []) {
-            throw ContentSystemException::missingGenericParameter(static::class);
-        }
-
         $dataTypeNode = $typeNode->genericTypes[0];
 
         $contextFactory = new TypeContextFactory();

@@ -32,7 +32,7 @@ class ContentSystemException extends HttpException
     public const PROPERTY_ALIAS_COLLISION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
     public const ROUTES_ALREADY_LOADED = 'CONTENT_SYSTEM__ROUTES_ALREADY_LOADED';
     public const MISSING_EXTENDS_ANNOTATION = 'CONTENT_SYSTEM__MISSING_EXTENDS_ANNOTATION';
-    public const MISSING_GENERIC_PARAMETER = 'CONTENT_SYSTEM__MISSING_GENERIC_PARAMETER';
+
     public const UNSUPPORTED_TYPE_NODE = 'CONTENT_SYSTEM__UNSUPPORTED_TYPE_NODE';
     public const UNRESOLVABLE_TYPE_CLASS = 'CONTENT_SYSTEM__UNRESOLVABLE_TYPE_CLASS';
 
@@ -231,16 +231,6 @@ class ContentSystemException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MISSING_EXTENDS_ANNOTATION,
             'Data loader "{{ loaderClass }}" is missing @extends AbstractContentDataLoader<T> annotation.',
-            ['loaderClass' => $loaderClass]
-        );
-    }
-
-    public static function missingGenericParameter(string $loaderClass): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::MISSING_GENERIC_PARAMETER,
-            'Data loader "{{ loaderClass }}" @extends annotation must have a generic type parameter.',
             ['loaderClass' => $loaderClass]
         );
     }

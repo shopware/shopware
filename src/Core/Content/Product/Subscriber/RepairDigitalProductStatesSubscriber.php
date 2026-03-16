@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -77,11 +78,15 @@ final readonly class RepairDigitalProductStatesSubscriber implements EventSubscr
                     WHERE `version_id` = :versionId
                       AND `type` = :type
                       AND `states` IS NULL
-                    LIMIT 500
+                    LIMIT :limit
                     SQL,
                     [
                         'type' => ProductDefinition::TYPE_DIGITAL,
+                        'limit' => self::BATCH_SIZE,
                         'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                    ],
+                    [
+                        'limit' => ParameterType::INTEGER,
                     ]
                 );
 

@@ -49,7 +49,7 @@ class CheapestPricePercentageFilterTest extends TestCase
         static::assertNotContains($noListPriceId, $result->getIds());
     }
 
-    public function testPercentageLessThan100IncludesAllProductsWithListPrice(): void
+    public function testPercentageLessThanOrEqual100IncludesAllProductsWithListPrice(): void
     {
         $heavilyDiscounted = Uuid::randomHex();
         $slightlyDiscounted = Uuid::randomHex();
@@ -62,17 +62,17 @@ class CheapestPricePercentageFilterTest extends TestCase
         $this->createProduct($noListPrice, 100.0, null);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new RangeFilter('product.cheapestPrice.percentage', [RangeFilter::LT => 100]));
+        $criteria->addFilter(new RangeFilter('product.cheapestPrice.percentage', [RangeFilter::LTE => 100]));
 
         $result = $this->searchIds($criteria);
 
         static::assertContains($heavilyDiscounted, $result->getIds());
         static::assertContains($slightlyDiscounted, $result->getIds());
-        static::assertContains($noDiscount, $result->getIds(), 'percentage=0 is < 100, product with listPrice should match');
+        static::assertContains($noDiscount, $result->getIds(), 'percentage=100 should match LTE 100');
         static::assertNotContains($noListPrice, $result->getIds(), 'product without list price must not match');
     }
 
-    public function testPercentageGreaterThanZeroExcludesNonDiscountedProducts(): void
+    public function testPercentageLessThan100ExcludesNonDiscountedProducts(): void
     {
         $discounted = Uuid::randomHex();
         $noDiscount = Uuid::randomHex();
@@ -83,12 +83,12 @@ class CheapestPricePercentageFilterTest extends TestCase
         $this->createProduct($noListPrice, 100.0, null);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new RangeFilter('product.cheapestPrice.percentage', [RangeFilter::GT => 0]));
+        $criteria->addFilter(new RangeFilter('product.cheapestPrice.percentage', [RangeFilter::LT => 100]));
 
         $result = $this->searchIds($criteria);
 
         static::assertContains($discounted, $result->getIds());
-        static::assertNotContains($noDiscount, $result->getIds(), 'percentage=0 should not match GT 0');
+        static::assertNotContains($noDiscount, $result->getIds(), 'percentage=100 should not match LT 100');
         static::assertNotContains($noListPrice, $result->getIds(), 'product without list price must not match');
     }
 
@@ -106,15 +106,15 @@ class CheapestPricePercentageFilterTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new RangeFilter('product.cheapestPrice.percentage', [
-            RangeFilter::GTE => 25,
-            RangeFilter::LTE => 50,
+            RangeFilter::GTE => 50,
+            RangeFilter::LTE => 75,
         ]));
 
         $result = $this->searchIds($criteria);
 
-        static::assertContains($discount25, $result->getIds(), 'percentage=25 should match GTE 25');
-        static::assertContains($discount50, $result->getIds(), 'percentage=50 should match LTE 50');
-        static::assertNotContains($discount75, $result->getIds(), 'percentage=75 should exceed upper bound');
+        static::assertContains($discount25, $result->getIds(), 'percentage=75 should match GTE 50');
+        static::assertContains($discount50, $result->getIds(), 'percentage=50 should match LTE 75');
+        static::assertNotContains($discount75, $result->getIds(), 'percentage=25 is below lower bound');
         static::assertNotContains($noListPrice, $result->getIds(), 'product without list price should be excluded');
     }
 
@@ -136,7 +136,7 @@ class CheapestPricePercentageFilterTest extends TestCase
         static::assertNotContains($noListPriceId, $result->getIds());
     }
 
-    public function testPercentageEqualsZeroMatchesNonDiscountedWithListPrice(): void
+    public function testPercentageEquals100MatchesNonDiscountedWithListPrice(): void
     {
         $nonDiscounted = Uuid::randomHex();
         $discounted = Uuid::randomHex();
@@ -147,13 +147,13 @@ class CheapestPricePercentageFilterTest extends TestCase
         $this->createProduct($noListPrice, 100.0, null);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.cheapestPrice.percentage', 0));
+        $criteria->addFilter(new EqualsFilter('product.cheapestPrice.percentage', 100));
 
         $result = $this->searchIds($criteria);
 
-        static::assertContains($nonDiscounted, $result->getIds(), 'Product with price=listPrice (percentage=0) should match');
-        static::assertNotContains($discounted, $result->getIds(), 'Discounted product should not match percentage=0');
-        static::assertNotContains($noListPrice, $result->getIds(), 'Product without list price should not match percentage=0');
+        static::assertContains($nonDiscounted, $result->getIds(), 'Product with price=listPrice (percentage=100) should match');
+        static::assertNotContains($discounted, $result->getIds(), 'Discounted product should not match percentage=100');
+        static::assertNotContains($noListPrice, $result->getIds(), 'Product without list price should not match percentage=100');
     }
 
     public function testPriceFieldPercentageFilterExcludesProductsWithoutListPrice(): void

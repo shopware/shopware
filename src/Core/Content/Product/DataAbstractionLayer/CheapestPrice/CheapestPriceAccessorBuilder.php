@@ -125,7 +125,16 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
             );
         }
 
-        return \sprintf('COALESCE(%s)', implode(',', $select));
+        $result = \sprintf('COALESCE(%s)', implode(',', $select));
+
+        // The DB stores the discount percentage (e.g. 25 for "25% off"), but the API
+        // exposes the price-to-list-price ratio (e.g. 75 for "pay 75% of list price").
+        // Invert here so filters/sorts operate on the intuitive ratio scale.
+        if ($isPercentageAccessor) {
+            return \sprintf('(100 - %s)', $result);
+        }
+
+        return $result;
     }
 
     private function useCashRounding(Context $context): bool

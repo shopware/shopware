@@ -44,72 +44,54 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(AbstractContentDataLoader::class)]
 class AbstractContentDataLoaderTest extends TestCase
 {
-    #[TestDox('parses simple @extends annotation')]
+    #[TestDox('resolves return type from simple class declaration')]
     public function testSimpleExtendsAnnotation(): void
     {
-        $descriptor = SimpleTestLoader::getProvidedData();
+        $descriptor = SimpleStubLoader::getProvidedData();
 
         static::assertSame(Tree::class, $descriptor->className);
         static::assertSame([], $descriptor->genericParameters);
     }
 
-    #[TestDox('parses nested generic @extends annotation')]
+    #[TestDox('resolves return type from generic class declaration')]
     public function testNestedGenericExtendsAnnotation(): void
     {
-        $descriptor = GenericTestLoader::getProvidedData();
+        $descriptor = GenericStubLoader::getProvidedData();
 
         static::assertSame(EntitySearchResult::class, $descriptor->className);
         static::assertSame([ProductReviewCollection::class], $descriptor->genericParameters);
-    }
-
-    #[TestDox('throws when @extends annotation is missing')]
-    public function testThrowsWhenExtendsMissing(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::missingExtendsAnnotation(MissingAnnotationTestLoader::class)
-        );
-
-        MissingAnnotationTestLoader::getProvidedData();
-    }
-
-    #[TestDox('throws when resolved type class is not a Struct subclass')]
-    public function testThrowsWhenTypeClassIsNotStruct(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::unresolvableTypeClass(\stdClass::class, NonStructTypeTestLoader::class)
-        );
-
-        NonStructTypeTestLoader::getProvidedData();
-    }
-
-    #[TestDox('throws when type node is neither generic nor identifier')]
-    public function testThrowsWhenTypeNodeIsUnsupported(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::unsupportedTypeNode(UnionTypeNode::class)
-        );
-
-        UnsupportedTypeNodeTestLoader::getProvidedData();
     }
 
     /**
      * @param class-string $loaderClass
      * @param list<class-string> $expectedGenericParams
      */
-    #[DataProvider('parsesExtendsAnnotationProvider')]
-    #[TestDox('parses @extends for $loaderClass')]
+    #[DataProvider('domainLoaderAnnotationProvider')]
+    #[TestDox('resolves return type for $loaderClass')]
     public function testDomainLoaderAnnotation(string $loaderClass, string $expectedClassName, array $expectedGenericParams = []): void
     {
-        static::assertTrue(is_subclass_of($loaderClass, AbstractContentDataLoader::class));
+        static::assertTrue(
+            is_subclass_of($loaderClass, AbstractContentDataLoader::class),
+            $loaderClass . ' is not a subclass of AbstractContentDataLoader'
+        );
         $descriptor = $loaderClass::getProvidedData();
         static::assertSame($expectedClassName, $descriptor->className);
         static::assertSame($expectedGenericParams, $descriptor->genericParameters);
     }
 
+    #[DataProvider('invalidAnnotationProvider')]
+    #[TestDox('throws for invalid annotation: $description')]
+    public function testThrowsForInvalidAnnotation(string $loaderClass, \Exception $expectedException, string $description): void
+    {
+        $this->expectExceptionObject($expectedException);
+
+        $loaderClass::getProvidedData();
+    }
+
     /**
      * @return \Generator<string, array{class-string, class-string, list<class-string>}>
      */
-    public static function parsesExtendsAnnotationProvider(): \Generator
+    public static function domainLoaderAnnotationProvider(): \Generator
     {
         yield NavigationDataLoader::class => [NavigationDataLoader::class, Tree::class, []];
         yield ServiceMenuDataLoader::class => [ServiceMenuDataLoader::class, CategoryCollection::class, []];
@@ -124,6 +106,19 @@ class AbstractContentDataLoaderTest extends TestCase
         yield LanguageDataLoader::class => [LanguageDataLoader::class, LanguageCollection::class, []];
         yield CurrencyDataLoader::class => [CurrencyDataLoader::class, CurrencyCollection::class, []];
     }
+
+    /**
+     * @return \Generator<string, array{class-string, \Exception, string}>
+     */
+    public static function invalidAnnotationProvider(): \Generator
+    {
+        yield 'missing docblock entirely' => [NoDocblockStubLoader::class, ContentSystemException::missingExtendsAnnotation(NoDocblockStubLoader::class), 'missing docblock entirely'];
+        yield 'docblock without @extends tag' => [MissingAnnotationStubLoader::class, ContentSystemException::missingExtendsAnnotation(MissingAnnotationStubLoader::class), 'docblock without @extends tag'];
+        yield 'identifier type not a Struct subclass' => [NonStructTypeStubLoader::class, ContentSystemException::unresolvableTypeClass(\stdClass::class, NonStructTypeStubLoader::class), 'identifier type not a Struct subclass'];
+        yield 'generic outer type not a Struct subclass' => [GenericNonStructOuterStubLoader::class, ContentSystemException::unresolvableTypeClass(\ArrayObject::class, GenericNonStructOuterStubLoader::class), 'generic outer type not a Struct subclass'];
+        yield 'generic parameter not a Struct subclass' => [GenericNonStructParamStubLoader::class, ContentSystemException::unresolvableTypeClass(\stdClass::class, GenericNonStructParamStubLoader::class), 'generic parameter not a Struct subclass'];
+        yield 'type node neither identifier nor generic' => [UnsupportedTypeNodeStubLoader::class, ContentSystemException::unsupportedTypeNode(UnionTypeNode::class), 'type node neither identifier nor generic'];
+    }
 }
 
 /**
@@ -131,7 +126,7 @@ class AbstractContentDataLoaderTest extends TestCase
  *
  * @extends AbstractContentDataLoader<Tree>
  */
-class SimpleTestLoader extends AbstractContentDataLoader
+class SimpleStubLoader extends AbstractContentDataLoader
 {
     public static function getRequirementType(): string
     {
@@ -149,7 +144,7 @@ class SimpleTestLoader extends AbstractContentDataLoader
  *
  * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
  */
-class GenericTestLoader extends AbstractContentDataLoader
+class GenericStubLoader extends AbstractContentDataLoader
 {
     public static function getRequirementType(): string
     {
@@ -167,7 +162,25 @@ class GenericTestLoader extends AbstractContentDataLoader
  *
  * @phpstan-ignore missingType.generics
  */
-class MissingAnnotationTestLoader extends AbstractContentDataLoader
+class NoDocblockStubLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_no_docblock';
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @phpstan-ignore missingType.generics
+ */
+class MissingAnnotationStubLoader extends AbstractContentDataLoader
 {
     public static function getRequirementType(): string
     {
@@ -187,7 +200,7 @@ class MissingAnnotationTestLoader extends AbstractContentDataLoader
  *
  * @phpstan-ignore generics.notSubtype
  */
-class NonStructTypeTestLoader extends AbstractContentDataLoader
+class NonStructTypeStubLoader extends AbstractContentDataLoader
 {
     public static function getRequirementType(): string
     {
@@ -207,11 +220,51 @@ class NonStructTypeTestLoader extends AbstractContentDataLoader
  *
  * @phpstan-ignore generics.notSubtype
  */
-class UnsupportedTypeNodeTestLoader extends AbstractContentDataLoader
+class UnsupportedTypeNodeStubLoader extends AbstractContentDataLoader
 {
     public static function getRequirementType(): string
     {
         return 'test_unsupported_type';
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<\ArrayObject<int, \stdClass>>
+ *
+ * @phpstan-ignore generics.notSubtype
+ */
+class GenericNonStructOuterStubLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_generic_non_struct_outer';
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<\stdClass>>
+ *
+ * @phpstan-ignore generics.notSubtype
+ */
+class GenericNonStructParamStubLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_generic_non_struct_param';
     }
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult

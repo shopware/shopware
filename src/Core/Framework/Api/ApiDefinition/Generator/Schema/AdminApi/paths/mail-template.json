@@ -71,13 +71,13 @@
                                     },
                                     "binAttachments": {
                                         "description": "A list of binary attachments which should be added to the mail.",
-                                        "required": [
-                                            "content",
-                                            "fileName",
-                                            "mimeType"
-                                        ],
                                         "type": "array",
                                         "items": {
+                                            "required": [
+                                                "content",
+                                                "fileName",
+                                                "mimeType"
+                                            ],
                                             "properties": {
                                                 "content": {
                                                     "description": "Binary content of the attachment.",
@@ -142,6 +142,18 @@
                                             "description": "Name of the recipient.",
                                             "type": "string"
                                         }
+                                    },
+                                    "templateData": {
+                                        "description": "A collection of available data that is used to fill the mail template.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "mixed"
+                                        },
+                                        "example": {
+                                            "salesChannel": {
+                                                "name": "Storefront"
+                                            }
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -155,6 +167,9 @@
                         "content": {
                             "application\/json": {
                                 "schema": {
+                                    "required": [
+                                        "size"
+                                    ],
                                     "properties": {
                                         "size": {
                                             "description": "Length of the email message",
@@ -182,11 +197,11 @@
                     "content": {
                         "application\/json": {
                             "schema": {
-                                "required": [
-                                    "contentHtml",
-                                    "contentPlain"
-                                ],
                                 "properties": {
+                                    "required": [
+                                        "contentHtml",
+                                        "contentPlain"
+                                    ],
                                     "contentHtml": {
                                         "description": "The content of the mail in HTML format.",
                                         "type": "string"
@@ -248,7 +263,7 @@
                                         "description": "The content of the mail as plain text.",
                                         "properties": {
                                             "contentHtml": {
-                                                "description": "The content of mail mail template in html format.",
+                                                "description": "The content of the mail template in html format.",
                                                 "type": "string",
                                                 "example": "Hello {{ order.customerName }}, this is example mail content, the current date is {{ 'now'|date('d\/m\/Y') }}"
                                             }
@@ -282,7 +297,7 @@
                 ],
                 "summary": "Preview a mail template",
                 "description": "Fetches the required data needed for the mail template and generates a preview.",
-                "operationId": "preview",
+                "operationId": "mailTemplatePreview",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -298,18 +313,11 @@
                                         "pattern": "^[0-9a-f]{32}$",
                                         "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890"
                                     },
-                                    "entities": {
-                                        "description": "A map of variable names and entity identifiers. The variable names should come from the mail template type's available variables.",
-                                        "type": "object",
-                                        "additionalProperties": {
-                                            "type": "string",
-                                            "pattern": "^[0-9a-f]{32}$"
-                                        },
-                                        "example": {
-                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890",
-                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90"
-                                        }
-                                    }
+                                    "flowEventClass":{
+                                        "description": "The class of the flow trigger event that provides the available variables.",
+                                        "type": "string",
+                                        "example": "Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\Event\\ReviewFormEvent"
+                                    },
                                 },
                                 "type": "object"
                             }
@@ -322,13 +330,98 @@
                         "content": {
                             "application\/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "required": [
+                                        "subject",
+                                        "senderName",
+                                        "contentHtml",
+                                        "contentPlain"
+                                    ],
+                                    "properties": {
+                                        "subject": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the render result (either `success` or `error`)",
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "content": {
+                                                    "description": "The rendered content of the mail template's subject. Also contains the error when rendering this field wasn't possible.",
+                                                    "type": "string",
+                                                    "example": "Example mail"
+                                                }
+                                            }
+                                        },
+                                        "senderName": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the render result (either `success` or `error`)",
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "content": {
+                                                    "description": "The rendered content of the mail template's sender name. Also contains the error when rendering this field wasn't possible.",
+                                                    "type": "string",
+                                                    "example": "Storefront"
+                                                }
+                                            }
+                                        },
+                                        "contentHtml": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the render result (either `success` or `error`)",
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "content": {
+                                                    "description": "The rendered content of the mail template in html format. Also contains the error when rendering this field wasn't possible.",
+                                                    "type": "string",
+                                                    "example": "<div>Hello Mr. Mustermann,<br/>this is example mail content, the current date is 16.03.2026.</div>",
+                                                }
+                                            }
+                                        },
+                                        "contentPlain": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the render result (either `success` or `error`)",
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "content": {
+                                                    "description": "The rendered content of the mail template in plain text format. Also contains the error when rendering this field wasn't possible.",
+                                                    "type": "string",
+                                                    "example": "Hello Mr. Mustermann, this is example mail content, the current date is 16.03.2026.",
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Invalid request data or invalid mailTemplateId"
+                        "description": "Invalid request data or invalid mailTemplateId",
+                        "$ref": "#/components/responses/400"
                     }
                 }
             }
@@ -339,8 +432,8 @@
                     "Mail Operations"
                 ],
                 "summary": "Fetch the template data and send a mail",
-                "description": "Fetches the required data needed for the mail template, generates the mail content and sends it to the customer.",
-                "operationId": "getDataAndSend",
+                "description": "Generates the required data needed for the mail template, renders the mail content and sends it to the customer.",
+                "operationId": "generateAndSendMail",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -358,20 +451,13 @@
                                         "pattern": "^[0-9a-f]{32}$",
                                         "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890"
                                     },
-                                    "entities": {
-                                        "description": "A map of variable names and entity identifiers. The variable names should come from the mail template type's available variables.",
-                                        "type": "object",
-                                        "additionalProperties": {
-                                            "type": "string",
-                                            "pattern": "^[0-9a-f]{32}$"
-                                        },
-                                        "example": {
-                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890",
-                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90"
-                                        }
+                                    "flowEventClass":{
+                                        "description": "The class of the flow trigger event that provides the available variables.",
+                                        "type": "string",
+                                        "example": "Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\Event\\ReviewFormEvent"
                                     },
                                     "recipients": {
-                                        "description": "A list of recipients with name and mail address.",
+                                        "description": "A map of recipients with name and mail address.",
                                         "type": "object",
                                         "example": {
                                             "test1@example.com": "Test user 1",
@@ -405,7 +491,8 @@
                                     },
                                     "senderEmail": {
                                         "description": "Mail address of the sender. If not set, `core.basicInformation.email` or `core.mailerSettings.senderAddress` will be used from the shop configuration.",
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email"
                                     },
                                     "mediaIds": {
                                         "description": "List of media identifiers which should be attached to the mail.",
@@ -417,13 +504,13 @@
                                     },
                                     "binAttachments": {
                                         "description": "A list of binary attachments which should be added to the mail.",
-                                        "required": [
-                                            "content",
-                                            "fileName",
-                                            "mimeType"
-                                        ],
                                         "type": "array",
                                         "items": {
+                                            "required": [
+                                                "content",
+                                                "fileName",
+                                                "mimeType"
+                                            ],
                                             "properties": {
                                                 "content": {
                                                     "description": "Binary content of the attachment.",
@@ -501,6 +588,9 @@
                         "content": {
                             "application\/json": {
                                 "schema": {
+                                    "required": [
+                                        "size"
+                                    ],
                                     "properties": {
                                         "size": {
                                             "description": "Length of the email message",
@@ -513,7 +603,76 @@
                         }
                     },
                     "400": {
-                        "description": "Invalid request data or invalid mailTemplateId"
+                        "description": "Invalid request data or invalid mailTemplateId",
+                        "$ref": "#/components/responses/400"
+                    }
+                }
+            }
+        },
+        "/_action/mail-template/available-variables": {
+            "post": {
+                "tags": [
+                  "Mail Operations"
+                ],
+                "summary": "Fetch the available variables for a flow trigger event and a given variable path.",
+                "description": "Fetches the available variables that a flow trigger event provides for a certain variable path to determine which variables can be used in a mail template, that is send via the flow trigger event.",
+                "operationId": "mailTemplateAvailableVariables",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "flowEventClass",
+                                    "fieldPath"
+                                ],
+                                "properties": {
+                                    "flowEventClass":{
+                                        "description": "The class of the flow trigger event that provides the available variables.",
+                                        "type": "string",
+                                        "example": "Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\Event\\ReviewFormEvent"
+                                    },
+                                    "fieldPath":{
+                                        "description": "The path to the field of which the available variables should be returned. If no value (an empty string) is provided, the toplevel variables of the flow trigger event are returned.",
+                                        "type": "string",
+                                        "example": "product.translated"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The available variables got fetched successfully.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "fieldName",
+                                            "hasChildren"
+                                        ],
+                                        "properties": {
+                                            "fieldName": {
+                                                "description": "The name of the variable.",
+                                                "type": "string",
+                                                "example": "salesChannel"
+                                            },
+                                            "hasChildren": {
+                                                "description": "Shows if behind the variable are more nested variables which can be accessed by another request to this endpoint with the updated field path: `<fieldPath>.<fieldName>`",
+                                                "type": "bool",
+                                                "example": true
+                                            }
+                                        }
+                                    },
+                                    "type": "array",
+                                    "description": "A collection of the available variables which also show if behind the variables are more nested variables."
+                                }
+                            }
+                        }
                     }
                 }
             }

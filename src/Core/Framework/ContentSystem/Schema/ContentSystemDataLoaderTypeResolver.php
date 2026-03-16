@@ -65,6 +65,9 @@ class ContentSystemDataLoaderTypeResolver
         $types = [];
         foreach ($this->definitionRegistry->getDefinitions() as $definition) {
             $entityClass = $definition->getEntityClass();
+            // ArrayEntity is the fallback for definitions without a custom entity class;
+            // it's excluded from wildcard expansion since it's not a domain type.
+            // Loaders explicitly declaring ArrayEntity via @extends are unaffected.
             if ($entityClass === ArrayEntity::class) {
                 continue;
             }
@@ -83,6 +86,8 @@ class ContentSystemDataLoaderTypeResolver
         $types = [];
         foreach ($this->definitionRegistry->getDefinitions() as $definition) {
             $collectionClass = $definition->getCollectionClass();
+            // EntityCollection is the fallback for definitions without a custom collection class;
+            // excluded from wildcard expansion for the same reason as ArrayEntity above.
             if ($collectionClass === EntityCollection::class) {
                 continue;
             }

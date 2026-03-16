@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Zugferd;
 
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -84,10 +85,21 @@ class ZugferdBuilderTest extends TestCase
         $xmlContent = (new ZugferdBuilder(
             $this->createMock(EventDispatcherInterface::class),
             new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator())
-        ))->buildDocument($order, $documentConfig, Context::createDefaultContext());
+        ))->buildDocument(
+            $order,
+            $documentConfig,
+            Context::createDefaultContext(),
+            ZugferdInvoiceType::CORRECTION,
+            [
+                'documentNumber' => '1001',
+                'config' => [
+                    'documentDate' => (new \DateTime('2024-01-01'))->format('Y-m-d'),
+                ],
+            ]
+        );
 
+        $typeCode = ZugferdInvoiceType::CORRECTION;
         $totalAmount = number_format($this->totalAmount, 2, '.', '');
-
         $shippingCost = number_format(self::SHIPPING_COST_NET, 2, '.', '');
         $allowance = number_format(self::ALLOWANCE_TOTAL, 2, '.', '');
         $grandTotal = number_format($order->getAmountTotal(), 2, '.', '');
@@ -102,6 +114,9 @@ class ZugferdBuilderTest extends TestCase
         static::assertStringContainsString("TaxTotalAmount currencyID=\"EUR\">$taxTotal<", $xmlContent);
         static::assertStringContainsString("GrandTotalAmount>$grandTotal<", $xmlContent);
         static::assertStringContainsString("DuePayableAmount>$grandTotal<", $xmlContent);
+        static::assertStringContainsString("TypeCode>$typeCode<", $xmlContent);
+        static::assertStringContainsString('IssuerAssignedID>1001<', $xmlContent);
+        static::assertStringContainsString('DateTimeString format="102">20240101<', $xmlContent);
 
         foreach ($config as $key => $value) {
             match (true) {

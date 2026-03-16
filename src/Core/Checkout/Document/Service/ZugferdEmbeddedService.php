@@ -86,7 +86,7 @@ final class ZugferdEmbeddedService
             } catch (\Throwable $exception) {
                 $renderResult->addError($orderId, DocumentException::electronicInvoiceViolation(
                     1,
-                    [self::PDF_GENERATION_ERROR . $exception->getMessage() => [$orderId]]
+                    [self::PDF_GENERATION_ERROR . ': ' . $exception->getMessage() => [$orderId]]
                 ));
             }
         }

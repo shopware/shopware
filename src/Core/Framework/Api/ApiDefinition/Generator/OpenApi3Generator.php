@@ -397,8 +397,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         // Resolve transitive references from referenced schemas
         $queue = array_keys($referenced);
-        while ($queue !== []) {
-            $schemaName = array_shift($queue);
+        $queueIndex = 0;
+        while (isset($queue[$queueIndex])) {
+            $schemaName = $queue[$queueIndex];
+            ++$queueIndex;
             if (!isset($allSchemas[$schemaName])) {
                 continue;
             }

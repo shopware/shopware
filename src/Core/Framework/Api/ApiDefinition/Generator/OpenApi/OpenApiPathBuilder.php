@@ -32,8 +32,8 @@ class OpenApiPathBuilder
     }
 
     /**
-     * @param string|null $postSchemaRef Full $ref for POST request body (e.g. '#/components/schemas/ProductCreate'). If null, defaults to '{SchemaName}Create'.
-     * @param string[] $postRequiredFields Required fields for POST when no Create schema exists. Used to build an inline allOf wrapper around Update.
+     * @param string|null $postSchemaRef Full $ref for POST request body (e.g. '#/components/schemas/ProductCreate'). If null, the implementation defaults to the corresponding '{SchemaName}Update' schema.
+     * @param string[] $postRequiredFields Required fields for POST when no dedicated Create schema exists. Used to build an inline allOf wrapper around the Update schema to enforce required fields.
      *
      * @return PathItem[]
      */

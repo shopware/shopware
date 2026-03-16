@@ -22,7 +22,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -713,14 +713,14 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['read'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
+        $permissionLifecycle->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
 
         $this->appendNewResponse(new Response(200));
 
@@ -1012,12 +1012,12 @@ class WebhookManagerTest extends TestCase
         }
 
         if ($permissions !== null && $appId !== null) {
-            $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+            $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
             $permissions = Permissions::fromArray([
                 'permissions' => $permissions,
             ]);
 
-            $permissionPersister->updatePrivileges($permissions, $appId, true, $context);
+            $permissionLifecycle->updatePrivileges($permissions, $appId, true, $context);
         }
     }
 

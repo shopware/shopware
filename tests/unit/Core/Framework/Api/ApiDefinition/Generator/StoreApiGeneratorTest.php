@@ -1075,6 +1075,68 @@ class StoreApiGeneratorTest extends TestCase
         static::assertGreaterThanOrEqual(4, $associationCount);
     }
 
+    public function testInjectLanguageIdHeaderSkipsWhenNoPathsDefined(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('injectLanguageIdHeader');
+
+        /** @var array<string, mixed> $specs */
+        $specs = [];
+        $method->invokeArgs($this->generator, [&$specs]);
+        static::assertArrayNotHasKey('paths', $specs);
+
+        /** @var array<string, mixed> $specs */
+        $specs = ['paths' => 'not-an-array'];
+        $method->invokeArgs($this->generator, [&$specs]);
+        static::assertIsString($specs['paths']);
+    }
+
+    public function testInjectLanguageIdHeaderInitializesParametersAndSkipsDuplicates(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('injectLanguageIdHeader');
+
+        /** @var array<string, mixed> $specs */
+        $specs = [
+            'paths' => [
+                '/no-params' => [
+                    'get' => [
+                        'operationId' => 'readNoParams',
+                    ],
+                ],
+                '/already-named' => [
+                    'post' => [
+                        'operationId' => 'readAlreadyNamed',
+                        'parameters' => [
+                            ['name' => 'sw-language-id', 'in' => 'header'],
+                        ],
+                    ],
+                ],
+                '/already-ref' => [
+                    'get' => [
+                        'operationId' => 'readAlreadyRef',
+                        'parameters' => [
+                            ['$ref' => '#/components/parameters/swLanguageId'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $method->invokeArgs($this->generator, [&$specs]);
+
+        $noParams = $specs['paths']['/no-params']['get'];
+        static::assertIsArray($noParams['parameters']);
+        static::assertCount(1, $noParams['parameters']);
+        static::assertSame('#/components/parameters/swLanguageId', $noParams['parameters'][0]['$ref']);
+
+        // /already-named: already has sw-language-id by name, should not be duplicated
+        static::assertCount(1, $specs['paths']['/already-named']['post']['parameters']);
+
+        // /already-ref: already has sw-language-id by $ref, should not be duplicated
+        static::assertCount(1, $specs['paths']['/already-ref']['get']['parameters']);
+    }
+
     public function testGetAssociationsDocumentationSupportsOptionalDescription(): void
     {
         $reflection = new \ReflectionClass($this->generator);

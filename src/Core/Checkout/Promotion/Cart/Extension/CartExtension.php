@@ -126,11 +126,11 @@ class CartExtension extends Struct
             $new->addCode($code);
         }
 
-        if (!Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS')) {
+        Feature::callSilentIfInactive('PERMANENT_AUTOMATIC_PROMOTIONS', static function () use ($extension, $new): void {
             foreach ($extension->getBlockedPromotions() as $id) {
                 $new->blockPromotion($id);
             }
-        }
+        });
 
         return $new;
     }

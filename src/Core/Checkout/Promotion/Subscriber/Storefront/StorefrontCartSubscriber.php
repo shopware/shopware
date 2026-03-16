@@ -105,11 +105,14 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         }
 
         // the user wants to remove an automatic added
-        // promotions, so lets do this
-        if (!Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS') && $lineItem->hasPayloadValue('promotionId')) {
-            $promotionId = (string) $lineItem->getPayloadValue('promotionId');
-            $this->blockPromotion($promotionId, $cart);
-        }
+        // promotions, so let's do this
+        Feature::callSilentIfInactive('PERMANENT_AUTOMATIC_PROMOTIONS', function () use ($lineItem, $cart): void {
+            if ($lineItem->hasPayloadValue('promotionId')) {
+                $promotionId = (string) $lineItem->getPayloadValue('promotionId');
+                $extension = $this->getExtension($cart);
+                $extension->blockPromotion($promotionId);
+            }
+        });
     }
 
     /**
@@ -161,12 +164,6 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     {
         $extension = $this->getExtension($cart);
         $extension->removeCode($code);
-    }
-
-    private function blockPromotion(string $id, Cart $cart): void
-    {
-        $extension = $this->getExtension($cart);
-        $extension->blockPromotion($id);
     }
 
     private function getExtension(Cart $cart): CartExtension

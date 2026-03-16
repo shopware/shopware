@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -104,11 +105,14 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         }
 
         // the user wants to remove an automatic added
-        // promotions, so lets do this
-        if ($lineItem->hasPayloadValue('promotionId')) {
-            $promotionId = (string) $lineItem->getPayloadValue('promotionId');
-            $this->blockPromotion($promotionId, $cart);
-        }
+        // promotions, so let's do this
+        Feature::callSilentIfInactive('PERMANENT_AUTOMATIC_PROMOTIONS', function () use ($lineItem, $cart): void {
+            if ($lineItem->hasPayloadValue('promotionId')) {
+                $promotionId = (string) $lineItem->getPayloadValue('promotionId');
+                $extension = $this->getExtension($cart);
+                $extension->blockPromotion($promotionId);
+            }
+        });
     }
 
     /**
@@ -160,12 +164,6 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     {
         $extension = $this->getExtension($cart);
         $extension->removeCode($code);
-    }
-
-    private function blockPromotion(string $id, Cart $cart): void
-    {
-        $extension = $this->getExtension($cart);
-        $extension->blockPromotion($id);
     }
 
     private function getExtension(Cart $cart): CartExtension

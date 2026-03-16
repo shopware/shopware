@@ -71,6 +71,11 @@ shopware:
         major: true
         toggleable: true
         description: "This allows repeated calls to the /payment/finalize-transaction endpoint with the same token without throwing a 'token expired' exception."
+      - name: PERMANENT_AUTOMATIC_PROMOTIONS
+        default: false
+        major: true
+        toggleable: true
+        description: "Automatic promotions cannot be removed anymore and are therefore no longer tracked as blocked after removal."
 
       - name: METEOR_TEXT_EDITOR
         default: false

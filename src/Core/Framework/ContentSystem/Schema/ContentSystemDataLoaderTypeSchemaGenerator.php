@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\ContentSystem\Schema;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class ContentSystemAvailableDataSchemaGenerator
+class ContentSystemDataLoaderTypeSchemaGenerator
 {
     public function __construct(
-        private readonly AvailableDataResolver $resolver,
+        private readonly ContentSystemDataLoaderTypeResolver $resolver,
     ) {
     }
 

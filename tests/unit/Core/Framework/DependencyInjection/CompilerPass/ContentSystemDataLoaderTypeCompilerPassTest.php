@@ -7,27 +7,27 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Framework\ContentSystem\Schema\AvailableDataResolver;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentDataLoaderTypeCompilerPass;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderTypeCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
-#[CoversClass(ContentDataLoaderTypeCompilerPass::class)]
-class ContentDataLoaderTypeCompilerPassTest extends TestCase
+#[CoversClass(ContentSystemDataLoaderTypeCompilerPass::class)]
+class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
 {
     #[TestDox('process collects loader types and sets resolver argument')]
     public function testProcessCollectsLoaderTypes(): void
     {
         $container = new ContainerBuilder();
 
-        $resolverDefinition = new Definition(AvailableDataResolver::class);
-        $container->setDefinition(AvailableDataResolver::class, $resolverDefinition);
+        $resolverDefinition = new Definition(ContentSystemDataLoaderTypeResolver::class);
+        $container->setDefinition(ContentSystemDataLoaderTypeResolver::class, $resolverDefinition);
 
         $loaderDefinition = new Definition(NavigationDataLoader::class);
         $loaderDefinition->addTag('content_system.data_loader');
         $container->setDefinition(NavigationDataLoader::class, $loaderDefinition);
 
-        $pass = new ContentDataLoaderTypeCompilerPass();
+        $pass = new ContentSystemDataLoaderTypeCompilerPass();
         $pass->process($container);
 
         $argument = $resolverDefinition->getArgument('$compiledSourceToTypes');
@@ -42,9 +42,9 @@ class ContentDataLoaderTypeCompilerPassTest extends TestCase
     {
         $container = new ContainerBuilder();
 
-        $pass = new ContentDataLoaderTypeCompilerPass();
+        $pass = new ContentSystemDataLoaderTypeCompilerPass();
         $pass->process($container);
 
-        static::assertFalse($container->hasDefinition(AvailableDataResolver::class));
+        static::assertFalse($container->hasDefinition(ContentSystemDataLoaderTypeResolver::class));
     }
 }

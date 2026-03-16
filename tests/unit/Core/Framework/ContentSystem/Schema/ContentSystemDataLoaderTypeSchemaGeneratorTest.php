@@ -7,26 +7,26 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderTypeDescriptor;
-use Shopware\Core\Framework\ContentSystem\Schema\AvailableDataMap;
-use Shopware\Core\Framework\ContentSystem\Schema\AvailableDataResolver;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemAvailableDataSchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
-#[CoversClass(ContentSystemAvailableDataSchemaGenerator::class)]
-class ContentSystemAvailableDataSchemaGeneratorTest extends TestCase
+#[CoversClass(ContentSystemDataLoaderTypeSchemaGenerator::class)]
+class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
 {
     #[TestDox('getSchema returns structured JSON with sources and types')]
     public function testGetSchemaReturnsStructuredJson(): void
     {
-        $map = new AvailableDataMap([
-            'navigation' => [new ContentDataLoaderTypeDescriptor(Tree::class)],
+        $map = new ContentSystemDataLoaderTypeMap([
+            'navigation' => [new ContentSystemDataLoaderTypeDescriptor(Tree::class)],
         ]);
 
-        $resolver = $this->createMock(AvailableDataResolver::class);
+        $resolver = $this->createMock(ContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
 
-        $generator = new ContentSystemAvailableDataSchemaGenerator($resolver);
+        $generator = new ContentSystemDataLoaderTypeSchemaGenerator($resolver);
         $schema = $generator->getSchema();
 
         static::assertArrayHasKey('sources', $schema);
@@ -37,14 +37,14 @@ class ContentSystemAvailableDataSchemaGeneratorTest extends TestCase
     #[TestDox('getSchema includes genericParameters')]
     public function testGetSchemaIncludesGenericParameters(): void
     {
-        $map = new AvailableDataMap([
-            'product_review' => [new ContentDataLoaderTypeDescriptor(EntitySearchResult::class, [ProductReviewCollection::class])],
+        $map = new ContentSystemDataLoaderTypeMap([
+            'product_review' => [new ContentSystemDataLoaderTypeDescriptor(EntitySearchResult::class, [ProductReviewCollection::class])],
         ]);
 
-        $resolver = $this->createMock(AvailableDataResolver::class);
+        $resolver = $this->createMock(ContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
 
-        $generator = new ContentSystemAvailableDataSchemaGenerator($resolver);
+        $generator = new ContentSystemDataLoaderTypeSchemaGenerator($resolver);
         $schema = $generator->getSchema();
 
         $type = $schema['sources']['product_review']['types'][0];

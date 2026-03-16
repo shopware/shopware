@@ -50,10 +50,10 @@ abstract class AbstractContentDataLoader
      *
      * Override for special cases (e.g., wildcard entity loaders).
      *
-     * Called by ContentDataLoaderTypeCompilerPass at container build time.
+     * Called by ContentSystemDataLoaderTypeCompilerPass at container build time.
      * Missing `@extends` annotation fails the build.
      */
-    public static function getProvidedData(): ContentDataLoaderTypeDescriptor
+    public static function getProvidedData(): ContentSystemDataLoaderTypeDescriptor
     {
         $reflection = new \ReflectionClass(static::class);
         $docComment = $reflection->getDocComment();
@@ -106,7 +106,7 @@ abstract class AbstractContentDataLoader
                 $genericParameters[] = $resolved;
             }
 
-            return new ContentDataLoaderTypeDescriptor($className, $genericParameters);
+            return new ContentSystemDataLoaderTypeDescriptor($className, $genericParameters);
         }
 
         if ($dataTypeNode instanceof IdentifierTypeNode) {
@@ -116,7 +116,7 @@ abstract class AbstractContentDataLoader
                 throw ContentSystemException::unresolvableTypeClass($className, static::class);
             }
 
-            return new ContentDataLoaderTypeDescriptor($className);
+            return new ContentSystemDataLoaderTypeDescriptor($className);
         }
 
         throw ContentSystemException::unsupportedTypeNode($dataTypeNode::class);

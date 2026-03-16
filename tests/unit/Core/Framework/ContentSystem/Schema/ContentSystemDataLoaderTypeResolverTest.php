@@ -9,20 +9,20 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\ContentSystem\Schema\AvailableDataResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
-#[CoversClass(AvailableDataResolver::class)]
-class AvailableDataResolverTest extends TestCase
+#[CoversClass(ContentSystemDataLoaderTypeResolver::class)]
+class ContentSystemDataLoaderTypeResolverTest extends TestCase
 {
     #[TestDox('resolve passes non-wildcard entries through as-is')]
     public function testNonWildcardPassthrough(): void
     {
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
 
-        $resolver = new AvailableDataResolver($registry, [
+        $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
             'navigation' => [['className' => Tree::class, 'genericParameters' => []]],
         ]);
 
@@ -41,7 +41,7 @@ class AvailableDataResolverTest extends TestCase
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $registry->method('getDefinitions')->willReturn([$definition]);
 
-        $resolver = new AvailableDataResolver($registry, [
+        $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
             'entity' => [['className' => Entity::class, 'genericParameters' => []]],
         ]);
 
@@ -60,7 +60,7 @@ class AvailableDataResolverTest extends TestCase
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $registry->method('getDefinitions')->willReturn([$definition]);
 
-        $resolver = new AvailableDataResolver($registry, [
+        $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
             'entity_collection' => [['className' => EntityCollection::class, 'genericParameters' => []]],
         ]);
 
@@ -75,7 +75,7 @@ class AvailableDataResolverTest extends TestCase
     {
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
 
-        $resolver = new AvailableDataResolver($registry, [
+        $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
             'product_review' => [['className' => 'EntitySearchResult', 'genericParameters' => ['ProductReviewCollection']]],
         ]);
 

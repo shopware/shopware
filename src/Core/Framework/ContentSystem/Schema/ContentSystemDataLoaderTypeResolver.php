@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Schema;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderTypeDescriptor;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('framework')]
-class AvailableDataResolver
+class ContentSystemDataLoaderTypeResolver
 {
     /**
      * @param array<string, list<array{className: class-string<Struct>, genericParameters: list<class-string<Struct>>}>> $compiledSourceToTypes
@@ -22,7 +22,7 @@ class AvailableDataResolver
     ) {
     }
 
-    public function resolve(): AvailableDataMap
+    public function resolve(): ContentSystemDataLoaderTypeMap
     {
         $sourceToTypes = [];
 
@@ -42,18 +42,18 @@ class AvailableDataResolver
                     continue;
                 }
 
-                $sourceToTypes[$source][] = new ContentDataLoaderTypeDescriptor(
+                $sourceToTypes[$source][] = new ContentSystemDataLoaderTypeDescriptor(
                     $entry['className'],
                     $entry['genericParameters'],
                 );
             }
         }
 
-        return new AvailableDataMap($sourceToTypes);
+        return new ContentSystemDataLoaderTypeMap($sourceToTypes);
     }
 
     /**
-     * @return list<ContentDataLoaderTypeDescriptor>
+     * @return list<ContentSystemDataLoaderTypeDescriptor>
      */
     private function expandAllEntities(): array
     {
@@ -64,14 +64,14 @@ class AvailableDataResolver
                 continue;
             }
 
-            $types[] = new ContentDataLoaderTypeDescriptor($entityClass);
+            $types[] = new ContentSystemDataLoaderTypeDescriptor($entityClass);
         }
 
         return $types;
     }
 
     /**
-     * @return list<ContentDataLoaderTypeDescriptor>
+     * @return list<ContentSystemDataLoaderTypeDescriptor>
      */
     private function expandAllEntityCollections(): array
     {
@@ -83,7 +83,7 @@ class AvailableDataResolver
             }
 
             /** @var class-string<Struct> $collectionClass */
-            $types[] = new ContentDataLoaderTypeDescriptor($collectionClass);
+            $types[] = new ContentSystemDataLoaderTypeDescriptor($collectionClass);
         }
 
         return $types;

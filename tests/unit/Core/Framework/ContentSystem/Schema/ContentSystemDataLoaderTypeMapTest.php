@@ -7,18 +7,18 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderTypeDescriptor;
-use Shopware\Core\Framework\ContentSystem\Schema\AvailableDataMap;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
 
-#[CoversClass(AvailableDataMap::class)]
-class AvailableDataMapTest extends TestCase
+#[CoversClass(ContentSystemDataLoaderTypeMap::class)]
+class ContentSystemDataLoaderTypeMapTest extends TestCase
 {
     #[TestDox('getSourcesFor returns matching source identifiers')]
     public function testGetSourcesForMatchingClass(): void
     {
-        $map = new AvailableDataMap([
-            'entity' => [new ContentDataLoaderTypeDescriptor(ProductEntity::class)],
-            'navigation' => [new ContentDataLoaderTypeDescriptor(Tree::class)],
+        $map = new ContentSystemDataLoaderTypeMap([
+            'entity' => [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)],
+            'navigation' => [new ContentSystemDataLoaderTypeDescriptor(Tree::class)],
         ]);
 
         static::assertSame(['entity'], $map->getSourcesFor(ProductEntity::class));
@@ -28,8 +28,8 @@ class AvailableDataMapTest extends TestCase
     #[TestDox('getSourcesFor returns empty for unknown class')]
     public function testGetSourcesForUnknownClass(): void
     {
-        $map = new AvailableDataMap([
-            'entity' => [new ContentDataLoaderTypeDescriptor(ProductEntity::class)],
+        $map = new ContentSystemDataLoaderTypeMap([
+            'entity' => [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)],
         ]);
 
         static::assertSame([], $map->getSourcesFor('NonExistent'));

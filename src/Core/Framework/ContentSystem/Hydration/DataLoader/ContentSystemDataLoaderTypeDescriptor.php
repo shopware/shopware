@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * @param list<class-string<Struct>> $genericParameters
  */
 #[Package('framework')]
-final readonly class ContentDataLoaderTypeDescriptor
+final readonly class ContentSystemDataLoaderTypeDescriptor
 {
     /**
      * @param class-string<Struct> $className

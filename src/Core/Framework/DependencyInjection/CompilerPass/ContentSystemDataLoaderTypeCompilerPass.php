@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
-use Shopware\Core\Framework\ContentSystem\Schema\AvailableDataResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -12,11 +12,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * @internal
  */
 #[Package('framework')]
-class ContentDataLoaderTypeCompilerPass implements CompilerPassInterface
+class ContentSystemDataLoaderTypeCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition(AvailableDataResolver::class)) {
+        if (!$container->hasDefinition(ContentSystemDataLoaderTypeResolver::class)) {
             return;
         }
 
@@ -44,7 +44,7 @@ class ContentDataLoaderTypeCompilerPass implements CompilerPassInterface
             ];
         }
 
-        $resolver = $container->getDefinition(AvailableDataResolver::class);
+        $resolver = $container->getDefinition(ContentSystemDataLoaderTypeResolver::class);
         $resolver->setArgument('$compiledSourceToTypes', $sourceToTypes);
     }
 }

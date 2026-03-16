@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Schema;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderTypeDescriptor;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-final readonly class AvailableDataMap
+final readonly class ContentSystemDataLoaderTypeMap
 {
     /**
-     * @param array<string, list<ContentDataLoaderTypeDescriptor>> $sourceToTypes
+     * @param array<string, list<ContentSystemDataLoaderTypeDescriptor>> $sourceToTypes
      */
     public function __construct(
         public array $sourceToTypes,

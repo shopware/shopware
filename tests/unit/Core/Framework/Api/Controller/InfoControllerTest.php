@@ -11,7 +11,7 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemAvailableDataSchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
@@ -243,7 +243,7 @@ class InfoControllerTest extends TestCase
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
     }
 
-    public function testContentSystemAvailableDataSchema(): void
+    public function testContentSystemDataLoaderTypeSchema(): void
     {
         $expected = [
             'sources' => [
@@ -253,18 +253,18 @@ class InfoControllerTest extends TestCase
             ],
         ];
 
-        $schemaGenerator = $this->createMock(ContentSystemAvailableDataSchemaGenerator::class);
+        $schemaGenerator = $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class);
         $schemaGenerator->method('getSchema')->willReturn($expected);
 
         $controller = $this->createController(availableDataSchemaGenerator: $schemaGenerator);
 
-        $response = $controller->contentSystemAvailableDataSchema();
+        $response = $controller->contentSystemDataLoaderTypeSchema();
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame($expected, json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    private function createController(?ContentSystemAvailableDataSchemaGenerator $availableDataSchemaGenerator = null): InfoController
+    private function createController(?ContentSystemDataLoaderTypeSchemaGenerator $availableDataSchemaGenerator = null): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -317,7 +317,7 @@ class InfoControllerTest extends TestCase
             $this->shopIdProvider,
             $this->statsService,
             $this->eventDispatcher,
-            $availableDataSchemaGenerator ?? $this->createMock(ContentSystemAvailableDataSchemaGenerator::class),
+            $availableDataSchemaGenerator ?? $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class),
         );
     }
 }

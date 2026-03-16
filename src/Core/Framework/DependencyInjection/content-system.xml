@@ -217,14 +217,14 @@
         </service>
 
         <!-- Schema Services -->
-        <service id="Shopware\Core\Framework\ContentSystem\Schema\AvailableDataResolver">
+        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <!-- $compiledSourceToTypes set by ContentDataLoaderTypeCompilerPass -->
+            <!-- $compiledSourceToTypes set by ContentSystemDataLoaderTypeCompilerPass -->
             <argument key="$compiledSourceToTypes" type="collection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemAvailableDataSchemaGenerator">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\AvailableDataResolver"/>
+        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver"/>
         </service>
 
         <!-- Content Route Loader (arg 0 set by ContentRouteCompilerPass) -->

@@ -36,36 +36,13 @@ class Migration1773647849AlignFlowNameWithEventName extends MigrationStep
     public function update(Connection $connection): void
     {
         foreach (self::FLOW_TRANSLATION_MAPPING as $eventName => $data) {
-            $this->updateFlowName($connection, $eventName, $data);
+            $connection->update(
+                'flow',
+                ['name' => $data['new']],
+                ['event_name' => $eventName, 'name' => $data['old']]
+            );
         }
 
         $this->registerIndexer($connection, 'flow.indexer');
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function updateFlowName(Connection $connection, string $eventName, array $data): void
-    {
-        $flowId = $connection->createQueryBuilder()->select('id')
-            ->from('flow')
-            ->where('name = :name')
-            ->andWhere('event_name = :eventName')
-            ->setParameters([
-                'name' => $data['old'],
-                'eventName' => $eventName,
-            ])
-            ->executeQuery()
-            ->fetchOne();
-
-        if (!$flowId) {
-            return;
-        }
-
-        $connection->update(
-            'flow',
-            ['name' => $data['new']],
-            ['id' => $flowId]
-        );
     }
 }

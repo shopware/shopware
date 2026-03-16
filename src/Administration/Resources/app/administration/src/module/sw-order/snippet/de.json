@@ -625,9 +625,11 @@
       "selectDocumentTypeModal": {
         "title": "Dokument erstellen",
         "primaryAction": "Dokument erstellen",
+        "showZugferd": "ZUGFeRD-Varianten anzeigen",
         "helpText": {
           "storno": "Eine Stornorechnung kann nicht ohne Rechnung erstellt werden.",
-          "credit_note": "Um eine Gutschrift zu erstellen, fügen Sie zunächst eine Gutschriftsposition hinzu."
+          "credit_note": "Um eine Gutschrift zu erstellen, fügen Sie zunächst eine Gutschriftsposition hinzu.",
+          "zugferd_cancellation_invoice": "Eine ZUGFeRD Stornorechnung kann nicht ohne Rechnung erstellt werden."
         }
       }
     }

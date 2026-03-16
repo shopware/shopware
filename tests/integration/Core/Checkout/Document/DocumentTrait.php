@@ -136,6 +136,47 @@ trait DocumentTrait
         return $cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 
+    /**
+     * @param array<int|string, int> $taxes
+     */
+    private function generateDemoCartWithTaxes(array $taxes): Cart
+    {
+        $cartService = static::getContainer()->get(CartService::class);
+
+        $cart = $cartService->createNew('A');
+
+        $products = [];
+
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
+
+        $ids = new IdsCollection();
+
+        $lineItems = [];
+
+        foreach ($taxes as $index => $tax) {
+            $price = 100.0 + (int) $index;
+            $name = 'product ' . $index;
+            $number = 'p' . $index;
+
+            $product = (new ProductBuilder($ids, $number))
+                ->price($price)
+                ->name($name)
+                ->active(true)
+                ->tax('test-' . Uuid::randomHex(), $tax)
+                ->visibility()
+                ->build();
+
+            $products[] = $product;
+
+            $lineItems[] = $factory->create(['id' => $ids->get($number), 'referencedId' => $ids->get($number)], $this->salesChannelContext);
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
+        }
+
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        return $cartService->add($cart, $lineItems, $this->salesChannelContext);
+    }
+
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
         /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */

@@ -186,7 +186,7 @@ trait SnapshotTesting
     {
         // replace all date meta data
         return \preg_replace(
-            '/(<udt:DateTimeString format="102">)(\d{8})(<\/udt:DateTimeString>)/',
+            '/(<(?:udt|qdt):DateTimeString format="102">)(\d{8})(<\/(?:udt|qdt):DateTimeString>)/',
             '$1[date]$3',
             $content
         ) ?? $content;

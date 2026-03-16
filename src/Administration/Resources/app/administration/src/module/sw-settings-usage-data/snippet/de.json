@@ -19,12 +19,12 @@
         "no-third-party": "Keine Weitergabe an Dritte"
       },
       "store-data": {
-        "title": "Shop Daten",
+        "title": "Shopdaten",
         "description": "Anonyme Daten aus Deiner Shopware Umgebung wie {order}, {diagnostic} und {store} helfen uns, Funktionen zu verbessern. Eine Übersicht über alle Daten und Einzelheiten der Vereinbarung findest Du {data-use-details}.",
         "emphasizes": {
           "order": "Bestellungen",
           "diagnostic": "Diagnosedaten",
-          "store": "Shop Daten"
+          "store": "Shopdaten"
         },
         "help-text": {
           "order": "<strong>Bestelldaten</strong> in Shopware beziehen sich auf detaillierte Informationen zu den von Kunden auf der Plattform getätigten Bestellungen. Dazu gehören Angaben wie bestellte Produkte, Mengen, Preise, Herkunft, Zahlungsarten, Versand usw. Wir analysieren diese Daten, um Trends und Muster zu verstehen, die uns helfen, Funktionen zu verbessern und neue Services zur Steigerung des Geschäftserfolgs zu entwickeln. Wir sammeln keine persönlichen Daten von deinen Kunden, die zur Identifizierung einer einzelnen Person verwendet werden können.",
@@ -37,7 +37,7 @@
             "link": "https://www.shopware.com/de/rechtliches/data-use-details/"
           }
         },
-        "label-checkbox": "Shop Daten teilen (anonym)"
+        "label-checkbox": "Shopdaten teilen (anonym)"
       },
       "user-data": {
         "title": "Persönliche Daten",
@@ -89,7 +89,7 @@
         "orderDataHelp": "<strong>Bestelldaten</strong> in Shopware beziehen sich auf detaillierte Informationen zu den von Kunden auf der Plattform getätigten Bestellungen. Dazu gehören Angaben wie bestellte Produkte, Mengen, Preise, Herkunft, Zahlungsarten, Versand usw. Wir analysieren diese Daten, um Trends und Muster zu verstehen, die uns helfen, Funktionen zu verbessern und neue Services zur Steigerung des Geschäftserfolgs zu entwickeln. Wir sammeln keine persönlichen Daten von deinen Kunden, die zur Identifizierung einer einzelnen Person verwendet werden können.",
         "usageDataHelp": "<strong>Nutzungsdaten</strong> in Shopware beziehen sich auf Informationen darüber, wie Admin-Nutzer und Besucher des Online-Shops mit unserer Plattform interagieren. Dazu gehören Details wie Interaktionen mit verschiedenen Shopware-Admin-Modulen, angesehene Seiten, Besuchsdauer, Klickpfade und Benutzeraktionen innerhalb der Plattform und des Online-Shops. Durch die Auswertung der Nutzungsdaten können wir Bereiche der Plattform identifizieren, die häufig besucht oder vermieden werden, um die Nutzung von Funktionen zu messen, was zu potenziellen Verbesserungen im Layout, Design und der Funktionalität führt. Wir sammeln keine persönlichen Daten, die zur Identifizierung von Admin-Benutzern oder Online-Shop-Besuchern verwendet werden können.",
         "diagnosticDataHelp": "<strong>Diagnosedaten</strong> in Shopware beziehen sich auf Informationen im Zusammenhang mit dem Systemzustand, Fehlermeldungen und Leistungskennzahlen der Plattform. Dazu gehören Details wie Systemprotokolle, Fehlermeldungen, Serverantwortzeiten und andere technische Indikatoren. Die Analyse dieser Daten hilft uns dabei, häufig auftretende Probleme oder Sicherheitslücken schnell zu identifizieren, anzugehen und Lösungen zu implementieren, um die Integrität der Plattform aufrechtzuerhalten.",
-        "storeDataHelp": "<strong>Shopdaten</strong> in Shopware beziehen sich auf alle Informationen im Zusammenhang mit Deinem Online-Shop, wie Produkte, Angebote, Preise, Bilder, Beschreibungen usw., sowie Metadaten zur Einrichtung deines Shops, wie Themes und Plugins. Wir sammeln keine persönlichen Daten, die zur Identifizierung eines Admin-Nutzers oder eines Besuchers im Online-Shop verwendet werden können. Mit Hilfe von zusammengefassten Shop-Daten können wir Erkenntnisse mithilfe von maschinellem Lernen liefern, wie aufkommende Markttrends, die es Dir ermöglichen, Produktangebote oder Marketingstrategien entsprechend anzupassen."
+        "storeDataHelp": "<strong>Shopdaten</strong> in Shopware beziehen sich auf alle Informationen im Zusammenhang mit Deinem Online-Shop, wie Produkte, Angebote, Preise, Bilder, Beschreibungen usw., sowie Metadaten zur Einrichtung deines Shops, wie Themes und Plugins. Wir sammeln keine persönlichen Daten, die zur Identifizierung eines Admin-Nutzers oder eines Besuchers im Online-Shop verwendet werden können. Mit Hilfe von zusammengefassten Shopdaten können wir Erkenntnisse mithilfe von maschinellem Lernen liefern, wie aufkommende Markttrends, die es Dir ermöglichen, Produktangebote oder Marketingstrategien entsprechend anzupassen."
       }
     },
     "checkListDataSharing": {

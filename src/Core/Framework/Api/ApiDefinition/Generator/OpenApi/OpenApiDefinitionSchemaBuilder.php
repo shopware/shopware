@@ -104,9 +104,9 @@ class OpenApiDefinitionSchemaBuilder
         $uuid = Uuid::fromStringToHex($schemaName);
         $exampleDetailPath = $path . '/' . $uuid;
 
-        // For Store API or non-JSON_API type, use the original flat schema generation
+        // For Store API, use the original flat schema generation
         // This preserves backward-compatible behavior where all fields are in a single flat schema
-        if ($forSalesChannel || $apiType !== DefinitionService::TYPE_JSON_API) {
+        if ($forSalesChannel) {
             return $this->generateFlatSchema($definition, $schemaName, $exampleDetailPath, $forSalesChannel, $onlyFlat, $apiType);
         }
 

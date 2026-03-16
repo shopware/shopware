@@ -67,10 +67,16 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $onlyFlat = match ($apiType) {
-                DefinitionService::TYPE_JSON => true,
-                default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
-            };
+            $referenceOnly = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
+
+            // For TYPE_JSON (no paths), skip mapping/reference-only entities entirely
+            // For TYPE_JSON_API, they get generated as flat schemas and pruned later if unreferenced
+            if ($referenceOnly && $apiType === DefinitionService::TYPE_JSON) {
+                continue;
+            }
+
+            // TYPE_JSON never needs JsonApi wrapper schemas — set onlyFlat to skip them
+            $onlyFlat = $referenceOnly || $apiType === DefinitionService::TYPE_JSON;
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
                 $definition,
@@ -86,7 +92,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             $openApi->components->merge($schema);
 
-            if ($onlyFlat) {
+            if ($referenceOnly) {
                 continue;
             }
 
@@ -119,8 +125,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
 
         // Remove unused schema components to reduce spec size
-        // Only for JSON_API type where we have paths that reference schemas
-        if ($apiType === DefinitionService::TYPE_JSON_API && empty($bundleName)) {
+        // Only for JSON_API where CRUD paths reference schemas; TYPE_JSON has no entity paths so schemas are the output
+        if ($apiType === DefinitionService::TYPE_JSON_API && !$forSalesChannel && empty($bundleName)) {
             $finalSpecs = $this->removeUnreferencedSchemas($finalSpecs);
         }
 

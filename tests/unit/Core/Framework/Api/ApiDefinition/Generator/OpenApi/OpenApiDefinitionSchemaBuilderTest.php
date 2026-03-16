@@ -412,31 +412,32 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayNotHasKey('allOf', $readSchema);
     }
 
-    public function testTypeJsonUsesFlatSchema(): void
+    public function testTypeJsonUsesUpdateCreateReadSchemas(): void
     {
-        // TYPE_JSON should produce a flat schema structure (backward compatible)
+        // TYPE_JSON produces the same Update/Create/Read schema structure as TYPE_JSON_API
+        // but with onlyFlat=true (how the generator calls it), skipping the JsonApi schema
         $schema = $this->schemaBuilder->getSchemaByDefinition(
             $this->definitionRegistry->get(SimpleDefinition::class),
             '/simple',
             false,
-            false,
+            true, // onlyFlat=true — as the generator uses for TYPE_JSON
             \Shopware\Core\Framework\Api\ApiDefinition\DefinitionService::TYPE_JSON
         );
 
-        // TYPE_JSON should have the Read schema
+        // TYPE_JSON should have Update and Read schemas (same structure as jsonapi)
         static::assertArrayHasKey('Simple', $schema);
+        static::assertArrayHasKey('SimpleUpdate', $schema);
 
-        // TYPE_JSON should NOT have Update/Create schemas
-        static::assertArrayNotHasKey('SimpleUpdate', $schema);
+        // No Create schema for SimpleDefinition (no immutable fields)
         static::assertArrayNotHasKey('SimpleCreate', $schema);
 
-        // TYPE_JSON should NOT have JsonApi schema
+        // TYPE_JSON with onlyFlat should NOT have JsonApi schema
         static::assertArrayNotHasKey('SimpleJsonApi', $schema);
 
-        // The Read schema should be flat (no allOf composition)
+        // The Read schema should use allOf composition (same as jsonapi)
         $readSchema = json_decode($schema['Simple']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('properties', $readSchema);
-        static::assertArrayNotHasKey('allOf', $readSchema);
+        static::assertArrayHasKey('allOf', $readSchema);
+        static::assertArrayHasKey('required', $readSchema);
     }
 
     public function testStoreApiWithJsonApiTypeGeneratesJsonApiSchema(): void

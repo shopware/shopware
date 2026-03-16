@@ -4,12 +4,13 @@
 import type { TrackableType } from 'src/core/consent/events';
 
 type TrackClient = {
-    track: (eventName: string, eventProperties?: Record<string, TrackableType>) => void;
+    track: (eventName: string, eventProperties: Record<string, TrackableType>, time: number) => void;
 };
 
 type GatewayEvent = {
     event_type: string;
     event_properties?: Record<string, TrackableType>;
+    time: number;
 };
 
 /**
@@ -17,11 +18,12 @@ type GatewayEvent = {
  */
 export default function createAnonymousGatewayClient(analyticsGatewayUrl: string): TrackClient {
     return {
-        track(eventName, eventProperties = {}) {
+        track(eventName, eventProperties, time) {
             void postGatewayEvents(`${analyticsGatewayUrl}/event/anonymous`, [
                 {
                     event_type: eventName,
                     event_properties: eventProperties,
+                    time,
                 },
             ]);
         },

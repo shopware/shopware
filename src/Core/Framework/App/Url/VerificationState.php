@@ -28,11 +28,6 @@ readonly class VerificationState
         return $this->status !== VerificationStatus::HARD_FAIL;
     }
 
-    public function asHardFail(\DateTimeImmutable $at): self
-    {
-        return new self(VerificationStatus::HARD_FAIL, $this->numTries, $at, 'Exceeded maximum number of retries.');
-    }
-
     public function isInBackoff(\DateTimeImmutable $now, int $wait): bool
     {
         return $now->getTimestamp() < $this->at->getTimestamp() + $wait;

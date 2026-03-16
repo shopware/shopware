@@ -37,7 +37,7 @@ class AppUrlVerificationPrinter
             ['Checked at' => $state->at->format('Y-m-d H:i:s T')]
         );
 
-        $io->note('When a hard fail occurs, app communication will be disabled. When a soft fail occurs more than 3 times in a 15 minute period, it will be converted to a hard fail and app communication will also be disabled.');
+        $io->note('When a hard fail occurs, app communication will be disabled. A soft fail usually means a temporary problem, and Shopware will retry automatically with longer pauses, up to once per hour.');
 
         // @todo: remove when we enable comms kill switch
         $io->note('App communication will only be disabled in a future release.');

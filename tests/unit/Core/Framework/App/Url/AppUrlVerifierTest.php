@@ -235,24 +235,24 @@ class AppUrlVerifierTest extends TestCase
     public static function backoffScenarioProvider(): array
     {
         return [
-            '500 > 500 > 500 (3 x soft fail is converted to hard fail)' => [
+            '500 > 500 > 500 (soft fail retries with exponential backoff)' => [
                 [500, 500, 500],
                 [
                     self::step(0, VerificationStatus::SOFT_FAIL, 1, 1, true),  // first attempt
-                    self::step(5 * 60 - 1, VerificationStatus::SOFT_FAIL, 1, 1, true),  // inside backoff1 (no retry)
-                    self::step(1, VerificationStatus::SOFT_FAIL, 2, 2, true),  // on boundary1 (second attempt)
-                    self::step(15 * 60 - 1, VerificationStatus::SOFT_FAIL, 2, 2, true), // inside backoff2 (no retry)
-                    self::step(1, VerificationStatus::HARD_FAIL, 3, 3, false), // on boundary2 (final attempt)
+                    self::step(60 - 1, VerificationStatus::SOFT_FAIL, 1, 1, true), // inside backoff1 (no retry)
+                    self::step(1, VerificationStatus::SOFT_FAIL, 2, 2, true), // on boundary1 (second attempt)
+                    self::step(120 - 1, VerificationStatus::SOFT_FAIL, 2, 2, true), // inside backoff2 (no retry)
+                    self::step(1, VerificationStatus::SOFT_FAIL, 3, 3, true), // on boundary2 (third attempt)
                 ],
-                VerificationStatus::HARD_FAIL,
+                VerificationStatus::SOFT_FAIL,
             ],
-            '500 > 500 > 204 (soft fail is converted to pass)' => [
+            '500 > 500 > 204 (soft fail is converted to pass on retry)' => [
                 [500, 500, 204],
                 [
                     self::step(0, VerificationStatus::SOFT_FAIL, 1, 1, true), // first attempt
-                    self::step(5 * 60 - 1, VerificationStatus::SOFT_FAIL, 1, 1, true), // inside backoff1 (no retry)
+                    self::step(60 - 1, VerificationStatus::SOFT_FAIL, 1, 1, true), // inside backoff1 (no retry)
                     self::step(1, VerificationStatus::SOFT_FAIL, 2, 2, true), // on boundary1 (second attempt)
-                    self::step(15 * 60 - 1, VerificationStatus::SOFT_FAIL, 2, 2, true), // inside backoff2 (no retry)
+                    self::step(120 - 1, VerificationStatus::SOFT_FAIL, 2, 2, true), // inside backoff2 (no retry)
                     self::step(1, VerificationStatus::PASS, 3, 3, true), // on boundary2 (final attempt)
                 ],
                 VerificationStatus::PASS,
@@ -277,7 +277,7 @@ class AppUrlVerifierTest extends TestCase
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 1], $state);
 
-        $clock->sleep(5 * 60 - 1);
+        $clock->sleep(60 - 1);
         $result = $verifier->verify($shopId);
         $state = $verifier->getCurrentState();
         static::assertTrue($result);
@@ -301,7 +301,7 @@ class AppUrlVerifierTest extends TestCase
         $verifier->verify($shopId);
         static::assertSame(1, $http->getRequestsCount());
 
-        $clock->sleep(5 * 60);
+        $clock->sleep(60);
         $result = $verifier->verify($shopId);
         $state = $verifier->getCurrentState();
 
@@ -329,12 +329,55 @@ class AppUrlVerifierTest extends TestCase
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::SOFT_FAIL], $state);
 
-        $clock->sleep(5 * 60);
+        $clock->sleep(60);
         $result = $verifier->verify($shopId);
         $state = $verifier->getCurrentState();
 
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::PASS, 'tries' => 2], $state);
+    }
+
+    public function testSoftFailBackoffIsCappedAtOneHour(): void
+    {
+        $clock = new MockClock(new \DateTimeImmutable('2025-01-01T00:00:00Z'));
+        $cache = new ArrayAdapter();
+        $locks = new LockFactory(new InMemoryStore());
+
+        $existingState = new VerificationState(
+            VerificationStatus::SOFT_FAIL,
+            10,
+            $clock->now(),
+            'server error'
+        );
+
+        $item = $cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY);
+        $item->set($existingState);
+        $item->expiresAfter(60 * 60 * 24);
+        $cache->save($item);
+
+        $http = new MockHttpClient(new MockResponse('server error', ['http_code' => 500]));
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, $this->createMock(LoggerInterface::class), $clock);
+        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
+
+        $result = $verifier->verify($shopId);
+        $state = $verifier->getCurrentState();
+        static::assertTrue($result);
+        self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 10], $state);
+        static::assertSame(0, $http->getRequestsCount());
+
+        $clock->sleep(60 * 60 - 1);
+        $result = $verifier->verify($shopId);
+        $state = $verifier->getCurrentState();
+        static::assertTrue($result);
+        self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 10], $state);
+        static::assertSame(0, $http->getRequestsCount());
+
+        $clock->sleep(1);
+        $result = $verifier->verify($shopId);
+        $state = $verifier->getCurrentState();
+        static::assertTrue($result);
+        self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 11], $state);
+        static::assertSame(1, $http->getRequestsCount());
     }
 
     public function testVerifyNowClearsOldStateAndRecomputes(): void

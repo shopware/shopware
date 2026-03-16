@@ -31,14 +31,9 @@ class AppUrlVerifier
     public const VERIFICATION_RESULT_CACHE_KEY = 'app_url_verification_result';
     private const VERIFICATION_CACHE_KEY_PREFIX = 'app_url_verify-';
 
-    // @todo: clarify these numbers before we integrate into \Shopware\Core\Framework\App\ShopId\ShopIdProvider
-    private const BACK_OFF = [
-        1 => 60 * 5,  // 5 minutes
-        2 => 60 * 15, // 15 minutes
-    ];
-
     private const NON_HARD_FAIL_TTL = 60 * 60 * 24; // 24h
-    private const MAX_TRIES = 3;
+    private const INITIAL_SOFT_FAIL_BACKOFF = 60; // 1 minute
+    private const MAX_SOFT_FAIL_BACKOFF = 60 * 60; // 1 hour
     private const VERIFY_PATH = '/api/app-system/shop/verify';
 
     public function __construct(
@@ -159,7 +154,7 @@ class AppUrlVerifier
 
     private function handleSoftFail(string $appUrl, VerificationState $previousState): bool
     {
-        $wait = self::BACK_OFF[$previousState->numTries];
+        $wait = $this->backoffForTry($previousState->numTries);
         if ($previousState->isInBackoff($this->clock->now(), $wait)) {
             // still backing off, let communication continue
             return true;
@@ -167,13 +162,15 @@ class AppUrlVerifier
 
         $state = $this->performVerification($appUrl, $previousState->numTries + 1);
 
-        if ($state->is(VerificationStatus::SOFT_FAIL) && $state->numTries >= self::MAX_TRIES) {
-            $this->persist($state->asHardFail($this->clock->now()));
-
-            return false;
-        }
-
         return $state->isNotHardFail();
+    }
+
+    private function backoffForTry(int $numTries): int
+    {
+        $exponent = max(0, $numTries - 1);
+        $wait = self::INITIAL_SOFT_FAIL_BACKOFF * (2 ** $exponent);
+
+        return min(self::MAX_SOFT_FAIL_BACKOFF, $wait);
     }
 
     private function acquireLock(string $lockKey): ?LockInterface

@@ -66,7 +66,7 @@ NOTE: Integrating the check and result into live communications will be handled 
 
 ### Verification states:
 1. Pass - The APP URL was successfully verified. APP URL points to the same instance as the running shop.
-2. Soft fail - The APP URL was not verified, due to connectivity issues, server errors, etc. The verification will be retried a few times before with a backoff, before we cut communication. At that point, the shop owner must resolve the problem.
+2. Soft fail - The APP URL was not verified, due to connectivity issues, server errors, etc. Verification is retried with exponential backoff up to once per hour, while app communication continues.
 3. Hard fail - The APP URL does not point to the same instance as running shop. This should be resolved by the shop owner.
 
 ### Handled scenarios:
@@ -95,7 +95,7 @@ When an environment is copied from production to staging and the fingerprints ma
 3. If none is found, APP_URL is verified right away
 4. If found, the result is interrogated:
     5. Pass - continue with action
-    6. Soft fail - increment fail counter, but continue with action (when three fails occur, we convert to hard fail) - This is a little more complicated in the implementation, for example, we use a backoff strategy, so that three actions performed in the same minute don't cause a hard fail.
+    6. Soft fail - increment fail counter, but continue with action. Retries are performed with exponential backoff up to once per hour.
     7. Hard fail - Throw exception and interrupt flow
 
 #### APP URL change:

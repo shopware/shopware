@@ -23,22 +23,6 @@ class VerificationStateTest extends TestCase
         static::assertTrue($state->isNotHardFail());
     }
 
-    public function testAsHardFailCreatesNewInstance(): void
-    {
-        $initialAt = new \DateTimeImmutable('2025-01-01T12:00:00Z');
-        $state = new VerificationState(VerificationStatus::SOFT_FAIL, 3, $initialAt, 'temporary');
-
-        $hardAt = new \DateTimeImmutable('2025-01-01T12:05:00Z');
-        $hard = $state->asHardFail($hardAt);
-
-        static::assertNotSame($state, $hard);
-
-        static::assertTrue($hard->is(VerificationStatus::HARD_FAIL));
-        static::assertSame(3, $hard->numTries);
-        static::assertSame($hardAt->getTimestamp(), $hard->at->getTimestamp());
-        static::assertSame('Exceeded maximum number of retries.', $hard->info);
-    }
-
     public function testIsInBackoffTrueWhenNowBeforeAtPlusWait(): void
     {
         $at = new \DateTimeImmutable('2025-01-01T12:00:00Z');

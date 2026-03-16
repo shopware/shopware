@@ -8,6 +8,7 @@
         display: grid;
         grid-template-columns: var(--scale-size-16) 1fr var(--scale-size-16);
         grid-column-gap: var(--scale-size-8);
+        align-items: center;
         margin-bottom: var(--scale-size-12);
 
         &.is--disabled {
@@ -115,6 +116,9 @@
     }
 
     .sw-field__radio-option-label {
+        display: flex;
+        align-items: center;
+
         &.error--selection {
             color: var(--color-text-critical-default);
         }

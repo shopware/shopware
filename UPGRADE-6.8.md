@@ -840,6 +840,11 @@ As part of this update, the following administration component parts have been d
   * method `loadAvailableSalesChannel()` was deprecated without replacement
   * method `showOption()` was deprecated without replacement
 
+## Deprecated unused methods in `sw-order-document-card`
+
+- deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+- deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+
 # Storefront
 
 <details>

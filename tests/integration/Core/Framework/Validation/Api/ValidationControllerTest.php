@@ -25,7 +25,7 @@ class ValidationControllerTest extends TestCase
     {
         $browser = $this->getBrowser();
 
-        $browser->request('POST', '/api/validation/email', $emailPayload, server: ['CONTENT_TYPE' => 'application/json']);
+        $browser->request('POST', '/api/_action/validation/email', $emailPayload, server: ['CONTENT_TYPE' => 'application/json']);
 
         $result = $browser->getResponse()->getStatusCode();
 

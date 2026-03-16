@@ -439,7 +439,10 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
+            // Sequential to ensure config is persisted and avoid race condition
+            return this.saveThemeConfig(clean).then(() => {
+                return this.saveSalesChannels();
+            }).then(() => {
                 this.getTheme();
                 this.themeConfigErrors = {};
             }).catch((error) => {

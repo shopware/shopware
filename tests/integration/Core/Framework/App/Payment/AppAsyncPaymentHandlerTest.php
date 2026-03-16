@@ -349,7 +349,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
-            'shopId' => $this->shopIdProvider->getShopId(),
+            'shopId' => $this->shopIdProvider->getShopId()->id,
             'appVersion' => '1.0.0',
             'inAppPurchases' => null,
         ], $content['source']);
@@ -532,7 +532,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
-            'shopId' => $this->shopIdProvider->getShopId(),
+            'shopId' => $this->shopIdProvider->getShopId()->id,
             'appVersion' => '1.0.0',
             'inAppPurchases' => null,
         ], $content['source']);
@@ -597,7 +597,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     private function getDummyStruct(): TokenStruct
     {
         $tokenStruct = null;
-        Feature::silent('v6.8.0.0', function () use (&$tokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$tokenStruct): void {
             $tokenStruct = new TokenStruct();
         });
         static::assertInstanceOf(TokenStruct::class, $tokenStruct);

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -25,6 +26,10 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(MediaUploadController::class)]
 class MediaUploadControllerTest extends TestCase
 {
+    public static bool $simulateFailedTempnam = false;
+
+    public static bool $simulateNullPregReplace = false;
+
     private FileSaver&MockObject $fileSaver;
 
     private MediaService&MockObject $mediaService;
@@ -39,6 +44,12 @@ class MediaUploadControllerTest extends TestCase
         $this->mediaService = $this->createMock(MediaService::class);
         $this->fileNameProvider = $this->createMock(FileNameProvider::class);
         $this->responseFactory = $this->createMock(ResponseFactoryInterface::class);
+    }
+
+    protected function tearDown(): void
+    {
+        self::$simulateFailedTempnam = false;
+        self::$simulateNullPregReplace = false;
     }
 
     public function testRemoveNonPrintingCharactersInFileNameBeforeUpload(): void
@@ -125,4 +136,168 @@ class MediaUploadControllerTest extends TestCase
 
         $mediaUploadController->provideName($request, $context);
     }
+
+    public function testRenameThrowsWhenEmptyFileName(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $request = new Request([], ['fileName' => '']);
+
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('A valid filename must be provided.');
+
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $controller->renameMediaFile($request, $mediaId, $context, $this->responseFactory);
+    }
+
+    public function testProvideNameThrowsWhenEmptyFileName(): void
+    {
+        $context = Context::createDefaultContext();
+        $request = new Request(['fileName' => '', 'extension' => 'jpg']);
+
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('A valid filename must be provided.');
+
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $controller->provideName($request, $context);
+    }
+
+    public function testProvideNameThrowsWhenMissingExtension(): void
+    {
+        $context = Context::createDefaultContext();
+        $request = new Request(['fileName' => 'test', 'extension' => '']);
+
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('No file extension provided. Please use the "extension" query parameter to specify the extension of the uploaded file.');
+
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $controller->provideName($request, $context);
+    }
+
+    public function testUploadThrowsWhenTempFileCannotBeCreated(): void
+    {
+        self::$simulateFailedTempnam = true;
+
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('Cannot create a temp file.');
+
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $controller->upload(new Request(), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
+    }
+
+    public function testUploadThrowsOnIllegalFileName(): void
+    {
+        self::$simulateNullPregReplace = true;
+
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('is not permitted');
+
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $controller->upload(new Request(['fileName' => 'test.png']), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
+    }
+
+    public function testRenameThrowsOnIllegalFileName(): void
+    {
+        self::$simulateNullPregReplace = true;
+
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('is not permitted');
+
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $controller->renameMediaFile(new Request([], ['fileName' => 'test.png']), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
+    }
+
+    public function testProvideNameThrowsOnIllegalFileName(): void
+    {
+        self::$simulateNullPregReplace = true;
+
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('is not permitted');
+
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $controller->provideName(new Request(['fileName' => 'test.png', 'extension' => 'png']), Context::createDefaultContext());
+    }
+}
+
+namespace Shopware\Core\Content\Media\Api;
+
+use Shopware\Tests\Unit\Core\Content\Media\Api\MediaUploadControllerTest;
+
+function tempnam(string $dir, string $prefix): string|false
+{
+    if (MediaUploadControllerTest::$simulateFailedTempnam) {
+        return false;
+    }
+
+    return \tempnam($dir, $prefix);
+}
+
+/**
+ * @param string|array<string> $pattern
+ * @param string|array<string> $replacement
+ * @param string|array<string> $subject
+ *
+ * @return string|array<string>|null
+ */
+function preg_replace(
+    string|array $pattern,
+    string|array $replacement,
+    string|array $subject,
+    int $limit = -1,
+    ?int &$count = null
+): string|array|null {
+    if (MediaUploadControllerTest::$simulateNullPregReplace) {
+        return null;
+    }
+
+    return \preg_replace($pattern, $replacement, $subject, $limit, $count);
 }

@@ -517,6 +517,9 @@ export default {
             // This is a little against v-model. But so we don't need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
+            // Also set singleSelection directly so the display updates even when the value prop doesn't
+            // actually change (e.g. item.id is undefined and the prop default coerces it back to null).
+            this.singleSelection = item;
             this.$emit('update:value', item.id, item);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), item);

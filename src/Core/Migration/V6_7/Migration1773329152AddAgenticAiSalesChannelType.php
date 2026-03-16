@@ -23,34 +23,53 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
     {
         $salesChannelTypeId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_AGENTIC_AI);
         $defaultLanguageIds = $this->fetchDefaultLanguageIds($connection);
+        $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        $languageEN = $defaultLanguageIds['en-GB'] ?? null;
-        $languageDE = $defaultLanguageIds['de-DE'] ?? null;
-
-        $connection->transactional(function (Connection $connection) use ($salesChannelTypeId, $languageEN, $languageDE): void {
+        $connection->transactional(function (Connection $connection) use ($salesChannelTypeId, $defaultLanguageIds, $systemLanguageId): void {
             $connection->insert('sales_channel_type', [
                 'id' => $salesChannelTypeId,
                 'icon_name' => 'default-object-rocket',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
-            $connection->insert('sales_channel_type_translation', [
-                'sales_channel_type_id' => $salesChannelTypeId,
-                'language_id' => $languageEN,
-                'name' => 'Agentic AI',
-                'manufacturer' => 'shopware AG',
-                'description' => 'Sales channel for agentic AI commerce platforms',
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]);
+            $translations = [
+                $systemLanguageId => [
+                    'name' => 'Agentic AI',
+                    'manufacturer' => 'shopware AG',
+                    'description' => 'Sales channel for agentic AI commerce platforms',
+                ],
+            ];
 
-            $connection->insert('sales_channel_type_translation', [
-                'sales_channel_type_id' => $salesChannelTypeId,
-                'language_id' => $languageDE,
-                'name' => 'Agentenbasierte KI',
-                'manufacturer' => 'shopware AG',
-                'description' => 'Verkaufskanal für agentenbasierte KI-Handelsplatformen',
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]);
+            $englishLanguageId = $defaultLanguageIds['en-GB'] ?? null;
+
+            if ($englishLanguageId !== null && $englishLanguageId !== $systemLanguageId) {
+                $translations[$englishLanguageId] = [
+                    'name' => 'Agentic AI',
+                    'manufacturer' => 'shopware AG',
+                    'description' => 'Sales channel for agentic AI commerce platforms',
+                ];
+            }
+
+            $germanLanguageId = $defaultLanguageIds['de-DE'] ?? null;
+
+            if ($germanLanguageId !== null && $germanLanguageId !== $systemLanguageId) {
+                $translations[$germanLanguageId] = [
+                    'name' => 'Agentenbasierte KI',
+                    'manufacturer' => 'shopware AG',
+                    'description' => 'Verkaufskanal für agentenbasierte KI-Handelsplatformen',
+                ];
+            }
+
+            foreach ($translations as $languageId => $translation) {
+                $connection->insert('sales_channel_type_translation', [
+                    'sales_channel_type_id' => $salesChannelTypeId,
+                    'language_id' => $languageId,
+                    'name' => $translation['name'],
+                    'manufacturer' => $translation['manufacturer'],
+                    'description' => $translation['description'],
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]);
+            }
         });
     }
 

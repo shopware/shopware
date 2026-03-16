@@ -277,6 +277,26 @@
           }
         }
       },
+      "mediaGallery": {
+        "label": "Mediengalerie",
+        "preview": {
+          "badge": "Neu"
+        },
+        "config": {
+          "label": {
+            "displayMode": "Anzeigemodus",
+            "displayModeAuto": "Automatisch",
+            "displayModeFixedHeight": "Feste Höhe",
+            "maxHeight": "Maximale Höhe (px)",
+            "thumbnailPosition": "Vorschauposition",
+            "thumbnailPositionLeft": "Links",
+            "thumbnailPositionBottom": "Unten",
+            "showNavigationArrows": "Navigationspfeile anzeigen",
+            "showMagnifier": "Bildvergrößerung",
+            "showFullScreenGallery": "Lightbox-Galerie"
+          }
+        }
+      },
       "imageGallery": {
         "label": "Galerie",
         "config": {

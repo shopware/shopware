@@ -1,0 +1,49 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-media-gallery {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    grid-gap: 4px;
+    height: 100%;
+
+    &__badge {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background-color: $color-shopware-brand-500;
+        color: $color-white;
+        font-size: 11px;
+        font-weight: $font-weight-semi-bold;
+        line-height: 18px;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .sw-cms-el-preview-media-gallery__thumbnails {
+        display: grid;
+        grid-auto-rows: 16px;
+        grid-gap: 4px;
+
+        img {
+            border: 1px solid $color-gray-300;
+            border-radius: 2px;
+            display: block;
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            padding: 2px;
+        }
+    }
+
+    .sw-cms-el-preview-media-gallery__main {
+        img {
+            width: 100%;
+            height: 102px;
+            object-fit: cover;
+            border-radius: 2px;
+            border: 1px solid $color-gray-300;
+        }
+    }
+}

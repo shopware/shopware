@@ -30,7 +30,7 @@ class ConsentRepository
         );
 
         return array_map(
-            fn (array $row) => new ConsentStateRecord(
+            static fn (array $row) => new ConsentStateRecord(
                 $row['name'],
                 $row['identifier'],
                 ConsentStatus::from($row['state']),

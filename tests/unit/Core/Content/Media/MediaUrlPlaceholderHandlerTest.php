@@ -39,7 +39,7 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
         $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
 
         $fileSystemOperator = $this->createMock(Filesystem::class);
-        $fileSystemOperator->expects($this->any())->method('publicUrl')->willReturnCallback(function ($path) {
+        $fileSystemOperator->expects($this->any())->method('publicUrl')->willReturnCallback(static function ($path) {
             return 'http://foo.text:8000/' . $path;
         });
 

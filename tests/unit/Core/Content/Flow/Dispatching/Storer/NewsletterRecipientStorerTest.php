@@ -28,7 +28,9 @@ class NewsletterRecipientStorerTest extends TestCase
 {
     private NewsletterRecipientStorer $storer;
 
-    /** @var MockObject&EntityRepository<NewsletterRecipientCollection> */
+    /**
+     * @var MockObject&EntityRepository<NewsletterRecipientCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

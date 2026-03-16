@@ -79,13 +79,13 @@ class CollectionTest extends TestCase
     public function testMap(): void
     {
         $collection = new TestCollection();
-        $collection->map(function (): void {
+        $collection->map(static function (): void {
             static::fail('map should not be called for empty collection');
         });
 
         $collection->add('a');
         $collection->add('b');
-        $result = $collection->map(fn ($element) => $element . '_test');
+        $result = $collection->map(static fn ($element) => $element . '_test');
         static::assertSame(['a_test', 'b_test'], $result);
     }
 
@@ -93,13 +93,13 @@ class CollectionTest extends TestCase
     {
         /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
-        $collection->fmap(function (): void {
+        $collection->fmap(static function (): void {
             static::fail('fmap should not be called for empty collection');
         });
 
         $collection->add('a');
         $collection->add('b');
-        $filtered = $collection->fmap(fn ($element) => $element === 'a' ? false : $element . '_test');
+        $filtered = $collection->fmap(static fn ($element) => $element === 'a' ? false : $element . '_test');
         static::assertSame([1 => 'b_test'], $filtered);
     }
 
@@ -108,7 +108,7 @@ class CollectionTest extends TestCase
         /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
 
-        $collection->sort(function (): void {
+        $collection->sort(static function (): void {
             static::fail('sort should not be called for empty collection');
         });
 
@@ -116,7 +116,7 @@ class CollectionTest extends TestCase
         $collection->add('c');
         $collection->add('a');
 
-        $collection->sort(fn ($a, $b) => strcmp($a, $b));
+        $collection->sort(static fn ($a, $b) => strcmp($a, $b));
 
         static::assertSame([2 => 'a', 0 => 'b', 1 => 'c'], $collection->getElements());
     }
@@ -140,7 +140,7 @@ class CollectionTest extends TestCase
     {
         /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
-        $collection->filter(function (): void {
+        $collection->filter(static function (): void {
             static::fail('filter should not be called for empty collection');
         });
 
@@ -148,7 +148,7 @@ class CollectionTest extends TestCase
         $collection->add('b');
         $collection->add('c');
 
-        $filtered = $collection->filter(fn ($element) => $element !== 'b');
+        $filtered = $collection->filter(static fn ($element) => $element !== 'b');
         static::assertSame(['a', 'c'], array_values($filtered->getElements()));
     }
 
@@ -231,7 +231,7 @@ class CollectionTest extends TestCase
     public function testFirstWhereWithEmptyCollectionWillReturnNull(): void
     {
         $collection = new TestCollection();
-        static::assertNull($collection->firstWhere(fn ($element) => $element === 'a'));
+        static::assertNull($collection->firstWhere(static fn ($element) => $element === 'a'));
     }
 
     public function testFirstWhereWithMatchingElementWillReturnFirstElement(): void
@@ -240,7 +240,7 @@ class CollectionTest extends TestCase
         $collection->add('a1');
         $collection->add('a2');
         $collection->add('a3');
-        static::assertSame('a1', $collection->firstWhere(fn ($element) => str_starts_with($element, 'a')));
+        static::assertSame('a1', $collection->firstWhere(static fn ($element) => str_starts_with($element, 'a')));
     }
 
     public function testFromAssociative(): void

@@ -42,6 +42,11 @@ When creating external media via `POST /api/_action/media/external-link`, you ca
 
 The same `thumbnails` payload shape is accepted by `POST /api/_action/media/{id}/external-thumbnails`.
 
+### Support of long-running MySQL connections
+
+It is now possible to use libraries like [`doctrine-mysql-come-back`](https://github.com/facile-it/doctrine-mysql-come-back), which wrap the default DBAL connection.
+More information on how to set up, can be found here: https://developer.shopware.com/docs/guides/hosting/infrastructure/database.html#setup-for-long-running-environments
+
 ## API
 
 ### Deprecation of newsletter route methods
@@ -76,6 +81,11 @@ If you want to enforce values on write, set `strict: true` when creating the fla
 
 ## Core
 
+### Product stream deletion is blocked while product exports exist
+
+Deleting a product stream that's been used in a product export raises a dedicated delete restriction.
+This rule is additionally enforced on database level by changing the foreign key delete action from `CASCADE` to `RESTRICT`.
+
 ### Reduced HTTP cache invalidation on system config changes
 
 `SystemConfigService::set()`, `setMultiple()`, and `delete()` now accept an optional `$silent` parameter. When `silent=true`, the internal config cache is still cleared immediately, but the broad HTTP cache tag `system.config-{salesChannelId}` is not invalidated.
@@ -98,7 +108,7 @@ Product main categories are now inherited from parent product if not explicitly 
 
 ### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
 
-The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed. 
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed.
 But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
 This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
 Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
@@ -118,6 +128,18 @@ Two new events are dispatched when the product slider CMS element resolves its p
 
 - `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
 - `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
+
+### Allow custom HTTP client injection for S3 client creation
+
+The S3 client creation flow (`S3ClientFactory`, `AwsS3v3Factory`, `PresignedUploadUrlGenerator`)
+now accepts an optional `HttpClientInterface` parameter. When provided, this HTTP client is
+forwarded to the underlying AsyncAws `S3Client` instead of letting it create its own default.
+
+Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the new
+`shopware.filesystem.s3.client` service ID. This service is not registered by default, so
+`null` is injected and AsyncAws uses its own internal HTTP client. Integrators can register
+the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
+custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
 ## Administration
 

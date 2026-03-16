@@ -159,7 +159,7 @@ export default {
                     placeholder: this.$tc('sw-product.filters.productNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    criteriaFilterType: 'equals',
+                    criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
                 },
                 'active-filter': {
                     property: 'active',

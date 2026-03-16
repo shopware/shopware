@@ -19,13 +19,13 @@ class JsonlValidationError extends Error
 
     public function __construct(
         protected string $id,
-        protected string $error
+        protected string $error,
+        protected int $line = 1,
     ) {
         $message = new ErrorMessage();
         $message->assign([
             'message' => $error,
-            'line' => 1,
-            'column' => 1,
+            'line' => $this->line,
         ]);
 
         $this->errorMessages = [$message];
@@ -45,11 +45,14 @@ class JsonlValidationError extends Error
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, int|string>
      */
     public function getParameters(): array
     {
-        return ['error' => $this->error];
+        return [
+            'error' => $this->error,
+            'line' => $this->line,
+        ];
     }
 
     /**

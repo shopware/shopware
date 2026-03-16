@@ -1,7 +1,7 @@
 {% set isActive = item.category.id == activeId %}
 
 {# @deprecated tag:v6.8.0 - Variable declaration has been moved to `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template #}
-{% if not feature('v6.8.0.0') %}
+{% if not feature('JSON_LD_DATA') %}
     {% set hasChildren = item.category.visibleChildCount > 0 %}
 {% endif %}
 {% set url = item.category.seoUrl %}
@@ -10,11 +10,14 @@
 {% block layout_navigation_offcanvas_navigation_category_item_link %}
     <li class="navigation-offcanvas-list-item">
         {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link %}
+            {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
             <a
                 class="navigation-offcanvas-link nav-item nav-link{% if isActive %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
                 href="{{ url }}"
                 title="{{ name }}"
+                {% if not feature('JSON_LD_DATA') %}
                 itemprop="url"
+                {% endif %}
                 {% if hasChildren %}
                     data-href="{{ path('frontend.menu.offcanvas', {navigationId: item.category.id}) }}"
                 {% endif %}
@@ -23,7 +26,7 @@
                 {% endif %}
             >
                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_text %}
-                    <span itemprop="name">{{ name }}</span>
+                    <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>{{ name }}</span>
                     {% if hasChildren %}
                         {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
                             <span class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">

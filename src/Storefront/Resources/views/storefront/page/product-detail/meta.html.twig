@@ -56,3 +56,14 @@
 
     <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: canonicalUrl }) }}">
 {% endblock %}
+
+{% block layout_head_json_ld %}
+    {% if feature('JSON_LD_DATA') %}
+        {% set jsonLdWebPageType = 'ItemPage' %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+            category: page.product.seoCategory
+        } only %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-product.html.twig' %}
+    {% endif %}
+{% endblock %}

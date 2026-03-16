@@ -21,17 +21,21 @@
                         {% if category.type == 'folder' %}
                             <div class="nav-item nav-item-{{ id }} nav-link nav-item-{{ id }}-link navigation-flyout-link is-level-{{ level }}"
                                  title="{{ name }}">
-                                <span itemprop="name">{{ name }}</span>
+                                {# @deprecated tag:v6.8.0 - SiteNavigationElement name microdata removed. Not supported as a rich result. #}
+                                <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>{{ name }}</span>
                             </div>
                         {% else %}
+                            {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
                             <a class="nav-item nav-item-{{ id }} nav-link nav-item-{{ id }}-link navigation-flyout-link is-level-{{ level }}"
                                href="{{ link }}"
+                               {% if not feature('JSON_LD_DATA') %}
                                itemprop="url"
+                               {% endif %}
                                {% if category.shouldOpenInNewTab %}target="_blank"
                                {% if category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
                                 {% endif %}
                                title="{{ name }}">
-                                <span itemprop="name">{{ name }}</span>
+                                <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>{{ name }}</span>
                             </a>
                         {% endif %}
                     {% endblock %}

@@ -76,9 +76,13 @@ shopware:
         major: true
         toggleable: true
         description: "Automatic promotions cannot be removed anymore and are therefore no longer tracked as blocked after removal."
-
       - name: METEOR_TEXT_EDITOR
         default: false
         major: false
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
+      - name: JSON_LD_DATA
+        default: false
+        major: true
+        toggleable: true
+        description: "Replace inline microdata (itemscope/itemprop) with JSON-LD structured data in the Storefront. When enabled, legacy microdata attributes are removed and a <script type=\"application/ld+json\"> block is injected into the <head> instead."

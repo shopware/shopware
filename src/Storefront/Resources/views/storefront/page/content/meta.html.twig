@@ -1,0 +1,19 @@
+{% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
+
+{% block layout_head_json_ld %}
+    {% if feature('JSON_LD_DATA') %}
+        {% set jsonLdWebPageType = page.landingPage is not empty ? 'WebPage' : 'CollectionPage' %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+            categoryId: shopware.navigation.id
+        } only %}
+
+        {# Add structured data for product listings if listing element is present #}
+        {% set listingSlot = page.cmsPage ? page.cmsPage.getFirstElementOfType('product-listing') : null %}
+        {% if listingSlot and listingSlot.data and listingSlot.data.listing %}
+            {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-item-list.html.twig' with {
+                searchResult: listingSlot.data.listing
+            } only %}
+        {% endif %}
+    {% endif %}
+{% endblock %}

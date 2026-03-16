@@ -250,7 +250,8 @@ class MailTemplateServiceTest extends TestCase
                 [
                     'fieldName' => 'bar',
                     'hasChildren' => true,
-                ],[
+                ],
+                [
                     'fieldName' => 'topLevelStruct',
                     'hasChildren' => true,
                 ],
@@ -302,7 +303,7 @@ class MailTemplateServiceTest extends TestCase
                     'fieldName' => 'extensions',
                     'hasChildren' => false,
                 ],
-                 [
+                [
                     'fieldName' => 'system',
                     'hasChildren' => false,
                 ],
@@ -324,7 +325,7 @@ class MailTemplateServiceTest extends TestCase
                     'fieldName' => 'weight',
                     'hasChildren' => false,
                 ],
-            ]
+            ],
         ];
     }
 

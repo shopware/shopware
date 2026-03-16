@@ -458,10 +458,10 @@ class MailDataProvider
     }
 
     /**
-     * @return class-string
+     * @return ?class-string
      */
-    private function getCollectionClass(Entity $class): string
+    private function getCollectionClass(Entity $class): ?string
     {
-        return $this->definitionRegistry->getByEntityClass($class)->getCollectionClass();
+        return $this->definitionRegistry->getByEntityClass($class)?->getCollectionClass();
     }
 }

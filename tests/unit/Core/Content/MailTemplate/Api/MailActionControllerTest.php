@@ -5,15 +5,16 @@ namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Api\MailActionController;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -24,10 +25,12 @@ class MailActionControllerTest extends TestCase
 {
     private StringTemplateRenderer&MockObject $stringTemplateRenderer;
 
+    private MailTemplateService&MockObject $mailService;
+
     protected function setUp(): void
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $this->mailService = $this->createMock(AbstractMailService::class);
+        $this->mailService = $this->createMock(MailTemplateService::class);
     }
 
     public function testSendSuccess(): void
@@ -56,19 +59,16 @@ class MailActionControllerTest extends TestCase
             );
 
         $mailActionController = new MailActionController(
-            $this->mailService,
-            $this->stringTemplateRenderer
+            $this->stringTemplateRenderer,
+            $this->mailService
         );
 
         $mailActionController->send($data, Context::createDefaultContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuild(): void
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('New api.action.mail_template.build behavior');
-        }
-
         $templateData = [
             'order' => [
                 'id' => Uuid::randomHex(),
@@ -104,12 +104,9 @@ class MailActionControllerTest extends TestCase
         static::assertSame('"rendered"', $response->getContent());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildWithoutTemplateData(): void
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('New api.action.mail_template.build behavior');
-        }
-
         $data = new RequestDataBag([
             'mailTemplate' => [
                 'contentHtml' => 'html',
@@ -136,12 +133,9 @@ class MailActionControllerTest extends TestCase
         static::assertSame('"rendered"', $response->getContent());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildWithoutTemplateContentThrows(): void
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('New api.action.mail_template.build behavior');
-        }
-
         $data = new RequestDataBag();
 
         $context = Context::createDefaultContext();

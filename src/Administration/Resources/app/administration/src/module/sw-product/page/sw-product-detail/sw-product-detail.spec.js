@@ -1112,4 +1112,25 @@ describe('module/sw-product/page/sw-product-detail', () => {
             'custom_fields',
         ]);
     });
+
+    it('should clear stale variant data when opening create page after viewing a variant product', async () => {
+        await wrapper.unmount();
+
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = {
+            id: 'variant-123',
+            parentId: 'parent-456',
+            variation: [],
+        };
+        store.parentProduct = { id: 'parent-456', name: 'Parent Product' };
+
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve({ variation: [] }),
+            null,
+        );
+
+        await flushPromises();
+        expect(store.parentProduct).toEqual({});
+    });
 });

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldSet;
 use Shopware\Core\Framework\Context;
@@ -20,7 +20,7 @@ use Shopware\Core\System\CustomField\CustomFieldCollection;
  * @phpstan-import-type CustomFieldSetArray from CustomFieldSet
  */
 #[Package('framework')]
-class CustomFieldPersister
+class CustomFieldPersister implements PersisterInterface
 {
     /**
      * @param EntityRepository<CustomFieldSetCollection> $customFieldSetRepository
@@ -35,13 +35,10 @@ class CustomFieldPersister
     ) {
     }
 
-    /**
-     * @internal only for use by the app-system
-     */
-    public function updateCustomFields(Manifest $manifest, string $appId, Context $context): void
+    public function persist(AppLifecycleContext $context): void
     {
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($manifest, $appId): void {
-            $this->upsertCustomFieldSets($manifest->getCustomFields(), $appId, $context);
+        $context->context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($context): void {
+            $this->upsertCustomFieldSets($context->manifest->getCustomFields(), $context->app->getId(), $innerContext);
         });
     }
 

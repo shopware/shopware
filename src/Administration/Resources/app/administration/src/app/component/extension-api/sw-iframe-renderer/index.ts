@@ -1,4 +1,4 @@
-import { getLocationOrigin } from 'src/core/helper/navigation.helper';
+import { getLocationOrigin, reloadPage } from 'src/core/helper/navigation.helper';
 import type { Extension } from '../../../store/extensions.store';
 import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
@@ -175,7 +175,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.isFirstLoad) {
                 this.isFirstLoad = false;
             } else {
-                window.location.reload();
+                reloadPage();
             }
         },
 

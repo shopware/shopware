@@ -4,10 +4,11 @@
 
 import { mount } from '@vue/test-utils';
 import { location } from '@shopware-ag/meteor-admin-sdk';
-import { getLocationOrigin } from 'src/core/helper/navigation.helper';
+import { getLocationOrigin, reloadPage } from 'src/core/helper/navigation.helper';
 
 jest.mock('src/core/helper/navigation.helper', () => ({
     getLocationOrigin: jest.fn(() => 'http://localhost'),
+    reloadPage: jest.fn(),
 }));
 
 let $routeMock = {
@@ -374,10 +375,6 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     });
 
     it('should trigger full page reload when iframe is reloaded after initial load', async () => {
-        const reloadMock = jest.fn();
-        const originalReload = window.location.reload;
-        window.location.reload = reloadMock;
-
         Shopware.Store.get('extensions').addExtension({
             name: 'foo',
             baseUrl: 'https://example.com',
@@ -395,13 +392,10 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         expect(iframe.exists()).toBe(true);
 
         await iframe.trigger('load');
-        expect(reloadMock).not.toHaveBeenCalled();
+        expect(reloadPage).not.toHaveBeenCalled();
 
         // Second load (iframe reload): should trigger full page reload
         await iframe.trigger('load');
-        expect(reloadMock).toHaveBeenCalledTimes(1);
-
-        // clean up
-        window.location.reload = originalReload;
+        expect(reloadPage).toHaveBeenCalledTimes(1);
     });
 });

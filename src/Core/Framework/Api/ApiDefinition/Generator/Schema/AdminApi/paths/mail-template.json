@@ -317,7 +317,7 @@
                                         "description": "The class of the flow trigger event that provides the available variables.",
                                         "type": "string",
                                         "example": "Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\Event\\ReviewFormEvent"
-                                    },
+                                    }
                                 },
                                 "type": "object"
                             }
@@ -391,7 +391,7 @@
                                                 "content": {
                                                     "description": "The rendered content of the mail template in html format. Also contains the error when rendering this field wasn't possible.",
                                                     "type": "string",
-                                                    "example": "<div>Hello Mr. Mustermann,<br/>this is example mail content, the current date is 16.03.2026.</div>",
+                                                    "example": "<div>Hello Mr. Mustermann,<br/>this is example mail content, the current date is 16.03.2026.</div>"
                                                 }
                                             }
                                         },
@@ -410,7 +410,7 @@
                                                 "content": {
                                                     "description": "The rendered content of the mail template in plain text format. Also contains the error when rendering this field wasn't possible.",
                                                     "type": "string",
-                                                    "example": "Hello Mr. Mustermann, this is example mail content, the current date is 16.03.2026.",
+                                                    "example": "Hello Mr. Mustermann, this is example mail content, the current date is 16.03.2026."
                                                 }
                                             }
                                         }

@@ -33,7 +33,6 @@
     "POST /_action/import-export/prepare",
     "POST /_action/import-export/prepare-template-file-download",
     "POST /_action/import-export/process",
-    "GET /_action/mail-template/available-variables",
     "POST /_action/media-folder/{folderId}/dissolve",
     "GET /_action/media/provide-name",
     "POST /_action/media/{mediaId}/rename",

@@ -109,10 +109,10 @@ class MailTemplateServiceTest extends TestCase
         $name = Hasher::hash($templateContent . false);
         $expectedContent = 'Failed rendering string template using Twig: Variable "order" does not exist in "' . $name . '" at line 1.';
 
-        static::assertSame(MailTemplateRenderError::TYPE, $rendered->get('contentHtml')->getType());
-        static::assertSame($expectedContent, $rendered->get('contentHtml')->getType());
-        static::assertSame(MailTemplateRenderError::TYPE, $rendered->get('contentPlain')->getType());
-        static::assertSame($expectedContent, $rendered->get('contentPlain')->getType());
+        static::assertSame(MailTemplateRenderError::TYPE, $rendered->get('contentHtml')?->getType());
+        static::assertSame($expectedContent, $rendered->get('contentHtml')->getContent());
+        static::assertSame(MailTemplateRenderError::TYPE, $rendered->get('contentPlain')?->getType());
+        static::assertSame($expectedContent, $rendered->get('contentPlain')->getContent());
     }
 
     public function testPreviewIgnoresMissingVariablesInNonStrictMode(): void

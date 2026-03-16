@@ -25,45 +25,57 @@ class MailActionControllerTest extends TestCase
 {
     private StringTemplateRenderer&MockObject $stringTemplateRenderer;
 
-    private MailTemplateService&MockObject $mailService;
+    private MailTemplateService&MockObject $mailTemplateService;
 
     protected function setUp(): void
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $this->mailService = $this->createMock(MailTemplateService::class);
+        $this->mailTemplateService = $this->createMock(MailTemplateService::class);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testSendSuccess(): void
     {
+        $orderId = Uuid::randomHex();
+
         $data = new RequestDataBag([
             'id' => 'random',
             'mailTemplateData' => [
                 'order' => [
-                    'id' => Uuid::randomHex(),
+                    'id' => $orderId,
                 ],
             ],
             'documentIds' => ['1'],
         ]);
 
-        $this->mailService->expects($this->once())
+        $context = Context::createDefaultContext();
+
+        $this->mailTemplateService->expects($this->once())
             ->method('send')
             ->with(
-                static::callback(static function (array $data) {
-                    static::assertArrayHasKey('attachmentsConfig', $data);
-                    static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
+                static::callback(static function (array $actual) use ($data): bool {
+                    static::assertSame($data->all(), $actual);
 
                     return true;
                 }),
-                static::anything(),
-                static::anything()
+                static::callback(static function (Context $actual) use ($context): bool {
+                    static::assertSame($context, $actual);
+
+                    return true;
+                }),
+                static::callback(static function (array $templateData) use ($orderId): bool {
+                    static::assertSame(['order' => ['id' => $orderId]], $templateData);
+
+                    return true;
+                })
             );
 
         $mailActionController = new MailActionController(
             $this->stringTemplateRenderer,
-            $this->mailService
+            $this->mailTemplateService
         );
 
-        $mailActionController->send($data, Context::createDefaultContext());
+        $mailActionController->send($data, $context);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

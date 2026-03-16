@@ -7,12 +7,19 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEv
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ProductExportProviderContextSubscriber implements EventSubscriberInterface
+/**
+ * @internal
+ *
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ */
+#[Package('discovery')]
+readonly class ProductExportProviderContextSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly ProductExportProviderRegistry $providerRegistry)
+    public function __construct(private ProductExportProviderRegistry $providerRegistry)
     {
     }
 
@@ -41,9 +48,10 @@ class ProductExportProviderContextSubscriber implements EventSubscriberInterface
     }
 
     private function extendContext(
-        ProductExportRenderHeaderContextEvent|ProductExportRenderBodyContextEvent|ProductExportRenderFooterContextEvent $event
-    ): void
-    {
+        ProductExportRenderHeaderContextEvent|
+        ProductExportRenderBodyContextEvent|
+        ProductExportRenderFooterContextEvent $event
+    ): void {
         $context = $event->getContext();
         $productExport = $context['productExport'] ?? null;
         $salesChannelContext = $context['context'] ?? null;

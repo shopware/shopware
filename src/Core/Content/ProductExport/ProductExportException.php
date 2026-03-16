@@ -22,6 +22,8 @@ class ProductExportException extends HttpException
     public const SALES_CHANNEL_NOT_ALLOWED_EXCEPTION = 'PRODUCT_EXPORT_SALES_CHANNEL_NOT_ALLOWED_EXCEPTION';
 
     public const SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION = 'PRODUCT_EXPORT__SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION';
+    public const TEMPLATE_FILE_NOT_FOUND_EXCEPTION = 'PRODUCT_EXPORT__TEMPLATE_FILE_NOT_FOUND_EXCEPTION';
+    public const TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION = 'PRODUCT_EXPORT__TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION';
 
     public static function templateBodyNotSet(): ProductExportException
     {
@@ -77,6 +79,26 @@ class ProductExportException extends HttpException
             self::SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION,
             'No sales channel domain found for product export with id {{ productExportId }}',
             ['productExportId' => $productExportId]
+        );
+    }
+
+    public static function templateFileNotFound(string $template): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::TEMPLATE_FILE_NOT_FOUND_EXCEPTION,
+            'Product export template "{{ template }}" could not be found.',
+            ['template' => $template]
+        );
+    }
+
+    public static function templateFileNotLoadable(string $template): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION,
+            'Product export template "{{ template }}" could not be loaded.',
+            ['template' => $template]
         );
     }
 

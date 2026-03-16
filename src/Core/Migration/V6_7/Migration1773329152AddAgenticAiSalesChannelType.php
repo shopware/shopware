@@ -27,10 +27,6 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
         $languageEN = $defaultLanguageIds['en-GB'] ?? null;
         $languageDE = $defaultLanguageIds['de-DE'] ?? null;
 
-        if ($languageEN === null || $languageDE === null) {
-            throw new \RuntimeException('The default languages "en-GB" and "de-DE" must exist before running this migration.');
-        }
-
         $connection->transactional(function (Connection $connection) use ($salesChannelTypeId, $languageEN, $languageDE): void {
             $connection->insert('sales_channel_type', [
                 'id' => $salesChannelTypeId,
@@ -58,6 +54,9 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
         });
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function fetchDefaultLanguageIds(Connection $connection): array
     {
         $sql = <<<'SQL'

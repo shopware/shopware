@@ -2,8 +2,14 @@
 
 namespace Shopware\Core\Content\ProductExport\Provider;
 
+use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ *
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ */
 #[Package('discovery')]
 class ProductExportTemplateFileLoader
 {
@@ -12,13 +18,13 @@ class ProductExportTemplateFileLoader
         $path = __DIR__ . '/Templates/' . ltrim($template, '/');
 
         if (!is_file($path)) {
-            throw new \RuntimeException(\sprintf('Product export template "%s" could not be found.', $template));
+            throw ProductExportException::templateFileNotFound($template);
         }
 
         $contents = file_get_contents($path);
 
         if ($contents === false) {
-            throw new \RuntimeException(\sprintf('Product export template "%s" could not be loaded.', $template));
+            throw ProductExportException::templateFileNotLoadable($template);
         }
 
         return $contents;

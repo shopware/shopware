@@ -4,6 +4,11 @@ namespace Shopware\Core\Content\ProductExport\Error;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ *
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ */
 #[Package('discovery')]
 class JsonlValidationError extends Error
 {

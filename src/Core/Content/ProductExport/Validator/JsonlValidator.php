@@ -7,6 +7,11 @@ use Shopware\Core\Content\ProductExport\Error\JsonlValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ *
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ */
 #[Package('discovery')]
 class JsonlValidator implements ValidatorInterface
 {
@@ -39,7 +44,10 @@ class JsonlValidator implements ValidatorInterface
             try {
                 json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $exception) {
-                $errors->add(new JsonlValidationError($productExportEntity->getId(), 'Invalid JSONL at line ' . ($lineNumber + 1) . ': ' . $exception->getMessage()));
+                $currentNumber = $lineNumber + 1;
+                $message = \sprintf('Invalid JSONL at line %s:%s', $currentNumber, $exception->getMessage());
+
+                $errors->add(new JsonlValidationError($productExportEntity->getId(), $message));
 
                 return;
             }

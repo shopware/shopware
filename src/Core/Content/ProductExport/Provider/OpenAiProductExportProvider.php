@@ -8,6 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ *
+ * @internal
+ */
 #[Package('discovery')]
 class OpenAiProductExportProvider extends AbstractProductExportProvider
 {

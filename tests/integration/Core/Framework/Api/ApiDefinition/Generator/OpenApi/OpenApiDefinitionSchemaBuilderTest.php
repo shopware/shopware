@@ -44,7 +44,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 $definition,
                 '',
                 false,
-                false,
+                true, // onlyFlat=true — as the generator uses for TYPE_JSON
                 DefinitionService::TYPE_JSON
             ),
             \JSON_THROW_ON_ERROR
@@ -77,7 +77,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 $definition,
                 '',
                 false,
-                false,
+                true, // onlyFlat=true — as the generator uses for TYPE_JSON
                 DefinitionService::TYPE_JSON
             ),
             \JSON_THROW_ON_ERROR
@@ -99,7 +99,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 $definition,
                 '',
                 false,
-                false,
+                true, // onlyFlat=true — as the generator uses for TYPE_JSON
                 DefinitionService::TYPE_JSON
             ),
             \JSON_THROW_ON_ERROR

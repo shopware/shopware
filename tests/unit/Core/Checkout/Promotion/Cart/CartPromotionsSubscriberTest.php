@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsSubscriber;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -31,14 +32,12 @@ class CartPromotionsSubscriberTest extends TestCase
     {
         $guestPromotions = new CartExtension();
         $guestPromotions->addCode('tenpercent');
-        $guestPromotions->blockPromotion('foo');
 
         $guestCart = new Cart('guest');
         $guestCart->addExtension(CartExtension::KEY, $guestPromotions);
 
         $customerPromotions = new CartExtension();
         $customerPromotions->addCode('twentypercent');
-        $customerPromotions->blockPromotion('bar');
 
         $customerCart = new Cart('customer');
         $customerCart->addExtension(CartExtension::KEY, $customerPromotions);
@@ -59,10 +58,6 @@ class CartPromotionsSubscriberTest extends TestCase
         static::assertTrue($customerPromotions->hasCode('tenpercent'));
         static::assertTrue($customerPromotions->hasCode('twentypercent'));
         static::assertFalse($customerPromotions->hasCode('thrirtypercent'));
-
-        static::assertTrue($customerPromotions->isPromotionBlocked('foo'));
-        static::assertTrue($customerPromotions->isPromotionBlocked('bar'));
-        static::assertFalse($customerPromotions->isPromotionBlocked('baz'));
     }
 
     #[Group('promotions')]
@@ -70,14 +65,12 @@ class CartPromotionsSubscriberTest extends TestCase
     {
         $guestPromotions = new CartExtension();
         $guestPromotions->addCode('tenpercent');
-        $guestPromotions->blockPromotion('foo');
 
         $guestCart = new Cart('guest');
         $guestCart->addExtension(CartExtension::KEY, $guestPromotions);
 
         $customerPromotions = new CartExtension();
         $customerPromotions->addCode('tenpercent');
-        $customerPromotions->blockPromotion('foo');
 
         $customerCart = new Cart('customer');
         $customerCart->addExtension(CartExtension::KEY, $customerPromotions);
@@ -97,6 +90,40 @@ class CartPromotionsSubscriberTest extends TestCase
         static::assertCount(1, $customerPromotions->getCodes());
         static::assertTrue($customerPromotions->hasCode('tenpercent'));
         static::assertFalse($customerPromotions->hasCode('tenPercent'));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
+    #[Group('promotions')]
+    #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    public function testOnBeforeCartMergesBlockedPromotionsWhenFeatureDisabled(): void
+    {
+        $guestPromotions = new CartExtension();
+        $guestPromotions->addCode('tenpercent');
+        $guestPromotions->blockPromotion('foo');
+
+        $guestCart = new Cart('guest');
+        $guestCart->addExtension(CartExtension::KEY, $guestPromotions);
+
+        $customerPromotions = new CartExtension();
+        $customerPromotions->addCode('twentypercent');
+        $customerPromotions->blockPromotion('bar');
+
+        $customerCart = new Cart('customer');
+        $customerCart->addExtension(CartExtension::KEY, $customerPromotions);
+
+        $event = new BeforeCartMergeEvent($customerCart, $guestCart, new LineItemCollection(), Generator::generateSalesChannelContext());
+
+        $subscriber = new CartPromotionsSubscriber();
+        $subscriber->onBeforeCartMerge($event);
+
+        /** @var CartExtension $mergedPromotions */
+        $mergedPromotions = $event->getCustomerCart()->getExtension(CartExtension::KEY);
+
+        static::assertTrue($mergedPromotions->isPromotionBlocked('foo'));
+        static::assertTrue($mergedPromotions->isPromotionBlocked('bar'));
+        static::assertFalse($mergedPromotions->isPromotionBlocked('baz'));
     }
 
     #[Group('promotions')]

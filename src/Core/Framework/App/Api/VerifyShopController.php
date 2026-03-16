@@ -42,8 +42,8 @@ class VerifyShopController
 
         $this->rateLimiter->ensureAccepted(RateLimiter::APP_SHOP_VERIFY, $ip);
 
-        $runId = $request->get('runId');
-        $uToken = $request->get('token');
+        $runId = $request->query->get('runId');
+        $uToken = $request->query->get('token');
 
         if ($runId === null || $uToken === null) {
             return new JsonResponse([], Response::HTTP_BAD_REQUEST);

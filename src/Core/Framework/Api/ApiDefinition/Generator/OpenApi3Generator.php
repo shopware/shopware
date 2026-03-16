@@ -428,11 +428,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             return;
         }
 
-        if (isset($data['$ref']) && \is_string($data['$ref'])) {
+        if (isset($data['$ref']) && \is_string($data['$ref']) && str_starts_with($data['$ref'], '#/components/schemas/')) {
             $refName = str_replace('#/components/schemas/', '', $data['$ref']);
-            if (!str_starts_with($data['$ref'], '#/components/schemas/')) {
-                return;
-            }
             $refs[$refName] = true;
         }
 

@@ -208,7 +208,8 @@ class OpenApiPathBuilder
                 $requestBodySchema = ['$ref' => $postSchemaRef];
             }
         } else {
-            $requestBodySchema = ['$ref' => '#/components/schemas/' . $schemaName . 'Create'];
+            // Fallback when called without POST schema metadata — use Update as safe default
+            $requestBodySchema = ['$ref' => '#/components/schemas/' . $schemaName . 'Update'];
         }
 
         return new Post([

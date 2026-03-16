@@ -50,7 +50,8 @@ class OpenApiPathBuilderTest extends TestCase
     public function testGetPathActionsWithImmutableFieldsUsesCreateSchema(): void
     {
         $definition = $this->definitionRegistry->get(ImmutableFieldsDefinition::class);
-        $paths = $this->pathBuilder->getPathActions($definition, '/immutable-test');
+        // Pass the Create schema ref explicitly (as the generator does for entities with immutable fields)
+        $paths = $this->pathBuilder->getPathActions($definition, '/immutable-test', '#/components/schemas/ImmutableTestCreate');
 
         // POST should use Create schema when entity has immutable fields
         $postPath = $paths['/immutable-test']->post;

@@ -36,6 +36,15 @@ class EntityLoaderTest extends TestCase
         static::assertSame('entity', EntityLoader::getRequirementType());
     }
 
+    #[TestDox('returns Entity wildcard as provided data type')]
+    public function testGetProvidedDataReturnsEntityWildcard(): void
+    {
+        $descriptor = EntityLoader::getProvidedData();
+
+        static::assertSame(Entity::class, $descriptor->className);
+        static::assertSame([], $descriptor->genericParameters);
+    }
+
     #[TestDox('returns cached result with cache tag when entity is loaded via sales channel repository')]
     public function testLoadReturnsCachedResultViaSalesChannelRepository(): void
     {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration\DataLoader;
 
+use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -66,6 +67,26 @@ class AbstractContentDataLoaderTest extends TestCase
         );
 
         MissingAnnotationTestLoader::getProvidedData();
+    }
+
+    #[TestDox('throws when resolved type class is not a Struct subclass')]
+    public function testThrowsWhenTypeClassIsNotStruct(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::unresolvableTypeClass(\stdClass::class, NonStructTypeTestLoader::class)
+        );
+
+        NonStructTypeTestLoader::getProvidedData();
+    }
+
+    #[TestDox('throws when type node is neither generic nor identifier')]
+    public function testThrowsWhenTypeNodeIsUnsupported(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::unsupportedTypeNode(UnionTypeNode::class)
+        );
+
+        UnsupportedTypeNodeTestLoader::getProvidedData();
     }
 
     /**
@@ -141,6 +162,38 @@ class MissingAnnotationTestLoader extends AbstractContentDataLoader
     public static function getRequirementType(): string
     {
         return 'test_missing';
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @extends AbstractContentDataLoader<\stdClass>
+ */
+class NonStructTypeTestLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_non_struct';
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @extends AbstractContentDataLoader<Tree|null>
+ */
+class UnsupportedTypeNodeTestLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_unsupported_type';
     }
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult

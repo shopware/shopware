@@ -19,7 +19,7 @@ export default class ValidationApiService extends ApiService {
     async validateEmailAddress(email: string) {
         const apiRoute = `/${this.getApiBasePath()}/email`;
         if (!/.+@.+\..+/.test(email)) {
-           return Promise.resolve(false);
+            return Promise.resolve(false);
         }
 
         return this.httpClient

@@ -316,7 +316,7 @@ export default {
                 this.isSaveSuccessful = true;
 
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
-            } catch (error) {
+            } catch (_error) {
                 this.createNotificationError({
                     message: this.$tc(
                         'sw-sales-channel.detail.messageSaveError',

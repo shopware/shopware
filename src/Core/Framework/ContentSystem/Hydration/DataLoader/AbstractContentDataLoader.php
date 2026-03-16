@@ -20,11 +20,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\TypeInfo\TypeContext\TypeContextFactory;
 
 /**
- * Abstract base for loading data for content elements.
- *
- * Implementations fetch data based on DataRequirement configuration
- * and return results with cache tag information.
- *
  * Return values:
  * - ContentDataLoaderResult::notFound() → No data, page cacheable
  * - ContentDataLoaderResult::cached($data, ...$tags) → Data with cache tags
@@ -36,8 +31,7 @@ use Symfony\Component\TypeInfo\TypeContext\TypeContextFactory;
 abstract class AbstractContentDataLoader
 {
     /**
-     * Returns the requirement type identifier for DI service location.
-     * This method is used by the ServiceLocator for indexing.
+     * Used by the DI ServiceLocator for indexing.
      */
     abstract public static function getRequirementType(): string;
 

@@ -6,9 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Result object from content data loaders.
- *
- * Contains loaded data and cache tag information:
+ * Cache tag semantics:
  * - cacheTags = null  → Loader is not cache-aware, page must not be cached
  * - cacheTags = []    → Cache-aware, no tags needed (e.g., data already tagged elsewhere)
  * - cacheTags = [...] → Cache-aware with specific invalidation tags

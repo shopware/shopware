@@ -119,6 +119,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     autocapture: false,
                     serverZone: 'EU',
                     appVersion: Shopware.Store.get('context').app.config.version,
+                    flushMaxRetries: 2,
+                    logLevel: 0,
                     trackingOptions: {
                         ipAddress: false,
                         language: false,
@@ -162,7 +164,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     },
                 }),
                 {
-                    eventName: 'Page Viewed',
+                    eventName: 'page_viewed',
                     properties: {
                         sw_route_from_name: 'sw.dashboard.index',
                         sw_route_from_href: '/sw/dashboard/index',
@@ -189,7 +191,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     }),
                 }),
                 {
-                    eventName: 'Button Click',
+                    eventName: 'button_click',
                     properties: {
                         sw_element_id: 'administration.sw-product.save',
                         sw_element_product_name: 'nice product',
@@ -212,7 +214,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     originalEvent: new Event('click'),
                 }),
                 {
-                    eventName: 'Link Visited',
+                    eventName: 'link_visited',
                     properties: {
                         sw_link_href: 'https://example.com',
                         sw_link_type: 'external',
@@ -276,21 +278,24 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        events: [
-                            {
-                                event_type: 'consent_modal_viewed',
-                                event_properties: {
-                                    option: [
-                                        'backend_data',
-                                        'user_tracking',
-                                    ],
-                                },
-                            },
-                        ],
-                    }),
+                    body: expect.any(String),
                 }),
             );
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                events: [
+                    {
+                        event_type: 'consent_modal_viewed',
+                        event_properties: {
+                            option: [
+                                'backend_data',
+                                'user_tracking',
+                            ],
+                        },
+                        time: expect.any(Number),
+                    },
+                ],
+            });
             expect(track).not.toHaveBeenCalledWith('consent_modal_viewed', expect.anything());
         });
 
@@ -312,21 +317,24 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             expect(global.fetch).toHaveBeenCalledWith(
                 'https://gateway.example/event/anonymous',
                 expect.objectContaining({
-                    body: JSON.stringify({
-                        events: [
-                            {
-                                event_type: 'consent_modal_viewed',
-                                event_properties: {
-                                    option: [
-                                        'backend_data',
-                                        'user_tracking',
-                                    ],
-                                },
-                            },
-                        ],
-                    }),
+                    body: expect.any(String),
                 }),
             );
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                events: [
+                    {
+                        event_type: 'consent_modal_viewed',
+                        event_properties: {
+                            option: [
+                                'backend_data',
+                                'user_tracking',
+                            ],
+                        },
+                        time: expect.any(Number),
+                    },
+                ],
+            });
         });
 
         it('stops telemetry after consent is revoked during runtime', async () => {
@@ -549,7 +557,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             jest.clearAllMocks();
         });
 
-        it('should track Login event when a identify telemetry event with a different userId arrives', async () => {
+        it('should track login event when a identify telemetry event with a different userId arrives', async () => {
             const amplitude = await import('@amplitude/analytics-browser');
 
             let amplitudeUserId = null;
@@ -567,7 +575,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     userId: newUserId,
                 }),
             );
-            expect(amplitude.track).toHaveBeenCalledWith('Login');
+            expect(amplitude.track).toHaveBeenCalledWith('login');
 
             newUserId = 'newUserId-2';
             Shopware.Utils.EventBus.emit(
@@ -576,7 +584,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     userId: newUserId,
                 }),
             );
-            expect(amplitude.track).toHaveBeenCalledWith('Login');
+            expect(amplitude.track).toHaveBeenCalledWith('login');
 
             const sameUserId = newUserId;
             Shopware.Utils.EventBus.emit(
@@ -589,7 +597,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             expect(amplitude.track).toHaveBeenCalledTimes(2);
         });
 
-        it('should track Logout event when a reset telemetry event arrives', async () => {
+        it('should track logout event when a reset telemetry event arrives', async () => {
             const amplitude = await import('@amplitude/analytics-browser');
 
             await initAmplitude();
@@ -598,7 +606,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
             Shopware.Utils.EventBus.emit('telemetry', resetEvent);
 
-            expect(amplitude.track).toHaveBeenCalledWith('Logout');
+            expect(amplitude.track).toHaveBeenCalledWith('logout');
         });
 
         it('should flush telemetry amplitude on logout listener execution', async () => {
@@ -618,6 +626,54 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
             expect(amplitude.flush).toHaveBeenCalledTimes(1);
             expect(amplitude.reset).toHaveBeenCalledTimes(1);
+
+            jest.useRealTimers();
+        });
+
+        it('deletes user data when consent is revoked before deferred runtime activation finishes', async () => {
+            const { init, createInstance } = await import('@amplitude/analytics-browser');
+            const consentStore = useConsentStore();
+
+            jest.useFakeTimers();
+            consentStore.consents.product_analytics.status = 'revoked';
+
+            await initAmplitude();
+
+            init.mockClear();
+            createInstance.mockClear();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'accepted',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'revoked',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            expect(init).not.toHaveBeenCalled();
+            expect(createInstance).toHaveBeenCalledTimes(1);
+            expect(mockDeleteUserAmplitudeClient.track).toHaveBeenCalledWith('delete_user', {
+                shop_id: testShopId,
+                user_id: testUserId,
+                amplitude_user_id: `${testShopId}:${testUserId}`,
+            });
+            expect(mockDeleteUserAmplitudeClient.flush).toHaveBeenCalled();
 
             jest.useRealTimers();
         });

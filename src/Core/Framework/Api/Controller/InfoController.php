@@ -414,7 +414,7 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     private function getShopId(): string
     {
         try {
-            return $this->shopIdProvider->getShopId();
+            return $this->shopIdProvider->getShopId()->id;
         } catch (ShopIdChangeSuggestedException $e) {
             return $e->shopId->id;
         }

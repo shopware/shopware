@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -77,6 +77,25 @@ class RedisCartPersisterTest extends TestCase
         static::assertFalse($redis->exists(RedisCartPersister::PREFIX . $token));
     }
 
+    public function testSavingExistingCartDoesNotCreateMissingCart(): void
+    {
+        $token = Uuid::randomHex();
+        $cart = new Cart($token);
+        $cart->add(new LineItem('test', 'test'));
+
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $redis = new RedisStub();
+        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
+        $persister->save($cart, $context);
+        $persister->delete($token, $context);
+        $persister->save($cart, $context);
+
+        static::assertFalse($redis->exists(RedisCartPersister::PREFIX . $token));
+    }
+
     public function testLoad(): void
     {
         $token = Uuid::randomHex();
@@ -98,6 +117,7 @@ class RedisCartPersisterTest extends TestCase
         $loadedCart = $persister->load($token, $context);
 
         $cart->setData(null);
+        $cart->setPersisted(true);
 
         static::assertEquals($cart, $loadedCart);
     }
@@ -183,6 +203,8 @@ class RedisCartPersisterTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, $cartSerializationCleaner, $compressor, 90))->load($token, $context);
+
+        $cart->setPersisted(true);
 
         static::assertEquals($cart, $loadedCart);
     }

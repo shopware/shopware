@@ -43,6 +43,7 @@ import MtSearch from '@shopware-ag/meteor-component-library/dist/esm/MtSearch';
 import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
+import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
@@ -384,6 +385,7 @@ export default class VueAdapter extends ViewAdapter {
             MtLink,
             MtUnitField,
             MtSnackbar,
+            MtBadge,
         } as const;
 
         const lazyMeteorComponents = {

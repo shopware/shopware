@@ -206,8 +206,8 @@ class ProductIndexer extends EntityIndexer
         }
 
         if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
-            Profiler::trace('product:indexer:rating', function () use ($parentIds, $context): void {
-                $this->ratingAverageUpdater->update($parentIds, $context);
+            Profiler::trace('product:indexer:rating', function () use ($ids, $parentIds, $context): void {
+                $this->ratingAverageUpdater->update(array_unique([...$parentIds, ...$this->getParentIds($ids)]), $context);
             });
         }
 

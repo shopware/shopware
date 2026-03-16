@@ -57,9 +57,14 @@
                             :key="`helpcardContent-${index}`"
                             class="sw-dashboard-index__card-list-item"
                         >
-                            <sw-external-link :href="$tc(`sw-dashboard.helpcard.${key}Link`)">
+                            <mt-link
+                                as="a"
+                                :to="$tc(`sw-dashboard.helpcard.${key}Link`)"
+                                type="external"
+                                target="_blank"
+                            >
                                 {{ $tc(`sw-dashboard.helpcard.${key}`) }}
-                            </sw-external-link>
+                            </mt-link>
                         </li>
                     </ul>
                     {% endblock %}

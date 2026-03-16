@@ -296,6 +296,10 @@ export default {
 
             return Context.app.adminEsEnable ?? false;
         },
+
+        productTypes() {
+            return ['physical', 'digital'];
+        },
     },
 
     beforeRouteLeave(to, from, next) {
@@ -327,6 +331,10 @@ export default {
                 this.storeKey,
                 this.productCriteria,
             );
+
+            if (!criteria.filters.some((filter) => filter.field === 'type')) {
+                criteria.addPostFilter(Criteria.equalsAny('type', this.productTypes));
+            }
 
             if (this.adminEsEnable) {
                 criteria.setTerm(this.term);

@@ -1605,7 +1605,6 @@
   },
   "sw-wizard": {
     "backButton": "Zurück",
-    "closeButton": "Schließen",
     "finishButton": "Abschließen",
     "nextButton": "Weiter"
   },
@@ -1723,6 +1722,10 @@
   "sw-context-button": {
     "ariaLabel": "Kontextmenü öffnen"
   },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Gleichmäßige Skalierung sperren",
+    "unlock-uniform-scale": "Gleichmäßige Skalierung entsperren"
+  },
   "sw-model-editor": {
       "titleModal": "Model Editor",
       "open-model-editor-tooltip": "Model Editor öffnen",
@@ -1731,8 +1734,6 @@
         "rotate-tooltip": "Objekt drehen",
         "scale-tooltip": "Objekt skalieren"
       },
-      "save": "Speichern",
-      "cancel": "Abbrechen",
       "properties": {
         "transformation": {
           "label":"Transformation",

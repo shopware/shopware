@@ -590,7 +590,8 @@ global.console.warn = (...args) => {
     });
 
     if (!silenceWarning) {
-        const e = new Error();
+        // Create an error to preserve the original console.warn stack
+        const e = new Error(`Unexpected console.warn: ${args.join(' ')}`);
         warnTrace = e.stack;
         consoleHasWarning = true;
         warnArgs = args;

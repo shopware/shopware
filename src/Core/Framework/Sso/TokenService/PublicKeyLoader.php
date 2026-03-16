@@ -106,6 +106,6 @@ final class PublicKeyLoader
     private function updateCache(string $publicKeyString): void
     {
         $this->cache->delete(self::CACHE_KEY);
-        $this->cache->get(self::CACHE_KEY, fn (): string => $publicKeyString);
+        $this->cache->get(self::CACHE_KEY, static fn (): string => $publicKeyString);
     }
 }

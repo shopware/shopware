@@ -82,6 +82,8 @@
                     <sw-vector-field
                         :value="currentProperties.scale"
                         :label="$t('sw-model-editor.properties.transformation.scale.label')"
+                        linkable
+                        @link-change="changeModelScaleLinked"
                         @input-change="changeModelScale"
                         @update:value="changeModelScale"
                     />

@@ -293,15 +293,18 @@ export default {
             this.productComparison.invalidFileName = invalidFileName;
         },
 
-        async onSave() {
-            this.isLoading = true;
-
-            this.isSaveSuccessful = false;
+        prepareSaveData() {
             if (this.isProductComparison && !this.salesChannel.productExports.length) {
                 this.salesChannel.productExports.add(this.productExport);
             }
 
-            const analyticsId = this.updateAnalytics();
+            return this.updateAnalytics();
+        },
+
+        async saveSalesChannel() {
+            this.isLoading = true;
+            this.isSaveSuccessful = false;
+            const analyticsId = this.prepareSaveData();
 
             try {
                 await this.salesChannelRepository.save(this.salesChannel, Context.api);
@@ -310,14 +313,10 @@ export default {
                     await this.salesChannelAnalyticsRepository.delete(analyticsId, Context.api);
                 }
 
-                this.isLoading = false;
                 this.isSaveSuccessful = true;
 
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
-                this.loadEntityData();
-            } catch (_error) {
-                this.isLoading = false;
-
+            } catch (error) {
                 this.createNotificationError({
                     message: this.$tc(
                         'sw-sales-channel.detail.messageSaveError',
@@ -327,6 +326,22 @@ export default {
                         0,
                     ),
                 });
+
+                this.isLoading = false;
+
+                return false;
+            }
+
+            this.isLoading = false;
+
+            return true;
+        },
+
+        async onSave() {
+            const saveSuccessful = await this.saveSalesChannel();
+
+            if (saveSuccessful) {
+                this.loadEntityData();
             }
         },
 
@@ -344,8 +359,8 @@ export default {
             return this.salesChannelRepository.hasChanges(this.salesChannel);
         },
 
-        saveOnLanguageChange() {
-            return this.onSave();
+        async saveOnLanguageChange() {
+            await this.saveSalesChannel();
         },
 
         onChangeLanguage() {

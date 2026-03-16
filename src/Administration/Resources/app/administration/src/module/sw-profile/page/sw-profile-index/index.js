@@ -25,6 +25,7 @@ export default {
         'userConfigService',
         'ssoSettingsService',
         'feature',
+        'validationApiService',
     ],
 
     mixins: [
@@ -252,28 +253,35 @@ export default {
                 return;
             }
 
-            this.ssoSettingsService.isSso().then((response) => {
+            this.ssoSettingsService.isSso().then(async (response) => {
                 if (response.isSso) {
                     this.saveUser();
 
                     return;
                 }
 
-                if (this.checkEmail() === false) {
+                const isValid = await this.validationApiService.validateEmailAddress(this.user.email);
+
+                if (isValid) {
+                    const passwordCheck = this.checkPassword();
+                    if (passwordCheck === null || passwordCheck === true) {
+                        this.confirmPasswordModal = true;
+                    }
+
                     return;
                 }
 
-                const passwordCheck = this.checkPassword();
-
-                if (passwordCheck === null || passwordCheck === true) {
-                    this.confirmPasswordModal = true;
-                }
+                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed.
+         * @returns {boolean}
+         */
         checkEmail() {
             if (!this.user.email || !email(this.user.email)) {
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
+                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
 
                 return false;
             }
@@ -283,7 +291,7 @@ export default {
         checkPassword() {
             if (this.newPassword && this.newPassword.length > 0) {
                 if (this.newPassword !== this.newPasswordConfirm) {
-                    this.createErrorMessage(this.$tc('sw-profile.index.notificationPasswordErrorMessage'));
+                    this.createErrorMessage(this.$t('sw-profile.index.notificationPasswordErrorMessage'));
                     return false;
                 }
 
@@ -324,7 +332,7 @@ export default {
                             error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                         });
                         this.createNotificationError({
-                            message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                            message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                         });
                         this.isLoading = false;
                         this.isSaveSuccessful = false;
@@ -409,7 +417,7 @@ export default {
         handleUserSaveError() {
             if (this.$route.name.includes('sw.profile.index')) {
                 this.createNotificationError({
-                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                    message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                 });
             }
             this.isLoading = false;

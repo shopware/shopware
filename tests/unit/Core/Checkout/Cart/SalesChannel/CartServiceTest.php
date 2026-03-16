@@ -83,7 +83,7 @@ class CartServiceTest extends TestCase
 
         $this->cartItemRemoveRoute->expects($this->once())
             ->method('remove')
-            ->with(static::callback(function (Request $actualRequest) use ($ids) {
+            ->with(static::callback(static function (Request $actualRequest) use ($ids) {
                 static::assertSame($ids, $actualRequest->request->all('ids'));
 
                 return true;
@@ -101,7 +101,7 @@ class CartServiceTest extends TestCase
 
         $this->cartItemRemoveRoute->expects($this->once())
             ->method('remove')
-            ->with(static::callback(function (Request $actualRequest) use ($id) {
+            ->with(static::callback(static function (Request $actualRequest) use ($id) {
                 static::assertSame([$id], $actualRequest->request->all('ids'));
 
                 return true;
@@ -119,7 +119,7 @@ class CartServiceTest extends TestCase
 
         $this->cartItemUpdateRoute->expects($this->once())
             ->method('change')
-            ->with(static::callback(function (Request $actualRequest) use ($id) {
+            ->with(static::callback(static function (Request $actualRequest) use ($id) {
                 $items = $actualRequest->request->all('items');
                 static::assertCount(1, $items);
                 static::assertSame($id, $items[0]['id']);
@@ -151,7 +151,7 @@ class CartServiceTest extends TestCase
 
         $this->cartItemUpdateRoute->expects($this->once())
             ->method('change')
-            ->with(static::callback(function (Request $actualRequest) use ($items) {
+            ->with(static::callback(static function (Request $actualRequest) use ($items) {
                 static::assertSame($items, $actualRequest->request->all('items'));
 
                 return true;

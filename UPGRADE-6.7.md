@@ -1,16 +1,12 @@
 # 6.7.8.1
 
-## Digital product download access regression fix requires product indexer refresh for immediate effect
+## Digital product legacy states repair after update
 
 We fixed a bug in the indexer for the `product.states` field, which lead to issues where rules (and flows depending on those rules) with the `line item with product state` condition did not work as expected. This especially affected the flows to deliver digital download products after purchase.
 
-To fix issues in the indexed data, the `product.indexer` is queued asyncronously as part of the update.
+This release repairs digital products with missing legacy `states` via a one-time `UpdatePostFinishEvent` subscriber.
 
-If you want to apply the fix synchronously right after update, run:
-
-```bash
-bin/console dal:refresh:index --only=product.indexer
-```
+The repair runs automatically once per installation and is marked as completed in `app_config`.
 
 # 6.7.6.0
 

@@ -387,6 +387,6 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             httpClient: $httpClient,
         );
 
-        $generator->verifyUpload('media/test.jpg');
+        $generator->getFileMetadata('media/test.jpg');
     }
 }

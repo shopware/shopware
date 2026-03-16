@@ -32,7 +32,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(PresignedMediaUploadService::class)]
 class PresignedMediaUploadServiceTest extends TestCase
 {
-    /** @var EntityRepository<MediaCollection>&MockObject */
+    /**
+     * @var EntityRepository<MediaCollection>&MockObject
+     */
     private EntityRepository&MockObject $mediaRepository;
 
     private PresignedUrlGeneratorInterface&MockObject $presignedUrlGenerator;

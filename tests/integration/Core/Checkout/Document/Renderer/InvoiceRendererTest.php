@@ -5,10 +5,9 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
-use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Order\RecalculationService;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
@@ -20,10 +19,8 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,7 +29,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 
@@ -49,11 +46,7 @@ class InvoiceRendererTest extends TestCase
 
     private Context $context;
 
-    private EntityRepository $productRepository;
-
     private InvoiceRenderer $invoiceRenderer;
-
-    private CartService $cartService;
 
     private static string $deLanguageId;
 
@@ -74,9 +67,7 @@ class InvoiceRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = static::getContainer()->get('product.repository');
         $this->invoiceRenderer = static::getContainer()->get(InvoiceRenderer::class);
-        $this->cartService = static::getContainer()->get(CartService::class);
         self::$deLanguageId = $this->getDeDeLanguageId();
     }
 
@@ -85,6 +76,68 @@ class InvoiceRendererTest extends TestCase
         if (self::$callback instanceof \Closure) {
             static::getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
+
+        parent::tearDown();
+    }
+
+    public function testDocumentSnapshot(): void
+    {
+        $translator = static::getContainer()->get(Translator::class);
+        $translator->injectSettings(
+            $this->salesChannelContext->getSalesChannelId(),
+            $this->salesChannelContext->getLanguageId(),
+            'en-GB',
+            $this->salesChannelContext->getContext()
+        );
+
+        $cart = $this->generateDemoCartWithTaxes([7]);
+        $orderId = $this->persistCart($cart);
+
+        static::getContainer()->get('order.repository')->update([
+            [
+                'id' => $orderId,
+                'orderDateTime' => '2023-11-24T12:00:00+00:00',
+            ],
+        ], $this->context);
+
+        $config = [
+            'documentComment' => '<script></script>This is an invoice.',
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
+
+        $operationHtml = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            $config
+        );
+
+        $processedHtmlTemplate = $this->invoiceRenderer->render(
+            [$orderId => $operationHtml],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
+
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
+
+        $this->assertSnapshot('invoice_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     /**
@@ -93,7 +146,7 @@ class InvoiceRendererTest extends TestCase
     #[DataProvider('invoiceDataProvider')]
     public function testRender(array $possibleTaxes, ?\Closure $beforeRenderHook, \Closure $assertionCallback): void
     {
-        $cart = $this->generateDemoCart($possibleTaxes);
+        $cart = $this->generateDemoCartWithTaxes($possibleTaxes);
         $orderId = $this->persistCart($cart);
 
         $operationInvoice = new DocumentGenerateOperation($orderId);
@@ -539,7 +592,7 @@ class InvoiceRendererTest extends TestCase
 
     public function testCreateNewOrderVersionId(): void
     {
-        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
 
         $operationInvoice = new DocumentGenerateOperation($orderId);
@@ -568,7 +621,7 @@ class InvoiceRendererTest extends TestCase
         bool $enableTaxFreeB2bOption,
         bool $expectedOutput
     ): void {
-        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
         $invoice = new DocumentGenerateOperation($orderId);
 
@@ -649,88 +702,5 @@ class InvoiceRendererTest extends TestCase
             'enableTaxFreeB2bOption' => true,
             'expectedOutput' => false,
         ];
-    }
-
-    /**
-     * @param array<int|string, int> $taxes
-     */
-    private function generateDemoCart(array $taxes): Cart
-    {
-        $cart = $this->cartService->createNew('A');
-
-        $keywords = ['awesome', 'epic', 'high quality'];
-
-        $products = [];
-
-        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
-
-        $ids = new IdsCollection();
-
-        $lineItems = [];
-
-        foreach ($taxes as $tax) {
-            $price = random_int(100, 200000) / 100.0;
-
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
-
-            $number = Uuid::randomHex();
-
-            $product = (new ProductBuilder($ids, $number))
-                ->price($price)
-                ->name($name)
-                ->active(true)
-                ->tax('test-' . Uuid::randomHex(), $tax)
-                ->visibility()
-                ->build();
-
-            $products[] = $product;
-
-            $lineItems[] = $factory->create(['id' => $ids->get($number), 'referencedId' => $ids->get($number)], $this->salesChannelContext);
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
-        }
-
-        $this->productRepository->create($products, Context::createDefaultContext());
-
-        return $this->cartService->add($cart, $lineItems, $this->salesChannelContext);
-    }
-
-    /**
-     * @param array{accountType: string} $config
-     */
-    private function updateCustomer(OrderEntity $order, array $config): void
-    {
-        static::getContainer()->get('customer.repository')->update([[
-            'id' => $order->getOrderCustomer()?->getCustomerId(),
-            'accountType' => $config['accountType'],
-        ]], Context::createDefaultContext());
-    }
-
-    /**
-     * @param array{enableIntraCommunityDeliveryLabel: bool, setCustomerShippingCountryAsMemberCountry: bool} $config
-     */
-    private function updateInvoiceConfig(array $config): void
-    {
-        $data = [
-            'displayAdditionalNoteDelivery' => $config['enableIntraCommunityDeliveryLabel'],
-        ];
-
-        $this->upsertBaseConfig($data, InvoiceRenderer::TYPE);
-    }
-
-    private function updateCountryMemberState(OrderEntity $order, bool $isEu): void
-    {
-        static::getContainer()->get('country.repository')->upsert([[
-            'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
-            'isEu' => $isEu,
-        ]], Context::createDefaultContext());
-    }
-
-    private function updateCountrySettings(OrderEntity $order): void
-    {
-        static::getContainer()->get('country.repository')->upsert([[
-            'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
-            'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => Context::createDefaultContext()->getCurrencyId()],
-        ]], Context::createDefaultContext());
     }
 }

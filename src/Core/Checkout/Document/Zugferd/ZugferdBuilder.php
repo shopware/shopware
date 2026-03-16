@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Zugferd;
 
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use horstoeko\zugferd\codelistsenum\ZugferdPaymentMeans;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
@@ -31,8 +32,16 @@ class ZugferdBuilder
     ) {
     }
 
-    public function buildDocument(OrderEntity $order, DocumentConfiguration $config, Context $context): string
-    {
+    /**
+     * @param array<string, mixed>|null $invoiceReference
+     */
+    public function buildDocument(
+        OrderEntity $order,
+        DocumentConfiguration $config,
+        Context $context,
+        string $documentType = ZugferdInvoiceType::INVOICE,
+        ?array $invoiceReference = null,
+    ): string {
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
         if (!$billingAddress) {
             throw DocumentException::generationError('Billing address not found');
@@ -53,8 +62,19 @@ class ZugferdBuilder
             ->withSellerInformation($config)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())
-            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '')
+            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withBuyerReference($order->getOrderNumber() ?? '');
+
+        if ($invoiceReference !== null && isset($invoiceReference['documentNumber'], $invoiceReference['config']['documentDate'])) {
+            $document->withInvoiceReference(
+                $invoiceReference['documentNumber'],
+                new \DateTime($invoiceReference['config']['documentDate']),
+            );
+        }
+
+        if ($order->getAmountTotal() < 0.0) {
+            $document->allowNegativeProductLineItems();
+        }
 
         $this->addLineItems($document, $order->getLineItems());
 
@@ -65,6 +85,7 @@ class ZugferdBuilder
             }
 
             $paymentMethod = $transaction->getPaymentMethod();
+
             if ($paymentMethod !== null) {
                 $this->addPaymentInfo($document, $config, $paymentMethod);
             }

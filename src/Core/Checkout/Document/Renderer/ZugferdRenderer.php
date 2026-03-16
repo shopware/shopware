@@ -24,6 +24,10 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'zugferd_invoice';
 
+    public const FILE_EXTENSION = FileTypes::XML;
+
+    public const FILE_CONTENT_TYPE = FileTypes::XML_CONTENT_TYPE;
+
     /**
      * @internal
      *
@@ -112,7 +116,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
         try {
             $content = $this->documentBuilder->buildDocument($order, $config, $context);
-            // @deprecated tag:v6.7.0 - html argument will be removed
+
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(

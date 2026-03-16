@@ -1334,4 +1334,17 @@ The `states` field of the `line_item` and `order_line_item` entity has also been
 Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
 Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
 
+## Customer group registration flow events no longer use a SalesChannelContext
+
+For customer group registration events, the event context is no longer restored via `SalesChannelContextRestorer`.
+This affects:
+
+- `customer.group.registration.accepted` (`\Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted`)
+- `customer.group.registration.declined` (`\Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined`)
+
+If your extension relied on a restored `SalesChannelContext` (for example, customer specific rule ids from that restored context), you need to migrate to the event payload and event context:
+
+- Use `getCustomer()` / `getCustomerGroup()` from the event for entity data.
+- Use `getContext()` from the event for framework context data.
+
 </details>

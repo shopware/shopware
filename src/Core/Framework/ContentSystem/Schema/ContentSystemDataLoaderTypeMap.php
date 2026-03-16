@@ -12,11 +12,24 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ContentSystemDataLoaderTypeMap
 {
     /**
+     * @var array<string, list<string>>
+     */
+    private array $classToSources;
+
+    /**
      * @param array<string, list<ContentSystemDataLoaderTypeDescriptor>> $sourceToTypes
      */
     public function __construct(
         public array $sourceToTypes,
     ) {
+        $classToSources = [];
+        foreach ($sourceToTypes as $source => $descriptors) {
+            foreach ($descriptors as $descriptor) {
+                $classToSources[$descriptor->className][] = $source;
+            }
+        }
+
+        $this->classToSources = $classToSources;
     }
 
     /**
@@ -24,15 +37,6 @@ final readonly class ContentSystemDataLoaderTypeMap
      */
     public function getSourcesFor(string $className): array
     {
-        $sources = [];
-        foreach ($this->sourceToTypes as $source => $descriptors) {
-            foreach ($descriptors as $descriptor) {
-                if ($descriptor->className === $className) {
-                    $sources[] = $source;
-                }
-            }
-        }
-
-        return $sources;
+        return $this->classToSources[$className] ?? [];
     }
 }

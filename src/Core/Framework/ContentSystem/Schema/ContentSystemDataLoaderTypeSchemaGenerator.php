@@ -4,6 +4,11 @@ namespace Shopware\Core\Framework\ContentSystem\Schema;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ *
+ * @final
+ */
 #[Package('framework')]
 class ContentSystemDataLoaderTypeSchemaGenerator
 {

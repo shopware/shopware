@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -12,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * @internal
  */
 #[Package('framework')]
-class ContentSystemDataLoaderTypeCompilerPass implements CompilerPassInterface
+final class ContentSystemDataLoaderTypeCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
@@ -34,7 +35,7 @@ class ContentSystemDataLoaderTypeCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            /** @var class-string<AbstractContentDataLoader<\Shopware\Core\Framework\Struct\Struct>> $class */
+            /** @var class-string<AbstractContentDataLoader<Struct>> $class */
             $source = $class::getRequirementType();
             $descriptor = $class::getProvidedData();
 

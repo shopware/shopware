@@ -10,6 +10,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
 
+/**
+ * @internal
+ */
 #[CoversClass(ContentSystemDataLoaderTypeMap::class)]
 class ContentSystemDataLoaderTypeMapTest extends TestCase
 {

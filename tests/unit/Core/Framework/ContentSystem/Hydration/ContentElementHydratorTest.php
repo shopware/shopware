@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -163,7 +164,7 @@ class ContentElementHydratorTest extends TestCase
     }
 
     /**
-     * @param array<string, AbstractContentDataLoader> $loaders
+     * @param array<string, AbstractContentDataLoader<Struct>> $loaders
      */
     private function createHydrator(array $loaders = []): ContentElementHydrator
     {

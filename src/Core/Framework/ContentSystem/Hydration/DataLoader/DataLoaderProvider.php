@@ -24,9 +24,9 @@ class DataLoaderProvider
     }
 
     /**
-     * @return AbstractContentDataLoader<Struct>
      * @throws ContentSystemException
      *
+     * @return AbstractContentDataLoader<Struct>
      */
     public function get(string $type): AbstractContentDataLoader
     {

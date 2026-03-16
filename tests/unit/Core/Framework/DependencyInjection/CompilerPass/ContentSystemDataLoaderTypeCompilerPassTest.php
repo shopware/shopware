@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLo
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
+/**
+ * @internal
+ */
 #[CoversClass(ContentSystemDataLoaderTypeCompilerPass::class)]
 class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
 {

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeReso
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
+/**
+ * @internal
+ */
 #[CoversClass(ContentSystemDataLoaderTypeSchemaGenerator::class)]
 class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
 {

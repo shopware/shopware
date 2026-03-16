@@ -38,6 +38,9 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 #[CoversClass(AbstractContentDataLoader::class)]
 class AbstractContentDataLoaderTest extends TestCase
 {
@@ -90,39 +93,42 @@ class AbstractContentDataLoaderTest extends TestCase
     }
 
     /**
-     * @param class-string<AbstractContentDataLoader> $loaderClass
+     * @param class-string $loaderClass
      * @param list<class-string> $expectedGenericParams
      */
     #[DataProvider('parsesExtendsAnnotationProvider')]
     #[TestDox('parses @extends for $loaderClass')]
     public function testDomainLoaderAnnotation(string $loaderClass, string $expectedClassName, array $expectedGenericParams = []): void
     {
+        static::assertTrue(is_subclass_of($loaderClass, AbstractContentDataLoader::class));
         $descriptor = $loaderClass::getProvidedData();
         static::assertSame($expectedClassName, $descriptor->className);
         static::assertSame($expectedGenericParams, $descriptor->genericParameters);
     }
 
     /**
-     * @return \Generator<string, array{class-string<AbstractContentDataLoader>, class-string, list<class-string>}>
+     * @return \Generator<string, array{class-string, class-string, list<class-string>}>
      */
     public static function parsesExtendsAnnotationProvider(): \Generator
     {
-        yield NavigationDataLoader::class => [NavigationDataLoader::class, Tree::class];
-        yield ServiceMenuDataLoader::class => [ServiceMenuDataLoader::class, CategoryCollection::class];
-        yield ProductListingDataLoader::class => [ProductListingDataLoader::class, ProductListingResult::class];
+        yield NavigationDataLoader::class => [NavigationDataLoader::class, Tree::class, []];
+        yield ServiceMenuDataLoader::class => [ServiceMenuDataLoader::class, CategoryCollection::class, []];
+        yield ProductListingDataLoader::class => [ProductListingDataLoader::class, ProductListingResult::class, []];
         yield ProductReviewDataLoader::class => [ProductReviewDataLoader::class, EntitySearchResult::class, [ProductReviewCollection::class]];
-        yield ProductSearchDataLoader::class => [ProductSearchDataLoader::class, ProductListingResult::class];
-        yield ProductSuggestDataLoader::class => [ProductSuggestDataLoader::class, ProductListingResult::class];
-        yield CrossSellingDataLoader::class => [CrossSellingDataLoader::class, CrossSellingElementCollection::class];
-        yield BreadcrumbDataLoader::class => [BreadcrumbDataLoader::class, BreadcrumbCollection::class];
-        yield PaymentMethodDataLoader::class => [PaymentMethodDataLoader::class, PaymentMethodCollection::class];
-        yield ShippingMethodDataLoader::class => [ShippingMethodDataLoader::class, ShippingMethodCollection::class];
-        yield LanguageDataLoader::class => [LanguageDataLoader::class, LanguageCollection::class];
-        yield CurrencyDataLoader::class => [CurrencyDataLoader::class, CurrencyCollection::class];
+        yield ProductSearchDataLoader::class => [ProductSearchDataLoader::class, ProductListingResult::class, []];
+        yield ProductSuggestDataLoader::class => [ProductSuggestDataLoader::class, ProductListingResult::class, []];
+        yield CrossSellingDataLoader::class => [CrossSellingDataLoader::class, CrossSellingElementCollection::class, []];
+        yield BreadcrumbDataLoader::class => [BreadcrumbDataLoader::class, BreadcrumbCollection::class, []];
+        yield PaymentMethodDataLoader::class => [PaymentMethodDataLoader::class, PaymentMethodCollection::class, []];
+        yield ShippingMethodDataLoader::class => [ShippingMethodDataLoader::class, ShippingMethodCollection::class, []];
+        yield LanguageDataLoader::class => [LanguageDataLoader::class, LanguageCollection::class, []];
+        yield CurrencyDataLoader::class => [CurrencyDataLoader::class, CurrencyCollection::class, []];
     }
 }
 
 /**
+ * @internal
+ *
  * @extends AbstractContentDataLoader<Tree>
  */
 class SimpleTestLoader extends AbstractContentDataLoader
@@ -134,11 +140,13 @@ class SimpleTestLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
     }
 }
 
 /**
+ * @internal
+ *
  * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
  */
 class GenericTestLoader extends AbstractContentDataLoader
@@ -150,12 +158,14 @@ class GenericTestLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
     }
 }
 
 /**
  * @internal
+ *
+ * @phpstan-ignore missingType.generics
  */
 class MissingAnnotationTestLoader extends AbstractContentDataLoader
 {
@@ -171,7 +181,11 @@ class MissingAnnotationTestLoader extends AbstractContentDataLoader
 }
 
 /**
+ * @internal
+ *
  * @extends AbstractContentDataLoader<\stdClass>
+ *
+ * @phpstan-ignore generics.notSubtype
  */
 class NonStructTypeTestLoader extends AbstractContentDataLoader
 {
@@ -182,12 +196,16 @@ class NonStructTypeTestLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
     }
 }
 
 /**
+ * @internal
+ *
  * @extends AbstractContentDataLoader<Tree|null>
+ *
+ * @phpstan-ignore generics.notSubtype
  */
 class UnsupportedTypeNodeTestLoader extends AbstractContentDataLoader
 {
@@ -198,6 +216,6 @@ class UnsupportedTypeNodeTestLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
     }
 }

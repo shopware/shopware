@@ -284,7 +284,7 @@ class EntityCollectionLoaderTest extends TestCase
         $definition->method('getCollectionClass')->willReturn($collectionClass);
 
         $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('getByEntityName')->with($entityName)->willReturn($definition);
+        $defRegistry->method('getByEntityName')->willReturn($definition);
 
         return new EntityCollectionLoader(
             static::createStub(SalesChannelDefinitionInstanceRegistry::class),
@@ -293,6 +293,9 @@ class EntityCollectionLoaderTest extends TestCase
         );
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function createLoaderWithSalesChannelRepo(
         string $entityName,
         EntityCollection $collection,

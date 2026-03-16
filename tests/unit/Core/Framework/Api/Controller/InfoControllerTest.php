@@ -253,7 +253,9 @@ class InfoControllerTest extends TestCase
         $response = $controller->contentSystemDataLoaderTypeSchema();
 
         static::assertSame(200, $response->getStatusCode());
-        static::assertSame($expected, json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     private function createController(?ContentSystemDataLoaderTypeSchemaGenerator $availableDataSchemaGenerator = null): InfoController

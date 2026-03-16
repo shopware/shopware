@@ -10,6 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @internal
+ *
+ * @final
+ */
 #[Package('framework')]
 class ContentSystemDataLoaderTypeResolver
 {

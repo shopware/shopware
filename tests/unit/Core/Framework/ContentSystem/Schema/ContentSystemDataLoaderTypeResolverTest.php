@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -13,7 +14,11 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeReso
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
+/**
+ * @internal
+ */
 #[CoversClass(ContentSystemDataLoaderTypeResolver::class)]
 class ContentSystemDataLoaderTypeResolverTest extends TestCase
 {
@@ -76,11 +81,11 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         $registry = static::createStub(DefinitionInstanceRegistry::class);
 
         $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
-            'product_review' => [['className' => 'EntitySearchResult', 'genericParameters' => ['ProductReviewCollection']]],
+            'product_review' => [['className' => EntitySearchResult::class, 'genericParameters' => [ProductReviewCollection::class]]],
         ]);
 
         $map = $resolver->resolve();
 
-        static::assertSame(['ProductReviewCollection'], $map->sourceToTypes['product_review'][0]->genericParameters);
+        static::assertSame([ProductReviewCollection::class], $map->sourceToTypes['product_review'][0]->genericParameters);
     }
 }

@@ -82,11 +82,11 @@ Data loaders fetch external data—APIs, computed values, aggregations. The buil
 
 A data loader consists of three classes:
 
-| Component | Base Class | Service Tag | Purpose |
-|-----------|------------|-------------|---------|
-| Config | `AbstractContentDataLoaderConfig` | (none) | Hold loader parameters |
-| Serializer | `AbstractContentDataLoaderConfigSerializer` | `content_system.config_serializer` | Encode/decode config |
-| Loader | `AbstractContentDataLoader` | `content_system.data_loader` | Fetch the data |
+| Component  | Base Class                                  | Service Tag                        | Purpose                |
+|------------|---------------------------------------------|------------------------------------|------------------------|
+| Config     | `AbstractContentDataLoaderConfig`           | (none)                             | Hold loader parameters |
+| Serializer | `AbstractContentDataLoaderConfigSerializer` | `content_system.config_serializer` | Encode/decode config   |
+| Loader     | `AbstractContentDataLoader`                 | `content_system.data_loader`       | Fetch the data         |
 
 Define array shapes with `@phpstan-type ConfigData array{field?: type}` in the Config class, then import with `@phpstan-import-type ConfigData from ConfigClass` in the Serializer. Annotate `encode()` with `@return ConfigData` for type-safe serialization.
 
@@ -125,6 +125,9 @@ final class WeatherLoaderConfigSerializer extends AbstractContentDataLoaderConfi
 **Loader:**
 
 ```php
+/**
+ * @extends AbstractContentDataLoader<WeatherStruct>
+ */
 final class WeatherLoader extends AbstractContentDataLoader
 {
     public function __construct(private readonly WeatherApiClient $weatherClient) {}
@@ -190,10 +193,10 @@ Reference: `Hydration/DataLoader/EntityLoader/`
 
 Listeners modify elements before or after hydration—computing derived values, transforming structure, resolving custom placeholders.
 
-| Event | When | Purpose |
-|-------|------|---------|
+| Event                      | When             | Purpose                                  |
+|----------------------------|------------------|------------------------------------------|
 | `PreContentHydrationEvent` | Before hydration | Modify layout tree, resolve placeholders |
-| `PostHydrationEvent` | After hydration | Enrich data, transform structure |
+| `PostHydrationEvent`       | After hydration  | Enrich data, transform structure         |
 
 Both events expose the same properties. Only `elements` is mutable:
 

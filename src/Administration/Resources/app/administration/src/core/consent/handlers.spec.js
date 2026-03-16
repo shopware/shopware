@@ -15,9 +15,13 @@ describe('src/core/consent/handlers.ts', () => {
             }),
         );
 
-        expect(anonymousAmplitude.track).toHaveBeenCalledWith('consent_modal_viewed', {
-            consents_shown: ['user_tracking'],
-        });
+        expect(anonymousAmplitude.track).toHaveBeenCalledWith(
+            'consent_modal_viewed',
+            {
+                consents_shown: ['user_tracking'],
+            },
+            expect.any(Number),
+        );
     });
 
     it('sends consent_modal_decision to amplitude', () => {
@@ -70,7 +74,7 @@ describe('src/core/consent/handlers.ts', () => {
         expect(anonymousAmplitude.track).toHaveBeenCalledWith('consent_status_change', {
             consent: consentName,
             status: 'accepted',
-        });
+        }, expect.any(Number));
     });
 
     it('does not send consent_status_change to amplitude for unknown status', () => {
@@ -100,7 +104,7 @@ describe('src/core/consent/handlers.ts', () => {
             new ConsentEvent('consent_legal_link_clicked', {
                 link_target: 'privacy_policy',
                 source: 'modal',
-            }),
+            }, expect.any(Number)),
         );
 
         expect(anonymousAmplitude.track).toHaveBeenCalledWith('consent_legal_link_clicked', {

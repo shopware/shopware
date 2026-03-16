@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -17,10 +18,13 @@ class CartExtensionTest extends TestCase
 {
     /**
      * This test verifies that we can add a promotion
-     * id and it will be found as "blocked" in the extension
+     * id and it will be found as "blocked" in the extension.
+     *
+     * @deprecated tag:v6.8.0 - will be removed
      */
     #[Group('promotions')]
-    public function testPromotionIsBlocked(): void
+    #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    public function testPromotionIsBlockedWhenFeatureDisabled(): void
     {
         $extension = new CartExtension();
         $extension->blockPromotion('abc');
@@ -31,8 +35,11 @@ class CartExtensionTest extends TestCase
     /**
      * This test verifies that a non-existing id
      * is being returned as "not blocked"
+     *
+     * @deprecated tag:v6.8.0 - will be removed
      */
     #[Group('promotions')]
+    #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
     public function testDifferentPromotionIsNotBlocked(): void
     {
         $extension = new CartExtension();
@@ -87,6 +94,53 @@ class CartExtensionTest extends TestCase
     {
         $extension1 = new CartExtension();
         $extension1->addCode('c123');
+
+        $extension2 = new CartExtension();
+        $extension2->addCode('c456');
+
+        $merged = $extension1->merge($extension2);
+
+        static::assertEquals(['c123', 'c456'], $merged->getCodes());
+    }
+
+    #[Group('promotions')]
+    public function testMergeCreatesImmutable(): void
+    {
+        $extension1 = new CartExtension();
+        $extension1->addCode('c123');
+
+        $extension2 = new CartExtension();
+        $extension2->addCode('c456');
+
+        $merged = $extension1->merge($extension2);
+
+        static::assertNotSame($extension1, $merged);
+        static::assertNotSame($extension2, $merged);
+    }
+
+    #[Group('promotions')]
+    public function testMergeKillsDuplicates(): void
+    {
+        $extension1 = new CartExtension();
+        $extension1->addCode('c123');
+
+        $extension2 = new CartExtension();
+        $extension2->addCode('c123'); // Duplicate code
+
+        $merged = $extension1->merge($extension2);
+
+        static::assertEquals(['c123'], $merged->getCodes());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
+    #[Group('promotions')]
+    #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    public function testMergeMergesBlockedPromotionsWhenFeatureDisabled(): void
+    {
+        $extension1 = new CartExtension();
+        $extension1->addCode('c123');
         $extension1->blockPromotion('p123');
 
         $extension2 = new CartExtension();
@@ -100,32 +154,19 @@ class CartExtensionTest extends TestCase
         static::assertTrue($merged->isPromotionBlocked('p456'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     #[Group('promotions')]
-    public function testMergeCreatesImmutable(): void
+    #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    public function testMergeKillsBlockedPromotionDuplicatesWhenFeatureDisabled(): void
     {
         $extension1 = new CartExtension();
         $extension1->addCode('c123');
         $extension1->blockPromotion('p123');
 
         $extension2 = new CartExtension();
-        $extension2->addCode('c456');
-        $extension2->blockPromotion('p456');
-
-        $merged = $extension1->merge($extension2);
-
-        static::assertNotSame($extension1, $merged);
-        static::assertNotSame($extension2, $merged);
-    }
-
-    #[Group('promotions')]
-    public function testMergeKillsDuplicates(): void
-    {
-        $extension1 = new CartExtension();
-        $extension1->addCode('c123');
-        $extension1->blockPromotion('p123');
-
-        $extension2 = new CartExtension();
-        $extension2->addCode('c123'); // Duplicate code
+        $extension2->addCode('c123');
         $extension2->blockPromotion('p456');
 
         $merged = $extension1->merge($extension2);

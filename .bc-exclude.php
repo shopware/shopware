@@ -37,7 +37,6 @@ return [
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand#getIgnoreTableStmt() was removed', '/'),
 
-
         // No break as all existing NoContentResponse usages are still valid with the widened StoreApiResponse return type
         'CHANGED: The return type of Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\.* changed from Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse to (?:the non-covariant )?Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse',
 
@@ -49,5 +48,14 @@ return [
 
         // Unused protected method from final class can be removed safely
         preg_quote('REMOVED: Method Shopware\Core\Framework\Store\InAppPurchase\Services\DecodedPurchaseStruct#throwException() was removed', '/'),
+
+        // TaxProviderPersister was mistakenly not marked @internal
+        preg_quote('CHANGED: Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister was marked "@internal"', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister#updateTaxProviders() was removed', '/'),
+
+        // False positive, added parameters have default values or are optional
+        preg_quote('ADDED: Parameter documentType was added to Method withGeneralOrderData() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument', '/'),
+        preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
+        preg_quote('ADDED: Parameter invoiceReference was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
     ],
 ];

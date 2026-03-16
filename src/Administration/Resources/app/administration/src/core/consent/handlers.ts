@@ -5,7 +5,7 @@ import type { ConsentEventName, TrackableType } from './events';
 import { ConsentEvent } from './events';
 
 type TrackClient = {
-    track: (eventName: string, eventProperties?: Record<string, TrackableType>) => void;
+    track: (eventName: string, eventProperties: Record<string, TrackableType>, time: number) => void;
 };
 
 type EventPayload = Record<string, TrackableType>;
@@ -33,7 +33,7 @@ export default function createConsentEventHandler(anonymousAmplitude: TrackClien
         if (isConsentEventType(consentEvent, 'consent_modal_viewed')) {
             anonymousAmplitude.track(consentEvent.eventName, {
                 consents_shown: consentEvent.eventProperties.consents_shown,
-            });
+            }, consentEvent.timestamp.getTime());
 
             return;
         }
@@ -50,7 +50,7 @@ export default function createConsentEventHandler(anonymousAmplitude: TrackClien
                 eventProps.backend_data_changed = consentEvent.eventProperties.backend_data.changed;
             }
 
-            anonymousAmplitude.track(consentEvent.eventName, eventProps);
+            anonymousAmplitude.track(consentEvent.eventName, eventProps, consentEvent.timestamp.getTime());
             return;
         }
 
@@ -65,7 +65,7 @@ export default function createConsentEventHandler(anonymousAmplitude: TrackClien
             anonymousAmplitude.track(consentEvent.eventName, {
                 consent: consentEvent.eventProperties.consentName,
                 status: consentEvent.eventProperties.status,
-            });
+            }, consentEvent.timestamp.getTime());
 
             return;
         }
@@ -74,7 +74,7 @@ export default function createConsentEventHandler(anonymousAmplitude: TrackClien
             anonymousAmplitude.track(consentEvent.eventName, {
                 link_target: consentEvent.eventProperties.link_target,
                 source: consentEvent.eventProperties.source,
-            });
+            }, consentEvent.timestamp.getTime());
         }
     };
 }

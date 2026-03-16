@@ -625,9 +625,11 @@
       "selectDocumentTypeModal": {
         "title": "Create document",
         "primaryAction": "Create document",
+        "showZugferd": "Show ZUGFeRD variants",
         "helpText": {
           "storno": "A cancellation invoice can't be created without an invoice.",
-          "credit_note": "To create a credit note, add a credit item first."
+          "credit_note": "To create a credit note, add a credit item first.",
+          "zugferd_cancellation_invoice": "A ZUGFeRD cancellation invoice can't be created without an invoice."
         }
       }
     }

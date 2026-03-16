@@ -37,13 +37,17 @@ type ConsentEvents = {
 type ConsentEventName = keyof ConsentEvents;
 
 class ConsentEvent<N extends ConsentEventName> {
+    static #lastConsentEventTimestamp = 0;
+
     public readonly timestamp: Date;
 
     constructor(
         public readonly eventName: N,
         public readonly eventProperties: ConsentEvents[N],
+        timestamp = new Date(Math.max(Date.now(), ConsentEvent.#lastConsentEventTimestamp + 1)),
     ) {
-        this.timestamp = new Date();
+        this.timestamp = timestamp;
+        ConsentEvent.#lastConsentEventTimestamp = this.timestamp.getTime();
     }
 }
 

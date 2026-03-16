@@ -268,7 +268,7 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertNotEmpty($capturedCriteria->getAssociations());
     }
 
-    #[TestDox('returns cached empty array when property is null on element')]
+    #[TestDox('returns cached empty collection when property is null on element')]
     public function testLoadReturnsCachedEmptyWhenPropertyIsNull(): void
     {
         $config = new EntityLoaderConfig('product', 'productIds', []);
@@ -277,15 +277,16 @@ class EntityCollectionLoaderTest extends TestCase
         $element = ContentElementBuilder::create('product-grid')->build();
         $context = Generator::generateSalesChannelContext();
 
-        $loader = $this->createMinimalLoader();
+        $loader = $this->createLoaderWithDefinition('product', EntityCollection::class);
         $result = $loader->load($element, $requirement, $context, new Request());
 
-        static::assertSame([], $result->data);
+        static::assertInstanceOf(EntityCollection::class, $result->data);
+        static::assertCount(0, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns cached empty array when entity IDs contain no valid strings')]
+    #[TestDox('returns cached empty collection when entity IDs contain no valid strings')]
     public function testLoadReturnsCachedEmptyWhenEntityIdsContainNoStrings(): void
     {
         $config = new EntityLoaderConfig('product', 'productIds', []);
@@ -296,10 +297,11 @@ class EntityCollectionLoaderTest extends TestCase
             ->build();
         $context = Generator::generateSalesChannelContext();
 
-        $loader = $this->createMinimalLoader();
+        $loader = $this->createLoaderWithDefinition('product', EntityCollection::class);
         $result = $loader->load($element, $requirement, $context, new Request());
 
-        static::assertSame([], $result->data);
+        static::assertInstanceOf(EntityCollection::class, $result->data);
+        static::assertCount(0, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }
@@ -335,6 +337,24 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    /**
+     * @param class-string<EntityCollection<Entity>> $collectionClass
+     */
+    private function createLoaderWithDefinition(string $entityName, string $collectionClass): EntityCollectionLoader
+    {
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getCollectionClass')->willReturn($collectionClass);
+
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('getByEntityName')->with($entityName)->willReturn($definition);
+
+        return new EntityCollectionLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            $defRegistry,
+            static::createStub(EntityCacheTagResolver::class),
+        );
     }
 
     private function createMinimalLoader(): EntityCollectionLoader

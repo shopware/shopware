@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemAvailableDataSchemaGenerator;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
@@ -72,6 +73,7 @@ class InfoController extends AbstractController
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ContentSystemAvailableDataSchemaGenerator $availableDataSchemaGenerator,
     ) {
     }
 
@@ -150,6 +152,12 @@ class InfoController extends AbstractController
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT);
 
         return new JsonResponse($data);
+    }
+
+    #[Route(path: '/api/_info/content-system-available-data-schema.json', name: 'api.info.content-system-available-data-schema', methods: ['GET'])]
+    public function contentSystemAvailableDataSchema(): JsonResponse
+    {
+        return new JsonResponse($this->availableDataSchemaGenerator->getSchema());
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]

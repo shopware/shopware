@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityColle
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -24,6 +25,8 @@ use function Symfony\Component\String\u;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<EntityCollection<Entity>>
  */
 #[Package('framework')]
 class EntityCollectionLoader extends AbstractContentDataLoader
@@ -42,6 +45,11 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         return self::SOURCE;
     }
 
+    public static function getProvidedData(): ContentDataLoaderTypeDescriptor
+    {
+        return new ContentDataLoaderTypeDescriptor(EntityCollection::class);
+    }
+
     public function load(
         ContentElement $element,
         DataRequirement $requirement,
@@ -51,18 +59,22 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof EntityLoaderConfig) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $propertyName = $config->property ?? $config->entity . 'Ids';
         $entityIds = $element->getProperty($propertyName);
 
         if ($entityIds === null) {
-            return ContentDataLoaderResult::cached([]);
+            $definition = $this->definitionRegistry->getByEntityName($config->entity);
+            /** @var class-string<EntityCollection<Entity>> $collectionClass */
+            $collectionClass = $definition->getCollectionClass();
+
+            return ContentDataLoaderResult::cached(new $collectionClass());
         }
 
         if (!\is_array($entityIds)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $entityIds = \array_filter($entityIds, static fn ($id) => \is_string($id));
@@ -70,7 +82,11 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $entityIds = \array_values($entityIds);
 
         if ($entityIds === []) {
-            return ContentDataLoaderResult::cached([]);
+            $definition = $this->definitionRegistry->getByEntityName($config->entity);
+            /** @var class-string<EntityCollection<Entity>> $collectionClass */
+            $collectionClass = $definition->getCollectionClass();
+
+            return ContentDataLoaderResult::cached(new $collectionClass());
         }
 
         $entities = $this->loadEntities($config->entity, $entityIds, $config->associations, $context);
@@ -82,13 +98,13 @@ class EntityCollectionLoader extends AbstractContentDataLoader
             $tag = $this->cacheTagResolver->resolve($definition, $entity->getUniqueIdentifier());
 
             if ($tag === null) {
-                return ContentDataLoaderResult::uncacheable($entities);
+                return ContentDataLoaderResult::uncacheable($entities); // @phpstan-ignore return.type
             }
 
             $tags[] = $tag;
         }
 
-        return ContentDataLoaderResult::cached($entities, ...$tags);
+        return ContentDataLoaderResult::cached($entities, ...$tags); // @phpstan-ignore return.type
     }
 
     /**

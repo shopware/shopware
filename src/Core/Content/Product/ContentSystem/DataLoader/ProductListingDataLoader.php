@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -18,6 +19,8 @@ use function Symfony\Component\String\u;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<ProductListingResult>
  */
 #[Package('framework')]
 class ProductListingDataLoader extends AbstractContentDataLoader
@@ -43,14 +46,14 @@ class ProductListingDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof ProductListingLoaderConfig) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $propertyName = $config->property ?? 'navigationId';
         $navigationId = $element->getProperty($propertyName);
 
         if (!\is_string($navigationId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $navigationId = u($navigationId)->lower()->toString();

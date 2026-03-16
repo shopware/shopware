@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader;
 
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<ShippingMethodCollection>
  */
 #[Package('framework')]
 class ShippingMethodDataLoader extends AbstractContentDataLoader

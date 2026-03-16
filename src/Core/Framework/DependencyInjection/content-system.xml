@@ -216,6 +216,17 @@
             <tag name="content_system.output_format" format="decomposed"/>
         </service>
 
+        <!-- Schema Services -->
+        <service id="Shopware\Core\Framework\ContentSystem\Schema\AvailableDataResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <!-- $compiledSourceToTypes set by ContentDataLoaderTypeCompilerPass -->
+            <argument key="$compiledSourceToTypes" type="collection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemAvailableDataSchemaGenerator">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\AvailableDataResolver"/>
+        </service>
+
         <!-- Content Route Loader (arg 0 set by ContentRouteCompilerPass) -->
         <service id="Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoader">
             <argument/>

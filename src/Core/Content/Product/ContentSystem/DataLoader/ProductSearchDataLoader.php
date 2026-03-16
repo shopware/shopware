@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<ProductListingResult>
  */
 #[Package('inventory')]
 class ProductSearchDataLoader extends AbstractContentDataLoader
@@ -41,14 +44,14 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof ProductSearchLoaderConfig) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $propertyName = $config->searchTermProperty ?? 'searchTerm';
         $searchTerm = $element->getProperty($propertyName);
 
         if (!\is_string($searchTerm) || $searchTerm === '') {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $criteria = $this->buildCriteria($element, $config);

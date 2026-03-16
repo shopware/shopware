@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\ContentSystem\DataLoader;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<PaymentMethodCollection>
  */
 #[Package('framework')]
 class PaymentMethodDataLoader extends AbstractContentDataLoader

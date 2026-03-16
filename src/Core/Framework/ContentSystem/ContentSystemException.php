@@ -31,6 +31,10 @@ class ContentSystemException extends HttpException
     public const PROPERTY_ALIAS_WITH_DOT_NOTATION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION';
     public const PROPERTY_ALIAS_COLLISION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
     public const ROUTES_ALREADY_LOADED = 'CONTENT_SYSTEM__ROUTES_ALREADY_LOADED';
+    public const MISSING_EXTENDS_ANNOTATION = 'CONTENT_SYSTEM__MISSING_EXTENDS_ANNOTATION';
+    public const MISSING_GENERIC_PARAMETER = 'CONTENT_SYSTEM__MISSING_GENERIC_PARAMETER';
+    public const UNSUPPORTED_TYPE_NODE = 'CONTENT_SYSTEM__UNSUPPORTED_TYPE_NODE';
+    public const UNRESOLVABLE_TYPE_CLASS = 'CONTENT_SYSTEM__UNRESOLVABLE_TYPE_CLASS';
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
     {
@@ -218,6 +222,46 @@ class ContentSystemException extends HttpException
             self::PROPERTY_ALIAS_COLLISION,
             'Property key "{{ propertyKey }}" is used by both context "{{ firstContext }}" and "{{ secondContext }}". Each property_alias must be unique within an element.',
             ['propertyKey' => $propertyKey, 'firstContext' => $firstContext, 'secondContext' => $secondContext]
+        );
+    }
+
+    public static function missingExtendsAnnotation(string $loaderClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_EXTENDS_ANNOTATION,
+            'Data loader "{{ loaderClass }}" is missing @extends AbstractContentDataLoader<T> annotation.',
+            ['loaderClass' => $loaderClass]
+        );
+    }
+
+    public static function missingGenericParameter(string $loaderClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_GENERIC_PARAMETER,
+            'Data loader "{{ loaderClass }}" @extends annotation must have a generic type parameter.',
+            ['loaderClass' => $loaderClass]
+        );
+    }
+
+    public static function unsupportedTypeNode(string $nodeClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNSUPPORTED_TYPE_NODE,
+            'Unsupported type node "{{ nodeClass }}" in @extends annotation.',
+            ['nodeClass' => $nodeClass]
+        );
+    }
+
+    public static function unresolvableTypeClass(string $resolvedName, string $loaderClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNRESOLVABLE_TYPE_CLASS,
+            'Resolved type "{{ resolvedName }}" in @extends annotation of "{{ loaderClass }}" is not a subclass of Struct.',
+            ['resolvedName' => $resolvedName, 'loaderClass' => $loaderClass]
         );
     }
 

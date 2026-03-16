@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoade
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -23,6 +24,8 @@ use function Symfony\Component\String\u;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<Entity>
  */
 #[Package('framework')]
 class EntityLoader extends AbstractContentDataLoader
@@ -41,6 +44,11 @@ class EntityLoader extends AbstractContentDataLoader
         return self::SOURCE;
     }
 
+    public static function getProvidedData(): ContentDataLoaderTypeDescriptor
+    {
+        return new ContentDataLoaderTypeDescriptor(Entity::class);
+    }
+
     public function load(
         ContentElement $element,
         DataRequirement $requirement,
@@ -50,21 +58,21 @@ class EntityLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof EntityLoaderConfig) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $propertyName = $config->property ?? $config->entity;
         $entityId = $element->getProperty($propertyName);
 
         if (!\is_string($entityId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $entityId = u($entityId)->lower()->toString();
         $entity = $this->loadEntity($config->entity, $entityId, $config->associations, $context);
 
         if ($entity === null) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
         }
 
         $definition = $this->definitionRegistry->getByEntityName($config->entity);

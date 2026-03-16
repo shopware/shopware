@@ -21,7 +21,7 @@ export default {
         return {
             noNavigation: false,
             shopIdCheck: null,
-            isShopIdCheckPending: Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl === true,
+            isShopIdCheckPending: true,
         };
     },
 

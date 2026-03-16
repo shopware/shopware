@@ -5,6 +5,7 @@
 import axios from 'axios';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
+import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 
 Shopware.Application.view.deleteReactive = () => {};
 
@@ -438,6 +439,80 @@ describe('core/factory/http.factory.js', () => {
             await client.get('/_info/me');
             expect(clientMock.history.get).toHaveLength(1);
             expect(console.warn).toHaveBeenCalled();
+        });
+    });
+
+    describe('refreshTokenInterceptor', () => {
+        let loginService;
+
+        beforeEach(() => {
+            loginService = {
+                refreshToken: jest.fn().mockResolvedValue('new-token'),
+                logout: jest.fn(),
+            };
+
+            Shopware.Service = jest.fn(() => loginService);
+
+            // Reset the refresh token helper state
+            const tokenHandler = getRefreshTokenHelper();
+            tokenHandler.isRefreshing = false;
+            tokenHandler._subscribers = [];
+            tokenHandler._errorSubscribers = [];
+        });
+
+        it('should not retry 401 responses with SSO_LOGIN__TOKEN_NOT_FOUND error code', async () => {
+            mock.onGet('/api/sbp/shop-info').reply(401, {
+                errors: [
+                    {
+                        code: 'SSO_LOGIN__TOKEN_NOT_FOUND',
+                        detail: 'Cannot get token from user.',
+                    },
+                ],
+            });
+
+            const getError = async () => {
+                try {
+                    await httpClient.get('/api/sbp/shop-info');
+                    throw new Error('Expected error to be thrown');
+                } catch (error) {
+                    return error;
+                }
+            };
+
+            const error = await getError();
+            expect(error.response.status).toBe(401);
+            expect(error.response.data.errors[0].code).toBe('SSO_LOGIN__TOKEN_NOT_FOUND');
+
+            // Should only have made 1 request (no retry)
+            expect(mock.history.get).toHaveLength(1);
+            // Should not have attempted to refresh the token
+            expect(loginService.refreshToken).not.toHaveBeenCalled();
+        });
+
+        it('should not retry a 401 request more than once after token refresh', async () => {
+            // Always respond with 401 (non-SSO error, e.g. genuinely expired token that refresh cannot fix)
+            mock.onGet('/api/some-endpoint').reply(401, {
+                errors: [
+                    {
+                        code: 'FRAMEWORK__UNAUTHORIZED',
+                    },
+                ],
+            });
+
+            const getError = async () => {
+                try {
+                    await httpClient.get('/api/some-endpoint');
+                    throw new Error('Expected error to be thrown');
+                } catch (error) {
+                    return error;
+                }
+            };
+
+            const error = await getError();
+            expect(error.response.status).toBe(401);
+
+            // Should have made at most 2 requests (original + 1 retry after token refresh)
+            expect(mock.history.get.length).toBeLessThanOrEqual(2);
         });
     });
 });

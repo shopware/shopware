@@ -169,24 +169,6 @@
         {% set productData = productData|merge({releaseDate: page.product.releaseDate|format_date(pattern='Y-MM-dd')}) %}
     {% endif %}
 
-    {#
-        isVariantOf links this specific variant back to its parent product group.
-        productGroupID uses the parent's Shopware ID as the stable group identifier.
-        Only set when viewing a variant (parentId is present); simple products are skipped.
-    #}
-    {% if page.product.parentId %}
-        {% set parentUrl = seoUrl('frontend.detail.page', { productId: page.product.parentId }) %}
-        {% set productData = productData|merge({
-            isVariantOf: {
-                '@type': 'ProductGroup',
-                '@id': parentUrl ~ '#product',
-                name: page.product.translated.name,
-                url: parentUrl,
-                productGroupID: page.product.parentId
-            }
-        }) %}
-    {% endif %}
-
     {# Dimensions as QuantitativeValue with unitText #}
     {% if page.product.measurements.type('weight') %}
         {% set weightValue = page.product.measurements.type('weight').value %}
@@ -273,6 +255,84 @@
 
         {% if reviewItems|length > 0 %}
             {% set productData = productData|merge({review: reviewItems}) %}
+        {% endif %}
+    {% endif %}
+
+    {#
+        For variant products (parentId is set), Google's Rich Results requires ProductGroup as the
+        top-level entity. The specific variant's pricing/identifier data goes inside hasVariant as
+        a Product node. Properties describing the product family (name, description, brand, media,
+        reviews) are promoted to the ProductGroup level.
+
+        Simple products (no parentId) keep the standard @type: Product structure unchanged.
+
+        Note: the parent product URL is intentionally not included as `url` on the ProductGroup
+        because in Shopware parent product URLs redirect to a variant and are not standalone pages.
+        Using it would cause Google to associate the ProductGroup entity with that redirect URL
+        rather than treating the variant's Product as the page entity.
+    #}
+    {% if page.product.parentId %}
+        {% set parentUrl = seoUrl('frontend.detail.page', { productId: page.product.parentId }) %}
+        {% set savedData = productData %}
+
+        {# Build the variant-specific Product node (identifier and pricing info) #}
+        {% set variantProduct = {
+            '@type': 'Product',
+            '@id': savedData['@id'],
+            name: savedData.name,
+            sku: savedData.sku,
+            productID: savedData.productID,
+            url: savedData.url,
+            offers: savedData.offers
+        } %}
+        {% if savedData.gtin13 is defined %}
+            {% set variantProduct = variantProduct|merge({gtin13: savedData.gtin13}) %}
+        {% endif %}
+        {% if savedData.mpn is defined %}
+            {% set variantProduct = variantProduct|merge({mpn: savedData.mpn}) %}
+        {% endif %}
+        {% if savedData.releaseDate is defined %}
+            {% set variantProduct = variantProduct|merge({releaseDate: savedData.releaseDate}) %}
+        {% endif %}
+        {% if savedData.weight is defined %}
+            {% set variantProduct = variantProduct|merge({weight: savedData.weight}) %}
+        {% endif %}
+        {% if savedData.height is defined %}
+            {% set variantProduct = variantProduct|merge({height: savedData.height}) %}
+        {% endif %}
+        {% if savedData.width is defined %}
+            {% set variantProduct = variantProduct|merge({width: savedData.width}) %}
+        {% endif %}
+        {% if savedData.depth is defined %}
+            {% set variantProduct = variantProduct|merge({depth: savedData.depth}) %}
+        {% endif %}
+
+        {# Rebuild productData as ProductGroup with the variant in hasVariant #}
+        {% set productData = {
+            '@context': 'https://schema.org',
+            '@type': 'ProductGroup',
+            '@id': parentUrl ~ '#productgroup',
+            name: savedData.name,
+            productGroupID: page.product.parentId,
+            hasVariant: [variantProduct]
+        } %}
+        {% if savedData.description is defined %}
+            {% set productData = productData|merge({description: savedData.description}) %}
+        {% endif %}
+        {% if savedData.image is defined %}
+            {% set productData = productData|merge({image: savedData.image}) %}
+        {% endif %}
+        {% if savedData.video is defined %}
+            {% set productData = productData|merge({video: savedData.video}) %}
+        {% endif %}
+        {% if savedData.brand is defined %}
+            {% set productData = productData|merge({brand: savedData.brand}) %}
+        {% endif %}
+        {% if savedData.aggregateRating is defined %}
+            {% set productData = productData|merge({aggregateRating: savedData.aggregateRating}) %}
+        {% endif %}
+        {% if savedData.review is defined %}
+            {% set productData = productData|merge({review: savedData.review}) %}
         {% endif %}
     {% endif %}
 

@@ -22,18 +22,10 @@
             itemListElement: itemListElements
         } %}
 
-        {#
-            JSON_HEX_TAG and JSON_HEX_AMP are intentional security flags for embedding JSON in an HTML <script> block.
-            They encode < as \u003C, > as \u003E, and & as \u0026, which prevents a value like "</script>" from
-            closing the script tag and injecting arbitrary HTML (XSS). |escape('js') is not suitable here because
-            it escapes double quotes, which would break the JSON structure entirely.
-        #}
-        {% set jsonFlags = constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') %}
-
         {% block layout_structured_data_item_list_script %}
             <script type="application/ld+json">
             {# ludtwig-ignore twig-json-encode-escape-js #}
-            {{ itemListData|json_encode(jsonFlags)|raw }}
+            {{ itemListData|json_encode(jsonLdFlags)|raw }}
             </script>
         {% endblock %}
     {% endif %}

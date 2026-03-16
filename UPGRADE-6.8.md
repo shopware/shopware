@@ -891,31 +891,6 @@ To extend or replace a schema in a plugin or theme, use `sw_extends` on the rele
 {% endblock %}
 ```
 
-## `ProductPageLoader` requires `EntityRepository` for structured data reviews
-
-`ProductPageLoader::__construct()` now has a new required argument:
-
-```php
-// Before
-public function __construct(
-    GenericPageLoader $genericLoader,
-    EventDispatcherInterface $eventDispatcher,
-    AbstractProductDetailRoute $productDetailRoute,
-)
-
-// After
-public function __construct(
-    GenericPageLoader $genericLoader,
-    EventDispatcherInterface $eventDispatcher,
-    AbstractProductDetailRoute $productDetailRoute,
-    EntityRepository $productReviewRepository,    // new
-)
-```
-
-If you extend or decorate `ProductPageLoader`, add the new argument to your constructor and pass it to the parent. The repository is registered as `product_review.repository` in the service container.
-
-The loader now populates `ProductPage::$structuredDataReviews` (a `ProductReviewResult`) on product page loads when the `JSON_LD_DATA` feature flag is active. It contains a capped sample of approved reviews and the total approved review count — exclusively for the `json-ld-product.html.twig` structured data output. **Do not use `page.structuredDataReviews` to render a review list in templates**, as it intentionally contains only the most recent 10 reviews.
-
 ## Removed block `page_product_detail_product_buy_button_label` from `@Storefront/storefront/component/product/card/action.html.twig`
 
 The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.

@@ -8,11 +8,7 @@
             categoryId: shopware.navigation.id
         } only %}
 
-        {#
-            The page variable is either a CategoryPage or a LandingPage.
-            Only CategoryPage has a product-listing CMS element; LandingPage does not.
-            getFirstElementOfType returns null safely when no matching slot is found.
-        #}
+        {# Add structured data for product listings if listing element is present #}
         {% set listingSlot = page.cmsPage ? page.cmsPage.getFirstElementOfType('product-listing') : null %}
         {% if listingSlot and listingSlot.data and listingSlot.data.listing %}
             {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-item-list.html.twig' with {

@@ -103,22 +103,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
-        // Individual component styles.
-        $componentStyleCopyFiles = [];
-        $componentStyleCopyFiles = $this->getCompiledComponentStyles(
-            $themeId,
-            $themePrefix,
-            $themeConfig,
-            $salesChannelId,
-            $context
-        );
-
         $scriptFiles = $this->getScriptCopyFiles($configurationCollection, $themePrefix);
 
         CopyBatch::copy(
             $this->filesystem,
             ...$styleCopyFiles,
-            ...$componentStyleCopyFiles,
             ...$assetCopyFiles,
             ...$scriptFiles,
         );
@@ -538,74 +527,6 @@ PHP_EOL;
             $themeId,
             $context
         );
-    }
-
-    /**
-     * Compiles the styles for each component and returns the copy files.
-     *
-     * @return list<CopyBatchInput>
-     */
-    private function getCompiledComponentStyles(
-        string $themeId,
-        string $themePrefix,
-        StorefrontPluginConfiguration $themeConfig,
-        string $salesChannelId,
-        Context $context,
-    ): array {
-        $componentStyleCopyFiles = [];
-        // The variables from the core Storefront are always added, so components can access them.
-        $variablesFilePath = __DIR__ . '/../Resources/app/storefront/src/scss/variables.scss';
-
-        // Resolve the vendor path from the core Storefront.
-        $resolveMapping = [
-            'vendor' => __DIR__ . '/../Resources/app/storefront/vendor',
-        ];
-
-        // Each component is compiled separately and a CSS file is created under the components namespace.
-        foreach ($this->twigComponentHelper->getComponents() as $component) {
-            $componentStylePath = $component->getStylePath();
-
-            if ($componentStylePath !== null) {
-                $styleString = \sprintf('@import \'%s\';', $variablesFilePath);
-                $styleString .= \sprintf('@import \'%s\';', $componentStylePath);
-
-                try {
-                    $compiledStyle = $this->compileStyles(
-                        $styleString,
-                        $themeConfig,
-                        $resolveMapping,
-                        $salesChannelId,
-                        $themeId,
-                        $context
-                    );
-                } catch (\Throwable $e) {
-                    throw ThemeException::themeCompileException(
-                        $themeConfig->getName() ?? '',
-                        'Error while trying to compile component styles: ' . $e->getMessage(),
-                        $e
-                    );
-                }
-
-                try {
-                    $componentStyleCopyFiles = [
-                        ...$componentStyleCopyFiles,
-                        ...$this->getStyleCopyFiles(
-                            $themePrefix,
-                            $compiledStyle,
-                            'components' . \DIRECTORY_SEPARATOR . $component->getRelativeNamespacePath() . '.css'
-                        ),
-                    ];
-                } catch (\Throwable $e) {
-                    throw ThemeException::themeCompileException(
-                        $themeConfig->getName() ?? '',
-                        'Error while trying to write component style files: ' . $e->getMessage(),
-                        $e
-                    );
-                }
-            }
-        }
-
-        return $componentStyleCopyFiles;
     }
 
     /**

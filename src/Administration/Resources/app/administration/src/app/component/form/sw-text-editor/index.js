@@ -43,7 +43,10 @@ export default {
 
     props: {
         value: {
-            type: [String, null],
+            type: [
+                String,
+                null,
+            ],
             required: false,
             default: null,
         },

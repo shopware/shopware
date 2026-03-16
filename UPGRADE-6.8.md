@@ -385,6 +385,18 @@ The following unused exceptions were removed:
 * `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
 * `\Shopware\Core\Content\ImportExport\Exception\MappingException`
 
+## SystemConfigService: `$silent` parameter changed default value from `false` to `true`
+
+`SystemConfigService::set()`, `setMultiple()`, and `delete()` changed the default value for the `$silent` parameter from `false` to `true`, meaning config writes **no longer invalidate the HTTP cache** (`system.config-{salesChannelId}` tag) by default. The internal config cache (`system-config`) is always cleared regardless.
+
+If your code writes config values that require immediate cache invalidation (e.g. display settings, feature toggles read via `SystemConfigService::get()` in templates), pass `silent: false` explicitly:
+
+```php
+$this->systemConfigService->set('MyPlugin.config.showBanner', true, $salesChannelId, false);
+```
+
+Please pass `false` only when absolutely necessary, as it leads to invalidation of a huge number of HTTP pages and decreases overall system performance.
+
 ## Removed SystemConfig exceptions
 
 The following exceptions were removed:
@@ -803,6 +815,26 @@ The indexing progress notifications in the Administration notification center ha
 
 </details>
 
+## Document settings changes
+
+We've restructured the document settings to make them more intuitive and user-friendly.
+
+As part of this update, the following administration component parts have been deprecated:
+* `src/module/sw-settings-document/page/sw-settings-document-detail`:
+  * computed `expandButtonClass` was deprecated without replacement
+  * computed `collapseButtonClass` was deprecated without replacement
+  * property `sortBy` was deprecated without replacement
+
+* `src/module/sw-settings-document/page/sw-settings-document-list`
+  * computed `countryRepository` was deprecated without replacement
+  * computed `documentTypeRepository` was deprecated without replacement
+  * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
+  * property `selectedType` was deprecated without replacement
+  * property `isSaveSuccessful` was deprecated without replacement
+  * property `isShowCountriesSelect` was deprecated without replacement
+  * method `loadAvailableSalesChannel()` was deprecated without replacement
+  * method `showOption()` was deprecated without replacement
+
 # Storefront
 
 <details>
@@ -813,6 +845,9 @@ The block `page_product_detail_product_buy_button_label` has been removed. Use `
 
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+
+## Revocation checkbox position update
+The revocation checkbox for digital products was relotaced to the bottom of the order confirmation page. The checkbox is now below the TOS checkbox
 
 ## Removal of hardcoded language flags
 
@@ -1041,6 +1076,8 @@ Instead of returning `204`, the route now returns:
 The block `buy_widget_price_unit` and its children has been moved into `@Storefront/storefront/component/buy-widget/buy-widget.html.twig`.
 Instead of overwriting any of those blocks inside `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`, extend the new `@Storefront/storefront/component/buy-widget/buy-widget.html.twig` file using the same blocks.
 
+## Removed address book action template
+The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
 </details>
 
 # App System
@@ -1099,6 +1136,16 @@ State-based invalidation is not supported anymore.
 # Hosting & Configuration
 
 <details>
+
+## Database: Time zone support required
+
+The database now requires time zone data to be loaded. You can verify whether time zone data is available by running:
+
+```sql
+SELECT CONVERT_TZ(NOW(), 'UTC', 'Europe/Berlin');
+```
+
+If this returns `NULL`, time zone tables are not populated. Refer to the [MariaDB documentation on time zone tables](https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/internationalization-and-localization/time-zones#mysql-time-zone-tables) for instructions on how to import them.
 
 ## HTTP Cache Changes
 

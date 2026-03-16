@@ -105,7 +105,7 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
         $this->dataValidator
             ->expects($this->once())
             ->method('validate')
-            ->with(static::isArray(), static::callback(function (DataValidationDefinition $constraints): bool {
+            ->with(static::isArray(), static::callback(static function (DataValidationDefinition $constraints): bool {
                 $property = $constraints->getProperty('iss');
                 static::assertEquals([new Type('string'), new NotBlank(), new NotNull()], $property);
 

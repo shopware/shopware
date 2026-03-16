@@ -106,7 +106,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
-            if (!($product instanceof SalesChannelProductEntity)) {
+            if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
             }
 

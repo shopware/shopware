@@ -4,12 +4,31 @@
 
 type TrackableType = string | string[] | number | boolean | null;
 
-type ConsentEventName =
-    | 'consent_modal_viewed'
-    | 'consent_decision_made'
-    | 'consent_option_changed'
-    | 'consent_legal_link_clicked'
-    | 'consent_revoked';
+type ConsentOption = 'backend_data' | 'user_tracking';
+type ConsentEvents = {
+    consent_modal_viewed: {
+        option: ConsentOption[];
+    };
+    consent_decision_made: {
+        option: ConsentOption;
+        decision: 'accepted' | 'revoked';
+        time_spent_on_modal: number;
+    };
+    consent_option_changed: {
+        option: ConsentOption;
+        state: 'enabled' | 'disabled';
+    };
+    consent_legal_link_clicked: {
+        link_target: 'privacy_policy' | 'data_use_details';
+        source: 'modal' | 'setting' | 'user';
+    };
+    consent_revoked: {
+        accepted_options: ConsentOption[];
+        declined_options: ConsentOption[];
+    };
+};
+
+type ConsentEventName = keyof ConsentEvents;
 
 class ConsentEvent {
     public readonly timestamp: Date;
@@ -22,7 +41,7 @@ class ConsentEvent {
     }
 }
 
-function dispatchConsentEvent(eventName: ConsentEventName, eventProperties: Record<string, TrackableType>): void {
+function dispatchConsentEvent<N extends ConsentEventName>(eventName: N, eventProperties: ConsentEvents[N]): void {
     if (!Shopware.Feature.isActive('PRODUCT_ANALYTICS')) {
         return;
     }
@@ -31,4 +50,4 @@ function dispatchConsentEvent(eventName: ConsentEventName, eventProperties: Reco
 }
 
 /** @private */
-export { ConsentEvent, dispatchConsentEvent, type ConsentEventName, type TrackableType };
+export { ConsentEvent, dispatchConsentEvent, type ConsentEventName, type ConsentEvents, type TrackableType };

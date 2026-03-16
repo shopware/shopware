@@ -55,7 +55,7 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->once())
             ->method('set')
-            ->with('core.services.permissionsConsent', static::callback(function ($value) use ($revision) {
+            ->with('core.services.permissionsConsent', static::callback(static function ($value) use ($revision) {
                 $decodedValue = json_decode($value, true);
                 if (!\is_array($decodedValue) || !isset($decodedValue['revision'])) {
                     return false;

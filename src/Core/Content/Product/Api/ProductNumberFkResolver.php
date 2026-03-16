@@ -32,7 +32,7 @@ class ProductNumberFkResolver extends AbstractFkResolver
      */
     public function resolve(array $map): array
     {
-        $numbers = \array_map(fn ($id) => $id->value, $map);
+        $numbers = \array_map(static fn ($id) => $id->value, $map);
 
         $numbers = \array_filter(\array_unique($numbers));
 

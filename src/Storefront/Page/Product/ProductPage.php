@@ -99,7 +99,7 @@ class ProductPage extends Page
         return $this->breadcrumb;
     }
 
-    public function setBreadcrumb(BreadcrumbCollection $breadcrumb): void
+    public function setBreadcrumb(?BreadcrumbCollection $breadcrumb): void
     {
         $this->breadcrumb = $breadcrumb;
     }

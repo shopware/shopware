@@ -66,11 +66,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $entityIds = $element->getProperty($propertyName);
 
         if ($entityIds === null) {
-            $definition = $this->definitionRegistry->getByEntityName($config->entity);
-            /** @var class-string<EntityCollection<Entity>> $collectionClass */
-            $collectionClass = $definition->getCollectionClass();
-
-            return ContentDataLoaderResult::cached(new $collectionClass());
+            return $this->emptyCollectionResult($config->entity);
         }
 
         if (!\is_array($entityIds)) {
@@ -82,11 +78,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $entityIds = \array_values($entityIds);
 
         if ($entityIds === []) {
-            $definition = $this->definitionRegistry->getByEntityName($config->entity);
-            /** @var class-string<EntityCollection<Entity>> $collectionClass */
-            $collectionClass = $definition->getCollectionClass();
-
-            return ContentDataLoaderResult::cached(new $collectionClass());
+            return $this->emptyCollectionResult($config->entity);
         }
 
         $entities = $this->loadEntities($config->entity, $entityIds, $config->associations, $context);
@@ -105,6 +97,15 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         }
 
         return ContentDataLoaderResult::cached($entities, ...$tags);
+    }
+
+    private function emptyCollectionResult(string $entityName): ContentDataLoaderResult
+    {
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
+        /** @var class-string<EntityCollection<Entity>> $collectionClass */
+        $collectionClass = $definition->getCollectionClass();
+
+        return ContentDataLoaderResult::cached(new $collectionClass());
     }
 
     /**

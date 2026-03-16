@@ -52,7 +52,7 @@ class NavigationDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof NavigationLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         // Resolve root ID from config or use sales channel's navigation category

@@ -10,14 +10,11 @@ use Shopware\Core\Framework\Struct\Struct;
  * - cacheTags = null  → Loader is not cache-aware, page must not be cached
  * - cacheTags = []    → Cache-aware, no tags needed (e.g., data already tagged elsewhere)
  * - cacheTags = [...] → Cache-aware with specific invalidation tags
- *
- * @template TData of Struct
  */
 #[Package('framework')]
 final class ContentDataLoaderResult
 {
     /**
-     * @param TData|null $data
      * @param list<string>|null $cacheTags
      */
     private function __construct(
@@ -29,8 +26,6 @@ final class ContentDataLoaderResult
     /**
      * Data not found, but lookup was cache-aware.
      * Page remains cacheable, no tags added.
-     *
-     * @return self<Struct>
      */
     public static function notFound(): self
     {
@@ -40,12 +35,6 @@ final class ContentDataLoaderResult
     /**
      * Data loaded but cannot be cache-tracked.
      * Page will not be cached.
-     *
-     * @template T of Struct
-     *
-     * @param T $data
-     *
-     * @return self<T>
      */
     public static function uncacheable(Struct $data): self
     {
@@ -54,12 +43,6 @@ final class ContentDataLoaderResult
 
     /**
      * Data loaded and cache-trackable with specific tags.
-     *
-     * @template T of Struct
-     *
-     * @param T $data
-     *
-     * @return self<T>
      */
     public static function cached(Struct $data, string ...$tags): self
     {
@@ -69,12 +52,6 @@ final class ContentDataLoaderResult
     /**
      * Data loaded, cache-aware, but tags already collected elsewhere.
      * Use when delegating to routes that handle their own cache tags.
-     *
-     * @template T of Struct
-     *
-     * @param T $data
-     *
-     * @return self<T>
      */
     public static function cachedExternally(Struct $data): self
     {

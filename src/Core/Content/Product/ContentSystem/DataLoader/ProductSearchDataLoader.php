@@ -44,14 +44,14 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof ProductSearchLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->searchTermProperty ?? 'searchTerm';
         $searchTerm = $element->getProperty($propertyName);
 
         if (!\is_string($searchTerm) || $searchTerm === '') {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $criteria = $this->buildCriteria($element, $config);

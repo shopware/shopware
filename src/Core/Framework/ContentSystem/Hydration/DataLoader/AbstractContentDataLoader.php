@@ -111,9 +111,6 @@ abstract class AbstractContentDataLoader
         throw ContentSystemException::unsupportedTypeNode($dataTypeNode::class);
     }
 
-    /**
-     * @return ContentDataLoaderResult<TData>
-     */
     abstract public function load(
         ContentElement $element,
         DataRequirement $requirement,

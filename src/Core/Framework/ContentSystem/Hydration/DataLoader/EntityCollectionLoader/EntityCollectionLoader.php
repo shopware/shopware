@@ -59,7 +59,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof EntityLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->property ?? $config->entity . 'Ids';
@@ -74,7 +74,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         }
 
         if (!\is_array($entityIds)) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $entityIds = \array_filter($entityIds, static fn ($id) => \is_string($id));
@@ -98,13 +98,13 @@ class EntityCollectionLoader extends AbstractContentDataLoader
             $tag = $this->cacheTagResolver->resolve($definition, $entity->getUniqueIdentifier());
 
             if ($tag === null) {
-                return ContentDataLoaderResult::uncacheable($entities); // @phpstan-ignore return.type
+                return ContentDataLoaderResult::uncacheable($entities);
             }
 
             $tags[] = $tag;
         }
 
-        return ContentDataLoaderResult::cached($entities, ...$tags); // @phpstan-ignore return.type
+        return ContentDataLoaderResult::cached($entities, ...$tags);
     }
 
     /**

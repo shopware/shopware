@@ -8,7 +8,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -75,9 +74,6 @@ class ContentElementHydrator
         }
     }
 
-    /**
-     * @param ContentDataLoaderResult<Struct> $result
-     */
     private function processCacheTags(ContentDataLoaderResult $result, RenderingCacheContext $cacheContext): void
     {
         if (!$result->isCacheAware()) {

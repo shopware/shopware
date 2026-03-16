@@ -47,7 +47,7 @@ class ServiceMenuDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof ServiceMenuLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $alias = $config->rootId ?? 'service-navigation';
@@ -61,7 +61,7 @@ class ServiceMenuDataLoader extends AbstractContentDataLoader
         try {
             $tree = $this->navigationLoader->load($rootId, $context, $rootId, 1);
         } catch (CategoryNotFoundException) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $categories = new CategoryCollection(array_map(

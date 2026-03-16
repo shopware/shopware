@@ -58,21 +58,21 @@ class EntityLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof EntityLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->property ?? $config->entity;
         $entityId = $element->getProperty($propertyName);
 
         if (!\is_string($entityId)) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $entityId = u($entityId)->lower()->toString();
         $entity = $this->loadEntity($config->entity, $entityId, $config->associations, $context);
 
         if ($entity === null) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $definition = $this->definitionRegistry->getByEntityName($config->entity);

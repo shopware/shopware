@@ -49,14 +49,14 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof ProductReviewLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->property ?? 'productId';
         $productId = $element->getProperty($propertyName);
 
         if (!\is_string($productId)) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $productId = u($productId)->lower()->toString();
@@ -66,7 +66,7 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
         try {
             $response = $this->productReviewRoute->load($productId, $request, $context, $criteria);
         } catch (ProductException|ReviewNotActiveExeption) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         return ContentDataLoaderResult::cachedExternally($response->getResult());

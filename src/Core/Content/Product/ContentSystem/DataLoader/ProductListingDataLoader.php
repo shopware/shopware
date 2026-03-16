@@ -46,14 +46,14 @@ class ProductListingDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof ProductListingLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->property ?? 'navigationId';
         $navigationId = $element->getProperty($propertyName);
 
         if (!\is_string($navigationId)) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $navigationId = u($navigationId)->lower()->toString();

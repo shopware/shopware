@@ -135,7 +135,7 @@ class SimpleStubLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+        return ContentDataLoaderResult::notFound();
     }
 }
 
@@ -153,7 +153,7 @@ class GenericStubLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+        return ContentDataLoaderResult::notFound();
     }
 }
 
@@ -209,7 +209,7 @@ class NonStructTypeStubLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+        return ContentDataLoaderResult::notFound();
     }
 }
 
@@ -229,7 +229,7 @@ class UnsupportedTypeNodeStubLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+        return ContentDataLoaderResult::notFound();
     }
 }
 
@@ -249,7 +249,7 @@ class GenericNonStructOuterStubLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+        return ContentDataLoaderResult::notFound();
     }
 }
 
@@ -269,6 +269,6 @@ class GenericNonStructParamStubLoader extends AbstractContentDataLoader
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+        return ContentDataLoaderResult::notFound();
     }
 }

@@ -45,14 +45,14 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof BreadcrumbLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->property ?? 'entityId';
         $entityId = $element->getProperty($propertyName);
 
         if (!\is_string($entityId)) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $entityId = u($entityId)->lower()->toString();

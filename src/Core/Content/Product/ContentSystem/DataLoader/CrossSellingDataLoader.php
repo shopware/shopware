@@ -46,14 +46,14 @@ class CrossSellingDataLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof CrossSellingLoaderConfig) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->property ?? 'productId';
         $productId = $element->getProperty($propertyName);
 
         if (!\is_string($productId)) {
-            return ContentDataLoaderResult::notFound(); // @phpstan-ignore return.type
+            return ContentDataLoaderResult::notFound();
         }
 
         $productId = u($productId)->lower()->toString();

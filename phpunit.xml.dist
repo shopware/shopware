@@ -144,6 +144,7 @@
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
+            <directory>tests/integration/Core/Framework/Validation</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch2">

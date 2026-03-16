@@ -12,8 +12,8 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistra
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;

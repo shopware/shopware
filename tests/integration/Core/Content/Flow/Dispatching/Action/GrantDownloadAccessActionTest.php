@@ -403,6 +403,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 ->price(1.0)
                 ->tax('t1')
                 ->visibility()
+                ->type($downloadFiles === [] ? ProductDefinition::TYPE_PHYSICAL : ProductDefinition::TYPE_DIGITAL)
                 ->add('downloads', array_map(static function (string $file): array {
                     [$fileName, $fileExtension] = explode('.', $file);
 

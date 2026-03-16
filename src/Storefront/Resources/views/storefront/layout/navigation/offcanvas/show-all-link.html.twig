@@ -1,5 +1,5 @@
 {% block layout_navigation_offcanvas_navigation_home_link %}
-    {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata replaced by JSON-LD. Will be removed. #}
+    {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
     <a class="nav-item nav-link is-home-link navigation-offcanvas-link js-navigation-offcanvas-link"
        href="{{ path('frontend.menu.offcanvas') }}"
        {% if not feature('JSON_LD_DATA') %}

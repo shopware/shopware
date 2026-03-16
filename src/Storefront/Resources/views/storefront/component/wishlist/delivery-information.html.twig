@@ -7,7 +7,7 @@
     <div class="product-wishlist-delivery-information">
         {% if product.active and product.stock >= product.minPurchase and product.deliveryTime and product.releaseDate and product.releaseDate|date('U') > 'now'|date('U') %}
             {% block component_wishlist_delivery_information_pre_order %}
-                {# @deprecated tag:v6.8.0 - Availability microdata replaced by JSON-LD. Will be removed. #}
+                {# @deprecated tag:v6.8.0 - Availability microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                 {# Bug fix: was incorrectly using InStock for pre-order products; corrected to PreOrder. #}
                 {% if not feature('JSON_LD_DATA') %}
                     <link itemprop="availability" href="https://schema.org/PreOrder">
@@ -19,7 +19,7 @@
             {% endblock %}
         {% elseif product.active and product.stock >= product.minPurchase and product.deliveryTime %}
             {% block component_wishlist_delivery_information_available %}
-                {# @deprecated tag:v6.8.0 - Availability microdata replaced by JSON-LD. Will be removed. #}
+                {# @deprecated tag:v6.8.0 - Availability microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                 {% if not feature('JSON_LD_DATA') %}
                     <link itemprop="availability" href="https://schema.org/InStock">
                 {% endif %}
@@ -32,7 +32,7 @@
             {% endblock %}
         {% elseif product.isCloseout and product.stock < product.minPurchase %}
             {% block component_wishlist_delivery_information_soldout %}
-                {# @deprecated tag:v6.8.0 - Availability microdata replaced by JSON-LD. Will be removed. #}
+                {# @deprecated tag:v6.8.0 - Availability microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                 {% if not feature('JSON_LD_DATA') %}
                     <link itemprop="availability" href="https://schema.org/LimitedAvailability">
                 {% endif %}
@@ -43,7 +43,7 @@
             {% endblock %}
         {% elseif product.stock < product.minPurchase and product.deliveryTime and product.restockTime %}
             {% block component_wishlist_delivery_information_restock %}
-                {# @deprecated tag:v6.8.0 - Availability microdata replaced by JSON-LD. Will be removed. #}
+                {# @deprecated tag:v6.8.0 - Availability microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                 {% if not feature('JSON_LD_DATA') %}
                     <link itemprop="availability" href="https://schema.org/LimitedAvailability">
                 {% endif %}

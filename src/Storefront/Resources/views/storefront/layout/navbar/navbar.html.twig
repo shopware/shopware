@@ -6,7 +6,7 @@
         } %}
 
         {% block layout_navbar_nav_element %}
-            {# @deprecated tag:v6.8.0 - SiteNavigationElement microdata replaced by JSON-LD. Will be removed. #}
+            {# @deprecated tag:v6.8.0 - SiteNavigationElement microdata removed. Not supported as a rich result. #}
             <nav class="navbar navbar-expand-lg main-navigation-menu"
                  id="main-navigation-menu"
                  {% if not feature('JSON_LD_DATA') %}
@@ -24,7 +24,7 @@
                         {% block layout_navbar_menu_home %}
                             {% if context.salesChannel.translated.homeEnabled %}
                                 <li class="nav-item nav-item-{{ context.salesChannel.navigationCategoryId }}">
-                                    {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata replaced by JSON-LD. Will be removed. #}
+                                    {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
                                     <a class="nav-link main-navigation-link home-link root nav-item-{{ context.salesChannel.navigationCategoryId }}-link"
                                        href="{{ path('frontend.home.page') }}"
                                        {% if not feature('JSON_LD_DATA') %}
@@ -49,7 +49,7 @@
                                     {% if not itemSkipped %}
                                         <li class="nav-item nav-item-{{ id }} dropdown position-static">
                                             {% block layout_navbar_menu_item_link %}
-                                                {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata replaced by JSON-LD. Will be removed. #}
+                                                {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
                                                 <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2 {% if hasChildren %}dropdown-toggle{% else %}no-dropdown{% endif %}"
                                                    href="{{ category.seoUrl ?: '#' }}"
                                                    {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}

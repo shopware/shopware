@@ -19,7 +19,7 @@
         {% block layout_breadcrumb_container %}
             <nav aria-label="breadcrumb"{% if feature('JSON_LD_DATA') %} style="--bs-breadcrumb-divider: {{ breadcrumbDivider }};"{% endif %}>
                 {% block layout_breadcrumb_list %}
-                    {# @deprecated tag:v6.8.0 - BreadcrumbList microdata replaced by JSON-LD. Will be removed. #}
+                    {# @deprecated tag:v6.8.0 - BreadcrumbList microdata replaced by JSON-LD in json-ld-breadcrumb.html.twig. Will be removed. #}
                     <ol class="breadcrumb"
                         {% if not feature('JSON_LD_DATA') %}
                         itemscope
@@ -31,7 +31,7 @@
                             {% set categoryUrl = breadcrumbCategory.seoUrl %}
 
                             {% block layout_breadcrumb_list_item %}
-                                {# @deprecated tag:v6.8.0 - BreadcrumbList ListItem microdata replaced by JSON-LD. Will be removed. #}
+                                {# @deprecated tag:v6.8.0 - BreadcrumbList ListItem microdata replaced by JSON-LD in json-ld-breadcrumb.html.twig. Will be removed. #}
                                 <li class="breadcrumb-item"
                                     {% if key is same as(categoryId) %}aria-current="page"{% endif %}
                                     {% if not feature('JSON_LD_DATA') %}
@@ -40,7 +40,7 @@
                                     itemtype="https://schema.org/ListItem"
                                     {% endif %}>
                                     {% if breadcrumbCategory.type == 'folder' %}
-                                        {# @deprecated tag:v6.8.0 - BreadcrumbList item microdata replaced by JSON-LD. Will be removed. #}
+                                        {# @deprecated tag:v6.8.0 - BreadcrumbList item microdata replaced by JSON-LD in json-ld-breadcrumb.html.twig. Will be removed. #}
                                         {% if not feature('JSON_LD_DATA') %}
                                             <div itemprop="item">
                                                 <div itemprop="name">{{ name }}</div>
@@ -49,7 +49,7 @@
                                             <div>{{ name }}</div>
                                         {% endif %}
                                     {% else %}
-                                        {# @deprecated tag:v6.8.0 - BreadcrumbList url microdata replaced by JSON-LD. Will be removed. #}
+                                        {# @deprecated tag:v6.8.0 - BreadcrumbList url microdata replaced by JSON-LD in json-ld-breadcrumb.html.twig. Will be removed. #}
                                         <a href="{{ categoryUrl }}"
                                            class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
                                            title="{{ name }}"
@@ -62,7 +62,7 @@
                                             <span class="breadcrumb-title" {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>{{ name }}</span>
                                         </a>
                                     {% endif %}
-                                    {# @deprecated tag:v6.8.0 - BreadcrumbList position microdata replaced by JSON-LD. Will be removed. #}
+                                    {# @deprecated tag:v6.8.0 - BreadcrumbList position microdata replaced by JSON-LD in json-ld-breadcrumb.html.twig. Will be removed. #}
                                     {% if not feature('JSON_LD_DATA') %}
                                         <meta itemprop="position" content="{{ loop.index }}">
                                     {% endif %}

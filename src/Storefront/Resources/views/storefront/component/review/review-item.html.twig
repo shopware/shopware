@@ -1,7 +1,7 @@
 {% block component_review_item %}
     {% set reviewVerifcation = 0 %}
 
-    {# @deprecated tag:v6.8.0 - Review microdata replaced by JSON-LD. Will be removed. #}
+    {# @deprecated tag:v6.8.0 - Review microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
     <div class="product-detail-review-item"
          {% if not feature('JSON_LD_DATA') %}
          itemprop="review"
@@ -9,28 +9,28 @@
          itemtype="https://schema.org/Review"
          {% endif %}>
         {% block component_review_item_meta_published %}
-            {# @deprecated tag:v6.8.0 - Review datePublished microdata replaced by JSON-LD. Will be removed. #}
+            {# @deprecated tag:v6.8.0 - Review datePublished microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
             {% if not feature('JSON_LD_DATA') %}
                 <meta itemprop="datePublished" content="{{ review.createdAt|date }}">
             {% endif %}
         {% endblock %}
 
         {% block component_review_item_meta_title %}
-            {# @deprecated tag:v6.8.0 - Review name microdata replaced by JSON-LD. Will be removed. #}
+            {# @deprecated tag:v6.8.0 - Review name microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
             {% if not feature('JSON_LD_DATA') %}
                 <meta itemprop="name" content="{{ review.title }}">
             {% endif %}
         {% endblock %}
 
         {% block component_review_item_meta_lang %}
-            {# @deprecated tag:v6.8.0 - Review inLanguage microdata replaced by JSON-LD. Will be removed. #}
+            {# @deprecated tag:v6.8.0 - Review inLanguage microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
             {% if not feature('JSON_LD_DATA') and review.language %}
                 <meta itemprop="inLanguage" content="{{ review.language.translationCode.code }}">
             {% endif %}
         {% endblock %}
 
         {% block component_review_item_meta_author %}
-            {# @deprecated tag:v6.8.0 - Review author microdata replaced by JSON-LD. Will be removed. #}
+            {# @deprecated tag:v6.8.0 - Review author microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
             {% if not feature('JSON_LD_DATA') %}
                 <div itemprop="author" itemtype="https://schema.org/Person" itemscope>
                     <meta itemprop="name" content="{{ review.externalUser }}">
@@ -81,7 +81,7 @@
         {% endblock %}
 
         {% block component_review_item_content %}
-            {# @deprecated tag:v6.8.0 - Review description microdata replaced by JSON-LD. Will be removed. #}
+            {# @deprecated tag:v6.8.0 - Review description microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
             <p class="product-detail-review-item-content"
                {% if not feature('JSON_LD_DATA') %}
                itemprop="description"

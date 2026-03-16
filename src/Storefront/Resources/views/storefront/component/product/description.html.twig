@@ -11,7 +11,7 @@
 
             {% block component_product_description_content %}
                 {% block component_product_description_content_text %}
-                    {# @deprecated tag:v6.8.0 - Product description microdata replaced by JSON-LD. Will be removed. #}
+                    {# @deprecated tag:v6.8.0 - Product description microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                     <div class="product-detail-description-text"
                          {% if not feature('JSON_LD_DATA') %}
                          itemprop="description"

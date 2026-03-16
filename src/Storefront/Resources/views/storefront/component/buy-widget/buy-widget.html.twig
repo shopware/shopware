@@ -1,7 +1,7 @@
 {% block buy_widget %}
     <div class="product-detail-buy{% if elementId %}-{{ elementId }}{% endif %} js-magnifier-zoom-image-container">
         {% block buy_widget_rich_snippets %}
-            {# @deprecated tag:v6.8.0 - Product microdata replaced by JSON-LD. Will be removed. #}
+            {# @deprecated tag:v6.8.0 - Product microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
             {% if not feature('JSON_LD_DATA') %}
                 {% block buy_widget_rich_snippets_brand %}
                     {% if product.manufacturer %}
@@ -94,7 +94,7 @@
         {% endblock %}
 
         {% block buy_widget_buy_container %}
-            {# @deprecated tag:v6.8.0 - Offer microdata replaced by JSON-LD. Will be removed. #}
+            {# @deprecated tag:v6.8.0 - Offer microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
             <div {% if not feature('JSON_LD_DATA') %}
                  itemprop="offers"
                  itemscope
@@ -102,7 +102,7 @@
                  {% endif %}>
                 {% block buy_widget_data %}
                     {% block buy_widget_data_rich_snippet_url %}
-                        {# @deprecated tag:v6.8.0 - Offer url microdata replaced by JSON-LD. Will be removed. #}
+                        {# @deprecated tag:v6.8.0 - Offer url microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                         {% if not feature('JSON_LD_DATA') %}
                             <meta itemprop="url"
                                   content="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}">
@@ -110,7 +110,7 @@
                     {% endblock %}
 
                     {% block buy_widget_data_rich_snippet_price_range %}
-                        {# @deprecated tag:v6.8.0 - AggregateOffer price range microdata replaced by JSON-LD. Will be removed. #}
+                        {# @deprecated tag:v6.8.0 - AggregateOffer price range microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                         {% if not feature('JSON_LD_DATA') %}
                             {% if product.calculatedPrices|length > 1 %}
                                 {% set lowestPrice = false %}
@@ -133,7 +133,7 @@
                     {% endblock %}
 
                     {% block buy_widget_data_rich_snippet_price_currency %}
-                        {# @deprecated tag:v6.8.0 - Offer priceCurrency microdata replaced by JSON-LD. Will be removed. #}
+                        {# @deprecated tag:v6.8.0 - Offer priceCurrency microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                         {% if not feature('JSON_LD_DATA') %}
                             <meta itemprop="priceCurrency"
                                   content="{{ context.currency.translated.shortName }}">
@@ -283,7 +283,7 @@
                     {% endblock %}
 
                     {% block buy_widget_ordernumber %}
-                        {# @deprecated tag:v6.8.0 - productID and sku microdata replaced by JSON-LD. Will be removed. #}
+                        {# @deprecated tag:v6.8.0 - productID and sku microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                         {% if not feature('JSON_LD_DATA') %}
                             <meta itemprop="productID"
                                   content="{{ product.id }}">

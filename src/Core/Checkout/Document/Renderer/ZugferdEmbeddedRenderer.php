@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use horstoeko\zugferd\ZugferdDocumentPdfMerger;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -52,7 +53,7 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
         $renderResult = new RendererResult();
 
         foreach ($invoice->getSuccess() as $orderId => $invoiceDocument) {
-            if ($invoiceDocument->getContentType() !== 'application/pdf') {
+            if ($invoiceDocument->getContentType() !== FileTypes::PDF_CONTENT_TYPE) {
                 $renderResult->addError($orderId, DocumentException::electronicInvoiceViolation(1, ['Application type must be "application/pdf"' => [$orderId]]));
 
                 continue;

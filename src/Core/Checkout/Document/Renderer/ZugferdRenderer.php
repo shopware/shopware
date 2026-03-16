@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
@@ -23,9 +24,9 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'zugferd_invoice';
 
-    public const FILE_EXTENSION = 'xml';
+    public const FILE_EXTENSION = FileTypes::XML;
 
-    public const FILE_CONTENT_TYPE = 'application/xml';
+    public const FILE_CONTENT_TYPE = FileTypes::XML_CONTENT_TYPE;
 
     /**
      * @internal
@@ -115,6 +116,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
         try {
             $content = $this->documentBuilder->buildDocument($order, $config, $context);
+
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(

@@ -3,9 +3,13 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +25,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
  * @internal
  */
 #[Package('after-sales')]
-class ZugferdRendererTest extends TestCase
+class ZugferdCancellationInvoiceRendererTest extends TestCase
 {
     use DocumentTrait;
     use SnapshotTesting;
@@ -30,7 +34,9 @@ class ZugferdRendererTest extends TestCase
 
     private Context $context;
 
-    private ZugferdRenderer $renderer;
+    private ZugferdCancellationInvoiceRenderer $renderer;
+
+    private DocumentGenerator $documentGenerator;
 
     protected function setUp(): void
     {
@@ -63,7 +69,8 @@ class ZugferdRendererTest extends TestCase
         );
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
 
-        $this->renderer = static::getContainer()->get(ZugferdRenderer::class);
+        $this->renderer = static::getContainer()->get(ZugferdCancellationInvoiceRenderer::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
     }
 
     public function testDocumentSnapshot(): void
@@ -89,10 +96,30 @@ class ZugferdRendererTest extends TestCase
             'documentDate' => '2023-11-24T12:00:00+00:00',
         ];
 
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $invoicOperation = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::PDF,
+            $invoiceConfig->jsonSerialize()
+        );
+
+        $invoice = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => $invoicOperation],
+            $this->context
+        )->getSuccess()->first();
+
+        static::assertNotNull($invoice);
+
+        $invoiceId = $invoice->getId();
+
         $operation = new DocumentGenerateOperation(
             $orderId,
-            ZugferdRenderer::FILE_EXTENSION,
-            $config
+            FileTypes::XML,
+            $config,
+            $invoiceId
         );
 
         $processedTemplate = $this->renderer->render(
@@ -107,7 +134,7 @@ class ZugferdRendererTest extends TestCase
         $content = $renderedDocument->getContent();
         static::assertIsString($content);
 
-        $this->assertSnapshot('zugferd_invoice_document_default', [
+        $this->assertSnapshot('zugferd_cancellation_invoice_document_default', [
             [
                 'type' => self::TYPE_XML,
                 'actual' => $content,

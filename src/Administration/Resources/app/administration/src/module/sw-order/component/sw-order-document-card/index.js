@@ -7,9 +7,19 @@ import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import EntityCollection from '../../../../core/data/entity-collection.data';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
+
+/**
+ * @private
+ */
+export const ZUGFERD_COMPONENT_MAPPING = {
+    [DOCUMENT_TYPES.ZUGFERD_INVOICE]: DOCUMENT_TYPES.INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE]: DOCUMENT_TYPES.INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE]: DOCUMENT_TYPES.CANCELLATION_INVOICE,
+};
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -102,6 +112,12 @@ export default {
 
             if (this.$.appContext.components[`sw-order-document-settings-${subComponentName}-modal`]) {
                 return `sw-order-document-settings-${subComponentName}-modal`;
+            }
+
+            const zugferdSubComponentName = ZUGFERD_COMPONENT_MAPPING[this.currentDocumentType.technicalName];
+
+            if (this.$.appContext.components[`sw-order-document-settings-${zugferdSubComponentName}-modal`]) {
+                return `sw-order-document-settings-${zugferdSubComponentName}-modal`;
             }
 
             return 'sw-order-document-settings-modal';
@@ -230,7 +246,10 @@ export default {
         },
 
         isXmlDocument() {
-            return this.currentDocumentType?.technicalName === 'zugferd_invoice';
+            return [
+                DOCUMENT_TYPES.ZUGFERD_INVOICE,
+                DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+            ].includes(this.currentDocumentType?.technicalName);
         },
     },
 
@@ -290,21 +309,28 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         documentTypeAvailable(documentType) {
             return (
-                (documentType.technicalName !== 'storno' && documentType.technicalName !== 'credit_note') ||
-                ((documentType.technicalName === 'storno' ||
-                    (documentType.technicalName === 'credit_note' && this.creditItems.length !== 0)) &&
+                (documentType.technicalName !== DOCUMENT_TYPES.CANCELLATION_INVOICE &&
+                    documentType.technicalName !== DOCUMENT_TYPES.CREDIT_NOTE) ||
+                ((documentType.technicalName === DOCUMENT_TYPES.CANCELLATION_INVOICE ||
+                    (documentType.technicalName === DOCUMENT_TYPES.CREDIT_NOTE && this.creditItems.length !== 0)) &&
                     this.invoiceExists())
             );
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         invoiceExists() {
             return this.documents.some((document) => {
                 return (
-                    document.documentType.technicalName === 'invoice' ||
-                    document.documentType.technicalName === 'zugferd_invoice' ||
-                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                    document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE
                 );
             });
         },

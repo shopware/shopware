@@ -44,6 +44,8 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_HAS_DEPENDING_DOCUMENTS = 'DOCUMENT__HAS_DEPENDING_DOCUMENTS';
 
+    public const DOCUMENT_BASE_INVOICE_NOT_FOUND = 'DOCUMENT__BASE_INVOICE_NOT_FOUND';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -271,6 +273,19 @@ class DocumentException extends HttpException
             'The document cannot be deleted because other documents depend on it: {{ dependingDocuments }}.',
             [
                 'dependingDocuments' => implode(', ', $dependingDocuments),
+            ]
+        );
+    }
+
+    public static function referencedInvoiceNotFound(string $documentType, string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_BASE_INVOICE_NOT_FOUND,
+            'Could not generate document of type "{{ documentType }}" for order "{{ orderId }}" because the referenced invoice could not be found.',
+            [
+                'documentType' => $documentType,
+                'orderId' => $orderId,
             ]
         );
     }

@@ -3,6 +3,7 @@
  */
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -51,9 +52,9 @@ export default {
         invoices() {
             return this.order.documents.filter((document) => {
                 return (
-                    document.documentType.technicalName === 'invoice' ||
-                    document.documentType.technicalName === 'zugferd_invoice' ||
-                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                    document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE
                 );
             });
         },

@@ -10,7 +10,7 @@
   </rsm:ExchangedDocumentContext>
   <rsm:ExchangedDocument>
     <ram:ID>1000</ram:ID>
-    <ram:TypeCode>380</ram:TypeCode>
+    <ram:TypeCode>384</ram:TypeCode>
     <ram:IssueDateTime>
       <udt:DateTimeString format="102">[date]</udt:DateTimeString>
     </ram:IssueDateTime>
@@ -21,7 +21,6 @@
         <ram:LineID>1</ram:LineID>
       </ram:AssociatedDocumentLineDocument>
       <ram:SpecifiedTradeProduct>
-        <ram:SellerAssignedID>p0</ram:SellerAssignedID>
         <ram:Name>product 0</ram:Name>
       </ram:SpecifiedTradeProduct>
       <ram:SpecifiedLineTradeAgreement>
@@ -31,7 +30,7 @@
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>
       <ram:SpecifiedLineTradeDelivery>
-        <ram:BilledQuantity unitCode="H87">1.00</ram:BilledQuantity>
+        <ram:BilledQuantity unitCode="H87">-1.00</ram:BilledQuantity>
       </ram:SpecifiedLineTradeDelivery>
       <ram:SpecifiedLineTradeSettlement>
         <ram:ApplicableTradeTax>
@@ -40,7 +39,7 @@
           <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
         </ram:ApplicableTradeTax>
         <ram:SpecifiedTradeSettlementLineMonetarySummation>
-          <ram:LineTotalAmount>93.46</ram:LineTotalAmount>
+          <ram:LineTotalAmount>-93.46</ram:LineTotalAmount>
         </ram:SpecifiedTradeSettlementLineMonetarySummation>
       </ram:SpecifiedLineTradeSettlement>
     </ram:IncludedSupplyChainTradeLineItem>
@@ -48,7 +47,24 @@
       <ram:BuyerReference>10000</ram:BuyerReference>
       <ram:SellerTradeParty>
         <ram:Name>Example Company</ram:Name>
-        <ram:URIUniversalCommunication/>
+        <ram:DefinedTradeContact>
+          <ram:PersonName>Max Mustermann</ram:PersonName>
+          <ram:TelephoneUniversalCommunication>
+            <ram:CompleteNumber>+49 123 4567890</ram:CompleteNumber>
+          </ram:TelephoneUniversalCommunication>
+          <ram:EmailURIUniversalCommunication>
+            <ram:URIID>mail@example.com</ram:URIID>
+          </ram:EmailURIUniversalCommunication>
+        </ram:DefinedTradeContact>
+        <ram:URIUniversalCommunication>
+          <ram:URIID schemeID="EM">mail@example.com</ram:URIID>
+        </ram:URIUniversalCommunication>
+        <ram:SpecifiedTaxRegistration>
+          <ram:ID schemeID="FC">123/456/7890</ram:ID>
+        </ram:SpecifiedTaxRegistration>
+        <ram:SpecifiedTaxRegistration>
+          <ram:ID schemeID="VA">DE123456789</ram:ID>
+        </ram:SpecifiedTaxRegistration>
       </ram:SellerTradeParty>
       <ram:BuyerTradeParty>
         <ram:ID>1337</ram:ID>
@@ -78,9 +94,9 @@
         <ram:Information>Cash on delivery</ram:Information>
       </ram:SpecifiedTradeSettlementPaymentMeans>
       <ram:ApplicableTradeTax>
-        <ram:CalculatedAmount>6.54</ram:CalculatedAmount>
+        <ram:CalculatedAmount>-6.54</ram:CalculatedAmount>
         <ram:TypeCode>VAT</ram:TypeCode>
-        <ram:BasisAmount>93.46</ram:BasisAmount>
+        <ram:BasisAmount>-93.46</ram:BasisAmount>
         <ram:CategoryCode>S</ram:CategoryCode>
         <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
       </ram:ApplicableTradeTax>
@@ -103,16 +119,22 @@
         </ram:DueDateDateTime>
       </ram:SpecifiedTradePaymentTerms>
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
-        <ram:LineTotalAmount>93.46</ram:LineTotalAmount>
+        <ram:LineTotalAmount>-93.46</ram:LineTotalAmount>
         <ram:ChargeTotalAmount>0.00</ram:ChargeTotalAmount>
         <ram:AllowanceTotalAmount>0.00</ram:AllowanceTotalAmount>
-        <ram:TaxBasisTotalAmount>93.46</ram:TaxBasisTotalAmount>
-        <ram:TaxTotalAmount currencyID="EUR">6.54</ram:TaxTotalAmount>
+        <ram:TaxBasisTotalAmount>-93.46</ram:TaxBasisTotalAmount>
+        <ram:TaxTotalAmount currencyID="EUR">-6.54</ram:TaxTotalAmount>
         <ram:RoundingAmount>0.00</ram:RoundingAmount>
-        <ram:GrandTotalAmount>100.00</ram:GrandTotalAmount>
+        <ram:GrandTotalAmount>-100.00</ram:GrandTotalAmount>
         <ram:TotalPrepaidAmount>0.00</ram:TotalPrepaidAmount>
-        <ram:DuePayableAmount>100.00</ram:DuePayableAmount>
+        <ram:DuePayableAmount>-100.00</ram:DuePayableAmount>
       </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+      <ram:InvoiceReferencedDocument>
+        <ram:IssuerAssignedID>1001</ram:IssuerAssignedID>
+        <ram:FormattedIssueDateTime>
+          <qdt:DateTimeString format="102">[date]</qdt:DateTimeString>
+        </ram:FormattedIssueDateTime>
+      </ram:InvoiceReferencedDocument>
     </ram:ApplicableHeaderTradeSettlement>
   </rsm:SupplyChainTradeTransaction>
 </rsm:CrossIndustryInvoice>

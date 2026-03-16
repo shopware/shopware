@@ -36,7 +36,8 @@ export default {
     props: {
         // eslint-disable-next-line vue/require-prop-types
         value: {
-            required: true,
+            required: false,
+            default: null,
         },
         highlightSearchTerm: {
             type: Boolean,
@@ -239,7 +240,7 @@ export default {
     watch: {
         value(value) {
             // No need to fetch again when the new value is the last one we selected
-            if (this.lastSelection && this.value === this.lastSelection.id) {
+            if (this.lastSelection && (this.value ?? null) === (this.lastSelection.id ?? null)) {
                 this.singleSelection = this.lastSelection;
                 this.lastSelection = null;
                 return;

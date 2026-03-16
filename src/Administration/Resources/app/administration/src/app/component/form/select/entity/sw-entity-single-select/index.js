@@ -35,9 +35,9 @@ export default {
 
     props: {
         // eslint-disable-next-line vue/require-prop-types
+        // null is a common value here, e.g. passed by the inheritance system.
         value: {
             required: false,
-            default: null,
         },
         highlightSearchTerm: {
             type: Boolean,
@@ -240,7 +240,7 @@ export default {
     watch: {
         value(value) {
             // No need to fetch again when the new value is the last one we selected
-            if (this.lastSelection && (this.value ?? null) === (this.lastSelection.id ?? null)) {
+            if (this.lastSelection && this.value === this.lastSelection.id) {
                 this.singleSelection = this.lastSelection;
                 this.lastSelection = null;
                 return;
@@ -517,9 +517,6 @@ export default {
             // This is a little against v-model. But so we don't need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
-            // Also set singleSelection directly so the display updates even when the value prop doesn't
-            // actually change (e.g. item.id is undefined and the prop default coerces it back to null).
-            this.singleSelection = item;
             this.$emit('update:value', item.id, item);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), item);

@@ -17,7 +17,7 @@ interface EventOptions {
  * It is an abstract class and cannot be instantiated directly.
  * It is used to create new components.
  *
- * @experimental
+ * @internal
  * @sw-package framework
  */
 class ShopwareComponent {

@@ -37,7 +37,7 @@
     "core-js": "3.40.0",
     "css-loader": "7.1.2",
     "deepmerge": "4.3.1",
-    "events": "^3.3.0",
+    "events": "3.3.0",
     "file-loader": "6.2.0",
     "flatpickr": "4.6.13",
     "fs-extra": "11.3.0",

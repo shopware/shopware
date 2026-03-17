@@ -24,7 +24,7 @@ type InterceptionRegistryEntry = {
  * This class is the central point for all component-system related functionality.
  * It is a singleton and can be accessed via `window.Shopware`.
  *
- * @experimental
+ * @internal
  * @sw-package framework
  */
 class Shopware extends EventEmitter {

@@ -721,6 +721,12 @@
         "imageGallery": {
           "label": "Image gallery"
         },
+        "mediaGallery": {
+          "label": "Media gallery",
+          "preview": {
+            "badge": "New"
+          }
+        },
         "imageHighlightRow": {
           "label": "Three columns, boxed & background"
         },

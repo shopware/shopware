@@ -721,6 +721,12 @@
         "imageGallery": {
           "label": "Galerie"
         },
+        "mediaGallery": {
+          "label": "Mediengalerie",
+          "preview": {
+            "badge": "Neu"
+          }
+        },
         "imageHighlightRow": {
           "label": "Drei Spalten, Hintergrund"
         },

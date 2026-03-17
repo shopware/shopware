@@ -27,6 +27,7 @@ import './image/image-highlight-row';
 import './image/image-simple-grid';
 import './image/image-slider';
 import './image/image-gallery';
+import './image/media-gallery';
 
 import './sidebar/sidebar-filter';
 import './sidebar/category-navigation';

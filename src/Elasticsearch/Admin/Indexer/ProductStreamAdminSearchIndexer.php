@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Context;
@@ -52,14 +53,11 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
-    /**
-     * @param EntityWrittenContainerEvent<covariant array<string, string>> $event Translation definitions have multiple primary keys
-     */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
         $ids = [];
 
-        $translations = $event->getPrimaryKeysWithPropertyChange(ProductStreamDefinition::ENTITY_NAME, [
+        $translations = $event->getPrimaryKeysWithPropertyChange(ProductStreamTranslationDefinition::ENTITY_NAME, [
             'name',
         ]);
 
@@ -69,7 +67,7 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($ids));
+        return array_values(array_unique(array_filter($ids, '\is_string')));
     }
 
     public function globalData(array $result, Context $context): array

@@ -45,7 +45,7 @@ class RevocationRequestRouteTest extends TestCase
     public function testRequest(): void
     {
         $listenerIsCalled = false;
-        $revocationRequestCallback = function (RevocationRequestEvent $event) use (&$listenerIsCalled): void {
+        $revocationRequestCallback = static function (RevocationRequestEvent $event) use (&$listenerIsCalled): void {
             $listenerIsCalled = true;
             static::assertSame($this->ids->get('sales-channel'), $event->getSalesChannelId());
         };
@@ -77,7 +77,7 @@ class RevocationRequestRouteTest extends TestCase
     public function testRequestWithInvalidData(): void
     {
         $listenerIsCalled = false;
-        $revocationRequestCallback = function (RevocationRequestEvent $event) use (&$listenerIsCalled): void {
+        $revocationRequestCallback = static function (RevocationRequestEvent $event) use (&$listenerIsCalled): void {
             $listenerIsCalled = true;
         };
 

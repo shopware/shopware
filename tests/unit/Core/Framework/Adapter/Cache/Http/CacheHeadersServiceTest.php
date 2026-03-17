@@ -83,7 +83,7 @@ class CacheHeadersServiceTest extends TestCase
         if ($hasCookie) {
             static::assertTrue($response->headers->has('set-cookie'));
 
-            $cookies = array_filter($response->headers->getCookies(), fn (Cookie $cookie) => $cookie->getName() === HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
+            $cookies = array_filter($response->headers->getCookies(), static fn (Cookie $cookie) => $cookie->getName() === HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
 
             static::assertCount(1, $cookies);
             $cookie = array_shift($cookies);
@@ -200,7 +200,7 @@ class CacheHeadersServiceTest extends TestCase
         $firstCacheCookie = $firstResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
 
-        $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, function (HttpCacheCookieEvent $event): void {
+        $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, static function (HttpCacheCookieEvent $event): void {
             $ruleIds = $event->get('rule-ids');
             self::assertIsArray($ruleIds);
             $event->remove('rule-ids');
@@ -231,7 +231,7 @@ class CacheHeadersServiceTest extends TestCase
         $firstCacheCookie = $firstResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
 
-        $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, function (HttpCacheCookieEvent $event): void {
+        $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, static function (HttpCacheCookieEvent $event): void {
             $event->isCacheable = false;
         });
 
@@ -262,7 +262,8 @@ class CacheHeadersServiceTest extends TestCase
 
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID), 'Vary header should always be set');
         $vary = $response->headers->all('vary');
-        static::assertCount(3, $vary);
+        static::assertCount(4, $vary);
+        static::assertContains(PlatformRequest::HEADER_ACCESS_KEY, $vary);
         static::assertContains(PlatformRequest::HEADER_LANGUAGE_ID, $vary);
         static::assertContains(PlatformRequest::HEADER_CURRENCY_ID, $vary);
         static::assertContains(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $vary);

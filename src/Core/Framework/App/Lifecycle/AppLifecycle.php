@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -63,8 +63,9 @@ class AppLifecycle extends AbstractAppLifecycle
      * @param iterable<PersisterInterface> $persisters
      */
     public function __construct(
+        private readonly iterable $persisters,
         private readonly EntityRepository $appRepository,
-        private readonly PermissionPersister $permissionPersister,
+        private readonly PermissionLifecycleService $permissionLifecycle,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppStateService $appStateService,
@@ -84,7 +85,7 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
-        private readonly iterable $persisters = [],
+        private readonly DeletedAppsGateway $deletedAppsGateway,
     ) {
     }
 
@@ -214,7 +215,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $this->updateCustomEntities($app, $manifest);
 
-        $this->permissionPersister->updatePrivileges(
+        $this->permissionLifecycle->updatePrivileges(
             $manifest->getPermissions(),
             $id,
             $manifest->validatesPermissions() === false && $parameters->acceptPermissions,
@@ -223,7 +224,9 @@ class AppLifecycle extends AbstractAppLifecycle
 
         // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
         // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
-        if (!$app->getAppSecret() && $manifest->getSetup()) {
+        // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
+        // in that case we still need to run the registration to rotate that secret
+        if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
             try {
                 $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
             } catch (AppRegistrationException $e) {
@@ -304,10 +307,10 @@ class AppLifecycle extends AbstractAppLifecycle
                     'id' => $app->getIntegrationId(),
                     'deletedAt' => new \DateTimeImmutable(),
                 ]], $context);
-                $this->permissionPersister->softDeleteRole($app->getAclRoleId());
+                $this->permissionLifecycle->softDeleteRole($app->getAclRoleId());
             } else {
                 $this->integrationRepository->delete([['id' => $app->getIntegrationId()]], $context);
-                $this->permissionPersister->removeRole($app->getAclRoleId());
+                $this->permissionLifecycle->removeRole($app->getAclRoleId());
             }
 
             $this->deleteAclRole($app->getName(), $context);
@@ -370,9 +373,10 @@ class AppLifecycle extends AbstractAppLifecycle
     private function enrichInstallMetadata(Manifest $manifest, array $metadata, string $roleId): array
     {
         $secret = AccessKeyHelper::generateSecretAccessKey();
+        $appName = $manifest->getMetadata()->getName();
 
         $metadata['integration'] = [
-            'label' => $manifest->getMetadata()->getName(),
+            'label' => $appName,
             'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
             'secretAccessKey' => $secret,
             'admin' => false,
@@ -380,11 +384,17 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $metadata['aclRole'] = [
             'id' => $roleId,
-            'name' => $manifest->getMetadata()->getName(),
+            'name' => $appName,
         ];
         $metadata['accessToken'] = $secret;
         // Always install as inactive, activation will be handled by `AppStateService` in `install()` method.
         $metadata['active'] = false;
+        // when the app was installed before and we have the old secret stored, we set it here
+        // so the registration is signed correctly with the old secret
+        $oldSecret = $this->deletedAppsGateway->getDeletedAppSecret($appName);
+        if ($oldSecret !== null) {
+            $metadata['appSecret'] = $oldSecret;
+        }
 
         return $metadata;
     }

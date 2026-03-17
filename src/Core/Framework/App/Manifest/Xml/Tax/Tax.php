@@ -29,7 +29,7 @@ class Tax extends XmlElement
      */
     public function getUrls(): array
     {
-        return \array_map(fn (TaxProvider $taxProvider) => $taxProvider->getProcessUrl(), $this->taxProviders);
+        return \array_map(static fn (TaxProvider $taxProvider) => $taxProvider->getProcessUrl(), $this->taxProviders);
     }
 
     protected static function parse(\DOMElement $element): array

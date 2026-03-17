@@ -44,7 +44,7 @@ class ScriptPersister implements PersisterInterface
 
         $scriptIds = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scriptIds);
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => true], $scriptIds);
 
         $this->scriptRepository->update($updateSet, $context);
     }
@@ -58,7 +58,7 @@ class ScriptPersister implements PersisterInterface
 
         $scriptIds = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scriptIds);
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => false], $scriptIds);
 
         $this->scriptRepository->update($updateSet, $context);
     }

@@ -33,8 +33,8 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
@@ -128,7 +128,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $eventWasReceived = false;
         $appId = null;
-        $onAppInstalled = function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
+        $onAppInstalled = static function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
             $eventWasReceived = true;
             $appId = $event->getApp()->getId();
             static::assertSame($manifest, $event->getManifest());
@@ -500,14 +500,14 @@ class AppLifecycleTest extends TestCase
             ],
         ]], $context);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['update'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -517,7 +517,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $eventWasReceived = false;
-        $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
+        $onAppUpdated = static function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
             static::assertSame($id, $event->getApp()->getId());
             static::assertSame($manifest, $event->getManifest());
@@ -677,14 +677,14 @@ class AppLifecycleTest extends TestCase
             ],
         ]], $context);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['update'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -694,7 +694,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $eventWasReceived = false;
-        $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
+        $onAppUpdated = static function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
             static::assertSame($id, $event->getApp()->getId());
             static::assertSame($manifest, $event->getManifest());
@@ -780,14 +780,14 @@ class AppLifecycleTest extends TestCase
             ],
         ]], $context);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['update'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -1048,7 +1048,7 @@ class AppLifecycleTest extends TestCase
         ];
 
         $eventWasReceived = false;
-        $onAppDeleted = function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
+        $onAppDeleted = static function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
             $eventWasReceived = true;
             static::assertSame($appId, $event->getAppId());
         };
@@ -1116,7 +1116,7 @@ class AppLifecycleTest extends TestCase
         ];
 
         $countEventDispatched = 0;
-        $onAppDeleted = function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
+        $onAppDeleted = static function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
             ++$countEventDispatched;
             static::assertSame($appId, $event->getAppId());
         };
@@ -1695,7 +1695,7 @@ class AppLifecycleTest extends TestCase
         $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(2, $actionButtons);
 
-        $actionNames = $actionButtons->map(fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
+        $actionNames = $actionButtons->map(static fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
 
         static::assertContains('viewOrder', $actionNames);
         static::assertContains('doStuffWithProducts', $actionNames);
@@ -1783,7 +1783,7 @@ class AppLifecycleTest extends TestCase
         $relations = $customFieldSet->getRelations();
         static::assertNotNull($relations);
 
-        $relatedEntities = array_map(fn (CustomFieldSetRelationEntity $relation) => $relation->getEntityName(), $relations->getElements());
+        $relatedEntities = array_map(static fn (CustomFieldSetRelationEntity $relation) => $relation->getEntityName(), $relations->getElements());
         static::assertContains('product', $relatedEntities);
         static::assertContains('customer', $relatedEntities);
 

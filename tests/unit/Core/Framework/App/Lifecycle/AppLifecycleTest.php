@@ -12,12 +12,13 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
@@ -157,7 +158,7 @@ class AppLifecycleTest extends TestCase
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
-    public function testInstallSavesNoSnippetsGiven(): void
+    public function testInstallSavesOldSecretIfItExists(): void
     {
         /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
@@ -187,10 +188,17 @@ class AppLifecycleTest extends TestCase
 
         $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
         $appRepository = $this->getAppRepositoryMock($appEntities);
+        $appDeletedGateway = $this->createMock(DeletedAppsGateway::class);
+        $appDeletedGateway->expects($this->once())
+            ->method('getDeletedAppSecret')
+            ->with($manifest->getMetadata()->getName())
+            ->willReturn('oldSecretValue');
+
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
             $sourceResolver,
+            $appDeletedGateway,
         );
 
         $this->registerSubscriber($sourceResolver, $appEntities[2]);
@@ -199,6 +207,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
+        static::assertSame('oldSecretValue', $appRepository->upserts[0][0]['appSecret']);
     }
 
     public function testUpdateSavesNoSnippetsGiven(): void
@@ -348,14 +357,20 @@ class AppLifecycleTest extends TestCase
     private function getAppLifecycle(
         EntityRepository $appRepository,
         EntityRepository $languageRepository,
-        StaticSourceResolver $appSourceResolver
+        StaticSourceResolver $appSourceResolver,
+        ?DeletedAppsGateway $deletedAppsGateway = null,
     ): AppLifecycle {
         /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
         $aclRoleRepo = new StaticEntityRepository([new AclRoleCollection()]);
 
+        if (!$deletedAppsGateway) {
+            $deletedAppsGateway = $this->createMock(DeletedAppsGateway::class);
+        }
+
         return new AppLifecycle(
+            [],
             $appRepository,
-            $this->createMock(PermissionPersister::class),
+            $this->createMock(PermissionLifecycleService::class),
             $this->eventDispatcher,
             $this->createMock(AppRegistrationService::class),
             $this->createMock(AppStateService::class),
@@ -375,7 +390,7 @@ class AppLifecycleTest extends TestCase
             $this->createMock(EntityRepository::class),
             $appSourceResolver,
             $this->createMock(ConfigReader::class),
-            [],
+            $deletedAppsGateway,
         );
     }
 

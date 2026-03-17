@@ -754,6 +754,7 @@
         "goodsCountRule": "Gesamtanzahl unterschiedlicher Produkte",
         "goodsPriceRule": "Zwischensumme aller Positionen",
         "cartTotalPurchasePrice": "Summe aller Einkaufspreise",
+        "cartTotalTax": "Gesamtsteuerbetrag",
         "lineItemOfTypeRule": {
           "label": "Position vom Typ",
           "product": "Produkt",

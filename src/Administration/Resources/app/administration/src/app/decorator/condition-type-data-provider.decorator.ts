@@ -259,6 +259,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['cart'],
         group: 'cart',
     });
+    ruleConditionService.addCondition('cartTotalTax', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.cartTotalTax',
+        scopes: ['cart'],
+        group: 'cart',
+    });
     ruleConditionService.addCondition('cartGoodsPrice', {
         component: 'sw-condition-goods-price',
         label: 'global.sw-condition.condition.goodsPriceRule',

@@ -754,6 +754,7 @@
         "goodsCountRule": "Total quantity of distinct products",
         "goodsPriceRule": "Subtotal of all items",
         "cartTotalPurchasePrice": "Total of all purchase prices",
+        "cartTotalTax": "Total tax amount",
         "lineItemOfTypeRule": {
           "label": "Item of type",
           "product": "Product",

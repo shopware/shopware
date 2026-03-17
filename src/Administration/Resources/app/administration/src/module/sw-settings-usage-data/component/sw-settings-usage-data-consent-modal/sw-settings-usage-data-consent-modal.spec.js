@@ -107,12 +107,16 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             );
 
             expect(eventHandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_modal_viewed', {
-                    consents_shown: [
-                        'backend_data',
-                        'product_analytics',
-                    ],
-                }),
+                new ConsentEvent(
+                    'consent_modal_viewed',
+                    {
+                        consents_shown: [
+                            'backend_data',
+                            'product_analytics',
+                        ],
+                    },
+                    new Date(),
+                ),
             );
 
             Shopware.Utils.EventBus.off('consent', eventHandler);
@@ -131,9 +135,13 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             );
 
             expect(eventHandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_modal_viewed', {
-                    consents_shown: ['product_analytics'],
-                }),
+                new ConsentEvent(
+                    'consent_modal_viewed',
+                    {
+                        consents_shown: ['product_analytics'],
+                    },
+                    new Date(),
+                ),
             );
 
             Shopware.Utils.EventBus.off('consent', eventHandler);
@@ -153,9 +161,13 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             );
 
             expect(eventHandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_modal_viewed', {
-                    consents_shown: ['product_analytics'],
-                }),
+                new ConsentEvent(
+                    'consent_modal_viewed',
+                    {
+                        consents_shown: ['product_analytics'],
+                    },
+                    new Date(),
+                ),
             );
 
             Shopware.Utils.EventBus.off('consent', eventHandler);
@@ -183,17 +195,21 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(acceptSpy.mock.calls[1][0]).toBe('product_analytics');
 
             expect(eventhandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_modal_decision', {
-                    backend_data: {
-                        status: 'accepted',
-                        changed: true,
+                new ConsentEvent(
+                    'consent_modal_decision',
+                    {
+                        backend_data: {
+                            status: 'accepted',
+                            changed: true,
+                        },
+                        product_analytics: {
+                            status: 'accepted',
+                            changed: true,
+                        },
+                        time_spent_on_modal: 0,
                     },
-                    product_analytics: {
-                        status: 'accepted',
-                        changed: true,
-                    },
-                    time_spent_on_modal: 0,
-                }),
+                    new Date(new Date().getTime() + 1),
+                ),
             );
 
             Shopware.Utils.EventBus.off('consent', eventhandler);
@@ -219,17 +235,21 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(revokeSpy.mock.calls[1][0]).toBe('product_analytics');
 
             expect(eventhandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_modal_decision', {
-                    backend_data: {
-                        status: 'revoked',
-                        changed: false,
+                new ConsentEvent(
+                    'consent_modal_decision',
+                    {
+                        backend_data: {
+                            status: 'revoked',
+                            changed: false,
+                        },
+                        product_analytics: {
+                            status: 'revoked',
+                            changed: false,
+                        },
+                        time_spent_on_modal: 0,
                     },
-                    product_analytics: {
-                        status: 'revoked',
-                        changed: false,
-                    },
-                    time_spent_on_modal: 0,
-                }),
+                    new Date(new Date().getTime() + 1),
+                ),
             );
 
             Shopware.Utils.EventBus.off('consent', eventhandler);
@@ -258,13 +278,17 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
 
             expect(eventhandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_modal_decision', {
-                    product_analytics: {
-                        status: 'revoked',
-                        changed: false,
+                new ConsentEvent(
+                    'consent_modal_decision',
+                    {
+                        product_analytics: {
+                            status: 'revoked',
+                            changed: false,
+                        },
+                        time_spent_on_modal: 0,
                     },
-                    time_spent_on_modal: 0,
-                }),
+                    new Date(new Date().getTime() + 1),
+                ),
             );
 
             Shopware.Utils.EventBus.off('consent', eventhandler);

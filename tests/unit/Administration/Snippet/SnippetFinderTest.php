@@ -233,7 +233,7 @@ class SnippetFinderTest extends TestCase
         array $activePluginPaths = [],
         array $bundlePaths = []
     ): Kernel&MockObject {
-        $getBundleMockByPath = function (string $path): Plugin {
+        $getBundleMockByPath = static function (string $path): Plugin {
             $path = __DIR__ . '/fixtures/' . $path;
 
             $plugin = new TestPlugin(true, $path);

@@ -74,7 +74,7 @@ class MediaPathPostUpdaterTest extends TestCase
         $indexerRegistry = $this->createMock(EntityIndexerRegistry::class);
         $indexerRegistry->expects($this->once())
             ->method('__invoke')
-            ->with(static::callback(function (MediaIndexingMessage $message) use ($ids) {
+            ->with(static::callback(static function (MediaIndexingMessage $message) use ($ids) {
                 // It is expected that indexer is triggered, even if the path was already generated
                 static::assertSame([$ids->get('media-1'), $ids->get('media-2'), $ids->get('media-3')], $message->getData());
                 static::assertSame('media.indexer', $message->getIndexer());

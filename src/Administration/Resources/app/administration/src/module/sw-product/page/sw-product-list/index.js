@@ -34,7 +34,7 @@ export default {
             currencies: [],
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            naturalSorting: false,
+            naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
             total: 0,
@@ -159,7 +159,7 @@ export default {
                     placeholder: this.$tc('sw-product.filters.productNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    criteriaFilterType: 'equals',
+                    criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
                 },
                 'active-filter': {
                     property: 'active',
@@ -455,7 +455,7 @@ export default {
                 },
                 {
                     property: 'productNumber',
-                    naturalSorting: true,
+                    naturalSorting: this.naturalSorting,
                     label: this.$tc('sw-product.list.columnProductNumber'),
                     align: 'right',
                     allowResize: true,

@@ -162,6 +162,15 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
@@ -432,6 +441,8 @@
 
         <service id="Shopware\Core\Content\Product\ProductTypeRegistry" public="true">
             <argument>%shopware.product.allowed_types%</argument>
+
+            <tag name="shopware.api.enum_provider" />
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">

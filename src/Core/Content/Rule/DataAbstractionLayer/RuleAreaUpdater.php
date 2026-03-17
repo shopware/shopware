@@ -313,7 +313,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
 
     private function getAssociationDefinitionByEntity(CompiledFieldCollection $collection, string $entityName): ?EntityDefinition
     {
-        $field = $collection->firstWhere(function (Field $associationField) use ($entityName): bool {
+        $field = $collection->firstWhere(static function (Field $associationField) use ($entityName): bool {
             if ($associationField instanceof ManyToManyAssociationField) {
                 return $associationField->getMappingDefinition()->getEntityName() === $entityName;
             }

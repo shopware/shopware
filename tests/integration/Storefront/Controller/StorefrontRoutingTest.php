@@ -30,7 +30,7 @@ class StorefrontRoutingTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $skippedViews = [
                     '@Storefront/storefront/layout/header.html.twig',
                     '@Storefront/storefront/layout/footer.html.twig',

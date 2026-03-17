@@ -33,29 +33,37 @@ return [
         // Had a typo in the internal annotation
         preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder was marked "@internal"', '/'),
 
-        // Inherited attribute $reversed parameter removed - attribute inheritance never worked before, so no BC break
-        preg_quote('REMOVED: Property Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#$reversed was removed', '/'),
-        preg_quote('Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#__construct()', '/'),
-
-        // Defined entity property mismatch the entity class property type
-        'Type of property Shopware\\\\.*\\\\OrderTransactionCaptureEntity#$stateMachineState changed .* to Shopware\\\\.*\\\\StateMachineStateEntity|null',
-        'The return type of Shopware\\\\.*\\\\OrderTransactionCaptureEntity#getStateMachineState() changed .* Shopware\\\\.*\\\\StateMachineStateEntity|null',
-        'The parameter $stateMachineState of Shopware\\\\.*\\\\OrderTransactionCaptureEntity#setStateMachineState() changed .* Shopware\\\\.*\\\\StateMachineStateEntity|null',
-
-        preg_quote('CHANGED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$internal changed default value from NULL to false', '/'),
-
-        // No break as all existing NoContentResponse usages are still valid with the widened StoreApiResponse return type
-        'CHANGED: The return type of Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\.* changed from Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse to (?:the non-covariant )?Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse',
-
-        // Injecting request parameter into controller method is not a BC break
-        preg_quote('ADDED: Parameter request was added to Method clearDelayedCache() of class Shopware\Core\Framework\Api\Controller\CacheController', '/'),
-        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\Api\Controller\CacheController#clearDelayedCache() increased from 0 to 1', '/'),
-
         // SystemDumpDatabaseCommand was not marked @internal
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand#getIgnoreTableStmt() was removed', '/'),
 
+        // No break as all existing NoContentResponse usages are still valid with the widened StoreApiResponse return type
+        'CHANGED: The return type of Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\.* changed from Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse to (?:the non-covariant )?Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse',
+
+        // class is @final, so making a parameter nullable is not a breaking change
+        preg_quote('CHANGED: The parameter $fileType of Shopware\Core\Checkout\Document\Service\DocumentGenerator#readDocument() changed from string to string|null'),
+
         // SystemRestoreDatabaseCommand was marked @internal
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
+
+        // Unused protected method from final class can be removed safely
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Store\InAppPurchase\Services\DecodedPurchaseStruct#throwException() was removed', '/'),
+
+        // TaxProviderPersister was mistakenly not marked @internal
+        preg_quote('CHANGED: Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister was marked "@internal"', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister#updateTaxProviders() was removed', '/'),
+
+        // False positive, added parameters have default values or are optional
+        preg_quote('ADDED: Parameter documentType was added to Method withGeneralOrderData() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument', '/'),
+        preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
+        preg_quote('ADDED: Parameter invoiceReference was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
+
+        // False positive, added parameters have default values or are optional
+        preg_quote('ADDED: Parameter documentType was added to Method withGeneralOrderData() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument', '/'),
+        preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
+        preg_quote('ADDED: Parameter invoiceReference was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
+
+        // False positive, constructor is internal
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer#$shopwareVersion was removed', '/'),
     ],
 ];

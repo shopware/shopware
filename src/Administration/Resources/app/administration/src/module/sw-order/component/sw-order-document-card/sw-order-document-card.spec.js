@@ -4,6 +4,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -88,8 +89,23 @@ const documentTypeFixture = [
     },
 ];
 
-async function createWrapper(routeName = 'sw.order.detail.details') {
+const defaultProps = {
+    order: orderFixture,
+    isLoading: false,
+};
+
+const buttonDeleteClassEntityListing = '.sw-entity-listing__context-menu-edit-delete';
+const buttonDeleteClassDocumentCard = '.sw-order-document-card__context-button-delete';
+
+let documentSearchMock;
+let documentDeleteMock;
+
+async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details') {
+    documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
+    documentDeleteMock = jest.fn().mockResolvedValue([]);
+
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
+        props,
         global: {
             stubs: {
                 'sw-card-section': {
@@ -122,7 +138,9 @@ async function createWrapper(routeName = 'sw.order.detail.details') {
                     { sync: true },
                 ),
                 'sw-order-document-settings-credit-note-modal': true,
-                'sw-order-document-settings-storno-modal': true,
+                'sw-order-document-settings-storno-modal': await wrapTestComponent(
+                    'sw-order-document-settings-storno-modal',
+                ),
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
                 'sw-bulk-edit-modal': await wrapTestComponent('sw-bulk-edit-modal', { sync: true }),
                 'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
@@ -179,12 +197,12 @@ async function createWrapper(routeName = 'sw.order.detail.details') {
                 },
                 repositoryFactory: {
                     create: (entity) => ({
-                        search: () => {
-                            if (entity === 'document_type' || entity === 'document') {
+                        search: (...args) => {
+                            if (entity === 'document_type') {
                                 return Promise.resolve(getCollection('document_type', documentTypeFixture));
                             }
 
-                            return Promise.resolve([]);
+                            return documentSearchMock(...args);
                         },
                         get: () => {
                             if (entity === 'document') {
@@ -195,6 +213,7 @@ async function createWrapper(routeName = 'sw.order.detail.details') {
                         },
                         save: () => Promise.resolve({}),
                         searchIds: () => Promise.resolve([]),
+                        delete: (...args) => documentDeleteMock(...args),
                     }),
                 },
                 searchRankingService: {
@@ -228,12 +247,10 @@ async function createWrapper(routeName = 'sw.order.detail.details') {
                 },
             },
         },
-        props: {
-            order: orderFixture,
-            isLoading: false,
-        },
     });
+
     await flushPromises();
+
     return wrapper;
 }
 
@@ -413,64 +430,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(documentTypeSelectModal.exists()).toBeTruthy();
     });
 
-    it('should show modal regarding to current document type', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '0',
-                name: 'Delivery note',
-                technicalName: 'delivery_note',
-                translated: {
-                    name: 'Delivery note',
-                },
-            },
-            showModal: true,
-        });
-
-        expect(wrapper.find('sw-order-document-settings-delivery-note-modal-stub').exists()).toBeTruthy();
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '1',
-                name: 'Invoice',
-                technicalName: 'invoice',
-                translated: {
-                    name: 'Invoice',
-                },
-            },
-        });
-
-        expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '2',
-                name: 'Cancellation invoice',
-                technicalName: 'storno',
-                translated: {
-                    name: 'Cancellation invoice',
-                },
-            },
-        });
-
-        expect(wrapper.find('sw-order-document-settings-storno-modal-stub').exists()).toBeTruthy();
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '3',
-                name: 'Credit note',
-                technicalName: 'credit_note',
-                translated: {
-                    name: 'Credit note',
-                },
-            },
-        });
-
-        expect(wrapper.find('sw-order-document-settings-credit-note-modal-stub').exists()).toBeTruthy();
-    });
-
     it('should show Send document modal when click on Send document option', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
@@ -492,7 +451,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show file types on order documents route', async () => {
         global.activeAclRoles = [];
-        wrapper = await createWrapper('sw.order.detail.documents');
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -553,6 +512,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should change sent status when click on "Mark as unsent" context menu', async () => {
         global.activeAclRoles = [];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -661,31 +621,68 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper.vm.downloadDocument.mockRestore();
     });
 
-    it('should call downloadDocument with xml fileType for zugferd_invoice', async () => {
-        global.activeAclRoles = ['order.editor'];
-        wrapper = await createWrapper();
+    it.each([
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_INVOICE,
+            inputSelector: '.sw-order-document-settings-invoice-modal__document-number input',
+            invoice: false,
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+            inputSelector: '.sw-order-document-settings-storno-modal__document-number input',
+            invoice: true,
+        },
+    ])(
+        'should call downloadDocument with xml fileType for $technicalName',
+        async ({ technicalName, inputSelector, invoice }) => {
+            global.activeAclRoles = ['order.editor'];
 
-        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
+            wrapper = await createWrapper({
+                ...defaultProps,
+                order: {
+                    ...orderFixture,
+                    documents: [
+                        {
+                            documentType: {
+                                technicalName: DOCUMENT_TYPES.INVOICE,
+                            },
+                            config: {
+                                custom: {
+                                    documentNumber: '1000',
+                                },
+                            },
+                        },
+                    ],
+                },
+            });
 
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '5',
-                name: 'E-Invoice (ZUGFeRD)',
-                technicalName: 'zugferd_invoice',
-                translated: { name: 'E-Invoice (ZUGFeRD)' },
-            },
-            showModal: true,
-        });
+            const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
 
-        await flushPromises();
+            await wrapper.setData({
+                currentDocumentType: {
+                    id: '5',
+                    technicalName,
+                    name: 'test',
+                    translated: { name: 'test' },
+                },
+                showModal: true,
+            });
 
-        await wrapper.find('.sw-order-document-settings-modal__document-number input').setValue('1000');
-        await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
-        await flushPromises();
+            await flushPromises();
+            await wrapper.find(inputSelector).setValue('1000');
 
-        expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'xml');
-        downloadDocumentSpy.mockRestore();
-    });
+            if (invoice) {
+                await wrapper.find('.mt-select__selection').trigger('click');
+                await wrapper.find('.mt-select-result-list .mt-select-result').trigger('click');
+            }
+
+            await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
+            await flushPromises();
+
+            expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'xml');
+            downloadDocumentSpy.mockRestore();
+        },
+    );
 
     it('should call downloadDocument with pdf fileType for regular invoice', async () => {
         global.activeAclRoles = ['order.editor'];
@@ -768,7 +765,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render the only pdf on available formats column', async () => {
-        wrapper = await createWrapper('sw.order.detail.documents');
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -785,7 +782,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render html and pdf on available formats column', async () => {
-        wrapper = await createWrapper('sw.order.detail.documents');
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -807,5 +804,191 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
 
         expect(fileTypes.text()).toBe('PDF, HTML');
+    });
+
+    it('should render the delete-button when attachView is false', async () => {
+        global.activeAclRoles = ['document.deleter'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
+        expect(deleteButton.exists()).toBe(true);
+        expect(deleteButton.attributes('disabled')).toBe('false');
+    });
+
+    it('should disable the delete-button when attachView is true', async () => {
+        global.activeAclRoles = ['document.deleter'];
+        wrapper = await createWrapper(
+            {
+                ...defaultProps,
+                attachView: true,
+            },
+            'sw.order.detail.documents',
+        );
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        const deleteButton = wrapper.find(buttonDeleteClassEntityListing);
+        expect(deleteButton.exists()).toBe(true);
+        expect(deleteButton.attributes('disabled')).toBe('true');
+    });
+
+    it('should have a disabled delete-button with missing permissions', async () => {
+        global.activeAclRoles = ['document.viewer'];
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
+        expect(deleteButton.exists()).toBe(true);
+        expect(deleteButton.attributes('disabled')).toBe('true');
+    });
+
+    it('should open the delete confirmation modal when delete button was clicked', async () => {
+        global.activeAclRoles = ['document.deleter'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+
+        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+        expect(wrapper.find('.mt-banner--attention').exists()).toBe(true);
+
+        const message = wrapper.find('.mt-banner__message');
+        expect(message.exists()).toBe(true);
+        expect(message.text()).toBe('sw-order.documentCard.confirmDeleteText');
+
+        expect(wrapper.find('.mt-button--secondary').exists()).toBe(true);
+        expect(wrapper.find('.mt-button--critical').exists()).toBe(true);
+    });
+
+    it('should remove the document from the list when delete was successful', async () => {
+        global.activeAclRoles = ['document.deleter'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        documentSearchMock.mockResolvedValue(getCollection('document', []));
+
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
+
+        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+
+        await flushPromises();
+
+        await wrapper.find('.mt-button--critical').trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(0);
+    });
+
+    it('should not remove the document from the list when delete return an exception', async () => {
+        global.activeAclRoles = ['document.viewer'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        documentDeleteMock.mockRejectedValue({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            status: '422',
+                            code: 'ERROR_CODE',
+                            detail: 'Detailed error message',
+                            title: 'Error Title',
+                        },
+                    ],
+                },
+            },
+        });
+
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
+
+        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+
+        await flushPromises();
+
+        await wrapper.find('.mt-button--critical').trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
+    });
+
+    it.each([
+        {
+            technicalName: DOCUMENT_TYPES.INVOICE,
+            expectedSelector: '.sw-order-document-settings-invoice-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.DELIVERY_NOTE,
+            expectedSelector: 'sw-order-document-settings-delivery-note-modal-stub',
+        },
+        { technicalName: DOCUMENT_TYPES.CREDIT_NOTE, expectedSelector: 'sw-order-document-settings-credit-note-modal-stub' },
+        {
+            technicalName: DOCUMENT_TYPES.CANCELLATION_INVOICE,
+            expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_INVOICE,
+            expectedSelector: '.sw-order-document-settings-invoice-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
+            expectedSelector: '.sw-order-document-settings-invoice-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+            expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
+        },
+    ])('should render correct modal type for $technicalName', async ({ technicalName, expectedSelector }) => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            currentDocumentType: {
+                id: '5',
+                technicalName,
+                name: 'test',
+                translated: { name: 'test' },
+            },
+            showModal: true,
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find(expectedSelector).exists()).toBe(true);
     });
 });

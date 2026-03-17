@@ -629,7 +629,8 @@
         "helpText": {
           "storno": "A cancellation invoice can't be created without an invoice.",
           "credit_note": "To create a credit note, add a credit item first.",
-          "zugferd_cancellation_invoice": "A ZUGFeRD cancellation invoice can't be created without an invoice."
+          "zugferd_cancellation_invoice": "A ZUGFeRD cancellation invoice can't be created without an invoice.",
+          "zugferd_embedded_cancellation_invoice": "An embedded ZUGFeRD cancellation invoice can't be created without an invoice."
         }
       }
     }

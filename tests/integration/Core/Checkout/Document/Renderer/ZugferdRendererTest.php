@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -21,6 +22,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
  * @internal
  */
 #[Package('after-sales')]
+#[CoversClass(ZugferdRenderer::class)]
 class ZugferdRendererTest extends TestCase
 {
     use DocumentTrait;

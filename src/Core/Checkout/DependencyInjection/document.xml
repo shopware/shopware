@@ -57,6 +57,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService">
+            <argument>%kernel.shopware_version%</argument>
+        </service>
+
         <service id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
@@ -177,7 +181,27 @@
         <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer">
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer"/>
-            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
+
+            <tag name="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder"/>
+
+            <tag name="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCancellationInvoiceRenderer">
+            <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\StornoRenderer" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
 
             <tag name="document.renderer"/>
         </service>

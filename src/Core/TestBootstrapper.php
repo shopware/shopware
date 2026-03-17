@@ -386,7 +386,7 @@ class TestBootstrapper
     {
         try {
             $connection = $this->getKernelContainer()->get(Connection::class);
-            $connection->executeQuery('select 1 from plugin limit 1')->fetchAllAssociative();
+            $connection->executeQuery('SELECT 1 FROM `plugin` LIMIT 1')->fetchAllAssociative();
 
             return true;
         } catch (\Throwable) {

@@ -5,9 +5,10 @@ async function createWrapper(methodOverrides = {}) {
         sync: true,
     });
 
-    const componentConfig = Object.keys(methodOverrides).length > 0
-        ? { ...swLogin, methods: { ...swLogin.methods, ...methodOverrides } }
-        : swLogin;
+    const componentConfig =
+        Object.keys(methodOverrides).length > 0
+            ? { ...swLogin, methods: { ...swLogin.methods, ...methodOverrides } }
+            : swLogin;
 
     return mount(componentConfig, {
         global: {

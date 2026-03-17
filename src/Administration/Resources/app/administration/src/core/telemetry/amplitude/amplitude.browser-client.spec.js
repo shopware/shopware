@@ -25,11 +25,14 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
             addOnLogoutListener,
         }));
 
-        registerTelemetryLogoutListener({
-            flush,
-            reset,
-            setTransport,
-        });
+        registerTelemetryLogoutListener(
+            {
+                flush,
+                reset,
+                setTransport,
+            },
+            'https://gateway.example',
+        );
 
         jest.useFakeTimers();
         addOnLogoutListener.mock.calls[0][0]();
@@ -57,11 +60,14 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         const originalSendBeacon = navigator.sendBeacon;
         navigator.sendBeacon = sendBeacon;
 
-        registerTelemetryLogoutListener({
-            flush,
-            reset,
-            setTransport: jest.fn(),
-        });
+        registerTelemetryLogoutListener(
+            {
+                flush,
+                reset,
+                setTransport: jest.fn(),
+            },
+            'https://gateway.example',
+        );
 
         jest.useFakeTimers();
         addOnLogoutListener.mock.calls[0][0]();
@@ -73,6 +79,37 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         expect(sendBeacon).toHaveBeenCalledWith('https://gateway.example/event', expect.any(Blob));
         await expect(sendBeacon.mock.calls[0][1].text()).resolves.toBe(payload);
         expect(reset).toHaveBeenCalledTimes(1);
+
+        navigator.sendBeacon = originalSendBeacon;
+    });
+
+    it('leaves unrelated beacon endpoints untouched', () => {
+        const sendBeacon = jest.fn(() => true);
+        const addOnLogoutListener = jest.fn();
+
+        Shopware.Service = jest.fn(() => ({
+            addOnLogoutListener,
+        }));
+
+        const originalSendBeacon = navigator.sendBeacon;
+        navigator.sendBeacon = sendBeacon;
+
+        registerTelemetryLogoutListener(
+            {
+                flush: jest.fn(() => {
+                    navigator.sendBeacon('https://gateway.example/other-endpoint', 'plain-string');
+                }),
+                reset: jest.fn(),
+                setTransport: jest.fn(),
+            },
+            'https://gateway.example',
+        );
+
+        jest.useFakeTimers();
+        addOnLogoutListener.mock.calls[0][0]();
+        jest.runAllTimers();
+
+        expect(sendBeacon).toHaveBeenCalledWith('https://gateway.example/other-endpoint', 'plain-string');
 
         navigator.sendBeacon = originalSendBeacon;
     });
@@ -91,11 +128,14 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         const originalSendBeacon = navigator.sendBeacon;
         navigator.sendBeacon = sendBeacon;
 
-        registerTelemetryLogoutListener({
-            flush,
-            reset: jest.fn(),
-            setTransport: jest.fn(),
-        });
+        registerTelemetryLogoutListener(
+            {
+                flush,
+                reset: jest.fn(),
+                setTransport: jest.fn(),
+            },
+            'https://gateway.example',
+        );
 
         jest.useFakeTimers();
         const logoutListener = addOnLogoutListener.mock.calls[0][0];

@@ -15,9 +15,9 @@ let wrappedBeaconCallbacks = 0;
 /**
  * @private
  */
-export function registerTelemetryLogoutListener(amplitude: AmplitudeModule): void {
+export function registerTelemetryLogoutListener(amplitude: AmplitudeModule, analyticsGatewayUrl: string): void {
     Shopware.Service('loginService').addOnLogoutListener(() => {
-        const restoreSendBeacon = wrapJsonBeaconPayload();
+        const restoreSendBeacon = wrapJsonBeaconPayload(`${analyticsGatewayUrl}/event`);
         amplitude.setTransport('beacon');
         setTimeout(() => {
             amplitude.flush();
@@ -61,7 +61,7 @@ export function getAmplitudeBrowserApiKeyPrefix(): string {
     return AMPLITUDE_BROWSER_API_KEY.substring(0, 10);
 }
 
-function wrapJsonBeaconPayload(): (() => void) | null {
+function wrapJsonBeaconPayload(targetUrl: string): (() => void) | null {
     if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function' || typeof Blob === 'undefined') {
         return null;
     }
@@ -71,7 +71,7 @@ function wrapJsonBeaconPayload(): (() => void) | null {
         const nativeSendBeacon = originalSendBeacon;
 
         navigator.sendBeacon = ((url: string | URL, data?: BodyInit | null): boolean => {
-            if (typeof data === 'string') {
+            if (typeof data === 'string' && url.toString() === targetUrl) {
                 return nativeSendBeacon(url, new Blob([data], { type: 'application/json' }));
             }
 
